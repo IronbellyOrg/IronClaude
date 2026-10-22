@@ -1,0 +1,1177 @@
+{
+  "parsed_total": 0,
+  "inferred_total": 102,
+  "task_count": 7,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.7745,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-001",
+    "INF-003",
+    "INF-004",
+    "INF-006",
+    "INF-009",
+    "INF-010",
+    "INF-024",
+    "INF-027",
+    "INF-033",
+    "INF-041",
+    "INF-044",
+    "INF-047",
+    "INF-048",
+    "INF-049",
+    "INF-050",
+    "INF-051",
+    "INF-061",
+    "INF-064",
+    "INF-068",
+    "INF-086",
+    "INF-088",
+    "INF-101",
+    "INF-102"
+  ],
+  "coverage_degraded": "parsed-sparse",
+  "coverage_undefined": false,
+  "stopwords": [
+    "a",
+    "after",
+    "all",
+    "also",
+    "an",
+    "and",
+    "any",
+    "are",
+    "as",
+    "at",
+    "be",
+    "been",
+    "before",
+    "being",
+    "both",
+    "but",
+    "by",
+    "can",
+    "did",
+    "do",
+    "does",
+    "each",
+    "existing",
+    "for",
+    "from",
+    "if",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "may",
+    "must",
+    "new",
+    "no",
+    "not",
+    "of",
+    "on",
+    "only",
+    "or",
+    "rather",
+    "same",
+    "shall",
+    "should",
+    "than",
+    "that",
+    "the",
+    "then",
+    "these",
+    "this",
+    "those",
+    "through",
+    "to",
+    "use",
+    "using",
+    "was",
+    "were",
+    "will",
+    "with",
+    "without",
+    "would"
+  ],
+  "tokenization": "[a-z0-9]+ unique set, casefold",
+  "matrix": [
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "quote": "Make Codebase Memory MCP part of a normal IronClaude installation and add it to the MCP management menu for installation and uninstallation. This document specifies changes only; it does not authorize implementation, remote-script execution, commits, or publishing a release.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:12",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.391304
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "quote": "The default setup must use the official installer requested by the user:",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:14",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.666667
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "quote": "**Design decision: retain the upstream installer's full setup, not binary-only setup.** The upstream installer can configure multiple detected clients and installs companion instructions, skills, agents, and hooks.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:20",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.526316
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "quote": "Its matching uninstaller removes its owned integrations across detected clients as well as its binary. Consequently, Codebase Memory installation/removal is a **user-level tool lifecycle**, not a project-scoped registration toggle.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:20",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.565217
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "quote": "Show these effects in the CLI; never label full removal as scoped deregistration.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:20",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.777778
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "quote": "Use the upstream lifecycle rather than reimplementing its download, checksum, activation, client-file merge, or cleanup logic. Keep existing MCP registration/listing infrastructure.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:22",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.4375
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "quote": "Do not add a generic package-manager framework.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:22",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "quote": "`superclaude install` must ensure Codebase Memory MCP is installed, runnable, and registered for Claude Code at user scope. It is a default phase, not an additional opt-in question.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:52",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.611111
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "quote": "Before acquisition, print the source URL, intended executable location, and the fact that upstream also configures detected clients and companion assets.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:52",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.571429
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "quote": "- Run the new phase after existing user setup, so framework installation has already established its files.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:54",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.454545
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "quote": "- A fresh install executes the official script using the safe execution equivalent in section 4.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:55",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-012",
+      "source": "inferred",
+      "quote": "- A working existing executable plus an exact, correct user registration is a no-op. Do not fetch latest on every framework install.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:56",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.769231
+    },
+    {
+      "requirement_id": "INF-013",
+      "source": "inferred",
+      "quote": "- A working executable with missing user registration is registered using the existing MCP registration mechanism; do not rerun the upstream installer merely to repair registration.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:57",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.615385
+    },
+    {
+      "requirement_id": "INF-014",
+      "source": "inferred",
+      "quote": "- A missing/non-runnable default executable is acquired/repaired through upstream. Do not replace an external package-manager installation silently.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:58",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.714286
+    },
+    {
+      "requirement_id": "INF-015",
+      "source": "inferred",
+      "quote": "- Acquisition, executable verification, or registration failure makes the overall install exit 1. Preserve successful framework work and report the failed phase and retry command.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:59",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.789474
+    },
+    {
+      "requirement_id": "INF-016",
+      "source": "inferred",
+      "quote": "- `--list` remains read-only and includes Codebase Memory availability/status. `--force` retains its framework-file meaning; it does not force a native-tool upgrade or erase indexes.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:60",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.777778
+    },
+    {
+      "requirement_id": "INF-017",
+      "source": "inferred",
+      "quote": "- `--target` retains its existing meaning and does not redirect native-tool or MCP configuration locations.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:61",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.666667
+    },
+    {
+      "requirement_id": "INF-018",
+      "source": "inferred",
+      "quote": "`superclaude update` is unchanged in this scope. It must not silently reinstall a tool the user explicitly uninstalled.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:63",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-019",
+      "source": "inferred",
+      "quote": "A later explicit `superclaude install` restores the default bundle. Automatic native-tool upgrades, opt-out persistence, and a new framework-wide dry-run are out of scope.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:63",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.684211
+    },
+    {
+      "requirement_id": "INF-020",
+      "source": "inferred",
+      "quote": "Keep the flat command and all existing installation invocations working. Add:",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:67",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.857143
+    },
+    {
+      "requirement_id": "INF-021",
+      "source": "inferred",
+      "quote": "`--uninstall` and `--yes/-y` are NEW flags proposed by this design. They do not exist in the baseline.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:76",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.777778
+    },
+    {
+      "requirement_id": "INF-022",
+      "source": "inferred",
+      "quote": "`--yes` bypasses consent prompts for the explicitly selected Codebase Memory lifecycle only; it must not select servers automatically, affect unrelated API-key prompts, or imply index deletion. `--list` cannot be combined with mutation modes; reject incompatible combinations before effects.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:76",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.75
+    },
+    {
+      "requirement_id": "INF-023",
+      "source": "inferred",
+      "quote": "With no explicit servers, show an action choice: **Install MCP servers** (default), **Uninstall Codebase Memory MCP**, **Cancel**. The install branch retains the gateway-first server menu and adds Codebase Memory as a normal registry entry.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:78",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.727273
+    },
+    {
+      "requirement_id": "INF-024",
+      "source": "inferred",
+      "quote": "The uninstall action explicitly names Codebase Memory; do not imply full uninstall support for other servers. Installation option 0 includes the new individual server.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:78",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.529412
+    },
+    {
+      "requirement_id": "INF-025",
+      "source": "inferred",
+      "quote": "Explicit gateway-plus-Codebase-Memory selection must process both rather than silently dropping the native server.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:78",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 1.0
+    },
+    {
+      "requirement_id": "INF-026",
+      "source": "inferred",
+      "quote": "Codebase Memory supports `--scope user` only in this increment because the requested full upstream lifecycle is account-wide. Reject project/local scope with a clear explanation before any download or write.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:80",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-027",
+      "source": "inferred",
+      "quote": "Other servers retain their existing scopes. Do not silently ignore the requested scope or configure all clients while claiming project-only installation.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:80",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.533333
+    },
+    {
+      "requirement_id": "INF-028",
+      "source": "inferred",
+      "quote": "Noninteractive behavior: require an explicit server selection; no menu prompts on non-TTY input. Explicit Codebase Memory installation authorizes its documented default setup.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:82",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.833333
+    },
+    {
+      "requirement_id": "INF-029",
+      "source": "inferred",
+      "quote": "Native removal requires either interactive confirmation or `--yes`. Dry-run never prompts for consent or invokes the upstream lifecycle.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:82",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.866667
+    },
+    {
+      "requirement_id": "INF-030",
+      "source": "inferred",
+      "quote": "Add one small native-tool helper module, proposed as `src/superclaude/cli/install_codebase_memory.py`. Both the framework installation phase and the MCP Codebase Memory selection call the same install function.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:86",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.727273
+    },
+    {
+      "requirement_id": "INF-031",
+      "source": "inferred",
+      "quote": "Keep the registry entry descriptive: exact name, stdio transport, executable with no server arguments, no API key and no Node requirement. Do not store a shell pipeline in `requires_global_binary.install_command`: existing token splitting/quoting would treat `|` as an argument.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:86",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.678571
+    },
+    {
+      "requirement_id": "INF-032",
+      "source": "inferred",
+      "quote": "1. Validate user scope and platform before effects.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:90",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.833333
+    },
+    {
+      "requirement_id": "INF-033",
+      "source": "inferred",
+      "quote": "Initial automated support: Linux and macOS, amd64/arm64. Normalize architecture aliases and let upstream handle release-asset selection and Rosetta details.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:90",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.5
+    },
+    {
+      "requirement_id": "INF-034",
+      "source": "inferred",
+      "quote": "Native Windows is not supported by this Bash integration; report the official Windows installer as a separate manual path. A default framework install on an unsupported platform reports the unavailable required phase and exits 1 rather than claiming complete setup.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:90",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-035",
+      "source": "inferred",
+      "quote": "2. Verify Claude CLI is available.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:91",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-036",
+      "source": "inferred",
+      "quote": "Check the canonical executable first, then a usable existing PATH installation. Do not require npm, Node, Docker, an API key, or a compiler for this native server.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:91",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.875
+    },
+    {
+      "requirement_id": "INF-037",
+      "source": "inferred",
+      "quote": "Missing curl/Bash is an acquisition prerequisite failure only if acquisition is actually needed.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:91",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.625
+    },
+    {
+      "requirement_id": "INF-038",
+      "source": "inferred",
+      "quote": "3. If acquisition is needed, create a private temporary directory, download the complete official script with curl, require successful download and nonempty content, then execute it with Bash and no configuration-suppression flags.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:92",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.761905
+    },
+    {
+      "requirement_id": "INF-039",
+      "source": "inferred",
+      "quote": "Use argv-based subprocess calls, not `shell=True`, a user-shell pipeline, or string interpolation. This preserves the requested upstream installation behavior while preventing execution of an incomplete download.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:92",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.75
+    },
+    {
+      "requirement_id": "INF-040",
+      "source": "inferred",
+      "quote": "4. Use HTTPS-only download/redirect handling, a 60-second download timeout and a 300-second installer timeout.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:93",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-041",
+      "source": "inferred",
+      "quote": "Clean up the temporary script on success/failure. Timeout handling must terminate/reap the launched installer tree rather than leave background installation continuing after a failure report.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:93",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.444444
+    },
+    {
+      "requirement_id": "INF-042",
+      "source": "inferred",
+      "quote": "Catch expected OS/subprocess errors and return structured failure, not a traceback. Do not elevate privileges or disable upstream integrity checks.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:93",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-043",
+      "source": "inferred",
+      "quote": "5. Verify the resulting executable by its absolute path with `--version` and a bounded timeout.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:94",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.777778
+    },
+    {
+      "requirement_id": "INF-044",
+      "source": "inferred",
+      "quote": "Do not assume `~/.local/bin` is on PATH. Preserve the upstream output describing client configuration and any shell/PATH changes; do not add a second independent shell-profile editor.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:94",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.529412
+    },
+    {
+      "requirement_id": "INF-045",
+      "source": "inferred",
+      "quote": "6. Ensure the exact user-scoped Claude MCP registration is stdio, points to the selected absolute executable and has no server arguments.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:95",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.875
+    },
+    {
+      "requirement_id": "INF-046",
+      "source": "inferred",
+      "quote": "If upstream already created the correct entry, do nothing. Otherwise use the existing Claude CLI registration flow.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:95",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.636364
+    },
+    {
+      "requirement_id": "INF-047",
+      "source": "inferred",
+      "quote": "Keep all companion client/skill/agent/hook/instruction management upstream-owned.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:95",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.5
+    },
+    {
+      "requirement_id": "INF-048",
+      "source": "inferred",
+      "quote": "7. Report acquisition, verification and registration outcomes separately; tell the user to restart their client to load new integrations.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:96",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.5
+    },
+    {
+      "requirement_id": "INF-049",
+      "source": "inferred",
+      "quote": "Do not claim graph indexing or a live MCP handshake occurred merely because registration succeeded.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:96",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.454545
+    },
+    {
+      "requirement_id": "INF-050",
+      "source": "inferred",
+      "quote": "This is a download-on-missing policy, not version pinning or an update manager. Display the verified version.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:98",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.555556
+    },
+    {
+      "requirement_id": "INF-051",
+      "source": "inferred",
+      "quote": "The requested mutable upstream bootstrap remains a trust dependency; release checksums do not authenticate that bootstrap itself. A future pinning policy is separate work.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:98",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.4375
+    },
+    {
+      "requirement_id": "INF-052",
+      "source": "inferred",
+      "quote": "Reuse exact-name lookup and command normalization. The new path must verify **user scope** as well as command/transport before declaring a no-op; a same-named project entry is not user installation success.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:102",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.894737
+    },
+    {
+      "requirement_id": "INF-053",
+      "source": "inferred",
+      "quote": "Never remove a different scope to resolve an ambiguity. Prepare executable/prerequisites before registration changes.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:102",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.636364
+    },
+    {
+      "requirement_id": "INF-054",
+      "source": "inferred",
+      "quote": "For a stale user entry, preserve its exact configuration before replacement and restore it if the add fails; report restoration failure distinctly. Treat query errors as errors, not proof of absence.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:102",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.684211
+    },
+    {
+      "requirement_id": "INF-055",
+      "source": "inferred",
+      "quote": "Uninstall in this design means **remove the native tool and its upstream-owned integrations**, not merely remove the Claude Code registration.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:106",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.692308
+    },
+    {
+      "requirement_id": "INF-056",
+      "source": "inferred",
+      "quote": "1. Validate the selected server and scope before effects.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:108",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.833333
+    },
+    {
+      "requirement_id": "INF-057",
+      "source": "inferred",
+      "quote": "This increment accepts only `codebase-memory-mcp` for `--uninstall`; unsupported names or a mixed unsupported removal selection fail before anything is removed.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:108",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.714286
+    },
+    {
+      "requirement_id": "INF-058",
+      "source": "inferred",
+      "quote": "2. Resolve the canonical upstream installation.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:109",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 1.0
+    },
+    {
+      "requirement_id": "INF-059",
+      "source": "inferred",
+      "quote": "Never run a PATH executable's uninstaller against an unrelated default directory. If only an externally managed/custom installation is found, stop with its resolved path and instructions to use its own installation mechanism; do not delete it or guess ownership.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:109",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.695652
+    },
+    {
+      "requirement_id": "INF-060",
+      "source": "inferred",
+      "quote": "3. Print a removal preview and require confirmation (default No).",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:110",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.714286
+    },
+    {
+      "requirement_id": "INF-061",
+      "source": "inferred",
+      "quote": "State that this affects Codebase Memory integrations across detected clients, may stop its active sessions, and keeps graph indexes. `--yes` is explicit consent to that described removal, not consent to delete indexes.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:110",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.55
+    },
+    {
+      "requirement_id": "INF-062",
+      "source": "inferred",
+      "quote": "4. Execute the verified canonical binary with argv equivalent to `codebase-memory-mcp uninstall -y --dir=<canonical-install-directory>`.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:111",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-063",
+      "source": "inferred",
+      "quote": "Always pass `-y` so the native tool cannot separately offer index deletion. Never pass `--delete-indexes`, reset flags, or manually delete caches, project files, skills or hooks.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:111",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.681818
+    },
+    {
+      "requirement_id": "INF-064",
+      "source": "inferred",
+      "quote": "Let upstream own activation/daemon shutdown and owned-file cleanup.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:111",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.555556
+    },
+    {
+      "requirement_id": "INF-065",
+      "source": "inferred",
+      "quote": "5. Verify the canonical binary and exact user registration were removed.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:112",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 1.0
+    },
+    {
+      "requirement_id": "INF-066",
+      "source": "inferred",
+      "quote": "If upstream leaves the exact user registration, remove only that entry through the existing Claude CLI mechanism. Do not remove same-named project registrations or unrelated entries.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:112",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.733333
+    },
+    {
+      "requirement_id": "INF-067",
+      "source": "inferred",
+      "quote": "Report an unexpected surviving registration as failure if it cannot be safely removed.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:112",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.75
+    },
+    {
+      "requirement_id": "INF-068",
+      "source": "inferred",
+      "quote": "6. Preserve/report the adjacent updater script as upstream does.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:113",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.571429
+    },
+    {
+      "requirement_id": "INF-069",
+      "source": "inferred",
+      "quote": "A leftover updater is not a failed uninstall. If a different PATH installation remains, report it rather than claiming all installations disappeared.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:113",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.666667
+    },
+    {
+      "requirement_id": "INF-070",
+      "source": "inferred",
+      "quote": "7. A fully absent binary and user registration is an idempotent success.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:114",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.875
+    },
+    {
+      "requirement_id": "INF-071",
+      "source": "inferred",
+      "quote": "Binary absent but registration present is a partial-install cleanup: after confirmation remove that exact user entry only and state that upstream companion assets were not audited/removed. Do not claim full cleanup or download a binary solely to uninstall it.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:114",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.782609
+    },
+    {
+      "requirement_id": "INF-072",
+      "source": "inferred",
+      "quote": "Ambiguous discovery or failed probes fail closed.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:114",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.833333
+    },
+    {
+      "requirement_id": "INF-073",
+      "source": "inferred",
+      "quote": "8. On nonzero exit/timeout, report possible partial removal, retain output and provide a retry path.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:115",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.615385
+    },
+    {
+      "requirement_id": "INF-074",
+      "source": "inferred",
+      "quote": "Do not launch a second blind deletion pass or imply rollback of upstream-managed effects.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:115",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-075",
+      "source": "inferred",
+      "quote": "**Dry-run:** show planned acquisition/registration/removal, source URL, user-level effects and index retention. Permit bounded read-only discovery; no network downloads, upstream install/uninstall processes, config changes, file deletion or prompts.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:117",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.689655
+    },
+    {
+      "requirement_id": "INF-076",
+      "source": "inferred",
+      "quote": "`superclaude mcp --dry-run` without explicit servers prints available choices and exits instead of opening a menu.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:117",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.846154
+    },
+    {
+      "requirement_id": "INF-077",
+      "source": "inferred",
+      "quote": "| `src/superclaude/cli/main.py` | Add the default install phase and failure aggregation; extend MCP options/action dispatch/help; retain `--list` early return. Do not alter update behavior. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:123",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.708333
+    },
+    {
+      "requirement_id": "INF-078",
+      "source": "inferred",
+      "quote": "| `src/superclaude/cli/install_mcp.py` | Add registry entry, native-server dispatch, selection-aware prerequisites, menu action/entry, Codebase Memory removal dispatch, and process gateway-plus-native selections. Reuse registration helpers; make only the targeted safety changes needed by this path. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:124",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.727273
+    },
+    {
+      "requirement_id": "INF-079",
+      "source": "inferred",
+      "quote": "| Proposed `src/superclaude/cli/install_codebase_memory.py` | Shared native acquisition/install/uninstall orchestration; no generic package framework. It must not create a circular import with MCP orchestration; keep Claude registration operations in `install_mcp.py`. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:125",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.708333
+    },
+    {
+      "requirement_id": "INF-080",
+      "source": "inferred",
+      "quote": "| `tests/cli/test_install_mcp_registry.py` | Registry identity, native dispatch, executable-before-registration checks, existing Auggie behavior unchanged. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:126",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.875
+    },
+    {
+      "requirement_id": "INF-081",
+      "source": "inferred",
+      "quote": "| `tests/cli/test_update_command.py` | Add/mock the install phase, assert its order and fatal failure propagation; retain update's existing behavior. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:127",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.722222
+    },
+    {
+      "requirement_id": "INF-082",
+      "source": "inferred",
+      "quote": "| Proposed `tests/cli/test_install_codebase_memory.py` | Mocked native lifecycle tests; use the existing test suite, not a new harness. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:128",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.846154
+    },
+    {
+      "requirement_id": "INF-083",
+      "source": "inferred",
+      "quote": "| `docs/user-guide/mcp-installation.md`, `docs/reference/mcp-server-guide.md` | Default setup, dependencies, full upstream side effects, user-only lifecycle, menu/flags, failure recovery and index preservation. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:129",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.863636
+    },
+    {
+      "requirement_id": "INF-084",
+      "source": "inferred",
+      "quote": "| `docs/mcp/mcp-optional-design.md` | Explain default provisioning versus optional runtime usage; all other MCPs and native fallbacks remain unchanged. |",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:130",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.764706
+    },
+    {
+      "requirement_id": "INF-085",
+      "source": "inferred",
+      "quote": "Update any directly affected install help/README statements that enumerate installed components. No unrelated documentation rewrite.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:132",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.692308
+    },
+    {
+      "requirement_id": "INF-086",
+      "source": "inferred",
+      "quote": "Source edits belong in `src/superclaude/`; sync development mirrors only when distributable components change, and verify sync before any later commit. Never stage generated `.claude/` content.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:132",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.4
+    },
+    {
+      "requirement_id": "INF-087",
+      "source": "inferred",
+      "quote": "All automated tests mock network and native/Claude subprocesses. No developer's real HOME, settings, binary or indexes may be modified by tests.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:136",
+      "matched_task_ids": [
+        "Task 6"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.666667
+    },
+    {
+      "requirement_id": "INF-088",
+      "source": "inferred",
+      "quote": "- Fresh normal install runs acquisition once, verifies the absolute binary, ensures exact user registration, and includes its result in the overall exit code.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:138",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.555556
+    },
+    {
+      "requirement_id": "INF-089",
+      "source": "inferred",
+      "quote": "- Missing registration repairs without network; correct binary plus registration performs no acquisition/mutation. An existing external binary is reused, never force-overwritten.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:139",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-090",
+      "source": "inferred",
+      "quote": "- `install --list` performs no acquisition/mutation; framework `--force` does not force native upgrade; update does not reinstall a removed tool.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:140",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.846154
+    },
+    {
+      "requirement_id": "INF-091",
+      "source": "inferred",
+      "quote": "- Missing curl/Bash, unsupported platform, download error/empty response, installer nonzero/timeout, failed postcheck and registration failure produce accurate nonzero outcomes without dependent steps running.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:141",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.681818
+    },
+    {
+      "requirement_id": "INF-092",
+      "source": "inferred",
+      "quote": "- Native-only selection succeeds without Node/npm/Docker/API keys; npm server prerequisite behavior remains intact.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:142",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.846154
+    },
+    {
+      "requirement_id": "INF-093",
+      "source": "inferred",
+      "quote": "- List/menu includes Codebase Memory; install-all includes it; explicit gateway-plus-native selection handles both; cancellation makes no changes.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:143",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.866667
+    },
+    {
+      "requirement_id": "INF-094",
+      "source": "inferred",
+      "quote": "- Project/local Codebase Memory scope is rejected before effects. Same-named registration in another scope is never removed or mistaken for user-scope success.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:144",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.8
+    },
+    {
+      "requirement_id": "INF-095",
+      "source": "inferred",
+      "quote": "- Dry-run is prompt-free and mutation-free, including fresh install, stale registration, uninstall and no explicit servers.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:145",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.923077
+    },
+    {
+      "requirement_id": "INF-096",
+      "source": "inferred",
+      "quote": "- Uninstall decline changes nothing; noninteractive removal without `--yes` fails safely; confirmed removal invokes upstream once with `-y`, explicit canonical directory and no index-deletion flags.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:146",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.65
+    },
+    {
+      "requirement_id": "INF-097",
+      "source": "inferred",
+      "quote": "- Removal keeps index/cache sentinel files and unrelated registrations/assets untouched by IronClaude; upstream-owned effects are represented accurately by fixtures. Native failures do not print success.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:147",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.809524
+    },
+    {
+      "requirement_id": "INF-098",
+      "source": "inferred",
+      "quote": "- Missing-binary partial cleanup and complete absence follow the distinct outcomes above. External/custom installs do not trigger guessed binary deletion.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:148",
+      "matched_task_ids": [
+        "Task 6"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6875
+    },
+    {
+      "requirement_id": "INF-099",
+      "source": "inferred",
+      "quote": "- Paths with spaces remain single argv tokens. Failed registration replacement restores the captured user entry or reports failed restoration explicitly.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:149",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.6875
+    },
+    {
+      "requirement_id": "INF-100",
+      "source": "inferred",
+      "quote": "Before shipping, run one separately authorized live smoke test in a disposable user environment, not the developer's HOME: perform default setup, inspect the real upstream companion-file changes for preservation of preexisting framework/user hooks, register/query the MCP, repeat install for idempotence, then uninstall while retaining index sentinels. Verify released binary behavior as well as the moving script; mocked tests cannot prove upstream merge safety.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:151",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "containment_ratio": 0.666667
+    },
+    {
+      "requirement_id": "INF-101",
+      "source": "inferred",
+      "quote": "If upstream overwrites unrelated files, block release and revise the integration rather than silently switching away from the full setup requested here.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:151",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.533333
+    },
+    {
+      "requirement_id": "INF-102",
+      "source": "inferred",
+      "quote": "No graph indexing during installation; no new MCP usage policy, bundled graph skill/agents, gateway embedding, automatic native upgrades, index deletion, general uninstall support for every server, project-scoped full native lifecycle, Windows PowerShell integration, or replacement of the existing installer architecture.",
+      "citation": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md:155",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "containment_ratio": 0.40625
+    }
+  ]
+}

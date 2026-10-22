@@ -10,10 +10,15 @@ import os
 import platform
 import re
 import shlex
+import shutil
 import subprocess
+import sys
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import click
+
+from superclaude.cli import install_codebase_memory as codebase_memory
 
 # AIRIS MCP Gateway - Unified MCP solution (recommended)
 AIRIS_GATEWAY = {
@@ -92,6 +97,14 @@ MCP_SERVERS = {
             "      Headless alternative: set AUGMENT_SESSION_AUTH env var\n"
             "      Docs: https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code"
         ),
+    },
+    "codebase-memory-mcp": {
+        "name": "codebase-memory-mcp",
+        "description": "Native codebase graph memory with full upstream companion setup",
+        "transport": "stdio",
+        "command": "codebase-memory-mcp",
+        "args": [],
+        "required": False,
     },
 }
 
@@ -181,6 +194,11 @@ def ensure_global_binary(req: Dict, dry_run: bool) -> bool:
     binary = req["binary"]
     expected_version = req.get("version")
     min_node_version = req.get("min_node_version")
+    if dry_run:
+        click.echo(
+            f"[DRY RUN] Would verify {binary} version {expected_version}; if missing or stale, request separate approval for: {req['install_command']}"
+        )
+        return True
     if min_node_version is not None and not check_node_version(min_node_version):
         click.echo(
             f"   ❌ Node.js {min_node_version}+ is required for {req['package']}",
@@ -193,9 +211,6 @@ def ensure_global_binary(req: Dict, dry_run: bool) -> bool:
     version_note = f" version {expected_version}" if expected_version else ""
     click.echo(f"   ⚠️  '{binary}'{version_note} not available on PATH")
     click.echo(f"   Required: {req['install_command']}")
-    if dry_run:
-        click.echo(f"   [DRY RUN] Would prompt to run: {req['install_command']}")
-        return True
     if not click.confirm(f"   Install {req['package']} globally now?", default=True):
         click.echo(f"   ⏭️  Skipping {binary} (required binary unavailable)")
         return False
@@ -234,27 +249,17 @@ def install_airis_gateway(dry_run: bool = False) -> bool:
         "   This provides 60+ tools through a single endpoint with 98% token reduction.\n"
     )
 
-    # Check Docker
-    if not check_docker_available():
-        click.echo("   ❌ Docker is required but not available.", err=True)
-        click.echo(
-            "   Please install Docker: https://docs.docker.com/get-docker/", err=True
-        )
-        return False
-
-    click.echo("   ✅ Docker is available")
-
-    # Create dedicated installation directory
     install_dir = Path.home() / ".superclaude" / "airis-mcp-gateway"
     compose_file = install_dir / "docker-compose.yml"
-
     if dry_run:
-        click.echo(f"   [DRY RUN] Would create directory: {install_dir}")
-        click.echo("   [DRY RUN] Would download docker-compose.yml")
-        click.echo("   [DRY RUN] Would create .env file with default configuration")
-        click.echo("   [DRY RUN] Would run: docker compose up -d")
-        click.echo("   [DRY RUN] Would register with Claude Code")
+        click.echo(
+            f"[DRY RUN] Would create {install_dir}, download {AIRIS_GATEWAY['docker_compose_url']}, create .env, start Docker Compose and register with Claude Code. Docker is required only for actual installation."
+        )
         return True
+    if not check_docker_available():
+        click.echo("Docker is required but not available.", err=True)
+        return False
+    click.echo("Docker is available")
 
     # Create installation directory
     install_dir.mkdir(parents=True, exist_ok=True)
@@ -474,51 +479,109 @@ TAVILY_API_KEY=
     return True
 
 
-def check_prerequisites() -> Tuple[bool, List[str]]:
-    """Check if required tools are available."""
-    errors = []
+def _is_interactive() -> bool:
+    return sys.stdin.isatty()
 
-    # Check Claude CLI
+
+def _native_selection_error(scope: str) -> Optional[str]:
+    if scope != "user":
+        return "Codebase Memory full native lifecycle supports user scope only."
+    if platform.system() != "Linux" or platform.machine().lower() not in {
+        "amd64",
+        "x86_64",
+        "arm64",
+        "aarch64",
+    }:
+        return "Automated Codebase Memory lifecycle requires Linux amd64/arm64; use the official manual mechanism on other platforms."
+    return None
+
+
+def _native_lifecycle_notice() -> str:
+    return (
+        f"Upstream source: {codebase_memory.INSTALL_URL}. Native location: {codebase_memory.canonical_executable()}. "
+        "This user/account-wide lifecycle affects detected clients and companion instructions, skills, agents and hooks; graph indexes are retained."
+    )
+
+
+def check_prerequisites(
+    selected_servers: Optional[List[str]] = None,
+) -> Tuple[bool, List[str]]:
+    """Check only selected requirements, before any selected installer runs."""
+    selected = list(MCP_SERVERS) if selected_servers is None else selected_servers
+    errors = []
     try:
         result = _run_command(
             ["claude", "--version"], capture_output=True, text=True, timeout=10
         )
-        if result.returncode != 0:
+        if result is None or result.returncode != 0:
             errors.append("Claude CLI not found - required for MCP server management")
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        errors.append("Claude CLI not found - required for MCP server management")
-
-    # Check Node.js for npm-based servers
-    try:
-        result = _run_command(
-            ["node", "--version"], capture_output=True, text=True, timeout=10
+    except (OSError, subprocess.SubprocessError):
+        errors.append(
+            "Claude CLI readiness failed - required for MCP server management"
         )
-        if result.returncode != 0:
-            errors.append("Node.js not found - required for npm-based MCP servers")
-        else:
-            version = result.stdout.strip()
-            try:
-                version_num = int(version.lstrip("v").split(".")[0])
-                if version_num < 18:
-                    errors.append(
-                        f"Node.js version {version} found, but version 18+ required"
-                    )
-            except (ValueError, IndexError):
-                pass
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        errors.append("Node.js not found - required for npm-based MCP servers")
 
-    # Check uv for Python-based servers (optional)
-    try:
-        result = _run_command(
-            ["uv", "--version"], capture_output=True, text=True, timeout=10
+    node_min = 0
+    needs_npx = False
+    for name in selected:
+        info: Dict = MCP_SERVERS.get(name, {})
+        if info.get("command", "").startswith(("npx ", "npm ")):
+            node_min = max(node_min, 18)
+        needs_npx = needs_npx or info.get("command", "").startswith("npx ")
+        node_min = max(
+            node_min, info.get("requires_global_binary", {}).get("min_node_version", 0)
         )
-        if result.returncode != 0:
-            click.echo("⚠️  uv not found - required for Serena MCP server", err=True)
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        click.echo("⚠️  uv not found - required for Serena MCP server", err=True)
-
-    return len(errors) == 0, errors
+    if node_min:
+        try:
+            if not check_node_version(node_min):
+                errors.append(f"Node.js {node_min}+ required for selected npm servers")
+        except (OSError, subprocess.SubprocessError):
+            errors.append(f"Node.js {node_min}+ required for selected npm servers")
+    try:
+        if needs_npx and not check_binary_available("npx"):
+            errors.append("npx/npm is required for selected npm servers")
+        if "auggie" in selected:
+            auggie: Dict = MCP_SERVERS["auggie"]
+            requirement = auggie["requires_global_binary"]
+            if not check_binary_available(
+                requirement["binary"], requirement["version"]
+            ) and not check_binary_available("npm"):
+                errors.append("npm is required to acquire the selected Auggie binary")
+    except (OSError, subprocess.SubprocessError):
+        errors.append("Selected npm executable readiness failed")
+    if "airis-mcp-gateway" in selected:
+        try:
+            if shutil.which("curl") is None:
+                errors.append("curl is required for AIRIS MCP Gateway installation")
+            if not check_docker_available():
+                errors.append(
+                    "Docker must be available and running for AIRIS MCP Gateway"
+                )
+        except (OSError, subprocess.SubprocessError):
+            errors.append("Docker readiness failed for AIRIS MCP Gateway")
+    if "serena" in selected:
+        # Retain the existing optional uv advisory, but only for its consumer.
+        try:
+            result = _run_command(
+                ["uv", "--version"], capture_output=True, text=True, timeout=10
+            )
+            if result is None or result.returncode != 0:
+                click.echo("uv not found - required to run Serena MCP server", err=True)
+        except (OSError, subprocess.SubprocessError):
+            click.echo("uv not found - required to run Serena MCP server", err=True)
+    if codebase_memory.BINARY_NAME in selected:
+        found = codebase_memory.discover_executable()
+        if found.state == "ambiguous" or (
+            found.state == "non_runnable"
+            and found.executable != codebase_memory.canonical_executable()
+        ):
+            errors.append(
+                "Native executable discovery is ambiguous or externally non-runnable; resolve it before installation"
+            )
+        elif found.state not in {"canonical", "external"}:
+            for tool in ("curl", "bash"):
+                if shutil.which(tool) is None:
+                    errors.append(f"{tool} is required for missing native acquisition")
+    return not errors, errors
 
 
 def check_mcp_server_installed(server_name: str) -> bool:
@@ -648,6 +711,302 @@ def prompt_for_api_key(
         return None
 
 
+def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
+    """Read ONLY the exact top-level user entry; False means lookup is unknown.
+
+    Unscoped `mcp get` can return a shadowing local/project entry and its text
+    loses JSON fields. Keep existing legacy lookup behavior for other servers.
+    No writer lives here: all mutations go through the scoped Claude CLI.
+    """
+
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate JSON key")
+            result[key] = value
+        return result
+
+    try:
+        config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
+        if config_dir == "":
+            return False, None
+        path = (
+            Path(config_dir).expanduser() if config_dir is not None else Path.home()
+        ) / ".claude.json"
+        try:
+            root = json.loads(
+                path.read_text(encoding="utf-8"), object_pairs_hook=unique_object
+            )
+        except FileNotFoundError:
+            return (False, None) if path.is_symlink() else (True, None)
+        if not isinstance(root, dict):
+            return False, None
+        servers = root.get("mcpServers", {})
+        if not isinstance(servers, dict):
+            return False, None
+        if server_name not in servers:
+            return True, None
+        entry = servers[server_name]
+        return (True, entry) if isinstance(entry, dict) else (False, None)
+    except (OSError, ValueError, RuntimeError):
+        # Never include file contents or exception text: either may contain keys.
+        return False, None
+
+
+def _native_registration_matches(entry: dict | None, executable: Path) -> bool:
+    return bool(
+        entry is not None
+        and entry.get("type", "stdio") == "stdio"
+        and entry.get("command") == str(executable)
+        and entry.get("args", []) == []
+    )
+
+
+def _run_registration_command(cmd: list[str]) -> bool:
+    """Do not expose Claude output/exception argv, which can contain old secrets."""
+    try:
+        result = _run_command(cmd, capture_output=True, text=True, timeout=60)
+        return result is not None and result.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def _add_user_native_entry(entry: dict) -> bool:
+    return _run_registration_command(
+        [
+            "claude",
+            "mcp",
+            "add-json",
+            codebase_memory.BINARY_NAME,
+            json.dumps(entry),
+            "--scope",
+            "user",
+        ]
+    )
+
+
+def _restore_user_native_entry(previous: dict, attempted: dict) -> bool:
+    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if not known:
+        return False
+    if current == previous:
+        return True
+    if current is not None:
+        # A timed-out add may have written our entry. Do not overwrite a third
+        # party's concurrent edit when its contents cannot be attributed to us.
+        if current != attempted or not _run_registration_command(
+            [
+                "claude",
+                "mcp",
+                "remove",
+                codebase_memory.BINARY_NAME,
+                "--scope",
+                "user",
+            ]
+        ):
+            return False
+    if not _add_user_native_entry(previous):
+        return False
+    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    return known and current == previous
+
+
+def install_codebase_memory_mcp(
+    *, scope: str = "user", dry_run: bool = False
+) -> tuple[bool, str]:
+    """Shared native install/register boundary for framework and MCP callers."""
+    invalid = _native_selection_error(scope)
+    if invalid:
+        return False, invalid
+    if dry_run:
+        return (
+            True,
+            "[DRY RUN] "
+            + _native_lifecycle_notice()
+            + " Would reuse a usable executable or acquire full upstream setup if missing, then ensure exact user stdio registration. No changes made.",
+        )
+    try:
+        ready = _run_command(
+            ["claude", "--version"], capture_output=True, text=True, timeout=10
+        )
+        if ready is None or ready.returncode != 0:
+            return (
+                False,
+                "Prerequisites: Claude CLI is unavailable; acquisition was not started.",
+            )
+    except (OSError, subprocess.SubprocessError):
+        return (
+            False,
+            "Prerequisites: Claude CLI readiness failed; acquisition was not started.",
+        )
+
+    click.echo(_native_lifecycle_notice())
+    click.echo("Acquisition: preparing Codebase Memory through the native helper.")
+    acquired = codebase_memory.acquire_codebase_memory(scope=scope)
+    if not acquired.success:
+        return False, f"Acquisition ({acquired.stage}) failed: {acquired.message}"
+    executable = acquired.executable
+    if executable is None or not executable.is_absolute() or not acquired.version:
+        return (
+            False,
+            "Executable verification: native helper did not provide an absolute executable and version.",
+        )
+    click.echo(f"Executable verification: {acquired.version} at {executable}")
+
+    known, previous = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if not known:
+        return (
+            False,
+            "Registration lookup failed: cannot establish the exact user entry; no registration reconciliation was attempted.",
+        )
+    success_message = f"Registration: exact user stdio entry verified ({acquired.version}). Restart clients to load integrations; no indexing or live MCP handshake was performed."
+    if _native_registration_matches(previous, executable):
+        return True, success_message
+    expected = {"type": "stdio", "command": str(executable), "args": []}
+    if previous is not None and (previous.get("env") or previous.get("headers")):
+        # Restoring this entry would put its values on a process command line
+        # (`claude mcp add-json` takes JSON only as an argument), so never replace it.
+        return (
+            False,
+            "Registration: the existing user codebase-memory-mcp entry has env or headers values, so it was not replaced. Update it by hand or remove it with `claude mcp remove codebase-memory-mcp --scope user`, then retry.",
+        )
+    if previous is not None and not _run_registration_command(
+        [
+            "claude",
+            "mcp",
+            "remove",
+            codebase_memory.BINARY_NAME,
+            "--scope",
+            "user",
+        ]
+    ):
+        # A failed or timed-out remove may still have persisted; only `previous`
+        # is attributable to us here, so never remove an entry that differs from it.
+        if _restore_user_native_entry(previous, previous):
+            return (
+                False,
+                "Registration removal failed; previous user registration is intact. No replacement was attempted.",
+            )
+        return (
+            False,
+            "Registration removal failed; restoration failed. User registration may be partial; inspect it before retrying.",
+        )
+    added = _add_user_native_entry(expected)
+    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if added and known and _native_registration_matches(current, executable):
+        return True, success_message
+    failure = "Registration verification failed" if added else "Registration add failed"
+    if previous is not None:
+        if _restore_user_native_entry(previous, expected):
+            return (
+                False,
+                f"{failure}; previous user registration restored. Retry the installation.",
+            )
+        return (
+            False,
+            f"{failure}; restoration failed. User registration may be partial; inspect it before retrying.",
+        )
+    return (
+        False,
+        f"{failure}; user registration may be partial. Inspect it before retrying.",
+    )
+
+
+def _cleanup_user_native_registration() -> tuple[bool, str]:
+    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if not known:
+        return (
+            False,
+            "Registration lookup failed; possible partial removal. Inspect user configuration before retrying.",
+        )
+    if entry is None:
+        return True, "Exact user registration is absent."
+    if not _run_registration_command(
+        [
+            "claude",
+            "mcp",
+            "remove",
+            codebase_memory.BINARY_NAME,
+            "--scope",
+            "user",
+        ]
+    ):
+        return (
+            False,
+            "User registration cleanup failed; possible partial removal. Inspect it before retrying.",
+        )
+    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if not known or entry is not None:
+        return (
+            False,
+            "User registration absence could not be verified; possible partial removal. Inspect it before retrying.",
+        )
+    return (
+        True,
+        "Exact user registration removed; other scopes were not changed by IronClaude.",
+    )
+
+
+def uninstall_codebase_memory_mcp(
+    *, scope: str = "user", confirmed: bool = False, dry_run: bool = False
+) -> tuple[bool, str]:
+    """Account-wide native removal, then exact-user residual cleanup, with no prompts."""
+    if scope != "user":
+        return False, "Full Codebase Memory removal supports user scope only."
+    preview = codebase_memory.preview_codebase_memory_removal()
+    if preview.state not in {"ready", "missing"}:
+        return False, preview.message
+    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    if not known:
+        return (
+            False,
+            "Registration lookup failed before removal; no native removal or registration cleanup was attempted.",
+        )
+    partial = "Registration-only partial cleanup: companion assets were not audited or removed; indexes and updater are retained."
+    if dry_run:
+        plan = (
+            partial
+            if preview.state == "missing" and entry is not None
+            else preview.message
+        )
+        return (
+            True,
+            "[DRY RUN] "
+            + _native_lifecycle_notice()
+            + " "
+            + plan
+            + " No native lifecycle, registration changes or prompts were performed.",
+        )
+    if not confirmed:
+        return (
+            False,
+            preview.message
+            + " Explicit confirmation is required (default No); no removal was performed.",
+        )
+    if preview.state == "missing":
+        if entry is None:
+            return (
+                True,
+                "Native executable and exact user registration are absent; no changes made. Companion assets were not audited; indexes and updater are retained.",
+            )
+        success, message = _cleanup_user_native_registration()
+        return success, partial + " " + message
+
+    removed = codebase_memory.uninstall_codebase_memory(scope=scope, confirmed=True)
+    if not removed.success:
+        return False, removed.message
+    success, message = _cleanup_user_native_registration()
+    combined = removed.message + " " + message
+    if removed.remaining:
+        combined += (
+            " Alternate PATH entries remain: "
+            + ", ".join(map(str, removed.remaining))
+            + "."
+        )
+    return success, combined
+
+
 def install_mcp_server(
     server_info: Dict, scope: str = "user", dry_run: bool = False
 ) -> bool:
@@ -663,6 +1022,10 @@ def install_mcp_server(
         True if successful, False otherwise
     """
     server_name = server_info["name"]
+    if server_name == codebase_memory.BINARY_NAME:
+        success, message = install_codebase_memory_mcp(scope=scope, dry_run=dry_run)
+        click.echo(message, err=not success)
+        return success
     transport = server_info["transport"]
     command = server_info["command"]
 
@@ -745,11 +1108,18 @@ def install_mcp_server(
     if "api_key_env" in server_info:
         api_key_env = server_info["api_key_env"]
         secret_env_names.add(api_key_env)
-        api_key = prompt_for_api_key(
-            server_name,
-            api_key_env,
-            server_info.get("api_key_description", f"API key for {server_name}"),
-        )
+        if dry_run:
+            api_key = os.getenv(api_key_env)
+            if not api_key:
+                click.echo(
+                    f"[DRY RUN] Would request {api_key_env} during installation; no prompt or key change now."
+                )
+        else:
+            api_key = prompt_for_api_key(
+                server_name,
+                api_key_env,
+                server_info.get("api_key_description", f"API key for {server_name}"),
+            )
 
         if api_key:
             env_args = ["-e", f"{api_key_env}={api_key}"]
@@ -862,125 +1232,142 @@ def list_available_servers():
     )
 
 
+def _show_mcp_install_choices() -> None:
+    click.echo("g. AIRIS MCP Gateway (recommended): airis-mcp-gateway; requires Docker")
+    for index, (name, info) in enumerate(MCP_SERVERS.items(), 1):
+        key_note = f" (requires {info['api_key_env']})" if "api_key_env" in info else ""
+        click.echo(f"{index}. {name}: {info['description']}{key_note}")
+    click.echo("0. Install all individual servers")
+
+
 def install_mcp_servers(
     selected_servers: Optional[List[str]] = None,
     scope: str = "user",
     dry_run: bool = False,
     use_gateway: Optional[bool] = None,
+    *,
+    uninstall: bool = False,
+    yes: bool = False,
 ) -> Tuple[bool, str]:
+    """Validate the whole selection, then install it or remove only Codebase Memory.
+
+    `yes` controls native removal consent only. It never bypasses API-key or
+    global-binary prompts. Dry-run never enters prerequisite/mutation paths.
     """
-    Install MCP servers for Claude Code.
-
-    Args:
-        selected_servers: List of server names to install, or None for interactive selection
-        scope: Installation scope (local, project, user)
-        dry_run: If True, only show what would be done
-        use_gateway: If True, install AIRIS MCP Gateway. If None, prompt user.
-
-    Returns:
-        Tuple of (success, message)
-    """
-    # Check prerequisites
-    success, errors = check_prerequisites()
-    if not success:
-        error_msg = "Prerequisites not met:\n" + "\n".join(f"  ❌ {e}" for e in errors)
-        return False, error_msg
-
-    # Handle explicit gateway selection
-    if selected_servers and "airis-mcp-gateway" in selected_servers:
-        if install_airis_gateway(dry_run):
-            return True, "AIRIS MCP Gateway installed successfully!"
-        return False, "Failed to install AIRIS MCP Gateway"
-
-    # Determine which servers to install
-    if selected_servers:
-        # Use explicitly selected servers
-        servers_to_install = []
-        for server_name in selected_servers:
-            if server_name in MCP_SERVERS:
-                servers_to_install.append(server_name)
-            else:
-                click.echo(f"⚠️  Unknown server: {server_name}", err=True)
-
-        if not servers_to_install:
-            return False, "No valid servers selected"
-    else:
-        # Interactive selection - offer gateway first
-        click.echo("\n🔌 SuperClaude MCP Server Installation\n")
-        click.echo("Choose your installation method:\n")
-        click.echo("   ┌─────────────────────────────────────────────────────────────┐")
-        click.echo("   │  🚀 AIRIS MCP Gateway (Recommended)                         │")
-        click.echo("   │     • 60+ tools through single endpoint                     │")
-        click.echo("   │     • 98% token reduction with HOT/COLD management          │")
-        click.echo("   │     • Web UI for server management                          │")
-        click.echo("   │     • Requires: Docker                                      │")
-        click.echo("   └─────────────────────────────────────────────────────────────┘")
-        click.echo()
-        click.echo("   Or install individual servers (legacy method):\n")
-
-        server_options = []
-        for key, info in MCP_SERVERS.items():
-            api_note = (
-                f" (requires {info['api_key_env']})" if "api_key_env" in info else ""
+    if scope not in {"local", "project", "user"}:
+        return False, "Invalid MCP scope"
+    selected = list(dict.fromkeys(selected_servers or []))
+    if not selected and use_gateway is True:
+        selected = ["airis-mcp-gateway"]
+    if not selected:
+        if dry_run:
+            click.echo(
+                "1. Install MCP servers (default)\n2. Uninstall Codebase Memory MCP\n3. Cancel"
             )
-            server_options.append(
-                f"{info['name']:25} - {info['description']}{api_note}"
+            _show_mcp_install_choices()
+            return (
+                True,
+                "[DRY RUN] Available choices only; select servers explicitly to preview an operation. "
+                + _native_lifecycle_notice(),
             )
-
-        for i, option in enumerate(server_options, 1):
-            click.echo(f"   {i}. {option}")
-
-        click.echo()
-        click.echo("   ─────────────────────────────────────────────────────────────")
-        click.echo("   g. Install AIRIS MCP Gateway (recommended)")
-        click.echo("   0. Install all individual servers")
-        click.echo()
-
-        selection = click.prompt(
-            "Select option (g for gateway, 0 for all, or comma-separated numbers)",
-            default="g",
+        if uninstall or yes or not _is_interactive():
+            return (
+                False,
+                "Explicit server selection is required; use --servers codebase-memory-mcp for native lifecycle actions.",
+            )
+        click.echo(
+            "1. Install MCP servers (default)\n2. Uninstall Codebase Memory MCP\n3. Cancel"
         )
-
-        if selection.strip().lower() == "g":
-            # Install gateway
-            if install_airis_gateway(dry_run):
-                return True, "AIRIS MCP Gateway installed successfully!"
-            return False, "Failed to install AIRIS MCP Gateway"
-        elif selection.strip() == "0":
-            servers_to_install = list(MCP_SERVERS.keys())
+        action = click.prompt("Action", default="1", type=click.Choice(["1", "2", "3"]))
+        if action == "3":
+            return True, "Cancelled; no changes made."
+        if action == "2":
+            selected, uninstall = [codebase_memory.BINARY_NAME], True
         else:
-            try:
-                indices = [int(x.strip()) for x in selection.split(",")]
-                server_list = list(MCP_SERVERS.keys())
-                servers_to_install = [
-                    server_list[i - 1] for i in indices if 0 < i <= len(server_list)
-                ]
-            except (ValueError, IndexError):
-                return False, "Invalid selection"
+            _show_mcp_install_choices()
+            choice = (
+                click.prompt(
+                    "Select g for gateway, 0 for all, or comma-separated numbers",
+                    default="g",
+                )
+                .strip()
+                .lower()
+            )
+            if choice == "g":
+                selected = ["airis-mcp-gateway"]
+            elif choice == "0":
+                selected = list(MCP_SERVERS)
+            else:
+                try:
+                    indices = [int(value.strip()) for value in choice.split(",")]
+                    names = list(MCP_SERVERS)
+                    if not indices or any(
+                        index < 1 or index > len(names) for index in indices
+                    ):
+                        return False, "Invalid selection; no changes made."
+                    selected = list(
+                        dict.fromkeys(names[index - 1] for index in indices)
+                    )
+                except ValueError:
+                    return False, "Invalid selection; no changes made."
+    unknown = [
+        name
+        for name in selected
+        if name != "airis-mcp-gateway" and name not in MCP_SERVERS
+    ]
+    if unknown:
+        return False, "Unknown MCP server selection: " + ", ".join(unknown)
+    if uninstall and selected != [codebase_memory.BINARY_NAME]:
+        return (
+            False,
+            "Uninstall accepts only --servers codebase-memory-mcp, not mixed or other servers.",
+        )
+    if codebase_memory.BINARY_NAME in selected:
+        invalid = _native_selection_error(scope)
+        if invalid:
+            return False, invalid
+    if uninstall:
+        if not dry_run and not yes and not _is_interactive():
+            return (
+                False,
+                "Noninteractive native removal requires --yes; no changes made.",
+            )
+        valid, preview = uninstall_codebase_memory_mcp(scope=scope, dry_run=True)
+        if dry_run or not valid:
+            return valid, preview
+        click.echo("Removal preview: " + preview.removeprefix("[DRY RUN] "))
+        if not yes and not click.confirm(
+            "Proceed with account-wide Codebase Memory removal?", default=False
+        ):
+            return True, "Removal declined; no changes made."
+        return uninstall_codebase_memory_mcp(scope=scope, confirmed=True)
 
-    if not servers_to_install:
-        return False, "No servers selected"
-
-    # Install each server
-    click.echo(f"\n🔌 Installing {len(servers_to_install)} MCP server(s)...\n")
-
-    installed_count = 0
-    failed_servers = []
-
-    for server_name in servers_to_install:
-        server_info = MCP_SERVERS[server_name]
-        if install_mcp_server(server_info, scope, dry_run):
-            installed_count += 1
+    if not dry_run:
+        ready, errors = check_prerequisites(selected)
+        if not ready:
+            return False, "Prerequisites not met:\n" + "\n".join(errors)
+    completed = 0
+    failed = []
+    for name in selected:
+        try:
+            if name == "airis-mcp-gateway":
+                success = install_airis_gateway(dry_run)
+            else:
+                success = install_mcp_server(MCP_SERVERS[name], scope, dry_run)
+        except (OSError, subprocess.SubprocessError):
+            click.echo(
+                f"Process error while handling {name}; inspect its installation state before retrying.",
+                err=True,
+            )
+            success = False
+        if success:
+            completed += 1
         else:
-            failed_servers.append(server_name)
-
-    # Generate result message
-    if failed_servers:
-        message = f"\n⚠️  Partially completed: {installed_count}/{len(servers_to_install)} servers installed\n"
-        message += f"Failed servers: {', '.join(failed_servers)}"
-        return False, message
-    else:
-        message = f"\n✅ Successfully installed {installed_count} MCP server(s)!\n"
-        message += "\nℹ️  Use 'claude mcp list' to see all installed servers"
-        message += "\nℹ️  Use '/mcp' in Claude Code to check server status"
-        return True, message
+            failed.append(name)
+    label = "previewed" if dry_run else "installed"
+    if failed:
+        return (
+            False,
+            f"Partially completed: {completed}/{len(selected)} {label}. Failed servers: {', '.join(failed)}",
+        )
+    return True, f"Successfully {label} {completed} MCP server(s)."

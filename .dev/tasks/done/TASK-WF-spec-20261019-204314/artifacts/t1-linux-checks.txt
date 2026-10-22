@@ -1,0 +1,49 @@
+Task 1 Linux-native correction: verification evidence
+Date: 2026-10-20
+
+Scope:
+The coordinator relayed the user's portability ruling and authorized the Linux-specific correction. Automated acquisition now explicitly supports Linux amd64/arm64 only; macOS/Windows fail at platform validation before discovery/native effects. The earlier t1-q5-blocker.txt remains historical evidence of the portability conflict, not the outcome of this changed-constraint pass. No frozen source/task text was edited by this worker.
+
+Product files frozen for independent review:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_codebase_memory.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+
+Implementation boundary:
+- Public canonical_executable/discover_executable/acquire_codebase_memory contracts unchanged.
+- A single-purpose helper runs the same module through the existing Python executable with isolated/no-site startup. It sets PR_SET_CHILD_SUBREAPER only in that helper, never in the hosting CLI.
+- The helper launches the argv-based native command in a separate session. It collects direct/adopted statuses with waitpid and waits for ECHILD, including when the original native leader exits before its descendants.
+- On timeout/cancellation it sends TERM, escalates after one second and repeatedly kills newly adopted direct children, including descendants that called setsid. Procfs listings select only the isolated helper's children; an empty snapshot is never used as proof of completion.
+- A private inherited status FD is not inherited by the native executable. Status is returned only after helper supervision completes; native output remains inherited or captured as requested. Native nonzero exit codes are preserved, and timeout is reported after successful collection.
+- Linux procfs and PR_SET_CHILD_SUBREAPER availability are checked before native launch. Unavailable facilities fail closed. The hosting CLI's subreaper state/child statuses are untouched.
+- Fixed the discovery Path/str variable-shadowing error by using a separate path_entry name.
+
+Strongest actual guarantees and limits:
+For a finite native process tree whose members the kernel permits this user to kill, the helper adopts orphaned descendants (including session-detached descendants), terminates them on timeout and collects their exit statuses before reporting ordinary timeout completion. A native leader returning early is not treated as operation completion while descendants remain. This is not a security sandbox against a malicious executable deliberately attacking its supervisor.
+SIGKILL cannot force an uninterruptible kernel task to exit. Cleanup exceeding the additional one-second TERM grace plus three-second reap budget is an explicit cleanup-incomplete failure, not claimed success or claimed reaping. A failed/stalled supervisor has a separate bounded watchdog path reporting that descendant cleanup was not confirmed. No universal claim is made for kernel failure, externally killed supervisors, hostile unbounded fork storms or SIGKILL of the hosting process.
+
+Real regression evidence:
+- Four real product-supervisor cases cover native leader exit before an orphan that ignores TERM, crossed with same-session versus setsid and inherited versus captured output. Each checks elapsed boundedness and ProcessLookupError for every recorded native/descendant PID after return. No test-only adopter and no external-PID1 collection assumption.
+- A read-only PR_GET_CHILD_SUBREAPER check confirms the hosting process flag is unchanged. A separate unrelated child remains waitable by the test with its original exit status 23.
+- The existing cooperative group and direct TERM-ignoring fixtures still pass. Native exit status 17 is preserved, native exec failure is reported, and captured/inherited output remains tested.
+- All acquisition/download/real upstream lifecycle calls remain mocked. Real subprocesses are benign local fixtures only. No upstream install/uninstall, new dependency, developer HOME/config change, staging, commit or other Git mutation.
+
+Final commands (cwd /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP):
+
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py -q
+Exit 0: 56 passed in 11.69s.
+
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+Exit 0: All checks passed!
+
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff format --check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+Exit 0: 2 files already formatted.
+
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_codebase_memory.py
+Exit 0: Success: no issues found in 1 source file.
+
+Intermediate checks:
+- Initial Linux subset: 7 passed, 47 deselected in 8.99s.
+- Initial complete Linux suite before two extra error checks: 54 passed in 10.25s.
+- One initial lint run caught an obsolete unused test signal import; removed, final checks clean.
+- Unscoped mypy followed package imports and failed on broad repository errors outside this module. Scoped import-skip checking then passed; no unrelated modules/stubs were changed or installed.
+- No new coverage campaign was run. Prior t1-checks.txt / t1.coverage describe the earlier implementation and do not measure this supervisor subprocess code.

@@ -1,0 +1,12 @@
+- hunk_ref: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py:546-625
+  evidence_missing: Worktree-correct Serena activation/configuration, symbolic referrers and diagnostics unavailable; active Serena belongs to main checkout.
+  why_not_classifiable: Exact-path Reads and focused Auggie grounding support static implementation-risk findings but do not replace unavailable symbolic and diagnostic controls.
+  next_evidence_needed: A separately configured worktree-correct Serena session if full symbolic grounding is needed; do not alter configuration in this review.
+  owner: reviewer
+  decision_needed_by_user: false
+- hunk_ref: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/TASK-WF-spec-20261019-204314.md:61-70
+  evidence_missing: Independently verified supported external CLI mechanism for hidden user-scope lookup and exact rollback.
+  why_not_classifiable: Task 2 explicitly requires scope/error/rollback safety, so this is implementation feasibility evidence still to be established, not an omitted requirement or implemented regression.
+  next_evidence_needed: During separately authorized implementation, revalidate supported CLI surfaces and test shadowed user entries, lookup failures, argv boundaries and rollback.
+  owner: reviewer
+  decision_needed_by_user: false

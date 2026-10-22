@@ -1,0 +1,48 @@
+Removal preview: Upstream source: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh. Native location: /home/coder/.local/bin/codebase-memory-mcp. This user/account-wide lifecycle affects detected clients and companion instructions, skills, agents and hooks; graph indexes are retained. Remove canonical /home/coder/.local/bin/codebase-memory-mcp (codebase-memory-mcp 0.12.1). Full user-level removal affects detected clients and companion integrations, may interrupt active sessions, and retains graph indexes. The adjacent updater is left in place; IronClaude does not erase companion/cache files. No native lifecycle, registration changes or prompts were performed.
+codebase-memory-mcp uninstall
+
+
+Found 1 index(es):
+  /home/coder/.cache/codebase-memory-mcp/activity.db
+Indexes kept in /home/coder/.cache/codebase-memory-mcp. To remove them, uninstall with --delete-indexes or delete the project .db files there.
+Stopping active CBM sessions and operations for uninstall...
+Claude Code: removed 1 skill(s)
+  Claude Code agent: removed owned profile /home/coder/.claude/agents/codebase-memory-scout.md
+  Claude Code agent: removed owned profile /home/coder/.claude/agents/codebase-memory.md
+  Claude Code agent: removed owned profile /home/coder/.claude/agents/codebase-memory-auditor.md
+  removed MCP config entry
+  removed PreToolUse + SessionStart + SubagentStart hooks
+Codex CLI: removed MCP config entry
+  instructions: removed managed activation pointer
+  Codex CLI skill: 1 removed
+  Codex CLI agent: removed owned profile /home/coder/.codex/agents/codebase-memory-scout.toml
+  Codex CLI agent: removed owned profile /home/coder/.codex/agents/codebase-memory.toml
+  Codex CLI agent: removed owned profile /home/coder/.codex/agents/codebase-memory-auditor.toml
+OpenCode: removed MCP config entry
+  removed instructions
+  OpenCode skill: 1 removed
+  OpenCode agent: removed owned profile /home/coder/.config/opencode/agents/codebase-memory-scout.md
+  OpenCode agent: removed owned profile /home/coder/.config/opencode/agents/codebase-memory.md
+  OpenCode agent: removed owned profile /home/coder/.config/opencode/agents/codebase-memory-auditor.md
+  extension: removed managed block
+Augment/Auggie: removed MCP config entry
+  removed instructions
+  Augment/Auggie agent: removed owned profile /home/coder/.augment/agents/codebase-memory-scout.md
+  Augment/Auggie agent: removed owned profile /home/coder/.augment/agents/codebase-memory.md
+  Augment/Auggie agent: removed owned profile /home/coder/.augment/agents/codebase-memory-auditor.md
+  removed SessionStart + PostToolUse hooks + dedicated subagent
+Pi:
+  instructions: removed managed context
+  Pi skill: 1 removed
+  extension: removed managed block
+Removed /home/coder/.local/bin/codebase-memory-mcp
+
+Left in place: /home/coder/.local/bin/install.sh
+  This is the updater; uninstall does not delete it because it cannot
+  prove it owns it. To remove it as well:
+
+    rm "/home/coder/.local/bin/install.sh"
+
+Uninstall complete. Please restart your coding-agent sessions to properly take this into account.
+Canonical native executable removed; indexes retained and adjacent updater left untouched. Exact user registration is absent.
+exit=0

@@ -1,0 +1,18 @@
+{
+  "skill": "sc-reflect-protocol",
+  "args": "--mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261019-204314/TASK-WF-spec-20261019-204314.md",
+  "grounding_root": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP",
+  "started_at": "2026-10-19T20:47:36Z",
+  "completed_at": "2026-10-19T20:56:56.686724+00:00",
+  "audit_emission": "retrospective; row timestamps denote record creation, not actual step execution time",
+  "serena_availability": {
+    "backend": "none",
+    "execute_shell_command_available": false,
+    "onboarding_available": false,
+    "read_only": true
+  },
+  "serena_read_only_note": "Review policy: true; actual project config not probed because active project differs. This is not an observed Serena config value.",
+  "adversarial_skill_probe": "Installed source read; no no-op Skill invocation or F1/F2/F3 failure path claimed",
+  "estimated_token_usage": null,
+  "exact_wave_durations": null
+}

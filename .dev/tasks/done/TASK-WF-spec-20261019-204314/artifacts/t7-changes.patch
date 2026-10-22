@@ -1,0 +1,468 @@
+diff --git a/README.md b/README.md
+index dbccf7f2..f6039892 100644
+--- a/README.md
++++ b/README.md
+@@ -61,7 +61,7 @@ pipx install git+https://github.com/IronbellyOrg/IronClaude
+ superclaude install
+ ```
+ 
+-This installs the package and then installs its framework assets into your Claude Code directory (`~/.claude/`). Installing from the repository URL needs read access to it.
++This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by **required user-level Codebase Memory MCP setup on Linux amd64/arm64**. Native setup includes upstream's full detected-client/companion integrations and retains graph indexes. If that required phase fails, installation exits 1 but keeps completed framework work. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for prerequisites, unsupported-platform limits, upstream trust and safe removal. Installing from the repository URL needs read access to it.
+ 
+ ### Install from source for development
+ 
+@@ -72,7 +72,7 @@ git clone https://github.com/IronbellyOrg/IronClaude
+ cd IronClaude
+ uv venv                    # make install runs `uv pip install -e`, which needs an environment
+ make install
+-uv run superclaude install # copy commands, agents, skills and core files into ~/.claude/
++uv run superclaude install # framework assets + required user Codebase Memory setup (Linux)
+ make verify
+ ```
+ 
+diff --git a/docs/mcp/mcp-optional-design.md b/docs/mcp/mcp-optional-design.md
+index 4068dd29..b24b1de2 100644
+--- a/docs/mcp/mcp-optional-design.md
++++ b/docs/mcp/mcp-optional-design.md
+@@ -1,8 +1,18 @@
+ # MCP Optional Design
+ 
+-## 基本原則: MCPはオプション
++## 基本原則: 実行時のMCP利用はオプション
+ 
+-**重要**: SuperClaude Frameworkは **MCPなしでも完全に動作** します。
++**重要**: 実行時は **MCPなしでも基本機能を利用** できます。これはインストールの成功条件とは別です。
++
++### Default Provisioning vs Optional Runtime Use
++
++`superclaude install` now provisions full user-level Codebase Memory MCP after framework/user setup as a **required installation phase on Linux amd64/arm64**. Acquisition, verification or registration failure exits 1 and keeps completed framework files. Unsupported macOS/Windows also leave that phase incomplete; separate upstream manual setup is not a bypass for framework installation success.
++
++That default does not make graph tools mandatory at runtime. If Codebase Memory or another MCP is unavailable, the existing native-tool fallbacks below remain applicable. This change adds no indexing, graph-usage policy, bundled graph skills/agents or gateway dependency. Other MCP servers remain optional.
++
++`superclaude update` does not reinstall or upgrade the native tool; a later explicit `superclaude install` restores the default bundle. Safe account-wide removal retains graph indexes and requires explicit consent and verified acquisition ownership. See the [MCP installation guide](../user-guide/mcp-installation.md) for the full upstream companion effects, platform/prerequisite limits and lifecycle commands.
++
++The examples below describe **runtime fallback behavior**, not installer completion or permission to suppress installation errors.
+ 
+ ```yaml
+ Core Principle:
+@@ -11,7 +21,7 @@ Core Principle:
+   Fallback: Automatic (自動フォールバック)
+ 
+ Design Philosophy:
+-  "MCPs enhance, but never required"
++  "MCP usage enhances runtime; default provisioning is a separate install requirement"
+   "Native tools are the foundation"
+   "Graceful degradation always"
+ ```
+@@ -301,15 +311,15 @@ Scenario 4: MCP Performance Issues
+ 
+ ```yaml
+ Getting Started:
+-  "SuperClaude works out of the box without any MCPs"
+-  "MCPs are optional performance enhancements"
+-  "Install MCPs for better performance, not required"
++  "Core runtime functionality has native fallbacks when MCPs are unavailable"
++  "MCP runtime usage is optional"
++  "Normal installation provisions Codebase Memory; other MCP installs remain optional"
+ 
+ Installation Guide:
+-  Minimal Setup:
++  Default Setup:
+     - Clone repo
+-    - Run installer
+-    - Start using (no MCPs)
++    - Run installer (required Codebase Memory phase on Linux amd64/arm64)
++    - Start using; choose MCP tools or native runtime fallbacks
+ 
+   Enhanced Setup (Optional):
+     - Install Mindbase (cross-session memory)
+@@ -328,7 +338,7 @@ Performance Comparison:
+ ```yaml
+ MCP Integration Guidelines:
+ 
+-Rule 1: Always provide fallback
++Rule 1: Always provide runtime fallback (not suppression of installer failures)
+   ✅ try_mcp_then_fallback()
+   ❌ require_mcp_or_fail()
+ 
+@@ -355,7 +365,7 @@ Rule 5: Performance expectations
+ Accessibility:
+   ✅ No barriers to entry
+   ✅ Works on any system
+-  ✅ No additional dependencies
++  ✅ Core runtime has no dependency on MCP availability
+   ✅ Easy onboarding
+ 
+ Reliability:
+@@ -386,9 +396,9 @@ Current Users (No MCPs):
+   Benefit: Can add MCPs incrementally
+ 
+ New Users:
+-  Step 1: Install framework (works immediately)
+-  Step 2: Use without MCPs (full functionality)
+-  Step 3: Add MCPs if desired (performance boost)
++  Step 1: Install framework and default Codebase Memory (Linux amd64/arm64)
++  Step 2: Choose MCP usage or native fallbacks at runtime
++  Step 3: Add other MCPs if desired (optional)
+ 
+ MCP Adoption:
+   Mindset: "Nice to have, not must have"
+@@ -407,12 +417,12 @@ Core Message:
+ 
+ User Choice:
+   Minimal: No MCPs, full functionality
+-  Standard: Mindbase only, cross-session memory
++  Standard: Codebase Memory provisioned by default; runtime usage optional
+   Enhanced: All MCPs, maximum performance
+   Custom: Pick and choose based on needs
+ 
+ Design Success:
+-  ✅ Zero dependencies for basic operation
++  ✅ No MCP availability requirement for basic runtime operation
+   ✅ Graceful degradation always
+   ✅ User empowerment through choice
+   ✅ Reliable baseline guaranteed
+diff --git a/docs/reference/mcp-server-guide.md b/docs/reference/mcp-server-guide.md
+index 34b789fb..dc0d5a1f 100644
+--- a/docs/reference/mcp-server-guide.md
++++ b/docs/reference/mcp-server-guide.md
+@@ -8,20 +8,51 @@
+ 
+ ### Available MCP Servers
+ 
+-**Core MCP Servers:**
++**Available integrations (runtime use remains optional):**
+ 
++- **Codebase Memory MCP**: Native graph memory; full user-level setup is a required phase of normal framework installation on Linux amd64/arm64
+ - **Context7**: Official documentation lookup and framework patterns
+ - **Playwright**: Browser automation and E2E testing
+ - **Morphllm**: Pattern-based code editing with token optimization
+ - **Serena**: Semantic code understanding and project memory
+ 
+-**Server Requirements:**
++**Selection-specific requirements:**
+ 
+-- Node.js 16.0.0 or higher
+-- npm or yarn package manager
++- Claude CLI for registration; Codebase Memory automation supports Linux amd64/arm64, user scope only
++- Codebase Memory requires curl/Bash only for acquisition, not Node/npm, Docker, an API key or a compiler
++- npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); Serena uses uv; AIRIS Gateway uses Docker and curl
++
++The older Node/npm troubleshooting examples below apply only to those servers, not native Codebase Memory.
++
++**Other considerations:**
+ - Stable network connection for some servers
+ - Sufficient system memory (2GB+ recommended)
+ 
++## Codebase Memory Native Lifecycle
++
++Use the current flat command, not the historical generic reset recipes later in this guide:
++
++```bash
++superclaude install --list
++superclaude mcp --servers codebase-memory-mcp
++superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run
++superclaude mcp --uninstall --servers codebase-memory-mcp --yes
++```
++
++- **Default setup fails:** `superclaude install` runs full native setup after user setup; a failed required phase exits 1 and preserves installed framework work. Resolve the reported acquisition/verification/registration stage, then retry. macOS/Windows automation is unsupported before native effects; use [upstream manual instructions](https://github.com/DeusData/codebase-memory-mcp#installation) separately, not as a bypass for this required phase.
++- **Understand what runs:** acquisition downloads the complete `https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh` into a private temporary directory, then runs Bash by argv. It preserves upstream checksum checks and full detected-client instructions/skills/agents/hooks, not binary-only setup. Both `main` bootstrap and latest-release assets move independently and are not pinned; checksums do not authenticate the bootstrap. See the [installation guide](../user-guide/mcp-installation.md) for the 60/300-second bounds and temporary-file cleanup.
++- **Missing or stale registration:** a working binary is reused; only the exact user entry is reconciled to stdio, absolute executable and no arguments, without reacquiring companion assets. Same-named project/local registrations are not user-install success and are not removed by IronClaude's reconciliation. Unknown/unreadable configuration fails closed, not as absence. Failed replacement restores the prior user entry or explicitly reports restoration failure; inspect that state before retrying.
++- **No upgrade happened:** this is expected. Acquisition happens only when needed, never on every install. `--force` applies to framework files, not native upgrades/index resets; `--target` redirects slash commands only. `update` does not resurrect a removed tool; a later explicit `install` restores the default bundle. No adopt/skip/upgrade lifecycle flags exist.
++- **Status is not a handshake:** `install --list` is read-only and reports executable status plus exact user registration (including unknown/stale). MCP `--list` uses legacy installed markers, not ownership/scope/health proof, and rejects selections/lifecycle flags, dry-run or non-user scope combinations. Success reports a verified version; restart clients and test a real tool separately. Installation does not index code or perform a live MCP handshake.
++- **Removal refuses a canonical binary:** automatic removal needs the private `~/.local/bin/.superclaude-codebase-memory.json` acquisition receipt matching canonical binary identity/hash. Only actual IronClaude acquisition creates it; reuse of a preexisting/manual/external binary does not adopt it. Missing proof, an upstream-replaced binary, symlinks or uncertain ownership must be resolved through the original installer, not by inventing a receipt.
++- **Full removal is account-wide:** user scope only, preview plus default-No consent; `--yes/-y` is the new explicit removal consent, not server selection or index-deletion permission. Upstream receives the canonical binary's `uninstall -y --dir=<canonical-bin-directory>` and owns activation/companion cleanup, which can interrupt sessions. IronClaude never requests index deletion/reset or manually deletes caches/companion assets. After native success it revokes its matching receipt and cleans up only a surviving exact user registration; unrelated names/project scopes remain outside that residual cleanup.
++- **Absent or partial state:** no binary and no user entry is a no-op without companion audit; missing binary with a user entry permits confirmed registration-only partial cleanup, not a full-cleanup claim or download just to uninstall. External/custom-only binaries are reported and left to their original mechanism. Nonzero/timeout/postcondition failures report possible partial removal; inspect upstream output before retrying, with no rollback or blind second deletion pass.
++- **Updater or another binary remains:** graph indexes stay, the adjacent updater is intentionally left and reported, and alternate PATH binaries are reported, not removed. Do not erase them or the cache as a generic repair step.
++
++Without a terminal, explicit `--servers` selection is required, plus `--yes` for removal. With no selection on a terminal, the menu offers Install (default), Uninstall Codebase Memory, or Cancel; install remains gateway-first and all-individual selection includes Codebase Memory. Repeat `--servers` for multiple names. Dry-run prints choices or a selected plan including full source URL, account-wide effects and retained indexes, without prompts, downloads, lifecycle execution or config/file mutation.
++
++**Release remains blocked pending a separately authorized disposable-environment smoke** of the actual packaged binary and moving bootstrap. Follow the [operator procedure](../user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke); mocked tests are not merge-safety proof. Stop and revise with the user if upstream overwrites unrelated framework/user assets; never silently switch to binary-only setup.
++
+ ## Installation and Configuration Issues
+ 
+ ### Node.js and npm Problems
+@@ -616,9 +647,9 @@ echo "Test MCP servers in Claude Code after restart"
+ 
+ ---
+ 
+-**MCP Server Priority**: When troubleshooting, address servers in order of dependency: Node.js → npm → individual servers → Claude Code integration. Most MCP issues resolve with proper Node.js setup and server reinstallation.
++**npm-based Server Priority**: For npm-based servers only, check Node.js → npm → individual server → Claude Code integration. For native Codebase Memory, use the lifecycle section above; Node/npm repair and generic reset recipes do not apply.
+ 
+-**Verification Pattern**: After MCP solutions, always verify with:
++**npm-based Verification Pattern**: For those servers, verify with:
+ 
+ - ✅ `node --version` - Should be 16.0.0+
+ - ✅ `npm list -g | grep mcp` - Should show installed servers
+diff --git a/docs/user-guide/mcp-installation.md b/docs/user-guide/mcp-installation.md
+index a7acd775..88b270a0 100644
+--- a/docs/user-guide/mcp-installation.md
++++ b/docs/user-guide/mcp-installation.md
+@@ -2,26 +2,59 @@
+ 
+ SuperClaude provides a convenient CLI command for installing and managing MCP (Model Context Protocol) servers for Claude Code.
+ 
++## Default Framework Setup: Codebase Memory MCP
++
++`superclaude install` installs framework files, commands, agents, skills, ccsession wiring, hooks, templates and user setup, then runs a **required user-level Codebase Memory MCP phase**. There is no additional opt-in question. This is full upstream setup, not just MCP registration: it can configure detected clients and companion instructions, skills, agents and hooks across your account. Existing graph indexes are retained.
++
++Automated native installation and removal support **Linux amd64/arm64 only** (`x86_64`/`aarch64` aliases are accepted). macOS, Windows and other unsupported platforms are rejected before native effects. The framework files already installed remain, but the required phase is incomplete and the command exits 1. For those platforms, consult the [official upstream installation instructions](https://github.com/DeusData/codebase-memory-mcp#installation) for separate manual setup. Manual setup is not a built-in bypass that makes the required framework phase pass on an unsupported platform.
++
++When acquisition is needed, IronClaude downloads the **complete** official script from:
++
++<https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh>
++
++It requires a successful, nonempty HTTPS download into a private temporary directory before executing the script through argv-based Bash invocation, with the canonical destination `~/.local/bin/codebase-memory-mcp`. This preserves the full behavior requested by the upstream curl/Bash installation command, including release checksum verification and detected-client setup; no client filtering or configuration suppression is used. Download and installer timeouts are 60 and 300 seconds respectively, and temporary script material is cleaned up on success or failure.
++
++The bootstrap tracks mutable `main` and fetches moving latest-release assets: **neither is pinned**. Release checksums do not authenticate the bootstrap itself. Review this trust boundary before installing. The CLI reports the verified executable version and registration outcome; it does **not** index a repository or prove a live MCP handshake. Restart clients to load integrations.
++
++### Reuse, Updates and Previews
++
++- A working canonical executable takes precedence over a usable PATH installation. A working binary and correct user stdio registration (absolute executable, no server arguments) are reused without download or native upgrade. A missing registration is repaired without rerunning upstream companion setup. External binaries are not silently replaced; ambiguous discovery fails closed.
++- `superclaude install --list` is read-only. It reports executable availability and exact user-registration status, including unknown or stale/unverified states, rather than repairing them. This is not a live connection check.
++- `superclaude install --force` reinstalls framework files only; it does not force native upgrades or index resets. `--target` changes only the slash-command destination, not native paths, user setup or MCP scope. There is no framework-wide dry-run option.
++- `superclaude update` keeps its existing framework behavior: it neither upgrades nor reinstalls Codebase Memory. A later explicit `superclaude install` restores the default bundle if it was removed. There is no adopt, skip or native-upgrade lifecycle flag.
++- On acquisition, executable verification or registration failure, framework installation exits 1 and keeps successful framework steps. Review the failed stage and any upstream output before retrying `superclaude install`; partial upstream effects are not rolled back. For registration-only recovery, explicit MCP installation uses the same shared path.
++
+ ## Quick Start
+ 
+ ```bash
+ # List available MCP servers
+ superclaude mcp --list
+ 
+-# Interactive installation (recommended for first-time users)
++# Interactive management (terminal required)
+ superclaude mcp
+ 
+-# Install specific servers
++# Explicit Codebase Memory setup or registration repair
++superclaude mcp --servers codebase-memory-mcp
++
++# Install specific servers (repeat --servers for each name)
+ superclaude mcp --servers tavily --servers context7
+ 
+-# Install all servers
+-superclaude mcp --servers context7 playwright serena morphllm-fast-apply tavily auggie
++# Install all individual servers (not the gateway)
++superclaude mcp --servers context7 --servers playwright --servers serena --servers morphllm-fast-apply --servers tavily --servers auggie --servers codebase-memory-mcp
+ ```
+ 
++With no selection on a terminal, the action menu offers **Install MCP servers** (default), **Uninstall Codebase Memory MCP**, and **Cancel**. The install branch still offers the gateway first (default `g`); option `0` installs all individual registry servers, including Codebase Memory, not the gateway. An explicit gateway-plus-native selection processes both and reports failures from either.
++
++Without a terminal, installation requires explicit `--servers` selections; removal also requires `--yes`. Selecting native installation authorizes the full upstream setup described above. `--yes` never selects a server or bypasses unrelated API-key prompts.
++
++`superclaude mcp --list` lists available servers without installing or repairing them. Its legacy installed markers are not exact native ownership/scope/health proof; use `superclaude install --list` for detailed native status. MCP list mode rejects server selections, `--uninstall`, `--yes`, `--dry-run`, or a non-user scope rather than combining listing with lifecycle actions.
++
+ ## Available MCP Servers
+ 
+ | Server | Description | Requires API Key |
+ |--------|-------------|------------------|
++| **codebase-memory-mcp** | Native graph memory with full upstream companion setup (Linux, user scope) | No |
++| **airis-mcp-gateway** | Unified gateway; separate Docker-based installation | No (some hosted tools need keys) |
+ | **context7** | Official library documentation and code examples | No |
+ | **playwright** | Cross-browser E2E testing and automation | No |
+ | **serena** | Semantic code analysis and intelligent editing | No |
+@@ -31,11 +64,13 @@ superclaude mcp --servers context7 playwright serena morphllm-fast-apply tavily
+ 
+ ## Installation Scopes
+ 
+-MCP servers can be installed at different scopes:
++The SuperClaude MCP command defaults to **user** scope (unlike the Claude CLI's local default). Individual servers other than Codebase Memory retain their existing registration scopes:
+ 
+-- **local** (default): Project-specific, private configuration
++- **local**: Project-specific, private configuration
+ - **project**: Team-shared via `.mcp.json` file in version control
+-- **user**: Available across all projects on your machine
++- **user** (default): Available across all your projects
++
++Codebase Memory full native setup/removal accepts **user only**. Project/local selections fail before download or writes: the upstream lifecycle affects detected clients across the account, not just a project.
+ 
+ ```bash
+ # Install for current project only
+@@ -80,14 +115,13 @@ export MORPH_API_KEY="your-api-key-here"
+ 
+ Before installing MCP servers, ensure you have the following tools installed:
+ 
+-### Required
+-
+-- **Claude CLI**: Required for all MCP server management
+-- **Node.js 18+**: Required for npm-based MCP servers (most servers); Auggie `0.36.0` requires Node.js 20+.
++Prerequisites are checked for the selected servers, not every server in the registry.
+ 
+-### Optional
+-
+-- **uv**: Required only for Serena MCP server
++- **Claude CLI**: Required for MCP registration and native setup.
++- **Codebase Memory**: Linux amd64/arm64; **curl and Bash only when acquisition is needed**. It does not need Node/npm, Docker, an API key or a compiler. Reusing a working binary does not require curl/Bash.
++- **npm-based servers**: Node.js 18+ and npx/npm; Auggie `0.36.0` requires Node.js 20+.
++- **Serena**: uv.
++- **AIRIS Gateway**: Running Docker and curl. Selecting it alongside Codebase Memory requires both sets of prerequisites.
+ 
+ Check prerequisites:
+ 
+@@ -121,7 +155,7 @@ uv --version
+    Or specify servers directly:
+ 
+    ```bash
+-   superclaude mcp --servers tavily context7
++   superclaude mcp --servers tavily --servers context7
+    ```
+ 
+ 3. **Verify Installation**
+@@ -142,18 +176,23 @@ uv --version
+ 
+ ### Dry Run
+ 
+-Preview what would be installed without actually installing:
++Preview choices or a selected operation without prompts or changes:
+ 
+ ```bash
++superclaude mcp --dry-run
++superclaude mcp --servers codebase-memory-mcp --dry-run
++superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run
+ superclaude mcp --servers tavily --dry-run
+ ```
+ 
++No-selection dry-run prints choices and exits. Native previews disclose the full source URL, destination, account-wide companion effects and retained indexes. Bounded read-only discovery may run, but dry-run never downloads or runs the upstream installer/uninstaller, changes registration/files, or asks for consent/API keys.
++
+ ### Multiple Servers
+ 
+ Install multiple servers in one command:
+ 
+ ```bash
+-superclaude mcp --servers context7 tavily
++superclaude mcp --servers context7 --servers tavily
+ ```
+ 
+ ### Custom Scope
+@@ -164,8 +203,43 @@ Specify installation scope:
+ superclaude mcp --servers tavily --scope project
+ ```
+ 
++## Safe Codebase Memory Removal
++
++The new flat-command flags are `--uninstall` and `--yes/-y`; removal accepts only `codebase-memory-mcp`, not other servers or mixed selections.
++
++```bash
++# Inspect the account-wide removal plan without changes or prompts
++superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run
++
++# Terminal: show preview and ask for confirmation (default No)
++superclaude mcp --uninstall --servers codebase-memory-mcp
++
++# Explicit consent, also required without a terminal
++superclaude mcp --uninstall --servers codebase-memory-mcp --yes
++```
++
++Full removal delegates detected-client/owned companion cleanup and activation shutdown to upstream and may interrupt active Codebase Memory sessions. It is not project-only deregistration. IronClaude invokes the verified canonical executable with `uninstall -y --dir=<canonical-bin-directory>`: `-y` keeps indexes without offering another index-deletion prompt. It never requests index deletion/reset or manually erases caches, project files, instructions, skills or hooks. The adjacent updater is left in place and reported; alternate PATH installations are also reported, not removed.
++
++Automatic native removal requires the private receipt `~/.local/bin/.superclaude-codebase-memory.json`, created **only after IronClaude actually acquires and verifies the binary**. The receipt must match its canonical binary's identity and SHA-256 hash; the canonical path or filename alone is not ownership proof. Reusing a preexisting/manual/external binary does not adopt it or create a receipt. An upstream-updated/replaced binary no longer matches the old receipt. Missing/mismatched proof or symlink/ownership ambiguity stops automatic removal: use the original installation/removal mechanism, not a fabricated receipt. Successful native removal revokes IronClaude's matching receipt.
++
++After native success, IronClaude checks binary absence and removes only a surviving **exact user-scoped** `codebase-memory-mcp` entry through the Claude CLI. IronClaude's residual cleanup does not remove project/local entries or similarly named/unrelated servers; upstream's full owned-integration cleanup remains account-wide.
++
++| Observed state | Outcome and recovery |
++|---|---|
++| Binary and exact user entry absent, no alternate binary | Idempotent no-op; companion assets were not audited. Indexes/updater are retained. |
++| Binary absent, exact user entry present, no alternate binary | Confirmed registration-only partial cleanup; companion assets were not audited or removed. No download just to uninstall. |
++| External/custom-only installation | Report its path and stop; use its original management mechanism. |
++| Ambiguous discovery, unmatched receipt or unreadable registration | Fail closed. Inspect ownership/configuration before retrying; unknown is not absence. |
++| Upstream nonzero/timeout or failed absence check | Report possible partial removal. Inspect output/state before retrying the same explicit removal command; no rollback or blind second cleanup is claimed. |
++
+ ## Troubleshooting
+ 
++### Codebase Memory Setup or Registration Failure
++
++Use `superclaude install --list` to distinguish missing/non-runnable/ambiguous executables from absent, unknown or stale user registration. Repair missing curl/Bash only if acquisition is required; installing Node/npm does not repair this native path. A usable external binary can be reused without overwriting it; a non-runnable external binary requires attention through its own installer.
++
++Fix unreadable/malformed user configuration before retrying. The native path reconciles only the exact user entry; a same-named project/local entry is not user-install success. Stale user registration is captured before replacement and restored if the add fails. A restoration failure is reported separately and needs inspection, not a success assumption. Retry explicit setup with `superclaude mcp --servers codebase-memory-mcp`, or retry `superclaude install` to complete the required framework phase. Restart clients after success, then verify actual tool use separately.
++
+ ### Server Not Found
+ 
+ If you see "Unknown server: xxx", check the available servers:
+@@ -229,9 +303,23 @@ MCP servers enhance SuperClaude commands with additional capabilities:
+ 
+ 1. **Start with essentials**: Install `context7` and `serena` first
+ 2. **Add as needed**: Install other servers based on your workflow needs
+-3. **Use project scope**: For team projects, use `--scope project` for shared configuration
++3. **Use appropriate scope**: For other individual servers, use `--scope project` when sharing team configuration; Codebase Memory full lifecycle is user-only
+ 4. **Secure API keys**: Never commit API keys to version control
+ 
++## Release Gate: Separately Authorized Live Smoke
++
++**Pending; release is blocked until this passes.** This is an operator procedure, not permission to execute it. Obtain separate approval for real downloads, native setup/removal, client processes and the live query. Mocked regression tests cannot prove released-binary behavior or upstream companion-file merge safety.
++
++1. **Isolate the account and processes.** Use a disposable Linux amd64/arm64 VM or container with a separate account and process namespace. Do not mount the host's HOME, configuration, cache, credentials, Docker socket or project MCP files; do not share host processes. Merely changing `HOME` on the developer account is insufficient because native activation/removal can affect account-wide processes. Keep all binaries, fixtures, config, caches and evidence inside the disposable environment. Have UV, Claude CLI, curl/Bash and the approved IronClaude release wheel provided there; install the wheel into a clean, activated environment using UV. Use only separately provisioned disposable client credentials if required, never the developer's credentials. Do not build a new container harness for this check.
++2. **Record a clean baseline.** Confirm no native Codebase Memory binary or acquisition receipt is present. Record the wheel identity, OS/architecture, bootstrap URL/observation time and upstream source revision inspected. Snapshot disposable user settings, instructions, hooks, client registrations and relevant file hashes. Seed an unrelated user hook and config entry, a similarly named MCP entry, and same-named project/local entries in a disposable fixture project. Retain the wheel's expected framework hook files/registrations for comparison. Place a harmless, known-content sentinel in the effective graph cache (`CBM_CACHE_DIR` if set, otherwise `~/.cache/codebase-memory-mcp`); record its path/hash. Use a retained disposable graph index as an additional sentinel if available; installation itself must not index a repository.
++3. **Exercise fresh normal setup.** Inside that environment only, run `superclaude install` and retain output/exit status. Require success after full framework/user setup and native acquisition. Check the disclosed full URL and canonical destination, real checksum verification, actual installed binary version/hash, and the private acquisition receipt. Record the fetched release asset identity as well as the moving bootstrap evidence: the reviewed source revision is not a release pin, and source inspection alone is not proof of packaged-binary behavior.
++4. **Inspect real companion merges.** Compare actual framework hooks/files with the wheel's expected assets and compare unrelated user hooks, instructions, settings and registrations with the baseline. Inspect all detected-client companion changes reported by upstream, not just Claude's MCP entry. Confirm unrelated hooks still function. **If upstream overwrites unrelated assets, stop, block release and revise the integration with the user. Do not quietly substitute binary-only installation.** Keep before/after evidence and any partial effects.
++5. **Verify real registration and a query.** Run `claude mcp get codebase-memory-mcp` from an empty disposable directory without a project/local shadow. Confirm user scope, stdio, the selected absolute executable and no arguments; also inspect the exact user entry in the disposable configuration. Restart Claude Code, inspect `/mcp`, and request the server's read-only `list_projects` tool. Record the real MCP response (an empty project list is valid), not just registration output or a direct native CLI query. Do not index a repository to make this check pass. Verify the project/local and unrelated entries remain intact.
++6. **Prove repeat-install behavior.** Snapshot binary/receipt hashes and companion files, then repeat `superclaude install` and `superclaude mcp --servers codebase-memory-mcp`. Require successful reuse without another bootstrap download, native install or upgrade. Confirm unrelated assets and index sentinels remain. Preview native install/removal with `--dry-run` and inspect `superclaude install --list`; compare snapshots to confirm no mutation or prompts.
++7. **Exercise native removal.** Preview with `superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run`, then run `superclaude mcp --uninstall --servers codebase-memory-mcp --yes`. Record account-wide consent/output, exit status and the actual packaged binary's `uninstall -y --dir=<canonical-bin-directory>` behavior. Require canonical binary and matching receipt absence, exact user-registration absence, unchanged index sentinel contents/hashes, preserved unrelated framework/user hooks/config and project/local entries. Record the adjacent updater's actual retained path/status and any alternate PATH binaries rather than claiming everything disappeared. Do not manually erase residual assets to turn a failed check into a pass.
++8. **Check update versus restoration.** Run `superclaude update`: the removed binary/receipt/user entry must stay absent. Then run an explicit `superclaude install`: require full acquisition/registration to return with a fresh matching receipt and retained index sentinels. Remove it again through the confirmed MCP command if teardown evidence is needed, then dispose of the isolated environment.
++9. **Close the gate only with evidence.** Save approval, commands/exit statuses, bootstrap and released-binary identities, redacted before/after comparisons, query response, repeat-install observations and uninstall/index/updater results under the task's artifacts directory. Any failed or unverified check leaves release blocked. Documentation completion does not authorize this smoke, release, commit or push.
++
+ ## See Also
+ 
+ - [MCP Server Documentation](mcp-servers.md) - Detailed server descriptions
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t7-live-smoke-gate.md b/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t7-live-smoke-gate.md
+new file mode 100644
+index 00000000..ec569744
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t7-live-smoke-gate.md
+@@ -0,0 +1,56 @@
++# Codebase Memory Live Smoke Gate
++
++**Status: BLOCKED — live smoke pending separate authorization and execution.**
++
++Task 7 documents the procedure; it does not execute or authorize downloads, native installation/removal, live client processes, release, staging, commit, push or publication. Documentation is frozen for independent QA; the parent owns the task ledger and Q0 pin.
++
++## Operator Procedure and Pass Conditions
++
++Follow [Release Gate: Separately Authorized Live Smoke](../../../../../docs/user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke).
++
++- Obtain explicit approval first. Use a disposable Linux amd64/arm64 VM/container with a separate account and process namespace, with no host HOME/config/cache/credential/Docker-socket/project-MCP mounts or shared host processes. Changing HOME on the developer account alone is insufficient for account-wide native activation/removal.
++- Provide clean UV/Claude CLI/curl/Bash and the approved IronClaude release wheel inside that environment. Use only disposable credentials if a client needs authentication. No new container harness or runbook script is required.
++- Record approval, wheel identity, OS/architecture, moving bootstrap URL/observation time/source revision, release asset/checksum identity and actual installed native version/hash. A reviewed source SHA does not pin the bootstrap or verify the packaged binary.
++- Perform fresh normal framework installation with full upstream companion setup. Compare unrelated user hooks/config/instructions/registrations against a baseline and framework files/hooks against the approved wheel. Inspect every detected client's actual changes.
++- Verify exact user stdio registration and a real MCP `list_projects` response after client restart, not just registration text or a direct CLI query. Do not index a repository as an installation step or smoke workaround.
++- Repeat framework and explicit MCP installation: require reuse with no new download/native installation/upgrade. Check list/dry-run are prompt-free and mutation-free.
++- Remove through the confirmed native lifecycle. Require canonical binary and matching acquisition receipt absence, exact user-entry absence, unchanged graph/cache sentinel hashes, preservation of unrelated assets/project-local entries, and truthful retained-updater/alternate-PATH status. Do not manually delete residual assets to manufacture a pass.
++- Confirm update does not restore the removed tool; a later explicit framework install restores it with fresh proof and retained sentinels. Keep redacted commands, exit statuses, query response and before/after evidence here before disposing of the environment.
++
++**Stop rule:** if upstream overwrites unrelated framework/user assets, stop, keep release blocked and revise the integration with the user. No quiet binary-only fallback. Any failed or unverified pass condition leaves this gate blocked. Only separately authorized, reviewed live evidence can close it.
++
++## Task 7 Coverage
++
++| Acceptance area | Documentation surface |
++|---|---|
++| AC1: default/menu/flags/scope/platform/prerequisites | Installation guide default setup, quick start, scopes and prerequisites; reference native lifecycle. Linux-only automation follows `operator-direction.md`, superseding the frozen macOS portability requirement. Manual macOS/Windows setup is not a framework-phase bypass. |
++| AC2: full upstream effects, consent, indexes, partial/external removal | Installation guide safe removal/outcomes and reference troubleshooting; receipt is created only by actual acquisition and must match canonical identity/hash. Updater/indexes stay; IronClaude residual cleanup is exact-user only. |
++| AC3: trust, reuse/version, update, list/force/target/dry-run | Installation guide reuse/previews, command examples and reference native lifecycle; no adopt/skip/upgrade flags or indexing/handshake claims. |
++| AC4: default provisioning versus optional runtime | Optional-design introduction and directly affected onboarding examples; other MCPs and native runtime fallbacks remain optional/unchanged. |
++| AC5–6: real upstream release gate, no binary-only fallback | Operator procedure above and in the installation guide; execution remains pending and release blocked. |
++| AC7: source-to-task traceability and exclusions | Crosswalk below; evidence stays in this task's artifacts directory. README changes are limited to affected install enumeration/comment. Existing install/MCP help already covers the new component; no code edit needed. |
++
++## Frozen Source Crosswalk
++
++| Source area | Owning tasks |
++|---|---|
++| Sections 1–2, 4: full bootstrap, discovery, bounded execution, exact registration | Tasks 1–2 |
++| Section 5: verified canonical native removal, consent and retained indexes | Task 3 |
++| Sections 3, 5: registry/menu, scopes, prerequisites, repeatable selection, dry-run | Task 4 |
++| Sections 3–4: default framework phase, list/force/target, unchanged update | Task 5 |
++| Section 7: isolated executable failure/safety regression matrix | Task 6 |
++| Sections 6–8: focused docs, live release gate, explicit exclusions | Task 7 |
++
++The unchanged source snapshot retains original macOS wording for provenance. `operator-direction.md` and current code/user direction define Linux amd64/arm64 automation. No general package-manager framework, dependency, bundled graph skill/agent, automatic upgrade, graph indexing, index deletion, general server uninstall, project-scoped native lifecycle or Windows integration was added by Task 7.
++
++## Verification Evidence and Limits
++
++Documentation work verified on 2026-10-20 in `/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP`.
++
++- Read the actual worktree's relevant `main.py`, `install_mcp.py` and `install_codebase_memory.py` functions, frozen source, Task 7 ACs/constraints and operator direction. Serena's active-project view did not include the worktree's new module, so source reads, not that graph, grounded the behavior. Auggie context was obtained before edits; Context7 checked Claude MCP scope/query and upstream install/uninstall/read-only query contracts.
++- Read-only help commands, both exit 0: `PYTHONDONTWRITEBYTECODE=1 VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync superclaude install --help` and the same prefix with `superclaude mcp --help`. Newly documented CLI options/selections were checked against these and the actual dispatch; no real install, MCP get/list, native version probe or upstream script ran.
++- Direct `git show <Q0>:<path> | cmp - <absolute-worktree-path>` comparisons all exited 0 for the three product modules and the four Task 6 regression files against parent pin `8038c05f23306cd13728121421df996bc1343499`. Plain tree-to-worktree diff initially represented snapshot-added/untracked files as deletions; direct byte comparisons resolve that limitation. No Git mutation was performed.
++- Documentation whitespace check: `git diff --check` over the four allowed existing documentation files exited 0. The gate file is new documentation, not live execution evidence.
++- Prior Task 6 evidence (`t6-cli-regressions.txt` and `t6-qa.md`) records **242 passed, 1 skipped** in the focused four-file mocked suite. Task 7 did not rerun tests. The two documented legacy MCP mypy diagnostics remain a known failed product-typecheck result, not a clean bill of health.
++
++**No live proof exists from Task 7.** Mocked suite success, source review, help output and documentation checks do not prove upstream merge safety, released-binary lifecycle behavior or a live MCP connection.

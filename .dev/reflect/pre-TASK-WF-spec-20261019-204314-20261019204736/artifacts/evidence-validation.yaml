@@ -1,0 +1,36 @@
+{
+  "validator": "independent evidence-validator agent, sonnet class",
+  "report_draft_path": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/reflect/pre-TASK-WF-spec-20261019-204314-20261019204736/REPORT.md",
+  "citations_total": 128,
+  "citations_revalidated": 128,
+  "citations_dropped": 0,
+  "citations_inferred": 1,
+  "inferred_requirement_rows": 102,
+  "counting_convention": "128 citation occurrences = 102 quote-pinned INF extraction citations + 26 prose code/spec/plan citations; 85 unique locations. citations_inferred counts only the one non-load-bearing [INFERRED] prose claim; INF requirement citations are independently validated load-bearing quotes, not non-load-bearing inference.",
+  "citation_budget_policy": "full_reread",
+  "verified_locations": {
+    "source_inf_rows": "All INF-001 through INF-102 quotes match cited source lines, accounting for Markdown escaped pipes. Lines 12,14,20,22,52,54-61,63,67,76,78,80,82,86,90-96,98,102,106,108-115,117,123-130,132,136,138-149,151,155.",
+    "source_prose": "44,102,108,117,151",
+    "plan": "20,21,25,36,40,46,61-70,91,101,103,109,111,113,122,145,156-164",
+    "install_mcp": "121-128,546-566,569-594,697-704,719-725"
+  },
+  "dropped_list": [],
+  "zero_drop_flag": true,
+  "claim_evaluation": {
+    "F01": "Supported; generic unsafe helper behaviors and existing Task2 protections correctly characterized.",
+    "F02": "Supported; shell=True helper and plan argv/termination obligations grounded.",
+    "F03": "Supported; affirmative dry-run disclosures not individually asserted by prohibition-focused acceptance lines; source remains authoritative.",
+    "F04": "Substantively supported; full-lifecycle user-scope constraint and source-authoritative plan rule defeat complete-omission claim. Wording 'Removal tests' for plan113 was too specific; use 'Generic CLI tests'. No citation dropped.",
+    "F05": "Supported; Task7 preserves separately authorized live smoke and release block."
+  },
+  "required_wording_correction": "Replace 'Removal tests cover unsupported modes/scopes' with 'Generic CLI tests cover unsupported modes/scopes'; this narrows the claim to the exact verified source and does not add a citation.",
+  "not_checked": [
+    "No recomputation of per-row task assignments or individual containment ratios; machine matcher is separate.",
+    "Validator checked initial T1 calibration and reviewer1 attribution, not all later-arriving reviewer cards.",
+    "No external CLI/upstream behavior verification.",
+    "No structural A-rules: assertions_path absent and unrelated to this PRE report."
+  ],
+  "suggested_report_status": "partial",
+  "status_rationale": "No dropped citations, but independent per-card T2 calibration/adversarial merge unfinished and grounding degraded. Citation cleanliness does not authorize success.",
+  "no_commands_or_writes_by_validator": true
+}

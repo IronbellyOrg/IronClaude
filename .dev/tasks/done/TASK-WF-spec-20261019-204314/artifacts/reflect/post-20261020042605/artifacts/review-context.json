@@ -1,0 +1,97 @@
+{
+  "mode": "post",
+  "baseline": "ddd1f9a31dceab5b73187dcdb68de1d1bbec6424",
+  "baseline_source": "first task-log start tree",
+  "task_starts": [
+    [
+      "T1",
+      "ddd1f9a31dceab5b73187dcdb68de1d1bbec6424"
+    ],
+    [
+      "T2",
+      "7d5a9a98bea29e2760a947b2a1df0558e6384e87"
+    ],
+    [
+      "T3",
+      "3fab8c75dcad6b70f387d051bf294f0dc5c9a9e1"
+    ],
+    [
+      "T4",
+      "3a7c13c24fa1d3f89e527907d8b77df8e23d87d0"
+    ],
+    [
+      "T5",
+      "44706af5184c172bbceeaff3c4ec620c0c75233e"
+    ],
+    [
+      "T6",
+      "8818d910d7e2a0d370e43ace3fae05b4af06c080"
+    ],
+    [
+      "T7",
+      "8038c05f23306cd13728121421df996bc1343499"
+    ]
+  ],
+  "latest_task_records": {
+    "T1": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T2": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T3": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T4": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T5": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T6": {
+      "status": "complete",
+      "verdict": "compliant"
+    },
+    "T7": {
+      "status": "complete",
+      "verdict": "compliant"
+    }
+  },
+  "deliveries": [
+    "README.md",
+    "docs/mcp/mcp-optional-design.md",
+    "docs/reference/mcp-server-guide.md",
+    "docs/user-guide/mcp-installation.md",
+    "src/superclaude/cli/install_codebase_memory.py",
+    "src/superclaude/cli/install_mcp.py",
+    "src/superclaude/cli/main.py",
+    "tests/cli/test_install_codebase_memory.py",
+    "tests/cli/test_install_mcp_registry.py",
+    "tests/cli/test_install_mcp_tavily.py",
+    "tests/cli/test_update_command.py"
+  ],
+  "hunk_count": 46,
+  "unmapped_hunks": [],
+  "S_scope": 11,
+  "S_domains": 3,
+  "domains": [
+    "code",
+    "docs",
+    "tests"
+  ],
+  "S_dev_density": 0.0,
+  "deviation_aggregation_mode": "per-hunk",
+  "input_tree_sha256": "5142787cf9e3e33e4e620174502e566ec7a4b8a4477f595d2e9fcd28939e6bb6",
+  "input_tree_file_count": 62,
+  "input_sha256": {
+    "tasklist": "7af997cba06fbbf87eba36557814ed85a7b97036c5042a23440f5295083c8885",
+    "spec": "ee09df8de9864189f54d11e0525054457ca570bb2037ef4ad30d1db15e7b095d"
+  },
+  "output_root": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605",
+  "work_unit": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314"
+}

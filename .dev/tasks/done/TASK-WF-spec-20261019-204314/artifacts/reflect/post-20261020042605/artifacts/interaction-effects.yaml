@@ -1,0 +1,204 @@
+{
+  "scanned": true,
+  "scope": "current three production modules",
+  "cap": 30,
+  "truncated": false,
+  "findings": [
+    {
+      "symbol": "src/superclaude/cli/install_codebase_memory.py:acquire_codebase_memory",
+      "lines": [
+        571,
+        701
+      ],
+      "tasks": [
+        "T1",
+        "T3"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:846"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T1",
+            "T3"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "LOW",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    },
+    {
+      "symbol": "src/superclaude/cli/install_mcp.py:install_codebase_memory_mcp",
+      "lines": [
+        815,
+        899
+      ],
+      "tasks": [
+        "T2",
+        "T4"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:1012",
+        "src/superclaude/cli/main.py:255"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T2",
+            "T4"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "MEDIUM",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    },
+    {
+      "symbol": "src/superclaude/cli/install_mcp.py:install_mcp_server",
+      "lines": [
+        996,
+        1181
+      ],
+      "tasks": [
+        "T2",
+        "T4"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:1342"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T2",
+            "T4"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "LOW",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    }
+  ],
+  "overlaps": [
+    {
+      "symbol": "src/superclaude/cli/install_codebase_memory.py:acquire_codebase_memory",
+      "lines": [
+        571,
+        701
+      ],
+      "tasks": [
+        "T1",
+        "T3"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:846"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T1",
+            "T3"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "LOW",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    },
+    {
+      "symbol": "src/superclaude/cli/install_mcp.py:install_codebase_memory_mcp",
+      "lines": [
+        815,
+        899
+      ],
+      "tasks": [
+        "T2",
+        "T4"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:1012",
+        "src/superclaude/cli/main.py:255"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T2",
+            "T4"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "MEDIUM",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    },
+    {
+      "symbol": "src/superclaude/cli/install_mcp.py:uninstall_codebase_memory_mcp",
+      "lines": [
+        937,
+        993
+      ],
+      "tasks": [
+        "T3",
+        "T4"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:1321",
+        "src/superclaude/cli/install_mcp.py:1329"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T3",
+            "T4"
+          ],
+          "direct_textual_cross_reference": true
+        }
+      ],
+      "severity": "MEDIUM",
+      "classification": "explicitly cross-referenced overlap; not a finding",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": false
+    },
+    {
+      "symbol": "src/superclaude/cli/install_mcp.py:install_mcp_server",
+      "lines": [
+        996,
+        1181
+      ],
+      "tasks": [
+        "T2",
+        "T4"
+      ],
+      "production_source_refs": [
+        "src/superclaude/cli/install_mcp.py:1342"
+      ],
+      "pairs": [
+        {
+          "tasks": [
+            "T2",
+            "T4"
+          ],
+          "direct_textual_cross_reference": false
+        }
+      ],
+      "severity": "LOW",
+      "classification": "interaction risk only, not an adjudicated deviation",
+      "method": "recorded task-start line provenance plus actual AST call locations; import resolution may be incomplete",
+      "risk_flagged": true
+    }
+  ],
+  "overlap_count": 4,
+  "finding_count": 3
+}

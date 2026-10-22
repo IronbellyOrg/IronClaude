@@ -1,0 +1,68 @@
+Task 4 focused implementation/check evidence; product files frozen for independent QA
+
+Q0 baseline tree: 3a7c13c24fa1d3f89e527907d8b77df8e23d87d0
+Working directory: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP
+Existing environment: /config/workspace/IronClaude/.venv; UV --active --no-sync; explicit PYTHONPATH points to this worktree's src.
+
+Changed product files:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py (decorated mcp command ONLY)
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py
+No native-helper, default framework install, update, documentation, ledger or later-task wiring edits.
+
+CLI/API changes:
+- Flat mcp command retains repeatable --servers/-s, --scope default user, --list and --dry-run. Added --uninstall and --yes/-y, explicitly marked NEW in help, with native lifecycle examples and Linux/user-scope guidance.
+- install_mcp_servers(selected_servers=None, scope='user', dry_run=False, use_gateway=None, *, uninstall=False, yes=False) -> (bool, message). Existing positional parameters retained; exact whole selection is validated before any installer runs. Unknown/mixed removal selections, invalid scope/native platform and invalid numeric menu choices do not partially execute valid entries.
+- check_prerequisites(selected_servers=None) now probes only selected consumers: Claude; npm Node minimum 18 or registry Auggie minimum 20; npx availability for npx consumers; npm acquisition availability only when Auggie is missing/stale; Docker only for gateway; optional existing uv advisory only for Serena; curl/Bash only when native discovery requires acquisition. A usable native canonical/external installation has no Node/npm/Docker/key/acquisition-tool requirement. Complete prerequisite preflight precedes all selected installations.
+- No-selection terminal action menu is Install MCP servers (default), Uninstall Codebase Memory MCP, Cancel. Installation choices retain gateway first/default g, registry-driven individuals including native, and 0 for all individuals. Non-TTY/no-selection fails without menu; --yes does not implicitly select anything. The existing programmatic use_gateway=True remains a gateway selection hint.
+- Explicit native uninstall supports only user scope on supported Linux. It obtains a read-only T3 preview, displays account-wide/client/companion/session/index/updater effects, and uses default-No confirmation unless --yes is provided. Noninteractive removal requires --yes. Consent is passed to T3 as confirmed=True; no index-deletion capability was added.
+- --yes never bypasses API-key or Auggie global-binary prompts. Gateway and native selections both run and any false/process-failure outcomes aggregate instead of short-circuiting at the gateway.
+- --list is read-only and rejects incompatible lifecycle/selection/dry-run/non-default-scope combinations before lookup.
+
+Dry-run boundary and positive disclosures:
+No-selection dry-run prints action/server choices then exits without prompts, probes or mutations. Explicit dry-run bypasses install prerequisites and only builds plans or uses existing bounded read-only discovery. Native install/removal plans include the official bootstrap URL, canonical native location, user/account-wide effects on detected clients and companion integrations, and retained indexes. These are positively asserted for actual shared native dry-run functions, not merely inferred from an absence of calls. Native upstream lifecycle/acquisition is never called. Fresh API-key paths announce a future key request without prompting; existing key values remain masked. Stale registration paths do not remove. Auggie acquisition plans do not install or prompt. Gateway dry-run no longer requires running Docker or creates its directory/config.
+
+Grounding:
+Read Task 4 eight criteria, relevant frozen source sections 3-7 and Linux operator override; narrow Auggie retrieval inspected current MCP command/selection/prerequisite/dry-run paths. Existing T2/T3 registration/removal APIs and current registry were reused. No new native lifecycle flags, generic dependency framework, packages or external services were introduced. Existing official upstream lifecycle/Claude scope contracts remain unchanged.
+
+Tests and isolation:
+49 new ClickRunner cases cover help/new flags/list validation, read-only visibility, no-selection non-TTY failure, choice-only dry-run, menu defaults/cancel/all/native-removal default No, explicit/native/mixed selections, scope/Linux rejection before effects, Node18/Auggie20/package-tool/Claude/Docker/curl prerequisites, invalid whole/menu selections, gateway/native aggregate outcomes, explicit and interactive removal consent, --yes independence from API-key/Auggie prompts, legacy project/local scopes, and fresh/stale/gateway/native dry-run paths with positive URL/account/index assertions.
+Two new direct registry tests prove native-only prerequisite independence and npm selection probes limited to Claude/Node/npx. All new CLI/native/Claude/package/Docker operations are mocked under temporary HOME/config. No real upstream/native/Claude/package acquisition or developer config reads/writes. Existing T1 benign local process-supervision fixtures remain the only real runner subprocess tests. Existing Tavily/Auggie and install/update regressions were also exercised.
+
+Final test command:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_update_command.py -q
+Exit 0: 214 passed, 1 skipped in 37.77s (215 collected).
+The foreground tool moved this run to background after 30s; its output/footer and completion notification both confirmed exit 0. Skip is existing API-key-gated Tavily presence assertion, not a newly disabled test.
+
+Lint:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py
+Exit 0: All checks passed!
+
+Format:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff format --check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py
+Exit 0: 4 files already formatted. A prior --diff inspection showed main formatting edits confined to mcp.
+
+Scoped mypy (NOT GREEN; unchanged baseline diagnostics):
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+Exit 1: two existing install_mcp diagnostics; none in main:
+- 704: Returning Any from str|None function [no-any-return], legacy prompt_for_api_key.
+- 1207: object argument where str expected [arg-type], legacy list_available_servers.
+
+Exact-Q0 baseline comparison:
+Captured only those two source files using read-only git show 3a7c13c24fa1d3f89e527907d8b77df8e23d87d0:<exact source path> into:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t4-main-baseline.txt
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t4-install_mcp-baseline.txt
+Ran the same scoped mypy with --shadow-file for each actual source path pointing at its corresponding baseline text file.
+Exit 1: identical diagnostics at baseline install_mcp lines 654 and 1144. No new diagnostic; no unrelated legacy fixes.
+
+main.py scope proof:
+A UV-run stdlib ast/Path check parsed baseline/current main.py, found the top-level mcp function and its first decorator, removed precisely that decorated command span from both texts, and asserted byte equality of the remainder.
+Exit 0: PASS: main.py bytes outside the decorated mcp command equal Task 4 Q0; install/update wiring unchanged.
+
+Intermediate evidence:
+- First new CLI test failed setup before implementation because the selection-prerequisite module did not yet import shutil.
+- Initial core CLI subset: 41 passed.
+- Expanded selection subset: 50 passed, 1 failed because an assertion prohibited even the newly required read-only npm --version probe. Refined that new test to prohibit npm install specifically while still requiring the consent prompt and declined outcome. Final full suite above passed.
+
+No real lifecycle/download/install, dependency changes, developer HOME changes, native-helper changes, Task 5 wiring, ledger edits, staging/commits/Git mutations or optional coverage campaign. Product files are frozen for independent review; acceptance verdict belongs to that reviewer.

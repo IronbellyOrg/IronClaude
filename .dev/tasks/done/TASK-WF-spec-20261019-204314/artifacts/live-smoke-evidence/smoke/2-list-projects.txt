@@ -1,0 +1,25 @@
+❯ Call the codebase-memory-mcp list_projects tool and show the raw result.
+
+● codebase-memory-mcp - list_projects (MCP)
+projects: 0  (cols: name root_path branch)
+total: 0
+returned: 0
+has_more: false
+hint: "No projects indexed. Call index_repository(repo_path=...) first."
+
+
+┌────────┬────────────────────────────────────────────────────┐
+│ Status │                       Result                       │
+├────────┼────────────────────────────────────────────────────┤
+│ DONE   │ Called the project-listing tool. Raw result below. │
+├────────┼────────────────────────────────────────────────────┤
+│ NEXT   │ None. No action needed.                            │
+└────────┴────────────────────────────────────────────────────┘
+
+projects: 0  (cols: name root_path branch)
+total: 0
+returned: 0
+has_more: false
+hint: "No projects indexed. Call index_repository(repo_path=...) first."
+
+✻ Brewed for 10s · done 12:54 AM

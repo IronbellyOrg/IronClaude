@@ -1,0 +1,29 @@
+interpretation: Advisory semantic crosswalk only; does not overwrite deterministic matrix matches or coverage fractions.
+rows:
+  - {id: INF-001, disposition: covered-across-constraints-and-tasks, plan_lines: '15,19,103,119-128'}
+  - {id: INF-003, disposition: covered, plan_lines: '20,46,160'}
+  - {id: INF-004, disposition: covered, plan_lines: '20-22,82-88'}
+  - {id: INF-006, disposition: covered, plan_lines: '23,36,46,59,82'}
+  - {id: INF-009, disposition: covered, plan_lines: '122'}
+  - {id: INF-010, disposition: covered, plan_lines: '119'}
+  - {id: INF-024, disposition: covered, plan_lines: '103,106,113'}
+  - {id: INF-027, disposition: covered, plan_lines: '21,106-107'}
+  - {id: INF-033, disposition: covered, plan_lines: '21,43'}
+  - {id: INF-041, disposition: covered, plan_lines: '40,48'}
+  - {id: INF-044, disposition: covered-by-upstream-ownership-and-output-constraints, plan_lines: '20,23,40,46-47'}
+  - {id: INF-047, disposition: covered, plan_lines: '20,46,82,160'}
+  - {id: INF-048, disposition: covered, plan_lines: '69'}
+  - {id: INF-049, disposition: covered, plan_lines: '49,69'}
+  - {id: INF-050, disposition: covered, plan_lines: '44,47,65,161'}
+  - {id: INF-051, disposition: covered-at-documentation-and-ownership-level, plan_lines: '23,25,36,161'}
+  - {id: INF-061, disposition: covered, plan_lines: '85,87,108'}
+  - {id: INF-064, disposition: covered, plan_lines: '82'}
+  - {id: INF-068, disposition: covered, plan_lines: '87,91,146,160'}
+  - {id: INF-086, disposition: covered-global-constraint, plan_lines: '27'}
+  - {id: INF-088, disposition: covered-across-default-install-and-test-tasks, plan_lines: '119,122-123,143'}
+  - {id: INF-101, disposition: covered, plan_lines: '164'}
+  - {id: INF-102, disposition: covered-across-global-constraints-and-task-scopes, plan_lines: '21-24,106,162'}
+limits:
+  - These are semantic support pointers, not a second numerical coverage score.
+  - Source line 44 contains implementation-time revalidation language outside the initial normative-section extraction and is not a matrix row; plan lines 25 and 36 cover it. The matrix is therefore not proof of exhaustive atomization.
+  - Compound line-level rows may contain multiple obligations. Both matches and nonmatches require semantic review.
