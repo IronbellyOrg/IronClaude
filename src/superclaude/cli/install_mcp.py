@@ -864,6 +864,13 @@ def install_codebase_memory_mcp(
     if _native_registration_matches(previous, executable):
         return True, success_message
     expected = {"type": "stdio", "command": str(executable), "args": []}
+    if previous is not None and (previous.get("env") or previous.get("headers")):
+        # Restoring this entry would put its values on a process command line
+        # (`claude mcp add-json` takes JSON only as an argument), so never replace it.
+        return (
+            False,
+            "Registration: the existing user codebase-memory-mcp entry has env or headers values, so it was not replaced. Update it by hand or remove it with `claude mcp remove codebase-memory-mcp --scope user`, then retry.",
+        )
     if previous is not None and not _run_registration_command(
         [
             "claude",

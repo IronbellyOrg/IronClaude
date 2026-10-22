@@ -690,8 +690,6 @@ def test_native_add_failure_restores_complete_prior_entry(
     old = {
         "type": "http",
         "url": "https://old.invalid",
-        "headers": {"Authorization": "secret-rollback"},
-        "env": {"TOKEN": "secret-rollback"},
         "unknown": {"preserve": [1, True, "value"]},
     }
     _seed_native_entry(state, old)
@@ -706,9 +704,7 @@ def test_native_add_failure_restores_complete_prior_entry(
 
 def test_native_failed_restoration_distinct(native_registration, capsys):
     state = native_registration
-    _seed_native_entry(
-        state, {"command": "/old/tool", "env": {"TOKEN": "secret-rollback"}}
-    )
+    _seed_native_entry(state, {"command": "/old/tool", "args": ["--keep"]})
     state.fail_adds = 2
     success, message = install_mcp.install_codebase_memory_mcp()
     assert not success and "restoration failed" in message.lower()
@@ -730,7 +726,7 @@ def test_native_remove_persisted_then_failed_restores_previous(
     native_registration, capsys, failure
 ):
     state = native_registration
-    old = {"command": "/old/native", "args": [], "env": {"TOKEN": "secret-x"}}
+    old = {"command": "/old/native", "args": ["--keep"]}
     _seed_native_entry(state, old)
     state.remove_persists_then = failure
     success, message = install_mcp.install_codebase_memory_mcp()
@@ -753,29 +749,24 @@ def test_native_implicit_stdio_defaults_are_noop(native_registration):
     assert state.calls == [["claude", "--version"], ["acquire"]]
 
 
-@pytest.mark.parametrize("failure", ["timeout", "oserror"])
-def test_native_rollback_exception_never_exposes_secret_argv(
-    native_registration, monkeypatch, capsys, failure
+@pytest.mark.parametrize(
+    "secrets",
+    [
+        {"env": {"TOKEN": "SECRET-IN-ENTRY"}},
+        {"headers": {"Authorization": "SECRET-IN-ENTRY"}},
+    ],
+)
+def test_native_secret_bearing_entry_is_refused_before_mutation(
+    native_registration, capsys, secrets
 ):
     state = native_registration
-    old = {"command": "/old/native", "env": {"TOKEN": "SECRET-IN-ROLLBACK-ARGV"}}
+    old = {"command": "/old/native", **secrets}
     _seed_native_entry(state, old)
-    state.fail_adds = 1
-    original = install_mcp._run_command
-
-    def run(cmd, **kwargs):
-        if cmd[:3] == ["claude", "mcp", "add-json"] and json.loads(cmd[4]) == old:
-            if failure == "timeout":
-                raise subprocess.TimeoutExpired(
-                    cmd, 60, stderr="SECRET-IN-ROLLBACK-ARGV"
-                )
-            raise OSError("SECRET-IN-ROLLBACK-ARGV")
-        return original(cmd, **kwargs)
-
-    monkeypatch.setattr(install_mcp, "_run_command", run)
     success, message = install_mcp.install_codebase_memory_mcp()
-    assert not success and "restoration failed" in message.lower()
-    assert "SECRET-IN-ROLLBACK-ARGV" not in message + str(capsys.readouterr())
+    assert not success and "not replaced" in message
+    assert _native_entry(state) == old
+    assert state.calls == [["claude", "--version"], ["acquire"]]
+    assert "SECRET-IN-ENTRY" not in message + str(capsys.readouterr())
 
 
 def test_native_timeout_after_add_write_restores_prior_entry(
