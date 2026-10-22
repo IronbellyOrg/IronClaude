@@ -92,6 +92,25 @@ Dev convenience copies:            .claude/
   agents/                          Synced from src/ via make sync-dev
 ```
 
+### Path rules for primitives
+
+A command, skill or agent runs from `~/.claude/` in whatever project the user is in, where `src/superclaude/` does not exist. So when a primitive tells an agent to read, verify or invoke another primitive, it must not use a `src/superclaude/...` path.
+
+| To refer to | Write |
+|---|---|
+| a skill or its refs | `~/.claude/skills/<name>/SKILL.md`, `~/.claude/skills/<name>/refs/...` |
+| an agent | `~/.claude/agents/<name>.md` |
+| a command | `~/.claude/commands/sc/<name>.md` |
+| a core doc | `~/.claude/<FILE>.md` (e.g. `~/.claude/HOW-WE-WORK.md`) |
+
+Rules:
+
+1. **Accept the project copy too.** In a dev checkout `make sync-dev` creates `.claude/skills/` and `.claude/agents/`, and the installed copy may be missing or older. An existence check should name both (`~/.claude/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md`; either satisfies it) and STOP only when neither exists.
+2. **When one file must be read, follow Claude Code's precedence**, which differs by type: same-name agents resolve project `.claude/agents/` over `~/.claude/agents/`; same-name skills resolve `~/.claude/skills/` over `.claude/skills/`. Read the winning copy first and say so in the text.
+3. **Do not point at what is not installed.** Package code (`src/superclaude/cli/`, `pm_agent/`, `contracts/`) and `src/superclaude/examples/` are not copied to `~/.claude/`. Reach package behavior through the `superclaude` CLI instead of a file path.
+4. **`src/superclaude/...` is fine only** in maintainer instructions ("edit `src/superclaude/...`, then `make sync-dev`"), in commands that work on this repo's own source by design (such as `/sc:cli-portify`), and as an in-checkout fallback listed after the global path.
+5. **Before committing**, run `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify every remaining hit against rule 4.
+
 ### Context Loading Sequence
 
 When Claude Code starts a session, it loads context in this priority order:
@@ -738,6 +757,7 @@ Use this checklist when creating or refactoring a skill:
 - [ ] Output contract defines return fields for composability
 - [ ] If the skill uses agents: agent delegation is explicit with Task tool
 - [ ] Routing row added to the guide (`src/superclaude/core/HOW-WE-WORK.md`)
+- [ ] **No hardcoded `src/superclaude/...` paths** in SKILL.md, refs/ or scripts that tell an agent to read or verify another primitive; use the installed `~/.claude/...` path and accept the project `.claude/` copy too (see "Path rules for primitives")
 
 ---
 

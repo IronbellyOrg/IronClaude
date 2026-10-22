@@ -150,7 +150,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 **MANDATORY**: Before executing any protocol steps, invoke:
 > Skill sc:reflect-protocol
 
-Do NOT proceed with protocol execution using only this command file. The full behavioral specification — wave structure, mode-selection rubric, agent delegation map, heterogeneous reviewer ensemble, blind calibration, evidence-validator gate, deviation taxonomy, output contract, promotion mutation, error-handling matrix — is in the protocol skill at `src/superclaude/skills/sc-reflect-protocol/SKILL.md`.
+Do NOT proceed with protocol execution using only this command file. The full behavioral specification — wave structure, mode-selection rubric, agent delegation map, heterogeneous reviewer ensemble, blind calibration, evidence-validator gate, deviation taxonomy, output contract, promotion mutation, error-handling matrix — is in the protocol skill at `~/.claude/skills/sc-reflect-protocol/SKILL.md`.
 
 ## MCP Integration
 

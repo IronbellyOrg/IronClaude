@@ -59,6 +59,28 @@ gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --titl
 
 **Rationale:** This rule exists because gh's default-to-upstream behavior burned the user on 2026-05-25 (PR #558 on SuperClaude-Org instead of IronbellyOrg #86). The mechanical gates (gh's defaults, `git push` targeting) do NOT enforce the right outcome — only this CLAUDE.md rule + explicit `--repo` on every invocation does. See also: memory `feedback_pr_target_fork_only.md` and `reference_repo_remotes_IronClaude.md`.
 
+## ABSOLUTE RULE: Never Hardcode `src/superclaude/` Paths in Installed Primitives
+
+Commands, skills, agents, hooks and core files are copied to `~/.claude/` by `superclaude install` and then run in OTHER projects, where `src/superclaude/` does not exist. A path that tells an agent to read or verify something under `src/superclaude/...` breaks there.
+
+**NEVER**, in `src/superclaude/{commands,skills,agents,core,hooks,templates}` or the `plugins/superclaude/` mirror, tell an agent to Read, verify or invoke another primitive through a `src/superclaude/...` path. Use the installed path:
+
+| Primitive | Installed path |
+|---|---|
+| skill | `~/.claude/skills/<name>/SKILL.md` (refs: `~/.claude/skills/<name>/refs/...`) |
+| agent | `~/.claude/agents/<name>.md` |
+| command | `~/.claude/commands/sc/<name>.md` |
+| core doc | `~/.claude/<FILE>.md` (e.g. `~/.claude/HOW-WE-WORK.md`) |
+| template | `~/.claude/templates/...` |
+| hook | `~/.claude/hooks/...` |
+
+- Package code (`src/superclaude/cli/`, `pm_agent/`, `contracts/`) and `src/superclaude/examples/` are NOT installed to `~/.claude/`. Do not add new references to them from a primitive; reach package behavior through the `superclaude` CLI.
+- **Dual surface:** when a primitive looks up another installed primitive, name both the installed copy and the project `.claude/` copy (created by `make sync-dev` in a dev checkout). For an existence check either one satisfies it. When the agent must read ONE file, follow Claude Code's own precedence: agents read project `.claude/agents/` first, then `~/.claude/agents/`; skills read `~/.claude/skills/` first, then `.claude/skills/`.
+- **Allowed:** maintainer instructions about editing this repo ("edit `src/superclaude/...`, then `make sync-dev`"), commands that operate on this repo's own source by design (for example `/sc:cli-portify`), and a clearly labelled in-checkout fallback listed AFTER the global path.
+- **Check before committing a new or edited primitive:** `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify every hit against the list above. `tests/skills/test_primitive_dual_surface_lookup.py` pins the adversarial-skill and rf-qa lookups.
+
+**Rationale:** 25 `src/superclaude/...` references in installed primitives broke them outside a checkout; they were rewritten in PR #278, and the first rewrite then dropped the project `.claude/` copy, which is why the dual-surface rule exists.
+
 ### Required Commands
 
 ```bash

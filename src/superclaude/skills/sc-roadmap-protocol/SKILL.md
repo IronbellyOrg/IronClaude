@@ -177,7 +177,7 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 2. Validate output directory is writable; create if needed
 3. **Output collision check**: If output directory already contains roadmap artifacts (roadmap.md, extraction.md, test-strategy.md), append `-N` suffix to all output filenames (e.g., `roadmap-2.md`). Increment until no collision.
 4. Check template directory availability (4-tier: local → user → plugin → inline generation)
-5. If `--specs` or `--multi-roadmap` flags present: verify `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` exists. If not, abort: `"sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags. Install via: superclaude install"`
+5. If `--specs` or `--multi-roadmap` flags present: verify `~/.claude/skills/sc-adversarial-protocol/SKILL.md` or `.claude/skills/sc-adversarial-protocol/SKILL.md` exists (either satisfies). If neither exists, abort: `"sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags. Install via: superclaude install"`
 6. **Implicit `--multi-roadmap` inference**: If `--agents` flag is present WITHOUT `--multi-roadmap`: auto-enable `--multi-roadmap`. Emit info: `"--multi-roadmap auto-enabled (inferred from --agents flag)."` Then re-execute step 5 to verify sc:adversarial skill prerequisite.
 7. If `--multi-roadmap`: validate all model identifiers in `--agents` are recognized. Abort on unknown models.
 8. If `--resume-from` present:

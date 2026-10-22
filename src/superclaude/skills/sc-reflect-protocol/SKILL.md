@@ -1234,7 +1234,7 @@ There is no third bucket. Findings the reviewer could not tag either way are *dr
 
 ### 11.2 Evidence-validator as final gate (non-negotiable)
 
-`evidence-validator` runs in Wave 5 *after* synthesis, *before* the report is surfaced to the user. Its contract (`src/superclaude/agents/evidence-validator.md:21`): "find unfounded citations, not to confirm absence of them. A pass that drops zero items is suspect."
+`evidence-validator` runs in Wave 5 *after* synthesis, *before* the report is surfaced to the user. Its contract (`~/.claude/agents/evidence-validator.md:21`): "find unfounded citations, not to confirm absence of them. A pass that drops zero items is suspect."
 
 The orchestrator interprets validator output as:
 
@@ -1247,7 +1247,7 @@ The `--no-evidence-validator` flag exists for debugging only; using it forces `s
 
 ### 11.3 Blind calibration (anti-anchoring) — disjoint-set rule
 
-`confidence-calibrator` per `src/superclaude/agents/confidence-calibrator.md` is deliberately stripped of formation context. The card itself is its only input; the upstream investigative trail is not provided. This reduces (does not eliminate) the anchoring bias where the reviewer's own self-reported confidence inflates the next stage's verdict. Calibrated scores, not self-reports, feed the rubric in §5.
+`confidence-calibrator` per `~/.claude/agents/confidence-calibrator.md` is deliberately stripped of formation context. The card itself is its only input; the upstream investigative trail is not provided. This reduces (does not eliminate) the anchoring bias where the reviewer's own self-reported confidence inflates the next stage's verdict. Calibrated scores, not self-reports, feed the rubric in §5.
 
 **Calibrator-model selection rule (disjoint-set, per ICLR 2025 MAD evidence):**
 
