@@ -32,7 +32,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `E-LEGACY` | Pitch invocation and/or removed flags `--type` / `--framework` / `--safe` / `--with-tests` | No | No |
 | `E-HALT-QA` | A terminal `halt` record (any reason in `refs/retry.md`); no eligible Ruling | No T{i+1} | Non-compliant verdict line and `halt` record written |
 | `E-RESUME-NEEDED` | Something outside the step failed (reviewer, ref write, incomplete revert, adviser agent missing; reasons in `refs/retry.md`); re-run the same command | No T{i+1} | Nothing written |
-| `E-NO-RULING` | Continue after non-compliant without operator Ruling; `--force` | No T{i+1} | Unchanged except existing blocked line |
+| `E-NO-RULING` | Continue after non-compliant without valid recorded user acceptance (clear current-conversation confirmation is sufficient); `--force` | No T{i+1} | Unchanged except existing blocked line |
 | `E-LEDGER-CORRUPT` | Last ledger line truncated/unparseable | No further | Unchanged |
 | `E-LEDGER-PATH` | `--ledger` not under `.dev/implement/` (managed: any `--ledger` other than the sibling `progress.md`) | No | No |
 | `E-MANAGED-INVALID` | `workflow-plan/1.2` plan fails managed detection (copied, cross-checkout, slug/contract mismatch, failed contract) | No | No |
@@ -128,7 +128,7 @@ Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
 Q4 VERDICT Apply refs/qa.md order. Closed enum only.
 Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
 Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
-Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Write ledger line(s). Flush before the next task.
+Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
 Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
 ```
 

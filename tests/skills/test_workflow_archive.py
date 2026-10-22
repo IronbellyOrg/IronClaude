@@ -310,12 +310,15 @@ def test_noncompliant_without_task_ruling(tmp_path):
     )
 
 
-def test_noncompliant_without_archive_ruling_or_with_wrong_task(tmp_path):
-    fails(_noncompliant(tmp_path), "E-ARCHIVE-TASKS")
-    fails(
-        _noncompliant(tmp_path / "x", archive_ruling="waive T20 and T1"),
-        "E-ARCHIVE-TASKS",
-    )
+@pytest.mark.parametrize("archive_ruling", [None, "waive T2", "waive T20 and T1"])
+def test_legacy_task_ruling_needs_no_duplicate_archive_approval(
+    tmp_path, archive_ruling
+):
+    pk = _noncompliant(tmp_path, archive_ruling=archive_ruling)
+    assert pk.run()["status"] == "archived"
+    ledger = (pk.done / "progress.md").read_text()
+    assert "T2: complete verdict=missing" in ledger
+    assert pk.run()["status"] == "already-archived"
 
 
 def test_named_operator_archive_ruling_waives_task_not_final(tmp_path):
@@ -332,6 +335,114 @@ def test_named_operator_archive_ruling_waives_task_not_final(tmp_path):
     )
     pk2.append("ARCHIVE: Ruling: waive T2 — operator — cost")
     fails(pk2, "E-ARCHIVE-FINAL")  # ruling never waives FINAL
+
+
+def _session_accepted(tmp_path, task="T2"):
+    pk = Pkg(tmp_path / "r")
+    ledger = pk.pkg / "progress.md"
+    text = ledger.read_text()
+    complete = next(
+        line for line in text.splitlines() if line.startswith("T2: complete")
+    )
+    complete = complete.replace("verdict=compliant", "verdict=missing")
+    blocked = complete.replace("T2: complete", "T2: blocked")
+    ruling = (
+        f"{task}: Ruling: accept {task} gap; user confirmed in current conversation "
+        f'"yes, accept {task} as explained" — deferred — cost-if-wrong: gap ships'
+    )
+    ledger.write_text(
+        text.replace(
+            complete.replace("verdict=missing", "verdict=compliant"),
+            f"{blocked}\n{ruling}\n{complete}",
+        )
+    )
+    return pk, complete, blocked, ruling
+
+
+def test_session_acceptance_archives_without_rewriting_history_or_second_approval(
+    tmp_path,
+):
+    pk, complete, blocked, ruling = _session_accepted(tmp_path)
+    before = (pk.pkg / "progress.md").read_text()
+    pk.final()
+    assert pk.run()["status"] == "archived"
+    after = (pk.done / "progress.md").read_text()
+    assert after.startswith(before)
+    assert f"{blocked}\n{ruling}\n{complete}\n" in after
+    assert "ARCHIVE: Ruling:" not in after
+    assert pk.run()["status"] == "already-archived"
+
+
+def test_confirmation_for_another_task_does_not_authorize_completion(tmp_path):
+    pk, *_ = _session_accepted(tmp_path, task="T1")
+    fails(pk, "E-ARCHIVE-TASKS")
+
+
+@pytest.mark.parametrize("renew", [False, True])
+def test_reopened_task_requires_new_scoped_acceptance(tmp_path, renew):
+    pk, complete, blocked, ruling = _session_accepted(tmp_path)
+    pk.append(blocked)
+    if renew:
+        pk.append(ruling)
+    pk.append(complete)
+    if renew:
+        pk.final()
+        assert pk.run()["status"] == "archived"
+    else:
+        fails(pk, "E-ARCHIVE-TASKS")
+
+
+@pytest.mark.parametrize("ending", ["none", "ruling", "complete", "renewed"])
+def test_new_start_requires_new_completion_and_acceptance(tmp_path, ending):
+    pk, complete, _, ruling = _session_accepted(tmp_path)
+    pk.append(f"T2: start sha={'1' * 40}")
+    if ending in ("ruling", "renewed"):
+        pk.append(ruling)
+    if ending in ("complete", "renewed"):
+        pk.append(complete)
+    if ending == "renewed":
+        pk.final()
+        assert pk.run()["status"] == "archived"
+    else:
+        fails(pk, "E-ARCHIVE-TASKS")
+
+
+def test_new_start_cannot_reuse_compliant_completion(p):
+    p.append(f"T2: start sha={'1' * 40}")
+    fails(p, "E-ARCHIVE-TASKS")
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        ("verdict=missing", "verdict=extra"),
+        ("ac=T2.AC1", "ac=T2.AC2"),
+        ("evidence=src/a.py:1", "evidence=src/a.py:2"),
+        ("test:skip", "test:fail"),
+        ("files=src/a.py", "files=./artifacts/evidence.txt"),
+    ],
+)
+def test_acceptance_cannot_cover_changed_verdict_fields(tmp_path, old, new):
+    pk, complete, *_ = _session_accepted(tmp_path)
+    pk.append(complete.replace(old, new))
+    fails(pk, "E-ARCHIVE-TASKS")
+
+
+@pytest.mark.parametrize(
+    "gate", ["missing-final", "issues", "stale-final", "delivery", "plan", "source"]
+)
+def test_scoped_acceptance_does_not_waive_final_or_immutable_inputs(tmp_path, gate):
+    pk, _, _, ruling = _session_accepted(tmp_path)
+    if gate != "missing-final":
+        pk.final(word="issues" if gate == "issues" else "pass")
+    if gate == "stale-final":
+        pk.append(ruling)
+    elif gate == "delivery":
+        (pk.root / "src/a.py").write_text("changed after FINAL\n")
+    elif gate in ("plan", "source"):
+        path = pk.pkg / (PLAN if gate == "plan" else "source.md")
+        path.write_text(path.read_text() + "changed\n")
+    fails(pk, "E-ARCHIVE-PIN" if gate in ("plan", "source") else "E-ARCHIVE-FINAL")
 
 
 @pytest.mark.parametrize(

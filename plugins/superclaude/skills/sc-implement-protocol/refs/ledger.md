@@ -58,13 +58,13 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 
 `complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
 
-## Ruling line (operator-supplied only)
+## Ruling line (user-authorized, executor-recorded)
 
 ```
 T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 ```
 
-Em dashes as shown (` — `). Three non-empty fields. Executor MUST NOT write this line.
+Em dashes as shown (` — `). Three non-empty fields. A clear user confirmation in the current conversation is sufficient: the executor MUST automatically append this line, recording the explained task/finding and the user's confirmation provenance in `<what>`, with the explained reason and cost. See `refs/qa.md` for the confirmation gate. The user need not format or edit ledger text. Existing operator-written records remain valid; the grammar is unchanged. No confirmation or unclear scope means STOP `E-NO-RULING`, never infer approval.
 
 ```
 ^T([0-9A-Za-z.-]+): Ruling: .+ — .+ — .+$
@@ -78,7 +78,7 @@ After a valid operator Ruling:
 T<id>: complete verdict=<unchanged-non-compliant-verdict> ac=... evidence=... extras=... files=...
 ```
 
-Legal **only** when a matching `T<id>: Ruling:` line exists above it.
+Legal **only** when a matching `T<id>: Ruling:` line exists above it, after the latest blocked record. Preserve all verdict fields, not only the verdict label. A later blocked record or new start invalidates prior acceptance. A changed accepted finding/outcome requires new user confirmation; do not reuse the old Ruling. Legacy records with a Ruling before the first verdict remain readable; that first complete verdict binds its scope.
 
 ## Retry and halt records
 
@@ -177,11 +177,13 @@ Blocked missing:
 T2: blocked verdict=missing ac=T2.AC1,T2.AC2 evidence=T2.AC1 extras=lint:pass,typecheck:skip,test:unrelated-red files=src/bar.py
 ```
 
-Ruling:
+Executor-recorded Ruling after the explained scope, reason and cost, followed by the user's "yes, accept T2 as explained":
 
 ```
-T2: Ruling: drop pagination — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated
+T2: Ruling: accept T2 missing pagination; user confirmed in current conversation "yes, accept T2 as explained" — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated
 ```
+
+The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated`) remains valid.
 
 Retry open:
 
@@ -221,7 +223,7 @@ Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and
 - `evidence=` tokens may be package-relative: `./artifacts/<file>:<line>`.
 - A log token cites the line that shows the outcome (a pytest summary such as `48 passed in 0.16s`, ruff's `All checks passed!`), not a banner and not the trailing `rc=` line; one token per outcome when a log covers several commands.
 - A managed `FINAL:` carries the helper's `state=` digest and must be the last record before the helper's own `ARCHIVE: start id=<id> token=<hex>` line. Any later `PLAN`/`T`/`ARCHIVE` record makes it stale: run a new FINAL on every archive attempt. `ARCHIVE: failed id=<id> token=<hex> reason=<code>` records a refused attempt.
-- `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` is operator-supplied only; the executor MUST NOT write it, and it never waives FINAL.
+- Legacy `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` records remain readable but are optional. A matching task Ruling is sufficient for ordinary archiving of unchanged accepted work; never demand duplicate approval. Neither form waives FINAL or authorizes commit, PR, merge or release.
 - Resume dispatch for managed packages: location check → pin check → first non-complete task → the per-task resume table (Resume) → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
 
 ```

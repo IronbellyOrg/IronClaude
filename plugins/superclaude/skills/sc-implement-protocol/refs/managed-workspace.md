@@ -50,7 +50,7 @@ Archive gate, **every attempt** (N=1, resume, retry; an earlier FINAL never coun
 1. Join every delegated writer / background task. Nothing may still be writing the package or delivery files.
 2. `--skip-final-review` → no FINAL and no archive: STOP `E-ARCHIVE-BLOCKED` (`--skip-final-review` prevents archiving a managed package).
 3. State: `uv run --no-project python "<skill base>/scripts/archive_workspace.py" --root "<checkout>" --package "<checkout>/.dev/tasks/to-do/<slug>" --print-state` → JSON `{"status": "state", "state": "<sha256>", "files": [...]}` (the plan/source/delivery-file digest; `files` = every repo-relative path named in a ledger `files=` field, so list every delivery file there). Failure → STOP `E-ARCHIVE-BLOCKED` with the helper's code.
-4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it.
+4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it. For a user-accepted gap, verify the current outcome still matches the recorded scoped acceptance and cite the unmet AC honestly; any new or changed unaccepted gap → `issues`. Do not mark unmet AC as met or change the non-compliant task verdict.
 5. Re-run step 3. If `state` changed during the review, discard the result and repeat from step 1. Otherwise append (after all task lines and the latest `PLAN:` pin):
 
 ```
@@ -61,15 +61,11 @@ FINAL: <pass|issues> evidence=<ev-list> state=<sha256>
 
 `<skill base>` is the base directory the loaded skill announces (the directory holding this skill's `SKILL.md`); never hardcode a repository `src/` path. A FINAL pass is not a commit, PR, merge, release or human approval.
 
-### Operator archive Ruling
+### Reuse scoped task acceptance
 
-Tasks completed through an operator task Ruling need, before archiving, an operator-written line:
+A valid task Ruling already authorizes completion and ordinary archiving of that unchanged accepted task. Do not ask the user for duplicate archive approval or make them hand-write records. The executor records genuine current-conversation confirmation automatically as specified in `refs/qa.md` and `refs/ledger.md`; no confirmation means no Ruling and no non-compliant completion/archive. Acceptance never waives FINAL or evidence of current outcomes, nor authorizes commit, PR, merge or release.
 
-```
-ARCHIVE: Ruling: <what, naming each waived task id e.g. T2,T3> — <why> — <cost-if-wrong>
-```
-
-The executor MUST NOT write it, and it never waives FINAL or evidence of current outcomes. The helper checks every non-compliant task is named. Any later ledger record makes a FINAL stale, so the Ruling must already be on the ledger before the fresh FINAL of the attempt it covers.
+Legacy `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` records remain readable but are optional; they cannot substitute for task acceptance. A later blocked record reopens the task and invalidates its old Ruling; a changed accepted finding/outcome requires new scoped user acceptance. The helper checks ledger ordering and unchanged verdict fields, not conversation truth or whether a user accepted changed file contents: those checks belong to the executor and fresh reviewer. Every acceptance record must precede the fresh FINAL; any later task or archive record makes FINAL stale.
 
 ### Helper, sole movement path
 
@@ -83,7 +79,7 @@ An existing `.archiving` marker always stops. If a run was killed mid-archive th
 
 | Rule | Enforced by |
 |------|-------------|
-| detection, location resolution, ledger path, pin/re-pin, delegate roots, joins, `--no-promote`, fresh reviewer, "active all-complete" dispatch | **protocol** (this Markdown; static tests only prove the wording) |
-| real direct package under to-do/done, no symlink escape, schema/slug/contract, pins vs disk, every task complete (Ruling + named archive Ruling), FINAL pass last and bound to the current state digest, no existing marker, no-replace move, recovery token | **executable** (`scripts/archive_workspace.py`, tested in `tests/skills/test_workflow_archive.py`) |
+| detection, location resolution, ledger path, pin/re-pin, delegate roots, joins, `--no-promote`, fresh reviewer, "active all-complete" dispatch, genuine informed user confirmation and unchanged accepted outcomes | **protocol** (this Markdown; static tests only prove the wording) |
+| real direct package under to-do/done, no symlink escape, schema/slug/contract, pins vs disk, every task complete (matching task Ruling for unchanged non-compliant verdict fields), FINAL pass last and bound to the current state digest, no existing marker, no-replace move, recovery token | **executable** (`scripts/archive_workspace.py`, tested in `tests/skills/test_workflow_archive.py`) |
 | concurrent writers on one package, non-cooperating checkout writers | unsupported; not claimed. The retry ladder reverts a non-cooperating writer's edits to files in the task's revert domain; they are kept only in the sweep refs (`refs/retry.md`) |
 | delivery files missing from every ledger `files=` field, and `./artifacts/*` content | not covered by the state digest; only the FINAL reviewer (protocol) can notice stale evidence |

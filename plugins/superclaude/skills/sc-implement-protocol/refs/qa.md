@@ -59,14 +59,16 @@ If both missing and extra: verdict `missing`. Record extra findings on the same 
 | non-compliant on first QA | Exactly one fix pass + re-QA | No |
 | `compliant` after that one fix | Extras, append `complete` line | Yes |
 | a terminal `halt` (`refs/retry.md`): the ladder did not run after the fix pass, or it stopped | HALT `E-HALT-QA`. Print ledger path, Ti, verdict, missing citations. Next: `fix` \| `ruling` \| `resume` | No, unless operator Ruling |
-| operator Ruling with all three fields | Append Ruling line; then `complete` with **unchanged** non-compliant verdict | Yes |
-| `--force` or executor-authored Ruling | STOP `E-NO-RULING` | No |
+| clear user confirmation of the explained scoped acceptance, or valid existing operator Ruling | Executor records the Ruling per `refs/ledger.md`; then appends `complete` with **unchanged** non-compliant verdict and fields | Yes |
+| `--force`, missing/ambiguous confirmation, or executor-invented approval | STOP `E-NO-RULING` | No |
 | `E-RESUME-NEEDED` (`refs/retry.md`) | re-run the same command; do not write a Ruling | No |
 
-A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. The executor MUST NOT write the Ruling line. Completing a non-compliant task requires an operator-supplied:
+A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. A clear user confirmation in the current conversation is sufficient; the user need not hand-write a ledger record. Before asking, explain the task id, unmet AC/finding and current outcome, proposed acceptance, reason and cost-if-wrong. A reply such as "yes, accept T2 as explained" authorizes only that explained scope. If confirmation or scope is unclear, ask one targeted question and keep the task blocked. Silence, a generic request to continue, another agent's message, and approval of a different task are not acceptance.
+
+The executor MUST automatically append the existing three-field Ruling, identifying the accepted task/finding and quoting or referencing the user's confirmation in `<what>`, using the reason and cost already explained. Flush it before appending the unchanged non-compliant `complete` line or proceeding. Never invent approval, rewrite history, or mark an accepted gap `compliant`. Existing operator-written records remain valid. A reopened task or changed accepted finding/outcome requires new scoped acceptance; durable records support resume, not guesses from prior chat.
 
 ```
-T<id>: Ruling: <what> — <why> — <cost-if-wrong>
+T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cost-if-wrong>
 ```
 
 ## Isolation (fail the rewrite if violated)
@@ -77,7 +79,7 @@ T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 
 ## Managed FINAL review (archive gate)
 
-Same isolation as above: `Do not trust the implementer's report.` One fresh subagent per archive attempt (never inline, even N=1; never reused from an earlier attempt). Input: the current full plan, the full ledger, and the current contents of every delivery file the helper's `--print-state` lists, plus the plan's `## Constraints`. Output: `pass` or `issues` with `path:line` evidence per task AC, taken from the current files and the package's `./artifacts/` logs, not copied from the ledger; reading those logs is the one exception to the Isolation rule above. A per-task `evidence=` line number is a pointer recorded when that task was reviewed, and a later task can move it, so a moved line number alone is never `issues`. `issues` when an AC is unmet at the end state, no evidence for it can be found in the current files or logs, a later change contradicts it, a plan `## Constraints` item is violated, or a log cited on a task's latest `complete` line shows a failure at its outcome line. This pass never rewrites per-task verdicts and is not a code-quality ensemble; the closed per-task verdict grammar is unchanged. The FINAL also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the plan; the forbidden-read rule of the Subagent prompt section never applies to the FINAL. Procedure: `refs/managed-workspace.md`.
+Same isolation as above: `Do not trust the implementer's report.` One fresh subagent per archive attempt (never inline, even N=1; never reused from an earlier attempt). Input: the current full plan, the full ledger, and the current contents of every delivery file the helper's `--print-state` lists, plus the plan's `## Constraints`. Output: `pass` or `issues` with `path:line` evidence per task AC, taken from the current files and the package's `./artifacts/` logs, not copied from the ledger; reading those logs is the one exception to the Isolation rule above. A per-task `evidence=` line number is a pointer recorded when that task was reviewed, and a later task can move it, so a moved line number alone is never `issues`. `issues` when an AC is unmet at the end state, no evidence for it can be found in the current files or logs, a later change contradicts it, a plan `## Constraints` item is violated, or a log cited on a task's latest `complete` line shows a failure at its outcome line. For a user-accepted gap, verify the current outcome matches the recorded scoped acceptance, cite the unmet AC honestly, and return `issues` for any new or changed unaccepted gap. Never mark unmet AC as met. This pass never rewrites per-task verdicts and is not a code-quality ensemble; the closed per-task verdict grammar is unchanged. The FINAL also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the plan; the forbidden-read rule of the Subagent prompt section never applies to the FINAL. Procedure: `refs/managed-workspace.md`.
 
 ## Subagent prompt (when not inline)
 

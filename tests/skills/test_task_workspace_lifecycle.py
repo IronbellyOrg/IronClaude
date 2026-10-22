@@ -224,7 +224,7 @@ def test_managed_final_and_archive_gate_rules():  # STATIC
         "Missing or unverifiable evidence → `issues`",
         "If `state` changed during the review, discard the result",
         "`issues` → STOP `E-ARCHIVE-BLOCKED`",
-        "The executor MUST NOT write it, and it never waives FINAL",
+        "Acceptance never waives FINAL or evidence of current outcomes",
         "Never `mv`, `cp`, `rename`, or `mkdir` a destination",
         "An existing `.archiving` marker always stops",
         "never reclaim, never infer the owner is dead",
@@ -334,6 +334,37 @@ def test_command_surface_documents_managed_packages():  # STATIC
     assert "Move a package by any means other than the archive helper" in cmd
     assert "Managed packages always use the sibling `progress.md`" in cmd
     assert "blocks archiving" in cmd
+
+
+def test_session_confirmation_contract_and_documented_ruling(
+    tmp_path,
+):  # STATIC + CROSS
+    qa, ledger, managed = _impl("refs/qa.md"), _impl("refs/ledger.md"), _managed()
+    assert (
+        "clear user confirmation in the current conversation is sufficient"
+        in qa.lower()
+    )
+    assert "MUST automatically append" in qa and "MUST automatically append" in ledger
+    assert "missing/ambiguous confirmation" in qa and "STOP `E-NO-RULING`" in qa
+    assert "executor-invented approval" in qa and "unchanged" in qa
+    assert "Do not ask the user for duplicate archive approval" in managed
+    assert "conversation truth" in managed and "**protocol**" in managed
+    for doc in (qa, ledger, managed):
+        assert "MUST NOT write" not in doc
+    example = next(
+        line
+        for line in ledger.splitlines()
+        if line.startswith("T2: Ruling:") and "user confirmed" in line
+    )
+    assert '"yes, accept T2 as explained"' in example
+    path = tmp_path / "progress.md"
+    path.write_text(
+        "# implement ledger — source: spec.md — created: 2026-10-22T00:00:00Z\n"
+        + example
+        + "\n",
+        encoding="utf-8",
+    )
+    assert [kind for kind, _, _ in aw._parse_ledger(path)] == ["header", "ruling"]
 
 
 def test_managed_ledger_extension_examples_parse_with_the_shipped_helper(
