@@ -42,71 +42,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: List boundary files changed in this PR
-        id: changed
-        run: |
-          set -euo pipefail
-          base_sha="${{ github.event.pull_request.base.sha }}"
-          head_sha="${{ github.event.pull_request.head.sha }}"
-          mapfile -t touched < <(
-            git diff --name-only "$base_sha" "$head_sha" -- \
-              src/superclaude/cli/swarm/merge.py \
-              tests/swarm/test_merge_mechanical_only.py \
-              tests/swarm/test_merge_loc_ceiling.py \
-              tests/swarm/test_merge_no_transforms.py \
-              tests/swarm/test_no_scoring_engine.py
-          )
-          printf 'touched:\n'
-          printf '  %s\n' "${touched[@]}"
-          {
-            echo "files<<EOF"
-            printf '%s\n' "${touched[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Annotate boundary touch
+      - name: Flag boundary touch and write job summary
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           echo "::warning title=Mechanical-merge boundary touched::This PR modifies the caller-facing neutrality boundary in src/superclaude/cli/swarm/merge.py or one of its four structural guards. Human review is required before merge -- the merge module is intentionally pinned at <=30 LOC and must remain free of sort / score / dedup / filter / rewrite operations (AC-011, AC-012, NFR-008, NFR-009)."
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Mechanical-merge boundary touched
 
-      - name: Write job summary
-        run: |
-          {
-            echo "## Mechanical-merge boundary touched"
-            echo ""
-            echo "This PR modifies one or more files on the caller-facing"
-            echo "neutrality boundary (T05.05 / FR-012). Reviewers must"
-            echo "verify all four structural guards remain intact:"
-            echo ""
-            echo "1. **Docstring contract** -- \`merge.py\` module docstring"
-            echo "   must still enumerate ALLOWED operations (concat,"
-            echo "   slot-index sort, provenance header) and DISALLOWED"
-            echo "   operations (sort/score/dedup/filter/rewrite/reorder)."
-            echo "2. **<=30 LOC ceiling** -- \`merge.py\` body must remain"
-            echo "   at or below 30 lines (excluding module docstring and"
-            echo "   imports per NFR-008). Verified by"
-            echo "   \`tests/swarm/test_merge_loc_ceiling.py\`."
-            echo "3. **PR-review discipline** -- this workflow flags the"
-            echo "   touch; branch protection must require this check."
-            echo "4. **Boundary test** -- \`tests/swarm/test_merge_mechanical_only.py\`"
-            echo "   asserts 3-worker concat preserves slot-index order,"
-            echo "   verbatim bodies, and provenance-header-only output."
-            echo ""
-            echo "### Files touched in this PR"
-            echo ""
-            echo '```'
-            echo "${{ steps.changed.outputs.files }}"
-            echo '```'
-            echo ""
-            echo "### Required reviewer checks"
-            echo ""
-            echo "- [ ] No new sort / score / rank / dedup / filter / rewrite"
-            echo "      operations introduced into \`merge.py\`."
-            echo "- [ ] Module docstring still enumerates ALLOWED and"
-            echo "      DISALLOWED operations."
-            echo "- [ ] All four guards still listed in the module docstring."
-            echo "- [ ] If \`merge.py\` body grew, NFR-008 (<=30 LOC) was"
-            echo "      explicitly revisited and the ceiling deliberately"
-            echo "      raised in the spec -- not silently relaxed in the test."
-            echo "- [ ] Scoring / ranking work was directed to"
-            echo "      \`/sc:adversarial\`, not added here."
-          } >> "$GITHUB_STEP_SUMMARY"
+          This PR modifies one or more files on the caller-facing
+          neutrality boundary (T05.05 / FR-012). Reviewers must
+          verify all four structural guards remain intact:
+
+          1. **Docstring contract** -- `merge.py` module docstring
+             must still enumerate ALLOWED operations (concat,
+             slot-index sort, provenance header) and DISALLOWED
+             operations (sort/score/dedup/filter/rewrite/reorder).
+          2. **<=30 LOC ceiling** -- `merge.py` body must remain
+             at or below 30 lines (excluding module docstring and
+             imports per NFR-008). Verified by
+             `tests/swarm/test_merge_loc_ceiling.py`.
+          3. **PR-review discipline** -- this workflow flags the
+             touch; branch protection must require this check.
+          4. **Boundary test** -- `tests/swarm/test_merge_mechanical_only.py`
+             asserts 3-worker concat preserves slot-index order,
+             verbatim bodies, and provenance-header-only output.
+
+          ### Files touched in this PR
+
+          ```
+          EOF
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- \
+            src/superclaude/cli/swarm/merge.py \
+            tests/swarm/test_merge_mechanical_only.py \
+            tests/swarm/test_merge_loc_ceiling.py \
+            tests/swarm/test_merge_no_transforms.py \
+            tests/swarm/test_no_scoring_engine.py \
+            >> "$GITHUB_STEP_SUMMARY" || echo "(diff unavailable)" >> "$GITHUB_STEP_SUMMARY"
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ```
+
+          ### Required reviewer checks
+
+          - [ ] No new sort / score / rank / dedup / filter / rewrite
+                operations introduced into `merge.py`.
+          - [ ] Module docstring still enumerates ALLOWED and
+                DISALLOWED operations.
+          - [ ] All four guards still listed in the module docstring.
+          - [ ] If `merge.py` body grew, NFR-008 (<=30 LOC) was
+                explicitly revisited and the ceiling deliberately
+                raised in the spec -- not silently relaxed in the test.
+          - [ ] Scoring / ranking work was directed to
+                `/sc:adversarial`, not added here.
+          EOF

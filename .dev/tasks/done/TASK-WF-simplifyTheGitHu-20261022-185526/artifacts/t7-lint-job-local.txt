@@ -1,0 +1,36 @@
+$ ruff check src/ tests/
+All checks passed!
+(exit 0)
+
+$ ruff format --check src/ tests/
+1162 files already formatted
+(exit 0)
+
+$ pytest --trace-config 2>&1 | grep -q "superclaude"
+(exit 0)
+
+$ pytest --fixtures | grep -E "(confidence_checker|...)" | wc -l
+19
+
+$ UV_PROJECT_ENVIRONMENT=/tmp/t7-deps-venv make verify-deps
+PASS: installed packages are a subset of the AC3 allow-list.
+EXIT=0
+
+$ make sync-dev
+   Commands:  43 files
+   Hooks:     11 files
+   Templates: 52 files
+(exit 0)
+
+$ make verify-sync
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+(exit 0)
+
+$ make lint-architecture
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+(exit 0)
+
