@@ -120,6 +120,7 @@ The full behavioral specification is in the protocol skill at
 - Per-task spec-compliance QA against that task's AC (the source text, when informal)
 - Record one ledger at `.dev/implement/<slug>/progress.md` (managed packages: the sibling `progress.md`, then archive the package after a fresh FINAL)
 - Run lint/typecheck/tests when present and record them as extras
+- Accept clear user confirmation in the current conversation after explaining the specific gap, reason and cost; automatically record that acceptance in the ledger without requiring hand-written Ruling text. Reuse it for ordinary archiving of unchanged accepted work, never to waive fresh FINAL review or release gates
 
 **Will Not:**
 
