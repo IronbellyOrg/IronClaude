@@ -1,0 +1,14 @@
+Checking MCP server health…
+
+plugin:playwright:playwright: npx @playwright/mcp@latest - ✔ Connected
+plugin:Notion:notion: https://mcp.notion.com/mcp (HTTP) - ! Needs authentication
+plugin:dropbox:claude_app_mcp: https://mcp.dropbox.com/claude_app_mcp (HTTP) - ! Needs authentication
+plugin:google-cloud-storage:cloud-storage: npx -y @toolbox-sdk/server@1.9.0 --prebuilt cloud-storage --stdio - ✘ Failed to connect — CONNECTION_CLOSED: Connection closed
+context7: npx -y @upstash/context7-mcp - ✔ Connected
+playwright: npx -y @playwright/mcp@latest - ✔ Connected
+serena: uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false - ✔ Connected
+morphllm-fast-apply: npx -y @morphllm/morphmcp - ✔ Connected
+tavily: npx -y tavily-mcp@0.2.22 - ✔ Connected
+auggie: auggie --mcp --mcp-auto-workspace - ✘ Failed to connect — CONNECTION_CLOSED: Connection closed
+codebase-memory-mcp-lookalike: /bin/true  - ✘ Failed to connect — CONNECTION_CLOSED: Connection closed
+codebase-memory-mcp: /bin/true  - ✘ Failed to connect — CONNECTION_CLOSED: Connection closed

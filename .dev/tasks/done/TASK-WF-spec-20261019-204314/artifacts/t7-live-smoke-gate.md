@@ -1,6 +1,31 @@
 # Codebase Memory Live Smoke Gate
 
-**Status: BLOCKED — live smoke pending separate authorization and execution.**
+**Status: PASSED, 2026-10-22.** Live smoke run by the operator in a disposable Coder workspace; evidence in [`live-smoke-evidence/`](live-smoke-evidence/). The original procedure text below is kept unchanged for provenance.
+
+## Live Smoke Result (2026-10-22)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Code under test | Commit `c180cf39` on branch `CodebaseMemoryMCP`, installed with `uv tool install`; branch flags active | `smoke/source-commit.txt`, `smoke/which.txt` |
+| Environment | Linux amd64 Coder workspace, operator's disposable account | operator report |
+| Acquisition | Upstream `main/install.sh`, asset `codebase-memory-mcp-linux-amd64-portable.tar.gz`, checksum verified, version 0.12.1, binary SHA-256 `77745491…709` | `smoke/5-reinstall.log`, `smoke/native-version.txt` |
+| Receipt | Created on acquisition; matches binary identity and hash; recreated after reinstall | `smoke/receipt-1.json`, `smoke/receipt-2.json` |
+| Companion merge | Install adds lines and files only, with no existing line changed or removed, across Claude, Codex, OpenCode, Augment and Pi config. IronClaude hooks and the seeded user hook are intact. `~/.claude/CLAUDE.md` is untouched | `content/install.diff`, `content/seed-counts.txt` |
+| Unrelated hook still runs | Seeded PreToolUse Bash hook fired during a live `claude -p` Bash call alongside upstream hooks | operator output `SMOKE_SEED_HOOK` |
+| Registration and live query | User scope, stdio, absolute path, no arguments; real `list_projects` response (0 projects) | `smoke/2-mcp-get.txt`, `smoke/2-list-projects.txt` |
+| Look-alike and other-scope entries | User look-alike entry and same-named project and local entries preserved through install and removal | `smoke/2-fixture-entries.txt`, `smoke/4-fixture-entries.txt` |
+| Repeat install | No new download or install; only a settings backup added; dry-run and `--list` make no changes | `smoke/3-repeat.diff`, `smoke/3-*.log` |
+| Removal | Binary, receipt and user entry removed. Graph cache sentinel and `activity.db` index kept. Updater `~/.local/bin/install.sh` left and reported. All 9 captured config files restored byte-for-byte to their pre-install state | `smoke/4-uninstall.log`, `smoke/4-localbin.txt`, `content/uninstall-vs-before.diff` (empty) |
+| Update vs restore | `superclaude update` does not restore the removed tool; explicit `superclaude install` re-acquires with a fresh receipt; sentinel retained | `smoke/5-update.log`, `smoke/5-reinstall.log` |
+
+Known residuals (upstream-owned, accepted):
+- The first install appended a redundant PATH line (`~/.bashrc:291-292`, "Added by codebase-memory-mcp install"), which removal does not take out. Permitted by `source.md:94` (upstream shell/PATH changes).
+- The first install created `~/.codex/AGENTS.md` and `~/.config/opencode/AGENTS.md`; after removal they remain as empty files.
+
+Evidence limits:
+- The first `smoke/` merge diff is invalid: its install command failed on a terminal paste glitch (exit 127) after an earlier unseeded install. The merge check was redone with full file contents in `content/`.
+- The seeded `CLAUDE.md` marker was never written, because bash history expansion on `<!--` rejected the command. Coverage instead comes from `CLAUDE.md` being byte-identical across install and removal.
+- The workspace still had the operator's real proxy/Codex configuration rather than fresh disposable credentials.
 
 Task 7 documents the procedure; it does not execute or authorize downloads, native installation/removal, live client processes, release, staging, commit, push or publication. Documentation is frozen for independent QA; the parent owns the task ledger and Q0 pin.
 

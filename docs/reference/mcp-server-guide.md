@@ -51,7 +51,7 @@ superclaude mcp --uninstall --servers codebase-memory-mcp --yes
 
 Without a terminal, explicit `--servers` selection is required, plus `--yes` for removal. With no selection on a terminal, the menu offers Install (default), Uninstall Codebase Memory, or Cancel; install remains gateway-first and all-individual selection includes Codebase Memory. Repeat `--servers` for multiple names. Dry-run prints choices or a selected plan including full source URL, account-wide effects and retained indexes, without prompts, downloads, lifecycle execution or config/file mutation.
 
-**Release remains blocked pending a separately authorized disposable-environment smoke** of the actual packaged binary and moving bootstrap. Follow the [operator procedure](../user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke); mocked tests are not merge-safety proof. Stop and revise with the user if upstream overwrites unrelated framework/user assets; never silently switch to binary-only setup.
+**The disposable-environment live smoke passed on 2026-10-22** for upstream 0.12.1 on Linux amd64 (see the [release gate](../user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke) for the result and known residuals). Re-run that operator procedure for a materially different upstream release; mocked tests are not merge-safety proof. Stop and revise with the user if upstream overwrites unrelated framework/user assets; never silently switch to binary-only setup.
 
 ## Installation and Configuration Issues
 
