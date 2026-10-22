@@ -23,7 +23,7 @@ Explicit only — three activation paths:
 
 | Input | Required | Notes |
 |-------|----------|-------|
-| `--monitor {0,1,2,3}` | No (default 2) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
+| `--monitor {0,1,2,3}` | No (default 3) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, via `gh repo view --json nameWithOwner`).
