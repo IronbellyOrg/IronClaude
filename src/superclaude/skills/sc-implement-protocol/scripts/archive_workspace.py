@@ -214,7 +214,8 @@ def _check_brief(root: Path, pkg: Path, m) -> None:
     tid, n, brief, sup = m.group(1), m.group(2), m.group(5), m.group(6)
     name = f"T{tid}_brief-{n}.md"
     legacy = _LEGACY_BRIEF.match(brief)
-    if brief == f"./artifacts/retries/{name}":  # managed: package-relative
+    managed = brief == f"./artifacts/retries/{name}"  # package-relative
+    if managed:
         path = pkg / "artifacts" / "retries" / name
     elif legacy and legacy.group(1) not in (".", "..") and legacy.group(2) == name:
         path = root / brief  # legacy: repo-relative
@@ -229,6 +230,12 @@ def _check_brief(root: Path, pkg: Path, m) -> None:
         )
     if os.path.islink(path) or not path.is_file():
         raise ArchiveError("E-ARCHIVE-PACKAGE", f"T{tid} brief file missing: {brief}")
+    # A managed brief moves with the package: a symlinked retries folder would resolve
+    # here but dangle once the package is renamed into done/.
+    if managed and os.path.islink(path.parent):
+        raise ArchiveError(
+            "E-ARCHIVE-PACKAGE", f"T{tid} artifacts/retries must be a real directory"
+        )
 
 
 def _digest(root: Path, plan_sha: str, source_sha: str, files: list[str]) -> str:

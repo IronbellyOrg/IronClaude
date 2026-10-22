@@ -975,3 +975,40 @@ def test_issues_then_shifted_final_archives_then_already_archived(tmp_path):
     assert pk.run()["status"] == "archived"
     assert not pk.pkg.exists()
     assert pk.run() == {"status": "already-archived", "path": str(pk.done)}
+
+
+# --- a symlinked managed retries directory must not validate ------------------------
+def _symlinked_retries_pkg(tmp_path):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    shared = (
+        pk.todo_root / "shared-retries"
+    )  # outside the package; moves are not followed
+    shared.mkdir()
+    (shared / "T1_brief-3.md").write_text("brief\n")
+    (pk.pkg / "artifacts/retries").symlink_to(
+        "../../shared-retries", target_is_directory=True
+    )
+    pk.append(_revert(3, BRIEF3, "none"))
+    pk.final(state="0" * 64)  # state() itself rejects the package, which is the point
+    return pk
+
+
+def test_symlinked_retries_directory_is_rejected_before_any_move(tmp_path):
+    pk = _symlinked_retries_pkg(tmp_path)
+    with pytest.raises(aw.ArchiveError) as e:
+        pk.state()
+    assert e.value.code == "E-ARCHIVE-PACKAGE"
+    fails(pk, "E-ARCHIVE-PACKAGE")  # also asserts the package is still in to-do/
+    assert not pk.done.exists()
+
+
+def test_symlinked_brief_file_is_rejected(tmp_path):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    real = pk.pkg / "artifacts/retries"
+    real.mkdir(parents=True)
+    (pk.pkg / "artifacts/elsewhere.md").write_text("brief\n")
+    (real / "T1_brief-3.md").symlink_to("../elsewhere.md")
+    pk.append(_revert(3, BRIEF3, "none"))
+    pk.final(state="0" * 64)
+    fails(pk, "E-ARCHIVE-PACKAGE")
+    assert not pk.done.exists()

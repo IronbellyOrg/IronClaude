@@ -857,3 +857,23 @@ def test_reviewer_rules_text():  # STATIC
     assert "every file in `<retries>/T<id>/`" in final
     assert "never applies to the FINAL" in final
     assert "never spawned as `fork`" in _impl("SKILL.md")
+
+
+def test_revert_delete_is_guarded_against_symlinked_ancestors():  # STATIC
+    retry = _impl("refs/retry.md")
+    block = re.findall(r"```bash\n(.*?)```", retry, re.S)
+    block = next(b for b in block if "sc_retry_revert()" in b)
+    guard = 'elif ! _sc_retry_linked "$top" "$p"; then'
+    assert block.count(guard) == 1
+    assert block.index(guard) < block.index('rm -f -- "$top/$p"')
+    assert "only when no directory above `p` is a symlink at that moment" in retry
+
+
+def test_adviser_is_bundled_with_the_plugin_and_selected_by_available_type():  # STATIC
+    src = _REPO / "src/superclaude/agents/implement-retry-adviser.md"
+    plugin = _REPO / "plugins/superclaude/agents/implement-retry-adviser.md"
+    assert plugin.is_file() and plugin.read_bytes() == src.read_bytes()
+    assert re.search(r"^tools: Read, Grep, Glob$", plugin.read_text(), re.M)
+    retry = _impl("refs/retry.md")
+    assert "ends in `:implement-retry-adviser`" in retry
+    assert "do not guess the plugin prefix" in retry

@@ -953,3 +953,140 @@ def test_repo_path_with_glob_chars_and_failglob(tmp_path):
         and "UNMOVED ./artifacts/a.log" in lines
         and "UNMOVED ./artifacts/y.log" in lines
     ), r
+
+
+# --- restored-parent-symlink containment (deletion must not cross a restored symlink) ---
+def _cached(repo):
+    return git(repo, "ls-files", "-s").stdout
+
+
+def _swap_link_for_dir(repo, rel, victim_rel):
+    """Attempt: tracked-at-Q0 symlink ``rel`` becomes a real dir holding an attempt-only file."""
+    (repo / rel).unlink()
+    put(repo, f"{rel}/{victim_rel}", "attempt\n")
+
+
+def _assert_contained(r, repo, link, outside, victim, cached, q0):
+    lines = r.stdout.splitlines()
+    assert r.returncode == 0 and "DONE" in lines, r
+    assert (outside / victim).read_text() == "outside victim\n"  # bytes unchanged
+    assert not any(x.startswith(f"DELETED {link}/") for x in lines), lines
+    assert not any(x.startswith("RESIDUE") for x in lines), lines
+    assert (repo / link).is_symlink() and os.readlink(repo / link) == str(outside)
+    assert _cached(repo) == cached  # user index untouched
+    assert outside_run(repo, q0) == []
+
+
+@pytest.mark.parametrize("nest", ["link", "a/link"])  # symlink at top / one dir down
+@pytest.mark.parametrize(
+    "depth", ["", "deep/"]
+)  # leaf directly under it / two levels below
+def test_restored_parent_symlink_never_deletes_outside_file(tmp_path, nest, depth):
+    outside = tmp_path / "outside"
+    (outside / "deep").mkdir(parents=True)
+    (outside / depth / "victim.txt").write_text(
+        "outside victim\n"
+    )  # same name as attempt file
+
+    def prep(repo):
+        (repo / nest).parent.mkdir(parents=True, exist_ok=True)
+        (repo / nest).symlink_to(outside, target_is_directory=True)
+
+    repo, ledger, q0 = setup(tmp_path, prep=prep)
+    _swap_link_for_dir(repo, nest, f"{depth}victim.txt")
+    cached = _cached(repo)
+    r = run_block(repo, ledger)
+    assert f"RESTORED {nest}" in r.stdout.splitlines(), (
+        r.stdout
+    )  # restore did happen first
+    _assert_contained(r, repo, nest, outside, f"{depth}victim.txt", cached, q0)
+
+
+@pytest.mark.parametrize("kind", ["dangling", "file"])
+def test_restored_dangling_or_file_symlink_parent_not_deleted_through(tmp_path, kind):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "o.txt").write_text("outside victim\n")
+    target = outside / "missing" if kind == "dangling" else outside / "o.txt"
+
+    def prep(repo):
+        (repo / "link").symlink_to(target)
+
+    repo, ledger, q0 = setup(tmp_path, prep=prep)
+    _swap_link_for_dir(repo, "link", "victim.txt")
+    r = run_block(repo, ledger)
+    lines = r.stdout.splitlines()
+    assert r.returncode == 0 and "DONE" in lines, r
+    assert os.readlink(repo / "link") == str(target)
+    assert not any(x.startswith("DELETED link/") for x in lines), (
+        lines
+    )  # no false DELETED
+    assert (outside / "o.txt").read_text() == "outside victim\n"
+    assert not (outside / "missing").exists()
+
+
+@pytest.mark.parametrize("kind", ["file", "dir"])
+@pytest.mark.parametrize("parent", ["", "newdir/"])
+def test_attempt_only_symlink_leaf_still_unlinked_in_worktree(tmp_path, kind, parent):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "o.txt").write_text("outside\n")
+    repo, ledger, q0 = setup(tmp_path)
+    leaf = repo / f"{parent}evil"
+    leaf.parent.mkdir(parents=True, exist_ok=True)
+    leaf.symlink_to(outside / "o.txt" if kind == "file" else outside)
+    r = run_block(repo, ledger)
+    lines = r.stdout.splitlines()
+    assert r.returncode == 0 and f"DELETED {parent}evil" in lines and "DONE" in lines, r
+    assert not leaf.is_symlink() and not leaf.exists()  # the link itself is gone
+    assert (
+        outside / "o.txt"
+    ).read_text() == "outside\n"  # its target was never touched
+    assert outside_run(repo, q0) == []
+
+
+def test_restored_parent_symlink_contained_in_linked_worktree(tmp_path):
+    main = make_repo(tmp_path)
+    put(main, "shared/victim.txt", "outside victim\n")  # the main worktree's own file
+    git(main, "add", "shared")
+    git(main, "commit", "-q", "-m", "shared")
+    wt = main / ".dev/worktrees/wt"
+    git(main, "worktree", "add", "-q", str(wt), "-b", "wtbranch")
+    (wt / RUN / "retries/T1").mkdir(parents=True)
+    ledger = wt / RUN / "progress.md"
+    ledger.write_text(
+        "# implement ledger — source: notes.md — created: 2026-10-22T00:00:00Z\n"
+    )
+    (wt / "link").symlink_to(main / "shared", target_is_directory=True)  # aims at main
+    (wt / RUN / "retries/T1/q0-head").write_text(git(wt, "rev-parse", "HEAD").stdout)
+    (wt / RUN / "retries/T1/review-2.md").write_text("verdict: missing\n")
+    q0 = snapshot(wt)
+    write_ledger(ledger, "1", q0)
+    _swap_link_for_dir(wt, "link", "victim.txt")
+    main_before, cached = snapshot(main), _cached(wt)
+    r = run_block(main, ledger, cwd=main)
+    assert r.returncode == 0 and "DONE" in r.stdout.splitlines(), r
+    assert (main / "shared/victim.txt").read_text() == "outside victim\n"
+    assert not any(x.startswith("DELETED link/") for x in r.stdout.splitlines())
+    assert os.readlink(wt / "link") == str(main / "shared")
+    assert snapshot(main) == main_before and _cached(wt) == cached
+    assert outside_run(wt, q0) == []
+
+
+def test_symlink_to_tracked_dir_does_not_destroy_the_target(tmp_path):
+    # Q0: link -> real (inside the worktree); the attempt replaces link by a directory
+    # holding an attempt-only victim.txt. Deleting it after the restore would remove
+    # the tracked real/victim.txt through the restored link.
+    def prep(repo):
+        put(repo, "real/victim.txt", "tracked\n")
+        (repo / "link").symlink_to("real", target_is_directory=True)
+
+    repo, ledger, q0 = setup(tmp_path, prep=prep)
+    _swap_link_for_dir(repo, "link", "victim.txt")
+    r = run_block(repo, ledger)
+    lines = r.stdout.splitlines()
+    assert r.returncode == 0 and "DONE" in lines, r
+    assert not any(x.startswith("RESIDUE") for x in lines), lines
+    assert (repo / "real/victim.txt").read_text() == "tracked\n"
+    assert os.readlink(repo / "link") == "real"
+    assert outside_run(repo, q0) == []

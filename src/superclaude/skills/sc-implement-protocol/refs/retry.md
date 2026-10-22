@@ -79,7 +79,7 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
 
    A citation to any file other than the evidence files of this escalation fails unless `git -C "$top" diff --quiet "$start" <checkpoint tree> -- ':(literal)<path>'` exits 0, meaning the file is the same at Q0 and in the failed attempt, so the cited content survives the revert unchanged.
 
-   If the Agent call fails because the agent type `implement-retry-adviser` is not installed, STOP `E-RESUME-NEEDED reason=adviser-missing` with no ledger line and print `run superclaude install (or make sync-dev in this repository), then re-run the same command`. Any other call error fails the check, as above.
+   Spawn the adviser with the available agent type whose name is `implement-retry-adviser` (a CLI install) or ends in `:implement-retry-adviser` (the plugin-scoped type of a plugin install; do not guess the plugin prefix). If no such agent type is available, or the Agent call fails because it is not installed, STOP `E-RESUME-NEEDED reason=adviser-missing` with no ledger line and print `run superclaude install (or make sync-dev in this repository) or install the SuperClaude plugin, then re-run the same command`. Any other call error fails the check, as above.
    - No answer passes: spawn one fresh critique adviser for this escalation (same rung), given the failed checks; save it as `advice-<n>-c.md`. If it also fails, append `halt review=<k> reason=<r>` with r = `advice-rejected` and STOP `E-HALT-QA`.
    - One answer passes: it wins.
    - Two pass: the parent compares them and records why. The winner is the answer whose rows cite more distinct `review-<k>.md:<line>` findings; on a tie, `-a` wins. This is a mechanical comparison with no claim that it picks the more correct brief. The loser is the runner-up and its file is kept as is. The pick line that opens `T<id>_brief-<n>.md` is defined in procedure step 6.
@@ -168,7 +168,7 @@ Exclusions are compared as literal strings, not as pathspec excludes, because an
 2. Move failed-attempt artifacts (Failed-attempt artifacts), only after all three guards passed.
 3. Snapshot `now`; pin it as a sweep ref (Sweep refs).
 4. Compute the domain (Revert domain, above).
-5. For each domain path `p`: if `git -C "$top" cat-file -e "$start:$p"` succeeds, run `git -C "$top" restore --source="$start" --worktree -- ":(literal)$p"`; a failed restore is left for step 6 to report as residue. There is no blob-write fallback: a raw write follows a symlinked parent directory out of the worktree, and `git restore` already handles modes, symlinks and file/directory swaps. Otherwise `rm -f -- "$top/$p"`, never recursive. Never `git checkout`, never the index. `git restore` from a bare tree object works on git 2.43.0.
+5. For each domain path `p`: if `git -C "$top" cat-file -e "$start:$p"` succeeds, run `git -C "$top" restore --source="$start" --worktree -- ":(literal)$p"`; a failed restore is left for step 6 to report as residue. There is no blob-write fallback: a raw write follows a symlinked parent directory out of the worktree, and `git restore` already handles modes, symlinks and file/directory swaps. Otherwise `rm -f -- "$top/$p"`, never recursive, and only when no directory above `p` is a symlink at that moment (`_sc_retry_linked`): an earlier restore in this loop may have turned an ancestor into a symlink, and the delete would follow it out of the worktree. A delete skipped for that reason prints no `DELETED` line, because the checkout holds nothing at `p`. Never `git checkout`, never the index. `git restore` from a bare tree object works on git 2.43.0.
 6. Verify: take snapshot `v`; residue is every path of the domain recomputed from `v`, plus every path that `git -C "$top" diff --name-only "$now" "$v"` lists outside the domain of `now` (a change the revert must not make) → STOP `E-RESUME-NEEDED reason=erase-incomplete`, listing the paths, with no ledger line. Resume re-runs the revert. A clean verify writes `<retries>/T<id>/revert-<k>.done` and prints `DONE`.
 
 `top` is the worktree that holds the ledger (Names; step 1); every git command in this section runs as `git -C "$top"`, and every listed path is top-relative.
@@ -349,7 +349,7 @@ sc_retry_revert() {
       if git -C "$top" restore --source="$START" --worktree -- ":(literal)$p" 2>/dev/null; then
         echo "RESTORED $p"
       fi
-    else
+    elif ! _sc_retry_linked "$top" "$p"; then
       rm -f -- "$top/$p"
       echo "DELETED $p"
     fi

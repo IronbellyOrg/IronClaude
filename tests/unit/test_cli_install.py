@@ -383,11 +383,11 @@ __init__.py
     "agents": _names(
         """
 __init__.py backend-architect.md business-panel-experts.md deep-research-agent.md
-deep-research.md devops-architect.md frontend-architect.md learning-guide.md
-performance-engineer.md pm-agent.md python-expert.md quality-engineer.md
-refactoring-expert.md repo-index.md requirements-analyst.md root-cause-analyst.md
-security-engineer.md self-review.md socratic-mentor.md system-architect.md
-technical-writer.md
+deep-research.md devops-architect.md frontend-architect.md implement-retry-adviser.md
+learning-guide.md performance-engineer.md pm-agent.md python-expert.md
+quality-engineer.md refactoring-expert.md repo-index.md requirements-analyst.md
+root-cause-analyst.md security-engineer.md self-review.md socratic-mentor.md
+system-architect.md technical-writer.md
 """
     ),
     "commands": _names(
