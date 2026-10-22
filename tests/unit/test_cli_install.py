@@ -58,8 +58,8 @@ audit-scanner.md audit-validator.md auggie-reviewer.md backend-architect.md
 business-panel-experts.md confidence-calibrator.md debate-orchestrator.md
 deep-research-agent.md deep-research.md devops-architect.md eval-docs-loader.md
 eval-run-reporter.md eval-suite-author.md evidence-validator.md
-frontend-architect.md learning-guide.md merge-executor.md performance-engineer.md
-pm-agent.md python-expert.md quality-engineer.md refactoring-expert.md
+frontend-architect.md implement-retry-adviser.md learning-guide.md merge-executor.md
+performance-engineer.md pm-agent.md python-expert.md quality-engineer.md refactoring-expert.md
 reflect-reviewer.md repo-index.md requirements-analyst.md reuse-auditor.md
 rf-analyst.md rf-assembler.md rf-qa-qualitative.md rf-qa.md rf-task-builder.md
 rf-task-executor.md rf-task-researcher.md rf-team-lead.md root-cause-analyst.md
@@ -234,7 +234,8 @@ sc-crash-recovery/refs/report-template.md
 sc-crash-recovery/scripts/bootstrap_scan.sh
 sc-crash-recovery/scripts/parse_session_log.py sc-implement-protocol/SKILL.md
 sc-implement-protocol/refs/ledger.md sc-implement-protocol/refs/managed-workspace.md
-sc-implement-protocol/refs/qa.md sc-implement-protocol/scripts/archive_workspace.py
+sc-implement-protocol/refs/qa.md sc-implement-protocol/refs/retry.md
+sc-implement-protocol/scripts/archive_workspace.py
 sc-init-lite-protocol/SKILL.md sc-pm-protocol/SKILL.md
 sc-post-release-protocol/SKILL.md sc-post-release-protocol/refs/additive-diff.md
 sc-post-release-protocol/refs/fan-out-pattern.md
@@ -382,11 +383,11 @@ __init__.py
     "agents": _names(
         """
 __init__.py backend-architect.md business-panel-experts.md deep-research-agent.md
-deep-research.md devops-architect.md frontend-architect.md learning-guide.md
-performance-engineer.md pm-agent.md python-expert.md quality-engineer.md
-refactoring-expert.md repo-index.md requirements-analyst.md root-cause-analyst.md
-security-engineer.md self-review.md socratic-mentor.md system-architect.md
-technical-writer.md
+deep-research.md devops-architect.md frontend-architect.md implement-retry-adviser.md
+learning-guide.md performance-engineer.md pm-agent.md python-expert.md
+quality-engineer.md refactoring-expert.md repo-index.md requirements-analyst.md
+root-cause-analyst.md security-engineer.md self-review.md socratic-mentor.md
+system-architect.md technical-writer.md
 """
     ),
     "commands": _names(
@@ -441,7 +442,8 @@ __init__.py clean_command_names.py session-init.sh
 __init__.py confidence-check/SKILL.md confidence-check/__init__.py
 confidence-check/confidence.ts sc-implement-protocol/SKILL.md
 sc-implement-protocol/refs/ledger.md sc-implement-protocol/refs/managed-workspace.md
-sc-implement-protocol/refs/qa.md sc-implement-protocol/scripts/archive_workspace.py
+sc-implement-protocol/refs/qa.md sc-implement-protocol/refs/retry.md
+sc-implement-protocol/scripts/archive_workspace.py
 sc-recommend/SKILL.md sc-recommend/refs/HOW-WE-WORK.md
 sc-recommend/refs/delegation-vs-native-heuristics.md
 sc-recommend/refs/plugin-ecosystem-sources.md

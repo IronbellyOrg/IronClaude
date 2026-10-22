@@ -52,6 +52,16 @@ _VERDICT = re.compile(
     r"test:(?:pass|fail|skip|unrelated-red) files=(.+)$"
 )
 _RULING = re.compile(rf"^T({TASK_ID}): Ruling: .+ — .+ — .+$")
+_RETRY = re.compile(
+    rf"^T({TASK_ID}): retry n=([345]) "
+    r"(?:step=open checkpoint=([0-9a-f]{40}) tier=([A-Za-z0-9_]+)"
+    r"|step=revert brief=(\S+) supersedes=(T[0-9A-Za-z.-]+_brief-[34]\.md|none)"
+    r"|step=review)$"
+)
+_HALT = re.compile(rf"^T({TASK_ID}): halt review=([2-5]) reason=([a-z][a-z-]*)$")
+_LEGACY_BRIEF = re.compile(
+    r"^\.dev/implement/([^/]+)/retries/(T[^/]+_brief-[345]\.md)$"
+)
 _FINAL = re.compile(r"^FINAL: (\S+)(?: .*)?$")
 _FINAL_OK = re.compile(r"^FINAL: pass evidence=(.+) state=([0-9a-f]{64})$")
 _ARCH = re.compile(r"^ARCHIVE: (start|failed|Ruling:) .+$")
@@ -180,6 +190,8 @@ def _parse_ledger(path: Path):
             ("start", _START),
             ("verdict", _VERDICT),
             ("ruling", _RULING),
+            ("retry", _RETRY),
+            ("halt", _HALT),
             ("final", _FINAL),
             ("archive", _ARCH),
         ):
@@ -194,6 +206,28 @@ def _parse_ledger(path: Path):
     if not recs:
         raise ArchiveError("E-ARCHIVE-LEDGER", "empty ledger")
     return recs
+
+
+def _check_brief(root: Path, pkg: Path, m) -> None:
+    """Chain and existence checks for a ``retry … step=revert`` record."""
+    tid, n, brief, sup = m.group(1), m.group(2), m.group(5), m.group(6)
+    name = f"T{tid}_brief-{n}.md"
+    legacy = _LEGACY_BRIEF.match(brief)
+    if brief == f"./artifacts/retries/{name}":  # managed: package-relative
+        path = pkg / "artifacts" / "retries" / name
+    elif legacy and legacy.group(1) not in (".", "..") and legacy.group(2) == name:
+        path = root / brief  # legacy: repo-relative
+    else:
+        raise ArchiveError(
+            "E-ARCHIVE-PACKAGE", f"T{tid} brief path is not {name}: {brief!r}"
+        )
+    want = "none" if n == "3" else f"T{tid}_brief-{int(n) - 1}.md"
+    if sup != want:
+        raise ArchiveError(
+            "E-ARCHIVE-PACKAGE", f"T{tid} brief-{n} must supersede {want}, not {sup}"
+        )
+    if os.path.islink(path) or not path.is_file():
+        raise ArchiveError("E-ARCHIVE-PACKAGE", f"T{tid} brief file missing: {brief}")
 
 
 def _digest(root: Path, plan_sha: str, source_sha: str, files: list[str]) -> str:
@@ -271,6 +305,13 @@ def validate(
             )
     if os.path.lexists(pkg / "artifacts") and not Loc.real_dir(pkg / "artifacts"):
         raise ArchiveError("E-ARCHIVE-PACKAGE", "artifacts must be a real directory")
+    # The retry evidence moves with the package: a symlinked retries folder would
+    # resolve here but dangle once the package is renamed into done/.
+    retries = pkg / "artifacts" / "retries"
+    if os.path.lexists(retries) and not Loc.real_dir(retries):
+        raise ArchiveError(
+            "E-ARCHIVE-PACKAGE", "artifacts/retries must be a real directory"
+        )
     plan_text = (pkg / f"{loc.id}.md").read_text(encoding="utf-8")
     fm = _front(plan_text)
     if fm.get("schema") != "workflow-plan/1.2" or fm.get("slug") != loc.id:
@@ -310,10 +351,15 @@ def validate(
     known = set(tasks)
     latest, ruled = {}, {}
     for k, m, line in recs:
-        if k in ("start", "verdict", "ruling") and f"T{m.group(1)}" not in known:
+        if (
+            k in ("start", "verdict", "ruling", "retry", "halt")
+            and f"T{m.group(1)}" not in known
+        ):
             raise ArchiveError(
                 "E-ARCHIVE-LEDGER", f"ledger names unknown task T{m.group(1)}"
             )
+        if k == "retry" and m.group(5) is not None:
+            _check_brief(loc.root, pkg, m)
         if k == "start":
             ruled.pop(m.group(1), None)
             latest.pop(m.group(1), None)

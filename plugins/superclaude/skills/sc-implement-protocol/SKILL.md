@@ -8,7 +8,7 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash, Task, Skill
 
 Middleweight executor. Source is a spec/PRD/tasklist path, an informal notes file, or an inline prompt. Walk enumerable tasks (informal/prompt → one task). After each task, spec-compliance QA against **that task's** AC + parent spec + instructions. Lint/tests are extras, never the verdict. One markdown ledger.
 
-Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Do not load reflect-protocol. Do not invoke `/task`, `/sc:task`, or `sc:task-protocol`.
+Load `refs/qa.md` for Q3–Q5. Load `refs/ledger.md` for ledger I/O and resume. Also load `refs/retry.md` when A2 (the Q5 fix pass) still fails review, or when resume finds a `retry` or `halt` record in the ledger. Do not load reflect-protocol. Do not invoke `/task`, `/sc:task`, or `sc:task-protocol`.
 
 **Managed packages.** If Wave 0 step 3 finds a `workflow-plan/1.2` plan (a workflow-owned `TASK-WF-*` package), also load `refs/managed-workspace.md`: it replaces the ledger location, resume dispatch, whole-list review and completion rules for that run only. Every other source runs the legacy rules below, unchanged.
 
@@ -30,7 +30,8 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `E-NO-TASKS` | File exists but is empty/whitespace only | No | No |
 | `E-NO-AC` | Ti has no AC after QUALIFY (including whole-body fallback) | No writes for Ti | Header/prior tasks may exist; no start line for Ti |
 | `E-LEGACY` | Pitch invocation and/or removed flags `--type` / `--framework` / `--safe` / `--with-tests` | No | No |
-| `E-HALT-QA` | Non-compliant after one fix pass; no operator Ruling | No T{i+1} | Non-compliant verdict line written |
+| `E-HALT-QA` | A terminal `halt` record (any reason in `refs/retry.md`); no eligible Ruling | No T{i+1} | Non-compliant verdict line and `halt` record written |
+| `E-RESUME-NEEDED` | Something outside the step failed (reviewer, ref write, incomplete revert, adviser agent missing; reasons in `refs/retry.md`); re-run the same command | No T{i+1} | Nothing written |
 | `E-NO-RULING` | Continue after non-compliant without valid recorded user acceptance (clear current-conversation confirmation is sufficient); `--force` | No T{i+1} | Unchanged except existing blocked line |
 | `E-LEDGER-CORRUPT` | Last ledger line truncated/unparseable | No further | Unchanged |
 | `E-LEDGER-PATH` | `--ledger` not under `.dev/implement/` (managed: any `--ledger` other than the sibling `progress.md`) | No | No |
@@ -40,7 +41,7 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `E-ARCHIVE-MARKER` | managed `.archiving` marker exists | No | Unchanged |
 | `E-ARCHIVE-BLOCKED` | managed FINAL/archive cannot complete (`issues`, `--skip-final-review`, helper refusal) | No | FINAL line only if a review ran |
 
-No other `E-*` codes (the managed rows apply only to managed plans; helper `E-ARCHIVE-*` codes pass through verbatim). Unreadable/binary with no text → `E-NO-TASKS`. Directory → `E-SOURCE-MISSING`. Informal prose is a valid 1-task source, not `E-NO-TASKS`.
+No other `E-*` codes besides the rows above, `E-RESUME-NEEDED` being the only one the retry ladder adds (the managed rows apply only to managed plans; helper `E-ARCHIVE-*` codes pass through verbatim). Unreadable/binary with no text → `E-NO-TASKS`. Directory → `E-SOURCE-MISSING`. Informal prose is a valid 1-task source, not `E-NO-TASKS`.
 
 E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a spec path.`
 
@@ -93,11 +94,11 @@ Global constraints for `extra`: `## Constraints` / `## Out of scope` / `## Non-g
 
 ### Parallel
 
-Default sequential in source order. Parallel only when the source marks a set independent (literal `independent`, `parallel-ok`, or heading `Independent`) **and** set size ≤ 3. Unmarked = sequential. If overlap is obvious (`same file`), stay sequential. After a parallel batch, each task still gets its own verdict and ledger line before the next batch.
+Default sequential in source order. Parallel only when the source marks a set independent (literal `independent`, `parallel-ok`, or heading `Independent`) **and** set size ≤ 3. Unmarked = sequential. If overlap is obvious (`same file`), stay sequential. (a) A batch is formed only from tasks that have no `start` line, and it writes every member's `start` line, in source order, before any member begins Q1; a member not started by then waits for the next batch. (b) The next task or batch starts only after every member of the batch has its own `complete` or `halt` line; a `halt` then STOPs the run (Q8), it never lets the run continue. (c) A task that already has a `start` line (any resumed task) never joins a batch: it runs alone, and whether it is a batch task is read from the ledger (`refs/retry.md`), never from this invocation. A batch task gets no retry ladder: when A2 fails it halts `batch` (`E-HALT-QA`), and nothing in a batch is reverted.
 
 ### Reviewer mode (no flag)
 
-Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task subagent (prompt from `refs/qa.md`). Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
+Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
 
 ## Loop (Q0–Q8)
 
@@ -110,8 +111,9 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
              `idx=$(mktemp); GIT_INDEX_FILE="$idx" git read-tree HEAD && GIT_INDEX_FILE="$idx" git add -A && start=$(GIT_INDEX_FILE="$idx" git write-tree); rm -f "$idx"`
            Then **pin the tree** so `git gc` cannot prune it before resume:
              `git update-ref "refs/superclaude/implement/<slug>/T<id>" "$start"` (managed: `<slug>` is the package id)
+           Only when the snapshot is a tree: write `<retries>/T<id>/q0-head` (the 40-hex of `git rev-parse HEAD`; `refs/retry.md`) after the snapshot and **before** the start line is appended.
            If write-tree fails, `start=$(git rev-parse HEAD 2>/dev/null)` (HEAD is already a ref). If that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
-           On task `complete`, delete the pin: `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"`.
+           On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator.
            Read Ti text + AC ids + global constraints.
 Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
            Drive-by files not implied by the AC are `extra`.
@@ -124,9 +126,9 @@ Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - misunderstood: ACs whose implementation contradicts the AC text
            Do not trust the implementer's report.
 Q4 VERDICT Apply refs/qa.md order. Closed enum only.
-Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once.
+Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
 Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
-Q7 GATE    Apply halt table in refs/qa.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
+Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
 Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
 ```
 
@@ -150,7 +152,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
 
 ### Whole-list review
 
-**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass).
+**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass).
 
 **Managed packages.** Not advisory and never skipped: every archive attempt runs the fresh FINAL and the helper archive in `refs/managed-workspace.md`, even for N=1 and on resume.
 

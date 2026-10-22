@@ -80,6 +80,36 @@ T<id>: complete verdict=<unchanged-non-compliant-verdict> ac=... evidence=... ex
 
 Legal **only** when a matching `T<id>: Ruling:` line exists above it, after the latest blocked record. Preserve all verdict fields, not only the verdict label. A later blocked record or new start invalidates prior acceptance. A changed accepted finding/outcome requires new user confirmation; do not reuse the old Ruling. Legacy records with a Ruling before the first verdict remain readable; that first complete verdict binds its scope.
 
+## Retry and halt records
+
+Two kinds for the escalating retry ladder (`refs/retry.md`): one `retry` kind with three steps, and `halt`. They are part of this main grammar, legacy and managed alike.
+
+<!-- ledger-grammar-block: record forms -->
+```
+T<id>: retry n=<3|4|5> step=open checkpoint=<40-hex tree> tier=<ladder entry name|unknown>
+T<id>: retry n=<3|4|5> step=revert brief=<brief path> supersedes=<T<id>_brief-<n-1>.md|none>
+T<id>: retry n=<3|4|5> step=review
+T<id>: halt review=<2|3|4|5> reason=<reason>
+```
+
+<!-- ledger-grammar-block: regexes -->
+```
+^T([0-9A-Za-z.-]+): retry n=([345]) (?:step=open checkpoint=([0-9a-f]{40}) tier=([A-Za-z0-9_]+)|step=revert brief=(\S+) supersedes=(T[0-9A-Za-z.-]+_brief-[34]\.md|none)|step=review)$
+^T([0-9A-Za-z.-]+): halt review=([2-5]) reason=([a-z][a-z-]*)$
+```
+
+Meaning of each step:
+
+- `step=open` is written right after the failed attempt's `blocked` line and before any other ladder action. It is the durable feature marker a pre-upgrade ledger cannot contain, and it records the checkpoint tree sha and the executor's rung name (`tier=`).
+- `step=revert` records the brief and its `supersedes=` field, written after the brief and before the revert.
+- `step=review` is written after attempt n is implemented and before its review, so a crash or `reviewer-down` re-runs only the review.
+
+Semantic rules: for `step=revert`, the brief basename is `T<id>_brief-<n>.md`, where the id equals the line's task id and n equals the line's n; `supersedes` is `none` iff n = 3, else `T<id>_brief-<n-1>.md`. Brief 5 supersedes `T<id>_brief-4.md` even though it is built from the escalation-2 runner-up. A managed brief path is `./artifacts/retries/T<id>_brief-<n>.md` with no `..`; a legacy brief path is repo-relative, `.dev/implement/<slug>/retries/T<id>_brief-<n>.md`. `_` is outside the id class `[0-9A-Za-z.-]`, so the name splits unambiguously. For `step=open`, the protocol writes in `tier=` only the canonical name of the executor's rung in the active ladder or `unknown`; the regex accepts any `[A-Za-z0-9_]+`.
+
+Placement rules: `step=open` for n follows the `blocked` line of attempt n-1; `step=revert` follows `step=open` of the same n; `step=review` follows `step=revert` of the same n; a verdict line follows `step=review`; a `halt` follows a `blocked`, a `retry step=open` or a `retry step=revert` line; after a `halt`, the task gets only operator `Ruling:` lines, the post-ruling `complete` that Resume row R writes, operator-review `blocked` and `halt` records (Resume). Operator `Ruling:` lines may appear between any two records.
+
+Halt reason: open class `[a-z][a-z-]*`, with the legal list in `refs/retry.md` (Halts and transient stops). A closed enum in the parser turns a documentation slip into an append-only ledger that can never be repaired. `review=` is the closed range `[2-5]`, because attempts are numbered 2-5 when they can fail into a halt. The rule that gives k, the failed attempt, is in `refs/retry.md`.
+
 ## Final review line (optional)
 
 ```
@@ -89,7 +119,7 @@ FINAL: <pass|issues> evidence=<ev-list>
 ## Resume
 
 ```
-if last line does not match header|start|verdict|ruling|FINAL regex → E-LEDGER-CORRUPT
+if last line does not match header|start|verdict|ruling|retry|halt|FINAL regex → E-LEDGER-CORRUPT
 parse lines in order
 for each id in T1..TN (source order):
   if no line for id → resume here
@@ -104,6 +134,28 @@ The completion rules in this section are **legacy-ledger** rules; managed packag
 `--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete` **and** FINAL is already present (or N=1, or `--skip-final-review`): STOP `already complete: <ledger path>`. If all tasks are `complete` and FINAL is still due: run FINAL, then stop. Do not skip a pending N>1 whole-list review.
 
 Trust ledger + git history after compaction. Do not ask the user to paste prior chat.
+
+### Per-task resume table
+
+Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`.
+
+Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
+
+Task selection stays as the pseudo-code above; this table replaces only the per-task dispatch (the "resume here" step). The table applies to legacy and managed ledgers alike: the completion rules above are scoped to legacy ledgers, so the managed dispatch line below ("first non-complete task") routes to this table. In every row, k is the k-rule value (`refs/retry.md`).
+
+First match wins; the row order is part of the rule:
+
+| Row | Condition | Action |
+|---|---|---|
+| 1 | Latest verdict is `complete` | Skip. Delete the Q0 pin and checkpoint refs if they still exist; keep sweep refs. |
+| R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
+| P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
+| H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
+| V | Last record is `retry n=<n> step=review` | Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise procedure step 0 with k = n. |
+| X | Last record is `retry n=<n> step=revert` | Run `sc_retry_revert` directly: its ledger binding and guards (tail, tree, HEAD, evidence) are the re-check, and exit 2 maps to the halt after any move-back or keep of failed-attempt artifacts (`refs/retry.md`, The revert). Otherwise the revert re-runs (idempotent: fresh `now`, create-only sweep), then procedure step 7. |
+| O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
+| B | Last record is a `blocked` line and the task has a `retry` record | k from the k rule (here the n of the latest `retry`, because this `blocked` follows its `step=review`). k = 5 → append `halt review=5 reason=ladder-end` → STOP. Otherwise continue at the ladder-condition checks for this k, then procedure step 1. |
+| S | Start line only | A1, as today. |
 
 ## Examples (must match)
 
@@ -133,6 +185,30 @@ T2: Ruling: accept T2 missing pagination; user confirmed in current conversation
 
 The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated`) remains valid.
 
+Retry open:
+
+```
+T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2_Model02
+```
+
+Retry revert:
+
+```
+T1: retry n=3 step=revert brief=.dev/implement/notes-0a1b2c3d/retries/T1_brief-3.md supersedes=none
+```
+
+Retry review:
+
+```
+T1: retry n=3 step=review
+```
+
+Halt:
+
+```
+T1: halt review=2 reason=budget
+```
+
 ## Managed-package extension (`refs/managed-workspace.md`)
 
 Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and add three record kinds. Legacy ledgers never contain them.
@@ -145,9 +221,10 @@ Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and
 
 - Line 2 is the `PLAN:` pin. Append another `PLAN:` line only **before** the first `T<id>: start`; after it, a plan/source hash mismatch is `E-PLAN-CHANGED`.
 - `evidence=` tokens may be package-relative: `./artifacts/<file>:<line>`.
+- A log token cites the line that shows the outcome (a pytest summary such as `48 passed in 0.16s`, ruff's `All checks passed!`), not a banner and not the trailing `rc=` line; one token per outcome when a log covers several commands.
 - A managed `FINAL:` carries the helper's `state=` digest and must be the last record before the helper's own `ARCHIVE: start id=<id> token=<hex>` line. Any later `PLAN`/`T`/`ARCHIVE` record makes it stale: run a new FINAL on every archive attempt. `ARCHIVE: failed id=<id> token=<hex> reason=<code>` records a refused attempt.
 - Legacy `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` records remain readable but are optional. A matching task Ruling is sufficient for ordinary archiving of unchanged accepted work; never demand duplicate approval. Neither form waives FINAL or authorizes commit, PR, merge or release.
-- Resume dispatch for managed packages: location check → pin check → first non-complete task → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
+- Resume dispatch for managed packages: location check → pin check → first non-complete task → the per-task resume table (Resume) → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
 
 ```
 # implement ledger — source: ./TASK-WF-authLogin-20261001-063000.md — created: 2026-10-01T06:30:00Z
