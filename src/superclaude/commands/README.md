@@ -8,3 +8,4 @@ When you change a command:
 2. Run `make sync-dev`, then `make verify-sync`.
 3. If you changed `help.md`, `recommend.md`, `workflow.md` or `implement.md`, copy it byte-for-byte to `plugins/superclaude/commands/` (parity tests check these four).
 4. If you added a command, add its row to the routing table at the end of `src/superclaude/core/HOW-WE-WORK.md` (or to its "Other commands" table).
+5. Inside a command, never point at another primitive with a `src/superclaude/...` path. The installed copy is what runs in other projects, so name `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md` (and accept the project `.claude/` copy where a lookup needs it). See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
