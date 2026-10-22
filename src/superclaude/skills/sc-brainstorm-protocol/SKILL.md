@@ -100,8 +100,8 @@ Orchestrate parallel brainstorming via:
    - Silent clamp on excess + INFO log: `"--proposals clamped to <N> by --depth <depth>"`
 3. Validate `--personas` (if provided): non-empty after trim. STOP on empty: `"--personas requires at least one persona or omit the flag for auto-detection."`
 4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
-5. Verify `sc-adversarial-protocol` skill exists at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (Read tool). STOP if not: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
-6. **Skill version compatibility check**: Read first 30 lines of `sc-adversarial-protocol/SKILL.md`. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
+5. Verify `sc-adversarial-protocol` skill exists (Read tool) at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (installed) or `.claude/skills/sc-adversarial-protocol/SKILL.md` (project copy from `make sync-dev`); either satisfies the check. Record the path found, preferring the installed copy (Claude Code loads a personal skill over a project skill of the same name). STOP if neither exists: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
+6. **Skill version compatibility check**: Read first 30 lines of the `SKILL.md` found in step 5. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
 7. **Handoff prereq validation** (no silent downgrade):
    - If `--handoff task` AND `task-builder` skill missing → STOP: `"task-builder skill missing. Re-run with --handoff tasklist (if sc-tasklist-protocol installed) or --handoff design (text-only)."`
    - If `--handoff tasklist` AND `sc-tasklist-protocol` missing → STOP similarly

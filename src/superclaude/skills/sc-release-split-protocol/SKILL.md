@@ -134,7 +134,7 @@ Part 4: Fidelity Verification            → /sc:analyze
    - Parse agent specs using the canonical algorithm from sc:adversarial-protocol SKILL.md
    - Validate agent count: 2-10. If out of range, STOP: "Agent count must be 2-10. Provided: N"
    - Validate model identifiers are recognized. If unknown, STOP: "Unknown model '<model>' in --agents."
-4. Verify `sc:adversarial-protocol` SKILL.md exists at `~/.claude/skills/sc-adversarial-protocol/SKILL.md`. If not found, STOP: "sc:adversarial skill not installed. Required for Part 2. Install via: superclaude install"
+4. Verify `sc:adversarial-protocol` SKILL.md exists at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` or `.claude/skills/sc-adversarial-protocol/SKILL.md` (either satisfies). If neither is found, STOP: "sc:adversarial skill not installed. Required for Part 2. Install via: superclaude install"
 5. If `--resume-from` provided: validate the file exists and is readable.
 6. Log all validation results.
 
