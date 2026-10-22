@@ -137,7 +137,7 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
 | `opus` (known) | 2× `opus` (spec requirement) | 2× `opus` |
 | unknown | 1× `opus` (so the two escalations still differ) | 2× `opus` |
 
-Effort is set only through the agent file's `effort:` frontmatter, because the Agent tool has no per-call effort parameter; the model tier comes from the Agent call's `model` parameter.
+The adviser's effort is pinned by `effort:` in its agent file; do not rely on any per-call effort setting. The model tier comes from the Agent call's `model` parameter.
 
 ### Cost and caps
 
