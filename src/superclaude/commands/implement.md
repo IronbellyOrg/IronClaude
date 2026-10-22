@@ -120,6 +120,7 @@ The full behavioral specification is in the protocol skill at
 - Per-task spec-compliance QA against that task's AC (the source text, when informal)
 - Record one ledger at `.dev/implement/<slug>/progress.md` (managed packages: the sibling `progress.md`, then archive the package after a fresh FINAL)
 - Run lint/typecheck/tests when present and record them as extras
+- Retry a failed task up to three more times from its start snapshot, with adviser-written briefs (`refs/retry.md`)
 
 **Will Not:**
 

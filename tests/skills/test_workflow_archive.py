@@ -11,6 +11,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import types
@@ -654,3 +655,323 @@ def test_directory_traversal_error_cannot_produce_final_state(p, monkeypatch):
         p.state()
     assert exc.value.code == "E-ARCHIVE-LEDGER"
     assert p.pkg.exists() and not p.done.exists()
+
+
+# --- retry / halt ledger records -------------------------------------------------
+CK = "a" * 40
+RUNGS = [
+    "T3_Model01",
+    "T2_Model02",
+    "T1_Model02",
+    "T1_Model01",
+    "haiku",
+    "sonnet",
+    "opus",
+]
+BRIEF3 = "./artifacts/retries/T1_brief-3.md"
+
+
+def _rt(n=3, **kw):
+    f = {"checkpoint": CK, "tier": "T2_Model02", "brief": BRIEF3, "supersedes": "none"}
+    f.update(kw)
+    return {
+        "open": f"T1: retry n={n} step=open checkpoint={f['checkpoint']} tier={f['tier']}",
+        "revert": f"T1: retry n={n} step=revert brief={f['brief']} supersedes={f['supersedes']}",
+        "review": f"T1: retry n={n} step=review",
+    }
+
+
+@pytest.mark.parametrize("n", [3, 4, 5])
+@pytest.mark.parametrize("step", ["open", "revert", "review"])
+def test_retry_record_regex(n, step):
+    sup = "none" if n == 3 else f"T1_brief-{n - 1}.md"
+    brief = f"./artifacts/retries/T1_brief-{n}.md"
+    assert aw._RETRY.match(_rt(n, brief=brief, supersedes=sup)[step])
+
+
+@pytest.mark.parametrize("tier", RUNGS + ["unknown"])
+def test_retry_record_regex_accepts_every_rung_name(tier):
+    assert aw._RETRY.match(_rt(tier=tier)["open"])
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "T1: retry n=2 step=review",
+        "T1: retry n=6 step=review",
+        f"T1: retry n=3 step=open checkpoint={'a' * 39} tier=opus",
+        f"T1: retry n=3 step=open checkpoint={CK} tier=",
+        f"T1: retry n=3 step=open checkpoint={CK} tier=bad-tier",
+        f"T1: retry n=3 step=open checkpoint={CK} tier=T2.Model",
+        "T1: retry n=3 step=revert supersedes=none",
+        "T1: retry n=3 step=revert brief=./artifacts/retries/T1_brief-3.md",
+        "T1: retry n=3 step=revert brief=./b.md supersedes=T1_brief-5.md",
+        "T1: retry n=3 step=revert brief=./b.md supersedes=T1_brief-2.md",
+        "T1: retry n=3 step=other",
+    ],
+)
+def test_retry_record_regex_rejects(line, tmp_path):
+    assert not aw._RETRY.match(line)
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    pk.append(line)
+    with pytest.raises(aw.ArchiveError) as e:
+        aw._parse_ledger(pk.pkg / "progress.md")
+    assert e.value.code == "E-ARCHIVE-LEDGER"
+
+
+def _brief_pkg(tmp_path, line, brief=None, legacy=None):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    if brief:
+        (pk.pkg / "artifacts/retries").mkdir(parents=True)
+        (pk.pkg / "artifacts/retries" / brief).write_text("brief\n")
+    if legacy:
+        d = pk.root / ".dev/implement/s/retries"
+        d.mkdir(parents=True)
+        (d / legacy).write_text("brief\n")
+    pk.append(line)
+    pk.final()
+    return pk
+
+
+def _revert(n, brief, sup):
+    return f"T1: retry n={n} step=revert brief={brief} supersedes={sup}"
+
+
+@pytest.mark.parametrize(
+    "line,brief",
+    [
+        (_revert(3, BRIEF3, "none"), "T1_brief-3.md"),
+        (
+            _revert(4, "./artifacts/retries/T1_brief-4.md", "T1_brief-3.md"),
+            "T1_brief-4.md",
+        ),
+        (
+            _revert(5, "./artifacts/retries/T1_brief-5.md", "T1_brief-4.md"),
+            "T1_brief-5.md",
+        ),
+    ],
+)
+def test_retry_brief_chain_and_existence(tmp_path, line, brief):
+    # managed: resolved against the package directory, also once archived in done/
+    pk = _brief_pkg(tmp_path, line, brief=brief)
+    assert pk.run()["status"] == "archived"
+    assert (pk.done / "artifacts/retries" / brief).is_file()
+    assert pk.run()["status"] == "already-archived"
+
+
+def test_retry_brief_chain_and_existence_legacy_root(tmp_path):
+    line = _revert(3, ".dev/implement/s/retries/T1_brief-3.md", "none")
+    assert (
+        _brief_pkg(tmp_path, line, legacy="T1_brief-3.md").run()["status"] == "archived"
+    )
+    # a package-relative file does not satisfy a legacy path, and vice versa
+    with pytest.raises(aw.ArchiveError) as e:
+        _brief_pkg(tmp_path / "x", line, brief="T1_brief-3.md").run()
+    assert e.value.code == "E-ARCHIVE-PACKAGE"
+    with pytest.raises(aw.ArchiveError) as e:
+        _brief_pkg(
+            tmp_path / "y", _revert(3, BRIEF3, "none"), legacy="T1_brief-3.md"
+        ).run()
+    assert e.value.code == "E-ARCHIVE-PACKAGE"
+
+
+@pytest.mark.parametrize(
+    "line,present",
+    [
+        (_revert(4, "./artifacts/retries/T1_brief-4.md", "none"), "T1_brief-4.md"),
+        (
+            _revert(5, "./artifacts/retries/T1_brief-5.md", "T1_brief-3.md"),
+            "T1_brief-5.md",
+        ),
+        (
+            _revert(3, "./artifacts/retries/T1_brief-3.md", "T1_brief-4.md"),
+            "T1_brief-3.md",
+        ),
+        (_revert(3, "./artifacts/retries/T1_brief-4.md", "none"), "T1_brief-4.md"),
+        (_revert(3, "./artifacts/retries/T2_brief-3.md", "none"), "T2_brief-3.md"),
+        (
+            _revert(3, "./artifacts/../artifacts/retries/T1_brief-3.md", "none"),
+            "T1_brief-3.md",
+        ),
+        (_revert(3, ".dev/implement/../retries/T1_brief-3.md", "none"), None),
+        (_revert(3, "artifacts/retries/T1_brief-3.md", "none"), "T1_brief-3.md"),
+        (_revert(3, BRIEF3, "none"), None),  # brief file missing
+    ],
+)
+def test_retry_brief_chain_and_existence_rejected(tmp_path, line, present):
+    with pytest.raises(aw.ArchiveError) as e:
+        _brief_pkg(tmp_path, line, brief=present).run()
+    assert e.value.code == "E-ARCHIVE-PACKAGE"
+
+
+@pytest.mark.parametrize("n", [2, 3, 4, 5])
+def test_halt_record_regex_review_range(n):
+    assert bool(aw._HALT.match(f"T1: halt review={n} reason=budget")) == (n >= 2)
+
+
+@pytest.mark.parametrize("n", [1, 6, 10])
+def test_halt_record_regex_rejects_review_out_of_range(n):
+    assert not aw._HALT.match(f"T1: halt review={n} reason=budget")
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "T1: halt review=6 reason=batch",
+        "T1: halt reason=no-evidence",
+        "T1: halt review=2 reason=Bad Reason",
+        "T1: halt review=2 reason=Bad",
+        "T1: halt review=2 reason=",
+        "T1: halt review=2 reason=-x",
+    ],
+)
+def test_halt_record_regex(line, tmp_path):
+    assert not aw._HALT.match(line)
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    pk.append(line)
+    with pytest.raises(aw.ArchiveError) as e:
+        aw._parse_ledger(pk.pkg / "progress.md")
+    assert e.value.code == "E-ARCHIVE-LEDGER"
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "T9: retry n=3 step=review",
+        "T9: halt review=2 reason=budget",
+        f"T9: retry n=3 step=open checkpoint={CK} tier=unknown",
+        "T9: retry n=3 step=revert brief=./artifacts/retries/T9_brief-3.md supersedes=none",
+    ],
+)
+def test_retry_or_halt_for_unknown_task_rejected(tmp_path, line):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    pk.append(line)
+    pk.final(state="0" * 64)
+    with pytest.raises(aw.ArchiveError) as e:
+        pk.run()
+    assert e.value.code == "E-ARCHIVE-LEDGER"
+    with pytest.raises(aw.ArchiveError) as e2:
+        pk.state()
+    assert e2.value.code == "E-ARCHIVE-LEDGER"
+
+
+def _ladder_pkg(tmp_path, halt="T1: halt review=3 reason=dispute"):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    head = (pk.pkg / "progress.md").read_text().splitlines()[:2]
+    blocked = (
+        f"T1: blocked verdict=missing ac=T1.AC1 evidence=T1.AC1 {OK} files=src/a.py"
+    )
+    post = f"T1: complete verdict=missing ac=T1.AC1 evidence=T1.AC1 {OK} files=src/a.py"
+    r = _rt()
+    lines = head + [
+        f"T1: start sha={'0' * 40}",
+        blocked,
+        r["open"],
+        r["revert"],
+        r["review"],
+        blocked,
+        halt,
+        "T1: Ruling: accept — operator reviewed — cost-if-wrong: AC unmet",
+        post,
+    ]
+    (pk.pkg / "progress.md").write_text("\n".join(lines) + "\n")
+    (pk.pkg / "artifacts/retries").mkdir(parents=True)
+    (pk.pkg / "artifacts/retries/T1_brief-3.md").write_text("brief\n")
+    pk.append("ARCHIVE: Ruling: waive T1 — operator accepts — cost-if-wrong: AC unmet")
+    pk.final()
+    return pk
+
+
+def test_full_ladder_managed_ledger_archives(tmp_path):
+    pk = _ladder_pkg(tmp_path)
+    assert pk.state()  # --print-state accepts the ladder records
+    out = pk.run()
+    assert out == {"status": "archived", "path": str(pk.done)}
+    text = (pk.done / "progress.md").read_text()
+    assert "step=open" in text and "step=revert" in text and "step=review" in text
+    assert "halt review=3 reason=dispute" in text
+    assert (pk.done / "artifacts/retries/T1_brief-3.md").is_file()
+
+
+def test_plugin_helper_copy_is_byte_identical():
+    plugin = Path(str(_SCRIPT).replace("src/superclaude/", "plugins/superclaude/"))
+    assert plugin != _SCRIPT and plugin.is_file()
+    assert plugin.read_bytes() == _SCRIPT.read_bytes()
+
+
+# --- every legal halt reason line archives -----------------------------------------
+_RETRY_REF = _SCRIPT.parents[1] / "refs/retry.md"
+
+
+def _retry_ref_table_and_examples():
+    text = _RETRY_REF.read_text(encoding="utf-8")
+    pairs = []
+    for m in re.finditer(
+        r"^\| `([a-z][a-z-]*)` \| .+ \| ([2-5](?:, [2-5])*) \|$", text, re.M
+    ):
+        pairs += [(m.group(1), int(v)) for v in m.group(2).split(", ")]
+    block = re.search(r"```halt-examples\n(.*?)```", text, re.S).group(1)
+    return pairs, block.splitlines()
+
+
+def _halt_pkg(tmp_path, halt_line):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    head = (pk.pkg / "progress.md").read_text().splitlines()[:2]
+    blocked = (
+        f"T1: blocked verdict=missing ac=T1.AC1 evidence=T1.AC1 {OK} files=src/a.py"
+    )
+    post = f"T1: complete verdict=missing ac=T1.AC1 evidence=T1.AC1 {OK} files=src/a.py"
+    lines = head + [
+        f"T1: start sha={'0' * 40}",
+        blocked,
+        halt_line,
+        "T1: Ruling: accept — operator reviewed — cost-if-wrong: AC unmet",
+        post,
+    ]
+    (pk.pkg / "progress.md").write_text("\n".join(lines) + "\n")
+    pk.append("ARCHIVE: Ruling: waive T1 — operator accepts — cost-if-wrong: AC unmet")
+    return pk
+
+
+def test_halt_examples_block_equals_reason_table():
+    pairs, lines = _retry_ref_table_and_examples()
+    assert len(lines) == 22 and len(pairs) == 22
+    got = [(aw._HALT.match(x).group(3), int(aw._HALT.match(x).group(2))) for x in lines]
+    assert sorted(got) == sorted(pairs)
+
+
+@pytest.mark.parametrize("line", _retry_ref_table_and_examples()[1])
+def test_every_halt_reason_line_parses_and_archives(tmp_path, line):
+    assert aw._HALT.match(line)
+    pk = _halt_pkg(tmp_path, line)
+    pk.final()
+    assert pk.run()["status"] == "archived"
+
+
+# negative-test-cases (fixtures of this test only)
+@pytest.mark.parametrize(
+    "line", ["T1: halt reason=no-evidence", "T1: halt review=6 reason=batch"]
+)
+def test_malformed_halt_reason_lines_are_rejected(tmp_path, line):
+    pk = _halt_pkg(tmp_path, line)
+    with pytest.raises(aw.ArchiveError) as e:
+        pk.state()
+    assert e.value.code == "E-ARCHIVE-LEDGER"
+
+
+def test_issues_then_shifted_final_archives_then_already_archived(tmp_path):
+    # per-task line numbers are historical pointers: the helper must never resolve them,
+    # and a later fresh FINAL pass (naming a to-do path that stops existing) still archives
+    pk = Pkg(tmp_path / "r")
+    led = pk.pkg / "progress.md"
+    led.write_text(
+        led.read_text().replace("evidence=src/a.py:1", "evidence=src/a.py:99999", 1)
+    )
+    pk.append(f"FINAL: issues evidence=src/a.py:1 state={pk.state()}")
+    fails(pk, "E-ARCHIVE-FINAL")
+    pk.append(
+        f"FINAL: pass evidence=.dev/tasks/to-do/{ID}/progress.md:1,src/a.py:99999 state={pk.state()}"
+    )
+    assert pk.run()["status"] == "archived"
+    assert not pk.pkg.exists()
+    assert pk.run() == {"status": "already-archived", "path": str(pk.done)}

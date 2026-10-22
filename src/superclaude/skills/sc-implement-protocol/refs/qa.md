@@ -8,7 +8,7 @@ Do not trust the implementer's report.
 
 Input is the task brief (Ti text + AC ids + global constraints) and the diff (`git diff "$start"` vs the Q0 snapshot, plus full contents of untracked files in the touched set, or tool-trace paths if `nogit`). Not "the tests passed". An empty git diff with new untracked writes is not `cannot-verify`.
 
-One reviewer vs the brief. Never 2+ reviewer agents per task. No Part 2 code-quality ensemble. No `/sc:reflect`. No 6-agent panel.
+One reviewer per review; never 2+ reviewer agents for the same review. No Part 2 code-quality ensemble. No `/sc:reflect`. No 6-agent panel.
 
 ## Compare the diff to
 
@@ -58,11 +58,12 @@ If both missing and extra: verdict `missing`. Record extra findings on the same 
 | `compliant` (first QA) | Extras, append `complete` line | Yes |
 | non-compliant on first QA | Exactly one fix pass + re-QA | No |
 | `compliant` after that one fix | Extras, append `complete` line | Yes |
-| still non-compliant after one fix | HALT `E-HALT-QA`. Print ledger path, Ti, verdict, missing citations. Next: `fix` \| `ruling` \| `resume` | No, unless operator Ruling |
+| a terminal `halt` (`refs/retry.md`): the ladder did not run after the fix pass, or it stopped | HALT `E-HALT-QA`. Print ledger path, Ti, verdict, missing citations. Next: `fix` \| `ruling` \| `resume` | No, unless operator Ruling |
 | operator Ruling with all three fields | Append Ruling line; then `complete` with **unchanged** non-compliant verdict | Yes |
 | `--force` or executor-authored Ruling | STOP `E-NO-RULING` | No |
+| `E-RESUME-NEEDED` (`refs/retry.md`) | re-run the same command; do not write a Ruling | No |
 
-The executor MUST NOT write the Ruling line. Completing a non-compliant task requires an operator-supplied:
+A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. The executor MUST NOT write the Ruling line. Completing a non-compliant task requires an operator-supplied:
 
 ```
 T<id>: Ruling: <what> — <why> — <cost-if-wrong>
@@ -76,10 +77,12 @@ T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 
 ## Managed FINAL review (archive gate)
 
-Same isolation as above: `Do not trust the implementer's report.` One fresh subagent per archive attempt (never inline, even N=1; never reused from an earlier attempt). Input: the current full plan, the full ledger, and the current contents of every delivery file the helper's `--print-state` lists, plus the plan's `## Constraints`. Output: `pass` or `issues` with `path:line` evidence per task AC. Missing, stale or unverifiable evidence is `issues`. This pass never rewrites per-task verdicts and is not a code-quality ensemble; the closed per-task verdict grammar is unchanged. Procedure: `refs/managed-workspace.md`.
+Same isolation as above: `Do not trust the implementer's report.` One fresh subagent per archive attempt (never inline, even N=1; never reused from an earlier attempt). Input: the current full plan, the full ledger, and the current contents of every delivery file the helper's `--print-state` lists, plus the plan's `## Constraints`. Output: `pass` or `issues` with `path:line` evidence per task AC, taken from the current files and the package's `./artifacts/` logs, not copied from the ledger; reading those logs is the one exception to the Isolation rule above. A per-task `evidence=` line number is a pointer recorded when that task was reviewed, and a later task can move it, so a moved line number alone is never `issues`. `issues` when an AC is unmet at the end state, no evidence for it can be found in the current files or logs, a later change contradicts it, a plan `## Constraints` item is violated, or a log cited on a task's latest `complete` line shows a failure at its outcome line. This pass never rewrites per-task verdicts and is not a code-quality ensemble; the closed per-task verdict grammar is unchanged. The FINAL also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the plan; the forbidden-read rule of the Subagent prompt section never applies to the FINAL. Procedure: `refs/managed-workspace.md`.
 
 ## Subagent prompt (when not inline)
 
-Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task. If compacted mid-run, remaining QA uses the subagent. One mode for the rest of the run.
+Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task. If compacted mid-run, remaining QA uses the subagent. Once a run switches to subagent mode it stays there; reviews of A3-A5, re-run reviews and operator reviews are always subagents.
 
 Prompt the subagent with: this file, the task brief, global constraints, the diff (or diff path), start sha. Require the closed verdict + citations. Do not trust the implementer's report.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
