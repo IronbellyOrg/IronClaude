@@ -338,7 +338,16 @@ def test_launch_maps_workspace_key_without_changing_explicit_auth(
 def test_shim_is_detected_without_lsof(tmp_path: Path) -> None:
     tools = tmp_path / "no-lsof-bin"
     tools.mkdir()
+    first_source = tmp_path / "first-source"
+    second_source = tmp_path / "second-source"
+    first_source.mkdir()
+    second_source.mkdir()
+    basename = "ccsession-test-dangling-tool"
+    (first_source / basename).symlink_to(tmp_path / "missing-tool")
+    (second_source / basename).write_text("unused\n")
     for directory in (
+        first_source,
+        second_source,
         "/usr/local/bin",
         "/opt/homebrew/bin",
         "/usr/bin",
@@ -351,8 +360,12 @@ def test_shim_is_detected_without_lsof(tmp_path: Path) -> None:
             continue
         for tool in base.iterdir():
             link = tools / tool.name
-            if tool.name != "lsof" and not link.exists():
+            if tool.name != "lsof" and not link.exists() and not link.is_symlink():
                 link.symlink_to(tool)
+    dangling_link = tools / basename
+    assert dangling_link.is_symlink()
+    assert dangling_link.readlink() == first_source / basename
+    assert not dangling_link.exists()
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
