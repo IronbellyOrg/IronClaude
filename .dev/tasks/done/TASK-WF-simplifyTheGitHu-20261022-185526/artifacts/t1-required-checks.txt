@@ -1,0 +1,16 @@
+$ gh api repos/IronbellyOrg/IronClaude/branches/master/protection 2>&1
+{"message":"Branch not protected","documentation_url":"https://docs.github.com/rest/branches/branch-protection#get-branch-protection","status":"404"}gh: Branch not protected (HTTP 404)
+(exit 1)
+
+$ gh api repos/IronbellyOrg/IronClaude/branches/integration/protection 2>&1
+{"message":"Branch not found","documentation_url":"https://docs.github.com/rest/branches/branch-protection#get-branch-protection","status":"404"}gh: Branch not found (HTTP 404)
+(exit 1)
+
+$ gh api repos/IronbellyOrg/IronClaude/rules/branches/master 2>&1
+[](exit 0)
+
+$ gh api repos/IronbellyOrg/IronClaude/rules/branches/integration 2>&1
+[](exit 0)
+
+CONCLUSION (2026-10-22T20:10Z): master "Branch not protected", integration "Branch not found", rulesets [] on both. No required status checks exist, so none of these nine check names is required: Test on Python 3.10, Test on Python 3.11, Test on Python 3.12, Lint and Format Check, Pytest Plugin Check, Dependency Allow-list (AC3), Quick Test (Python 3.10), Multi-language README Quality Assessment, Generator-Constraint Considered (Contract #3). Plan may proceed.
+

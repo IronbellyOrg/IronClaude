@@ -40,13 +40,6 @@ jobs:
             echo "has-updates=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout Framework Repository (Source)
-        if: steps.check-updates.outputs.has-updates == 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: SuperClaude-Org/SuperClaude_Framework
-          path: framework-src
-
       - name: Set up Python
         if: steps.check-updates.outputs.has-updates == 'true'
         uses: actions/setup-python@v5
@@ -63,7 +56,7 @@ jobs:
         if: steps.check-updates.outputs.has-updates == 'true'
         working-directory: plugin-repo
         run: |
-          # 修正: plugin.json はスクリプトによってMCPマージとして更新されるため、リストから削除しました
+          # The plugin manifest is rewritten by the sync's MCP merge, so it is not in this protected list.
           PROTECTED=(
             "README.md" "SECURITY.md"
             "CLAUDE.md" "LICENSE" ".gitignore"
@@ -96,11 +89,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 修正: ルートの plugin.json を追加（MCPの更新をコミットするため）
+          # Include .claude-plugin/plugin.json so the sync's MCP updates are committed.
           # PR5: defensively add only paths that exist — this fork's structure
           # differs from upstream SuperClaude_Plugin; missing paths must not
           # halt the workflow (was: hard `git add commands/ agents/ ...`).
-          for p in commands/ agents/ .claude-plugin/plugin.json plugin.json; do
+          for p in commands/ agents/ .claude-plugin/plugin.json; do
             if [ -e "$p" ]; then
               git add "$p"
             fi

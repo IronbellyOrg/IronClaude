@@ -1,0 +1,93 @@
+T11 render check (2026-10-22). The old 3-step script (from HEAD:.github/workflows/boundary-guard.yml) and the new merged step were each run with `bash -e`, as GitHub does. Each run got a temp GITHUB_STEP_SUMMARY and real SHAs from this repo, and ${{ }} expressions were substituted the way Actions substitutes them. Harness: a temporary /tmp/t11_render.py, deleted after the run.
+CONCLUSION:
+- nonempty case: the renders are byte-identical.
+- empty file list: the only difference is the blank line inside the code fence (the old step printed one, the new step prints none). Task 11 allows this difference.
+- unresolvable base SHA: the new step writes "(diff unavailable)" where the old step printed a blank line. This is Task 11's required `|| echo "(diff unavailable)"` fallback.
+- In every case the new step's first stdout line is the unchanged ::warning, and the new render contains no backslash before a backtick.
+(The line below is uv's warning from launching the harness, not part of the result.)
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+===== case nonempty: base=b0de1479267353fa77d56cf9d1b59ee57b27138d^ head=64b730a7208a71fb1cca2fb15d8a1e8b1c491342
+old exit codes [0, 0, 0]; new exit code [0]
+old warning stdout == new warning first line: True
+new stdout first line starts with ::warning: True
+identical render: True
+backslash-before-backtick in new render: False
+----- new render (full) -----
+## Mechanical-merge boundary touched
+
+This PR modifies one or more files on the caller-facing
+neutrality boundary (T05.05 / FR-012). Reviewers must
+verify all four structural guards remain intact:
+
+1. **Docstring contract** -- `merge.py` module docstring
+   must still enumerate ALLOWED operations (concat,
+   slot-index sort, provenance header) and DISALLOWED
+   operations (sort/score/dedup/filter/rewrite/reorder).
+2. **<=30 LOC ceiling** -- `merge.py` body must remain
+   at or below 30 lines (excluding module docstring and
+   imports per NFR-008). Verified by
+   `tests/swarm/test_merge_loc_ceiling.py`.
+3. **PR-review discipline** -- this workflow flags the
+   touch; branch protection must require this check.
+4. **Boundary test** -- `tests/swarm/test_merge_mechanical_only.py`
+   asserts 3-worker concat preserves slot-index order,
+   verbatim bodies, and provenance-header-only output.
+
+### Files touched in this PR
+
+```
+src/superclaude/cli/swarm/merge.py
+tests/swarm/test_merge_loc_ceiling.py
+tests/swarm/test_merge_mechanical_only.py
+tests/swarm/test_merge_no_transforms.py
+tests/swarm/test_no_scoring_engine.py
+```
+
+### Required reviewer checks
+
+- [ ] No new sort / score / rank / dedup / filter / rewrite
+      operations introduced into `merge.py`.
+- [ ] Module docstring still enumerates ALLOWED and
+      DISALLOWED operations.
+- [ ] All four guards still listed in the module docstring.
+- [ ] If `merge.py` body grew, NFR-008 (<=30 LOC) was
+      explicitly revisited and the ceiling deliberately
+      raised in the spec -- not silently relaxed in the test.
+- [ ] Scoring / ranking work was directed to
+      `/sc:adversarial`, not added here.
+
+===== case empty: base=43cb011621e1669e8c9b5214cb02fc722dec8d40 head=43cb011621e1669e8c9b5214cb02fc722dec8d40
+old exit codes [0, 0, 0]; new exit code [0]
+old warning stdout == new warning first line: True
+new stdout first line starts with ::warning: True
+identical render: False
+--- old
++++ new
+@@ -21,7 +21,6 @@
+ ### Files touched in this PR
+ 
+ ```
+-
+ ```
+ 
+ ### Required reviewer checks
+
+backslash-before-backtick in new render: False
+===== case bad-sha: base=0000000000000000000000000000000000000000 head=43cb011621e1669e8c9b5214cb02fc722dec8d40
+old exit codes [0, 0, 0]; new exit code [0]
+old warning stdout == new warning first line: True
+new stdout first line starts with ::warning: True
+identical render: False
+--- old
++++ new
+@@ -21,7 +21,7 @@
+ ### Files touched in this PR
+ 
+ ```
+-
++(diff unavailable)
+ ```
+ 
+ ### Required reviewer checks
+
+backslash-before-backtick in new render: False
