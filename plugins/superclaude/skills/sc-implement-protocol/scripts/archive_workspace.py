@@ -55,7 +55,6 @@ _RULING = re.compile(rf"^T({TASK_ID}): Ruling: .+ — .+ — .+$")
 _FINAL = re.compile(r"^FINAL: (\S+)(?: .*)?$")
 _FINAL_OK = re.compile(r"^FINAL: pass evidence=(.+) state=([0-9a-f]{64})$")
 _ARCH = re.compile(r"^ARCHIVE: (start|failed|Ruling:) .+$")
-_ARCH_RULING = re.compile(r"^ARCHIVE: Ruling: (.+) — (.+) — (.+)$")
 _TASK_HEADING = re.compile(
     r"^#{2,6}\s+(?:Task\s+|T)([0-9][0-9A-Za-z.-]*?)(?::|\s|$)", re.M
 )
@@ -309,45 +308,36 @@ def validate(
         )
     # tasks
     known = set(tasks)
-    latest, ruled = {}, set()
-    for i, (k, m, _) in enumerate(recs):
+    latest, ruled = {}, {}
+    for k, m, line in recs:
         if k in ("start", "verdict", "ruling") and f"T{m.group(1)}" not in known:
             raise ArchiveError(
                 "E-ARCHIVE-LEDGER", f"ledger names unknown task T{m.group(1)}"
             )
+        if k == "start":
+            ruled.pop(m.group(1), None)
+            latest.pop(m.group(1), None)
         if k == "ruling":
-            ruled.add(m.group(1))
+            prior = latest.get(m.group(1))
+            # Legacy ledgers may put a Ruling before their first verdict.
+            ruled[m.group(1)] = prior[2] if prior else None
         if k == "verdict":
             tid = m.group(1)
-            if (
-                m.group(3) != "compliant"
-                and m.group(2) == "complete"
-                and tid not in ruled
-            ):
+            fields = line.split(" verdict=", 1)[1]
+            if m.group(2) == "blocked" or m.group(3) == "compliant":
+                ruled.pop(tid, None)
+            elif tid not in ruled or ruled[tid] not in (None, fields):
                 raise ArchiveError(
                     "E-ARCHIVE-TASKS",
-                    f"T{tid} complete non-compliant without operator Ruling",
+                    f"T{tid} complete non-compliant without matching user-authorized Ruling",
                 )
-            latest[tid] = (m.group(2), m.group(3))
-    waive = []
+            else:
+                ruled[tid] = fields
+            latest[tid] = (m.group(2), m.group(3), fields)
     for t in tasks:
         st = latest.get(t[1:])
         if st is None or st[0] != "complete":
             raise ArchiveError("E-ARCHIVE-TASKS", f"{t} is pending or blocked")
-        if st[1] != "compliant":
-            waive.append(t[1:])
-    archive_rulings = [
-        r.group(1)
-        for k, _, line in recs
-        if k == "archive" and (r := _ARCH_RULING.match(line))
-    ]
-    for tid in waive:
-        rx = re.compile(rf"(?<![0-9A-Za-z.-])T{re.escape(tid)}(?![0-9A-Za-z.-])")
-        if not any(rx.search(w) for w in archive_rulings):
-            raise ArchiveError(
-                "E-ARCHIVE-TASKS",
-                f"T{tid} non-compliant: needs operator 'ARCHIVE: Ruling:' naming it",
-            )
     delivery_files = set()
     for k, m, _ in recs:
         if k != "verdict":
