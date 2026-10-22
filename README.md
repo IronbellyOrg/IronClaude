@@ -61,7 +61,7 @@ pipx install git+https://github.com/IronbellyOrg/IronClaude
 superclaude install
 ```
 
-This installs the package and then installs its framework assets into your Claude Code directory (`~/.claude/`). Installing from the repository URL needs read access to it.
+This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by **required user-level Codebase Memory MCP setup on Linux amd64/arm64**. Native setup includes upstream's full detected-client/companion integrations and retains graph indexes. If that required phase fails, installation exits 1 but keeps completed framework work. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for prerequisites, unsupported-platform limits, upstream trust and safe removal. Installing from the repository URL needs read access to it.
 
 ### Install from source for development
 
@@ -72,7 +72,7 @@ git clone https://github.com/IronbellyOrg/IronClaude
 cd IronClaude
 uv venv                    # make install runs `uv pip install -e`, which needs an environment
 make install
-uv run superclaude install # copy commands, agents, skills and core files into ~/.claude/
+uv run superclaude install # framework assets + required user Codebase Memory setup (Linux)
 make verify
 ```
 

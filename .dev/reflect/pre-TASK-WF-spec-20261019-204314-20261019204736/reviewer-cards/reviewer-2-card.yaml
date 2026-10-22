@@ -1,0 +1,34 @@
+reviewer: 2
+model_class: haiku
+model: grok-4.7[1m]
+persona: qa
+calibration: not-performed
+self_confidence: null
+regression_present: false
+returned_findings:
+  - id: R2-1
+    kind: instrumentation-warning
+    severity: LOW
+    summary: All 23 literal nonmatches have support in individual tasks or global constraints; do not treat containment misses as missing behavior or rewrite the plan to raise the score.
+  - id: R2-2
+    kind: confirmed-plan-gap
+    severity: LOW
+    summary: Positive dry-run output content from source117 is only partly acceptance-locked; Task 4 explicitly forbids mutation/prompts but does not assert displayed URL, account-wide effects and index retention. Not a missing task; no plan edit authorized.
+    evidence: [source.md:117, TASK-WF-spec-20261019-204314.md:111]
+  - id: R2-3
+    kind: implementation-risk
+    severity: LOW
+    summary: Task 2 already owns query-error/absence distinction, exact user scope, rollback, shadowing and spaced paths; generic helper cannot simply be reused unchanged. External CLI feasibility remains unverified.
+  - id: R2-4
+    kind: already-covered
+    severity: LOW
+    summary: Disposable authorized live smoke and release block remain intentionally open in Task 7; not a missing plan obligation and must not run during PRE.
+extraction_limits:
+  - Source16-18 exact official installer fenced command is outside matrix quote at source14; plan imports official source contract.
+  - Source33 selection-before-prerequisites imperative absent from matrix; covered by Task4 lines103 and107.
+  - Source44 revalidation imperative absent from matrix; covered by plan25 and36.
+  - Source117 compound dry-run row matches mainly prohibition vocabulary rather than proving affirmative output obligation.
+limitations:
+  - Read-only brief and source verification; no shell/git/tests/builds/writes/remote effects or children.
+  - External installer and CLI contracts not revalidated in this review.
+  - Missing implementation expected; no product-code regression claimed.

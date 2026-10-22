@@ -2,7 +2,7 @@
 
 The create pipeline REUSES three existing components. Do not reimplement them. Confirm the exact flag
 spelling against each command's own file if anything below looks stale (they are the source of truth):
-`src/superclaude/commands/{spec-panel,adversarial,document}.md`.
+`~/.claude/commands/sc/{spec-panel,adversarial,document}.md`.
 
 **Invocation form matters.** `adversarial` has a backing protocol skill, so invoke it via the **Skill**
 tool (`Skill sc:adversarial-protocol`). `spec-panel` and `document` are **command-only** (their

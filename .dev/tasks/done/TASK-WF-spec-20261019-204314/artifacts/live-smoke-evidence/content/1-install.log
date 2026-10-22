@@ -1,0 +1,329 @@
+📦 Installing core framework files to ~/.claude/...
+
+
+⚠️  Skipped 8 existing files (use --force to overwrite):
+   - BASH_INSPECTION_POLICY.md
+   - BUSINESS_PANEL_EXAMPLES.md
+   - BUSINESS_SYMBOLS.md
+   - CLAUDE.md
+   - HOW-WE-WORK.md
+   - PRINCIPLES.md
+   - RESEARCH_CONFIG.md
+   - RULES.md
+
+📁 Installation directory: /home/coder/.claude
+
+📦 Installing slash commands to /home/coder/.claude/commands/sc...
+
+
+⚠️  Skipped 43 existing commands (use --force to reinstall):
+   - /adversarial
+   - /agent
+   - /analyze
+   - /auggie-review
+   - /brainstorm
+   - /build
+   - /business-panel
+   - /cleanup-audit
+   - /cleanup
+   - /cli-eval
+   - /cli-portify
+   - /design
+   - /document
+   - /explain
+   - /git
+   - /help
+   - /implement
+   - /improve
+   - /index-repo
+   - /index
+   - /init-lite
+   - /load
+   - /pm
+   - /post-release
+   - /pr-submit
+   - /recommend
+   - /reflect
+   - /release-split
+   - /research
+   - /review-translation
+   - /roadmap
+   - /save
+   - /spawn
+   - /spec-panel
+   - /swarm-wizard
+   - /task
+   - /tasklist
+   - /tdd
+   - /test
+   - /troubleshoot
+   - /validate-roadmap
+   - /validate-tests
+   - /workflow
+
+📁 Installation directory: /home/coder/.claude/commands/sc
+
+💡 Tip: Restart Claude Code to use the new commands
+
+📦 Installing agents to ~/.claude/agents/...
+
+
+⚠️  Skipped 43 existing agents (use --force to reinstall):
+   - audit-analyzer
+   - audit-comparator
+   - audit-consolidator
+   - audit-scanner
+   - audit-validator
+   - auggie-reviewer
+   - backend-architect
+   - business-panel-experts
+   - confidence-calibrator
+   - debate-orchestrator
+   - deep-research-agent
+   - deep-research
+   - devops-architect
+   - eval-docs-loader
+   - eval-run-reporter
+   - eval-suite-author
+   - evidence-validator
+   - frontend-architect
+   - learning-guide
+   - merge-executor
+   - performance-engineer
+   - pm-agent
+   - python-expert
+   - quality-engineer
+   - refactoring-expert
+   - reflect-reviewer
+   - repo-index
+   - requirements-analyst
+   - reuse-auditor
+   - rf-analyst
+   - rf-assembler
+   - rf-qa-qualitative
+   - rf-qa
+   - rf-task-builder
+   - rf-task-executor
+   - rf-task-researcher
+   - rf-team-lead
+   - root-cause-analyst
+   - security-engineer
+   - self-review
+   - socratic-mentor
+   - system-architect
+   - technical-writer
+
+📁 Installation directory: /home/coder/.claude/agents
+
+📦 Installing skills to ~/.claude/skills/...
+
+
+⚠️  Skipped 36 existing skills (use --force to reinstall):
+   - ccsession-tag
+   - confidence-check
+   - operational-guide
+   - prd
+   - readme
+   - roadmap
+   - sc-adversarial-protocol
+   - sc-auggie-review-protocol
+   - sc-bare-review
+   - sc-brainstorm-protocol
+   - sc-cleanup-audit-protocol
+   - sc-cli-eval-protocol
+   - sc-cli-portify-protocol
+   - sc-crash-recovery
+   - sc-implement-protocol
+   - sc-init-lite-protocol
+   - sc-pm-protocol
+   - sc-post-release-protocol
+   - sc-pr-submit-protocol
+   - sc-recommend
+   - sc-reflect-protocol
+   - sc-release-split-protocol
+   - sc-review-translation-protocol
+   - sc-roadmap-protocol
+   - sc-swarm-wizard-protocol
+   - sc-task-protocol
+   - sc-tasklist-protocol
+   - sc-troubleshoot-protocol
+   - sc-validate-roadmap-protocol
+   - sc-validate-tests-protocol
+   - sc-workflow-protocol
+   - task
+   - task-builder
+   - tdd
+   - tech-reference
+   - tech-research
+
+📁 Installation directory: /home/coder/.claude/skills
+
+ccsession wired at /home/coder/.local/bin/ccsession
+
+📦 Installing hooks to ~/.claude/hooks/...
+
+
+⚠️  Skipped 12 existing script(s) (use --force to overwrite):
+   - freshness-session-start.sh
+   - freshness-user-prompt.sh
+   - freshness-pre-edit.sh
+   - freshness-post-read.sh
+   - freshness-file-changed.sh
+   - freshness-subagent-start.sh
+   - freshness-subagent-stop.sh
+   - auggie-flag-clear.sh
+   - reject-workspace-writes.sh
+   - pragmatic-subagent.js
+   - sc-recommend-phase0.sh
+   - session-init.sh
+
+📋 settings.json merge: events=6 added=0 skipped-existing=10
+💾 Backup: /home/coder/.claude/settings.json.bak.20261022T011905Z
+
+⏭️  Preserved 1 existing data file(s):
+   - auggie-projects.txt (user-edited; not overwritten)
+
+📦 Installing templates to ~/.claude/templates/...
+
+
+⚠️  Skipped 53 existing templates (use --force to overwrite):
+   - documents/GFxAI_Master_Documentation_Template.md
+   - documents/agent_template_analysis.md
+   - documents/agent_template_qa.md
+   - documents/agent_template_worker.md
+   - documents/operational_guide_template.md
+   - documents/prd_template.md
+   - documents/readme_template.md
+   - documents/release-spec-template.md
+   - documents/roadmap_template.md
+   - documents/skill_template.md
+   - documents/supplemental-doc-creation-checklist.md
+   - documents/supplemental_doc_template.md
+   - documents/tdd_template.md
+   - documents/technical_reference_template.md
+   - modularization-template-review/INDEX.md
+   - modularization-template-review/analyst-completeness_report_template.md
+   - modularization-template-review/analyst-coverage-matrix_template.md
+   - modularization-template-review/analyst-cross-validation_report_template.md
+   - modularization-template-review/analyst-gap-analysis_template.md
+   - modularization-template-review/analyst-synthesis-review_report_template.md
+   - modularization-template-review/claim-evidence-matrix_template.md
+   - modularization-template-review/codebase-research_template.md
+   - modularization-template-review/pipeline-complete_report_template.md
+   - modularization-template-review/qa-acceptance-methodology-audit_template.md
+   - modularization-template-review/qa-consolidated-findings_template.md
+   - modularization-template-review/qa-cross-source-contradictions_template.md
+   - modularization-template-review/qa-fix-summary_template.md
+   - modularization-template-review/qa-inventory_report_template.md
+   - modularization-template-review/qa-lens_report_template.md
+   - modularization-template-review/qa-qualitative-operational_report_template.md
+   - modularization-template-review/qa-qualitative-sufficiency_report_template.md
+   - modularization-template-review/qa-research-depth_report_template.md
+   - modularization-template-review/qa-research-evidence_report_template.md
+   - modularization-template-review/qa-research-gap_report_template.md
+   - modularization-template-review/qa-source-fidelity_template.md
+   - modularization-template-review/qa-task-research-alignment_report_template.md
+   - modularization-template-review/qa-task-validation-b2_report_template.md
+   - modularization-template-review/qa-task-validation-structure_report_template.md
+   - modularization-template-review/research-notes_template.md
+   - modularization-template-review/synthetic-dnsp-finding.contract
+   - modularization-template-review/track-scope-map_template.md
+   - modularization-template-review/web-research_template.md
+   - workflow/00_mdtm_template_simple_task.md
+   - workflow/01_mdtm_template_generic_task.md
+   - workflow/01_mdtm_template_generic_task__gfdoc.md
+   - workflow/02_mdtm_template_complex_task.md
+   - workflow/03_component_authoring_template.md
+   - workflow/03_project_plan_template.md
+   - workflow/04_feature_brief_template.md
+   - workflow/05_prd_template.md
+   - workflow/06_architecture_proposal_template.md
+   - workflow/99_mdtm_template_generic_task_old.md
+   - workflow/changelog_template.md
+
+📁 Installation directory: /home/coder/.claude/templates
+
+📦 Installing rules, output styles, settings defaults, Orca skills...
+
+✅ Rules: 0 installed, 20 kept, in /home/coder/.claude/rules (never auto-loaded)
+✅ Output styles: 0 installed, 1 kept, in /home/coder/.claude/output-styles
+✅ Settings defaults: already present
+✅ Orca skills: already installed
+✅ Plugins: already installed
+
+Installing Codebase Memory MCP (required user-level phase)...
+Upstream source: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh. Native location: /home/coder/.local/bin/codebase-memory-mcp. This user/account-wide lifecycle affects detected clients and companion instructions, skills, agents and hooks; graph indexes are retained.
+Acquisition: preparing Codebase Memory through the native helper.
+Acquiring full upstream setup from https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh
+Destination: /home/coder/.local/bin/codebase-memory-mcp
+Upstream configures detected clients and companion instructions, skills, agents and hooks; existing graph indexes are retained.
+codebase-memory-mcp installer
+  os:      linux
+  arch:    amd64
+  target:  /home/coder/.local/bin/codebase-memory-mcp
+
+Downloading codebase-memory-mcp-linux-amd64-portable.tar.gz...
+#=O#-     #           #                                                                                                                                                                                                                                                                                                                                                            ####                                                                                                                                                                                                                                                                                                                                                                           1.3%####################################################################################################################################################################################################                                                                                                                                                                          54.1%########################################################################################################################################################################################################################################################################################################################                                                      85.8%############################################################################################################################################################################################################################################################################################################################################################################ 100.0%
+Checksum verified.
+Extracting...
+Verified candidate: codebase-memory-mcp 0.12.1
+codebase-memory-mcp install 0.12.1
+
+Found 1 existing index(es). Keeping them. After install, re-index to pick up this version's improvements:
+  /home/coder/.cache/codebase-memory-mcp/activity.db
+
+Stopping active CBM sessions and operations for install...
+Installed binary -> /home/coder/.local/bin/codebase-memory-mcp
+
+Detected agents: Claude-Code Codex OpenCode Augment-Auggie Pi
+
+Claude Code:
+  skills: 1 installed
+  agent: /home/coder/.claude/agents/codebase-memory-scout.md
+  agent: /home/coder/.claude/agents/codebase-memory.md
+  agent: /home/coder/.claude/agents/codebase-memory-auditor.md
+  mcp: /home/coder/.claude.json
+  hooks: PreToolUse Grep/Glob/Bash search augmentation + PostToolUse Read coverage (non-blocking)
+  hooks: SessionStart (MCP usage reminder on startup/resume/clear/compact)
+  hooks: SubagentStart (MCP usage reminder for subagents)
+Codex CLI:
+  mcp: /home/coder/.codex/config.toml
+  instructions: /home/coder/.codex/AGENTS.md (managed activation pointer)
+  skill: /home/coder/.codex/skills/codebase-memory/SKILL.md (1 installed)
+  agent: /home/coder/.codex/agents/codebase-memory-scout.toml
+  agent: /home/coder/.codex/agents/codebase-memory.toml
+  agent: /home/coder/.codex/agents/codebase-memory-auditor.toml
+  hooks: SessionStart + SubagentStart (dynamic graph context)
+  note: non-managed hooks require /hooks trust; definition changes require re-trust
+OpenCode:
+  mcp: /home/coder/.config/opencode/opencode.json
+  instructions: /home/coder/.config/opencode/AGENTS.md
+  skill: /home/coder/.config/opencode/skills/codebase-memory/SKILL.md (1 installed)
+  agent: /home/coder/.config/opencode/agents/codebase-memory-scout.md
+  agent: /home/coder/.config/opencode/agents/codebase-memory.md
+  agent: /home/coder/.config/opencode/agents/codebase-memory-auditor.md
+  extension: /home/coder/.config/opencode/plugins/cbm-augment.ts
+Augment/Auggie:
+  mcp: /home/coder/.augment/settings.json
+  instructions: /home/coder/.augment/rules/codebase-memory.md
+  agent: /home/coder/.augment/agents/codebase-memory-scout.md
+  agent: /home/coder/.augment/agents/codebase-memory.md
+  agent: /home/coder/.augment/agents/codebase-memory-auditor.md
+  hooks: SessionStart + PostToolUse view coverage
+Pi:
+  instructions: /home/coder/.pi/agent/AGENTS.md
+  skill: /home/coder/.pi/agent/skills/codebase-memory/SKILL.md (1 installed)
+  extension: /home/coder/.pi/agent/extensions/cbmem.ts
+
+PATH already includes /home/coder/.local/bin
+
+Install complete. Please restart your coding-agent sessions to properly take this into account.
+Restart your shell or run:
+  source /home/coder/.bashrc
+Installed updater -> /home/coder/.local/bin/install.sh
+Installed: codebase-memory-mcp 0.12.1
+
+Done! Restart your coding agent to start using codebase-memory-mcp.
+Executable verification: codebase-memory-mcp 0.12.1 at /home/coder/.local/bin/codebase-memory-mcp
+Registration: exact user stdio entry verified (codebase-memory-mcp 0.12.1). Restart clients to load integrations; no indexing or live MCP handshake was performed.
+exit=0

@@ -1,8 +1,18 @@
 # MCP Optional Design
 
-## 基本原則: MCPはオプション
+## 基本原則: 実行時のMCP利用はオプション
 
-**重要**: SuperClaude Frameworkは **MCPなしでも完全に動作** します。
+**重要**: 実行時は **MCPなしでも基本機能を利用** できます。これはインストールの成功条件とは別です。
+
+### Default Provisioning vs Optional Runtime Use
+
+`superclaude install` now provisions full user-level Codebase Memory MCP after framework/user setup as a **required installation phase on Linux amd64/arm64**. Acquisition, verification or registration failure exits 1 and keeps completed framework files. Unsupported macOS/Windows also leave that phase incomplete; separate upstream manual setup is not a bypass for framework installation success.
+
+That default does not make graph tools mandatory at runtime. If Codebase Memory or another MCP is unavailable, the existing native-tool fallbacks below remain applicable. This change adds no indexing, graph-usage policy, bundled graph skills/agents or gateway dependency. Other MCP servers remain optional.
+
+`superclaude update` does not reinstall or upgrade the native tool; a later explicit `superclaude install` restores the default bundle. Safe account-wide removal retains graph indexes and requires explicit consent and verified acquisition ownership. See the [MCP installation guide](../user-guide/mcp-installation.md) for the full upstream companion effects, platform/prerequisite limits and lifecycle commands.
+
+The examples below describe **runtime fallback behavior**, not installer completion or permission to suppress installation errors.
 
 ```yaml
 Core Principle:
@@ -11,7 +21,7 @@ Core Principle:
   Fallback: Automatic (自動フォールバック)
 
 Design Philosophy:
-  "MCPs enhance, but never required"
+  "MCP usage enhances runtime; default provisioning is a separate install requirement"
   "Native tools are the foundation"
   "Graceful degradation always"
 ```
@@ -301,15 +311,15 @@ Scenario 4: MCP Performance Issues
 
 ```yaml
 Getting Started:
-  "SuperClaude works out of the box without any MCPs"
-  "MCPs are optional performance enhancements"
-  "Install MCPs for better performance, not required"
+  "Core runtime functionality has native fallbacks when MCPs are unavailable"
+  "MCP runtime usage is optional"
+  "Normal installation provisions Codebase Memory; other MCP installs remain optional"
 
 Installation Guide:
-  Minimal Setup:
+  Default Setup:
     - Clone repo
-    - Run installer
-    - Start using (no MCPs)
+    - Run installer (required Codebase Memory phase on Linux amd64/arm64)
+    - Start using; choose MCP tools or native runtime fallbacks
 
   Enhanced Setup (Optional):
     - Install Mindbase (cross-session memory)
@@ -328,7 +338,7 @@ Performance Comparison:
 ```yaml
 MCP Integration Guidelines:
 
-Rule 1: Always provide fallback
+Rule 1: Always provide runtime fallback (not suppression of installer failures)
   ✅ try_mcp_then_fallback()
   ❌ require_mcp_or_fail()
 
@@ -355,7 +365,7 @@ Rule 5: Performance expectations
 Accessibility:
   ✅ No barriers to entry
   ✅ Works on any system
-  ✅ No additional dependencies
+  ✅ Core runtime has no dependency on MCP availability
   ✅ Easy onboarding
 
 Reliability:
@@ -386,9 +396,9 @@ Current Users (No MCPs):
   Benefit: Can add MCPs incrementally
 
 New Users:
-  Step 1: Install framework (works immediately)
-  Step 2: Use without MCPs (full functionality)
-  Step 3: Add MCPs if desired (performance boost)
+  Step 1: Install framework and default Codebase Memory (Linux amd64/arm64)
+  Step 2: Choose MCP usage or native fallbacks at runtime
+  Step 3: Add other MCPs if desired (optional)
 
 MCP Adoption:
   Mindset: "Nice to have, not must have"
@@ -407,12 +417,12 @@ Core Message:
 
 User Choice:
   Minimal: No MCPs, full functionality
-  Standard: Mindbase only, cross-session memory
+  Standard: Codebase Memory provisioned by default; runtime usage optional
   Enhanced: All MCPs, maximum performance
   Custom: Pick and choose based on needs
 
 Design Success:
-  ✅ Zero dependencies for basic operation
+  ✅ No MCP availability requirement for basic runtime operation
   ✅ Graceful degradation always
   ✅ User empowerment through choice
   ✅ Reliable baseline guaranteed

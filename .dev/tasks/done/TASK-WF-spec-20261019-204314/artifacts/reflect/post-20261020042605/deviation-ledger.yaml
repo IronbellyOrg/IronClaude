@@ -1,0 +1,101 @@
+# Wave 5 synthesis: 4-category deviation ledger (authorized | necessary | drift | regression).
+# Source: adversarial/merged-verdict.yaml canonical_deviations; D4 routed to grounding-gaps.yaml
+# (interpretation open, confidence 0.55). Anchors re-Read in Wave 5 before entry.
+deviation_ledger_version: "1.0"
+aggregation_mode: per-finding
+entries:
+  - id: D1
+    deviation_class: drift
+    severity: LOW-MEDIUM
+    confidence: 0.57
+    dissent: "one reviewer holds Regression-LOW"
+    mapped_tasks: [T4]
+    location: src/superclaude/cli/install_mcp.py:1311-1314
+    evidence:
+      - src/superclaude/cli/install_mcp.py:1284-1285   # option 0 selects every registry server, including codebase-memory-mcp
+      - src/superclaude/cli/install_mcp.py:486-496     # non-user scope or non-Linux returns a rejection message
+      - src/superclaude/cli/install_mcp.py:1311-1314   # whole selection rejected when native server is present and invalid
+    spec_refs:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:78   # option 0 includes the new server
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:80   # other servers retain their existing scopes
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:143  # install-all includes it
+    tests: [tests/cli/test_install_codebase_memory.py:944-952]   # option 0 covered at user scope only
+    rationale: >-
+      Menu option 0 at project/local scope or on a non-Linux host rejects the whole install-all
+      selection, so the other servers that keep their scopes are not installed either. No tasklist
+      item or inline rationale authorizes that loss; a compliant reading (install the rest, visibly
+      skip Codebase Memory) exists. Not a contradiction of an explicit acceptance criterion, so
+      Drift rather than Regression; the label is spec-interpretation dependent.
+    default_remediation: "Authorize-or-revert: either document option 0 limits or install the other servers with a printed skip."
+  - id: D1-explicit
+    deviation_class: necessary
+    confidence: unanimous
+    mapped_tasks: [T4]
+    location: src/superclaude/cli/install_mcp.py:1311-1314
+    evidence:
+      - tests/cli/test_install_codebase_memory.py:964-988  # explicit gateway+native at project/local scope or Darwin rejected before effects
+    spec_refs:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:78
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:80
+    rationale: >-
+      Spec requires both processing explicit gateway-plus-native selections (:78) and rejecting
+      project/local Codebase Memory scope before any effect (:80). Rejecting the explicit mixed
+      selection before effects satisfies the safety requirement at the cost of the other.
+    default_remediation: "Documentation note: state that an explicit mixed selection with an unsupported scope is rejected as a whole."
+  - id: D2
+    deviation_class: drift
+    severity: conditional
+    conditional_on: "canonical directory group/other-writable on the host (unobserved)"
+    confidence: 0.60
+    dissent: "one reviewer holds advisory-only"
+    mapped_tasks: [T2, T3]
+    location: src/superclaude/cli/install_codebase_memory.py:85-99
+    evidence:
+      - src/superclaude/cli/install_codebase_memory.py:85-99    # ~/.local and ~/.local/bin rejected when mode & 0o022
+      - src/superclaude/cli/install_codebase_memory.py:110-116  # executable rejected when mode & 0o022
+    spec_refs:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:114  # ambiguous discovery or failed probes fail closed
+    rationale: >-
+      The group/other-writable rule is unstated in the spec. A canonical directory at mode 0775
+      (for example created under umask 002) makes ownership proof fail, which blocks install or
+      removal. Fail-closed is spec-sanctioned (:114); the specific mode rule is not, and no fixture
+      covers it.
+    default_remediation: "Authorize-or-revert: document the permission rule or add a 0775 fixture and a clear recovery message."
+  - id: D3
+    deviation_class: drift
+    severity: LOW
+    conditional_on: "symlinked HOME ancestor on the host"
+    confidence: 0.60
+    dissent: "one reviewer holds advisory-only"
+    mapped_tasks: [T3, T4]
+    location: src/superclaude/cli/install_mcp.py:572-579
+    evidence:
+      - src/superclaude/cli/install_codebase_memory.py:539-544  # discovery message names the symlinked directory
+      - src/superclaude/cli/install_mcp.py:572-579              # user-facing prerequisite error drops that message and path
+    spec_refs:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:114
+    rationale: >-
+      Discovery records the offending directory, but the prerequisite error shown to the user is a
+      fixed sentence without it, so a user with a symlinked HOME ancestor gets no actionable path.
+      Unmapped and without rationale; contradicts no criterion.
+    default_remediation: "Include the discovery message (with the path) in the prerequisite error."
+  - id: D5
+    deviation_class: authorized
+    confidence: 0.88
+    mapped_tasks: [T1]
+    location: src/superclaude/cli/install_mcp.py:486-496
+    evidence:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/operator-direction.md:5-7
+      - src/superclaude/cli/main.py:255-275   # default install exits 1 when the native phase fails (macOS included)
+    spec_refs:
+      - .dev/tasks/done/TASK-WF-spec-20261019-204314/source.md:90   # original plan listed Linux and macOS
+    rationale: >-
+      Linux-only automation narrows the spec's Linux+macOS support. Operator direction explicitly
+      permits excluding and documenting automated macOS support. Cost: superclaude install exits 1
+      on macOS.
+    default_remediation: "None; keep documented."
+deviation_count_by_class:
+  authorized: 1
+  necessary: 1
+  drift: 3
+  regression: 0

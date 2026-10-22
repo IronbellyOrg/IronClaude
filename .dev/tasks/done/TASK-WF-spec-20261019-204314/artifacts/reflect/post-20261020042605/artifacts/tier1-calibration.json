@@ -1,0 +1,25 @@
+{
+  "card_tier": 1,
+  "calibrator_model_override": "opus",
+  "reviewer_model_override": "sonnet",
+  "calibrator_diversity": "full",
+  "scores": {
+    "citation_grounding": 0.85,
+    "coverage_completeness": 0.75,
+    "deviation_classification_clarity": 0.55,
+    "risk_surface_coverage": 0.9,
+    "recommendation_actionability": 0.6
+  },
+  "confidence_calibrated": 0.73,
+  "formula": "(0.85+0.75+0.55+0.90+0.60)/5 = 0.73",
+  "self_reported_confidence": null,
+  "escalation_recommendation": "ESCALATE",
+  "notes": [
+    "Independent calibrator read the supplied five-dimension Reflect rubric and spot-checked cited source ranges; no six-dimension troubleshoot formula was substituted.",
+    "Source mechanisms for mixed-selection rejection, strict permission bits and symlink rejection were grounded, but the card did not establish that those mechanisms contradict the full acceptance/security constraints.",
+    "Card coverage counts lack per-AC anchors and its caller search used a main-checkout index; counts are provisional, not the semantic final result.",
+    "Classification hedges and the T4 met-versus-violated contradiction lowered clarity. Conditional/static candidates are not final runtime regression findings.",
+    "No historical test result or quoted test body was inherited as fresh execution proof.",
+    "CLI documentation confirmation obtained later by the orchestrator is new Tier-2 grounding, not a reason to retroactively inflate this blind score."
+  ]
+}

@@ -1,0 +1,40 @@
+Task 4 Q5 single fix pass: gateway curl prerequisite
+
+Product files frozen again for independent recheck.
+
+Changed in this pass only:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+No main/native-helper/registry-test/default-install/update/ledger changes in this pass.
+
+Fix:
+The gateway's existing whole-selection prerequisite branch now checks curl availability before any selected installer runs, independently of whether Codebase Memory needs acquisition. This is a two-line product change. Dry-run continues to skip installation prerequisites, so curl is not required merely to plan a gateway operation.
+
+Regression:
+Added one parametrized real-gateway/mock-external-command test covering gateway-only, gateway then usable native, and usable native then gateway, crossed with actual-install versus dry-run mode (six cases). HOME/config are isolated. Native discovery explicitly reports a usable existing canonical binary so native acquisition's curl check cannot hide the gateway gap. The real gateway function is used; curl execution is mocked as missing if incorrectly reached. Tests require no installer/registration command/native install call, no curl command, no .superclaude gateway directory and an unchanged temporary HOME tree on rejected actual installations. Dry-run must still succeed with no directory/registration/curl effects.
+
+TDD result before the product fix:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py -q -k gateway_curl_preflight
+Exit 1: 3 failed, 3 passed, 126 deselected in 0.47s. All actual-install variants reproduced the gap; dry-run variants already passed. No real curl/native/Claude operation ran.
+
+Final focused regression command:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py -q
+Exit 0: 211 passed, 1 skipped in 10.81s (212 collected).
+The skip remains the existing API-key-gated Tavily presence assertion. The previous Task 4 four-file run, including unchanged update-command tests, remains recorded in t4-checks.txt; main.py did not change in this pass.
+
+Lint:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+Exit 0: All checks passed!
+
+Format:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff format --check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py
+Exit 0: 2 files already formatted.
+
+Scoped mypy (not green; no unrelated fixes):
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+Exit 1: same two legacy diagnostics, shifted by the two inserted lines:
+- install_mcp.py:706 returning Any from str|None function [no-any-return].
+- install_mcp.py:1209 object argument where str expected [arg-type].
+Their exact-Q0 classification remains in t4-checks.txt and the existing t4 baseline input files. No new diagnostic and no main.py diagnostic.
+
+No optional expansion, real lifecycle/download/install, new dependency, developer HOME/config change, native-helper change, ledger edit, staging/commit or Git mutation. Product files are frozen; independent reviewer owns the final verdict.

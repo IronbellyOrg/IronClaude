@@ -80,7 +80,7 @@ The command file performs only:
 
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill at
-`src/superclaude/skills/sc-implement-protocol/SKILL.md`.
+`~/.claude/skills/sc-implement-protocol/SKILL.md`.
 
 ## Examples
 

@@ -19,3 +19,7 @@ When updating agents:
 3. Both locations must stay in sync
 
 In v5.0, the plugin system will use `plugins/` directly.
+
+## Paths inside agent files
+
+Agents run in other projects after `superclaude install`, where `src/superclaude/` does not exist. Never point an agent at another primitive with a `src/superclaude/...` path; use `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md`. See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.

@@ -1,0 +1,34 @@
+serena_config_snapshot_path: null
+serena_version: unknown
+serena_active_context: unknown
+observed_backend_fingerprint: unknown
+absolute_source_overviews_succeeded: 7
+diagnostics_queried: 3
+native_module_diagnostics: empty
+mcp_main_diagnostics: Pyright cannot resolve click and native import context; not accepted as missing implementation or regression without working-tree proof
+get_current_config_available: false
+activate_project_available: false
+execute_shell_command_available: false
+onboarding_available: true
+onboarding_ran: false
+onboarding_skipped_reason: --onboard not provided
+read_only_project_value: unknown
+verification_ran: false
+verification_invocations: 0
+verification_skip_reason: tool-unavailable
+verification_note: Protocol verification triangle is gated on exposed Serena execute_shell_command and confirmed project availability. No Bash tests/linters/build were substituted around this restriction. Prior test evidence remains historical.
+serena_summary_corroboration: unavailable
+references_extended_info_used: false
+references_extended_info_note: include_info is not an exposed parameter of the available referencing-symbols tool
+memory_namespace_verified_for_worktree: false
+memory_persisted: false
+memory_pruned: false
+checkpoint_tools_available: false
+checkpoint_logged: skipped
+cli_documentation_inspection:
+  add_json_help: scope option confirmed, read-only help only
+  remove_help: scope option confirmed, read-only help only
+  get_help: no scope/json option exposed, no server lookup or health check performed
+  official_docs: https://code.claude.com/docs/en/mcp-quickstart
+  config_layout: User entries are top-level mcpServers in HOME/.claude.json or CLAUDE_CONFIG_DIR/.claude.json; local entries are project blocks; project file is .mcp.json
+  evidence_kind: Current CLI help and Context7 official documentation, not fresh product test execution

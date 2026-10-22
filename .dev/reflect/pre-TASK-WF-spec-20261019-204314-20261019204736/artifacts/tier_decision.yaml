@@ -1,0 +1,23 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 1
+  ambiguity_signals: 2
+composite_note: Recording-only ordinal assessment; protocol does not define numeric sub-signal anchors. Not a confidence estimate or deciding mechanism.
+S_scope: 7
+S_domains: 3
+S_dev_density: 0.22549019607843138
+escalation_reason: Parsed-sparse table-wide prefilter forbids all Tier-1 STOP rows; multi-domain rule 4 independently requires Tier 2. Literal nonmatches are not proven behavior omissions.
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_rotation: [sonnet, haiku, opus]
+reviewer_models: ['claude-sonnet-5-5[1m]', 'grok-4.7[1m]', 'claude-opus-5-5[1m]']
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+calibrator_diversity: degraded

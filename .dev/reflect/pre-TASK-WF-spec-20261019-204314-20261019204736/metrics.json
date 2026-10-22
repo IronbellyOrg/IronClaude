@@ -1,0 +1,57 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "20261019204736-99b17fbd",
+  "skill": "sc-reflect",
+  "skill_version": "1.7.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "partial",
+  "wall_clock_ms": 560686,
+  "wave_durations_ms": null,
+  "token_usage": null,
+  "calibration": {
+    "calibrator_diversity": "degraded",
+    "calibrated_confidence_initial": 0.73,
+    "calibrated_confidence_final": null,
+    "calibration_delta": null
+  },
+  "ensemble": {
+    "reviewer_count": 3,
+    "executor_class_resolved": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 128,
+    "citations_revalidated": 128,
+    "citations_dropped": 0,
+    "budget_policy": "full_reread"
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "adversarial_unavailable": false,
+    "ran": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable"
+  },
+  "degraded_components": [
+    "serena:wrong-active-project",
+    "get_current_config",
+    "serena:activation-unavailable",
+    "serena:symbolic-chain-unavailable",
+    "serena:checkpoints-unavailable",
+    "serena:memory-unavailable",
+    "executor-class-unknown",
+    "calibrator-model-collision",
+    "coverage:parsed-sparse",
+    "coverage:extraction-not-exhaustive",
+    "t2:per-card-calibration-unfinished",
+    "adversarial:unfinished",
+    "audit:retrospective"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": true,
+  "metrics_complete": false,
+  "unknown_measurements_policy": "null, never fabricated zero estimates"
+}

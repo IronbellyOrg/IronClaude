@@ -140,7 +140,7 @@ Produces a versioned return contract with stable + telemetry blocks.
 **MANDATORY**: Before executing any protocol steps, invoke:
 > Skill sc:brainstorm-protocol
 
-Do NOT proceed with protocol execution using only this command file. The full behavioral specification is in the protocol skill at `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md`.
+Do NOT proceed with protocol execution using only this command file. The full behavioral specification is in the protocol skill at `~/.claude/skills/sc-brainstorm-protocol/SKILL.md`.
 
 ## Boundaries
 

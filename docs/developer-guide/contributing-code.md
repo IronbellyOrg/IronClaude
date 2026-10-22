@@ -333,6 +333,7 @@ Practical usage examples
 - [ ] Behavior matches documentation
 - [ ] No conflicts with existing components
 - [ ] Examples produce expected results in Claude Code conversations
+- [ ] No hardcoded `src/superclaude/...` path tells an agent to read another primitive; use `~/.claude/...` and also accept the project `.claude/` copy (see "Path rules for primitives" in the Commands/Skills/Agents developer guide)
 
 ### File Structure Validation
 

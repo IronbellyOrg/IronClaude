@@ -51,7 +51,7 @@ Command file: parse flags → STOP on empty/banned → Activation. Protocol owns
 > Skill sc:workflow-protocol
 
 Do NOT proceed with protocol execution using only this command file.
-The full behavioral specification is in `src/superclaude/skills/sc-workflow-protocol/SKILL.md`.
+The full behavioral specification is in `~/.claude/skills/sc-workflow-protocol/SKILL.md`.
 
 ## Examples
 

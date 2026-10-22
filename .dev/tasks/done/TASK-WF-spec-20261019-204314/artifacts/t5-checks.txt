@@ -1,0 +1,58 @@
+Task 5 focused implementation/check evidence; product files frozen for independent QA
+
+Q0 baseline tree: 44706af5184c172bbceeaff3c4ec620c0c75233e
+Working directory: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP
+
+Changed product files ONLY:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py (decorated install command only)
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_update_command.py
+No native-helper, MCP-orchestration, update-command, Task 6/7, documentation, ledger or pin changes.
+
+Wiring:
+Normal framework install now calls the existing install_codebase_memory_mcp(scope='user') immediately after install_user_setup and includes its result in the mandatory aggregate exit-1 check. No new opt-in prompt, target, force or upgrade flag is forwarded. The shared T2/T4 helper still owns full upstream acquisition/verification/exact registration and its URL/destination/account-wide companion disclosures; this task does not duplicate/redesign it. Failed native phases echo their stage message and explicit incomplete/kept-framework-work/retry guidance. Prior successful framework steps are not rolled back.
+
+Read-only list:
+install --list now reports Linux-native lifecycle availability, executable discovery state/path/version, and the exact USER registration as absent, matching the verified stdio/no-args executable, stale/unverified, or unknown on lookup failure. Unsupported platforms do not run native discovery. The existing structured Discovery and exact-user lookup/matching helpers are reused inline; no new framework/status writer/repair path. The early return remains before all install phases, including native acquisition. --force and --target are ignored for list mutation purposes. Install help/docstring describes the required user-level native setup and clarifies framework-only force semantics.
+
+Test safety:
+All install entry points in test_update_command.py, including the existing real-framework ccsession fixture, now have an autouse native-phase/status guard with isolated HOME/CLAUDE_CONFIG_DIR, no native acquisition/processes and no Claude management subprocess. The existing real-framework fixture's network-capable install_plugins and install_orca_skills helpers are additionally stubbed; local framework copying/ccsession smoke assertions remain exercised. Existing update sequence assertions retain the original eight framework phases; install expects the ninth native phase after user setup.
+
+Tests added/extended:
+- Exact phase order and user-only native kwargs, with no force/target propagation.
+- Four mandatory failure messages (download/verification/registration/platform), exit 1, retained prior framework sentinel and retry guidance.
+- Eight native/user-registration list states, read-only file-tree preservation, and unsupported-platform no-probe status.
+- Force/target boundary: command destination changes only for commands; user setup receives force but not target; native phase receives scope='user' only.
+- Repeated installs delegate unchanged shared no-op/repair/external outcomes without requesting upgrades or altering an external binary sentinel. These are wiring/delegation tests with the phase stubbed, not new proof of upstream binary behavior; actual helper reuse/repair behavior remains covered by the other focused files.
+- Update never calls/discovers the native tool; later explicit install calls the shared phase again. Existing real ccsession install/update behavior and failures remain asserted.
+
+TDD/intermediate checks:
+The updated phase-order assertion failed before wiring because the native phase was absent. After wiring the install/update-only suite passed 27 tests in 0.72s. Initial lint caught only the newly added local import ordering; imports were sorted within install, then final checks below passed.
+
+Managed check settings:
+All Python operations use existing /config/workspace/IronClaude/.venv through UV --active --no-sync and PYTHONDONTWRITEBYTECODE=1. Pytest cacheprovider is disabled. Explicit worktree PYTHONPATH is used. Pytest basetemp and any Ruff/mypy cache paths are under this task's artifacts directory, not repository-root cache outputs. The pytest --basetemp deletion behavior was checked; only new task-owned t5-unit-work/t5-focused-work directories were used. No new dependency installations.
+
+Final four-file regression command:
+PYTHONDONTWRITEBYTECODE=1 VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest -p no:cacheprovider --basetemp=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t5-focused-work /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_codebase_memory.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_update_command.py -q
+Exit 0: 238 passed, 1 skipped in 11.14s (239 collected).
+The skip remains the existing API-key-gated Tavily presence assertion. No real Codebase Memory/Claude acquisition or lifecycle execution is claimed by these mocked checks.
+
+Lint:
+PYTHONDONTWRITEBYTECODE=1 VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff check --no-cache --cache-dir /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t5-ruff-cache /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_update_command.py
+Exit 0: All checks passed!
+
+Format:
+PYTHONDONTWRITEBYTECODE=1 VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff format --check --no-cache --cache-dir /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t5-ruff-cache /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_update_command.py
+Exit 0: 2 files already formatted. Prior --diff inspection showed main formatting changes confined to the install command.
+
+Scoped mypy (not green; unchanged legacy diagnostics outside changed product code):
+PYTHONDONTWRITEBYTECODE=1 VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports --cache-dir /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t5-mypy-cache /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/main.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+Exit 1: two legacy install_mcp diagnostics at 706 [no-any-return] and 1209 [arg-type], no main.py diagnostic. install_mcp.py is byte-identical to the Task 5 Q0 snapshot; these exact diagnostics were already reproduced/classified in Task 4 evidence. No unrelated fixes or new diagnostics.
+
+Scope/baseline proof:
+A PYTHONDONTWRITEBYTECODE=1 UV-run stdlib ast/Path/subprocess check loaded the exact Q0 source blobs with read-only git show (no baseline files written), removed precisely the decorated install function span from baseline/current main text and compared the remainder. It also compared the complete current install_mcp.py and install_codebase_memory.py bytes to Q0.
+Exit 0:
+PASS: main outside decorated install is byte-identical to Task5 Q0 (including update and mcp)
+PASS: MCP orchestration and native helper are byte-identical to Task5 Q0; existing mypy diagnostics are in unchanged source
+Thus update code and its ordering were not modified, and shared lifecycle APIs remain stable.
+
+No actual upstream install/uninstall, new native/Claude process execution, developer configuration changes, dependency installation, ledger/pin edits, staging/commits/Git mutations, optional coverage campaign or later-task work. Product files are frozen for the independent acceptance review; this evidence is not a self-issued compliance verdict.

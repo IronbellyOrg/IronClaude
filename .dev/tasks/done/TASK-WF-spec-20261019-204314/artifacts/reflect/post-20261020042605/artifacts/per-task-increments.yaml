@@ -1,0 +1,1409 @@
+[
+  {
+    "task_id": "T7",
+    "path": "README.md",
+    "changes": [
+      {
+        "operation": "replace",
+        "before": [
+          64,
+          64
+        ],
+        "after": [
+          64,
+          64
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          75,
+          75
+        ],
+        "after": [
+          75,
+          75
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T7",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "changes": [
+      {
+        "operation": "replace",
+        "before": [
+          3,
+          3
+        ],
+        "after": [
+          3,
+          3
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          5,
+          5
+        ],
+        "after": [
+          5,
+          15
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          14,
+          14
+        ],
+        "after": [
+          24,
+          24
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          304,
+          306
+        ],
+        "after": [
+          314,
+          316
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          309,
+          309
+        ],
+        "after": [
+          319,
+          319
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          311,
+          312
+        ],
+        "after": [
+          321,
+          322
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          331,
+          331
+        ],
+        "after": [
+          341,
+          341
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          358,
+          358
+        ],
+        "after": [
+          368,
+          368
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          389,
+          391
+        ],
+        "after": [
+          399,
+          401
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          410,
+          410
+        ],
+        "after": [
+          420,
+          420
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          415,
+          415
+        ],
+        "after": [
+          425,
+          425
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T7",
+    "path": "docs/reference/mcp-server-guide.md",
+    "changes": [
+      {
+        "operation": "replace",
+        "before": [
+          11,
+          11
+        ],
+        "after": [
+          11,
+          11
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          13,
+          12
+        ],
+        "after": [
+          13,
+          13
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          18,
+          18
+        ],
+        "after": [
+          19,
+          19
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          20,
+          21
+        ],
+        "after": [
+          21,
+          27
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          24,
+          23
+        ],
+        "after": [
+          30,
+          54
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          619,
+          619
+        ],
+        "after": [
+          650,
+          650
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          621,
+          621
+        ],
+        "after": [
+          652,
+          652
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T7",
+    "path": "docs/user-guide/mcp-installation.md",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          4,
+          3
+        ],
+        "after": [
+          4,
+          25
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          11,
+          11
+        ],
+        "after": [
+          33,
+          33
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          14,
+          14
+        ],
+        "after": [
+          36,
+          39
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          17,
+          18
+        ],
+        "after": [
+          42,
+          43
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          20,
+          19
+        ],
+        "after": [
+          45,
+          50
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          25,
+          24
+        ],
+        "after": [
+          56,
+          57
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          34,
+          34
+        ],
+        "after": [
+          67,
+          67
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          36,
+          36
+        ],
+        "after": [
+          69,
+          69
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          38,
+          38
+        ],
+        "after": [
+          71,
+          73
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          83,
+          83
+        ],
+        "after": [
+          118,
+          118
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          85,
+          90
+        ],
+        "after": [
+          120,
+          124
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          124,
+          124
+        ],
+        "after": [
+          158,
+          158
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          145,
+          145
+        ],
+        "after": [
+          179,
+          179
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          148,
+          147
+        ],
+        "after": [
+          182,
+          184
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          150,
+          149
+        ],
+        "after": [
+          187,
+          188
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          156,
+          156
+        ],
+        "after": [
+          195,
+          195
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          167,
+          166
+        ],
+        "after": [
+          206,
+          234
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          168,
+          167
+        ],
+        "after": [
+          236,
+          241
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          232,
+          232
+        ],
+        "after": [
+          306,
+          306
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          234,
+          233
+        ],
+        "after": [
+          308,
+          321
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T1",
+    "path": "src/superclaude/cli/install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          1,
+          0
+        ],
+        "after": [
+          1,
+          413
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T3",
+    "path": "src/superclaude/cli/install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          8,
+          7
+        ],
+        "after": [
+          8,
+          8
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          55,
+          54
+        ],
+        "after": [
+          56,
+          349
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          387,
+          386
+        ],
+        "after": [
+          682,
+          684
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          395,
+          395
+        ],
+        "after": [
+          693,
+          693
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          398,
+          398
+        ],
+        "after": [
+          696,
+          696
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T2",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          14,
+          13
+        ],
+        "after": [
+          14,
+          14
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          17,
+          16
+        ],
+        "after": [
+          18,
+          19
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          95,
+          94
+        ],
+        "after": [
+          98,
+          105
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          651,
+          650
+        ],
+        "after": [
+          662,
+          845
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          666,
+          665
+        ],
+        "after": [
+          861,
+          864
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T3",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          846,
+          845
+        ],
+        "after": [
+          846,
+          937
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T4",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          13,
+          12
+        ],
+        "after": [
+          13,
+          13
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          14,
+          13
+        ],
+        "after": [
+          15,
+          15
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          195,
+          194
+        ],
+        "after": [
+          197,
+          201
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          207,
+          209
+        ],
+        "after": [
+          214,
+          213
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          248,
+          258
+        ],
+        "after": [
+          252,
+          251
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          261,
+          261
+        ],
+        "after": [
+          254,
+          253
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          263,
+          267
+        ],
+        "after": [
+          255,
+          257
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          269,
+          268
+        ],
+        "after": [
+          259,
+          262
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          488,
+          489
+        ],
+        "after": [
+          482,
+          510
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          491,
+          492
+        ],
+        "after": [
+          512,
+          511
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          497,
+          497
+        ],
+        "after": [
+          516,
+          516
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          499,
+          500
+        ],
+        "after": [
+          518,
+          521
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          502,
+          502
+        ],
+        "after": [
+          523,
+          538
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          504,
+          532
+        ],
+        "after": [
+          540,
+          584
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          767,
+          768
+        ],
+        "after": [
+          819,
+          821
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          772,
+          772
+        ],
+        "after": [
+          825,
+          827
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          789,
+          788
+        ],
+        "after": [
+          844,
+          844
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          906,
+          905
+        ],
+        "after": [
+          962,
+          963
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1039,
+          1043
+        ],
+        "after": [
+          1097,
+          1108
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          1156,
+          1155
+        ],
+        "after": [
+          1221,
+          1228
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          1161,
+          1160
+        ],
+        "after": [
+          1234,
+          1236
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          1162,
+          1161
+        ],
+        "after": [
+          1238,
+          1241
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1163,
+          1163
+        ],
+        "after": [
+          1243,
+          1329
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1165,
+          1192
+        ],
+        "after": [
+          1331,
+          1340
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1194,
+          1215
+        ],
+        "after": [
+          1342,
+          1346
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1217,
+          1232
+        ],
+        "after": [
+          1348,
+          1357
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          1234,
+          1277
+        ],
+        "after": [
+          1359,
+          1359
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T4",
+    "path": "src/superclaude/cli/main.py",
+    "changes": [
+      {
+        "operation": "replace",
+        "before": [
+          234,
+          235
+        ],
+        "after": [
+          234,
+          242
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          240,
+          240
+        ],
+        "after": [
+          247,
+          247
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          245,
+          245
+        ],
+        "after": [
+          252,
+          252
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          247,
+          249
+        ],
+        "after": [
+          254,
+          269
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          254,
+          254
+        ],
+        "after": [
+          274,
+          276
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          260,
+          259
+        ],
+        "after": [
+          282,
+          285
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          262,
+          264
+        ],
+        "after": [
+          288,
+          287
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          270,
+          269
+        ],
+        "after": [
+          293,
+          294
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          271,
+          271
+        ],
+        "after": [
+          296,
+          295
+        ]
+      },
+      {
+        "operation": "delete",
+        "before": [
+          273,
+          273
+        ],
+        "after": [
+          297,
+          296
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T5",
+    "path": "src/superclaude/cli/main.py",
+    "changes": [
+      {
+        "operation": "replace",
+        "before": [
+          38,
+          38
+        ],
+        "after": [
+          38,
+          38
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          44,
+          44
+        ],
+        "after": [
+          44,
+          44
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          50,
+          51
+        ],
+        "after": [
+          50,
+          52
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          65,
+          64
+        ],
+        "after": [
+          66,
+          66
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          76,
+          75
+        ],
+        "after": [
+          78,
+          83
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          153,
+          152
+        ],
+        "after": [
+          161,
+          186
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          220,
+          219
+        ],
+        "after": [
+          254,
+          263
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          229,
+          228
+        ],
+        "after": [
+          273,
+          273
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T1",
+    "path": "tests/cli/test_install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          1,
+          0
+        ],
+        "after": [
+          1,
+          501
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T3",
+    "path": "tests/cli/test_install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          502,
+          501
+        ],
+        "after": [
+          502,
+          725
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T4",
+    "path": "tests/cli/test_install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          726,
+          725
+        ],
+        "after": [
+          726,
+          1273
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T6",
+    "path": "tests/cli/test_install_codebase_memory.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          3,
+          2
+        ],
+        "after": [
+          3,
+          3
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          1274,
+          1273
+        ],
+        "after": [
+          1275,
+          1528
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T2",
+    "path": "tests/cli/test_install_mcp_registry.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          190,
+          189
+        ],
+        "after": [
+          190,
+          219
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T4",
+    "path": "tests/cli/test_install_mcp_registry.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          220,
+          219
+        ],
+        "after": [
+          220,
+          260
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T2",
+    "path": "tests/cli/test_install_mcp_tavily.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          11,
+          10
+        ],
+        "after": [
+          11,
+          11
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          12,
+          11
+        ],
+        "after": [
+          13,
+          13
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          13,
+          12
+        ],
+        "after": [
+          15,
+          15
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          377,
+          376
+        ],
+        "after": [
+          380,
+          817
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T3",
+    "path": "tests/cli/test_install_mcp_tavily.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          818,
+          817
+        ],
+        "after": [
+          818,
+          1041
+        ]
+      }
+    ]
+  },
+  {
+    "task_id": "T5",
+    "path": "tests/cli/test_update_command.py",
+    "changes": [
+      {
+        "operation": "insert",
+        "before": [
+          9,
+          8
+        ],
+        "after": [
+          9,
+          9
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          27,
+          26
+        ],
+        "after": [
+          28,
+          78
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          30,
+          30
+        ],
+        "after": [
+          82,
+          82
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          34,
+          33
+        ],
+        "after": [
+          86,
+          87
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          84,
+          83
+        ],
+        "after": [
+          138,
+          138
+        ]
+      },
+      {
+        "operation": "replace",
+        "before": [
+          94,
+          95
+        ],
+        "after": [
+          149,
+          149
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          109,
+          108
+        ],
+        "after": [
+          163,
+          167
+        ]
+      },
+      {
+        "operation": "insert",
+        "before": [
+          190,
+          189
+        ],
+        "after": [
+          249,
+          424
+        ]
+      }
+    ]
+  }
+]

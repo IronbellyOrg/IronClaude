@@ -24,7 +24,7 @@ Default persona selection per domain (used when `--personas` not provided and `-
 - If `proposals < len(default-list)`: truncate from the right (keep highest-priority personas).
 - If `proposals > len(default-list)`: cycle the list (e.g., for proposals=10 in code domain, add `architect, refactorer, qa` again starting from position 8).
 
-**Persona availability**: Verify each selected persona has a corresponding agent file at `src/superclaude/agents/<persona>.md` (or known persona alias). If a persona is unknown, substitute the next from the priority list and emit INFO log.
+**Persona availability**: Verify each selected persona has a corresponding agent file at `.claude/agents/<persona>.md` (project) or `~/.claude/agents/<persona>.md` (installed); either satisfies (or known persona alias). If a persona is unknown, substitute the next from the priority list and emit INFO log.
 
 ## §Auto-Exclusion
 

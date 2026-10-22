@@ -158,7 +158,7 @@ RATIONALE: Typical feature addition, moderate scope
 **MANDATORY**: Before executing any protocol steps, invoke:
 > Skill sc:task-protocol
 
-Do NOT proceed with protocol execution using only this command file. The full behavioral specification — classification rubric, tier logic, TFEP escalation protocol, sub-agent delegation, MCP compliance enforcement — is defined in the protocol skill at `src/superclaude/skills/sc-task-protocol/SKILL.md`.
+Do NOT proceed with protocol execution using only this command file. The full behavioral specification — classification rubric, tier logic, TFEP escalation protocol, sub-agent delegation, MCP compliance enforcement — is defined in the protocol skill at `~/.claude/skills/sc-task-protocol/SKILL.md`.
 
 ## Boundaries
 

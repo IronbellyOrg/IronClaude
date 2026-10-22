@@ -1,0 +1,159 @@
+# sc:reflect return contract (stable block §9.1 + telemetry §9.2). Resumed run; Waves 0-4 from prior session.
+# contract_version 1.8.0: the installed SKILL.md §9.1 is at 1.8.0 (additive over the handoff's 1.7.0: +remediation_plan_path).
+contract_version: "1.8.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 3
+onboarding_ran: false
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 1
+  necessary: 1
+  drift: 3
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/deviation-ledger.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/grounding-gaps.yaml
+hunk_to_declaration_map_path: null      # find_declaration not exposed; per-hunk-evidence.yaml holds line attribution
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: tool-unavailable
+
+# Runtime-surface reachability (FR-RSR) — degrade-only run
+runtime_surface_requirements: [T4, T5]
+runtime_surface_sweep_ran: true
+runtime_surface_ledger_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+
+# Contracted-sink reachability (FR-RH1)
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: no-side-effect-requirements
+
+# Reuse-Miss sweep
+reuse_sweep_ran: true
+reuse_audit_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/artifacts/reuse-audit.yaml
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: { reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 12 }
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: true
+neighbour_search_degraded: true        # Augment not consulted
+max_overlap_score: 0.4625
+
+# Input integrity
+input_sha256:
+  tasklist: 7af997cba06fbbf87eba36557814ed85a7b97036c5042a23440f5295083c8885
+  spec: ee09df8de9864189f54d11e0525054457ca570bb2037ef4ad30d1db15e7b095d
+input_tree_sha256: 5142787cf9e3e33e4e620174502e566ec7a4b8a4477f595d2e9fcd28939e6bb6
+input_tree_file_count: 62
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 5
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - reviewer-cards/reviewer-1-calibrated.md
+  - reviewer-cards/reviewer-2-calibrated.md
+  - reviewer-cards/reviewer-3-calibrated.md
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi            # Anthropic + Grok/xAI aliases
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3 (not requested)
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: true
+regression_present: false
+unauthorized_deviation_present: true   # 3 Drift findings
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true           # G-4 live smoke, G-5 --list contract
+needs_human_decision: true
+
+per_task_verdicts:
+  - { task_id: T1, status: partial, deviation_class: authorized, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: "src/superclaude/cli/install_mcp.py:486-496" }
+  - { task_id: T2, status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.60, evidence_anchor: "src/superclaude/cli/install_codebase_memory.py:85-99" }
+  - { task_id: T3, status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.60, evidence_anchor: "src/superclaude/cli/install_mcp.py:572-579" }
+  - { task_id: T4, status: partial, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.57, evidence_anchor: "src/superclaude/cli/install_mcp.py:1311-1314" }
+  - { task_id: T5, status: partial, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: "src/superclaude/cli/main.py:255-275" }
+  - { task_id: T6, status: partial, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: "tests/cli/test_install_codebase_memory.py:944-952" }
+  - { task_id: T7, status: partial, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: "adversarial/merged-verdict.yaml#tasks.T7" }
+
+interaction_effects_scanned: true
+interaction_effects_findings: 3
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion: package already archived in .dev/tasks/done/; nothing moved.
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: user-flag      # --no-promote set; package already archived
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+telemetry:
+  reviewer_models: ["claude-sonnet-5-5[1m]", "grok-4.7[1m]", "claude-opus-5-5[1m]"]
+  reviewer_personas: [analyzer, qa, refactorer]
+  calibrator_model: "claude-opus-5-5[1m]"
+  degraded_components: ["serena:execute_shell_command", "serena:get_current_config", "runtime-surface:click-decorator-oracle", "neighbour-search:auggie_unavailable", "calibrator-class-collision"]
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  serena_version: unknown
+  onboarding_status: unknown
+  memory_persist_failed: true
+  memory_persist_failed_reason: "Serena memory namespace resolved to the main checkout, not this worktree; no write from the wrong root."
+  checkpoint_logged: skipped
+  zero_drop_flag: true
+  resumed: true
+  resume_handoff: RESUME-HANDOFF.md
