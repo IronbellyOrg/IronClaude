@@ -1,6 +1,6 @@
 # Triage Checklist (Wave 1)
 
-Passed to the `root-cause-analyst` agent as part of the Tier 1 brief. The agent uses this to structure its investigation; the skill itself does not iterate the checklist mechanically.
+Passed to the Tier 1 worker as part of the brief. The worker is dispatched as `subagent_type=troubleshoot-analyst` (closed read-only roster, no shell or write tools) with the `root-cause-analyst` role applied as an analytical lens only; that label is neither a runtime agent type nor a capability grant. The worker uses this checklist to structure its investigation and returns the hypothesis card as data; the parent owns `output_path` and persists the card before calibration or any other consumer reads it. The skill itself does not iterate the checklist mechanically.
 
 ## Pre-investigation grounding
 
@@ -39,15 +39,15 @@ Run through this list once, top-down. Mark the most likely class. Do **not** for
 For the cause class chosen, the agent must produce **at least one** of:
 
 - A `file:line` citation showing the code that exhibits the bug
-- A diagnostic command + its actual output (e.g. `python -c '...'` returning the unexpected value)
+- A diagnostic command + its actual output, consumed only as already-captured evidence supplied in the brief with run/arm/command provenance (e.g. a recorded `python -c '...'` result showing the unexpected value). The worker never runs commands; a command it would like to see run is proposed as inert data for the parent, and until the parent supplies its captured output the item is `unobserved`, not evidence
 - A pointer to the failing test and the exact assertion that fires
-- The diagnostic output must be *read from the system*, not supplied by the harness: a mock, fixture, or assertion that returns the expected value is not evidence (refs/diagnosability-audit.md rubric row S14 and Section 7 constraint 5)
+- The diagnostic output must be *read from the system* (captured by the parent), not supplied by the harness: a mock, fixture, or assertion that returns the expected value is not evidence (refs/diagnosability-audit.md rubric row S14 and Section 7 constraint 5)
 
 If none of these are available, the hypothesis card is marked `unverified` and the confidence dimension "Evidence grounding" is scored 0.0.
 
 ## Producer citation (categorical symptoms)
 
-When the observed symptom is a categorical value — an enum string, a status word, an exit code — and Wave 1.6 enumeration ran, the orchestrator writes `<output-dir>/producers.md` (S1.6.0b) and pastes its `## Producers` table into your brief: `id | line | statement | exit statement | before/after started marker | wall-time compatible | cheap observable | surviving`. Preserve the stable `P1`…`Pn` IDs assigned in grep-hit order, including after candidates are reopened. An audit bypass may leave that table absent.
+When the observed symptom is a categorical value — an enum string, a status word, an exit code — and Wave 1.6 enumeration ran, the orchestrator (parent) writes `<output-dir>/producers.md` (S1.6.0b) and pastes its `## Producers` table into your brief: `id | line | statement | exit statement | before/after started marker | wall-time compatible | cheap observable | surviving`. Preserve the stable `P1`…`Pn` IDs assigned in grep-hit order, including after candidates are reopened. An audit bypass may leave that table absent.
 
 - With a nonempty surviving menu, cite producers by row identity (row ID and `file:line`), never by re-grepping: any claim that names the value MUST cite the row(s) with `surviving=yes`. Distinct producers sharing an enum token remain distinct candidates.
 - Excluding a producer requires the `file:line` of the `return` / `exit` / `break` statement that rules it out (the row's *exit statement* column). "Excluded by source logic" without that line is an unverified counterfactual: Evidence grounding is scored 0.0 for that claim.
@@ -63,7 +63,7 @@ The Tier 1 hypothesis card includes one proposed fix. It does **not** need to be
 
 - Name the file(s) that would change
 - Describe the change in one or two sentences
-- State the test that would prove it (existing or new)
+- State the test that would prove it (existing or new); the sketch is a proposal returned as data, never applied or run by the worker
 
 If the fix would touch more than 3 files, that's a signal the issue may be multi-domain — note it for the escalation rubric.
 
