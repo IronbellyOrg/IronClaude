@@ -16,7 +16,7 @@ version: "1.0"
 Explicit only — three activation paths:
 
 1. **Direct:** the user runs `/sc:pr-submit --monitor {0,1,2,3}` to open a PR (and optionally arm the monitor).
-2. **PR-creation hook:** after a successful `gh pr create`, the `offer-pr-review.sh` hook mentions `sc:pr-submit --monitor` alongside `/sc:auggie-review` (the hook NEVER arms a monitor itself, NEVER implies level-3 without explicit invocation).
+2. **PR-creation hook:** after a successful `gh pr create`, the `offer-pr-review.sh` hook mentions `sc:pr-submit --monitor` alongside `/sc:auggie-review` (the hook NEVER arms a monitor itself).
 3. **Programmatic:** another skill invokes the protocol via the Skill tool.
 
 ## Required Input
@@ -44,7 +44,7 @@ Explicit only — three activation paths:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--monitor {0,1,2,3}` | 2 | Capability ceiling (G-arm/G-edit/G-push gates). |
+| `--monitor {0,1,2,3}` | 3 | Capability ceiling (G-arm/G-edit/G-push gates). |
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 600 | Per-wait wall-clock timeout (~10 min). CI runs can exceed this; size it to the full check run. |

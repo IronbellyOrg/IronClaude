@@ -8,7 +8,7 @@ and the ``declined_by_user`` cancellation state. Also pins that:
 - ``checked_paths`` are recorded (local override + shipped ref),
 - ``next_command`` values are current and actionable (missing → the
   ``superclaude reflect contract-status`` setup command; validation-family →
-  the ``--validate`` variant; ready → ``/sc:pr-submit --monitor 1``),
+  the ``--validate`` variant; ready → ``/sc:pr-submit --monitor 3``),
 - shipped-only behavior: with no local override, ``diagnose`` never
   reports the shipped source as ``ready`` — it reports ``missing``,
 - ``Diagnosis.summary()`` never leaks raw payload bodies.
@@ -287,7 +287,7 @@ def test_ready_when_locked_evidence_and_passed_report(tmp_path):
     assert d.validation_result == "passed"
     assert d.blockers == []
     # Ready → the arm command, not a further contract-status command.
-    assert d.next_command == "/sc:pr-submit --monitor 1 --pr 42"
+    assert d.next_command == "/sc:pr-submit --monitor 3 --pr 42"
 
 
 def test_ready_next_command_uses_placeholder_pr_when_absent(tmp_path):
@@ -308,7 +308,7 @@ def test_ready_next_command_uses_placeholder_pr_when_absent(tmp_path):
 
     d = diagnose(cwd=tmp_path)
     assert d.state is ContractState.READY
-    assert d.next_command == "/sc:pr-submit --monitor 1 --pr <number>"
+    assert d.next_command == "/sc:pr-submit --monitor 3 --pr <number>"
 
 
 def test_ready_when_probe_evidence_is_a_directory(tmp_path):

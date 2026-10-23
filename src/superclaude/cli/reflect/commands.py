@@ -197,7 +197,7 @@ def _contract_status_next_command(diagnosis) -> str:
         else " --pr <number>"
     )
     if diagnosis.state is ContractState.READY:
-        return f"/sc:pr-submit --monitor 1{pr_arg}"
+        return f"/sc:pr-submit --monitor 3{pr_arg}"
     if diagnosis.state is ContractState.DECLINED_BY_USER:
         return (
             "cancelled: setup declined by user; existing contract files left untouched"

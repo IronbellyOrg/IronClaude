@@ -95,15 +95,15 @@ def test_contract_setup_next_commands_are_current_and_actionable():
         validation
         == "superclaude reflect contract-status --validate --repo IronbellyOrg/IronClaude --pr 42"
     )
-    assert ready == "/sc:pr-submit --monitor 1 --pr 42"
-    assert ready_placeholder == "/sc:pr-submit --monitor 1 --pr <number>"
+    assert ready == "/sc:pr-submit --monitor 3 --pr 42"
+    assert ready_placeholder == "/sc:pr-submit --monitor 3 --pr <number>"
     assert (
         _contract_status_next_command(
             SimpleNamespace(
                 state=ContractState.READY, repo="IronbellyOrg/IronClaude", pr_number=42
             )
         )
-        == "/sc:pr-submit --monitor 1 --pr 42"
+        == "/sc:pr-submit --monitor 3 --pr 42"
     )
     assert "not yet implemented" not in missing
     assert "not yet implemented" not in validation

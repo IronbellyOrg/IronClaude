@@ -182,9 +182,16 @@ Core philosophy and approach
 
 3. **Submit Pull Request:**
 
+   Follow workflow 3.11 in [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md): push only after approval, then open the PR with `/sc:pr-submit --monitor 3`. Fallback when `/sc:pr-submit` cannot run: `gh pr create --repo IronbellyOrg/IronClaude`.
+
    ```bash
    git push origin feature/your-feature-name
-   # Create PR on GitHub
+   ```
+
+   Then, in Claude Code:
+
+   ```text
+   /sc:pr-submit --monitor 3 --head feature/your-feature-name --title "..." --body "..."
    ```
 
 ### Pull Request Template

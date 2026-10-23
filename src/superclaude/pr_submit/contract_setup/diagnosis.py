@@ -377,7 +377,7 @@ def _next_command(state: ContractState, repo: str | None, pr_number: int | None)
         f"superclaude reflect contract-status --validate{repo_arg}{pr_arg}"
     )
     if state is ContractState.READY:
-        return f"/sc:pr-submit --monitor 1{pr_arg}"
+        return f"/sc:pr-submit --monitor 3{pr_arg}"
     if state is ContractState.DECLINED_BY_USER:
         return (
             "cancelled: setup declined by user; existing contract files left untouched"
