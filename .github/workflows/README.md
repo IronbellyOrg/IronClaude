@@ -13,7 +13,6 @@ This directory contains CI/CD workflows for SuperClaude Framework.
   - Set up uv and Python 3.10, install dependencies
   - Sync `src/superclaude/` → `.claude/` mirrors
   - Run the full test suite once, with coverage
-  - Upload coverage to Codecov
 - **swarm-marker-matrix**: Run the swarm `imm` and `inv` acceptance lanes
 - **lint**: Lint, plugin, sync and dependency checks in one job
   - `ruff check` and `ruff format --check`
@@ -37,10 +36,6 @@ Flags PRs that touch the swarm mechanical-merge boundary (`src/superclaude/cli/s
 ### 3. **contract3-generator-constraint-lint.yml** - Contract #3 PR-body Check
 
 Runs only on PRs that touch `gates.py`, `structural_checkers.py` or `*_validator.py` (paths filter), and fails if the PR body lacks a `## Generator-Constraint Considered` section.
-
-### 4. **pull-sync-framework.yml** - Framework Sync
-
-Scheduled (every 6 hours) and manual sync from the upstream SuperClaude_Framework repository. The sync does not push to master: it force-pushes to the `sync/framework` branch and opens a pull request into master, reusing an open one if there is one.
 
 ## Local Testing
 
@@ -91,7 +86,7 @@ uv run superclaude doctor --verbose
 
 ## Coverage Reporting
 
-Coverage reports are generated on Python 3.10 and uploaded to Codecov.
+Coverage reports are generated on Python 3.10.
 
 To view coverage locally:
 
@@ -118,11 +113,6 @@ open htmlcov/index.html
 - Verify entry point in `pyproject.toml`: `[project.entry-points.pytest11]`
 - Check plugin is installed: `uv run pytest --trace-config`
 
-### Coverage upload fails
-
-- This is non-blocking (fail_ci_if_error: false)
-- The upload step passes `secrets.CODECOV_TOKEN`, so the `CODECOV_TOKEN` repository secret must exist
-
 ## Maintenance
 
 ### Adding a New Workflow
@@ -148,8 +138,7 @@ open htmlcov/index.html
 2. **Clear names**: Job and step names should be descriptive
 3. **Version pinning**: Pin action versions (@v4, @v5)
 4. **Python version**: Test on the minimum supported Python (3.10)
-5. **Non-blocking coverage**: Don't fail on coverage upload errors
-6. **Manual triggers**: Add `workflow_dispatch` for debugging
+5. **Manual triggers**: Add `workflow_dispatch` for debugging
 
 ## Resources
 
