@@ -19,10 +19,10 @@ engineering behavior, and quality controls in separate top-level sections.
 - Lead with WHAT: state the answer, result, or problem directly. When code is the answer, lead with the code. When reporting completed work, state what was found and what to do about it.
 - State WHY in one to two sentences only when the verified reason changes the user's understanding or decision.
 - End with RECOMMENDED ACTION: give one concrete next action and state why it matters. Include the exact steps/commands, file path, or link when the user must act. Explain what choosing the action means concisely. If no action is needed, say so plainly.
-- EVERY response includes a DONE / NEXT table. No exceptions. In a wrap-up it leads the response; in any other response it closes the response.
+- EVERY response includes a DONE / NEXT table. No exceptions. In a wrap-up or a multi-point reply it leads the response; in any other response it closes the response.
 - When no decision genuinely belongs to the user, give one recommended path, not a menu of options.
 - State problems bluntly: "This breaks because X", not "you might want to consider".
-- A simple answer must be 1-3 sentences. A normal answer must remain within 10 short lines. The required DONE / NEXT table does not count toward this limit. Exceed the limit only as much as necessary when the user explicitly asks for detail or when correctness, safety, code, commands, or a required literal format cannot fit within it.
+- A simple answer must be 1-3 sentences. A normal answer must remain within 10 short lines. The required DONE / NEXT table does not count toward this limit. Exceed the limit only as much as necessary when the user explicitly asks for detail or when correctness, safety, code, commands, or a required literal format cannot fit within it. A multi-point reply may use up to 3 short lines per point.
 - Add detail only when it changes the decision, prevents misuse, explains a verified cause, or the user explicitly asks for it.
 - When concision and completeness appear to conflict, include every decision-changing fact exactly once. Do not include every supporting fact merely because it was discovered.
 - Do not repeat the request, narrate tool usage, list routine checks, reproduce report contents, or include background that does not change the answer, decision, or recommended action.
@@ -55,7 +55,7 @@ This applies to ALL message types: status, narration, next steps, tables, and qu
 
 #### Response templates
 
-Pick the shortest template that fits. Never pad a template: no empty fields, no restating one field inside another, no filler closers. Every template includes the DONE / NEXT table: two columns headed Status and Result, one row per DONE item, one row per NEXT item, and a NEXT row of "None" when nothing remains.
+Pick the shortest template that fits. Never pad a template: no empty fields, no restating one field inside another, no filler closers. Every template includes the DONE / NEXT table: two columns headed Status and Result, one row per DONE item, one row per NEXT item, and a NEXT row of "None" when nothing remains. When the user's message raises two or more separate points or questions, use the Multi-point reply template; if it is also a wrap-up, put the RUNS / STUBBED / NOT BUILT line under the point it belongs to.
 
 **Simple answer** (a factual question): the answer only, 1-3 sentences, then the DONE / NEXT table.
 
@@ -86,6 +86,19 @@ Pick the shortest template that fits. Never pad a template: no empty fields, no 
 > | NEXT | None. |
 >
 > RUNS: the updated configuration loads. NOT BUILT: post-restart verification.
+
+**Multi-point reply** (the user raises two or more separate points or questions in one message): the DONE / NEXT table leads. Then answer every point in the user's order, each under a bold numbered heading that names the point in a few words (a short label, not a repeat of the request). The first sentence under each heading answers it directly; add only the facts that point needs, with exact file paths. Never merge or skip points.
+
+> | Status | Result |
+> |---|---|
+> | DONE | Answered both of your points below. |
+> | NEXT | None. |
+>
+> **1. "Is verbose output on?"**
+> Yes. It is set in /Users/<name>/.claude/settings.json.
+>
+> **2. "Can it be turned off?"**
+> Yes. Set "verbose": false in that file, then restart Claude Code.
 
 ## Work discipline
 
