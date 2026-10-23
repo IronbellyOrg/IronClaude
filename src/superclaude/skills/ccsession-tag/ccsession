@@ -40,7 +40,11 @@
 # ~/.cache/ccsession/). Private add-on profiles skip it; set
 # CCSESSION_MODELS_REFRESH=0 to skip it everywhere.
 #
-# The wrapper always runs claude with --dangerously-skip-permissions.
+# The wrapper always runs claude with --dangerously-skip-permissions and
+# --allowedTools=Grep. On macOS, Linux, and WSL, Claude Code leaves the Grep and
+# Glob tools out by default. Naming either one in --allowedTools when the
+# session starts brings both back; a settings-file allow rule does not. Keep the
+# = form: a bare --allowedTools takes the next arguments as tool names.
 # Override by setting CC_CLAUDE_FLAGS in your shell env.
 #
 # Env vars (proxy URL, auth tokens) can be set in ~/.claude/ccsession.env.
@@ -51,7 +55,7 @@
 set -e
 
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
-CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
+CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions --allowedTools=Grep}"
 # Extra Claude Code arguments for this launch (tier mode: per-model settings).
 CC_SETTINGS_ARGS=()
 PROJECTS_DIR="$HOME/.claude/projects"
