@@ -15,8 +15,7 @@ argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focu
 **Explicit only** — this command does NOT auto-activate from conversational keywords like "review", "audit", or "check". It activates only via:
 
 1. **Direct invocation**: User types `/sc:auggie-review ...`
-2. **PR-creation hook**: After `gh pr create` succeeds, the `offer-pr-review.sh` hook prompts the user; if the user accepts, the assistant invokes this command
-3. **Programmatic call**: Another `/sc:*` command invokes the `sc:auggie-review-protocol` skill directly
+2. **Programmatic call**: Another `/sc:*` command invokes the `sc:auggie-review-protocol` skill directly
 
 The trigger discipline exists because deep reviews are expensive (Auggie indexing + multi-persona synthesis) and false-positive activation in mid-conversation wastes user time. See "Boundaries → Will Not" below.
 
@@ -120,15 +119,6 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 # - Auggie answers architecture-level questions; Claude grounds findings in real files
 ```
 
-### Hook-driven post-PR-creation review
-
-```text
-# After: gh pr create --title "..." --body "..."
-# The offer-pr-review.sh hook detects the gh pr create call,
-# prints a one-line offer to the assistant, who relays it to the user.
-# User says yes → assistant invokes /sc:auggie-review <new-PR-num>.
-```
-
 ### Default remediation chain (plan route)
 
 ```text
@@ -167,7 +157,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 **Will Not:**
 
-- Activate on conversational keywords ("review", "audit", "check") — explicit invocation or hook-driven only
+- Activate on conversational keywords ("review", "audit", "check") — explicit `/sc:auggie-review` invocation or a programmatic call from another `/sc:*` command only
 - Modify any code under review (advisory only — code changes happen later via the remediation chain)
 - Approve, request-changes, or merge the PR (the report posts as a `--comment` review, never `--approve` or `--request-changes`)
 - Run without `auggie` on PATH or, for PR targets, without an authed `gh` CLI — STOP with a clear error

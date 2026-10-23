@@ -50,10 +50,10 @@ command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 2
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 
 # Resolve the target repo (owner/repo). The SKILL normally passes --repo; absent it,
-# resolve from the current checkout (gh repo view, then the origin remote). Every gh
+# resolve from the current checkout (the origin remote, then gh repo view). Every gh
 # api / graphql target below is COMPUTED from this — never a literal owner/repo.
-REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
-[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+REPO="${REPO:-$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##' || true)}"
+[ -n "$REPO" ] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 REPO_OWNER="${REPO%%/*}"
 REPO_NAME="${REPO##*/}"

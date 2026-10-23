@@ -358,7 +358,7 @@ duration_sec: <N>
 
 ## Will Not Do
 
-- Activate from conversational keywords — explicit `/sc:auggie-review` invocation or PR-creation hook only
+- Activate from conversational keywords — explicit `/sc:auggie-review` invocation or a programmatic call from another `/sc:*` command only
 - Use `gh pr review --approve` or `--request-changes` — strictly `--comment`
 - Include findings whose file:line cannot be validated against a real file
 - Modify code under review (advisory only)

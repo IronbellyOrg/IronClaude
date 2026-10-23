@@ -73,8 +73,8 @@ _FRESHNESS_SCRIPTS = [
     # recommendation is emitted. Fail-open (exit 0); never blocks. Registered
     # in this project's `.claude/settings.json` PreToolUse with the
     # project-relative `$CLAUDE_PROJECT_DIR/.claude/hooks/sc-recommend-phase0.sh`
-    # command — same pattern as `reject-workspace-writes.sh` and
-    # `offer-pr-review.sh`, harmless when unregistered in unrelated projects.
+    # command — same pattern as `reject-workspace-writes.sh`, harmless when
+    # unregistered in unrelated projects.
     "sc-recommend-phase0.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]

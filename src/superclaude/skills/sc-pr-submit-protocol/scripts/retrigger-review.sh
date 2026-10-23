@@ -42,10 +42,10 @@ case "$PR" in ''|*[!0-9]*) die "invalid --pr value (must be a positive integer):
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 127
 
 # Resolve the target repo (owner/repo). The SKILL normally passes --repo; absent it,
-# resolve from the current checkout (gh repo view, then the origin remote). The
+# resolve from the current checkout (the origin remote, then gh repo view). The
 # issue-comment POST target is COMPUTED — never a literal owner/repo (de-hardcoded).
-REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
-[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+REPO="${REPO:-$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##' || true)}"
+[ -n "$REPO" ] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 
 # Post the re-trigger comment on the PR conversation thread (issue-comment surface).

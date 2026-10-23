@@ -89,3 +89,17 @@ def test_t113_resume_path_captured():
     args = parse_args(["--resume", "/abs/monitor-run-42.jsonl"])
     assert args.resume == "/abs/monitor-run-42.jsonl"
     assert parse_args([]).resume is None
+
+
+def test_pr_attaches_to_existing_pr():
+    """`--pr <N>` attaches to an existing PR (the form `reflect contract-status` prints)."""
+    assert parse_args(["--monitor", "3", "--pr", "42"]).pr == 42
+    assert parse_args([]).pr is None
+    with pytest.raises(ValueError):
+        parse_args(["--pr", "0"])
+
+
+def test_yes_flag_removed():
+    """`--yes` never did anything and is no longer accepted."""
+    with pytest.raises(SystemExit):
+        parse_args(["--yes"])

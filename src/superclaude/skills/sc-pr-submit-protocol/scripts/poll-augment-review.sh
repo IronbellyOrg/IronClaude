@@ -16,8 +16,8 @@ done
 [[ "$PR" =~ ^[1-9][0-9]*$ ]] || die "missing/invalid --pr <N>" 2
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 2
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
-REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
-[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+REPO="${REPO:-$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##' || true)}"
+[ -n "$REPO" ] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 
 failed_poll() {

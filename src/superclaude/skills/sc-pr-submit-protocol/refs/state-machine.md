@@ -154,9 +154,8 @@ a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this
 > (5), report-only for (1)–(2)) and NO push occurs. Every push, authorized or blocked, writes a
 > **write-ahead `push_decision` audit record** to the run-log naming which predicates held; this
 > record is mandatory at L3 and is the audit primitive (not a per-push interactive prompt). There is
-> no interactive confirmation before a push (Wave 6 has no confirm step, and the `--yes` flag the
-> parser accepts has no effect): the `push_decision` record + the `--monitor 3` arming (typed or the
-> default) is the recorded authorization. Use `--monitor 2` to stop before any push.
+> no interactive confirmation before a push (Wave 6 has no confirm step): the `push_decision`
+> record + the `--monitor 3` arming (typed or the default) is the recorded authorization. Use `--monitor 2` to stop before any push.
 
 Predicate (5) closes the "announce-resolved with nothing actually changed" hole. The
 `push_decision` write-ahead record is the real safety layer (verified by **T-ZERO-EDIT-NO-PUSH**:

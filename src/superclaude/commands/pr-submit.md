@@ -5,7 +5,7 @@ category: quality
 complexity: advanced
 mcp-servers: [serena, auggie]
 personas: [analyzer, architect, security, qa, devops]
-argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
+argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--output-dir <dir>] [--resume <run-log.jsonl>]"
 version: "1.0"
 ---
 
@@ -13,20 +13,19 @@ version: "1.0"
 
 ## Triggers
 
-Explicit only — three activation paths:
+Explicit only — two activation paths:
 
 1. **Direct:** the user runs `/sc:pr-submit --monitor {0,1,2,3}` to open a PR (and optionally arm the monitor).
-2. **PR-creation hook:** after a successful `gh pr create`, the `offer-pr-review.sh` hook mentions `sc:pr-submit --monitor` alongside `/sc:auggie-review` (the hook NEVER arms a monitor itself).
-3. **Programmatic:** another skill invokes the protocol via the Skill tool.
+2. **Programmatic:** another skill invokes the protocol via the Skill tool.
 
 ## Required Input
 
 | Input | Required | Notes |
 |-------|----------|-------|
 | `--monitor {0,1,2,3}` | No (default 3) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
-| PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number | Yes | To open or attach to the PR. |
+| PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number (`--pr <N>`) | Yes | To open or attach to the PR. |
 
-**STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, via `gh repo view --json nameWithOwner`).
+**STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, parsed from `git remote get-url origin`).
 
 **STOP** if `--monitor >= 1` and the CI-wait preflight fails: `gh pr checks --repo <owner/repo> --help` must list `--json`, and the runtime must import `superclaude.pr_submit.ci`. The skill's CI-wait preflight is authoritative.
 
@@ -49,8 +48,9 @@ Explicit only — three activation paths:
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 600 | Per-wait wall-clock timeout (~10 min). CI runs can exceed this; size it to the full check run. |
 | `--silence-timeout S` | 300 | No-Augment-activity window; min 30s; clamped to `--timeout`. L3 at most one poke via INV-S1 write-ahead. |
-| `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view --json defaultBranchRef`), overridable here. |
+| `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view "$REPO" --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
+| `--pr <N>` | — | Attach to an existing PR instead of opening one. |
 | `--title` / `--body` | — | PR title / body. |
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
 | `--resume <jsonl>` | — | Reconstruct state from a write-ahead run-log. |
@@ -73,7 +73,7 @@ This command does ONLY parse + environment-validate + handoff. It parses the fla
 Pass the following context:
 
 - `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--timeout` / `--silence-timeout`.
-- PR context: `--base` / `--head` / `--title` / `--body`, or the existing PR number.
+- PR context: `--base` / `--head` / `--title` / `--body`, or the existing PR number (`--pr <N>`).
 - `--output-dir` and `--resume` if supplied.
 
 Do NOT attempt to execute the monitor using only this command file. The deterministic decisions defer to the importable `superclaude.pr_submit` core; the orchestration, the attended poll loop, and `gh`/`git` I/O live in the protocol skill.
@@ -86,5 +86,5 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 ## Related Commands
 
-- `/sc:auggie-review` — the sibling PR-review command (offered together by the post-PR-create hook).
+- `/sc:auggie-review` — the sibling PR-review command.
 - `/sc:troubleshoot` — invoked per verified finding for diagnosis.

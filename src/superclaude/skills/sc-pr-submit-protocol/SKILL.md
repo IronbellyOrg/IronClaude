@@ -133,7 +133,7 @@ Existing grounding rejects a null current line; it cannot authorize an automatic
 | Input | Required | Notes |
 |-------|----------|-------|
 | `--monitor {0,1,2,3}` | No (defaults to 3) | The autonomy ceiling. Explicit 0 = open PR only (byte-identical to today). |
-| PR context (`--head`, `--base`, `--title`, `--body`) OR an existing PR number | Yes | To open or attach to the PR. |
+| PR context (`--head`, `--base`, `--title`, `--body`) OR an existing PR number (`--pr <N>`) | Yes | To open or attach to the PR. |
 | `--max-rounds` | No (default 2, hard cap 5) | Reject `> 5`. |
 | `--poll-interval` | No (default 30) | Reject `< 30` with "minimum is 30 seconds". |
 | `--timeout` | No (default 600s) | Wall-clock since entering wait. The observed CI matrix has run longer than 600s: for a CI wait, pass a `--timeout` that covers the full check run. No indefinite wait. |
@@ -141,7 +141,7 @@ Existing grounding rejects a null current line; it cannot authorize an automatic
 | `--resume <abs-run-log-path>` | No | Reconstruct state from JSONL (§12). |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
-`owner/repo` via `gh repo view --json nameWithOwner`): a wrong origin, a branch behind the base
+`owner/repo`, parsed from `git remote get-url origin`): a wrong origin, a branch behind the base
 branch (`origin/<default-branch>`), or a returned URL whose `owner/repo` ≠ the resolved target → HALT,
 instruct the operator to close the misrouted PR.
 
@@ -186,7 +186,7 @@ Wave 7: Loop / terminate          ← loads refs/loop-guard.md
 Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS / TERMINAL_AUGMENT_NO_RESPONSE) ← loads refs/ci-poll.md
 ```
 
-- **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
+- **Wave 0 (all ordinals):** resolve the target repo once from the origin remote (`REPO="$(git remote get-url origin | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"`; only if origin has no URL, fall back to `gh repo view --json nameWithOwner -q .nameWithOwner` — never prefer it, because gh picks an `upstream` remote over `origin`) and the base branch (`gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`). BEFORE creating anything: confirm `git remote -v` shows origin = `$REPO` and rebase if behind `origin/<base>`. Then open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."` and verify the returned URL's `owner/repo` equals `$REPO` (a misroute → HALT). With `--pr <N>`, skip `gh pr create` and attach to that PR instead, checking the URL from `gh pr view <N> --repo "$REPO" --json url`. Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1).
 - **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then enter the **attended poll loop** (above) with `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each JSON line passes the snapshot gate before any FSM outcome; incomplete evidence keeps polling. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
 - **Wave 2:** load `refs/severity-routing.md`; use only the snapshot gate's `actionable_finding_comments` → `finding_from_comment` → `remap_severity(finding)` → `route(finding)` results from `superclaude.pr_submit`, then map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
 - **Wave 3:** load `refs/finding-verify.md`; spawn the `evidence-validator` agent (read-only) to confirm each finding's cited file:line exists and the defect reproduces. `unverified` → REPORT_ONLY, consuming NO round.

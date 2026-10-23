@@ -3,8 +3,8 @@
 T-106 origin must match the RESOLVED target repo (else HALT); T-107 behind the base
 branch → auto-rebase before create; T-108 a returned PR URL whose ``owner/repo`` ≠ the
 resolved target → HALT + instruct the operator to close the misrouted PR (the FM-11
-tie). The target repo is RESOLVED at runtime from origin (``gh repo view --json
-nameWithOwner``, fallback ``git remote get-url origin``) and passed into the pure
+tie). The target repo is RESOLVED at runtime from origin (``git remote get-url
+origin``, fallback ``gh repo view --json nameWithOwner``) and passed into the pure
 checks — NOT a hardcoded fork — so every assertion parametrizes over an arbitrary
 ``owner/repo``. The de-hardcoding regression is the ``acme/widgets`` row: an unrelated
 third-party repo must pass identically to this project's own origin, proving nothing is

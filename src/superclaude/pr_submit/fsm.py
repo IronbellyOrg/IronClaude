@@ -61,7 +61,7 @@ class SkillArgs:
     body: str | None = None
     output_dir: str | None = None
     resume: str | None = None
-    yes: bool = False
+    pr: int | None = None
 
     @property
     def armed(self) -> bool:
@@ -94,7 +94,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--body", default=None)
     parser.add_argument("--output-dir", dest="output_dir", default=None)
     parser.add_argument("--resume", default=None)
-    parser.add_argument("--yes", action="store_true")
+    parser.add_argument("--pr", type=int, default=None)
     return parser
 
 
@@ -115,6 +115,8 @@ def parse_args(argv: list[str]) -> SkillArgs:
         raise ValueError(MAX_ROUNDS_ERROR)
     if ns.max_rounds < 0:
         raise ValueError("--max-rounds must be >= 0")
+    if ns.pr is not None and ns.pr < 1:
+        raise ValueError("--pr must be a positive PR number")
     return SkillArgs(
         monitor=ns.monitor,
         max_rounds=ns.max_rounds,
@@ -127,7 +129,7 @@ def parse_args(argv: list[str]) -> SkillArgs:
         body=ns.body,
         output_dir=ns.output_dir,
         resume=ns.resume,
-        yes=ns.yes,
+        pr=ns.pr,
     )
 
 
@@ -475,8 +477,8 @@ def pr_target_ok(pr_url: str, target_repo: str) -> bool:
     """Whether ``pr_url`` targets ``target_repo`` — the VG-6 / FM-11 misroute check.
 
     ``target_repo`` is the RESOLVED ``owner/repo`` of the origin remote, NOT a
-    hardcoded constant: the SKILL resolves it at runtime (origin's ``nameWithOwner``,
-    fallback the origin remote URL) and passes it in. A returned URL whose owner/repo is
+    hardcoded constant: the SKILL resolves it at runtime (the origin remote URL first,
+    else the host CLI's default repo) and passes it in. A returned URL whose owner/repo is
     NOT ``target_repo`` (e.g. the host CLI silently defaulted the PR onto the upstream
     PARENT of a fork) is a misroute → the caller HALTs (`terminal_failed`) and instructs
     the operator to close it (T-108 / FM-11). Core-pure: a pure string check, no

@@ -1,12 +1,12 @@
 """Static-grep / core-purity tests (spec FR-1.3 / AC-9, §6.3).
 
-T-104: every `gh` command in the skill sources + the hook is REPO-scoped to the
-resolved origin repo — `gh pr`/`gh repo` pin `--repo <owner/repo>` (or ARE the
-`gh repo view` resolution idiom that reads origin's `owner/repo`); `gh api` paths are
-`repos/<owner/repo>/...` (gh api takes no --repo flag); `graphql` calls carry the repo
-in their query vars. The repo is RESOLVED at runtime (origin's `nameWithOwner`,
-fallback the origin remote URL), never a hardcoded fork — a BARE `gh pr`/`gh api` that
-would silently default onto an upstream parent is the defect this greps for. T-N50: the
+Repo pin (T-105, T-1101, D2, D3): `gh pr`/`gh repo` commands pin
+`--repo <owner/repo>` (or ARE the `gh repo view` resolution idiom used as the
+fallback); `gh api` paths are `repos/<owner/repo>/...` (gh api takes no --repo flag);
+`graphql` calls carry the repo in their query vars. The repo is RESOLVED at runtime
+(the origin remote URL first, fallback `gh repo view`), never a hardcoded fork — a BARE
+`gh pr`/`gh api` that would silently default onto an upstream parent is the defect.
+(The broad T-104 scan of every skill source was retired in 970c1236.) T-N50: the
 core-pure file set (state-machine.md, severity-routing.md, loop-guard.md AND
 fsm.py/severity_router.py/loop_guard.py) contains ZERO `gh`/`git` tokens. T-N40: no
 `--depth quick --fix` conflict is ever emitted. T-N41: the deterministic core never
@@ -25,14 +25,13 @@ from superclaude.pr_submit import DetectionContract, classify
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-pr-submit-protocol"
-HOOK = REPO_ROOT / "src" / "superclaude" / "hooks" / "scripts" / "offer-pr-review.sh"
 PR_SUBMIT_PKG = REPO_ROOT / "src" / "superclaude" / "pr_submit"
 
 # Real gh command invocations (not the substring "gh" in prose like "through").
 _GH_CMD = re.compile(r"\bgh\s+(pr|api|repo|release|run|auth|search|workflow)\b")
-# The `gh repo view` resolution idiom — the de-hardcoding primitive. It reads the
-# CURRENT checkout's `owner/repo` (so downstream calls can pin `--repo "$REPO"`); it
-# has no target to misroute, so it counts as repo-scoped on its own.
+# The `gh repo view` resolution idiom — the fallback when the origin remote has no URL.
+# It reads the CLI's default repo for this checkout (so downstream calls can pin
+# `--repo "$REPO"`); it has no target to misroute, so it counts as repo-scoped on its own.
 _REPO_RESOLVE = re.compile(r"\bgh\s+repo\s+view\b")
 # The T-N50 core-pure file set.
 CORE_PURE_FILES = [
@@ -42,7 +41,7 @@ CORE_PURE_FILES = [
     # V1.1: the auggie-fallback ref carries NO gh token (it documents the
     # `> Skill sc:auggie-review-protocol` invocation + a flag table, not a gh api call),
     # so it joins the zero-token set. The gh-BEARING review-retrigger.md + retrigger-review.sh
-    # are DELIBERATELY excluded (covered by the T-104 / T-1101 fork-pin path instead) —
+    # are DELIBERATELY excluded (covered by the T-1101 fork-pin test instead) —
     # mirroring how thread-reply.md / augment-poll.md are excluded for the same reason.
     SKILL_DIR / "refs" / "auggie-fallback.md",
     PR_SUBMIT_PKG / "fsm.py",
@@ -63,14 +62,6 @@ AUGGIE_REVIEW_SKILL = (
 RETRIGGER_SCRIPT = SKILL_DIR / "scripts" / "retrigger-review.sh"
 REVIEW_RETRIGGER_REF = SKILL_DIR / "refs" / "review-retrigger.md"
 AUGGIE_FALLBACK_REF = SKILL_DIR / "refs" / "auggie-fallback.md"
-
-
-def _skill_and_hook_files() -> list[Path]:
-    files = [HOOK]
-    files += [
-        p for p in SKILL_DIR.rglob("*") if p.is_file() and p.suffix in (".md", ".sh")
-    ]
-    return files
 
 
 def _command_lines(path: Path):
@@ -173,22 +164,20 @@ POLL_SCRIPT = (
 def test_t105_runtime_repo_pin():
     """T-105 (FR-1.3 / AC-7): the poll script's RUNTIME gh commands pin the RESOLVED repo.
 
-    The runtime complement to T-104's static grep: T-104 proves no UNSCOPED gh
-    command exists anywhere in the skill sources; T-105 asserts the ACTUAL gh
-    invocations the poll script will run at runtime carry a COMPUTED repo pin —
+    T-105 asserts the ACTUAL gh invocations the poll script will run at runtime carry a COMPUTED repo pin —
     every `gh pr` line includes `--repo` (the resolved `$REPO`, never bare), and every
     `gh api` line targets a `repos/.../` path or `graphql` (`gh api` takes no `--repo`
     flag). The de-hardcoding generalizes the prior literal-fork pin to a resolved pin:
-    the script first RESOLVES the repo (origin's `nameWithOwner`, fallback the origin
-    remote) and threads it through every call. This guards FM-11 / the PR-target
+    the script first RESOLVES the repo (the origin remote, fallback `gh repo view`)
+    and threads it through every call. This guards FM-11 / the PR-target
     discipline at the level of the commands actually executed, not just prose.
     """
     assert POLL_SCRIPT.exists(), f"poll script missing: {POLL_SCRIPT}"
     # The script MUST resolve the target repo at runtime (the de-hardcoding mechanism) —
     # never assume a literal owner/repo.
     script_text = POLL_SCRIPT.read_text(encoding="utf-8")
-    assert "nameWithOwner" in script_text, (
-        "poll script does not resolve the target repo (expected `gh repo view --json nameWithOwner`)"
+    assert "git remote get-url origin" in script_text, (
+        "poll script does not resolve the target repo (expected `git remote get-url origin`)"
     )
 
     pr_lines: list[str] = []
@@ -236,8 +225,7 @@ def test_t1101_retrigger_gh_is_repo_scoped():
     `repos/<owner/repo>/...` (NOT bare gh api, NOT an upstream parent).
 
     These two files carry a gh token by design (the issue-comment POST surface), so they
-    live on the T-104 repo-pin path, NOT the zero-token T-N50 set. (The broad
-    test_t104 already scans them via SKILL_DIR.rglob; this is the tighter dedicated assert.)
+    live on the repo-pin path, NOT the zero-token T-N50 set.
     """
     offenders: list[str] = []
     for path in (REVIEW_RETRIGGER_REF, RETRIGGER_SCRIPT):
@@ -484,7 +472,7 @@ esac
     ]
 
 
-# --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
+# --- D2: $REPO origin-URL resolution (sed) ----------------------------------
 
 _RESOLUTION_SCRIPTS = (
     SKILL_DIR / "scripts" / "poll-augment-review.sh",
@@ -504,7 +492,7 @@ _REMOTE_URL_FORMS = {
 
 
 def test_repo_resolution_sed_handles_all_url_forms():
-    """D2: the $REPO origin-URL fallback `sed` program in each script must resolve EVERY
+    """D2: the $REPO origin-URL `sed` program in each script must resolve EVERY
     remote-URL shape to a clean `owner/repo` — including url-style ssh (`ssh://…`), which
     the pre-D2 sed left as a malformed non-empty value that slipped past the empty-guard.
 
@@ -522,7 +510,7 @@ def test_repo_resolution_sed_handles_all_url_forms():
             ),
             None,
         )
-        assert match, f"no `sed -E '…'` origin-URL fallback found in {script.name}"
+        assert match, f"no `sed -E '…'` origin-URL resolution found in {script.name}"
         program = match.group(1)
         for url, expected in _REMOTE_URL_FORMS.items():
             result = subprocess.run(
@@ -536,6 +524,70 @@ def test_repo_resolution_sed_handles_all_url_forms():
             assert got == expected, (
                 f"{script.name}: sed resolved {url!r} → {got!r}, expected {expected!r}"
             )
+
+
+def test_repo_resolution_prefers_origin_over_gh_default():
+    """The $REPO fallback reads the origin remote BEFORE `gh repo view`: gh prefers an
+    `upstream` remote, so asking it first could target the public parent of a fork."""
+    for script in _RESOLUTION_SCRIPTS:
+        lines = script.read_text(encoding="utf-8").splitlines()
+        origin_at = next(
+            i
+            for i, line in enumerate(lines)
+            if line.lstrip().startswith(("REPO=", "[ -n"))
+            and "git remote get-url origin" in line
+        )
+        gh_view_at = next(
+            i
+            for i, line in enumerate(lines)
+            if line.lstrip().startswith(("REPO=", "[ -n"))
+            and "gh repo view --json nameWithOwner" in line
+        )
+        assert origin_at < gh_view_at, (
+            f"{script.name}: `gh repo view` is tried before the origin remote"
+        )
+
+
+def _run_resolution(script: Path, tmp_path: Path, git_body: str) -> str:
+    """Run a script's two $REPO resolution lines under its own `set -euo pipefail`,
+    with stub `git` / `gh` on PATH (`gh repo view` answers the upstream parent)."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    for name, body in (
+        ("git", git_body),
+        ("gh", 'printf "%s\\n" "upstream/parent"'),
+    ):
+        stub = bin_dir / name
+        stub.write_text(f"#!/bin/sh\n{body}\n", encoding="utf-8")
+        stub.chmod(0o755)
+    lines = [
+        line
+        for line in script.read_text(encoding="utf-8").splitlines()
+        if line.lstrip().startswith(("REPO=", "[ -n"))
+        and ("git remote get-url origin" in line or "gh repo view" in line)
+    ]
+    program = "set -euo pipefail\nREPO=''\n" + "\n".join(lines) + '\necho "$REPO"\n'
+    result = subprocess.run(
+        ["bash", "-c", program],
+        env={**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"},
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    assert result.returncode == 0, f"{script.name}: resolution aborted: {result.stderr}"
+    return result.stdout.strip()
+
+
+def test_repo_resolution_runs_origin_first_then_falls_back(tmp_path):
+    """Origin wins over gh's default repo, and a failing origin lookup falls through to
+    `gh repo view` instead of aborting the script under `set -euo pipefail`."""
+    for script in _RESOLUTION_SCRIPTS:
+        with_origin = _run_resolution(
+            script, tmp_path, 'echo "https://github.com/acme/widgets.git"'
+        )
+        assert with_origin == "acme/widgets", f"{script.name}: got {with_origin!r}"
+        no_origin = _run_resolution(script, tmp_path, "exit 2")
+        assert no_origin == "upstream/parent", f"{script.name}: got {no_origin!r}"
 
 
 # --- D3: _repo_scoped is structure-anchored, not a loose substring ----------
