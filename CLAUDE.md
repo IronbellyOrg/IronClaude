@@ -43,7 +43,13 @@ This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's 
 - Push to `upstream` (the `upstream` remote name above). The `origin` remote is the correct push target.
 - Assume the upstream is the right target because gh's interactive flow suggests it. The interactive flow is the trap.
 
-**The mandatory command shape:**
+**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` is what `gh repo view` reports (pre-PR check 1 makes sure that is the fork), then waits for the Augment review, fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
+
+```text
+/sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."
+```
+
+**Fallback only, when `/sc:pr-submit` cannot run:**
 
 ```bash
 gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "..." --body "..."
@@ -51,7 +57,7 @@ gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --titl
 
 **Pre-PR checks (mandatory):**
 
-1. `git remote -v` — confirm `origin` = `IronbellyOrg/IronClaude.git`.
+1. `git remote -v` — confirm `origin` = `IronbellyOrg/IronClaude.git`. Then `gh repo view --json nameWithOwner -q .nameWithOwner` must print `IronbellyOrg/IronClaude`; if it prints the upstream parent, run `gh repo set-default IronbellyOrg/IronClaude` first (gh prefers an `upstream` remote over `origin`).
 2. `git fetch origin && git log master..origin/master` — if the fork's master is ahead of the local master, **rebase the branch onto `origin/master`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between master and <branch>".
 3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**, not `SuperClaude-Org`. If it shows the wrong owner, close it immediately and reopen with `--repo IronbellyOrg/IronClaude`.
 
@@ -321,7 +327,7 @@ git worktree remove .dev/worktrees/integration
 
 ## 📝 Key Documentation Files
 
-**`src/superclaude/core/HOW-WE-WORK.md`** - the routing guide: which command or skill to use for each kind of work, in what order, with which safe flags. Edit it here; it installs to `~/.claude/HOW-WE-WORK.md`. After editing, copy it byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and re-run the level-table copy into `src/superclaude/core/CLAUDE.md` (tests check both). Never add it as an `@` import.
+**`src/superclaude/core/HOW-WE-WORK.md`** - the routing guide: which command or skill to use for each kind of work, in what order, with which required flags. Edit it here; it installs to `~/.claude/HOW-WE-WORK.md`. After editing, copy it byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and re-run the level-table copy into `src/superclaude/core/CLAUDE.md` (tests check both). Never add it as an `@` import.
 
 **KNOWLEDGE.md** - Accumulated insights and troubleshooting
 

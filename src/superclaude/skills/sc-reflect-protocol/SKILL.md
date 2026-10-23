@@ -64,7 +64,7 @@ superclaude reflect contract-status --repo <owner/repo> --pr <number>
 superclaude reflect contract-status --validate --repo <owner/repo> --pr <number>
 ```
 
-That command calls `superclaude.pr_submit.contract_setup` to diagnose readiness and optionally validate existing file-based evidence. It reports only readiness state, blockers, checked paths, hashes, counts, and the next safe command; it does not write the local lock by default, arm Monitor, mutate PR state, push, reply, resolve, retrigger, resume `/sc:pr-submit`, launch `ReflectRunner`, launch `ClaudeProcess`, or print raw GitHub payload bodies. If a user asks `/sc:reflect` for detection-contract readiness, route them to the CLI command above instead of running UC-1/UC-2.
+That command calls `superclaude.pr_submit.contract_setup` to diagnose readiness and optionally validate existing file-based evidence. It reports only readiness state, blockers, checked paths, hashes, counts, and the next command to run; it does not write the local lock by default, arm Monitor, mutate PR state, push, reply, resolve, retrigger, resume `/sc:pr-submit`, launch `ReflectRunner`, launch `ClaudeProcess`, or print raw GitHub payload bodies. If a user asks `/sc:reflect` for detection-contract readiness, route them to the CLI command above instead of running UC-1/UC-2.
 
 ---
 

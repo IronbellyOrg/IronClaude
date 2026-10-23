@@ -79,7 +79,7 @@ superclaude reflect contract-status --repo <owner/repo> --pr <number>
 superclaude reflect contract-status --validate --repo <owner/repo> --pr <number>
 ```
 
-This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blockers/checked paths/hashes/counts plus the next safe command, and does not write the local lock by default. It must not arm Monitor, mutate PR state, push, reply, resolve, retrigger, resume `/sc:pr-submit`, launch `ReflectRunner`, launch `ClaudeProcess`, or dump raw GitHub payload bodies.
+This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blockers/checked paths/hashes/counts plus the next command to run, and does not write the local lock by default. It must not arm Monitor, mutate PR state, push, reply, resolve, retrigger, resume `/sc:pr-submit`, launch `ReflectRunner`, launch `ClaudeProcess`, or dump raw GitHub payload bodies.
 
 ## Options
 

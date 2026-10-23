@@ -88,7 +88,7 @@ Print: "The guide also uses two Claude Code built-in commands: `/code-review` (b
 
 Print these three lines:
 
-- Full workflows, in order, with safe flags: read `<the guide path found in step 2>` (normally `~/.claude/HOW-WE-WORK.md`). If none was found, say how to install it, as in step 2.
+- Full workflows, in order, with required flags: read `<the guide path found in step 2>` (normally `~/.claude/HOW-WE-WORK.md`). If none was found, say how to install it, as in step 2.
 - Not sure which tool fits your job: `/sc:recommend "<what you want to do, and why>"`.
 - Options for one command: read its file. Installed `/sc:` commands are at `$HOME/.claude/commands/sc/<name>.md`; project-local commands are under `.claude/commands/`; plugin commands are at `${CLAUDE_PLUGIN_ROOT}/commands/<name>.md`; inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), read `src/superclaude/commands/<name>.md` under that repository root.
 

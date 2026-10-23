@@ -4,6 +4,19 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### pr-submit — default monitor level 3; every PR instruction uses `--monitor 3`
+
+#### Changed (pr-submit)
+
+- `/sc:pr-submit` with no `--monitor` now runs level 3 (`DEFAULT_MONITOR = 3` in `superclaude.pr_submit.fsm`). A bare `/sc:pr-submit` now fixes the confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes to your branch without asking, and replies to and resolves the review comments it fixed. Use `--monitor 2` to make the fixes locally and stop before pushing, or `--monitor 0` to only open the PR. The command file had already said "default 3" since `2165ae25`; the code, the skill and the options table now agree.
+- The repository `CLAUDE.md`, the routing guide (`HOW-WE-WORK.md`, review-pr row and section 3.11), the PRD and TDD release guides, and `docs/developer-guide/contributing-code.md` now say to open PRs with `/sc:pr-submit --monitor 3` (the guides previously said `--monitor 1`). `gh pr create --repo IronbellyOrg/IronClaude ...` remains as the fallback when `/sc:pr-submit` cannot run. `docs/user-guide/commands.md` now states the level-3 default.
+- `CLAUDE.md` adds a pre-PR check that `gh repo view` reports `IronbellyOrg/IronClaude`, because `/sc:pr-submit` takes its target from it and gh prefers an `upstream` remote over `origin`.
+- The routing guide's "Never push without approval" rule now names the one exception: after the approved push, `/sc:pr-submit --monitor 3` pushes its review and CI fixes without asking again (`--monitor 2` stops before pushing).
+- `refs/state-machine.md` §5.3 no longer describes a one-time confirmation before the first push: no wave ever performed it, and the `--yes` flag the parser accepts has no effect.
+- The pull request template now asks for `/sc:pr-submit --monitor 3` on `IronbellyOrg/IronClaude` and a rebase onto `origin/master`, instead of an upstream PR and `upstream/main`.
+- The routing guide's mandated per-step flags are called "required flags" instead of "safe flags" (`CLAUDE.md`, `/sc:help`, `docs/user-guide/how-we-work.md`, and the routing-table test), since `--monitor 3` is not a propose-only setting.
+- `superclaude reflect contract-status` now suggests `/sc:pr-submit --monitor 3` as the next command once the detection contract is ready.
+
 ### routing — one "how we work" guide for which tool to use when; retired unused core files
 
 #### Added (routing)
