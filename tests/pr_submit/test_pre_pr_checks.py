@@ -21,6 +21,7 @@ from superclaude.pr_submit.fsm import (
     pr_branch_ok,
     pr_head_ok,
     pr_target_ok,
+    push_parent_ok,
 )
 
 
@@ -192,3 +193,38 @@ def test_resume_branch_only_check():
     assert pr_branch_ok(BRANCH, BRANCH, False) is True
     assert pr_branch_ok("fix/other", BRANCH, False) is False
     assert pr_branch_ok(BRANCH, BRANCH, None) is False
+
+
+# --- Push range (PR #287 review round 2): a push carries only the cycle's fix commit.
+
+
+def test_push_parent_ok_single_commit_on_pr_head():
+    assert push_parent_ok([SHA], SHA) is True
+    assert push_parent_ok([SHA.upper()], SHA) is True
+    assert push_parent_ok([SHA], SHA.upper()) is True
+    # Unstripped history output (a trailing newline or space) fails closed.
+    assert push_parent_ok([SHA + "\n"], SHA) is False
+    assert push_parent_ok([SHA], " " + SHA) is False
+
+
+def test_push_parent_ok_rejects_extra_local_commit():
+    """An unreviewed local commit between the PR head and the fix becomes the fix's
+    parent, so the fast-forward push would publish it too."""
+    assert push_parent_ok([OTHER_SHA], SHA) is False
+
+
+@pytest.mark.parametrize(
+    "parents",
+    [[], [SHA, OTHER_SHA], None, "not-a-list", [None]],
+    ids=["root", "merge", "none", "string", "null-entry"],
+)
+def test_push_parent_ok_fails_closed_on_parent_shape(parents):
+    assert push_parent_ok(parents, SHA) is False
+
+
+@pytest.mark.parametrize("bad_sha", ["", "null", None, SHA[:7], SHA + "0", "g" * 40])
+def test_push_parent_ok_fails_closed_on_bad_ids(bad_sha):
+    assert push_parent_ok([bad_sha], SHA) is False
+    assert push_parent_ok([SHA], bad_sha) is False
+    # Equal on both sides must still fail.
+    assert push_parent_ok([bad_sha], bad_sha) is False

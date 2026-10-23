@@ -82,7 +82,7 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 **Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean or `terminal_augment_no_response`, wait on PR checks (silence is wait-only, never claimed as `terminal_clean` for the review).
 
-**Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; force-push; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
+**Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; force-push; push any commit besides the cycle's one fix commit (it halts with `push_range_mismatch` instead, so unreviewed local commits are never published); emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 
 ## Related Commands
 

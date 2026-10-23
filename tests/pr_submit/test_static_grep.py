@@ -669,12 +669,90 @@ def test_skill_binds_checkout_and_push_target_to_pr_head():
     assert "never local HEAD" in wave6
     assert "target_branch := HEAD_BRANCH" in wave6
     assert "then set `pre_push_sha := target_sha`" in wave6
+    # The push carries only the cycle's fix commit: the parent check is part of the
+    # guard, after the head check and before `push_decision`.
+    parent = wave6.index("push_parent_ok(<parents>, pre_push_sha)")
+    assert wave6.index("pr_head_ok(<local branch>, pre_push_sha,") < parent
+    assert parent < wave6.index("The deterministic core DECIDES")
+    assert "`terminal_halted` (reason `push_range_mismatch`)" in wave6
+    assert (
+        "| The commit to push is not exactly one commit on top of the PR head" in text
+    )
+    assert "after Branch A, the guard's parent check stops the next push" in text
+    # One fix commit per cycle, made before the guard; the head check's own failure
+    # handling comes before the parent check; a zero-edit cycle skips the parent check.
+    fix_commit = wave6.index("**Fix commit:**")
+    assert fix_commit < wave6.index("Pre-push head guard, before `push_decision`")
+    assert "commit all of them as exactly one commit" in wave6
+    assert wave6.index("(reason `pr_head_mismatch`)") < parent
+    assert (
+        "Next, when the cycle applied edits (a zero-edit cycle has no fix commit"
+        in wave6
+    )
 
     wave8 = text[text.index("- **Wave 8 (L1+") :]
     assert (
         "An L3 CI push runs the Wave 6 pre-push head guard and push triad with "
         "`target_branch := HEAD_BRANCH`"
     ) in wave8
+    assert "runs the guard's parent check (`push_parent_ok`)" in wave8
+
+    # A failed fix commit halts on its own reason; a crash re-drive skips the commit.
+    assert "`terminal_halted` (reason `fix_commit_failed`)" in wave6
+    assert "A crash re-drive (Branch B) skips this step" in wave6
+    assert (
+        "Branch B: skip the Wave 6 fix commit, set `target_sha` from the record" in text
+    )
+    assert "pre-push head guard with the record's `pre_push_sha`" in text
+    assert (
+        "| The fix touched a file with the operator's own pending changes, the fix "
+        "commit fails, or HEAD does not advance"
+    ) in text
+    # The fix commit contains only the edited files: never the whole tree, never
+    # anything else already staged, never the operator's own pending edits.
+    assert (
+        "staging only the files those edits changed (`git add -- <paths>`, "
+        "never `git add -A` or `git add .`"
+    ) in wave6
+    assert "committing with `git commit --only -- <paths>`" in wave6
+    # Operator files pending before the cycle's first edit (snapshot once, untracked
+    # included) are refused at commit time; a halted cycle touches no thread.
+    # The snapshot is taken once per cycle in Wave 4 (so the skill may re-edit its
+    # own files) and lists every untracked file, not collapsed directories.
+    wave4 = text[text.index("- **Wave 4:**") :]
+    wave4 = wave4[: wave4.index("\n- **Wave 5")]
+    assert (
+        "Before the cycle's first edit, record the operator's pending files "
+        "(`git status --porcelain=v1 -z --untracked-files=all`"
+    ) in wave4
+    # Checked before `git add`, so a halt leaves the operator's index untouched.
+    assert (
+        "Before staging anything (before the `git add` above), if a path to commit "
+        "is in `OPERATOR_PENDING`"
+    ) in wave6
+    assert "The fix touched files that had your own uncommitted changes: <paths>" in (
+        wave6
+    )
+    assert "separate them by hand (do not discard the files)" in wave6
+    assert "A halted cycle replies to and resolves no thread." in wave6
+    # The operator messages for both halts are pinned, including the recovery steps.
+    assert "The fix commit failed (<error>). Nothing was pushed" in wave6
+    assert "Fix the cause, then either commit and push the fix yourself" in wave6
+    assert "make your checkout equal the new PR head, then re-run" in wave6
+    assert "When this cycle made a fix commit, the message adds:" in wave6
+    assert "This cycle's fixes are in local commit <target_sha>" in wave6
+    assert "the fixes are still in your working tree" not in wave6
+
+    raw = (SKILL_DIR / "refs" / "state-machine.md").read_text(encoding="utf-8")
+    # Compare as prose: the blockquote's hand-wrapping is not part of the contract.
+    machine = " ".join(raw.replace("\n> ", " ").split())
+    assert "the commit to push must have exactly one parent, that same SHA" in machine
+    assert "The parent check applies only when the cycle applied edits" in machine
+    command = (
+        REPO_ROOT / "src" / "superclaude" / "commands" / "pr-submit.md"
+    ).read_text(encoding="utf-8")
+    will_not = command[command.index("**Will Not:**") :]
+    assert "push any commit besides the cycle's one fix commit" in will_not
 
 
 def test_skill_forbids_force_push():

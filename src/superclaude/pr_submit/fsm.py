@@ -579,6 +579,27 @@ def pr_head_ok(
     return local_sha.lower() == head_ref_oid.lower()
 
 
+def push_parent_ok(target_parents: list[str] | None, pre_push_sha: str | None) -> bool:
+    """Whether the commit about to be pushed is exactly one commit on top of the PR head.
+
+    ``target_parents`` are the parent ids of the commit to push; ``pre_push_sha`` is the
+    stored PR head the pre-push guard just confirmed. A fast-forward push publishes every
+    commit between the two, so the push carries only the cycle's fix commit iff that
+    commit has exactly one parent and it is ``pre_push_sha``. A merge commit (two
+    parents), a root commit (none), a short, missing or ``"null"`` id fails closed; the
+    comparison ignores case. Core-pure: a pure string check (the SKILL reads the parents
+    and passes them here).
+    """
+    if not isinstance(target_parents, list) or len(target_parents) != 1:
+        return False
+    parent = target_parents[0]
+    if not isinstance(parent, str) or not isinstance(pre_push_sha, str):
+        return False
+    if not (_SHA40.fullmatch(parent) and _SHA40.fullmatch(pre_push_sha)):
+        return False
+    return parent.lower() == pre_push_sha.lower()
+
+
 def needs_rebase(commits_behind: int) -> bool:
     """Whether the branch is behind its base branch (``origin/<default-branch>``) and must rebase before create (T-107).
 
