@@ -617,3 +617,82 @@ def test_repo_scoped_rejects_bare_gh_bypasses():
     ]
     for line in scoped:
         assert _repo_scoped(line) is True, f"scoped gh line wrongly rejected: {line!r}"
+
+
+# --- Head binding (PR #287 review finding) ------------------------------------
+
+_SKILL_MD = SKILL_DIR / "SKILL.md"
+
+
+def test_skill_binds_checkout_and_push_target_to_pr_head():
+    """Wave 0 binds both the create and `--pr` paths to the PR head (L1+ only), and both
+    push sites (Wave 6 review-fix push, Wave 8 CI-fix push) push to the bound branch
+    behind a pre-push guard that runs before `push_decision`."""
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    binding = text[text.index("**Wave 0 head binding (L1+ only") :]
+    binding = binding[: binding.index("\n- **Wave 1")]
+    for token in (
+        "after `gh pr create`, or on `--pr <N>` attach",
+        "--json headRefName,headRefOid,isCrossRepository",
+        "pr_head_ok(",
+        "HEAD_BRANCH := headRefName",
+        "pre_push_sha := headRefOid",
+        "`--resume` repeats this binding",
+        "pr_branch_ok(",
+        "Do not close the PR.",
+        # Resume after a crash: a landed push advances the stored SHA, a re-driven
+        # push is guarded first.
+        "its `target_sha` when the push landed (Branch A)",
+        "the re-driven push first runs the Wave 6 pre-push head guard",
+    ):
+        assert token in binding, f"Wave 0 head binding is missing {token!r}"
+    # L0 is untouched: the AC-1 sentence is still verbatim.
+    assert (
+        "At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and "
+        "return, byte-for-byte identical to today (AC-1)."
+    ) in text
+    # `--pr` never rebases a published head; the create path still rebases, and only the
+    # create path halts when behind base (STOP block and Error Handling row agree).
+    assert "with `--pr <N>`, at any level, do not rebase" in text
+    assert "rebase if behind `origin/<base>`" in text
+    assert "branch (`origin/<default-branch>`) on the create path" in text
+    assert (
+        "| Wrong origin / behind base branch (create path) / wrong-owner URL |" in text
+    )
+    assert "reason `pr_head_mismatch`; nothing pushed; do NOT close the PR" in text
+
+    wave6 = text[text.index("- **Wave 6 (L3 only):**") :]
+    wave6 = wave6[: wave6.index("\n- **Wave 6b")]
+    guard = wave6.index("Pre-push head guard, before `push_decision`")
+    assert guard < wave6.index("The deterministic core DECIDES")
+    assert "pr_head_ok(<local branch>, pre_push_sha," in wave6
+    assert "never local HEAD" in wave6
+    assert "target_branch := HEAD_BRANCH" in wave6
+    assert "then set `pre_push_sha := target_sha`" in wave6
+
+    wave8 = text[text.index("- **Wave 8 (L1+") :]
+    assert (
+        "An L3 CI push runs the Wave 6 pre-push head guard and push triad with "
+        "`target_branch := HEAD_BRANCH`"
+    ) in wave8
+
+
+def test_skill_forbids_force_push():
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    will_not = text[text.index("## Will Not Do") :]
+    assert "Force-push (`--force`, `--force-with-lease`, or a `+` refspec)" in will_not
+    # No push command in the skill directory force-pushes, in or outside backticks.
+    force = re.compile(r"\bgit push\b[^`\n]*?(\s--force\b|\s-f\b|\s\+\S)")
+    # The pattern itself must catch every force form and pass a plain push.
+    for forced in (
+        "git push --force origin a:b",
+        "git push --force-with-lease origin a:b",
+        "git push -f origin a:b",
+        "git push origin +a:b",
+    ):
+        assert force.search(forced), forced
+    assert force.search("git push origin <target_sha>:<target_branch>") is None
+    for path in SKILL_DIR.rglob("*"):
+        if path.is_file() and path.suffix in {".md", ".sh"}:
+            hit = force.search(path.read_text("utf-8"))
+            assert hit is None, (path, hit and hit.group(0))

@@ -15,7 +15,13 @@ from __future__ import annotations
 
 import pytest
 
-from superclaude.pr_submit.fsm import needs_rebase, origin_ok, pr_target_ok
+from superclaude.pr_submit.fsm import (
+    needs_rebase,
+    origin_ok,
+    pr_branch_ok,
+    pr_head_ok,
+    pr_target_ok,
+)
 
 
 @pytest.mark.parametrize(
@@ -122,3 +128,67 @@ def test_t106_origin_substring_collision_does_not_falsely_pass():
     assert origin_ok("https://github.com/acme/widgets.git", "acme/widgets") is True
     assert origin_ok("git@github.com:acme/widgets.git", "acme/widgets") is True
     assert origin_ok("ssh://git@github.com/acme/widgets.git", "acme/widgets") is True
+
+
+# --- Head binding (PR #287 review finding): the checkout and push target must be the PR head.
+
+BRANCH = "fix/pr-submit-skill-cleanup"
+SHA = "2916e0627c5d2c96aed50fab61748ff4df24d984"
+OTHER_SHA = "070399eb" + "0" * 32
+
+
+def test_head_binding_matches_pr_head():
+    assert pr_head_ok(BRANCH, SHA, BRANCH, SHA, False) is True
+    # Commit ids compare case-insensitively.
+    assert pr_head_ok(BRANCH, SHA.upper(), BRANCH, SHA, False) is True
+
+
+@pytest.mark.parametrize(
+    "local_branch",
+    ["fix/other", f"{BRANCH}/b", f"{BRANCH}-2", f"refs/heads/{BRANCH}", BRANCH.upper()],
+)
+def test_head_binding_requires_exact_branch(local_branch):
+    """A different, descendant, prefixed or case-folded branch name is a different branch."""
+    assert pr_head_ok(local_branch, SHA, BRANCH, SHA, False) is False
+    assert pr_head_ok(BRANCH, SHA, local_branch, SHA, False) is False
+
+
+def test_head_binding_rejects_local_commit_ahead_or_behind():
+    assert pr_head_ok(BRANCH, OTHER_SHA, BRANCH, SHA, False) is False
+
+
+@pytest.mark.parametrize("bad_branch", ["", "HEAD", "null", None])
+def test_head_binding_fails_closed_on_missing_or_detached_branch(bad_branch):
+    assert pr_head_ok(bad_branch, SHA, BRANCH, SHA, False) is False
+    assert pr_head_ok(BRANCH, SHA, bad_branch, SHA, False) is False
+    # Equal on both sides (a detached checkout and an unparsed head) must still fail.
+    assert pr_head_ok(bad_branch, SHA, bad_branch, SHA, False) is False
+    assert pr_branch_ok(bad_branch, bad_branch, False) is False
+
+
+@pytest.mark.parametrize("bad_sha", ["", "null", None, SHA[:7], SHA + "0", "g" * 40])
+def test_head_binding_fails_closed_on_bad_commit_ids(bad_sha):
+    assert pr_head_ok(BRANCH, bad_sha, BRANCH, SHA, False) is False
+    assert pr_head_ok(BRANCH, SHA, BRANCH, bad_sha, False) is False
+    # Equal on both sides (e.g. two identical short ids) must still fail.
+    assert pr_head_ok(BRANCH, bad_sha, BRANCH, bad_sha, False) is False
+
+
+def test_head_binding_cross_repo_rule():
+    """A fork-hosted head passes only when the caller allows it (below L3); None fails."""
+    assert pr_head_ok(BRANCH, SHA, BRANCH, SHA, True) is False
+    assert pr_head_ok(BRANCH, SHA, BRANCH, SHA, True, allow_cross_repo=True) is True
+    for unknown in (None, "false"):
+        assert pr_head_ok(BRANCH, SHA, BRANCH, SHA, unknown) is False
+        assert (
+            pr_head_ok(BRANCH, SHA, BRANCH, SHA, unknown, allow_cross_repo=True)
+            is False
+        )
+
+
+def test_resume_branch_only_check():
+    """On resume with a dangling push, only the branch is checked (local HEAD may already
+    be the fix commit); the recorded target branch must be the PR head branch."""
+    assert pr_branch_ok(BRANCH, BRANCH, False) is True
+    assert pr_branch_ok("fix/other", BRANCH, False) is False
+    assert pr_branch_ok(BRANCH, BRANCH, None) is False

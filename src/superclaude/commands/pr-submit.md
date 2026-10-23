@@ -25,7 +25,7 @@ Explicit only — two activation paths:
 | `--monitor {0,1,2,3}` | No (default 3) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number (`--pr <N>`) | Yes | To open or attach to the PR. |
 
-**STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, parsed from `git remote get-url origin`).
+**STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, parsed from `git remote get-url origin`), or if your checkout is not the PR's head branch and commit (`pr_head_mismatch`; do not close the PR, follow the recovery steps in the HALT message).
 
 **STOP** if `--monitor >= 1` and the CI-wait preflight fails: `gh pr checks --repo <owner/repo> --help` must list `--json`, and the runtime must import `superclaude.pr_submit.ci`. The skill's CI-wait preflight is authoritative.
 
@@ -82,7 +82,7 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 **Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean or `terminal_augment_no_response`, wait on PR checks (silence is wait-only, never claimed as `terminal_clean` for the review).
 
-**Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
+**Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; force-push; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 
 ## Related Commands
 

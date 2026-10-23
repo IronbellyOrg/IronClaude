@@ -19,6 +19,7 @@ and Phase 7 (the L3 push triad ``S4_PUSHING`` / ``S6_REPLYING`` / ``RESOLVING``)
 from __future__ import annotations
 
 import argparse
+import re
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -518,6 +519,64 @@ def origin_ok(origin_url: str, target_repo: str) -> bool:
         if rest == "" or rest.startswith("."):
             return True
     return False
+
+
+_SHA40 = re.compile(r"[0-9a-fA-F]{40}")
+_BAD_BRANCH_NAMES = ("", "null", "HEAD")
+
+
+def pr_branch_ok(
+    local_branch: str | None,
+    head_ref_name: str | None,
+    cross_repo: bool | None,
+    *,
+    allow_cross_repo: bool = False,
+) -> bool:
+    """Whether the local branch is exactly the PR's head branch (head binding, Wave 0).
+
+    Exact equality, like ``origin_ok``'s boundary anchor: no prefix, path or case
+    folding, so ``fix/a`` never matches ``fix/a/b`` or ``refs/heads/fix/a``. Fails
+    closed on a missing, ``"null"`` or detached (``"HEAD"``) name. ``cross_repo`` must
+    be a real bool: ``False`` passes; ``True`` (a head on a fork) passes only with
+    ``allow_cross_repo`` (the SKILL allows it below L3, where nothing is pushed); ``None``
+    fails. Core-pure: a pure string check (the SKILL runs the remote query and passes
+    its result here).
+    """
+    for name in (local_branch, head_ref_name):
+        if not isinstance(name, str) or name in _BAD_BRANCH_NAMES:
+            return False
+    if local_branch != head_ref_name:
+        return False
+    if cross_repo is False:
+        return True
+    return allow_cross_repo is True and cross_repo is True
+
+
+def pr_head_ok(
+    local_branch: str | None,
+    local_sha: str | None,
+    head_ref_name: str | None,
+    head_ref_oid: str | None,
+    cross_repo: bool | None,
+    *,
+    allow_cross_repo: bool = False,
+) -> bool:
+    """Whether the checkout is bound to the PR head: ``pr_branch_ok`` plus equal commit ids.
+
+    Both ids must be full 40-hex strings (short, empty or ``"null"`` ids fail closed);
+    the comparison ignores case. At Wave 0 ``local_sha`` is the local HEAD; before a
+    push it is the stored pre-push SHA, never the local HEAD (that is the new fix
+    commit). Core-pure: a pure string check.
+    """
+    if not pr_branch_ok(
+        local_branch, head_ref_name, cross_repo, allow_cross_repo=allow_cross_repo
+    ):
+        return False
+    if not isinstance(local_sha, str) or not isinstance(head_ref_oid, str):
+        return False
+    if not (_SHA40.fullmatch(local_sha) and _SHA40.fullmatch(head_ref_oid)):
+        return False
+    return local_sha.lower() == head_ref_oid.lower()
 
 
 def needs_rebase(commits_behind: int) -> bool:
