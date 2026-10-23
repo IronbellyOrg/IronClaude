@@ -25,6 +25,8 @@ Entry: `$ARGUMENTS`. Validate all input and flags first (`--output` is retired �
 
 STOP codes in the ref. No package, no plan file, no yaml on a pre-creation STOP.
 
+`.dev/tasks/` is always staged (`git add .dev/tasks`): the package and its `artifacts/` included. Never gitignore it, never leave it untracked, and never write "never stage" about it in a generated plan (Constraints included). Staging is not committing.
+
 `--strategy enterprise` and omitted `--depth` → set `deep` + INFO.
 
 ## Wave 1 — Structure

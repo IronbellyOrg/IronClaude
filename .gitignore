@@ -80,6 +80,9 @@ logs/
 # Canonical evidence-pack fixtures asserted by tests/audit/*CanonicalFixtureParity*.
 # The blanket *.log rule above otherwise leaves them untracked -> clean CI checkouts fail.
 !.dev/releases/**/artifacts/**/fixture-*.log
+# .dev/tasks/ is always staged (owner rule): the log rules above must not hide package evidence.
+!.dev/tasks/**/logs/
+!.dev/tasks/**/*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -252,11 +255,3 @@ uv.lock
 # pre-commit large-file threshold; the manifest, execution-log, tasklists,
 # and verification artifacts in the same release directory remain tracked.
 .dev/releases/**/results/phase-*-task-*-output.txt
-# Reflect run raw stream artifacts under task folders: bulky JSONL stdout and
-# raw stderr logs that routinely exceed the 1 MB pre-commit large-file threshold
-# and fail single-document check-json. The REPORT.md / return-contract.yaml /
-# audit.log / reviewer-cards in the same reflect dir remain tracked.
-.dev/tasks/**/reflect/**/reflect-stdout.json
-.dev/tasks/**/reflect/**/reflect-stderr.log
-.dev/tasks/**/reflect/**/fix-*-stdout.json
-.dev/tasks/**/reflect/**/fix-*-stderr.log

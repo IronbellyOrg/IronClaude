@@ -32,6 +32,10 @@ In the event where context pressure would otherwise have the agent take shortcut
 
 See also: memory `feedback_claude_dir_gitignored.md`.
 
+## ABSOLUTE RULE: `.dev/tasks/` Is Always Staged
+
+`.dev/tasks/` is always staged (`git add .dev/tasks`): task packages, `progress.md` ledgers and each package's `artifacts/` included. Never gitignore it, never leave it untracked, and never write "never stage" about it in a plan, prompt or memory. Staging is not committing: commit only when asked.
+
 ## ABSOLUTE RULE: PR Target = Fork (`IronbellyOrg/IronClaude`), NEVER Upstream
 
 This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's private fork). `upstream` = `SuperClaude-Org/SuperClaude_Framework` (the public parent).

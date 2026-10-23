@@ -1,6 +1,6 @@
 # Ledger grammar
 
-One markdown file per run. Append-only. UTF-8, `\n` endings, no wrapping of record lines. Do not `git add` the ledger.
+One markdown file per run. Append-only. UTF-8, `\n` endings, no wrapping of record lines. Do not `git add` a legacy ledger under `.dev/implement/`. A managed package's ledger (`<pkg>/progress.md`) sits under `.dev/tasks/`, which is always staged (`git add .dev/tasks`).
 
 ## Location
 
