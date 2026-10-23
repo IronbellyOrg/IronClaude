@@ -1,12 +1,12 @@
 """Static-grep / core-purity tests (spec FR-1.3 / AC-9, §6.3).
 
-T-104: every `gh` command in the skill sources + the hook is REPO-scoped to the
-resolved origin repo — `gh pr`/`gh repo` pin `--repo <owner/repo>` (or ARE the
-`gh repo view` resolution idiom that reads origin's `owner/repo`); `gh api` paths are
-`repos/<owner/repo>/...` (gh api takes no --repo flag); `graphql` calls carry the repo
-in their query vars. The repo is RESOLVED at runtime (origin's `nameWithOwner`,
-fallback the origin remote URL), never a hardcoded fork — a BARE `gh pr`/`gh api` that
-would silently default onto an upstream parent is the defect this greps for. T-N50: the
+Repo pin (T-105, T-1101, D2, D3): `gh pr`/`gh repo` commands pin
+`--repo <owner/repo>` (or ARE the `gh repo view` resolution idiom used as the
+fallback); `gh api` paths are `repos/<owner/repo>/...` (gh api takes no --repo flag);
+`graphql` calls carry the repo in their query vars. The repo is RESOLVED at runtime
+(the origin remote URL first, fallback `gh repo view`), never a hardcoded fork — a BARE
+`gh pr`/`gh api` that would silently default onto an upstream parent is the defect.
+(The broad T-104 scan of every skill source was retired in 970c1236.) T-N50: the
 core-pure file set (state-machine.md, severity-routing.md, loop-guard.md AND
 fsm.py/severity_router.py/loop_guard.py) contains ZERO `gh`/`git` tokens. T-N40: no
 `--depth quick --fix` conflict is ever emitted. T-N41: the deterministic core never
@@ -25,14 +25,13 @@ from superclaude.pr_submit import DetectionContract, classify
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-pr-submit-protocol"
-HOOK = REPO_ROOT / "src" / "superclaude" / "hooks" / "scripts" / "offer-pr-review.sh"
 PR_SUBMIT_PKG = REPO_ROOT / "src" / "superclaude" / "pr_submit"
 
 # Real gh command invocations (not the substring "gh" in prose like "through").
 _GH_CMD = re.compile(r"\bgh\s+(pr|api|repo|release|run|auth|search|workflow)\b")
-# The `gh repo view` resolution idiom — the de-hardcoding primitive. It reads the
-# CURRENT checkout's `owner/repo` (so downstream calls can pin `--repo "$REPO"`); it
-# has no target to misroute, so it counts as repo-scoped on its own.
+# The `gh repo view` resolution idiom — the fallback when the origin remote has no URL.
+# It reads the CLI's default repo for this checkout (so downstream calls can pin
+# `--repo "$REPO"`); it has no target to misroute, so it counts as repo-scoped on its own.
 _REPO_RESOLVE = re.compile(r"\bgh\s+repo\s+view\b")
 # The T-N50 core-pure file set.
 CORE_PURE_FILES = [
@@ -42,7 +41,7 @@ CORE_PURE_FILES = [
     # V1.1: the auggie-fallback ref carries NO gh token (it documents the
     # `> Skill sc:auggie-review-protocol` invocation + a flag table, not a gh api call),
     # so it joins the zero-token set. The gh-BEARING review-retrigger.md + retrigger-review.sh
-    # are DELIBERATELY excluded (covered by the T-104 / T-1101 fork-pin path instead) —
+    # are DELIBERATELY excluded (covered by the T-1101 fork-pin test instead) —
     # mirroring how thread-reply.md / augment-poll.md are excluded for the same reason.
     SKILL_DIR / "refs" / "auggie-fallback.md",
     PR_SUBMIT_PKG / "fsm.py",
@@ -63,14 +62,6 @@ AUGGIE_REVIEW_SKILL = (
 RETRIGGER_SCRIPT = SKILL_DIR / "scripts" / "retrigger-review.sh"
 REVIEW_RETRIGGER_REF = SKILL_DIR / "refs" / "review-retrigger.md"
 AUGGIE_FALLBACK_REF = SKILL_DIR / "refs" / "auggie-fallback.md"
-
-
-def _skill_and_hook_files() -> list[Path]:
-    files = [HOOK]
-    files += [
-        p for p in SKILL_DIR.rglob("*") if p.is_file() and p.suffix in (".md", ".sh")
-    ]
-    return files
 
 
 def _command_lines(path: Path):
@@ -173,22 +164,20 @@ POLL_SCRIPT = (
 def test_t105_runtime_repo_pin():
     """T-105 (FR-1.3 / AC-7): the poll script's RUNTIME gh commands pin the RESOLVED repo.
 
-    The runtime complement to T-104's static grep: T-104 proves no UNSCOPED gh
-    command exists anywhere in the skill sources; T-105 asserts the ACTUAL gh
-    invocations the poll script will run at runtime carry a COMPUTED repo pin —
+    T-105 asserts the ACTUAL gh invocations the poll script will run at runtime carry a COMPUTED repo pin —
     every `gh pr` line includes `--repo` (the resolved `$REPO`, never bare), and every
     `gh api` line targets a `repos/.../` path or `graphql` (`gh api` takes no `--repo`
     flag). The de-hardcoding generalizes the prior literal-fork pin to a resolved pin:
-    the script first RESOLVES the repo (origin's `nameWithOwner`, fallback the origin
-    remote) and threads it through every call. This guards FM-11 / the PR-target
+    the script first RESOLVES the repo (the origin remote, fallback `gh repo view`)
+    and threads it through every call. This guards FM-11 / the PR-target
     discipline at the level of the commands actually executed, not just prose.
     """
     assert POLL_SCRIPT.exists(), f"poll script missing: {POLL_SCRIPT}"
     # The script MUST resolve the target repo at runtime (the de-hardcoding mechanism) —
     # never assume a literal owner/repo.
     script_text = POLL_SCRIPT.read_text(encoding="utf-8")
-    assert "nameWithOwner" in script_text, (
-        "poll script does not resolve the target repo (expected `gh repo view --json nameWithOwner`)"
+    assert "git remote get-url origin" in script_text, (
+        "poll script does not resolve the target repo (expected `git remote get-url origin`)"
     )
 
     pr_lines: list[str] = []
@@ -236,8 +225,7 @@ def test_t1101_retrigger_gh_is_repo_scoped():
     `repos/<owner/repo>/...` (NOT bare gh api, NOT an upstream parent).
 
     These two files carry a gh token by design (the issue-comment POST surface), so they
-    live on the T-104 repo-pin path, NOT the zero-token T-N50 set. (The broad
-    test_t104 already scans them via SKILL_DIR.rglob; this is the tighter dedicated assert.)
+    live on the repo-pin path, NOT the zero-token T-N50 set.
     """
     offenders: list[str] = []
     for path in (REVIEW_RETRIGGER_REF, RETRIGGER_SCRIPT):
@@ -484,7 +472,7 @@ esac
     ]
 
 
-# --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
+# --- D2: $REPO origin-URL resolution (sed) ----------------------------------
 
 _RESOLUTION_SCRIPTS = (
     SKILL_DIR / "scripts" / "poll-augment-review.sh",
@@ -504,7 +492,7 @@ _REMOTE_URL_FORMS = {
 
 
 def test_repo_resolution_sed_handles_all_url_forms():
-    """D2: the $REPO origin-URL fallback `sed` program in each script must resolve EVERY
+    """D2: the $REPO origin-URL `sed` program in each script must resolve EVERY
     remote-URL shape to a clean `owner/repo` — including url-style ssh (`ssh://…`), which
     the pre-D2 sed left as a malformed non-empty value that slipped past the empty-guard.
 
@@ -522,7 +510,7 @@ def test_repo_resolution_sed_handles_all_url_forms():
             ),
             None,
         )
-        assert match, f"no `sed -E '…'` origin-URL fallback found in {script.name}"
+        assert match, f"no `sed -E '…'` origin-URL resolution found in {script.name}"
         program = match.group(1)
         for url, expected in _REMOTE_URL_FORMS.items():
             result = subprocess.run(
@@ -536,6 +524,70 @@ def test_repo_resolution_sed_handles_all_url_forms():
             assert got == expected, (
                 f"{script.name}: sed resolved {url!r} → {got!r}, expected {expected!r}"
             )
+
+
+def test_repo_resolution_prefers_origin_over_gh_default():
+    """The $REPO fallback reads the origin remote BEFORE `gh repo view`: gh prefers an
+    `upstream` remote, so asking it first could target the public parent of a fork."""
+    for script in _RESOLUTION_SCRIPTS:
+        lines = script.read_text(encoding="utf-8").splitlines()
+        origin_at = next(
+            i
+            for i, line in enumerate(lines)
+            if line.lstrip().startswith(("REPO=", "[ -n"))
+            and "git remote get-url origin" in line
+        )
+        gh_view_at = next(
+            i
+            for i, line in enumerate(lines)
+            if line.lstrip().startswith(("REPO=", "[ -n"))
+            and "gh repo view --json nameWithOwner" in line
+        )
+        assert origin_at < gh_view_at, (
+            f"{script.name}: `gh repo view` is tried before the origin remote"
+        )
+
+
+def _run_resolution(script: Path, tmp_path: Path, git_body: str) -> str:
+    """Run a script's two $REPO resolution lines under its own `set -euo pipefail`,
+    with stub `git` / `gh` on PATH (`gh repo view` answers the upstream parent)."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    for name, body in (
+        ("git", git_body),
+        ("gh", 'printf "%s\\n" "upstream/parent"'),
+    ):
+        stub = bin_dir / name
+        stub.write_text(f"#!/bin/sh\n{body}\n", encoding="utf-8")
+        stub.chmod(0o755)
+    lines = [
+        line
+        for line in script.read_text(encoding="utf-8").splitlines()
+        if line.lstrip().startswith(("REPO=", "[ -n"))
+        and ("git remote get-url origin" in line or "gh repo view" in line)
+    ]
+    program = "set -euo pipefail\nREPO=''\n" + "\n".join(lines) + '\necho "$REPO"\n'
+    result = subprocess.run(
+        ["bash", "-c", program],
+        env={**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"},
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    assert result.returncode == 0, f"{script.name}: resolution aborted: {result.stderr}"
+    return result.stdout.strip()
+
+
+def test_repo_resolution_runs_origin_first_then_falls_back(tmp_path):
+    """Origin wins over gh's default repo, and a failing origin lookup falls through to
+    `gh repo view` instead of aborting the script under `set -euo pipefail`."""
+    for script in _RESOLUTION_SCRIPTS:
+        with_origin = _run_resolution(
+            script, tmp_path, 'echo "https://github.com/acme/widgets.git"'
+        )
+        assert with_origin == "acme/widgets", f"{script.name}: got {with_origin!r}"
+        no_origin = _run_resolution(script, tmp_path, "exit 2")
+        assert no_origin == "upstream/parent", f"{script.name}: got {no_origin!r}"
 
 
 # --- D3: _repo_scoped is structure-anchored, not a loose substring ----------
@@ -565,3 +617,160 @@ def test_repo_scoped_rejects_bare_gh_bypasses():
     ]
     for line in scoped:
         assert _repo_scoped(line) is True, f"scoped gh line wrongly rejected: {line!r}"
+
+
+# --- Head binding (PR #287 review finding) ------------------------------------
+
+_SKILL_MD = SKILL_DIR / "SKILL.md"
+
+
+def test_skill_binds_checkout_and_push_target_to_pr_head():
+    """Wave 0 binds both the create and `--pr` paths to the PR head (L1+ only), and both
+    push sites (Wave 6 review-fix push, Wave 8 CI-fix push) push to the bound branch
+    behind a pre-push guard that runs before `push_decision`."""
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    binding = text[text.index("**Wave 0 head binding (L1+ only") :]
+    binding = binding[: binding.index("\n- **Wave 1")]
+    for token in (
+        "after `gh pr create`, or on `--pr <N>` attach",
+        "--json headRefName,headRefOid,isCrossRepository",
+        "pr_head_ok(",
+        "HEAD_BRANCH := headRefName",
+        "pre_push_sha := headRefOid",
+        "`--resume` repeats this binding",
+        "pr_branch_ok(",
+        "Do not close the PR.",
+        # Resume after a crash: a landed push advances the stored SHA, a re-driven
+        # push is guarded first.
+        "its `target_sha` when the push landed (Branch A)",
+        "the re-driven push first runs the Wave 6 pre-push head guard",
+    ):
+        assert token in binding, f"Wave 0 head binding is missing {token!r}"
+    # L0 is untouched: the AC-1 sentence is still verbatim.
+    assert (
+        "At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and "
+        "return, byte-for-byte identical to today (AC-1)."
+    ) in text
+    # `--pr` never rebases a published head; the create path still rebases, and only the
+    # create path halts when behind base (STOP block and Error Handling row agree).
+    assert "with `--pr <N>`, at any level, do not rebase" in text
+    assert "rebase if behind `origin/<base>`" in text
+    assert "branch (`origin/<default-branch>`) on the create path" in text
+    assert (
+        "| Wrong origin / behind base branch (create path) / wrong-owner URL |" in text
+    )
+    assert "reason `pr_head_mismatch`; nothing pushed; do NOT close the PR" in text
+
+    wave6 = text[text.index("- **Wave 6 (L3 only):**") :]
+    wave6 = wave6[: wave6.index("\n- **Wave 6b")]
+    guard = wave6.index("Pre-push head guard, before `push_decision`")
+    assert guard < wave6.index("The deterministic core DECIDES")
+    assert "pr_head_ok(<local branch>, pre_push_sha," in wave6
+    assert "never local HEAD" in wave6
+    assert "target_branch := HEAD_BRANCH" in wave6
+    assert "then set `pre_push_sha := target_sha`" in wave6
+    # The push carries only the cycle's fix commit: the parent check is part of the
+    # guard, after the head check and before `push_decision`.
+    parent = wave6.index("push_parent_ok(<parents>, pre_push_sha)")
+    assert wave6.index("pr_head_ok(<local branch>, pre_push_sha,") < parent
+    assert parent < wave6.index("The deterministic core DECIDES")
+    assert "`terminal_halted` (reason `push_range_mismatch`)" in wave6
+    assert (
+        "| The commit to push is not exactly one commit on top of the PR head" in text
+    )
+    assert "after Branch A, the guard's parent check stops the next push" in text
+    # One fix commit per cycle, made before the guard; the head check's own failure
+    # handling comes before the parent check; a zero-edit cycle skips the parent check.
+    fix_commit = wave6.index("**Fix commit:**")
+    assert fix_commit < wave6.index("Pre-push head guard, before `push_decision`")
+    assert "commit all of them as exactly one commit" in wave6
+    assert wave6.index("(reason `pr_head_mismatch`)") < parent
+    assert (
+        "Next, when the cycle applied edits (a zero-edit cycle has no fix commit"
+        in wave6
+    )
+
+    wave8 = text[text.index("- **Wave 8 (L1+") :]
+    assert (
+        "An L3 CI push runs the Wave 6 pre-push head guard and push triad with "
+        "`target_branch := HEAD_BRANCH`"
+    ) in wave8
+    assert "runs the guard's parent check (`push_parent_ok`)" in wave8
+
+    # A failed fix commit halts on its own reason; a crash re-drive skips the commit.
+    assert "`terminal_halted` (reason `fix_commit_failed`)" in wave6
+    assert "A crash re-drive (Branch B) skips this step" in wave6
+    assert (
+        "Branch B: skip the Wave 6 fix commit, set `target_sha` from the record" in text
+    )
+    assert "pre-push head guard with the record's `pre_push_sha`" in text
+    assert (
+        "| The fix touched a file with the operator's own pending changes, the fix "
+        "commit fails, or HEAD does not advance"
+    ) in text
+    # The fix commit contains only the edited files: never the whole tree, never
+    # anything else already staged, never the operator's own pending edits.
+    assert (
+        "staging only the files those edits changed (`git add -- <paths>`, "
+        "never `git add -A` or `git add .`"
+    ) in wave6
+    assert "committing with `git commit --only -- <paths>`" in wave6
+    # Operator files pending before the cycle's first edit (snapshot once, untracked
+    # included) are refused at commit time; a halted cycle touches no thread.
+    # The snapshot is taken once per cycle in Wave 4 (so the skill may re-edit its
+    # own files) and lists every untracked file, not collapsed directories.
+    wave4 = text[text.index("- **Wave 4:**") :]
+    wave4 = wave4[: wave4.index("\n- **Wave 5")]
+    assert (
+        "Before the cycle's first edit, record the operator's pending files "
+        "(`git status --porcelain=v1 -z --untracked-files=all`"
+    ) in wave4
+    # Checked before `git add`, so a halt leaves the operator's index untouched.
+    assert (
+        "Before staging anything (before the `git add` above), if a path to commit "
+        "is in `OPERATOR_PENDING`"
+    ) in wave6
+    assert "The fix touched files that had your own uncommitted changes: <paths>" in (
+        wave6
+    )
+    assert "separate them by hand (do not discard the files)" in wave6
+    assert "A halted cycle replies to and resolves no thread." in wave6
+    # The operator messages for both halts are pinned, including the recovery steps.
+    assert "The fix commit failed (<error>). Nothing was pushed" in wave6
+    assert "Fix the cause, then either commit and push the fix yourself" in wave6
+    assert "make your checkout equal the new PR head, then re-run" in wave6
+    assert "When this cycle made a fix commit, the message adds:" in wave6
+    assert "This cycle's fixes are in local commit <target_sha>" in wave6
+    assert "the fixes are still in your working tree" not in wave6
+
+    raw = (SKILL_DIR / "refs" / "state-machine.md").read_text(encoding="utf-8")
+    # Compare as prose: the blockquote's hand-wrapping is not part of the contract.
+    machine = " ".join(raw.replace("\n> ", " ").split())
+    assert "the commit to push must have exactly one parent, that same SHA" in machine
+    assert "The parent check applies only when the cycle applied edits" in machine
+    command = (
+        REPO_ROOT / "src" / "superclaude" / "commands" / "pr-submit.md"
+    ).read_text(encoding="utf-8")
+    will_not = command[command.index("**Will Not:**") :]
+    assert "push any commit besides the cycle's one fix commit" in will_not
+
+
+def test_skill_forbids_force_push():
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    will_not = text[text.index("## Will Not Do") :]
+    assert "Force-push (`--force`, `--force-with-lease`, or a `+` refspec)" in will_not
+    # No push command in the skill directory force-pushes, in or outside backticks.
+    force = re.compile(r"\bgit push\b[^`\n]*?(\s--force\b|\s-f\b|\s\+\S)")
+    # The pattern itself must catch every force form and pass a plain push.
+    for forced in (
+        "git push --force origin a:b",
+        "git push --force-with-lease origin a:b",
+        "git push -f origin a:b",
+        "git push origin +a:b",
+    ):
+        assert force.search(forced), forced
+    assert force.search("git push origin <target_sha>:<target_branch>") is None
+    for path in SKILL_DIR.rglob("*"):
+        if path.is_file() and path.suffix in {".md", ".sh"}:
+            hit = force.search(path.read_text("utf-8"))
+            assert hit is None, (path, hit and hit.group(0))

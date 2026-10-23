@@ -4,15 +4,28 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### pr-submit — origin-first target, `--pr`, dead hook references and `--yes` removed
+
+#### Fixed (pr-submit cleanup)
+
+- `/sc:pr-submit` now takes the target repo from the `origin` remote before anything is created, uses `gh repo view` only when origin has no URL, and reads the base branch with `gh repo view "$REPO"`. Before, it asked `gh repo view` first, which prefers an `upstream` remote, so a PR could be opened on the public parent before the post-create check caught it. The four helper scripts (`poll-augment-review.sh`, `poll-ci-checks.sh`, `reply-resolve-thread.sh`, `retrigger-review.sh`) resolve the repo in the same order when called without `--repo`.
+- `/sc:pr-submit` accepts `--pr <N>` to attach to an existing PR. `superclaude reflect contract-status` already printed `/sc:pr-submit --monitor 3 --pr <N>`, which the parser used to reject.
+- At `--monitor 1` and above, `/sc:pr-submit` now checks that your checkout is the PR's head before it monitors, edits or pushes, on both the `--head` create path and the `--pr` attach path. It reads `headRefName`/`headRefOid` from the PR and halts on a mismatch, with steps to fix it. Both pushes (review fixes and CI fixes) go to that PR branch. A guard halts before each push, including a push re-driven after a crash, if the PR head moved during the run, or if the commit to push is not exactly one commit on top of the PR head, so a push never publishes unreviewed local commits along with the fix. Before, the push branch was never taken from the PR. `--pr` never rebases the already-published PR head, at any level, and force-pushing is explicitly forbidden. New pure checks: `pr_head_ok`, `pr_branch_ok` and `push_parent_ok` in `superclaude.pr_submit.fsm`. `--monitor 0` is unchanged.
+
+#### Removed (pr-submit cleanup)
+
+- References to the `offer-pr-review.sh` PR-creation hook, which no longer exists: the activation paths in `/sc:pr-submit` and `/sc:auggie-review`, the auggie-review hook example, a comment in `install_hooks.py`, and the leftover `tests/pr_submit/test_hook_update.py` helper.
+- The `--yes` flag of `/sc:pr-submit`. It was accepted but never read.
+
 ### pr-submit — default monitor level 3; every PR instruction uses `--monitor 3`
 
 #### Changed (pr-submit)
 
 - `/sc:pr-submit` with no `--monitor` now runs level 3 (`DEFAULT_MONITOR = 3` in `superclaude.pr_submit.fsm`). A bare `/sc:pr-submit` now fixes the confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes to your branch without asking, and replies to and resolves the review comments it fixed. Use `--monitor 2` to make the fixes locally and stop before pushing, or `--monitor 0` to only open the PR. The command file had already said "default 3" since `2165ae25`; the code, the skill and the options table now agree.
 - The repository `CLAUDE.md`, the routing guide (`HOW-WE-WORK.md`, review-pr row and section 3.11), the PRD and TDD release guides, and `docs/developer-guide/contributing-code.md` now say to open PRs with `/sc:pr-submit --monitor 3` (the guides previously said `--monitor 1`). `gh pr create --repo IronbellyOrg/IronClaude ...` remains as the fallback when `/sc:pr-submit` cannot run. `docs/user-guide/commands.md` now states the level-3 default.
-- `CLAUDE.md` adds a pre-PR check that `gh repo view` reports `IronbellyOrg/IronClaude`, because `/sc:pr-submit` takes its target from it and gh prefers an `upstream` remote over `origin`.
+- `CLAUDE.md` adds a pre-PR check that `gh repo view` reports `IronbellyOrg/IronClaude`, because gh prefers an `upstream` remote over `origin`.
 - The routing guide's "Never push without approval" rule now names the one exception: after the approved push, `/sc:pr-submit --monitor 3` pushes its review and CI fixes without asking again (`--monitor 2` stops before pushing).
-- `refs/state-machine.md` §5.3 no longer describes a one-time confirmation before the first push: no wave ever performed it, and the `--yes` flag the parser accepts has no effect.
+- `refs/state-machine.md` §5.3 no longer describes a one-time confirmation before the first push: no wave ever performed it.
 - The pull request template now asks for `/sc:pr-submit --monitor 3` on `IronbellyOrg/IronClaude` and a rebase onto `origin/master`, instead of an upstream PR and `upstream/main`.
 - The routing guide's mandated per-step flags are called "required flags" instead of "safe flags" (`CLAUDE.md`, `/sc:help`, `docs/user-guide/how-we-work.md`, and the routing-table test), since `--monitor 3` is not a propose-only setting.
 - `superclaude reflect contract-status` now suggests `/sc:pr-submit --monitor 3` as the next command once the detection contract is ready.

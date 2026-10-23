@@ -5,8 +5,8 @@ This ref pins the poll surface and timing for the SKILL's attended, in-session p
 **FSM** (`superclaude.pr_submit`) does the backoff arithmetic. This split keeps `gh` out of the
 deterministic core (NFR-6) — the script touches `gh`, the core decides.
 
-> Every `gh`/`gh api` call below pins the RESOLVED `--repo <owner/repo>` (origin's `nameWithOwner`,
-> FR-1.3 / AC-7). A bare `gh` without `--repo` is a defect (T-104 greps for it).
+> Every `gh`/`gh api` call below pins the RESOLVED `--repo <owner/repo>` (origin's `owner/repo`,
+> parsed from `git remote get-url origin`; FR-1.3 / AC-7). A bare `gh` without `--repo` is a defect.
 
 ## Poll surfaces (FR-2.1)
 

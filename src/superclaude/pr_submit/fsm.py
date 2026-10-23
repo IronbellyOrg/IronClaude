@@ -19,6 +19,7 @@ and Phase 7 (the L3 push triad ``S4_PUSHING`` / ``S6_REPLYING`` / ``RESOLVING``)
 from __future__ import annotations
 
 import argparse
+import re
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -61,7 +62,7 @@ class SkillArgs:
     body: str | None = None
     output_dir: str | None = None
     resume: str | None = None
-    yes: bool = False
+    pr: int | None = None
 
     @property
     def armed(self) -> bool:
@@ -94,7 +95,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--body", default=None)
     parser.add_argument("--output-dir", dest="output_dir", default=None)
     parser.add_argument("--resume", default=None)
-    parser.add_argument("--yes", action="store_true")
+    parser.add_argument("--pr", type=int, default=None)
     return parser
 
 
@@ -115,6 +116,8 @@ def parse_args(argv: list[str]) -> SkillArgs:
         raise ValueError(MAX_ROUNDS_ERROR)
     if ns.max_rounds < 0:
         raise ValueError("--max-rounds must be >= 0")
+    if ns.pr is not None and ns.pr < 1:
+        raise ValueError("--pr must be a positive PR number")
     return SkillArgs(
         monitor=ns.monitor,
         max_rounds=ns.max_rounds,
@@ -127,7 +130,7 @@ def parse_args(argv: list[str]) -> SkillArgs:
         body=ns.body,
         output_dir=ns.output_dir,
         resume=ns.resume,
-        yes=ns.yes,
+        pr=ns.pr,
     )
 
 
@@ -475,8 +478,8 @@ def pr_target_ok(pr_url: str, target_repo: str) -> bool:
     """Whether ``pr_url`` targets ``target_repo`` — the VG-6 / FM-11 misroute check.
 
     ``target_repo`` is the RESOLVED ``owner/repo`` of the origin remote, NOT a
-    hardcoded constant: the SKILL resolves it at runtime (origin's ``nameWithOwner``,
-    fallback the origin remote URL) and passes it in. A returned URL whose owner/repo is
+    hardcoded constant: the SKILL resolves it at runtime (the origin remote URL first,
+    else the host CLI's default repo) and passes it in. A returned URL whose owner/repo is
     NOT ``target_repo`` (e.g. the host CLI silently defaulted the PR onto the upstream
     PARENT of a fork) is a misroute → the caller HALTs (`terminal_failed`) and instructs
     the operator to close it (T-108 / FM-11). Core-pure: a pure string check, no
@@ -516,6 +519,85 @@ def origin_ok(origin_url: str, target_repo: str) -> bool:
         if rest == "" or rest.startswith("."):
             return True
     return False
+
+
+_SHA40 = re.compile(r"[0-9a-fA-F]{40}")
+_BAD_BRANCH_NAMES = ("", "null", "HEAD")
+
+
+def pr_branch_ok(
+    local_branch: str | None,
+    head_ref_name: str | None,
+    cross_repo: bool | None,
+    *,
+    allow_cross_repo: bool = False,
+) -> bool:
+    """Whether the local branch is exactly the PR's head branch (head binding, Wave 0).
+
+    Exact equality, like ``origin_ok``'s boundary anchor: no prefix, path or case
+    folding, so ``fix/a`` never matches ``fix/a/b`` or ``refs/heads/fix/a``. Fails
+    closed on a missing, ``"null"`` or detached (``"HEAD"``) name. ``cross_repo`` must
+    be a real bool: ``False`` passes; ``True`` (a head on a fork) passes only with
+    ``allow_cross_repo`` (the SKILL allows it below L3, where nothing is pushed); ``None``
+    fails. Core-pure: a pure string check (the SKILL runs the remote query and passes
+    its result here).
+    """
+    for name in (local_branch, head_ref_name):
+        if not isinstance(name, str) or name in _BAD_BRANCH_NAMES:
+            return False
+    if local_branch != head_ref_name:
+        return False
+    if cross_repo is False:
+        return True
+    return allow_cross_repo is True and cross_repo is True
+
+
+def pr_head_ok(
+    local_branch: str | None,
+    local_sha: str | None,
+    head_ref_name: str | None,
+    head_ref_oid: str | None,
+    cross_repo: bool | None,
+    *,
+    allow_cross_repo: bool = False,
+) -> bool:
+    """Whether the checkout is bound to the PR head: ``pr_branch_ok`` plus equal commit ids.
+
+    Both ids must be full 40-hex strings (short, empty or ``"null"`` ids fail closed);
+    the comparison ignores case. At Wave 0 ``local_sha`` is the local HEAD; before a
+    push it is the stored pre-push SHA, never the local HEAD (that is the new fix
+    commit). Core-pure: a pure string check.
+    """
+    if not pr_branch_ok(
+        local_branch, head_ref_name, cross_repo, allow_cross_repo=allow_cross_repo
+    ):
+        return False
+    if not isinstance(local_sha, str) or not isinstance(head_ref_oid, str):
+        return False
+    if not (_SHA40.fullmatch(local_sha) and _SHA40.fullmatch(head_ref_oid)):
+        return False
+    return local_sha.lower() == head_ref_oid.lower()
+
+
+def push_parent_ok(target_parents: list[str] | None, pre_push_sha: str | None) -> bool:
+    """Whether the commit about to be pushed is exactly one commit on top of the PR head.
+
+    ``target_parents`` are the parent ids of the commit to push; ``pre_push_sha`` is the
+    stored PR head the pre-push guard just confirmed. A fast-forward push publishes every
+    commit between the two, so the push carries only the cycle's fix commit iff that
+    commit has exactly one parent and it is ``pre_push_sha``. A merge commit (two
+    parents), a root commit (none), a short, missing or ``"null"`` id fails closed; the
+    comparison ignores case. Core-pure: a pure string check (the SKILL reads the parents
+    and passes them here).
+    """
+    if not isinstance(target_parents, list) or len(target_parents) != 1:
+        return False
+    parent = target_parents[0]
+    if not isinstance(parent, str) or not isinstance(pre_push_sha, str):
+        return False
+    if not (_SHA40.fullmatch(parent) and _SHA40.fullmatch(pre_push_sha)):
+        return False
+    return parent.lower() == pre_push_sha.lower()
 
 
 def needs_rebase(commits_behind: int) -> bool:

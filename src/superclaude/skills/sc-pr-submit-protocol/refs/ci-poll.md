@@ -6,8 +6,8 @@ This ref pins the CI poll surface for the SKILL's attended, in-session poll loop
 split keeps `gh` out of the deterministic core (NFR-6).
 
 > Every `gh` call below pins the RESOLVED `--repo <owner/repo>` (origin's
-> `nameWithOwner`, FR-1.3 / AC-7). A bare `gh` without `--repo` is a defect
-> (T-104 greps for it).
+> `owner/repo`, parsed from `git remote get-url origin`; FR-1.3 / AC-7). A bare
+> `gh` without `--repo` is a defect.
 
 ## Poll surfaces (FR-CI-2 / FR-CI-10 / FR-CI-11)
 

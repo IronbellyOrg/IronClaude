@@ -43,7 +43,7 @@ This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's 
 - Push to `upstream` (the `upstream` remote name above). The `origin` remote is the correct push target.
 - Assume the upstream is the right target because gh's interactive flow suggests it. The interactive flow is the trap.
 
-**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` is what `gh repo view` reports (pre-PR check 1 makes sure that is the fork), then waits for the Augment review, fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
+**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` comes from the `origin` remote, then waits for the Augment review, fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
 
 ```text
 /sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."

@@ -42,7 +42,8 @@ def test_t502_crosscutting_escalates_to_make_test():
     )
     # shared infra (hooks) also escalates
     assert (
-        is_cross_cutting(["src/superclaude/hooks/scripts/offer-pr-review.sh"]) is True
+        is_cross_cutting(["src/superclaude/hooks/scripts/reject-workspace-writes.sh"])
+        is True
     )
 
 
