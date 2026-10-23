@@ -119,7 +119,7 @@ Q1 EXEC    Implement only that task. Touched files = paths this task created or 
            Drive-by files not implied by the AC are `extra`.
 Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
-           Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index. An empty `git diff` with new untracked writes is not `cannot-verify`.
+           Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index for this snapshot (that is not the `.dev/tasks/` rule: `.dev/tasks/` is always staged, `git add .dev/tasks`). An empty `git diff` with new untracked writes is not `cannot-verify`.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
              - extra_scope: hunks not mapped to any AC / instruction

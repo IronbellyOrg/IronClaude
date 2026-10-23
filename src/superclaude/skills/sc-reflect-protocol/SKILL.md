@@ -1647,7 +1647,7 @@ On normal completion, the checkpoint's `state` field transitions `pending` → `
 
 **Rollback.** Every promotion-log entry includes the inverse `mv` command. Reflect itself never auto-rolls-back (deferred to v1.1 — see §19).
 
-**Git status.** Reflect does NOT `git add` moved files. Operator stages and commits.
+**Git status.** Reflect does NOT `git add` moved files. Operator stages and commits. The `task` adapter moves folders under `.dev/tasks/`, which is always staged (`git add .dev/tasks`): re-stage it after the move.
 
 ### 14.5.6 Output: `promotion-log.yaml`
 

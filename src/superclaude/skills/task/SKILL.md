@@ -32,7 +32,7 @@ The skill needs one piece of information:
 
 **Task file path** (mandatory): The path to an MDTM task file to execute. This is typically in `.dev/tasks/to-do/` but can be anywhere.
 
-Under the centralized path convention, each task file lives inside its own folder: `.dev/tasks/to-do/TASK-[ID]/TASK-[ID].md`. All intermediate artifacts (research, synthesis, QA reports) go into typed subfolders within that folder. The task folder is the self-contained workspace for the entire execution.
+Under the centralized path convention, each task file lives inside its own folder: `.dev/tasks/to-do/TASK-[ID]/TASK-[ID].md`. All intermediate artifacts (research, synthesis, QA reports) go into typed subfolders within that folder. The task folder is the self-contained workspace for the entire execution. `.dev/tasks/` is always staged (`git add .dev/tasks`); never gitignore it or leave it untracked. Staging is not committing.
 
 Examples of strong input:
 - `execute .dev/tasks/to-do/TASK-SKILL-TRANSFORM-20260308-tech-reference/TASK-SKILL-TRANSFORM-20260308-tech-reference.md`

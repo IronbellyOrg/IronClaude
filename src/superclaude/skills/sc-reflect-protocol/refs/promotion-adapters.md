@@ -115,7 +115,7 @@ Where `<destination>` and `<source>` are the absolute paths recorded in the same
 2. The source path is currently empty (or did not get re-created by a subsequent reflect run).
 3. No downstream tooling has consumed the promoted artifact in a way that would be broken by the rollback (e.g., git commits, release tags).
 
-Reflect does NOT `git add` moved files. Operator stages and commits both the original promotion and any subsequent rollback.
+Reflect does NOT `git add` moved files. Operator stages and commits both the original promotion and any subsequent rollback. A `task` adapter move or rollback changes paths under `.dev/tasks/`, which is always staged (`git add .dev/tasks`).
 
 **Rollback log discoverability.** The `rollback_command` field is emitted on EVERY promotion-log entry, including:
 
