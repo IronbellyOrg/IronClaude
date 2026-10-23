@@ -27,12 +27,12 @@ This directory contains CI/CD workflows for SuperClaude Framework.
 **Status Badge**:
 
 ```markdown
-[![Tests](https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml/badge.svg)](https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml)
+[![Tests](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml/badge.svg)](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml)
 ```
 
 ### 2. **boundary-guard.yml** - Mechanical-merge Boundary Guard
 
-Flags PRs that touch the swarm mechanical-merge boundary (`src/superclaude/cli/swarm/merge.py` and its four guard tests) with a warning and a reviewer-checklist job summary.
+Flags PRs that touch the swarm mechanical-merge boundary (`src/superclaude/cli/swarm/merge.py` and its four guard tests) with a warning and a reviewer-checklist job summary. The job is advisory: it cannot block a merge.
 
 ### 3. **contract3-generator-constraint-lint.yml** - Contract #3 PR-body Check
 
@@ -40,7 +40,7 @@ Runs only on PRs that touch `gates.py`, `structural_checkers.py` or `*_validator
 
 ### 4. **pull-sync-framework.yml** - Framework Sync
 
-Scheduled (every 6 hours) and manual sync from the upstream SuperClaude_Framework repository.
+Scheduled (every 6 hours) and manual sync from the upstream SuperClaude_Framework repository. The sync does not push to master: it force-pushes to the `sync/framework` branch and opens a pull request into master, reusing an open one if there is one.
 
 ## Local Testing
 
@@ -121,7 +121,7 @@ open htmlcov/index.html
 ### Coverage upload fails
 
 - This is non-blocking (fail_ci_if_error: false)
-- Check Codecov token in repository secrets
+- The upload step passes `secrets.CODECOV_TOKEN`, so the `CODECOV_TOKEN` repository secret must exist
 
 ## Maintenance
 
