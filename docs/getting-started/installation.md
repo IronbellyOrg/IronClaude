@@ -342,9 +342,6 @@ pipx uninstall superclaude
 
 # Uninstall package (pip)
 pip uninstall superclaude
-
-# Remove the old Claude Code plugin install
-make uninstall-legacy
 ```
 
 </td>
@@ -362,8 +359,6 @@ There is no `superclaude uninstall` command. Uninstalling the package removes on
 - the hook entries and settings defaults merged into `~/.claude/settings.json` (a backup named `settings.json.bak.<timestamp>` is written before the hook merge)
 
 Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed.
-
-`make uninstall-legacy` (run from a repository checkout) runs `scripts/uninstall_legacy.sh`. It removes only the old Claude Code plugin install: `~/.claude/plugins/superclaude@superclaude`, `~/.claude/superclaude.json`, `~/.claude/superclaude_config.json`, and the `superclaude@superclaude` entry in `enabledPlugins` in `~/.claude/settings.json`. It backs these up to `~/.claude-superclaude-backup-<timestamp>` first. It does not remove anything `superclaude install` put in `~/.claude/`.
 
 A plain `superclaude install` never replaces files you already have; run `superclaude update` to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`.
 

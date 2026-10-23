@@ -1,4 +1,4 @@
-.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill reflect-eval reflect-eval-quick sync-cost-profile uninstall-legacy help
+.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill reflect-eval reflect-eval-quick sync-cost-profile help
 SHELL := /bin/bash
 
 # Installation (local source, editable) - RECOMMENDED
@@ -557,11 +557,4 @@ help:
 	@echo "  make translate       - Translate README to Chinese and Japanese"
 	@echo ""
 	@echo "🧹 Cleanup:"
-	@echo "  make uninstall-legacy - Remove old SuperClaude files from ~/.claude"
 	@echo "  make help            - Show this help message"
-
-# Remove legacy SuperClaude files from ~/.claude directory
-uninstall-legacy:
-	@echo "🧹 Cleaning up legacy SuperClaude files..."
-	@bash scripts/uninstall_legacy.sh
-	@echo ""
