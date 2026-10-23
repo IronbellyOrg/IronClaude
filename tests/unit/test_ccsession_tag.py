@@ -1115,7 +1115,9 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
     assert "Valid profiles: " + ", ".join(_bundled()["profiles"]) in result.stderr
 
 
-def _label_launch(tmp_path: Path, transcript: bool) -> list[str]:
+def _label_launch(
+    tmp_path: Path, transcript: bool, args: tuple[str, ...] = ("demo",)
+) -> tuple[str, bool]:
     home = tmp_path / "home"
     work = tmp_path / "work"
     work.mkdir(parents=True)
@@ -1141,14 +1143,14 @@ def _label_launch(tmp_path: Path, transcript: bool) -> list[str]:
         }
     )
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "demo"],
+        [str(SKILL_DIR / "ccsession"), *args],
         env=env,
         cwd=work,
         text=True,
         capture_output=True,
         check=True,
     )
-    return [result.stdout, (topics / "demo.txt").exists()]
+    return result.stdout, (topics / "demo.txt").exists()
 
 
 def test_label_with_missing_transcript_starts_new_session(tmp_path: Path) -> None:
@@ -1163,6 +1165,33 @@ def test_label_with_saved_transcript_resumes(tmp_path: Path) -> None:
     args = json.loads(stdout.strip().splitlines()[-1])
     assert args[-2:] == ["--resume", "abc12345-0000-0000-0000-000000000000"]
     assert label_kept
+
+
+@pytest.mark.parametrize(
+    ("args", "transcript"),
+    [
+        (("-p", "x"), False),
+        (("--profile", "claude", "-p", "x"), False),
+        (("demo",), False),
+        (("demo",), True),
+        (("--profile", "claude", "demo"), False),
+        (("--profile", "claude", "demo"), True),
+    ],
+)
+def test_every_launch_restores_grep_and_glob(
+    tmp_path: Path, args: tuple[str, ...], transcript: bool, monkeypatch
+) -> None:
+    # On macOS, Linux, and WSL, Claude Code leaves Grep and Glob out by default;
+    # naming either one in --allowedTools at launch brings both back, and the =
+    # form keeps the flag to one argument.
+    # The cases cover all six launch lines: untagged, new and resumed, each
+    # with and without a profile model.
+    monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+    stdout, _ = _label_launch(tmp_path, transcript=transcript, args=args)
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[:2] == ["--dangerously-skip-permissions", "--allowedTools=Grep"]
+    assert ("--model" in launched) == ("--profile" in args)
+    assert ("--resume" in launched) == transcript
 
 
 def test_private_addon_profiles_never_download_model_data(
