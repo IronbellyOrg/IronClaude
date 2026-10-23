@@ -8,7 +8,7 @@ This ref defines the three parallel discovery branches (A: release-doc, B: archi
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
+Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only tool roster; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). The worker returns the branch result as data; the parent owns the `output_path` and writes it (Section 3). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
 
 ### Branch A — Release-doc lookup
 
@@ -38,21 +38,15 @@ In the source tree under <scope> (or in <component_paths> if scope is unset), fi
 
 ## Section 2: Branch B currency-check procedure
 
-For every doc Branch B surfaces, the branch agent runs a currency check before recording a `current` verdict. The check has two signals: filesystem mtime and explicit doc-header status markers.
+Branch B discovers the doc paths, so mtimes are not a dispatch prerequisite. The worker returns preliminary `currency_verdict: unknown` for each discovered doc and quotes any Step 2 header markers in the existing `reason` field (or records no markers found). It never runs `stat` or invents timestamps. After receipt, the parent persists that preliminary result, collects `doc_mtime` / `code_mtime` epoch values for the returned paths, and finalizes each verdict with the rules below. The parent writes the finalized Branch B result before Documentation Context Card synthesis. No output-schema fields are added.
 
-### Step 1 — Filesystem mtime
+### Step 1 — Filesystem mtime (parent-collected)
 
-```
-stat -c '%Y' <doc_path>
-```
-
-Compare the returned epoch seconds against the mtime of the most recent file in the directory listed in `<component_paths>` (i.e., the code surface the doc claims to describe). Rule: if `mtime(doc) < mtime(code) - (90 days)`, the doc is at least 3 months staler than the code it describes — emit verdict `stale`.
+After discovery, the parent compares the captured `doc_mtime` against the captured mtime of the most recent file in the directory listed in `<component_paths>` (i.e., the code surface the doc claims to describe). Rule: if `mtime(doc) < mtime(code) - (90 days)`, the doc is at least 3 months staler than the code it describes — emit verdict `stale`. If either value is missing, Step 1 is "mtime unobtainable" in the combination table below.
 
 ### Step 2 — Explicit doc-header status markers
 
-```
-grep -E '^(Last reviewed|Status|Owner|Updated):' <doc_path> | head -5
-```
+The worker reads the doc header with native Read/Grep (pattern `^(Last reviewed|Status|Owner|Updated):`, first 5 matches) and returns the quoted markers in `reason`, leaving its preliminary verdict unknown. The parent uses those markers or re-reads the header to apply this step during post-receipt finalization.
 
 If the doc declares `Status: deprecated`, `Status: archived`, or `Last reviewed: <date older than 6 months>`, emit verdict `stale` regardless of mtime.
 
@@ -71,7 +65,7 @@ Both `stale` and `unknown` verdicts surface in the Documentation Context Card wi
 
 ## Section 3: Structured-output schema per branch
 
-Each branch agent writes ONE structured-output file at `<output-dir>/wave1_5-branch-<A|B|C>.md`. The schemas:
+Each branch produces ONE structured-output file at `<output-dir>/wave1_5-branch-<A|B|C>.md`. The `troubleshoot-analyst` worker returns the content as data only; the parent owns `output_path`, writes the file, and only then reads or consumes it (synthesis, Section 4). The schemas:
 
 ### Branch A schema
 
@@ -179,4 +173,4 @@ If no signals reframe the bug-as-stated, write the literal: "No documentation-de
 
 ## Loading discipline
 
-This ref is loaded only by Wave 1.5. Do not pre-load. The three branch agents receive their query templates from Section 1 by quotation in the Wave 1.5 brief; they do NOT load this entire ref. The synthesised Documentation Context Card from Section 4 is the only artifact consumed by downstream waves (Waves 1, 3, 4, 5).
+This ref is loaded only by Wave 1.5. Do not pre-load. The three branch agents receive their query templates from Section 1 by quotation in the Wave 1.5 brief; they do NOT load this entire ref. The synthesising orchestrator (parent) writes `<output-dir>/doc-context.md`; branch workers do not write files. The synthesised Documentation Context Card from Section 4 is the only artifact consumed by downstream waves (Waves 1, 3, 4, 5).

@@ -8,7 +8,7 @@ This ref defines the two parallel audit branches (A: log-call inspection at and 
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
+Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only roster: Read/Grep/Glob plus individually named read-only Auggie/Serena tools; no Bash, Write or Edit; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). Workers return branch results as data; the parent owns `output_path` and writes the file before any consumer reads it (Section 3). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
 
 ### Branch A — Log-Call Inspection
 
@@ -48,6 +48,8 @@ For each hit, return: file path, config_type (file | env_var | pipeline_config),
 
 When `mcp__auggie__codebase-retrieval` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
 
+The `troubleshoot-analyst` worker has no shell. It performs these fallbacks with the native Grep and Glob tools only, using the patterns below as search patterns (recursive search over the named target; `find`/`grep` command lines are pattern references, not commands the worker runs). The command lines may be run as shell only by the parent, never by a worker.
+
 ### Branch A fallback
 
 ```bash
@@ -77,7 +79,7 @@ When the fallback fires, set Branch B schema field `degraded` to true; reachabil
 
 ## Section 3: Structured-output schemas per branch
 
-Each branch agent writes ONE structured-output file at `<output-dir>/wave1_6-branch-<A|B>.md`. Branch A returns the inventory of diagnostic-signal call sites (logger calls, prints, exception handlers, error-reporter inits) near `<failing_component>`. Branch B returns the log-config inventory plus a derived `reachability_verdict` per Branch A hit, computed by inspecting whether the effective log level for that hit's logger reaches a sink (file, stdout, error reporter) given the discovered config.
+Each branch produces ONE structured-output file at `<output-dir>/wave1_6-branch-<A|B>.md`. The `troubleshoot-analyst` worker returns the content as data only; the parent owns `output_path`, writes the file, and only then reads or synthesises it. Branch A returns the inventory of diagnostic-signal call sites (logger calls, prints, exception handlers, error-reporter inits) near `<failing_component>`. Branch B returns the log-config inventory plus a derived `reachability_verdict` per Branch A hit, computed by inspecting whether the effective log level for that hit's logger reaches a sink (file, stdout, error reporter) given the discovered config.
 
 ### Branch A schema
 
@@ -94,7 +96,7 @@ Each branch agent writes ONE structured-output file at `<output-dir>/wave1_6-bra
 }
 ```
 
-The `captured_bytes` field is populated when the failing-run transcript referenced specific log files (sniffed via `wc -c`); otherwise null.
+The `captured_bytes` field is parent-supplied: when the failing-run transcript referenced specific log files, the parent measures their size (e.g. `wc -c`) and passes the values in the brief; the worker copies them and never measures or estimates. When the parent supplies no value the field is null (unobserved), never an invented number. The same applies to the `Captured bytes (failing run)` value in Section 6 and to the S5 comparison in Section 4: an unsupplied value is unobserved, and S5 does not fire on it.
 
 ### Branch B schema
 
@@ -250,6 +252,7 @@ When the verdict triggers tasklist emission (verdict ∈ {partial, insufficient}
 
 ### Hard constraints (non-negotiable)
 
+0. **Inert proposals; parent-owned execution.** Every task, probe, command, script and capture route in the tasklist is inert data. A `troubleshoot-analyst` worker never executes, applies or persists any of it. The parent may execute a proposed probe only at an already established trusted confined boundary (and only when the authorization/transport gate below permits); where no such boundary exists the measurement stays pending and is reported as pending, never run on an unconfined path. Runtime sniffs and byte captures are likewise parent-collected or recorded as unobserved.
 1. **Invocation-site-only**: Every task MUST target an invocation site (test script, CI workflow YAML, dev harness, container entrypoint, dev-mode config override), NEVER the failing component's own source code. Diagnostic code in production source leaks into release artifacts.
 2. **Additive only**: Every task is a pure ADD (or a config-override at an invocation site). No task modifies existing source logic. Tasks that would otherwise modify source are re-framed as config-overrides (`LOG_LEVEL=DEBUG` env var, `--debug` flag at invocation, structured-log filter relaxation in test config).
 3. **Reversible**: Every task has a Rollback line describing how to revert post-defect-closure.

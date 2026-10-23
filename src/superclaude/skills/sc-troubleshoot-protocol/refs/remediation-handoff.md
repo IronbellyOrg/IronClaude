@@ -118,7 +118,7 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
 - `success` with no blocking findings → proceed to Phase C.
 - Findings → ask "refactor the plan before running, or proceed as-is? [refactor / proceed]". On `refactor`, append the recommendation to `<output-dir>/remediation-review-notes.md` (append-only; Phase A step 1 rewrites `remediation-source.md` from scratch each pass and re-includes these notes as `## Review Feedback`, so they are never lost) and re-run Phase A — this creates a **new** package (workflow never reuses or edits an existing one; the old package stays untouched). The tasklist is never edited from findings.
 - Blocker in the report → STOP, surface it, and do not advance to Phase C until the user resolves it.
-- `reflect_status: skipped | failed` → say so and fall back to spawning the `self-review` agent on the tasklist.
+- `reflect_status: skipped | failed` → say so and fall back to a native review dispatched with `subagent_type=troubleshoot-analyst`, `lens_name=self-review` (analytical lens only, not a runtime agent type or capability grant; never the generic unrestricted `self-review` agent) on the tasklist. The worker returns its findings as data; the parent owns `output_path`, persists the review, and only then reads or acts on it. If `troubleshoot-analyst` is unavailable (project `.claude/agents/` then `~/.claude/agents/`), report the review as not performed; do not substitute an unrestricted agent.
 
 ### Phase C — Execution gate (always user-initiated)
 
@@ -190,7 +190,7 @@ BUILD_REQUEST:
 
 ### Phase B — Pre-execution review
 
-Invoke `/sc:reflect --type task --analyze <task-file>` via `Skill` (if `sc:reflect` is available — otherwise fall back to spawning the `self-review` agent on the task file).
+Invoke `/sc:reflect --type task --analyze <task-file>` via `Skill` (if `sc:reflect` is available — otherwise fall back to a native review dispatched with `subagent_type=troubleshoot-analyst`, `lens_name=self-review` on the task file; the worker returns findings as data, the parent owns `output_path` and persists the review before reading it, and if the agent is unavailable the review is reported as not performed, never replaced by an unrestricted agent).
 
 Reflect can return:
 
