@@ -39,15 +39,6 @@ jobs:
         run: |
           pytest -v --tb=short --color=yes --cov=superclaude --cov-report=xml --cov-report=term
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-
   swarm-marker-matrix:
     name: Swarm ${{ matrix.marker }} acceptance lane
     # T08.03 / NFR-007: exercises the per-IMM and per-INV swarm acceptance
