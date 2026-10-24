@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-ripOutTheFramewo-20261023-134610
+plan_path: ./TASK-WF-ripOutTheFramewo-20261023-134610.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: failed
+reflect_report_path: null
+unresolved:
+  - 'Advisory reflection failed: the reviewer could not write its mandatory REPORT.md because the Write tool rejected subagent report creation. Main did not bypass the restriction. The reviewer was stopped after continuing despite instructions to finalize the blocked run; no reflection return-contract.yaml or validated final report exists. Partial audit artifacts are preserved under .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/. The quick plan schema gate passed; this is not a passed independent review.'

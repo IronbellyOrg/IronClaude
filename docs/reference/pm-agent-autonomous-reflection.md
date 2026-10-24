@@ -2,7 +2,7 @@
 
 **Version**: 2.0
 **Date**: 2025-10-17
-**Status**: Production Ready
+**Status**: Historical design document (2025-10-17), not a description of verified current behavior. The `pm.md` sections it cites by line number are historical and belong to an earlier version: `plugins/superclaude/commands/pm.md` is now 112 lines and contains no confidence-check, self-check or evidence section (related Python helpers live in `src/superclaude/pm_agent/`). Every savings, detection-rate, accuracy and token figure below is a design target, an estimate or a number quoted from a paper or vendor; none was measured in this repository.
 
 ---
 
@@ -21,8 +21,8 @@ PM Agentの自律的振り返りとトークン最適化システム。**間違�
    - 効果: テスト結果必須、完了報告ブロック機能
 
 3. **同じ間違いの繰り返し**
-   - 解決: Reflexion Pattern (過去エラー検索)
-   - 効果: 94%のエラー検出率 (研究論文実証済み)
+   - 解決: Reflexion Pattern (過去エラー検索。明示的に呼び出す `ReflexionPattern` API で、自動ではない)
+   - 効果: 未測定 (94% は論文の数値で、このシステムで測定した値ではない / unverified: the 94% figure comes from the paper, not from this system)
 
 4. **振り返りがトークンを食う矛盾**
    - 解決: Token-Budget-Aware Reflection
@@ -38,27 +38,28 @@ PM Agentの自律的振り返りとトークン最適化システム。**間違�
 
 - PM Agentが**実装前に確信度を自己評価**します
 - **証拠なしの完了報告はブロック**されます
-- **過去の失敗から自動学習**します
+- 過去の失敗を**明示的な API で記録・検索**できます (自動学習ではありません)
 
 **What You'll Notice:**
 
 1. 不確実な時は**素直に質問してきます** (Low Confidence <70%)
 2. 完了報告時に**必ずテスト結果を提示**します
-3. 同じエラーは**2回目から即座に解決**します
+3. 記録済みの似たエラーは `get_solution()` で検索できます (最初に一致した記録を返すだけで、自動適用や即時解決の保証はありません)
 
 ### For Developers
 
 **Integration Points**:
 
 ```yaml
+# Historical: these line ranges refer to an earlier pm.md (now 112 lines, none of these sections).
 pm.md (plugins/superclaude/commands/):
-  - Line 870-1016: Self-Correction Loop (拡張済み)
+  - Line 870-1016: Self-Correction Loop (拡張済み; historical)
     - Confidence Check (Line 881-921)
     - Self-Check Protocol (Line 928-1016)
     - Evidence Requirement (Line 951-976)
     - Token Budget Allocation (Line 978-989)
 
-Implementation:
+Implementation (as claimed on 2025-10-17 for that earlier pm.md; not re-verified):
   ✅ Confidence Scoring: 3-tier system (High/Medium/Low)
   ✅ Evidence Requirement: Test results + code changes + validation
   ✅ Self-Check Questions: 4 mandatory questions before completion
@@ -179,8 +180,8 @@ Hallucination Detection (7 Red Flags):
     → Show real results
     → Report honestly
 
-Result:
-  ✅ 94% hallucination detection rate (Reflexion benchmark)
+Result (intended; not measured here):
+  ✅ 94% hallucination detection rate (figure quoted from the Reflexion paper, not measured in this system)
   ✅ Evidence-based completion reports
   ✅ No false claims
 ```
@@ -189,33 +190,33 @@ Result:
 
 **Purpose**: 過去の失敗から学習、同じ間違いを繰り返さない
 
+> **Status**: explicit API only (`src/superclaude/pm_agent/reflexion.py`). The PM agent does not call it, nothing loads it at session start, and no fix is applied automatically. The earlier "automatic tool selection", MindBase semantic search and automatic storage described here were never implemented. Full contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md).
+
 ```yaml
-When: Error detected
-Token Budget: 0 tokens (cache lookup) → 1-2K tokens (new investigation)
+When: You (or code you write) call ReflexionPattern. The only automatic use is the
+      opt-in pytest recorder (see below).
+Token Budget: unmeasured (the "0 tokens" and "1-2K tokens" figures of earlier versions are
+              design targets from the class docstring, not measurements)
 
 Process:
-  1. Check Past Errors (Automatic Tool Selection):
-     → Search conversation history for similar errors
-     → Claude automatically selects best available tool:
-       * mindbase_search (if airis-mcp-gateway installed)
-         - Semantic search across all conversations
-         - Higher recall, cross-project patterns
-       * ReflexionMemory (built-in, always available)
-         - Keyword search in reflexion.jsonl
-         - Fast, project-scoped error matching
+  1. Check past errors (explicit call):
+     → reflexion.get_solution(error_info)
+       * Builds a signature from error_type, error_message (digits become N, first
+         100 characters) and test_name
+       * Reads solutions_learned.jsonl from the top, in file order
+       * Returns the first stored row whose word-set overlap is 0.7 or higher
+         ({solution, root_cause, prevention, timestamp}), or None
+       * MindBase semantic search is NOT implemented (the hook is a stub returning None)
 
-  2. IF similar error found:
-     ✅ "⚠️ Same error occurred before"
-     ✅ "Solution: [past_solution]"
-     ✅ Apply solution immediately
-     → Skip lengthy investigation (HUGE token savings)
+  2. IF a row is returned:
+     → Read it and decide whether it applies. Nothing applies it for you, and a returned
+       row may have no solution (its fields come back as None).
 
-  3. ELSE (new error):
+  3. ELSE (None):
      → Root cause investigation (WebSearch, docs, patterns)
-     → Document solution (future reference)
-     → Store in ReflexionMemory for future sessions
+     → Record what you learned: reflexion.record_error({... solution, root_cause, prevention})
 
-  4. Self-Reflection:
+  4. Self-Reflection (a working practice, not something the code produces):
      "Reflection:
       ❌ What went wrong: JWT validation failed
       🔍 Root cause: Missing env var SUPABASE_JWT_SECRET
@@ -224,14 +225,25 @@ Process:
       📝 Learning: Add env validation to startup checklist"
 
 Storage:
-  → docs/memory/reflexion.jsonl (ReflexionMemory - ALWAYS)
-  → docs/mistakes/[feature]-YYYY-MM-DD.md (failure analysis)
-  → mindbase (if airis-mcp-gateway installed, automatic storage)
+  → <memory_dir>/solutions_learned.jsonl (default docs/memory/; one JSON object per line)
+  → <memory_dir>/../mistakes/<test_name>-YYYY-MM-DD.md (default docs/mistakes/; written only
+    when root_cause or solution is non-empty)
+  → no other backend (MindBase is not implemented)
 
-Result:
-  ✅ <10% error recurrence rate (same error twice)
-  ✅ Instant resolution for known errors (0 tokens)
-  ✅ Continuous learning and improvement
+Record fields (synthetic samples: docs/memory/reflexion.jsonl.example):
+  error_type, error_message, test_name, traceback, solution, root_cause, prevention, timestamp
+
+Marked pytest capture:
+  → A test marked @pytest.mark.reflexion whose call phase raises is recorded by the plugin
+    (test_name, test_file, error_type, error_message, traceback). It does not call
+    get_solution() and adds no solution.
+
+Privacy:
+  → Nothing is redacted. Callers must redact before recording.
+
+Result (design targets, UNVERIFIED; nothing has been measured):
+  · lower recurrence of a repeated error (earlier versions claimed "<10%")
+  · fewer tokens spent re-investigating a recorded error
 ```
 
 ### Layer 4: Token-Budget-Aware Reflection
@@ -263,7 +275,7 @@ Token Savings:
     - Trajectory compression (90% reduction)
     → 200-2,500 tokens per task
 
-  Savings: 80-98% token reduction on reflection
+  Savings: 80-98% token reduction on reflection (estimate; not measured)
 ```
 
 ---
@@ -275,16 +287,16 @@ Token Savings:
 ```yaml
 Core Implementation:
   plugins/superclaude/commands/pm.md:
-    - Line 870-1016: Self-Correction Loop (UPDATED)
+    - Line 870-1016: Self-Correction Loop (historical; that version of pm.md no longer exists, the file is now 112 lines)
     - Confidence Check + Self-Check + Evidence Requirement
 
 Research Documentation:
-  docs/research/llm-agent-token-efficiency-2025.md:
+  docs/research/llm-agent-token-efficiency-2025.md (historical; this file no longer exists in the repository):
     - Token optimization strategies
     - Industry benchmarks
     - Progressive loading architecture
 
-  docs/research/reflexion-integration-2025.md:
+  docs/research/reflexion-integration-2025.md (historical; this file no longer exists in the repository):
     - Reflexion framework integration
     - Self-reflection patterns
     - Hallucination prevention
@@ -297,11 +309,13 @@ Reference Guide:
 
 Memory Storage:
   docs/memory/solutions_learned.jsonl:
-    - Past error solutions (append-only log)
-    - Format: {"error":"...","solution":"...","date":"..."}
+    - Error records written by ReflexionPattern.record_error() (append-only log)
+    - Format: {"error_type":"...","error_message":"...","test_name":"...","solution":"...","root_cause":"...","prevention":"...","timestamp":"..."}
+    - It also holds older pattern-style rows that the lookup never matches; leave them in place
+    - Synthetic samples: docs/memory/reflexion.jsonl.example
 
   docs/memory/workflow_metrics.jsonl:
-    - Task metrics for continuous optimization
+    - Documented design for task metrics; no tracked code writes this file
     - Format: {"task_type":"...","tokens_used":N,"success":true}
 ```
 
@@ -315,27 +329,29 @@ Progressive Loading (Token Efficiency):
 Confidence Check (This System):
   → Executed AFTER Intent Classification
   → BEFORE implementation starts
-  → Prevents wrong direction (60-95% potential savings)
+  → Prevents wrong direction (60-95% potential savings; estimate, not measured)
 
 Self-Check Protocol (This System):
   → Executed AFTER implementation
   → BEFORE completion report
-  → Prevents hallucination (94% detection rate)
+  → Prevents hallucination (94% detection rate quoted from the Reflexion paper; not measured here)
 
 Reflexion Pattern (This System):
-  → Executed ON error detection
-  → Smart lookup: mindbase OR grep
-  → Prevents error recurrence (<10% repeat rate)
+  → Executed only when called explicitly (plus the opt-in pytest recorder)
+  → Lookup: local solutions_learned.jsonl, first match at 0.7 word-set overlap (no MindBase)
+  → Effect on error recurrence: unmeasured
 
-Workflow Metrics:
-  → Tracks: task_type, complexity, tokens_used, success
-  → Enables: A/B testing, continuous optimization
-  → Result: Automatic best practice adoption
+Workflow Metrics (documented design; nothing in this repository writes the file):
+  → Would track: task_type, complexity, tokens_used, success
+  → Intended to enable: A/B testing, workflow optimization
+  → Result: unmeasured; no automatic adoption exists
 ```
 
 ---
 
 ## 📈 Expected Results
+
+Every figure in this section is a design target, an estimate, or a number quoted from a paper or vendor. None was measured in this repository.
 
 ### Token Efficiency
 
@@ -343,46 +359,46 @@ Workflow Metrics:
 Phase 0 (Bootstrap):
   Old: 2,300 tokens (auto-load everything)
   New: 150 tokens (wait for user request)
-  Savings: 93% (2,150 tokens)
+  Savings: 93% (2,150 tokens; estimate, not measured)
 
 Confidence Check (Wrong Direction Prevention):
   Prevented Implementation: 0 tokens (vs 5-50K wasted)
   Low Confidence Clarification: 200 tokens (vs thousands wasted)
-  ROI: 25-250x token savings when preventing wrong implementation
+  ROI: 25-250x token savings when preventing wrong implementation (estimate, not measured)
 
 Self-Check Protocol:
   Budget: 200-2,500 tokens (complexity-dependent)
   Old Approach: Unlimited (10-50K tokens with full trajectory)
-  Savings: 80-95% on reflection cost
+  Savings: 80-95% on reflection cost (estimate, not measured)
 
-Reflexion (Error Learning):
-  Known Error: 0 tokens (cache lookup)
-  New Error: 1-2K tokens (investigation + documentation)
-  Second Occurrence: 0 tokens (instant resolution)
-  Savings: 100% on repeated errors
+Reflexion (Error Learning) - design targets, NOT measured:
+  Known Error: 0 tokens (target for a local file lookup)
+  New Error: 1-2K tokens (target for investigation + documentation)
+  Second Occurrence: lookup returns a stored row; applying it is up to the caller
+  Savings: unmeasured (earlier versions claimed 100% on repeated errors)
 
-Total Expected Savings:
+Total Expected Savings (design targets, NOT measured):
   Ultra-Light tasks: 72% reduction
   Light tasks: 66% reduction
-  Medium tasks: 36-60% reduction (depending on confidence/errors)
+  Medium tasks: 36-60% reduction (depending on confidence; the error-learning share is unmeasured)
   Heavy tasks: 40-50% reduction
-  Overall Average: 60% reduction (industry benchmark achieved)
+  Overall Average: 60% reduction (design target taken from an industry benchmark; not measured here)
 ```
 
 ### Quality Improvement
 
 ```yaml
-Hallucination Detection:
+Hallucination Detection (figure quoted from the Reflexion paper; not measured here):
   Baseline: 0% (no detection)
   With Self-Check: 94% (Reflexion benchmark)
-  Result: 94% reduction in false claims
+  Result: 94% reduction in false claims (target, not a measured result)
 
-Error Recurrence:
-  Baseline: 30-50% (same error happens again)
-  With Reflexion: <10% (instant resolution from memory)
-  Result: 75% reduction in repeat errors
+Error Recurrence (historical estimates, UNVERIFIED; nothing here has been measured):
+  Baseline: 30-50% (estimate: same error happens again)
+  With Reflexion: <10% (target)
+  Result: 75% reduction in repeat errors (derived from the two numbers above)
 
-Confidence Accuracy:
+Confidence Accuracy (targets, NOT measured):
   High Confidence → Success: >90%
   Medium Confidence → Clarification needed: ~20%
   Low Confidence → User guidance required: ~80%
@@ -401,7 +417,7 @@ Before:
 After:
   ✅ "Tests: 15/15 passed. Coverage: 87%. Complete."
   ✅ "わかりません。教えてください。" (honest)
-  ✅ "過去に同じエラー発生。即座に解決。"
+  ✅ "過去に似たエラーの記録あり。記録を確認して適用可否を判断。" (explicit lookup; the fix is not applied automatically)
   ✅ Evidence-based, honest communication
 ```
 
@@ -440,7 +456,7 @@ PM Agent:
      - Spell check: ✅ passed
      - Build: ✅ success"
 
-Tokens Used: 1,250 (Old: 2,300) = 46% savings ✅
+Tokens Used: 1,250 (Old: 2,300) = 46% savings (illustrative numbers, not a measurement)
 ```
 
 ### Example 2: Low Confidence → Clarification
@@ -474,7 +490,7 @@ User: "Use Supabase Auth with JWT. 24 hour sessions. No 2FA for now."
 PM Agent:
   Confidence: 95% (High) → Proceed with implementation
 
-Tokens Saved: 15-30K (prevented wrong implementation) ✅
+Tokens Saved: 15-30K (prevented wrong implementation; illustrative estimate, not a measurement)
 ```
 
 ### Example 3: Hallucination Detection
@@ -510,27 +526,24 @@ Result:
 ### Example 4: Reflexion Learning
 
 ```yaml
-Error: "JWTError: Missing SUPABASE_JWT_SECRET"
+Error: "ValueError: invalid port value 9090 in config file" (test_load_config)
 
-PM Agent:
-  Check Past Errors:
-    → Grep docs/memory/solutions_learned.jsonl
-    → Match found: "JWT secret missing"
+Explicit lookup (illustrative; uses the synthetic sample row, not real data):
+  reflexion = ReflexionPattern(memory_dir=<isolated test directory>/docs/memory)
+  known = reflexion.get_solution({"error_type": "ValueError",
+                                  "error_message": "invalid port value 9090 in config file",
+                                  "test_name": "test_load_config"})
 
-  Solution (Instant):
-    "⚠️ 過去に同じエラー発生済み (2025-10-15)
+  If solutions_learned.jsonl holds the first row of docs/memory/reflexion.jsonl.example
+  (9 of 10 distinct words shared = 0.90, above the 0.7 threshold), `known` is:
+    {"solution": "Validate the port is an integer in 1-65535 before binding",
+     "root_cause": "Config loader accepted any string for the port",
+     "prevention": "Add a range check to the config schema",
+     "timestamp": "2026-01-15T10:00:00.123456"}
+  Otherwise `known` is None: investigate, then record the result with record_error().
 
-     Known Solution:
-     1. Check .env.example for required variables
-     2. Copy to .env and fill in values
-     3. Restart server to load environment
-
-     Applying solution now..."
-
-  Result:
-    ✅ Problem resolved in 30 seconds (vs 30 minutes investigation)
-
-Tokens Saved: 1-2K (skipped investigation) ✅
+What happens next is up to the caller. The lookup returns a stored row; it does not
+apply the fix. No time or token savings are claimed (none were measured).
 ```
 
 ---
@@ -558,7 +571,7 @@ Performance Tests:
   - Memory lookup latency
   - Overall workflow efficiency
 
-Validation Metrics:
+Validation Metrics (targets; no measurement exists for any of them):
   - Hallucination detection: >90%
   - Error recurrence: <10%
   - Confidence accuracy: >85%
@@ -566,6 +579,8 @@ Validation Metrics:
 ```
 
 ### Monitoring
+
+Design sketch only: nothing in this repository writes `workflow_metrics.jsonl`, the record below uses fields that are not in its documented schema, and workflow metrics are separate from error learning (`solutions_learned.jsonl`).
 
 ```yaml
 Real-time Metrics (workflow_metrics.jsonl):
@@ -588,7 +603,7 @@ Weekly Analysis:
   - Average tokens per task type
   - Confidence accuracy rates
   - Hallucination detection success
-  - Error recurrence rates
+  - Error recurrence rates (unmeasured; the metrics file has no such field)
   - A/B testing results
 ```
 
@@ -625,18 +640,20 @@ Weekly Analysis:
 
 6. **CrewAI + Mem0**
    - Achievement: 90% token reduction with vector DB
-   - Application: mindbase integration strategy
+   - Application: background reading only; no MindBase integration is implemented
 
 ---
 
 ## 🚀 Next Steps
 
-### Phase 1: Production Deployment (Complete ✅)
+### Phase 1: Production Deployment (marked complete on 2025-10-17; not re-verified)
+
+The boxes below record the 2025-10-17 author's claims. The pm.md sections they referred to no longer exist, and no test of these items was run for this document.
 
 - [x] Confidence Check implementation
 - [x] Self-Check Protocol implementation
 - [x] Evidence Requirement enforcement
-- [x] Reflexion Pattern integration
+- [x] Reflexion Pattern: explicit `ReflexionPattern` API and opt-in pytest recorder (no automatic PM Agent use, no MindBase)
 - [x] Token-Budget-Aware Reflection
 - [x] Documentation and testing
 
@@ -658,5 +675,5 @@ Weekly Analysis:
 
 **End of Document**
 
-For implementation details, see `plugins/superclaude/commands/pm.md` (Line 870-1016).
-For research background, see `docs/research/reflexion-integration-2025.md` and `docs/research/llm-agent-token-efficiency-2025.md`.
+For implementation details, see `plugins/superclaude/commands/pm.md` (the originally cited Line 870-1016 refer to an earlier version; the file is now 112 lines and has no such section).
+For research background, see `docs/research/reflexion-integration-2025.md` (historical; no longer in the repository) and `docs/research/llm-agent-token-efficiency-2025.md` (historical; also no longer in the repository). The current error-record contract is in [docs/user-guide/memory-system.md](../user-guide/memory-system.md).

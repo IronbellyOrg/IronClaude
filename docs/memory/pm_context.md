@@ -1,5 +1,7 @@
 # PM Agent Context
 
+> **Status (read first)**: historical design notes dated 2025-10-17. They describe an intended token-efficient design, not verified behavior of the current repository. Every token count and percentage below is an unmeasured estimate. The MindBase and ReflexionMemory entries are superseded: `ReflexionPattern` is an explicit local-file API and MindBase is not implemented (see [docs/user-guide/memory-system.md](../user-guide/memory-system.md)). This file is not loaded by the pytest `pm_context` fixture, which creates empty temporary files.
+
 **Project**: SuperClaude_Framework
 **Type**: AI Agent Framework
 **Tech Stack**: Claude Code, MCP Servers, Markdown-based configuration
@@ -20,11 +22,13 @@ SuperClaude is a comprehensive framework for Claude Code that provides:
 - `plugins/superclaude/agents/` - Agent persona definitions
 - `plugins/superclaude/commands/` - Slash command definitions (pm.md: token-efficient redesign)
 - `docs/` - Documentation and patterns
-- `docs/memory/` - PM Agent session state (local files)
-- `docs/pdca/` - PDCA cycle documentation per feature
-- `docs/research/` - Research reports (llm-agent-token-efficiency-2025.md)
+- `docs/memory/` - Local memory files and notes (error records written by `ReflexionPattern`, workflow metrics, these notes)
+- `docs/pdca/` - PDCA cycle documentation per feature (historical; the directory does not exist in the repository)
+- `docs/research/` - Research reports (historical; the directory and `llm-agent-token-efficiency-2025.md` no longer exist in the repository)
 
 ## Token Efficiency Architecture (2025-10-17 Redesign)
+
+The token costs and reductions in this section are design targets and estimates, not measurements.
 
 ### Layer 0: Bootstrap (Always Active)
 
@@ -44,25 +48,27 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 
 ### Progressive Loading (5-Layer Strategy)
 
-- **Layer 1**: Minimal context (mindbase: 500 tokens | fallback: 800 tokens)
+- **Layer 1**: Minimal context (historical estimate with mindbase: 500 tokens | fallback: 800 tokens; mindbase is not implemented)
 - **Layer 2**: Target context (500-1K tokens)
-- **Layer 3**: Related context (mindbase: 3-4K | fallback: 4.5K)
+- **Layer 3**: Related context (historical estimate with mindbase: 3-4K | fallback: 4.5K)
 - **Layer 4**: System context (8-12K tokens, user confirmation)
 - **Layer 5**: External research (20-50K tokens, WARNING required)
 
 ### Workflow Metrics Collection
 
 - **File**: `docs/memory/workflow_metrics.jsonl`
-- **Purpose**: Continuous A/B testing for workflow optimization
+- **Purpose**: Continuous A/B testing for workflow optimization (documented design; see [WORKFLOW_METRICS_SCHEMA.md](WORKFLOW_METRICS_SCHEMA.md); no tracked code writes the file)
 - **Data**: task_type, complexity, workflow_id, tokens_used, time_ms, success
-- **Strategy**: ε-greedy (80% best workflow, 20% experimental)
+- **Strategy**: ε-greedy (80% best workflow, 20% experimental), a design intent
+- Workflow metrics are separate from error learning
 
 ### Error Learning & Memory Integration
 
-- **ReflexionMemory (built-in)**: Layer 1: 650 tokens | Layer 3: 3.5-4K tokens
-- **mindbase (optional)**: Layer 1: 500 tokens | Layer 3: 3-3.5K tokens (semantic search)
-- **Profile**: Requires airis-mcp-gateway "recommended" profile for mindbase
-- **Savings**: 20-35% with ReflexionMemory, additional 10-15% with mindbase enhancement
+Superseded. The original entries here described an automatic "ReflexionMemory" and an optional "mindbase" with per-layer token costs and savings. What exists today:
+
+- **ReflexionPattern**: an explicit Python API (`src/superclaude/pm_agent/reflexion.py`) that stores error records in `solutions_learned.jsonl` and returns the first stored row at 0.7 word-set overlap. Nothing loads it automatically.
+- **mindbase**: optional external service you install yourself; the Python hook for it is an unimplemented stub, and its availability is unverified.
+- **Historical estimates (unmeasured, not current claims)**: ReflexionMemory Layer 1 650 tokens and Layer 3 3.5-4K; mindbase Layer 1 500 and Layer 3 3-3.5K; savings of 20-35% and an additional 10-15%.
 
 ## Active Patterns
 
@@ -70,7 +76,7 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 - **PDCA Cycle**: Plan → Do → Check → Act documentation workflow
 - **Self-Evaluation Checklists**: Replace Serena MCP `think_about_*` functions
 - **User Request First**: Bootstrap → Wait → Intent → Progressive Load → Execute
-- **Continuous Optimization**: A/B testing via workflow_metrics.jsonl
+- **Continuous Optimization**: A/B testing via workflow_metrics.jsonl (design intent; no tracked code writes the file)
 
 ## Recent Changes (2025-10-17)
 
@@ -79,20 +85,20 @@ Ultra-Heavy (20K+ tokens):      "redesign", "migration" → Layer 5 (full + rese
 - **Removed**: Auto-loading 7 files on startup (2,300 tokens wasted)
 - **Added**: Layer 0 Bootstrap (150 tokens) + Intent Classification
 - **Added**: Progressive Loading (5-layer) + Workflow Metrics
-- **Result**:
+- **Estimated result (unmeasured)**:
   - Ultra-Light tasks: 2,300 → 650 tokens (72% reduction)
   - Light tasks: 3,500 → 1,200 tokens (66% reduction)
   - Medium tasks: 7,000 → 4,500 tokens (36% reduction)
 
 ### Research Integration
 
-- **Report**: `docs/research/llm-agent-token-efficiency-2025.md`
-- **Benchmarks**: Trajectory Reduction (99%), AgentDropout (21.6%), Vector DB (90%)
+- **Report**: `docs/research/llm-agent-token-efficiency-2025.md` (historical; no longer in the repository)
+- **Benchmarks**: Trajectory Reduction (99%), AgentDropout (21.6%), Vector DB (90%), as quoted by that report; not verified here
 - **Source**: Anthropic, Microsoft AutoGen v0.4, CrewAI + Mem0, LangChain
 
 ## Known Issues
 
-None currently.
+None were recorded on 2025-10-17. Later changes (described in the status note at the top) supersede parts of this file.
 
 ## Last Updated
 

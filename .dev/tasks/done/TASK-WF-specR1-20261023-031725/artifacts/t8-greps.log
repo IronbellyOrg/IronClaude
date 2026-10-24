@@ -1,0 +1,44 @@
+$ grep -n 'IronbellyOrg/IronClaude/actions/workflows/test.yml' .github/workflows/README.md
+30:[![Tests](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml/badge.svg)](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml)
+$ grep -o 'IronbellyOrg/IronClaude/actions/workflows/test.yml' .github/workflows/README.md | wc -l
+2
+$ grep '^\[!\[Tests\]' .github/workflows/README.md | grep -c 'SuperClaude-Org'
+0
+$ grep -c 'SuperClaude-Org/SuperClaude_Framework/actions' .github/workflows/README.md
+0
+
+$ uv run python .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t8-check.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+PASS badge: exactly one badge line
+PASS badge: 'IronbellyOrg/IronClaude/actions/workflows/test.yml' twice
+PASS badge: 'SuperClaude-Org' zero times
+PASS badge: image is /badge.svg and link ends test.yml)
+PASS file: no 'SuperClaude-Org/SuperClaude_Framework/actions' anywhere
+PASS coverage: exactly one bullet other than the fail_ci_if_error one
+PASS coverage: that bullet contains CODECOV_TOKEN and secrets.CODECOV_TOKEN
+PASS coverage: the fail_ci_if_error bullet is unchanged
+PASS boundary-guard: contains 'advisory' and 'cannot block'
+PASS boundary-guard: no 'gates', no 'branch protection must require'
+PASS pull-sync: contains 'sync/framework', 'pull request', 'does not push to master'
+PASS diff: only the badge line, Codecov bullet and the two entry paragraphs changed (4 base lines)  [4 base lines changed; []]
+PASS README: all heading lines identical to base
+RESULT ALL PASS
+rc=0
+
+$ diff <(git show $(cat ./artifacts/t1-head.txt):.github/workflows/README.md) .github/workflows/README.md > ./artifacts/t8-readme.diff   (rc=1: files differ)
+30c30
+< [![Tests](https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml/badge.svg)](https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml)
+---
+> [![Tests](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml/badge.svg)](https://github.com/IronbellyOrg/IronClaude/actions/workflows/test.yml)
+35c35
+< Flags PRs that touch the swarm mechanical-merge boundary (`src/superclaude/cli/swarm/merge.py` and its four guard tests) with a warning and a reviewer-checklist job summary.
+---
+> Flags PRs that touch the swarm mechanical-merge boundary (`src/superclaude/cli/swarm/merge.py` and its four guard tests) with a warning and a reviewer-checklist job summary. The job is advisory: it cannot block a merge.
+43c43
+< Scheduled (every 6 hours) and manual sync from the upstream SuperClaude_Framework repository.
+---
+> Scheduled (every 6 hours) and manual sync from the upstream SuperClaude_Framework repository. The sync does not push to master: it force-pushes to the `sync/framework` branch and opens a pull request into master, reusing an open one if there is one.
+124c124
+< - Check Codecov token in repository secrets
+---
+> - The upload step passes `secrets.CODECOV_TOKEN`, so the `CODECOV_TOKEN` repository secret must exist

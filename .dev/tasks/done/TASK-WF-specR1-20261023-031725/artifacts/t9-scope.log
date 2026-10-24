@@ -1,0 +1,131 @@
+$ bash .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-scope.sh
+== 1. scripts/README.md publish-pypi.yml mentions
+$ grep -c 'publish-pypi.yml' scripts/README.md
+1
+$ grep -n 'publish-pypi.yml' scripts/README.md
+7:The `.github/workflows/publish-pypi.yml` workflow was removed in PR 280. This fork is not published to PyPI; it is installed from git, as CLAUDE.md states:
+PASS 1 mention and that line says the workflow was removed
+$ grep -n 'git+https://github.com/IronbellyOrg/IronClaude' scripts/README.md
+9:- `pipx install git+https://github.com/IronbellyOrg/IronClaude`, then `superclaude install`
+PASS new text contains git+https://github.com/IronbellyOrg/IronClaude
+
+== 2. scripts/README.md diff against the Task 1 baseline (saved to ./artifacts/t9-scripts-readme.diff)
+$ diff <(git show $(cat ./artifacts/t1-head.txt):scripts/README.md) scripts/README.md > ./artifacts/t9-scripts-readme.diff
+rc=1 (1 = files differ)
+7c7
+< The `.github/workflows/publish-pypi.yml` workflow builds the package with `python -m build`, validates it with `twine check`, and uploads it:
+---
+> The `.github/workflows/publish-pypi.yml` workflow was removed in PR 280. This fork is not published to PyPI; it is installed from git, as CLAUDE.md states:
+9,12c9
+< - **On a published GitHub release**: uploads to PyPI.
+< - **Manual run (`workflow_dispatch`)** with the `target` input:
+<   - `testpypi` (default): uploads to TestPyPI, then a separate job installs the package from TestPyPI as a smoke test.
+<   - `pypi`: uploads to PyPI. No install test runs for this target.
+---
+> - `pipx install git+https://github.com/IronbellyOrg/IronClaude`, then `superclaude install`
+hunk headers (left side = base line range):
+7c7
+9,12c9
+PASS all changes are inside old lines 7-12
+
+== 3. hashes of every baseline-hashed path (saved to ./artifacts/t9-hashes-after.txt)
+$ for each path in ./artifacts/t1-hashes-before.txt: sha256sum <path>, or 'MISSING <path>' if it no longer exists
+lines: before=70 after=70
+$ cmp ./artifacts/t1-hashes-before.txt ./artifacts/t9-hashes-after.txt
+rc=0
+PASS cmp exits 0: no baseline-hashed file changed
+
+== 4. status after (saved to ./artifacts/t9-status-after.txt) versus ./artifacts/t1-status-before.txt
+$ git status --porcelain -uall -z | tr "\0" "\n"   # saved to artifacts/t9-status-after.txt
+lines: before=75 after=109
+$ comm -13 <(sort ./artifacts/t1-status-before.txt) <(sort ./artifacts/t9-status-after.txt)   # entries new since the baseline
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T2/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T3/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T4/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T5/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T6/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T7/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T8/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T9/q0-head
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-hashes-before.txt
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-head.txt
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-status-before.txt
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t2-codecov-v4.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t3-github-prereqs.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-check.py
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-after.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-before.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render.diff
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-check.py
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-fix1-notes.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-stub-run.sh
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t7-check.py
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t7-codecov-note.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t8-check.py
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t8-readme.diff
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-hashes-after.txt
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-leftovers.md
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-scope.sh
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-scripts-readme.diff
+?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-status-after.txt
+ M .github/workflows/boundary-guard.yml
+ M .github/workflows/pull-sync-framework.yml
+ M .github/workflows/README.md
+ M .github/workflows/test.yml
+ M scripts/README.md
+$ comm -23 <(sort ./artifacts/t1-status-before.txt) <(sort ./artifacts/t9-status-after.txt)   # baseline entries that disappeared
+PASS no baseline entry disappeared
+
+Classification of the new entries:
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T2/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T3/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T4/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T5/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T6/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T7/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T8/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/retries/T9/q0-head
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-hashes-before.txt
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-head.txt
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t1-status-before.txt
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t2-codecov-v4.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t3-github-prereqs.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-check.py
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-after.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-before.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render.diff
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-check.py
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-fix1-notes.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-stub-run.sh
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t7-check.py
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t7-codecov-note.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t8-check.py
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t8-readme.diff
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-hashes-after.txt
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-leftovers.md
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-scope.sh
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-scripts-readme.diff
+allowed         ?? .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t9-status-after.txt
+allowed          M .github/workflows/boundary-guard.yml
+allowed          M .github/workflows/pull-sync-framework.yml
+allowed          M .github/workflows/README.md
+allowed          M .github/workflows/test.yml
+allowed          M scripts/README.md
+
+### Tooling output
+(none)
+PASS every new entry is under .github/workflows/, is scripts/README.md, is under this package, or is tooling output
+
+== 5. positive checks
+$ git status --porcelain -- .github/workflows/pull-sync-framework.yml .github/workflows/boundary-guard.yml .github/workflows/test.yml .github/workflows/README.md scripts/README.md
+ M .github/workflows/README.md
+ M .github/workflows/boundary-guard.yml
+ M .github/workflows/pull-sync-framework.yml
+ M .github/workflows/test.yml
+ M scripts/README.md
+PASS all five files are listed as modified
+$ git status --porcelain -- src tests Makefile pyproject.toml .claude
+PASS nothing under src, tests, Makefile, pyproject.toml, .claude that is not in the baseline
+
+RESULT ALL PASS
+rc=0

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-spec-20261022-211556
+plan_path: ./TASK-WF-spec-20261022-211556.md
+source_path: ./source.md
+source_origin: .dev/proposals/ci-followup-20261022/spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/REPORT.md
+unresolved:
+  - "reflect verdict not_ready: 10 medium findings (acceptance bullets in Tasks 5, 6, 8 pass wrong edits; Tasks 2, 6, 9 checks can fail a correct run); plan not edited per protocol"
