@@ -1,0 +1,8 @@
+Command: PYTHONDONTWRITEBYTECODE=1 uv run --no-sync python .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/artifacts/check_test_workflow.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+PASS: workflow differs only by the complete approved upload-step deletion
+PASS: YAML parses; coverage step, XML and terminal reports, jobs and settings preserved
+PASS: unchanged pyproject.toml
+PASS: unchanged src/superclaude/templates/documents/readme_template.md
+exit_code=0
+Extras: lint=skip (ruff not installed), typecheck=skip (mypy not installed), test=pass (task-owned runnable workflow assertions); no tools installed.

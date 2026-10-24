@@ -1,0 +1,20 @@
+--- .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-before.md	2026-10-23 04:17:22.540383803 +0000
++++ .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t5-render-after.md	2026-10-23 04:17:22.552384085 +0000
+@@ -2,7 +2,7 @@
+ HEAD_SHA=b0de1479267353fa77d56cf9d1b59ee57b27138d
+ 
+ ## stdout
+-::warning title=Mechanical-merge boundary touched::This PR modifies the caller-facing neutrality boundary in src/superclaude/cli/swarm/merge.py or one of its four structural guards. Human review is required before merge -- the merge module is intentionally pinned at <=30 LOC and must remain free of sort / score / dedup / filter / rewrite operations (AC-011, AC-012, NFR-008, NFR-009).
++::warning title=Mechanical-merge boundary touched::This PR modifies the caller-facing neutrality boundary in src/superclaude/cli/swarm/merge.py or one of its four structural guards. This check is advisory only and does not block the merge; human review is recommended -- the merge module is intentionally pinned at <=30 LOC and must remain free of sort / score / dedup / filter / rewrite operations (AC-011, AC-012, NFR-008, NFR-009).
+ 
+ ## GITHUB_STEP_SUMMARY
+ ## Mechanical-merge boundary touched
+@@ -20,7 +20,7 @@
+    imports per NFR-008). Verified by
+    `tests/swarm/test_merge_loc_ceiling.py`.
+ 3. **PR-review discipline** -- this workflow flags the
+-   touch; branch protection must require this check.
++   touch and is advisory only; it cannot block a merge.
+ 4. **Boundary test** -- `tests/swarm/test_merge_mechanical_only.py`
+    asserts 3-worker concat preserves slot-index order,
+    verbatim bodies, and provenance-header-only output.

@@ -1,0 +1,79 @@
+$ bash .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t6-stub-run.sh
+repo root: /config/workspace/IronClaude/.dev/worktrees/ci-followup
+work dir:  /tmp/t6-stub.BpQmPF
+PASS work dir is outside the repository
+$ uv run python -c <extract run body of step "Commit and Push Changes"> < .github/workflows/pull-sync-framework.yml > $WORK/body.sh
+body lines: 30
+$ git init -b master && git config user.name t && git config user.email t@example.invalid && git config commit.gpgsign false && initial commit (real git)
+PASS throwaway repo top-level is the work dir
+
+=== run (a): GH_LIST_COUNT=0 GH_LIST_FAIL=0 ===
+$ STUB_LOG=$WORK/stub.log GH_LIST_COUNT=0 GH_LIST_FAIL=0 PATH=$WORK/stubs:$PATH GITHUB_REPOSITORY=IronbellyOrg/IronClaude bash -e $WORK/body.sh
+--- step output
+[master 36c5ba0] chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+ 1 file changed, 1 insertion(+)
+ create mode 100644 commands/a.md
+https://github.com/IronbellyOrg/IronClaude/pull/0
+--- stub log (git subcommand calls that matter, and every gh call)
+git commit -m chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+git push --force origin HEAD:refs/heads/sync/framework
+gh pr list --repo IronbellyOrg/IronClaude --head sync/framework --base master --state open --json number --jq length
+gh pr create --repo IronbellyOrg/IronClaude --base master --head sync/framework --title chore: automated sync from framework --body Automated sync of upstream framework changes, opened by the Pull Sync from Framework workflow. Review before merging.
+exit code: 0
+PASS (a) exit 0
+PASS (a) exactly one push, to HEAD:refs/heads/sync/framework
+PASS (a) one gh pr list
+PASS (a) exactly one gh pr create with --base master --head sync/framework
+PASS (a) both gh calls got --repo IronbellyOrg/IronClaude (from $GITHUB_REPOSITORY)
+PASS (a) one new commit in the throwaway repo
+
+=== run (b): GH_LIST_COUNT=1 GH_LIST_FAIL=0 ===
+$ STUB_LOG=$WORK/stub.log GH_LIST_COUNT=1 GH_LIST_FAIL=0 PATH=$WORK/stubs:$PATH GITHUB_REPOSITORY=IronbellyOrg/IronClaude bash -e $WORK/body.sh
+--- step output
+[master f4186c2] chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+ 1 file changed, 1 insertion(+)
+ create mode 100644 commands/b.md
+An open pull request from sync/framework already exists - reusing it.
+--- stub log (git subcommand calls that matter, and every gh call)
+git commit -m chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+git push --force origin HEAD:refs/heads/sync/framework
+gh pr list --repo IronbellyOrg/IronClaude --head sync/framework --base master --state open --json number --jq length
+exit code: 0
+PASS (b) exit 0
+PASS (b) one push
+PASS (b) one gh pr list
+PASS (b) zero gh pr create (open pull request reused)
+PASS (b) reuse message printed
+
+=== run (c): GH_LIST_COUNT=0 GH_LIST_FAIL=0 ===
+$ STUB_LOG=$WORK/stub.log GH_LIST_COUNT=0 GH_LIST_FAIL=0 PATH=$WORK/stubs:$PATH GITHUB_REPOSITORY=IronbellyOrg/IronClaude bash -e $WORK/body.sh
+--- step output
+No changes detected.
+--- stub log (git subcommand calls that matter, and every gh call)
+exit code: 0
+PASS (c) exit 0
+PASS (c) output 'No changes detected.'
+PASS (c) no push
+PASS (c) no gh call
+
+=== run (d): GH_LIST_COUNT=0 GH_LIST_FAIL=1 ===
+$ STUB_LOG=$WORK/stub.log GH_LIST_COUNT=0 GH_LIST_FAIL=1 PATH=$WORK/stubs:$PATH GITHUB_REPOSITORY=IronbellyOrg/IronClaude bash -e $WORK/body.sh
+--- step output
+[master 7ea0900] chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+ 1 file changed, 1 insertion(+)
+ create mode 100644 commands/d.md
+gh: simulated failure
+--- stub log (git subcommand calls that matter, and every gh call)
+git commit -m chore: automated sync and namespace isolation from framework [2026-10-23 04:30]
+git push --force origin HEAD:refs/heads/sync/framework
+gh pr list --repo IronbellyOrg/IronClaude --head sync/framework --base master --state open --json number --jq length
+exit code: 1
+PASS (d) exit non-zero (1)
+PASS (d) gh pr list was attempted
+PASS (d) no gh pr create call
+
+$ rm -rf $WORK   (a mktemp -d directory under /tmp)
+PASS work dir removed
+
+RESULT ALL PASS
+rc=0

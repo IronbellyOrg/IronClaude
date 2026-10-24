@@ -3,6 +3,8 @@
 **Date**: 2025-10-17
 **Purpose**: Validate PM Agent token-efficient architecture implementation
 
+> **Status (read first)**: this is a historical record written on 2025-10-17, not a current validation. Its checkmarks, "implemented", "tested" and "achieved" statements were not machine-verified for the present repository, its line references into `plugins/superclaude/commands/pm.md` point at an earlier version (that file is now 112 lines), and every token count and percentage is an estimate that was never measured. The ReflexionMemory and mindbase passages are superseded: `ReflexionPattern` is an explicit local-file API and MindBase is not implemented (see [docs/user-guide/memory-system.md](../user-guide/memory-system.md)). Workflow metrics are a separate data flow; no tracked code writes `workflow_metrics.jsonl`.
+
 ---
 
 ## ✅ Implementation Checklist
@@ -39,6 +41,8 @@
 
 ### Workflow Metrics Collection
 
+(Documented design only; see [WORKFLOW_METRICS_SCHEMA.md](WORKFLOW_METRICS_SCHEMA.md). No tracked code writes the file.)
+
 - ✅ System implemented in `pm.md:225-289`
 - ✅ File location: `docs/memory/workflow_metrics.jsonl` (append-only)
 - ✅ Data structure defined (timestamp, session_id, task_type, complexity, tokens_used, etc.)
@@ -54,7 +58,7 @@
 
 ### Documentation Updates
 
-- ✅ Research report saved: `docs/research/llm-agent-token-efficiency-2025.md`
+- ✅ Research report saved: `docs/research/llm-agent-token-efficiency-2025.md` (historical claim; the file no longer exists in the repository)
 - ✅ Context file updated: `docs/memory/pm_context.md`
 - ✅ Behavioral Flow section updated in `pm.md:429-453`
 
@@ -63,6 +67,8 @@
 ## 📊 Expected Token Savings
 
 ### Baseline Comparison
+
+All token counts and percentages in this section are estimates from 2025-10-17; none was measured.
 
 **OLD Architecture (Deprecated)**:
 
@@ -95,28 +101,21 @@
 
 ## 🎯 Error Learning & Memory Integration
 
-### Token Savings with Error Learning
+### Token Savings with Error Learning (superseded; historical estimates)
 
-**Built-in ReflexionMemory (Always Available)**:
+The original text of this section described an always-available "ReflexionMemory" and an optional "mindbase" with token costs and savings. That description is superseded. What exists today: `ReflexionPattern` (`src/superclaude/pm_agent/reflexion.py`) is an explicit API that stores error records in `solutions_learned.jsonl` and returns the first stored row at 0.7 word-set overlap; nothing loads it automatically; MindBase is an unimplemented stub and any external deployment is optional and unverified.
 
-- Layer 1 (Minimal Context): 500-650 tokens (keyword search)
-- Layer 3 (Related Context): 3,500-4,000 tokens
-- **Savings: 20-35% vs. no memory**
+The figures below are the historical estimates. They were never measured and are not current claims:
 
-**Optional mindbase Enhancement (airis-mcp-gateway "recommended" profile)**:
-
-- Layer 1: 400-500 tokens (semantic search, better recall)
-- Layer 3: 3,000-3,500 tokens (cross-project patterns)
-- **Additional savings: 10-15% vs. ReflexionMemory**
-
-**Industry Benchmark**: 90% token reduction with vector database (CrewAI + Mem0)
-
-**Note**: SuperClaude provides significant token savings with built-in ReflexionMemory.
-Mindbase offers incremental improvement via semantic search when installed.
+- ReflexionMemory: Layer 1 500-650 tokens, Layer 3 3,500-4,000 tokens, savings of 20-35% versus no memory
+- mindbase: Layer 1 400-500 tokens, Layer 3 3,000-3,500 tokens, additional savings of 10-15%
+- Industry benchmark quoted at the time: 90% token reduction with a vector database (CrewAI + Mem0); not verified here
 
 ---
 
 ## 🔄 Continuous Optimization Framework
+
+Design intent from 2025-10-17. No tracked code runs this A/B testing or writes the metrics file.
 
 ### A/B Testing Strategy
 
@@ -135,6 +134,8 @@ Mindbase offers incremental improvement via semantic search when installed.
 
 ### Expected Improvement Trajectory
 
+Projection from 2025-10-17; none of it was measured.
+
 - **Month 1**: Baseline measurement (current implementation)
 - **Month 2**: First optimization cycle (identify best workflows per task type)
 - **Month 3**: Second optimization cycle (15-25% additional token reduction)
@@ -145,6 +146,8 @@ Mindbase offers incremental improvement via semantic search when installed.
 ## ✅ Validation Status
 
 ### Architecture Components
+
+Statuses in this section are the 2025-10-17 author's claims, not re-verified.
 
 - ✅ Layer 0 Bootstrap: Implemented and tested
 - ✅ Intent Classification: Keywords and examples complete
@@ -157,9 +160,11 @@ Mindbase offers incremental improvement via semantic search when installed.
 1. Real-world usage testing (track actual token consumption)
 2. Workflow metrics collection (start logging data)
 3. A/B testing framework activation (after sufficient data)
-4. mindbase integration testing (verify 38-90% savings)
+4. mindbase integration testing (verify 38-90% savings) - historical item; no MindBase integration is implemented
 
 ### Success Criteria
+
+(The "achieved" markers below are the 2025-10-17 author's claims and were not re-verified; the 60% item was never validated.)
 
 - ✅ Session startup: <200 tokens (achieved: 150 tokens)
 - ✅ Ultra-light tasks: <1K tokens (achieved: 850-1,150 tokens)
@@ -171,11 +176,11 @@ Mindbase offers incremental improvement via semantic search when installed.
 
 ## 📚 References
 
-- **Research Report**: `docs/research/llm-agent-token-efficiency-2025.md`
+- **Research Report**: `docs/research/llm-agent-token-efficiency-2025.md` (historical; no longer in the repository)
 - **Context File**: `docs/memory/pm_context.md`
-- **PM Specification**: `plugins/superclaude/commands/pm.md` (lines 67-793)
+- **PM Specification**: `plugins/superclaude/commands/pm.md` (the lines originally cited, 67-793, refer to an earlier version; the file is now 112 lines)
 
-**Industry Benchmarks**:
+**Industry Benchmarks** (as quoted at the time; not verified here):
 
 - Anthropic: 39% reduction with orchestrator pattern
 - AgentDropout: 21.6% reduction with dynamic agent exclusion
@@ -184,8 +189,8 @@ Mindbase offers incremental improvement via semantic search when installed.
 
 ---
 
-## 🎉 Implementation Complete
+## 🎉 Implementation Complete (2025-10-17 conclusion, not re-verified)
 
-All token efficiency improvements have been successfully implemented. The PM Agent now starts with 150 tokens (95% reduction) and loads context progressively based on task complexity, with continuous optimization through A/B testing and workflow metrics collection.
+The original conclusion read as follows; treat it as the author's claim at the time, not a verified result: all token efficiency improvements have been successfully implemented. The PM Agent now starts with 150 tokens (95% reduction) and loads context progressively based on task complexity, with continuous optimization through A/B testing and workflow metrics collection.
 
 **End of Validation Report**

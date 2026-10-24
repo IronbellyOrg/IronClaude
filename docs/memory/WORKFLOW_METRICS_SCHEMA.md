@@ -4,6 +4,8 @@
 
 **File**: `docs/memory/workflow_metrics.jsonl` (append-only log)
 
+> **Status (read first)**: this is a *documented* schema from the 2025-10-17 design, not a record of measured results. No tracked code in this repository writes the file (the two analysis scripts, `scripts/analyze_workflow_metrics.py` and `scripts/ab_test_workflows.py`, only read it), nothing validates the fields, and none of the figures below was measured. Workflow metrics are a separate data flow from error learning: error records live in `solutions_learned.jsonl` (see [docs/user-guide/memory-system.md](../user-guide/memory-system.md)).
+
 ## Data Structure (JSONL Format)
 
 Each line is a complete JSON object representing one workflow execution.
@@ -19,7 +21,7 @@ Each line is a complete JSON object representing one workflow execution.
   "tokens_used": 650,
   "time_ms": 1800,
   "files_read": 1,
-  "mindbase_used": false,
+  "error_search_tool": "none",
   "sub_agents": [],
   "success": true,
   "user_feedback": "satisfied",
@@ -48,7 +50,7 @@ Each line is a complete JSON object representing one workflow execution.
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
 | `files_read` | integer | Number of files read | `1` |
-| `error_search_tool` | string | Tool used for error search | `"mindbase_search"`, `"ReflexionMemory"`, `"none"` |
+| `error_search_tool` | string | Documented optional metric: which error-search tool was used, if any. Free text; not automatically emitted and not validated. Replaces the older `mindbase_used` boolean (one existing record in `workflow_metrics.jsonl` still carries `mindbase_used`; that data is deliberately left unchanged) | `"none"`, `"local_file"` |
 | `sub_agents` | array | Delegated sub-agents | `["backend-architect", "quality-engineer"]` |
 | `user_feedback` | string | Inferred user satisfaction | `"satisfied"`, `"neutral"`, `"unsatisfied"` |
 | `notes` | string | Implementation notes | `"Used cached solution"` |
@@ -138,6 +140,8 @@ ultra_heavy:
 
 ## Recording Points
 
+> The snippets in this section are an illustrative design sketch (functions such as `generate_session_id()` and `calculate_tokens()` are not defined anywhere). Nothing in this repository runs them.
+
 ### Session Start (Layer 0)
 
 ```python
@@ -189,6 +193,8 @@ with open("docs/memory/workflow_metrics.jsonl", "a") as f:
 ```
 
 ## Analysis Scripts
+
+The outputs shown below are illustrative examples, not real results.
 
 ### Weekly Analysis
 
@@ -336,6 +342,8 @@ print(workflow_efficiency.sort_values('tokens_used'))
 
 ### Healthy Metrics (After 1 Month)
 
+These are design targets from 2025-10-17, not measured results.
+
 ```yaml
 token_efficiency:
   ultra_light: 750-1,050 tokens (63% reduction)
@@ -369,9 +377,9 @@ warning_signs:
 
 ## Integration with PM Agent
 
-### Automatic Recording
+### Recording (design intent, not verified)
 
-PM Agent automatically records metrics at each execution point:
+The design intended the PM Agent to record metrics at these execution points. No tracked code in this repository performs the recording, so treat the list as a design description, not a guarantee:
 
 - Session start (Layer 0)
 - Intent classification (Layer 1)
@@ -379,12 +387,10 @@ PM Agent automatically records metrics at each execution point:
 - Task completion
 - Session end
 
-### No Manual Intervention
+### Storage
 
-- All recording is automatic
-- No user action required
-- Transparent operation
-- Privacy-preserving (local files only)
+- The file is local (`docs/memory/`); nothing in this repository sends it elsewhere
+- Nothing validates or redacts the fields; whoever writes a record is responsible for its content
 
 ## Privacy and Security
 
@@ -397,6 +403,8 @@ PM Agent automatically records metrics at each execution point:
 
 ### Sensitive Data Handling
 
+Design intent only; nothing in this repository enforces it.
+
 - No code snippets logged
 - No user input content
 - Only metadata (tokens, timing, success)
@@ -404,27 +412,12 @@ PM Agent automatically records metrics at each execution point:
 
 ## Maintenance
 
-### File Rotation
+### Rotation and Cleanup
 
-```bash
-# Archive old metrics (monthly)
-mv docs/memory/workflow_metrics.jsonl \
-   docs/memory/archive/workflow_metrics_2025-10.jsonl
-
-# Start fresh
-touch docs/memory/workflow_metrics.jsonl
-```
-
-### Cleanup
-
-```bash
-# Remove metrics older than 6 months
-find docs/memory/archive/ -name "workflow_metrics_*.jsonl" \
-  -mtime +180 -delete
-```
+No rotation or cleanup runs automatically, and this document no longer gives move or delete commands for the real data file. If the file grows too large: copy it to a backup first, review the records by hand, and decide what to archive. Do not delete, truncate or rewrite `docs/memory/workflow_metrics.jsonl` without that review.
 
 ## References
 
-- Specification: `plugins/superclaude/commands/pm.md` (Line 291-355)
-- Research: `docs/research/llm-agent-token-efficiency-2025.md`
-- Tests: `tests/pm_agent/test_token_budget.py`
+- Specification: `plugins/superclaude/commands/pm.md` (the line numbers originally cited, 291-355, refer to an earlier version; the file is now 112 lines)
+- Research: `docs/research/llm-agent-token-efficiency-2025.md` (historical; this file no longer exists in the repository)
+- Tests: `tests/pm_agent/test_token_budget.py` (historical; this file no longer exists in the repository)

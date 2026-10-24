@@ -1,0 +1,47 @@
+repo root (this repository): /config/workspace/IronClaude/.dev/worktrees/ci-followup
+$ tmp=$(mktemp -d /tmp/t4-proof.XXXXXX)
+tmp=/tmp/t4-proof.4SFSRV
+$ cd "$tmp" && pwd
+/tmp/t4-proof.4SFSRV
+OUTSIDE-REPO: pwd is not under /config/workspace/IronClaude/.dev/worktrees/ci-followup
+$ git init -b master
+Initialized empty Git repository in /tmp/t4-proof.4SFSRV/.git/
+rc=0
+$ git config user.name t
+rc=0
+$ git config user.email t@example.invalid
+rc=0
+$ git config commit.gpgsign false
+rc=0
+$ mkdir -p src/superclaude/cli/swarm tests/swarm && create five placeholder files
+$ git add -A
+rc=0
+$ git commit -q -m base: five guarded paths
+rc=0
+$ git checkout -q -b feature
+rc=0
+$ echo unrelated > unrelated.txt
+$ git add -A
+rc=0
+$ git commit -q -m feature: unrelated file
+rc=0
+$ git checkout -q master
+rc=0
+$ echo "# changed on master" >> tests/swarm/test_merge_loc_ceiling.py
+$ git add -A
+rc=0
+$ git commit -q -m master: change loc_ceiling test
+rc=0
+$ BASE_SHA=$(git rev-parse master); HEAD_SHA=$(git rev-parse feature)
+BASE_SHA=440cfab5c0c0554abdf9b2b285e3004bb4e4643d
+HEAD_SHA=6a7c4e018c6b4c5e124f1d10974d8f76ed6ca3a0
+$ git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- src/superclaude/cli/swarm/merge.py tests/swarm/test_merge_mechanical_only.py tests/swarm/test_merge_loc_ceiling.py tests/swarm/test_merge_no_transforms.py tests/swarm/test_no_scoring_engine.py    # OLD two-dot
+tests/swarm/test_merge_loc_ceiling.py
+rc=0
+$ git diff --name-only "$BASE_SHA...$HEAD_SHA" -- src/superclaude/cli/swarm/merge.py tests/swarm/test_merge_mechanical_only.py tests/swarm/test_merge_loc_ceiling.py tests/swarm/test_merge_no_transforms.py tests/swarm/test_no_scoring_engine.py    # NEW three-dot
+rc=0
+(end of three-dot output; an empty result is the expected output)
+$ cd "$REPO" && rm -rf "$tmp"   # tmp is a mktemp -d directory under /tmp
+rc=0
+$ test -e "$tmp" || echo removed
+removed: /tmp/t4-proof.4SFSRV

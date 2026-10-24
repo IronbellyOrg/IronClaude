@@ -1,0 +1,38 @@
+$ uv run python .dev/tasks/to-do/TASK-WF-specR1-20261023-031725/artifacts/t7-check.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+PASS Task 2 file: exactly one Decision: line
+PASS Decision line names exactly one of file/files  [['files']]
+F = files
+PASS exactly one 'Upload coverage to Codecov' step
+PASS step uses codecov/codecov-action@v4
+PASS with mapping equals exactly the expected mapping (no deprecated/second file input, no threshold)  [{'files': './coverage.xml', 'token': '${{ secrets.CODECOV_TOKEN }}', 'flags': 'unittests', 'name': 'codecov-umbrella', 'fail_ci_if_error': False}]
+PASS fail_ci_if_error is the boolean False
+PASS no threshold-like keys
+PASS rest of test.yml equal to base after removing that step's with mapping
+PASS on block, top-level keys, jobs, job-level keys and step counts equal base
+PASS no angle-bracket placeholder introduced
+RESULT ALL PASS
+rc=0
+
+$ grep -c '^Decision:' ./artifacts/t2-codecov-v4.md
+1
+
+$ git diff a88f100b38ed514b926d31f17534f49f6170f33b -- .github/workflows/test.yml
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 2f24a3ec..d0a62236 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -42,7 +42,8 @@ jobs:
+       - name: Upload coverage to Codecov
+         uses: codecov/codecov-action@v4
+         with:
+-          file: ./coverage.xml
++          files: ./coverage.xml
++          token: ${{ secrets.CODECOV_TOKEN }}
+           flags: unittests
+           name: codecov-umbrella
+           fail_ci_if_error: false
+
+$ grep -c UNVERIFIED ./artifacts/t7-codecov-note.md; grep -c CODECOV_TOKEN ./artifacts/t7-codecov-note.md
+1
+2

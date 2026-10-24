@@ -8,27 +8,30 @@ Integration policy and usage guidelines for MCP (Model Context Protocol) servers
 
 #### Memory & Error Learning
 
-**ReflexionMemory (Built-in, Always Available)**
+**ReflexionPattern (Built into the Python package, explicit API)**
+
+> The earlier "ReflexionMemory" entry here (automatic use by the PM Agent, `superclaude/core/pm_init/reflexion_memory.py`, `docs/memory/reflexion.jsonl`, 50% overlap) is **superseded** and no longer describes the implementation. See [docs/user-guide/memory-system.md](../user-guide/memory-system.md) for the full contract.
 
 ```yaml
-Name: ReflexionMemory
-Purpose: Error history storage and learning
-Category: Memory Management (Built-in)
-Auto-Managed: true (internal implementation)
-PM Agent Role: Automatically used on errors
+Name: ReflexionPattern
+Purpose: Error record storage and lookup
+Category: Memory Management (built-in Python class, not an MCP server)
+Auto-Managed: false (called explicitly; the only automatic use is the opt-in pytest recorder)
+PM Agent Role: None (the PM agent definition does not call it)
 
 Capabilities:
-  - Memory of past errors and solutions
-  - Keyword-based similar error search
-  - Learning to prevent recurrence
-  - Project-scoped memory
+  - record_error(): append a caller-supplied error dictionary to solutions_learned.jsonl
+  - get_solution(): return the first stored row whose signature overlaps at 0.7 or higher
+  - get_statistics(): count rows and rows that have a solution
 
 Implementation:
-  Location: superclaude/core/pm_init/reflexion_memory.py
-  Storage: docs/memory/reflexion.jsonl (local file)
-  Search: Keyword-based (50% overlap threshold)
+  Location: src/superclaude/pm_agent/reflexion.py
+  Storage: <memory_dir>/solutions_learned.jsonl (default docs/memory/); mistake notes in the sibling mistakes/ directory
+  Directory: memory_dir argument > non-empty REFLEXION_OUTPUT_DIR > docs/memory/ under the current directory
+  Search: lowercase word-set overlap on error_type + error_message + test_name; 0.7 inclusive; first match in file order
 
-Note: This is an internal implementation, not an external MCP server
+Note: Internal Python class, not an external MCP server. It does not redact secrets;
+      callers must redact before recording.
 ```
 
 **Mindbase MCP (Optional Enhancement via airis-mcp-gateway)**
@@ -38,7 +41,11 @@ Name: mindbase
 Purpose: Semantic search across all conversation history
 Category: Memory Management (Optional MCP)
 Auto-Managed: false (external MCP server - requires installation)
-PM Agent Role: Automatically selected by Claude when available
+PM Agent Role: None defined in this repository
+Status: Optional external service you install and configure yourself. This repository does
+        not install, configure or test it, and its availability is UNVERIFIED. The Python
+        class above has a MindBase hook (_search_mindbase) that is an unimplemented stub
+        and always returns None.
 
 Capabilities:
   - Persistence of all conversation history (PostgreSQL + pgvector)
@@ -55,16 +62,16 @@ Installation:
   Requires: airis-mcp-gateway with "recommended" profile
   See: https://github.com/agiletec-inc/airis-mcp-gateway
 
-Profile Dependency:
+Profile Dependency (as described by the external gateway project; not verified here):
   - "recommended" profile: mindbase included (long-term projects)
   - "minimal" profile: mindbase NOT included (lightweight, quick tasks)
 
 Usage Pattern:
-  - With installation + recommended profile: Claude automatically uses it
-  - Otherwise: Falls back to ReflexionMemory
-  - PM Agent instructs: "Search past errors" (Claude selects tool)
+  - If you install it, you call its tools explicitly, or Claude may choose them
+  - There is no automatic fallback between it and ReflexionPattern, and no code in this
+    repository connects the two
 
-Note: Optional enhancement. SuperClaude works fully with ReflexionMemory alone.
+Note: Optional. SuperClaude does not need it; ReflexionPattern works with only the local file.
 ```
 
 #### Serena MCP
@@ -191,7 +198,7 @@ Usage Pattern:
   NOT for:
     - プロジェクト内情報（Grep使用）
     - コードベース検索（Serena使用）
-    - 過去の会話（Mindbase使用）
+    - 過去の会話（Mindbase: 任意・手動で導入した場合のみ）
 
 Trigger Conditions:
   - Keywords: "search", "latest", "current"
@@ -229,9 +236,9 @@ Research & Investigation:
   Example: "Latest security best practices 2025"
 
 Memory & History:
-  Primary: Mindbase MCP (automatic)
-  Secondary: None (fully automated)
-  Example: N/A (transparent)
+  Primary: None by default; call ReflexionPattern explicitly for error records
+  Secondary: Mindbase MCP (optional, manually installed; availability unverified)
+  Example: Record a failing test's cause and fix with ReflexionPattern.record_error()
 
 Task Management:
   Primary: TodoWrite (built-in)
@@ -271,10 +278,12 @@ Session Start:
     1. git status && git branch
     2. Read CLAUDE.md
     3. Read docs/patterns/*.md (latest 5)
-    4. Mindbase auto-load (automatic)
+    4. (Superseded: "Mindbase auto-load". No automatic memory load is implemented for
+       solutions_learned.jsonl or Mindbase. The PM agent definition restores context
+       through Serena read_memory calls instead.)
 
   MCPs Used:
-    - Mindbase: Automatic (no explicit call)
+    - Mindbase: not used by default
     - Others: None (wait for task)
 
   Output: 📍 [branch] | [status] | 🧠 [token]%
@@ -310,7 +319,8 @@ Post-Implementation:
     3. Documentation update
 
   MCPs Used:
-    - Mindbase: Automatic save
+    - Mindbase: not used by default (the former "automatic save" is superseded)
+    - Error records: call ReflexionPattern.record_error() explicitly if you want one stored
     - Others: None (file-based documentation)
 
   Output:
@@ -374,25 +384,30 @@ Tavily MCP:
 ### DO NOT
 
 ```yaml
-❌ Mindbaseを明示的に操作:
-  Reason: 完全自動管理、PM Agentは触らない
-  Instead: 何もしない（自動で動く）
-
 ❌ Serenaをタスク管理に使用:
   Reason: コード理解専用
   Instead: TodoWrite使用
 
-❌ write_memory() / read_memory() 使用:
-  Reason: Serenaはコード理解専用、タスク管理ではない
-  Instead: TodoWrite + docs/
-
-❌ docs/memory/ ディレクトリ作成:
-  Reason: Mindbaseと重複
-  Instead: docs/patterns/ と docs/mistakes/ 使用
-
 ❌ Context7をプロジェクトドキュメントに使用:
   Reason: 公式ドキュメント専用
   Instead: Read docs/ 使用
+```
+
+**Superseded prohibitions (historical, NOT current policy).** An earlier version of this
+list banned three things. They no longer apply:
+
+```yaml
+Former: "Do not operate Mindbase explicitly" (it was described as fully automatic)
+  Now: Mindbase is not automatic here. If you installed it, using its tools explicitly is fine.
+
+Former: "Do not use write_memory() / read_memory()"
+  Now: Explicit memory calls are supported. The PM agent definition itself uses Serena
+       read_memory / write_memory (src/superclaude/agents/pm-agent.md), and
+       ReflexionPattern is an explicit API.
+
+Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
+  Now: docs/memory/ is the default storage of ReflexionPattern and holds tracked records.
+       Do not delete it, and do not move its records to docs/patterns/ or docs/mistakes/.
 ```
 
 ## Best Practices
@@ -411,7 +426,7 @@ Tavily MCP:
   Let PM Agent auto-trigger
 
 ✅ Clear Separation:
-  Memory: Mindbase (automatic)
+  Memory: ReflexionPattern (explicit API) or optional Mindbase (manual install)
   Knowledge: docs/ (file-based)
   Progress: TodoWrite (session)
   Code: Serena (understanding)
@@ -429,10 +444,10 @@ Tavily MCP:
 ```yaml
 Test Cases:
 
-1. Mindbase Auto-Load:
-   - Start session
-   - Verify past context loaded automatically
-   - No explicit mindbase calls
+1. (Superseded) "Mindbase Auto-Load":
+   - The former case checked automatic loading of past context. That behavior is not
+     implemented, so the case has been removed.
+   - Error-record behavior is described in docs/user-guide/memory-system.md.
 
 2. Serena Code Understanding:
    - Task: "Refactor auth across 15 files"
@@ -452,10 +467,13 @@ Test Cases:
 
 ## Migration Checklist
 
+This checklist is historical. Its first two items are **superseded and must not be
+followed**: docs/memory/ is live storage and explicit memory calls are supported.
+
 ```yaml
 From Old System:
-  - [ ] Remove docs/memory/ references
-  - [ ] Remove write_memory() / read_memory() calls
+  - [ ] (superseded) Remove docs/memory/ references
+  - [ ] (superseded) Remove write_memory() / read_memory() calls
   - [ ] Remove MODE_Task_Management.md memory sections
   - [ ] Update pm-agent.md with new MCP policy
 
@@ -472,4 +490,5 @@ To New System:
 - PM Agent: `~/.claude/superclaude/agents/pm-agent.md`
 - Modes: `~/.claude/superclaude/modes/MODE_*.md`
 - Rules: `~/.claude/superclaude/framework/rules.md`
-- Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md`
+- Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md` (historical; this document no longer exists in the repository)
+- Error-record contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md)
