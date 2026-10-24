@@ -1,0 +1,49 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T4.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:86",
+        "src/superclaude/skills/sc-recommend/SKILL.md:100"
+      ],
+      "reason": "Hits require current objective, authority, callable-source, lifecycle and dependency checks, followed by reconstruction with current inputs. Saved envelopes, stale paths and unbound placeholders are forbidden. Matched rows retain cache bypass."
+    },
+    {
+      "id": "T4.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:90",
+        "src/superclaude/skills/sc-recommend/SKILL.md:318"
+      ],
+      "reason": "Incompatible, retired, unavailable and contradictory hints return to live discovery without hit telemetry. Existing hash, guide-invalidation and miss mechanics remain unchanged. Budget exhaustion forbids another cold worker; missing-guide/helper/non-checkout cases prohibit cache writes, telemetry and evaluation."
+    },
+    {
+      "id": "T4.AC3",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/cli/recommend/prompts.py:54",
+        "tests/recommend/test_cache.py:26"
+      ],
+      "reason": "The ten classifier keys are unchanged. MDTM requires explicit intent or justified exceptional machinery; ordinary and ambiguous planning falls through as unknown. Raw authoring, populated-document derivation and roadmap intent are distinguished. Spec-panel fixtures now use adversarial-review without weakening persistence, hashing or dispatch checks."
+    },
+    {
+      "id": "T4.AC4",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:320",
+        "tests/recommend/test_dispatch.py:395"
+      ],
+      "reason": "Cold-worker and parent contracts preserve source/option verification, bounded delegation, current binding and validated optional insertion. Static collision fixtures establish valid-hash hazards and check case-specific cached antecedent/current-goal/action clauses in their owning verification, binding or rejection section. Cross-case identity assertions prevent shared or misplaced clauses. Guide invalidation and safe fallback checks remain present."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [],
+  "self_audit": {
+    "root": "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate",
+    "checked": "Independently read the supplied diff, all five live touched files, original Task4 criteria, governing requirements and unchanged dispatch/cache/insertion/telemetry dependencies. Challenged fixture hazards, clause ownership, cross-case coverage, API/schema preservation, helper failures, budget handling and evaluation/insertion ordering.",
+    "limits": "No tests, edits, Git mutations, agent spawning or prohibited evidence reads. Static contract/cache checks do not establish generated-model behavior; that remains Task8. Public summary/hooks and mirrors remain Tasks5/7. No confirmed defect within Task4's original scope."
+  }
+}

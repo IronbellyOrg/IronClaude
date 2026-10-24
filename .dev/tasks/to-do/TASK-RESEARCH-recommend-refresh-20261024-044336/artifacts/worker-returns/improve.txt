@@ -1,0 +1,101 @@
+# Research: `/sc:improve` recommendation refresh
+
+- **Topic type:** Command routing and capability comparison
+- **Scope:** Six-month history, current command contract, recommendation surfaces, plugin consequences, regression requirements
+- **Status:** Research complete; documentation contracts inspected, not executed
+- **Date:** 2026-10-24
+
+## Evidence index
+
+All paths below are absolute. References such as A:22 identify the corresponding file and line.
+
+- **A:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/improve.md`
+- **B:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **C:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **D:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **E:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md`
+- **F:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py`
+- **H:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py`
+- **I:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md`
+- **J:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/implement.md`
+- **K:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh`
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Two commits changed the exact command during the inventory window. Commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, inserts blank lines around headings, lists, and examples. Its command patch is formatting-only. Commit `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, removes `sequential` from MCP metadata and replaces two Sequential MCP descriptions with native reasoning. This is a substantive dependency-contract change, not a new planning or execution capability. Current evidence is A:6 and A:35-43; historical evidence was inspected with exact-path `git log` and both commit patches.
+
+### Current command contract
+
+[CODE-VERIFIED] The command accepts an optional target and declares `--type quality|performance|maintainability|style`, `--safe`, and `--interactive` in its Usage grammar. It analyzes, plans, edits, validates, and produces an improvement summary. It names Context7 for framework-specific practices and native reasoning for complex analysis. It does not specify a durable output path, task ledger, resume interface, or activation handoff to a separate protocol skill. This is a self-contained Markdown command contract, not a verified executable parser. (A:19-51, A:94-129)
+
+[CODE-VERIFIED] Mutation is intentional. Formatting/naming, unused-variable removal, imports, and simple annotations are automatic. Architecture changes, logic refactoring, signatures, public-API removals, and multi-file changes require approval. Neither `--safe` nor `--interactive` makes it report-only. Recommendations must retain that warning and must not present it as equivalent to analysis. (A:108-129; B:163-166)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The guide currently surfaces improve through its cleanup sequence, always after cleanup-audit, a commit, and cleanup. The routing row fixes improve to `--type quality --safe --interactive`, although the command also declares performance, maintainability, and style. The guide therefore provides no dedicated matched route for targeted improvement without unrelated deletion work. Requests matching no row can still reach improve through live enumeration; this is incomplete routing coverage, not proof that improve is undiscoverable. (B:318; A:22; C:54-61, C:128-135)
+
+[CODE-CONTRADICTED] The proposition that guide-mandated improve flags satisfy recommendation’s stated verification rule conflicts with the text. Improve declares its flags in Usage, not a flag table or frontmatter `argument-hint`. Recommendation permits flags only from the latter two locations and explicitly instructs omission otherwise. Literal compliance would strip even the guide’s legitimate improve flags. Existing tests merely check whether flag strings occur anywhere in source, so they cannot expose this contract contradiction. No runtime failure is claimed. (A:19-23; C:236-237, C:335-337; F:286-304)
+
+[CODE-VERIFIED] Large or structural refactors currently route to task-builder through guide section 3.7 and the cleanup row’s `feature-existing` handoff. The skill, condensed cold-path runbook, and delegation rubric repeat the broader “larger, longer, or riskier” threshold. This is current policy, distinct from the user’s requested workflow-default policy. (B:168, B:306-307, B:318; C:155-157; D:160-168; E:38)
+
+[CODE-VERIFIED] A matched cleanup row bypasses cache lookup, classifier dispatch, cold-path write-back, and Auggie ranking; its steps are verified directly. Improving classifier language alone cannot repair this route. Guide changes must lead, with consistent fallback wording in the skill, runbook, and rubric. (C:58-67, C:150)
+
+[CODE-VERIFIED] The hook is an advisory reminder, explicitly fail-open, not a mechanical guarantee that improve recommendations were verified. Plugin parity tests require the recommendation skill to mirror source and the plugin’s bundled guide to match the canonical guide byte-for-byte. Changes confined to checkout source would leave plugin users on old routing. (K:4-13; H:27-36)
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** Revise B section 3.7 and its existing routing-table mechanism to distinguish three goals: report-only investigation, contained improvement, and planned refactoring. A contained improvement route should not require cleanup or deletion unless requested. Preserve checkpoint-before-mutation and diff review, and explicitly disclose automatic edits. A grounded example is:
+
+```text
+/sc:improve src/billing/ --type maintainability --safe --interactive
+```
+
+The target is illustrative, not an assertion that this module exists. Declared grammar is A:22; safety wording is supported by A:108-123 and B:163-166.
+
+[UNVERIFIED] **MUST, proposed policy:** Route most planned refactoring to workflow plus implement. Remove file count, multiple sessions, existing specifications, auditability, or resume alone as sufficient MDTM triggers. Reserve task-builder plus task for explicitly requested MDTM or the most complex, long-running workloads. Keep the contained-folder exception bounded; it must not justify an unplanned architectural migration. Update B section 3.7 and affected level/routing text, C:155-157, D:160-168, and E:38 together. Supported handoff:
+
+```text
+/sc:workflow "<refactor goal, constraints, and relevant code>" --depth standard
+```
+
+Read the returned plan, then:
+
+```text
+/sc:implement <printed-plan-path>
+```
+
+These interfaces are documented at I:18-40 and I:80; J:63-65 documents managed progress and final review. No unsupported capacity ceiling is asserted.
+
+[UNVERIFIED] **MUST:** Amend C’s candidate-verification instructions, ordered-template flag rule, R1, and D’s corresponding rule to accept explicit Usage grammar as evidence when no flag table exists. Validate option values, not merely flag names. Do not accept isolated examples or boundary mentions as sufficient interface evidence. Mirror these recommendation changes and the guide through H’s parity contract.
+
+[UNVERIFIED] **SHOULD:** Preserve report-only routing: module health remains analyze, cleanup inventory remains cleanup-audit, and unexplained regressions remain troubleshoot rather than automatic improvement. The current guide supports these distinctions at B:160-161, B:311, and B:313.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression coverage, extending the static checks at F:286-304 and G:57-80:
+
+1. “Improve maintainability in this folder” selects declared maintainability syntax, identifies mutation, warns about automatic edits, and does not append cleanup.
+2. “Report quality problems without changing code” selects a report-only route, never improve.
+3. “Refactor these modules over several sessions” defaults to workflow plus implement, not MDTM based solely on breadth or duration.
+4. Explicit execution of an existing MDTM task retains `/task`.
+5. A single-file exact rename within the small-change limit retains native editing.
+6. Usage-declared improve flags survive verification; `--preview`, `--validate`, `--type security`, and `--force` are not inferred as supported options.
+7. A matched route ignores stale cached recommendations and verifies the current worktree command.
+8. Source and plugin guide/skill copies pass parity checks.
+
+## Gaps
+
+[CODE-VERIFIED] Improve’s examples use undeclared `--preview`, `--validate`, and `--type security`; boundary prose mentions `--force` outside Usage. These are unresolved source inconsistencies, not recommendation capabilities. Correcting the command itself is follow-up work; the recommendation refresh should conservatively exclude them. (A:81-89, A:125)
+
+[CODE-VERIFIED] Exact tracked-path checks found neither an improve protocol directory nor the legacy recommendation protocol directory. The installed legacy protocol nevertheless exists at `/config/.claude/skills/sc-recommend-protocol/SKILL.md`; its lines 29-44 retain keyword categories including improve. It is not evidence of current tracked routing.
+
+[UNVERIFIED] No skills, model-driven recommendation runs, tests, mutation, or rollback behavior were executed. Approval and safety conclusions describe documentation contracts only.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE. MUST:** Separate contained improvement from compulsory cleanup, resolve Usage-based flag verification, and replace automatic MDTM escalation for ordinary refactors with the user’s workflow-default policy. Apply these changes across governing guide, skill, condensed runbook, rubric, plugin copies, and regression coverage.
+
+[UNVERIFIED] **SHOULD:** Preserve report-only alternatives and automatic-mutation warnings. **NONE:** No new fixed keyword table, invented improve protocol, or new MCP dependency is needed.

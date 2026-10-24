@@ -1,0 +1,32 @@
+{
+  "attempt": 4,
+  "executor_tier": "unknown",
+  "adviser_ladder_entry": "opus",
+  "adviser_a": {
+    "outcome": "ready",
+    "accepted": false,
+    "failed_check": "The introductory live test_dispatch.py:293/302/315 citation points into changed source rather than a stable retry-diff citation",
+    "resolved_path": "tests/recommend/test_dispatch.py",
+    "q0_to_checkpoint_diff_quiet_rc": 1
+  },
+  "adviser_b": {
+    "outcome": "ready",
+    "accepted": false,
+    "failed_check": "t4-review-a1.json:48 is neither a current escalation evidence file nor unchanged since Q0",
+    "resolved_path": ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t4-review-a1.json",
+    "q0_to_checkpoint_diff_quiet_rc": 1
+  },
+  "critique_adviser": {
+    "outcome": "ready",
+    "accepted": true,
+    "ac_rows_verified": 4,
+    "parsed_citation_ranges_verified": 32,
+    "allowed_evidence_and_immutable_source_checks": "pass"
+  },
+  "next": "Implement the selected brief, then perform a fresh original-criteria review",
+  "code_reverted_for_attempt_4": true,
+  "preserved_checkpoint_hunks_reapplied": true,
+  "selected_advice": "advice-4-c.md",
+  "runner_up": null,
+  "selection_reason": "critique adviser after both initial responses failed citation stability"
+}

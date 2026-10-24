@@ -1,0 +1,1289 @@
+diff --git a/tests/commands/test_routing_plugin_parity.py b/tests/commands/test_routing_plugin_parity.py
+index f70c3b2d..e6a91abf 100644
+--- a/tests/commands/test_routing_plugin_parity.py
++++ b/tests/commands/test_routing_plugin_parity.py
+@@ -10,6 +10,8 @@ from __future__ import annotations
+ import filecmp
+ from pathlib import Path
+ 
++import pytest
++
+ _REPO = Path(__file__).resolve().parents[2]
+ _SRC_SKILL = _REPO / "src/superclaude/skills/sc-recommend"
+ _PLUG_SKILL = _REPO / "plugins/superclaude/skills/sc-recommend"
+@@ -34,3 +36,12 @@ def test_sc_recommend_plugin_tree_mirrors_src_plus_guide():
+     )
+     assert not mismatch and not errors, mismatch + errors
+     assert filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)
++
++
++@pytest.mark.parametrize("name", ["help", "recommend", "workflow", "implement"])
++def test_readme_listed_command_mirrors_match_src(name):
++    """T70: the four commands src/superclaude/commands/README.md says are mirrored."""
++    src = _REPO / "src/superclaude/commands" / f"{name}.md"
++    plug = _REPO / "plugins/superclaude/commands" / f"{name}.md"
++    assert f"`{name}.md`" in (src.parent / "README.md").read_text(encoding="utf-8")
++    assert filecmp.cmp(src, plug, shallow=False), f"{plug} differs from {src}"
+diff --git a/tests/core/test_how_we_work_routing_table.py b/tests/core/test_how_we_work_routing_table.py
+index 08f31903..bff88ba5 100644
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -1091,6 +1091,10 @@ def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():
+     assert "not current runnable framework targets" in limits
+     assert "readable installed remnants survive" in limits
+     assert "Explicit deprecated metadata and verified canonical retirement" in limits
++    assert (
++        "Answer retirement questions with the underlying intent and a current "
++        "independently verified alternative" in limits
++    )
+     assert (
+         "Independently authored installed-only/custom commands remain eligible"
+         in limits
+diff --git a/tests/recommend/test_routing_refresh.py b/tests/recommend/test_routing_refresh.py
+new file mode 100644
+index 00000000..62ac451a
+--- /dev/null
++++ b/tests/recommend/test_routing_refresh.py
+@@ -0,0 +1,444 @@
++"""Static checks for the routing-refresh fixture (fixtures/routing_refresh_cases.json).
++
++The fixture defines the S01-S29 recommendation-generation cases, the T01-T76
++traceability map and the 47-command dispositions from the approved spec. These
++tests are static: they validate the fixture against the repository's current
++guide, commands and skills. They run no model, execute no recommended command
++and touch nothing outside pytest's tmp paths. Observed generation results are
++recorded separately by plan Task 8.
++"""
++
++from __future__ import annotations
++
++import ast
++import json
++import re
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli.recommend.prompts import CLASSIFICATION_KEYS
++
++_REPO = Path(__file__).resolve().parents[2]
++_FIXTURE = Path(__file__).parent / "fixtures/routing_refresh_cases.json"
++_GUIDE = _REPO / "src/superclaude/core/HOW-WE-WORK.md"
++_SKILL = _REPO / "src/superclaude/skills/sc-recommend/SKILL.md"
++_COMMANDS = _REPO / "src/superclaude/commands"
++_SKILLS = _REPO / "src/superclaude/skills"
++_PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
++
++_TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
++_FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
++_FIXTURE_REF_RE = re.compile(r"\{fixture:([a-z0-9-]+)\}")
++_ACTIVATION_RE = re.compile(
++    r"^## (?:Activation|Skill Invocation)\n(.*?)(?=^## |\Z)", re.M | re.S
++)
++_AUTHORITIES = {
++    "read-only",
++    "report-only",
++    "artifact-only",
++    "documents-only",
++    "plan-only",
++    "mutating-with-approval",
++    "memory-write",
++}
++_CASE_KEYS = {
++    "id",
++    "request",
++    "environment",
++    "guide_route",
++    "targets",
++    "mode_flags",
++    "retained_inputs",
++    "stop",
++    "authority",
++    "side_effects",
++    "guide_phrases",
++    "negative",
++    "activation",
++    "repeats",
++    "variants",
++}
++_RETIRED = {"estimate", "sc", "select-tool", "task-mcp"}
++
++
++def _data() -> dict:
++    return json.loads(_FIXTURE.read_text(encoding="utf-8"))
++
++
++_CASES = _data()["cases"]
++
++
++def _primitive(token: str) -> Path | None:
++    """Return the source file for /sc:<command>, /<skill> or a skill directory name."""
++    if token.startswith("sc:") and not token.endswith("-protocol"):
++        path = _COMMANDS / f"{token[3:]}.md"
++    else:
++        path = _SKILLS / token.replace(":", "-") / "SKILL.md"
++    return path if path.is_file() else None
++
++
++def _cells(line: str) -> list[str]:
++    return [c.strip() for c in line.strip().strip("|").split("|")]
++
++
++def _block(begin: str, end: str) -> str:
++    text = _GUIDE.read_text(encoding="utf-8")
++    start = text.index(begin) + len(begin)
++    return text[start : text.index(end, start)]
++
++
++def _route(route: dict) -> tuple[str, str]:
++    """Return (steps, steps + notes) for a routing row or an Other-commands line."""
++    if route["block"] == "routing":
++        block = _block("<!-- routing-table:v1 -->", "<!-- /routing-table -->")
++        lines = [ln for ln in block.splitlines() if ln.startswith("|")][2:]
++        rows = {_cells(ln)[0]: _cells(ln) for ln in lines}
++        cells = rows[route["row"]]
++        return cells[3], f"{cells[3]} {cells[7]}"
++    block = _block("<!-- other-commands:v1 -->", "<!-- /other-commands -->")
++    line = next(
++        ln for ln in block.splitlines() if ln.startswith(f"| `/{route['command']}`")
++    )
++    return line, line
++
++
++_LEADING_GUARD_RE = re.compile(r"^\s*\d+[a-z]?\. only (?:for|when|if) ")
++_TRAILING_GUARD_RE = re.compile(r"`[^`]*`[^`]*\(only (?:if|for) [^)]+\)")
++
++
++def _conditional_step(step: str) -> bool:
++    """True when the step opens with an "only for/when/if" guard or carries one in
++    parentheses right after its command; a stray "only " elsewhere does not count."""
++    return bool(_LEADING_GUARD_RE.match(step) or _TRAILING_GUARD_RE.search(step))
++
++
++def _spec_path() -> Path:
++    found = sorted(_REPO.glob(f".dev/tasks/*/{_PACKAGE}/SPEC-sc-recommend-refresh.md"))
++    assert len(found) == 1, found
++    return found[0]
++
++
++def _section(text: str, start: str, end: str) -> str:
++    begin = text.index(start)
++    return text[begin : text.index(end, begin + len(start))]
++
++
++def test_fixture_schema_and_completeness():
++    data = _data()
++    assert data["schema"] == "routing-refresh-cases/1"
++    assert data["evidence_class"].startswith("static definitions")
++    assert "Task 8" in data["evidence_class"]
++    ids = [case["id"] for case in data["cases"]]
++    assert ids == [f"S{n:02d}" for n in range(1, 30)]
++    assert list(data["checks"]) == [f"T{n:02d}" for n in range(1, 77)]
++    assert len(data["commands"]) == 47
++    defined = set(data["fixture_inputs"])
++    for case in data["cases"]:
++        assert _CASE_KEYS <= set(case), (case["id"], _CASE_KEYS - set(case))
++        assert case["request"].strip() and case["stop"].strip(), case["id"]
++        assert case["environment"] in data["environments"], case["id"]
++        assert case["authority"] in _AUTHORITIES, case["id"]
++        assert case["targets"] and case["negative"]["competitors"], case["id"]
++        assert case["negative"]["must_not"].strip(), case["id"]
++        assert set(case["variants"]) == {"unavailable_plugin", "seeded_wrong_cache"}
++        for variant in case["variants"].values():
++            assert variant["environment"] in data["environments"], case["id"]
++            assert variant["expected"].strip(), case["id"]
++        used = set(_FIXTURE_REF_RE.findall(json.dumps(case)))
++        assert used <= defined, (case["id"], used - defined)
++    for check, entry in data["checks"].items():
++        assert entry["static"] or entry.get("behavioral") == "Task8", check
++        assert entry.get("behavioral") in (None, "Task8"), check
++
++
++def test_every_mapped_test_function_exists():
++    """Each T-check names real test functions, so the map cannot rot silently."""
++    for check, entry in _data()["checks"].items():
++        for ref in entry["static"]:
++            rel, *names = ref.split("::")
++            path = _REPO / rel
++            assert path.is_file(), (check, rel)
++            scope = ast.parse(path.read_text(encoding="utf-8")).body
++            for name in names:
++                node = next(
++                    (
++                        n
++                        for n in scope
++                        if isinstance(n, (ast.FunctionDef, ast.ClassDef))
++                        and n.name == name
++                    ),
++                    None,
++                )
++                assert node is not None, (check, ref)
++                scope = node.body
++            assert names[-1].startswith("test_"), (check, ref)
++
++
++@pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
++def test_case_targets_and_competitors_are_current_primitives(case):
++    tokens = list(case["targets"]) + list(case["negative"]["competitors"])
++    for repeat in case["repeats"]:
++        tokens += repeat["targets"]
++    for token in tokens:
++        assert _primitive(token) is not None, (case["id"], token)
++        assert token.removeprefix("sc:") not in _RETIRED, (case["id"], token)
++    competitors = set(case["negative"]["competitors"])
++    assert not competitors & set(case["targets"]), case["id"]
++
++
++@pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
++def test_case_guide_route_supports_expected_target(case):
++    """The canonical guide names the target, the phrases and not the competitor."""
++    routes = [(case["guide_route"], case["targets"], case["guide_phrases"])]
++    for repeat in case["repeats"]:
++        if "guide_route" in repeat:
++            routes.append(
++                (repeat["guide_route"], repeat["targets"], repeat["guide_phrases"])
++            )
++    competitors = set(case["negative"]["competitors"])
++    for index, (route, targets, phrases) in enumerate(routes):
++        steps, text = _route(route)
++        named = set(_TOKEN_RE.findall(steps))
++        assert set(targets) <= named, (case["id"], set(targets) - named)
++        for phrase in phrases:
++            assert phrase in text, (case["id"], phrase)
++        if index and route != case["guide_route"]:
++            # A repeat on its own route must not name the case's competitors either,
++            # unless the repeat deliberately selects that primitive.
++            clash = (competitors - set(targets)) & named
++            assert not clash, (case["id"], "repeat", clash)
++    steps, _ = _route(case["guide_route"])
++    if case["negative"].get("absent_from_route", True):
++        clash = competitors & set(_TOKEN_RE.findall(steps))
++        assert not clash, (case["id"], clash)
++    else:
++        # Shared rows may name a competitor, but only inside an explicitly
++        # conditional step, never as an unconditional default.
++        for step in steps.split("<br>"):
++            present = competitors & set(_TOKEN_RE.findall(step))
++            if present:
++                assert _conditional_step(step), (case["id"], present, step)
++    for forbidden in case.get("forbidden_step_text", []):
++        assert forbidden not in steps, (case["id"], forbidden)
++    if case["guide_route"]["block"] == "routing" and case["authority"] in {
++        "read-only",
++        "report-only",
++    }:
++        row = case["guide_route"]["row"]
++        block = _block("<!-- routing-table:v1 -->", "<!-- /routing-table -->")
++        line = next(ln for ln in block.splitlines() if ln.startswith(f"| {row} |"))
++        assert _cells(line)[5] != "yes", (case["id"], row)
++
++
++@pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
++def test_case_mode_flags_are_declared_by_their_target(case):
++    """Every flag or keyword mode the fixture expects exists in its target source."""
++    entries = [(case.get("flag_target", case["targets"][0]), case["mode_flags"])]
++    entries += [(r["targets"][0], r["mode_flags"]) for r in case["repeats"]]
++    for target, flags in entries:
++        path = _primitive(target)
++        assert path is not None, (case["id"], target)
++        source = path.read_text(encoding="utf-8")
++        for flag in flags:
++            word = flag.split()[0]
++            if word.startswith("--"):
++                assert word in _FLAG_RE.findall(source), (case["id"], target, word)
++            else:
++                assert word in source, (case["id"], target, word)
++
++
++@pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
++def test_case_activation_matches_command_source(case):
++    """T41-T43: self-contained commands have no activation; others name a real skill."""
++    for command, expected in case["activation"].items():
++        path = _primitive(command)
++        assert path is not None and path.parent == _COMMANDS, (case["id"], command)
++        sections = _ACTIVATION_RE.findall(path.read_text(encoding="utf-8"))
++        if expected == "self-contained":
++            assert not sections, (case["id"], command)
++            continue
++        assert len(sections) == 1, (case["id"], command)
++        refs = re.findall(r"^> Skill (\S+)$", sections[0], re.M)
++        assert refs == [expected], (case["id"], command, refs)
++        skill = _primitive(expected)
++        assert skill is not None, (case["id"], expected)
++
++
++def test_tdd_activation_uses_the_tdd_skill_not_a_guessed_protocol():
++    """T43: the differently headed directive resolves to skills/tdd, not sc-tdd-protocol."""
++    source = (_COMMANDS / "tdd.md").read_text(encoding="utf-8")
++    assert "## Activation" not in source
++    assert re.findall(r"^> Skill (\S+)$", source, re.M) == ["tdd"]
++    assert (_SKILLS / "tdd/SKILL.md").is_file()
++    assert not (_SKILLS / "sc-tdd-protocol").exists()
++
++
++@pytest.mark.parametrize("case", _CASES, ids=[case["id"] for case in _CASES])
++def test_variants_name_real_primitives_and_wrong_cache_rows(case):
++    """Spec 8.2: unavailable plugin capability and a seeded wrong cache row."""
++    unavailable = case["variants"]["unavailable_plugin"]
++    assert unavailable["environment"] == "plugin-only"
++    missing = unavailable["missing"]
++    assert _primitive(missing) is not None, (case["id"], missing)
++    skills = {s.replace(":", "-") for s in case["activation"].values()}
++    assert missing in set(case["targets"]) | skills | set(case["activation"]), case[
++        "id"
++    ]
++    assert f"not installed: {missing}" in unavailable["expected"], case["id"]
++    wrong = case["variants"]["seeded_wrong_cache"]
++    assert wrong["environment"] == "checkout-seeded-wrong-cache"
++    row = wrong["cache_row"]
++    assert row["key"] in CLASSIFICATION_KEYS, (case["id"], row["key"])
++    candidate = row["candidate"].removeprefix("/")
++    assert _primitive(candidate) is not None, (case["id"], candidate)
++    assert candidate not in case["targets"], case["id"]
++    assert row["candidate"] in row["envelope"], case["id"]
++    if case["guide_route"]["block"] == "routing":
++        # A matched routing row skips the cache entirely.
++        assert "cache not consulted" in wrong["expected"], case["id"]
++    else:
++        # Other-commands cases are unmatched: the hint is read, then rejected.
++        for phrase in ("consulted", "rejected", "no hit telemetry"):
++            assert phrase in wrong["expected"], (case["id"], phrase)
++        assert "cache not consulted" not in wrong["expected"], case["id"]
++    assert f"cached {row['candidate']} never emitted" in wrong["expected"]
++
++
++def test_conditional_step_guard_rejects_incidental_only():
++    assert _conditional_step("7b. only for explicit composer selection: `/roadmap x`")
++    assert _conditional_step('1. `/sc:brainstorm "<idea>"` (only if vague)')
++    assert not _conditional_step("7b. `/roadmap x`, then read only the outputs")
++    assert not _conditional_step("3. run `/roadmap x` always; only one pass")
++
++
++def test_cache_expectation_follows_the_guide_block():
++    """Matched rows claim a bypass; Other-commands (no_match) cases never do."""
++    for case in _CASES:
++        expected = case["variants"]["seeded_wrong_cache"]["expected"]
++        matched = case["guide_route"]["block"] == "routing"
++        assert ("cache not consulted" in expected) == matched, case["id"]
++
++
++def test_matched_routes_bypass_cache_so_seeded_rows_cannot_win():
++    skill = _SKILL.read_text(encoding="utf-8")
++    step0 = _section(skill, "## Step 0", "## Hot-Path Cache Lookup")
++    assert "Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back" in step0
++    assert "Use it only when no routing row matches (`no_match`)" in step0
++    assert "continue with the Hot-Path Cache Lookup" in step0
++
++
++def test_unmatched_cache_hints_are_consulted_then_rejected():
++    hot = _section(
++        _SKILL.read_text(encoding="utf-8"), "## Hot-Path Cache Lookup", "## Phase 0"
++    )
++    assert "a hit is only a hint" in hot
++    assert "reject it and use live Phase 0-2 discovery" in hot
++    assert "Do not log a hit for a rejected hint" in hot
++
++
++def test_example_only_flags_are_not_declared_or_routed():
++    """T44: build --validate and cleanup --preview are examples; design has no --output."""
++    for name, flag in (("build", "--validate"), ("cleanup", "--preview")):
++        source = (_COMMANDS / f"{name}.md").read_text(encoding="utf-8")
++        usage = _section(source, "## Usage", "\n## ")
++        examples = _section(source, "## Examples", "\n## ")
++        assert flag not in usage and flag in examples, name
++    assert "--output" not in (_COMMANDS / "design.md").read_text(encoding="utf-8")
++    for route, flag in (
++        ({"block": "other", "command": "sc:build"}, "--validate"),
++        ({"block": "routing", "row": "cleanup"}, "--preview"),
++        ({"block": "routing", "row": "focused-design"}, "--output"),
++    ):
++        assert flag not in _FLAG_RE.findall(_route(route)[1]), (route, flag)
++    assert "/sc:tasklist --source" not in _GUIDE.read_text(encoding="utf-8")
++
++
++def test_retired_identities_have_no_shipped_command():
++    """T46: the four retired identities ship no command file and are never routed."""
++    data = _data()
++    retired = {
++        c["name"] for c in data["commands"] if c["history"].startswith("Retired")
++    }
++    assert retired == _RETIRED
++    for name in retired:
++        assert not (_COMMANDS / f"{name}.md").exists(), name
++        assert not (_REPO / "plugins/superclaude/commands" / f"{name}.md").exists()
++    tokens = set(_TOKEN_RE.findall(_GUIDE.read_text(encoding="utf-8")))
++    assert not {f"sc:{name}" for name in retired} & tokens
++
++
++def test_command_dispositions_trace_appendix_c_and_inventory():
++    """T75: fixture, Appendix C, inventory and live commands agree on 47 (43 + 4)."""
++    spec = _spec_path()
++    appendix = _section(
++        spec.read_text(encoding="utf-8"),
++        "## Appendix C",
++        "## Appendix D",
++    )
++    rows = []
++    for line in appendix.splitlines():
++        cells = _cells(line)
++        if len(cells) == 6 and line.startswith("| ") and cells[0] != "Command":
++            report = re.search(r"\(([^)]*)\)", cells[5]).group(1)
++            rows.append(
++                {
++                    "name": cells[0],
++                    "history": cells[1],
++                    "disposition": cells[2],
++                    "requirements_tests": cells[4],
++                    "report": "analyses/" + report.rsplit("/", 1)[1],
++                }
++            )
++    commands = _data()["commands"]
++    assert commands == rows
++    inventory = json.loads((spec.parent / "inventory.json").read_text("utf-8"))
++    names = {c["name"] for c in commands}
++    assert names == set(inventory["commands"])
++    assert set(inventory["retired_commands"]) == _RETIRED
++    active = {c["name"] for c in commands if c["history"].startswith("Active")}
++    assert (len(active), len(names - active)) == (43, 4)
++    shipped = {p.stem for p in _COMMANDS.glob("*.md") if p.name != "README.md"}
++    assert shipped == active
++    for command in commands:
++        if command["name"] in _RETIRED:
++            assert "R" in command["history"].split("; ", 1)[1].split("+")
++            assert "NO CHANGE retirement" in command["disposition"]
++    formatting_only = sorted(c["name"] for c in commands if c["history"] == "Active; F")
++    assert formatting_only == [
++        "agent",
++        "analyze",
++        "build",
++        "design",
++        "document",
++        "git",
++        "index-repo",
++        "load",
++        "save",
++        "test",
++    ]
++
++
++def test_analyst_reports_and_disposition_appendix_are_retained():
++    """T76: every command keeps its analyst report and Appendix D stays present."""
++    spec = _spec_path()
++    for command in _data()["commands"]:
++        report = spec.parent / command["report"]
++        text = report.read_text(encoding="utf-8")
++        for heading in ("## Findings", "## Gaps", "## Key Takeaways"):
++            assert heading in text, (command["name"], heading)
++    body = spec.read_text(encoding="utf-8")
++    dispositions = _section(body, "## Appendix D", "## Appendix E")
++    headings = (
++        "### Accepted consolidated groups",
++        "### Rejected or refined proposals",
++        "### Deferred source-contract and operational findings",
++    )
++    for heading, following in zip(headings, (*headings[1:], None)):
++        assert heading in dispositions
++        part = dispositions.split(heading, 1)[1]
++        if following:
++            part = part.split(following, 1)[0]
++        rows = [ln for ln in part.splitlines() if ln.startswith("|")][2:]
++        # Each disposition class keeps concrete recorded entries, not just a heading.
++        assert rows and all(len(_cells(r)) >= 3 and _cells(r)[1] for r in rows), heading
+diff --git a/tests/recommend/fixtures/routing_refresh_cases.json b/tests/recommend/fixtures/routing_refresh_cases.json
+new file mode 100644
+index 00000000..ec002362
+--- /dev/null
++++ b/tests/recommend/fixtures/routing_refresh_cases.json
+@@ -0,0 +1,792 @@
++{
++  "schema": "routing-refresh-cases/1",
++  "purpose": "Test-only fixture definitions for the sc:recommend routing refresh. Not a runtime routing table and not read by any product code.",
++  "evidence_class": "static definitions; cases S01-S29 are proposed recommendation-generation evaluations recorded by plan Task 8; nothing here demonstrates model generation or executes a recommended command",
++  "source": {
++    "spec": "SPEC-sc-recommend-refresh.md (TASK-RESEARCH-recommend-refresh-20261024-044336)",
++    "contract_checks": "Section 8.1 T01-T76",
++    "scenarios": "Section 8.3 S01-S29",
++    "integration_variants": "Section 8.2",
++    "command_dispositions": "Appendix C"
++  },
++  "environments": {
++    "checkout": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request",
++    "checkout-seeded-wrong-cache": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request",
++    "plugin-only": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface",
++    "installed": "pipx/pip install with ~/.claude copies, no checkout, no cache helper",
++    "no-guide": "No routing guide found at any Step 0 location; cache helpers skipped"
++  },
++  "fixture_inputs": {
++    "component": "A small component description file supplied with the evaluation fixture",
++    "prd": "A populated PRD fixture file",
++    "tdd": "A populated TDD fixture file",
++    "spec": "A release spec fixture file",
++    "release-spec": "A release spec fixture that may or may not warrant a split",
++    "validated-proposal": "A validated release-split proposal fixture",
++    "roadmap": "A roadmap fixture file",
++    "output-dir": "A temporary output directory under the evaluation tmp path",
++    "legacy-folder": "A fixture source folder containing dead code",
++    "hidden-config-dir": "A fixture folder whose only contents are hidden configuration paths",
++    "contained-folder": "A self-contained fixture folder suitable for contained improvement",
++    "pr-number": "A fixture pull-request number; never a live PR",
++    "source-strings": "A fixture source-language strings file",
++    "locale-files": "Fixture translation files with placeholder mistakes",
++    "suite-name": "A fixture cliEval suite stem",
++    "eval-design": "A fixture eval design document",
++    "eval-id": "A fixture eval identifier inside the suite",
++    "workflow-skill": "A fixture workflow skill directory containing SKILL.md",
++    "release-tag": "A fixture tag name for an already-tagged release",
++    "tier-yaml": "A fixture task-tier YAML file",
++    "report-path": "A temporary report path under the evaluation tmp path",
++    "review-target": "A fixture document to review with swarm",
++    "design-source": "A fixture design source file",
++    "pipeline": "A fixture adversarial pipeline YAML and its existing output directory",
++    "project": "The fixture project root",
++    "architecture-work": "A fixture architecture work description",
++    "module": "A fixture source module"
++  },
++  "cases": [
++    {
++      "id": "S01",
++      "request": "List the commands and skills installed here.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "installed-inventory"},
++      "targets": ["sc:help"],
++      "mode_flags": [],
++      "retained_inputs": [],
++      "stop": "live inventory and guide pointer",
++      "authority": "read-only",
++      "side_effects": "none; inventory display only",
++      "guide_phrases": ["live inventory", "no install repair"],
++      "negative": {"competitors": ["sc:recommend", "sc:workflow"], "must_not": "install repair, recommendation self-loop or implementation plan"},
++      "activation": {"sc:help": "self-contained"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:help", "expected": "not installed: sc:help; no substitution by recommend"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:recommend", "envelope": "Run: /sc:recommend list my tools"}, "expected": "guide route matched; cache not consulted; cached /sc:recommend never emitted"}
++      }
++    },
++    {
++      "id": "S02",
++      "request": "Draft an API specification for {fixture:component}, without implementing it.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "focused-design"},
++      "targets": ["sc:design"],
++      "mode_flags": ["--type api", "--format spec"],
++      "retained_inputs": ["{fixture:component}"],
++      "stop": "design artifacts",
++      "authority": "artifact-only",
++      "side_effects": "design output only; no source edits",
++      "guide_phrases": ["<target>", "type/format", "code format is design guidance", "no declared output flag"],
++      "negative": {"competitors": ["tdd", "sc:implement"], "must_not": "full TDD by default or working feature implementation"},
++      "activation": {"sc:design": "self-contained"},
++      "repeats": [
++        {"request": "Draft the architecture design for {fixture:component}.", "targets": ["sc:design"], "mode_flags": ["--type architecture"], "expected": "design architecture type; stop at design"},
++        {"request": "Draft the component design for {fixture:component}.", "targets": ["sc:design"], "mode_flags": ["--type component"], "expected": "design component type; stop at design"},
++        {"request": "Draft the database design for {fixture:component}.", "targets": ["sc:design"], "mode_flags": ["--type database"], "expected": "design database type; stop at design"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:design", "expected": "not installed: sc:design; no substitution by tdd"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/tdd", "envelope": "Run: /tdd docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /tdd never emitted"}
++      }
++    },
++    {
++      "id": "S03",
++      "request": "Create a full Technical Design Document from the populated PRD {fixture:prd}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "technical-design-document"},
++      "targets": ["tdd"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:prd}"],
++      "stop": "the requested TDD",
++      "authority": "documents-only",
++      "side_effects": "TDD document and its document-owned research/review artifacts",
++      "guide_phrases": ["supplied PRD/stub", "Technical Design Document", "document-owned MDTM machinery"],
++      "negative": {"competitors": ["sc:design", "sc:test", "task"], "must_not": "test-driven development, focused design-only output or automatic product task execution"},
++      "activation": {"sc:tdd": "tdd"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "tdd", "expected": "not installed: tdd; no substitution by sc:design"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
++      }
++    },
++    {
++      "id": "S04",
++      "request": "Audit dead code in {fixture:legacy-folder}; surface pass, backend focus, report only.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "cleanup-audit-only"},
++      "targets": ["sc:cleanup-audit"],
++      "mode_flags": ["--pass surface", "--focus backend"],
++      "retained_inputs": ["{fixture:legacy-folder}"],
++      "stop": "audit reports/checkpoints",
++      "authority": "report-only",
++      "side_effects": "tool-owned audit reports and checkpoints; no source deletion, improvement or commit",
++      "guide_phrases": ["<target>", "pass/focus/batch-size", "exclusion floor", "hidden-only targets are not exhaustively covered", "no cleanup, improve or commit"],
++      "negative": {"competitors": ["sc:cleanup", "sc:improve", "sc:git"], "must_not": "cleanup, improve, commit or full-pass escalation"},
++      "activation": {"sc:cleanup-audit": "sc:cleanup-audit-protocol"},
++      "repeats": [
++        {"request": "Audit {fixture:hidden-config-dir} exhaustively for dead code.", "targets": ["sc:cleanup-audit"], "mode_flags": [], "expected": "disclose the hidden-path exclusion floor and reject an exhaustive coverage claim"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cleanup-audit", "expected": "not installed: sc:cleanup-audit; no substitution by sc:cleanup"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
++      }
++    },
++    {
++      "id": "S05",
++      "request": "Improve maintainability in {fixture:contained-folder}, safely and interactively.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "contained-improve"},
++      "targets": ["sc:improve"],
++      "mode_flags": ["--type maintainability", "--safe", "--interactive"],
++      "retained_inputs": ["{fixture:contained-folder}"],
++      "stop": "reviewed git diff of the contained improvement",
++      "authority": "mutating-with-approval",
++      "side_effects": "source edits inside the contained folder after an authorized checkpoint commit; diff review required",
++      "guide_phrases": ["<target>", "type/safe/interactive", "automatic edits", "no compulsory cleanup/deletions", "structural migration stays planned"],
++      "negative": {"competitors": ["sc:cleanup", "task-builder"], "must_not": "compulsory cleanup/deletions; structural migration stays planned work"},
++      "activation": {"sc:improve": "self-contained"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:improve", "expected": "not installed: sc:improve; no substitution by sc:cleanup"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cleanup-audit", "candidate": "/sc:cleanup", "envelope": "Run: /sc:cleanup src/legacy --type all"}, "expected": "guide route matched; cache not consulted; cached /sc:cleanup never emitted"}
++      }
++    },
++    {
++      "id": "S06",
++      "request": "Deep Auggie review of PR {fixture:pr-number}, Sonnet as the internal reviewer, local findings only.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "auggie-review-only"},
++      "targets": ["sc:auggie-review"],
++      "mode_flags": ["--depth deep", "--revagent sonnet", "--no-post-pr", "--no-remediation-offer"],
++      "retained_inputs": ["{fixture:pr-number}"],
++      "stop": "local findings and report",
++      "authority": "report-only",
++      "side_effects": "tool-owned review report; no PR posting, no remediation offer, no shipping",
++      "guide_phrases": ["resolved target", "supported controls", "--no-post-pr --no-remediation-offer", "internal reviewer only", "default prism-b"],
++      "negative": {"competitors": ["sc:pr-submit", "task-builder"], "must_not": "public review, shipping workflow or accepted MDTM remediation"},
++      "activation": {"sc:auggie-review": "sc:auggie-review-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:auggie-review", "expected": "not installed: sc:auggie-review; no substitution by a posting review"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:adversarial", "envelope": "Run: /sc:adversarial --compare docs/a.md,docs/b.md"}, "expected": "guide route matched; cache not consulted; cached /sc:adversarial never emitted"}
++      }
++    },
++    {
++      "id": "S07",
++      "request": "Review {fixture:source-strings} and {fixture:locale-files} for placeholder mistakes; report only.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "localization-review"},
++      "targets": ["sc:review-translation"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:source-strings}", "{fixture:locale-files}"],
++      "stop": "language/project reports",
++      "authority": "report-only",
++      "side_effects": "tool-owned localization reports; translation edits need separate consent",
++      "guide_phrases": ["<source-file>", "<translation-files...>", "confirm context before review", "separate consent", "not runtime troubleshooting"],
++      "negative": {"competitors": ["sc:troubleshoot", "sc:analyze"], "must_not": "runtime troubleshooting, generic code analysis or automatic localization edits"},
++      "activation": {"sc:review-translation": "sc:review-translation-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:review-translation", "expected": "not installed: sc:review-translation; no substitution by sc:troubleshoot"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "troubleshoot-debug", "candidate": "/sc:troubleshoot", "envelope": "Run: /sc:troubleshoot \"placeholder error\""}, "expected": "guide route matched; cache not consulted; cached /sc:troubleshoot never emitted"}
++      }
++    },
++    {
++      "id": "S08",
++      "request": "Audit project context size; print a dry run and change nothing.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "context-audit"},
++      "targets": ["sc:init-lite"],
++      "mode_flags": ["--context-optimized", "--dry-run"],
++      "retained_inputs": [],
++      "stop": "stdout preview",
++      "authority": "read-only",
++      "side_effects": "none; dry run writes nothing and creates no output directory",
++      "guide_phrases": ["--context-optimized", "project-root/output", "dry-run` writes nothing", "scaffold` is opt-in", "never context inputs"],
++      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "context-input rewrite or generic implementation planner"},
++      "activation": {"sc:init-lite": "sc:init-lite-protocol"},
++      "repeats": [
++        {"request": "Audit project context size and write the advisory scaffold.", "targets": ["sc:init-lite"], "mode_flags": ["--context-optimized", "--scaffold"], "expected": "scaffold retained with its actual owned-artifact write boundary"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:init-lite", "expected": "not installed: sc:init-lite; no substitution by an implementation planner"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:analyze", "envelope": "Run: /sc:analyze ."}, "expected": "guide route matched; cache not consulted; cached /sc:analyze never emitted"}
++      }
++    },
++    {
++      "id": "S09",
++      "request": "Author a cliEval suite named {fixture:suite-name} from {fixture:eval-design}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "cli-eval-create"},
++      "targets": ["sc:cli-eval"],
++      "mode_flags": ["create", "--name", "--from"],
++      "retained_inputs": ["{fixture:suite-name}", "{fixture:eval-design}"],
++      "stop": "authored, schema-validated suite and documentation",
++      "authority": "artifact-only",
++      "side_effects": "suite manifest, fixtures and documentation; the suite is not run",
++      "guide_phrases": ["create", "supplied name/from/agents", "schema-validated suite", "no automatic suite run"],
++      "forbidden_step_text": ["`/sc:cli-eval run"],
++      "negative": {"competitors": ["sc:test", "prd", "task-builder"], "must_not": "cli-eval run, ordinary unit testing, new PRD generation or task-builder"},
++      "activation": {"sc:cli-eval": "sc:cli-eval-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-eval", "expected": "not installed: sc:cli-eval; no substitution by sc:test"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
++      }
++    },
++    {
++      "id": "S10",
++      "request": "Supervise a run of existing cliEval suite {fixture:suite-name}, restricted to eval {fixture:eval-id}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "cli-eval-run"},
++      "targets": ["sc:cli-eval"],
++      "mode_flags": ["run", "--suite", "--eval"],
++      "retained_inputs": ["{fixture:suite-name}", "{fixture:eval-id}"],
++      "stop": "actual run status, run artifacts and preserved failure evidence",
++      "authority": "mutating-with-approval",
++      "side_effects": "real eval execution after confirmation and run artifact writes",
++      "guide_phrases": ["run", "supplied suite/eval selectors", "confirm exact invocation/safety", "real execution and artifact writes", "no invented resume"],
++      "forbidden_step_text": ["`/sc:cli-eval create"],
++      "negative": {"competitors": ["sc:test", "task-builder"], "must_not": "suite creation, application coverage testing or an invented resume command"},
++      "activation": {"sc:cli-eval": "sc:cli-eval-protocol"},
++      "repeats": [
++        {"request": "Evaluate my cliEval suite.", "targets": ["sc:cli-eval"], "mode_flags": [], "expected": "ask one clarification: author a new suite or run an existing one"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-eval", "expected": "not installed: sc:cli-eval; no substitution by sc:test"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"run the eval suite\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
++      }
++    },
++    {
++      "id": "S11",
++      "request": "Analyze how {fixture:workflow-skill} could become a CLI; dry run only.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "cli-portification-spec"},
++      "targets": ["sc:cli-portify"],
++      "mode_flags": ["--workflow", "--dry-run"],
++      "retained_inputs": ["{fixture:workflow-skill}"],
++      "stop": "Phase 0-2 contracts",
++      "authority": "artifact-only",
++      "side_effects": "dry run writes Phase 0-2 artifacts; not zero-write and no generated code",
++      "guide_phrases": ["--workflow <skill-name-or-path>", "name/output/dry-run", "Phase 0-2", "no full spec synthesis or panel artifacts", "no-direct-code-files", "contract gap/unavailable"],
++      "contract_gaps": ["C04"],
++      "negative": {"competitors": ["sc:implement", "sc:workflow"], "must_not": "implemented CLI code, full reviewed release spec or a zero-write promise"},
++      "activation": {"sc:cli-portify": "sc:cli-portify-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:cli-portify", "expected": "not installed: sc:cli-portify; no substitution by sc:implement"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "cli-portify", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow \"port the workflow\""}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
++      }
++    },
++    {
++      "id": "S12",
++      "request": "Assess whether {fixture:release-spec} should split; an intact release is acceptable.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "release-boundary"},
++      "targets": ["sc:release-split"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:release-spec}"],
++      "stop": "neutral split/no-split decision and release artifacts",
++      "authority": "artifact-only",
++      "side_effects": "release-boundary artifacts and fidelity evidence; no product implementation or Git",
++      "guide_phrases": ["<release-artifact>", "supplied controls", "--no-split --resume-from <validated proposal>", "no-split is valid", "no product execution or Git"],
++      "negative": {"competitors": ["sc:roadmap", "roadmap", "sc:implement"], "must_not": "automatic roadmap/product execution or a forced split"},
++      "activation": {"sc:release-split": "sc:release-split-protocol"},
++      "repeats": [
++        {"request": "Keep {fixture:release-spec} intact; do not split it.", "targets": ["sc:release-split"], "mode_flags": ["--no-split"], "expected": "explicit no-split retained"},
++        {"request": "Continue the release split from {fixture:validated-proposal}.", "targets": ["sc:release-split"], "mode_flags": ["--resume-from"], "expected": "validated-proposal continuation retained"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:release-split", "expected": "not installed: sc:release-split; no substitution by /roadmap"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
++      }
++    },
++    {
++      "id": "S13",
++      "request": "Bring docs, install/deploy surface and human test guides current for existing release tag {fixture:release-tag}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "post-release"},
++      "targets": ["sc:post-release"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:release-tag}"],
++      "stop": "observed external-surface results, manifest and human test guides",
++      "authority": "mutating-with-approval",
++      "side_effects": "owned mutating lifecycle with its consolidated-plan gate and separate outward-action approval",
++      "guide_phrases": ["<existing release tag>", "supplied output", "tagged commit", "consolidated-plan gate", "separate outward-action approval", "never fabricated success"],
++      "negative": {"competitors": ["sc:document", "readme"], "must_not": "generic document-only generation or unapproved external installation"},
++      "activation": {"sc:post-release": "sc:post-release-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:post-release", "expected": "not installed: sc:post-release; no substitution by sc:document"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/sc:document", "envelope": "Run: /sc:document docs/"}, "expected": "guide route matched; cache not consulted; cached /sc:document never emitted"}
++      }
++    },
++    {
++      "id": "S14",
++      "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from {fixture:spec} and {fixture:tdd}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "roadmap-artifacts"},
++      "targets": ["sc:roadmap"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:spec}", "{fixture:tdd}"],
++      "stop": "contract-gap report before any runnable handoff",
++      "authority": "artifact-only",
++      "side_effects": "none until the command/protocol activation contract is reconciled",
++      "guide_phrases": ["supplied documents", "requested controls", "contract gap", "no combined interface", "not MDTM roadmap substitution"],
++      "contract_gaps": ["C01"],
++      "negative": {"competitors": ["roadmap", "sc:workflow", "task-builder"], "must_not": "silent MDTM /roadmap, ordinary workflow or a combined incompatible interface"},
++      "activation": {"sc:roadmap": "sc:roadmap-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:roadmap", "expected": "not installed: sc:roadmap; no substitution by /roadmap"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
++      }
++    },
++    {
++      "id": "S15",
++      "request": "Convert {fixture:roadmap} to a Sprint-compatible tasklist bundle using spec {fixture:spec} and output {fixture:output-dir}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "sprint-tasklist-bundle"},
++      "targets": ["sc:tasklist"],
++      "mode_flags": ["--spec", "--output"],
++      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}", "{fixture:output-dir}"],
++      "stop": "generated bundle; no Sprint or task execution",
++      "authority": "artifact-only",
++      "side_effects": "tasklist bundle files in the output directory",
++      "guide_phrases": ["<roadmap-path>", "supplied spec/output", "readable non-empty roadmap", "writable output parent", "no unsupported source flag", "no automatic Sprint/task execution"],
++      "negative": {"competitors": ["task-builder", "sc:workflow", "task"], "must_not": "generic plan creation, MDTM generation or unsupported source flag"},
++      "activation": {"sc:tasklist": "sc:tasklist-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:tasklist", "expected": "not installed: sc:tasklist; no substitution by task-builder"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"Create an MDTM task from docs/spec.md\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
++      }
++    },
++    {
++      "id": "S16",
++      "request": "Audit roadmap fidelity of {fixture:roadmap} against {fixture:spec} through the roadmap validator.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "roadmap-fidelity"},
++      "targets": ["sc:validate-roadmap"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:roadmap}", "{fixture:spec}"],
++      "stop": "requested validation objective with the contract gap disclosed",
++      "authority": "report-only",
++      "side_effects": "validation report only; no implementation",
++      "guide_phrases": ["roadmap/spec sources", "supplied output directory", "command/protocol contract gap", "explicitly denies CLI equivalence", "exit zero is not clean validation"],
++      "contract_gaps": ["C02", "C03"],
++      "negative": {"competitors": ["sc:reflect"], "must_not": "reflect merely because a plan is mentioned; mixed input grammar; zero exit equals clean"},
++      "activation": {"sc:validate-roadmap": "sc-validate-roadmap-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-roadmap", "expected": "not installed: sc:validate-roadmap; no substitution by sc:reflect"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:reflect", "envelope": "Run: /sc:reflect --mode pre --spec docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /sc:reflect never emitted"}
++      }
++    },
++    {
++      "id": "S17",
++      "request": "Validate task-tier YAML expectations in {fixture:tier-yaml} with verbose output, stop on first failure, report to {fixture:report-path}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "tier-validation"},
++      "targets": ["sc:validate-tests"],
++      "mode_flags": ["--verbose", "--stop-on-fail", "--report"],
++      "retained_inputs": ["{fixture:tier-yaml}", "{fixture:report-path}"],
++      "stop": "classification result and requested report",
++      "authority": "report-only",
++      "side_effects": "requested report file only; no source/configuration repairs",
++      "guide_phrases": ["YAML file/directory", "<verified target>", "default is absent", "report missing prerequisite", "no code/config repairs or fabricated counts"],
++      "contract_gaps": ["C15"],
++      "negative": {"competitors": ["sc:test", "sc:workflow"], "must_not": "sc:test coverage, fabricated fixture counts or automatic implementation planning"},
++      "activation": {"sc:validate-tests": "sc:validate-tests-protocol"},
++      "repeats": [
++        {"request": "Validate the task tiers against the default suite.", "targets": ["sc:validate-tests"], "mode_flags": [], "expected": "report the missing default YAML suite as a prerequisite; no illustrative counts"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:validate-tests", "expected": "not installed: sc:validate-tests; no substitution by sc:test"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:test", "envelope": "Run: /sc:test tests/"}, "expected": "guide route matched; cache not consulted; cached /sc:test never emitted"}
++      }
++    },
++    {
++      "id": "S18",
++      "request": "A new bounded component needs a reviewed PRD and TDD, followed by ordinary implementation planning.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "full-spec"},
++      "targets": ["prd", "tdd", "sc:workflow"],
++      "flag_target": "sc:workflow",
++      "mode_flags": ["--depth standard", "--handoff none"],
++      "retained_inputs": ["accepted PRD path", "accepted TDD path"],
++      "stop": "printed workflow plan; execution only when requested",
++      "authority": "plan-only",
++      "side_effects": "PRD/TDD documents, review output and a workflow plan package",
++      "guide_phrases": ["only for requested ordinary planning", "accepted PRD/TDD paths and constraints", "new components and existing specs do not justify MDTM"],
++      "negative": {"competitors": ["roadmap", "task-builder"], "absent_from_route": false, "must_not": "automatic /roadmap or task-builder because the component is new"},
++      "activation": {"sc:workflow": "sc:workflow-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "prd", "expected": "not installed: prd; document step stays visible, no substitution"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "task-file-generation", "candidate": "/task-builder", "envelope": "Run: /task-builder \"Create an MDTM task from docs/spec.md\""}, "expected": "guide route matched; cache not consulted; cached /task-builder never emitted"}
++      }
++    },
++    {
++      "id": "S19",
++      "request": "Write and review a PRD and TDD for {fixture:component} only; no implementation plan.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "full-spec"},
++      "targets": ["prd", "sc:spec-panel", "tdd"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:component}"],
++      "stop": "requested documents and reviews",
++      "authority": "documents-only",
++      "side_effects": "PRD/TDD documents with their own document machinery; no roadmap, phase tasks or source edits",
++      "guide_phrases": ["documents-only requests stop after the requested documents and reviews", "without a roadmap or phase tasks"],
++      "negative": {"competitors": ["roadmap", "sc:workflow", "task"], "absent_from_route": false, "must_not": "automatic roadmap, phase tasks, source implementation or shipping"},
++      "activation": {"sc:spec-panel": "self-contained"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "tdd", "expected": "not installed: tdd; no substitution by sc:design"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/roadmap", "envelope": "Run: /roadmap docs/spec.md"}, "expected": "guide route matched; cache not consulted; cached /roadmap never emitted"}
++      }
++    },
++    {
++      "id": "S20",
++      "request": "Explicitly use /roadmap to create the full roadmap and phase task files from {fixture:prd} and {fixture:tdd}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "full-spec"},
++      "targets": ["roadmap"],
++      "mode_flags": [],
++      "retained_inputs": ["{fixture:prd}", "{fixture:tdd}"],
++      "stop": "roadmap outputs and phase task files; phase execution only when requested",
++      "authority": "artifact-only",
++      "side_effects": "roadmap document, BUILD_REQUEST files and phase task files created through internal task-builder/task use",
++      "guide_phrases": ["only for explicit composer selection or exceptional level-4 machinery needs", "uses task-builder/task internally", "full setting creates phase task files"],
++      "negative": {"competitors": ["sc:workflow"], "absent_from_route": false, "must_not": "rewriting the explicitly selected composer or presenting it as workflow-plan-only"},
++      "activation": {},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "roadmap", "expected": "not installed: roadmap; explicit selection preserved, no substitution by sc:workflow"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "roadmap-generation", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow docs/prd.md"}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
++      }
++    },
++    {
++      "id": "S21",
++      "request": "Help choose swarm settings for reviewing {fixture:review-target}; no real-model launch is authorized.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "multi-model-review"},
++      "targets": ["sc:swarm-wizard"],
++      "mode_flags": ["--goal", "--target"],
++      "retained_inputs": ["{fixture:review-target}"],
++      "stop": "settings/preparation; no real launch",
++      "authority": "artifact-only",
++      "side_effects": "generated run components and stub dry run only; real launch needs explicit authorization and passing prerequisites",
++      "guide_phrases": ["supplied goal/target", "stop at settings/preparation", "explicitly authorized and prerequisites pass", "contract gap on missing-proxy STOP versus fallback"],
++      "contract_gaps": ["C10"],
++      "negative": {"competitors": ["sc:spec-panel", "sc:explain", "task-builder"], "must_not": "ordinary spec-panel/explain from review wording; inferred real launch"},
++      "activation": {"sc:swarm-wizard": "sc:swarm-wizard-protocol"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:swarm-wizard", "expected": "not installed: sc:swarm-wizard; no substitution by sc:spec-panel"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:spec-panel", "envelope": "Run: /sc:spec-panel docs/previous.md"}, "expected": "guide route matched; cache not consulted; cached /sc:spec-panel never emitted"}
++      }
++    },
++    {
++      "id": "S22",
++      "request": "Generate competing designs from {fixture:design-source}.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "compare-options"},
++      "targets": ["sc:adversarial"],
++      "mode_flags": ["--source", "--generate", "--agents"],
++      "retained_inputs": ["{fixture:design-source}"],
++      "stop": "comparison, merged output and tool-owned artifacts",
++      "authority": "artifact-only",
++      "side_effects": "tool-owned debate and merge artifacts; no product execution",
++      "guide_phrases": ["2-10 readable files", "--pipeline-resume", "mutually exclusive", "no one-file comparison or product execution"],
++      "negative": {"competitors": ["sc:reflect", "sc:implement"], "must_not": "invalid single-file compare, reflection audit, automatic execution or combined mode flags"},
++      "activation": {"sc:adversarial": "sc:adversarial-protocol"},
++      "repeats": [
++        {"request": "Resume the adversarial pipeline {fixture:pipeline}.", "targets": ["sc:adversarial"], "mode_flags": ["--pipeline", "--pipeline-resume", "--output"], "expected": "pipeline continuation with its existing output; no compare/generate flags"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:adversarial", "expected": "not installed: sc:adversarial; no substitution by sc:reflect"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "adversarial-review", "candidate": "/sc:reflect", "envelope": "Run: /sc:reflect --mode post --diff HEAD"}, "expected": "guide route matched; cache not consulted; cached /sc:reflect never emitted"}
++      }
++    },
++    {
++      "id": "S23",
++      "request": "Inspect the repository status.",
++      "environment": "checkout",
++      "guide_route": {"block": "other", "command": "sc:git"},
++      "targets": ["sc:git"],
++      "mode_flags": [],
++      "retained_inputs": [],
++      "stop": "status report",
++      "authority": "read-only",
++      "side_effects": "none; status inspection only",
++      "guide_phrases": ["Status-only stays inspection", "a commit needs authorization", "Do not append push, merge or PR creation"],
++      "negative": {"competitors": ["sc:pr-submit"], "must_not": "push, merge or PR operation"},
++      "activation": {"sc:git": "self-contained"},
++      "repeats": [
++        {"request": "Explicitly create a generated local commit of the staged changes.", "targets": ["sc:git"], "mode_flags": ["--smart-commit"], "expected": "authorized local commit only; no push, merge or PR"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:git", "expected": "not installed: sc:git; justified native git status may be offered instead"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "parallel-agent-fanout", "candidate": "/sc:pr-submit", "envelope": "Run: /sc:pr-submit --monitor 3"}, "expected": "no routing row matched; cache hint consulted; cached /sc:pr-submit rejected by current verification and request binding; live discovery selects /sc:git from Other commands; no hit telemetry; cached /sc:pr-submit never emitted"}
++      }
++    },
++    {
++      "id": "S24",
++      "request": "Produce a compact repo map in quick mode.",
++      "environment": "checkout",
++      "guide_route": {"block": "other", "command": "sc:index-repo"},
++      "targets": ["sc:index-repo"],
++      "mode_flags": ["mode=quick"],
++      "retained_inputs": [],
++      "stop": "PROJECT_INDEX.md and PROJECT_INDEX.json",
++      "authority": "artifact-only",
++      "side_effects": "writes the two index files; no measured savings claim",
++      "guide_phrases": ["mode=quick or mode=update", "PROJECT_INDEX.md and PROJECT_INDEX.json", "no measured token-savings promise"],
++      "negative": {"competitors": ["sc:index"], "must_not": "interchanging the compact map with coordinated docs; measured savings"},
++      "activation": {"sc:index-repo": "self-contained", "sc:index": "self-contained"},
++      "repeats": [
++        {"request": "Generate coordinated project documentation for {fixture:project}.", "targets": ["sc:index"], "mode_flags": [], "guide_route": {"block": "other", "command": "sc:index"}, "guide_phrases": ["Coordinated project docs/API/structure/README"], "expected": "coordinated documentation with disclosed writes"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:index-repo", "expected": "not installed: sc:index-repo; no substitution by sc:index"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:index", "envelope": "Run: /sc:index ."}, "expected": "no routing row matched; cache hint consulted; cached /sc:index rejected by current verification and request binding; live discovery selects /sc:index-repo from Other commands; no hit telemetry; cached /sc:index never emitted"}
++      }
++    },
++    {
++      "id": "S25",
++      "request": "Save the project memory for this session.",
++      "environment": "checkout",
++      "guide_route": {"block": "other", "command": "sc:save"},
++      "targets": ["sc:save"],
++      "mode_flags": [],
++      "retained_inputs": [],
++      "stop": "memory written",
++      "authority": "memory-write",
++      "side_effects": "Serena memory writes only; not task execution state",
++      "guide_phrases": ["writes memory; not durable task execution state"],
++      "negative": {"competitors": ["sc:implement", "task"], "must_not": "executor continuation or undeclared checkpoint examples"},
++      "activation": {"sc:save": "self-contained", "sc:load": "self-contained"},
++      "repeats": [
++        {"request": "Load and refresh the saved project context.", "targets": ["sc:load"], "mode_flags": ["--refresh"], "guide_route": {"block": "other", "command": "sc:load"}, "guide_phrases": ["Not executor resume"], "expected": "context load/refresh only; a task-package resume uses its own executor"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:save", "expected": "not installed: sc:save; Serena prerequisite disclosed"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:implement", "envelope": "Run: /sc:implement .dev/tasks/to-do/previous/previous.md"}, "expected": "no routing row matched; cache hint consulted; cached /sc:implement rejected by current verification and request binding; live discovery selects /sc:save from Other commands; no hit telemetry; cached /sc:implement never emitted"}
++      }
++    },
++    {
++      "id": "S26",
++      "request": "Explicitly start the session controller and wait for my task.",
++      "environment": "checkout",
++      "guide_route": {"block": "other", "command": "sc:agent"},
++      "targets": ["sc:agent"],
++      "mode_flags": [],
++      "retained_inputs": [],
++      "stop": "oriented and waiting for the task",
++      "authority": "read-only",
++      "side_effects": "status inspection only; no automatic startup guarantee",
++      "guide_phrases": ["inspect status, orient, then wait", "self-contained, not a missing protocol"],
++      "negative": {"competitors": ["sc:workflow", "task-builder"], "must_not": "default implementation route because agents are involved"},
++      "activation": {"sc:agent": "self-contained", "sc:pm": "sc:pm-protocol"},
++      "repeats": [
++        {"request": "Explicitly use PM coordination for {fixture:project}.", "targets": ["sc:pm"], "mode_flags": ["--strategy"], "guide_route": {"block": "other", "command": "sc:pm"}, "guide_phrases": ["Not a default planner, automatic-start guarantee"], "expected": "explicit PM coordination with verified dependencies; no resume guarantee"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc-pm-protocol", "expected": "not installed: sc-pm-protocol; pm stays unavailable rather than runnable"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "parallel-agent-fanout", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow \"coordinate agents\""}, "expected": "no routing row matched; cache hint consulted; cached /sc:workflow rejected by current verification and request binding; live discovery selects /sc:agent from Other commands; no hit telemetry; cached /sc:workflow never emitted"}
++      }
++    },
++    {
++      "id": "S27",
++      "request": "Decompose {fixture:architecture-work} into a task hierarchy; do not execute it.",
++      "environment": "checkout",
++      "guide_route": {"block": "other", "command": "sc:spawn"},
++      "targets": ["sc:spawn"],
++      "mode_flags": ["--strategy", "--depth"],
++      "retained_inputs": ["{fixture:architecture-work}"],
++      "stop": "task hierarchy only",
++      "authority": "plan-only",
++      "side_effects": "decomposition output only; no source edits or downstream implementation",
++      "guide_phrases": ["critical stop is a task hierarchy only", "no source edits or downstream implementation", "Branch tracing is limited"],
++      "negative": {"competitors": ["task-builder", "sc:implement"], "must_not": "downstream implementation, unrestricted branch exploration or MDTM from breadth alone"},
++      "activation": {"sc:spawn": "self-contained"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spawn", "expected": "not installed: sc:spawn; no substitution by task-builder"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "parallel-agent-fanout", "candidate": "/task-builder", "envelope": "Run: /task-builder \"build the architecture\""}, "expected": "no routing row matched; cache hint consulted; cached /task-builder rejected by current verification and request binding; live discovery selects /sc:spawn from Other commands; no hit telemetry; cached /task-builder never emitted"}
++      }
++    },
++    {
++      "id": "S28",
++      "request": "Explain {fixture:module} to a beginner using examples, without edits.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "ask"},
++      "targets": ["sc:explain"],
++      "mode_flags": ["--level beginner", "--format examples"],
++      "retained_inputs": ["{fixture:module}"],
++      "stop": "explanation only",
++      "authority": "read-only",
++      "side_effects": "none",
++      "guide_phrases": ["--level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>"],
++      "negative": {"competitors": ["sc:workflow", "sc:improve"], "must_not": "implementation plan from inspection breadth or unwanted code fixes"},
++      "activation": {"sc:explain": "self-contained"},
++      "repeats": [],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:explain", "expected": "not installed: sc:explain; justified native explanation instead"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:workflow", "envelope": "Run: /sc:workflow \"refactor the module\""}, "expected": "guide route matched; cache not consulted; cached /sc:workflow never emitted"}
++      }
++    },
++    {
++      "id": "S29",
++      "request": "Review {fixture:spec} through Socratic questions.",
++      "environment": "checkout",
++      "guide_route": {"block": "routing", "row": "critique-spec"},
++      "targets": ["sc:spec-panel"],
++      "mode_flags": ["--mode socratic"],
++      "retained_inputs": ["{fixture:spec}"],
++      "stop": "requested questions",
++      "authority": "report-only",
++      "side_effects": "review output; input edits need consent",
++      "guide_phrases": ["without a supported explicit mode", "discussion/socratic", "consent before input edits", "not raw PRD/TDD authoring, business viability"],
++      "negative": {"competitors": ["prd", "tdd"], "must_not": "forced critique over Socratic intent or raw PRD/TDD authoring"},
++      "activation": {"sc:spec-panel": "self-contained"},
++      "repeats": [
++        {"request": "Derive a scoped spec from the populated TDD {fixture:tdd}.", "targets": ["sc:spec-panel"], "mode_flags": [], "expected": "explicit derivation with release clarification and consent before input edits"}
++      ],
++      "variants": {
++        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:spec-panel", "expected": "not installed: sc:spec-panel; no substitution by prd"},
++        "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "spec-generation", "candidate": "/prd", "envelope": "Run: /prd docs/raw.md"}, "expected": "guide route matched; cache not consulted; cached /prd never emitted"}
++      }
++    }
++  ],
++  "checks": {
++    "T01": {"static": ["tests/core/test_how_we_work_routing_table.py::test_direct_change_threshold_and_written_plan_requirement", "tests/skills/test_sc_recommend_routing_contract.py::test_hard_limit_overrides_native_first"]},
++    "T02": {"static": ["tests/core/test_how_we_work_routing_table.py::test_direct_change_threshold_and_written_plan_requirement"]},
++    "T03": {"static": ["tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement", "tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone", "tests/core/test_claude_md_routing_block.py::test_always_loaded_policy_keeps_workflow_default_and_mdtm_boundary"]},
++    "T04": {"static": ["tests/core/test_how_we_work_routing_table.py::test_explicit_mdtm_creation_or_existing_task_execution_is_preserved"]},
++    "T05": {"static": ["tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity"]},
++    "T06": {"static": ["tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement", "tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
++    "T07": {"static": ["tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
++    "T08": {"static": ["tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone"]},
++    "T09": {"static": ["tests/core/test_how_we_work_routing_table.py::test_document_only_full_spec_stops_without_downstream_planning"]},
++    "T10": {"static": ["tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},
++    "T11": {"static": ["tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity"]},
++    "T12": {"static": ["tests/core/test_how_we_work_routing_table.py::test_inspection_breadth_does_not_require_an_implementation_plan", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},
++    "T13": {"static": ["tests/core/test_how_we_work_routing_table.py::test_contained_cleanup_exception_retains_safeguards_not_structural_migration"]},
++    "T14": {"static": ["tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops", "tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first", "tests/recommend/test_routing_refresh.py::test_case_guide_route_supports_expected_target"], "behavioral": "Task8"},
++    "T15": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reports_keep_specialist_objective_instead_of_generic_competitor"], "behavioral": "Task8"},
++    "T16": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reports_keep_specialist_objective_instead_of_generic_competitor"], "behavioral": "Task8"},
++    "T17": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reports_keep_specialist_objective_instead_of_generic_competitor"], "behavioral": "Task8"},
++    "T18": {"static": ["tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first", "tests/skills/test_sc_recommend_routing_contract.py::test_match_uses_the_whole_objective_and_preserves_explicit_selection"], "behavioral": "Task8"},
++    "T19": {"static": ["tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state"], "behavioral": "Task8"},
++    "T20": {"static": ["tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first"], "behavioral": "Task8"},
++    "T21": {"static": ["tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops", "tests/recommend/test_routing_refresh.py::test_case_guide_route_supports_expected_target"], "behavioral": "Task8"},
++    "T22": {"static": ["tests/core/test_how_we_work_routing_table.py::test_requested_analysis_research_explain_modes_are_not_forced_defaults", "tests/core/test_how_we_work_routing_table.py::test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions", "tests/skills/test_sc_recommend_routing_contract.py::test_ordered_output_resolves_branches_before_emitting_steps", "tests/recommend/test_routing_refresh.py::test_case_mode_flags_are_declared_by_their_target"], "behavioral": "Task8"},
++    "T23": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T24": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T25": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T26": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling", "tests/core/test_how_we_work_routing_table.py::test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm"]},
++    "T27": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T28": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags"]},
++    "T29": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags"]},
++    "T30": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags"]},
++    "T31": {"static": ["tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags"]},
++    "T32": {"static": ["tests/core/test_how_we_work_routing_table.py::test_requested_analysis_research_explain_modes_are_not_forced_defaults"]},
++    "T33": {"static": ["tests/core/test_how_we_work_routing_table.py::test_requested_analysis_research_explain_modes_are_not_forced_defaults"]},
++    "T34": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes"]},
++    "T35": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes"]},
++    "T36": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes"]},
++    "T37": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes"]},
++    "T38": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes"]},
++    "T39": {"static": ["tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes", "tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops"]},
++    "T40": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/core/test_how_we_work_routing_table.py::test_every_notes_flag_exists_in_its_command", "tests/core/test_how_we_work_routing_table.py::test_mandatory_flags_name_real_steps_and_real_flags", "tests/recommend/test_routing_refresh.py::test_case_mode_flags_are_declared_by_their_target"]},
++    "T41": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
++    "T42": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source", "tests/recommend/test_routing_refresh.py::test_variants_name_real_primitives_and_wrong_cache_rows"]},
++    "T43": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies", "tests/recommend/test_routing_refresh.py::test_case_activation_matches_command_source"]},
++    "T44": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_interface_evidence_accepts_declarations_not_conflicting_examples", "tests/commands/test_workflow_command.py::test_tasklist_referral_uses_positional_roadmap", "tests/recommend/test_routing_refresh.py::test_example_only_flags_are_not_declared_or_routed"]},
++    "T45": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies"]},
++    "T46": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_retirement_checks_provenance_without_excluding_custom_commands", "tests/recommend/test_routing_refresh.py::test_retired_identities_have_no_shipped_command"]},
++    "T47": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"], "behavioral": "Task8"},
++    "T48": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards", "tests/skills/test_sc_recommend_routing_contract.py::test_cache_hit_is_a_reverified_request_specific_hint"]},
++    "T49": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_retirement_checks_provenance_without_excluding_custom_commands", "tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"]},
++    "T50": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_retirement_checks_provenance_without_excluding_custom_commands", "tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"]},
++    "T51": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_verification_follows_actual_activation_and_relevant_dependencies"]},
++    "T52": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards", "tests/recommend/test_dispatch.py::test_collision_case_clauses_map_one_to_one", "tests/skills/test_sc_recommend_routing_contract.py::test_cache_hit_is_a_reverified_request_specific_hint"]},
++    "T53": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards", "tests/recommend/test_dispatch.py::test_collision_case_clauses_map_one_to_one", "tests/skills/test_sc_recommend_routing_contract.py::test_classifier_keys_do_not_force_ordinary_planning_into_mdtm"]},
++    "T54": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards", "tests/recommend/test_dispatch.py::test_collision_case_clauses_map_one_to_one"]},
++    "T55": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards", "tests/skills/test_sc_recommend_routing_contract.py::test_cache_hit_is_a_reverified_request_specific_hint"]},
++    "T56": {"static": ["tests/recommend/test_dispatch.py::test_semantic_cache_collisions_require_consumer_guards"]},
++    "T57": {"static": ["tests/recommend/test_cache.py::test_surface_hash_changes_when_guide_changes", "tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_invalidation_resets_rows"]},
++    "T58": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_uv_cache_step_is_gated", "tests/skills/test_sc_recommend_routing_contract.py::test_cache_hit_is_a_reverified_request_specific_hint", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},
++    "T59": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T60": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T61": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling", "tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops"]},
++    "T62": {"static": ["tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling"]},
++    "T63": {"static": ["tests/core/test_how_we_work_routing_table.py::test_pr_monitor_ceiling_is_conditional_and_each_branch_has_one_exact_value"]},
++    "T64": {"static": ["tests/core/test_how_we_work_routing_table.py::test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping", "tests/core/test_how_we_work_routing_table.py::test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions"]},
++    "T65": {"static": ["tests/core/test_how_we_work_routing_table.py::test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping"]},
++    "T66": {"static": ["tests/core/test_how_we_work_routing_table.py::test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping"]},
++    "T67": {"static": ["tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once", "tests/core/test_how_we_work_routing_table.py::test_markers_are_ordered", "tests/core/test_how_we_work_routing_table.py::test_routing_header_and_separator", "tests/core/test_how_we_work_routing_table.py::test_every_row_has_eight_cells_and_no_pipe_in_a_cell", "tests/core/test_how_we_work_routing_table.py::test_ids_unique_kebab_and_stable"]},
++    "T68": {"static": ["tests/core/test_claude_md_routing_block.py::test_level_table_copy_matches_guide"], "pending": "Task7 recopies the level-table block; expected to fail until then"},
++    "T69": {"static": ["tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide"], "pending": "Task7 mirrors the recommendation plugin tree; expected to fail until then"},
++    "T70": {"static": ["tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src", "tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src"], "pending": "Task7 copies the changed recommend command and overlap-routing reference; expected to fail until then"},
++    "T71": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_cold_worker_preserves_verification_and_implementation_boundaries", "tests/skills/test_sc_recommend_routing_contract.py::test_hook_reminder_matches_branches_and_stays_advisory", "tests/skills/test_sc_recommend_routing_contract.py::test_live_and_no_guide_fallbacks_keep_workflow_first_policy"]},
++    "T72": {"static": ["tests/skills/test_sc_recommend_routing_contract.py::test_hook_reminder_matches_branches_and_stays_advisory", "tests/skills/test_sc_recommend_routing_contract.py::test_hook_is_fail_open_and_matches_only_recommend", "tests/skills/test_sc_recommend_routing_contract.py::test_recommend_command_summary_is_accurate_and_flags_unchanged", "tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces"]},
++    "T73": {"static": ["tests/core/test_how_we_work_routing_table.py::test_task_and_implement_verification_claims_are_not_universal_test_guarantees"]},
++    "T74": {"static": ["tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces", "tests/skills/test_sc_recommend_routing_contract.py::test_recommend_command_summary_is_accurate_and_flags_unchanged"]},
++    "T75": {"static": ["tests/recommend/test_routing_refresh.py::test_command_dispositions_trace_appendix_c_and_inventory"]},
++    "T76": {"static": ["tests/recommend/test_routing_refresh.py::test_analyst_reports_and_disposition_appendix_are_retained"], "research_evidence": "Appendix D dispositions and the final independent reviews in the research package; their semantic adequacy is research-review evidence, not re-executed here"}
++  },
++  "commands": [
++    {"name": "adversarial", "history": "Active; F+D, meaningful delegated safeguards", "disposition": "CHANGE", "requirements_tests": "FR-03/05/07; S22/T22/T40-T45/T52", "report": "analyses/adversarial.md"},
++    {"name": "agent", "history": "Active; F", "disposition": "CHANGE, narrow; no role promotion", "requirements_tests": "FR-04/05/11; S26/T41/T72", "report": "analyses/agent.md"},
++    {"name": "analyze", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; T32/T40", "report": "analyses/analyze.md"},
++    {"name": "auggie-review", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-08/09; S06/T60-T61", "report": "analyses/auggie-review.md"},
++    {"name": "brainstorm", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-01/04/11; T06/T34", "report": "analyses/brainstorm.md"},
++    {"name": "build", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-03/04/05; T19/T40", "report": "analyses/build.md"},
++    {"name": "business-panel", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-03/04/11; T15/T74", "report": "analyses/business-panel.md"},
++    {"name": "cleanup-audit", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-04/11; S04/T74", "report": "analyses/cleanup-audit.md"},
++    {"name": "cleanup", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-01/02/05; T13/T40/T74", "report": "analyses/cleanup.md"},
++    {"name": "cli-eval", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-04; S09/S10", "report": "analyses/cli-eval.md"},
++    {"name": "cli-portify", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-04/05/11; S11/T35/T45", "report": "analyses/cli-portify.md"},
++    {"name": "design", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S02/T40/T44", "report": "analyses/design.md"},
++    {"name": "document", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-02/04/05; T38/T40", "report": "analyses/document.md"},
++    {"name": "estimate", "history": "Retired; F+R", "disposition": "CHANGE filtering; NO CHANGE retirement", "requirements_tests": "FR-06/11; T46-T51/T74", "report": "analyses/estimate.md"},
++    {"name": "explain", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-03/04/05; S28/T12/T40", "report": "analyses/explain.md"},
++    {"name": "git", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-04/05/09; S23/T40", "report": "analyses/git.md"},
++    {"name": "help", "history": "Active; M+D", "disposition": "CHANGE guide; NO CHANGE live-help contract", "requirements_tests": "FR-04/10; S01/T14/T67-T71", "report": "analyses/help.md"},
++    {"name": "implement", "history": "Active; M", "disposition": "CHANGE routing; NO CHANGE executor", "requirements_tests": "FR-01/02/11; T01-T13/T73", "report": "analyses/implement.md"},
++    {"name": "improve", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-01/02/04/05; S05/T13/T40/T74", "report": "analyses/improve.md"},
++    {"name": "index-repo", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-04/05/11; S24/T40/T74", "report": "analyses/index-repo.md"},
++    {"name": "index", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S24/T38/T40", "report": "analyses/index.md"},
++    {"name": "init-lite", "history": "Active; M", "disposition": "CHANGE", "requirements_tests": "FR-04/11; S08/T39", "report": "analyses/init-lite.md"},
++    {"name": "load", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-02/04/05; S25/T40/T44", "report": "analyses/load.md"},
++    {"name": "pm", "history": "Active; F+D", "disposition": "CHANGE, narrow; no default promotion", "requirements_tests": "FR-04/05/11; S26/T41/T42/T72", "report": "analyses/pm.md"},
++    {"name": "post-release", "history": "Active; M+D/alias retirement", "disposition": "CHANGE", "requirements_tests": "FR-04/11; S13/T74", "report": "analyses/post-release.md"},
++    {"name": "pr-submit", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-09; T63-T66", "report": "analyses/pr-submit.md"},
++    {"name": "recommend", "history": "Active; M+F", "disposition": "CHANGE", "requirements_tests": "FR-01-FR-12; T01-T76", "report": "analyses/recommend.md"},
++    {"name": "reflect", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-08/11; T28-T31/T59-T62", "report": "analyses/reflect.md"},
++    {"name": "release-split", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-04; S12", "report": "analyses/release-split.md"},
++    {"name": "research", "history": "Active; M+D+F", "disposition": "CHANGE", "requirements_tests": "FR-04/05/11; T33/T40", "report": "analyses/research.md"},
++    {"name": "review-translation", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-03/04; S07/T17", "report": "analyses/review-translation.md"},
++    {"name": "roadmap", "history": "Active; M", "disposition": "CHANGE", "requirements_tests": "FR-03/04/05; S14/S20/T45/T54", "report": "analyses/roadmap.md"},
++    {"name": "save", "history": "Active; F", "disposition": "CHANGE generic verification; NO CHANGE resume exclusion", "requirements_tests": "FR-02/04/05; S25/T40", "report": "analyses/save.md"},
++    {"name": "sc", "history": "Retired; F+R", "disposition": "CHANGE filtering; NO CHANGE retirement", "requirements_tests": "FR-06; T46-T51", "report": "analyses/sc.md"},
++    {"name": "select-tool", "history": "Retired; F+R", "disposition": "CHANGE filtering; NO CHANGE retirement", "requirements_tests": "FR-06/11; T46-T51/T74", "report": "analyses/select-tool.md"},
++    {"name": "spawn", "history": "Active; M+F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S27/T40/T45", "report": "analyses/spawn.md"},
++    {"name": "spec-panel", "history": "Active; compression+D+F", "disposition": "CHANGE", "requirements_tests": "FR-03/04/05/07; S29/T16/T22/T40/T53", "report": "analyses/spec-panel.md"},
++    {"name": "swarm-wizard", "history": "Active; M+D", "disposition": "CHANGE", "requirements_tests": "FR-04/11; S21/T22/T45/T74", "report": "analyses/swarm-wizard.md"},
++    {"name": "task-mcp", "history": "Retired; R", "disposition": "CHANGE filtering; NO CHANGE retirement", "requirements_tests": "FR-06; T46-T51", "report": "analyses/task-mcp.md"},
++    {"name": "task", "history": "Active; M+D+F", "disposition": "CHANGE routing/claims; NO CHANGE classifier", "requirements_tests": "FR-01/02/11; T01/T02/T73", "report": "analyses/task.md"},
++    {"name": "tasklist", "history": "Active; M+D+F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S15/T21/T44/T54", "report": "analyses/tasklist.md"},
++    {"name": "tdd", "history": "Active; heading change+D+F, delegated M", "disposition": "CHANGE", "requirements_tests": "FR-04/05/07; S03/T43/T53", "report": "analyses/tdd.md"},
++    {"name": "test", "history": "Active; F", "disposition": "CHANGE", "requirements_tests": "FR-04/05/11; T36/T37/T40", "report": "analyses/test.md"},
++    {"name": "troubleshoot", "history": "Active; M+D+F", "disposition": "CHANGE", "requirements_tests": "FR-08; T23-T27", "report": "analyses/troubleshoot.md"},
++    {"name": "validate-roadmap", "history": "Active; M+D+F", "disposition": "CHANGE", "requirements_tests": "FR-04/05; S16/T45/T74", "report": "analyses/validate-roadmap.md"},
++    {"name": "validate-tests", "history": "Active; F+D", "disposition": "CHANGE", "requirements_tests": "FR-04/05/11; S17/T42/T74", "report": "analyses/validate-tests.md"},
++    {"name": "workflow", "history": "Active; M+F", "disposition": "CHANGE routing; NO CHANGE planner capacity", "requirements_tests": "FR-01/02/08; T01-T13/T59", "report": "analyses/workflow.md"}
++  ]
++}

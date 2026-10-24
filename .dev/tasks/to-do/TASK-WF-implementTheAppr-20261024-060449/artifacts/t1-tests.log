@@ -1,0 +1,14 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 53 items
+
+tests/core/test_how_we_work_routing_table.py ........................... [ 50%]
+....................                                                     [ 88%]
+tests/core/test_claude_md_routing_block.py ......                        [100%]
+
+============================== 53 passed in 0.24s ==============================

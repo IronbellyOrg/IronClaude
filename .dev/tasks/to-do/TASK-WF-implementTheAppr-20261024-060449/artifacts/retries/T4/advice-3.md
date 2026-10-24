@@ -1,0 +1,45 @@
+# Adviser ladder entry: opus
+
+outcome: ready
+
+The task can be retried. Attempt 2 tested a cached PRD-creation row only against a TDD request (`attempt-2.diff:608-616`). The spec also requires testing it against a critique of an existing spec (spec line 726). The critique fixture in attempt 2 tested something else: it seeded `/sc:spec-panel` to check path binding (`attempt-2.diff:626-637`), which is the T55 case. The reviewer recorded this exact gap (`review-2.md:43`, `review-2.md:53-54`). Criteria T4.AC1 to T4.AC3 were met (`review-2.md:6-32`) and should stay as they are.
+
+| AC | why earlier attempts missed it (path:line) | change |
+|---|---|---|
+| T4.AC1 | Not missed in attempt 2 (`review-2.md:6-13`; `attempt-2.diff:375-396`). | Keep `attempt-2.diff:367-431` exactly. |
+| T4.AC2 | Not missed (`review-2.md:15-22`; `attempt-2.diff:391-393`, `attempt-2.diff:404-405`). | Keep as is. Do not change `dispatch.py` or `cache.py`. |
+| T4.AC3 | Not missed (`review-2.md:24-32`; `attempt-2.diff:37-54`, `attempt-2.diff:433-478`, `attempt-2.diff:807-831`). | Keep the `prompts.py`, `test_cache.py` and classifier-key assertion hunks exactly. |
+| T4.AC4 | The cached PRD row was tested only against a TDD request (`attempt-2.diff:608-616`). The critique fixture tested T55 path binding with a `/sc:spec-panel` row instead (`attempt-2.diff:626-637`). The reviewer named this gap (`review-2.md:43`, `review-2.md:53-54`). Spec T53 lists both cases (`SPEC-sc-recommend-refresh.md:726`). | Add one fixture: a cached row with key `spec-generation`, candidate `/prd` and a PRD-authoring envelope, offered to a request to critique an existing spec. Pin it to the verification checks (objective, artifact, authority ceiling). The shared loop at `attempt-2.diff:711-718` already checks the rejection terms for every fixture. Keep the T55 fixture separate. |
+
+differs-by: Treat T53 as two separate required test cases that seed the same `spec-generation` + `/prd` row, one for the TDD request and one for the existing-spec critique.
+
+steps:
+1. Keep every non-test hunk from `attempt-2.diff` byte-for-byte: lines 1-366, 367-431 and 433-478, plus the routing-contract tests at 726-848. If the work is reverted to Q0 first, reapply them unchanged. Do not change the dispatch code, the cache code or the schema.
+2. Reapply the `test_dispatch.py` hunk (`attempt-2.diff:479-725`) unchanged.
+3. Directly after the `T53-PRD-authoring-is-not-TDD` param, add one `pytest.param` with:
+   - request: "Critique the existing spec docs/specs/current-spec.md without rewriting it"
+   - key: `"spec-generation"`
+   - candidate: `"/prd"`
+   - envelope: `"Run: /prd docs/raw.md"`
+   - scope: `"verification"`
+   - guards: `("objective", "artifact", "authority ceiling")`
+   - id: `"T53-PRD-authoring-is-not-existing-spec-critique"`
+
+   All three guard terms appear in the verification section (`attempt-2.diff:389`). The request text must not contain "changed backing references", because the test branches on that phrase (`attempt-2.diff:689`).
+4. Leave the T55 path-binding fixture unchanged, and do not count it as T53 coverage.
+5. Keep the static-only docstring (`attempt-2.diff:671-675`). Do not claim the fixtures run model behavior.
+6. Run `uv run pytest tests/recommend tests/skills/test_sc_recommend_routing_contract.py`, then `ruff check` and `ruff format --check` on the four touched files. Record the real output in `extras-3.log`. Expect 80 tests collected, one more than `extras-2.log:8`.
+7. In `approach-3.md`, map T53 to both fixture IDs and T55 to the path-binding fixture.
+
+I found no grounds for a dispute. The reviewer's finding is backed by its own citation and by spec line 726. The constraints are at `TASK-WF-implementTheAppr-20261024-060449.md:22`, `:25` and `:85`. I also sent this advice to team-lead.
+
+| Status | Result |
+|---|---|
+| DONE | Read the Task4 criteria and constraints, spec T53 and FR-07, and the attempt-2 diff, review, approach and extras files. |
+| DONE | Sent the advice to team-lead. |
+| NEXT | Team-lead runs attempt 3 with the one added fixture. |
+
+Files:
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/attempt-2.diff`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/review-2.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md`

@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 237 items
+
+tests/recommend/test_routing_refresh.py ................................ [ 13%]
+........................................................................ [ 43%]
+.................................................                        [ 64%]
+tests/commands/test_routing_plugin_parity.py F.F..                       [ 66%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 78%]
+....................................................                     [100%]
+
+=================================== FAILURES ===================================
+_____________ test_sc_recommend_plugin_tree_mirrors_src_plus_guide _____________
+tests/commands/test_routing_plugin_parity.py:37: in test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md']
+E   assert (not ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md'])
+___________ test_readme_listed_command_mirrors_match_src[recommend] ____________
+tests/commands/test_routing_plugin_parity.py:47: in test_readme_listed_command_mirrors_match_src
+    assert filecmp.cmp(src, plug, shallow=False), f"{plug} differs from {src}"
+E   AssertionError: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/recommend.md differs from /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md
+E   assert False
+E    +  where False = <function cmp at 0x78e7a0ea6e80>(PosixPath('/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md'), PosixPath('/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/recommend.md'), shallow=False)
+E    +    where <function cmp at 0x78e7a0ea6e80> = filecmp.cmp
+=========================== short test summary info ============================
+FAILED tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+FAILED tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[recommend]
+======================== 2 failed, 235 passed in 1.26s =========================
+pytest_rc=1
+All checks passed!
+ruff_rc=0
+3 files already formatted
+format_rc=0

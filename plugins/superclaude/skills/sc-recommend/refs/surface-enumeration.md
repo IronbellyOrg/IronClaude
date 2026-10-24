@@ -1,111 +1,99 @@
-# Phase 0 — Surface Enumeration and Auggie Sweep
+# Phase 0 - Surface Enumeration and Auggie Sweep
 
-This reference documents the algorithm SKILL.md Phase 0 calls. SKILL.md owns the *when* and *why*; this file owns the *how*.
+SKILL.md owns when to enumerate, match and emit. This reference owns source resolution and the per-invocation verification record. The routing guide remains the only fixed routing authority; do not copy it into a keyword/synonym registry.
 
-## Why enumeration is dynamic, not tabular
+## Live surface enumeration
 
-The previous version of this skill carried a hand-curated `keyword → command-category` mapping (a 10-row table covering ml/web/api/debug/performance/security/create/test/improve/learning). It went stale on every framework release. A live invocation missed `/sc:spec-panel` even though the command file was sitting in `src/superclaude/commands/spec-panel.md`. That single miss is the proximate reason this skill was rewritten.
+List installed locations with `find` or absolute-path Glob calls, not unmatched shell globs. Never put `~` in a Glob pattern. Resolve the home directory first. Run independent project/checkout discovery in parallel and record every candidate's provenance.
 
-The replacement is: enumerate the actual surface every invocation, rank with auggie, verify against source files. There is no list of "categories" in this skill, no synonyms, no keyword aliases. If a command exists in the surface, enumeration finds it; if it does not, it is never recommended. That is the entire contract. The one fixed routing source is the routing table in the guide (`~/.claude/HOW-WE-WORK.md`), which SKILL.md Step 0 reads before this enumeration runs; this file never copies it.
+| Surface | Location | When |
+|---|---|---|
+| Installed commands | `$HOME/.claude/commands/sc/*.md` | Always |
+| Installed skills | `$HOME/.claude/skills/*/SKILL.md` | Always |
+| Installed agents | `$HOME/.claude/agents/*.md` | Always |
+| Installed templates | `$HOME/.claude/templates/**/*.md` | Always |
+| Project primitives | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` | Always |
+| Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
+| In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
 
-## Glob set
+The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
 
-Search these locations. List the `$HOME` locations with one Bash call that uses `find`, not shell globs (zsh aborts the whole command on an unmatched glob, and `2>/dev/null` cannot stop that): `find -L "$HOME/.claude/commands/sc" "$HOME/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null; find -L "$HOME/.claude/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null; find -L "$HOME/.claude/templates" -name '*.md' 2>/dev/null`. Or resolve `$HOME` once and give Glob the absolute folder as `path`. Never put `~` in a Glob pattern. Run the project and checkout globs in parallel. Record the path where each name was found; Step C reads that path.
+### Research authority versus actual callable copy
 
-| # | Surface | Location | When |
-|---|---|---|---|
-| 1 | Installed commands | `$HOME/.claude/commands/sc/*.md` | always |
-| 2 | Installed skills | `$HOME/.claude/skills/*/SKILL.md` | always |
-| 3 | Installed agents | `$HOME/.claude/agents/*.md` | always |
-| 4 | Installed templates | `$HOME/.claude/templates/**/*.md` | always |
-| 5 | Project commands, skills, agents | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` (cwd) | always |
-| 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
-| 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
+Inside an IronClaude checkout, source is authoritative for the intended current contract. That does not prove the same bytes or backing skill will run. Identify the actual callable copy separately:
 
-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
+- Commands: project `.claude/commands/` before installed `~/.claude/commands/`.
+- Skills: installed `~/.claude/skills/<name>/SKILL.md` first, then project `.claude/skills/<name>/SKILL.md`.
+- Agents: project `.claude/agents/<name>.md` first, then installed `~/.claude/agents/<name>.md`.
+- Plugin-qualified invocations: preserve the resolved plugin namespace and inspect its actual primitive; do not silently strip the namespace or substitute an unrelated global copy.
 
-### Worktree awareness
+Both installed and project surfaces are valid existence-check locations. When one file must be read, use the kind-specific precedence above. Record duplicates. If canonical and active copies disagree materially, disclose the disagreement as a contract gap instead of certifying intended source behavior as available execution. Do not install/update or edit user configuration to remove the gap.
 
-The current working directory may be a worktree under `.dev/worktrees/<name>/` rather than the main checkout. The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. Inside a worktree under `.dev/worktrees/<name>/` that command returns the worktree's root, so both resolve against that worktree, not the main checkout. Run it once at the start of Phase 0 if uncertain — the cost is a single Bash call.
+## Auggie semantic ranking (Step B)
 
-## Auggie semantic-rank query (Step B)
-
-Skip this step in matched mode (SKILL.md Step 0 matched a routing row) and set `auggie_status: skipped`; Step A and Step C still run. Otherwise: one query. One. Iterating across files defeats the purpose of having auggie.
+Matched guide rows skip ranking and set `auggie_status: skipped`; enumeration and verification still run. Otherwise issue one semantic query, with the literal enumerated candidate names and the verbatim request:
 
 ```text
-mcp__auggie__codebase-retrieval(
-  information_request: "Given the user request: '<verbatim user request>',
-    and the project's enumerated surface (commands: <comma-separated names>;
-    skills: <comma-separated names>; agents: <comma-separated names>;
-    templates: <comma-separated names>), rank the top 3-5 candidates by
-    capability fit for this specific request. For each candidate, return:
-    (1) one-line summary of what it does;
-    (2) when it wins over native Read/Edit/Glob/Grep/Bash;
-    (3) required flags or inputs it expects;
-    (4) any known caveats or recent behavioral changes;
-    (5) related skills/commands typically paired with it in this repo.
-    Do NOT invent candidates not in the enumerated list.",
-  directory_path: "<absolute path to cwd>"
-)
+Rank the top 3-5 enumerated candidates by fit to this request's complete
+objective, explicit selection, inputs, deliverable and authorization ceiling.
+For each, identify its actual capability, required inputs, useful options,
+side effects, relevant dependencies and recent caveats. Do not invent a target
+outside the enumerated surface or treat broad wording as implementation intent.
 ```
 
-Keep the enumerated-surface list literal in the query — auggie has stronger grounding when shown the candidate set rather than asked to discover it.
+Use the current worktree as `directory_path`. No per-candidate Auggie calls. Unavailable or empty ranking degrades transparently to direct file inspection; neither makes an unread target verified.
 
-## Per-candidate verification (Step C) — the prerequisite gate
+## Per-candidate verification (Step C)
 
-For each candidate auggie ranks, before it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie would rank it):
+Apply this gate to each selected matched-row step and each unmatched candidate before output. A cached target is not exempt.
 
-1. **Direct Read** of the candidate's source file. Extract:
-   - For commands: flag table (Options section), `## Required Input` rules (if any), `## Activation > Skill <name>` handoff, `## Boundaries`.
-   - For skills: frontmatter (`name`, `description`, `allowed-tools`, `argument-hint`), Return Contract, Boundaries.
-   - For agents: frontmatter `description` line + Tools list + Boundaries.
-2. **Auggie record** (skip in matched mode) — capture the usage notes, caveats, and related-skills auggie surfaced in Step B for this candidate.
-3. **Outcome**:
-   - Source resolved + auggie record present → full verified record. Proceed.
-   - Source resolved + matched mode (Step B skipped) → verified record with `auggie_summary: skipped`. Proceed. Emit no degradation notice.
-   - Source resolved + auggie query failed (unavailable) / returned nothing (empty) → degraded record. Emit the degradation notice in the output header.
-   - Source missing → ghost candidate. Drop silently. Do not warn the user. Exception: in matched mode a routing row's step is kept and marked `not installed: <name>` (SKILL.md Phase 2), never dropped.
+- **Read the interface.** Read the candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage/trigger signatures and documented positional/keyword syntax. Extract allowed values, required inputs, output/resume behavior, side effects and stopping boundary, not merely flag-looking tokens. Keyword forms such as `mode=update` and `mode=quick` are not invented `--mode` flags.
+- **Resolve activation.** Commands may be self-contained or skill-indirected. Follow mandatory skill instructions wherever documented, including `Skill Invocation`, not only `## Activation`. Resolve actual names/frontmatter, including `tdd`; never construct a hypothetical `sc-*-protocol` from a filename.
+- **Read relevant dependencies.** Read the backing skill and only references/configuration bearing on the advertised capability, mode, prerequisites or authority. Inspect both installed/project lookup surfaces using the precedence above. Do not recursively audit unrelated dependencies or require an unconditional checkout-only path in a consumer project.
+- **Verify lifecycle/provenance.** Reject `deprecated: true` and proven retired framework remnants using current guide lifecycle guidance or verified canonical retirement evidence. A readable installed remnant or matching cached hash does not establish support. Source absence alone is not retirement evidence: legitimate installed-only/custom extensions remain eligible. Uncertain same-name custom ownership needs clarification, not blanket rejection/deletion. Verify replacements independently instead of trusting stale migration metadata.
+- **Keep evidence narrow.** Examples corroborate formal declarations. An example-only flag missing from or conflicting with the declared interface is not supported. Ambiguous prose-only controls remain unverified; retain natural-language intent if the verified target supports it, or disclose the limitation. Read prerequisite inputs before promising a runnable handoff.
 
-If the literal path misses but the name looks close (e.g., user said "deep research" and surface contains `deep-research-agent.md` and `deep-research.md`), run a `Grep -r <name>` over the folder where the near-miss was found to rule out a rename before dropping.
+### Outcomes
 
-## Verified candidate record (per surviving candidate)
+| Evidence | Output treatment |
+|---|---|
+| Interface, actual copy and relevant dependencies agree | Eligible candidate; ranking can still be degraded |
+| Command or required backing skill is missing | Unavailable; keep a matched step visible as `not installed: <name>`, never an unqualified runnable claim |
+| Required input, mode, authority or canonical/active-copy contracts materially disagree | Contract gap; state the incompatible claim, withhold the unsupported invocation and never union conflicting interfaces |
+| Proven shipped retirement or explicit deprecation | Not a current-framework runnable target; explicit questions receive an intent-preserving retirement explanation |
+| Custom override ownership is uncertain | Ask one targeted clarification; do not delete, reinstall or silently substitute |
+| Irrelevant unmatched source is missing | Drop the ghost without noisy warnings |
 
-Carry this record into Phase 1 (net-value evaluation) and Phase 2 (prompt construction):
+A resolvable file alone is not success. Never authenticate, execute the recommended command, delete remnants or expand plugin packaging to conceal a limitation.
+
+## Verified candidate record
+
+This record is local to one invocation, keyed by target. It is not a durable ownership database or a cache-schema change.
 
 ```yaml
-target: "sc:spec-panel"                       # canonical name
-kind: "command"                                # command | skill | agent | template | native
-source_path: "src/superclaude/commands/spec-panel.md"
-activation_style: "self-contained"             # skill-indirected | self-contained | n/a
-protocol_skill: null                           # the protocol skill name if skill-indirected
-flags:                                         # exact set from the source file
-  - "--mode"
-  - "--experts"
-  - "--focus"
-  - "--iterations"
-  - "--format"
-required_inputs:                               # from a Required Input section, if any
-  - "<file>"
-return_contract: "<summary if present>"        # from skill frontmatter / return section
-auggie_summary: |
-  How this is actually used in the repo, common flag combos, related skills,
-  caveats. "skipped" in matched mode (Step B not run); "unavailable" only if the
-  auggie query failed; "empty" if auggie returned nothing.
-related: ["sc:reflect", "..."]                 # only what auggie surfaced AND was verified
-caveats: "<one-line, or 'none surfaced'>"
+target: "sc:spec-panel"
+kind: command
+source_path: "<resolved research source>"
+active_source_path: "<resolved callable copy>"
+source_provenance: "<installed, project, plugin, or checkout research fallback>"
+activation_style: self-contained
+protocol_skill: null
+dependency_paths: []
+interface_evidence: "<table, argument hint, formal Usage, or declared keyword syntax>"
+flags: ["--mode", "--focus"]
+required_inputs: ["<existing specification>"]
+requested_scope: "<deliverable, compatible selected controls and authority ceiling>"
+side_effects: "<source/report/memory/external effects and explicit stop>"
+lifecycle_status: current
+availability: eligible
+contract_gap: null
+auggie_summary: "<verified rank notes, skipped, unavailable, or empty>"
 ```
 
-Cache these records within a single `/sc:recommend` invocation keyed by `target`. Cache does not persist across invocations.
+Include only verified fields and exact interface values. Current source/dependency reads must precede emission; if a relevant file changes, invalidate its local record and reread it. No record survives into another invocation as authority.
 
-## Cardinality bound
+## Cardinality and clarification
 
-- Hard cap: **3 candidates max** carried into Phase 2. The skill picks one as the primary recommendation; up to two more may appear as multi-path branches if and only if they reach the net-value bar (Phase 1) and represent a genuinely different approach (not a flag variation of the primary). A matched routing row (SKILL.md Step 0) counts as one candidate; each of its steps is verified in Step C on its own.
-- Auggie calls per invocation: **1 in Step B** (0 in matched mode, where Step B is skipped). No per-candidate auggie calls. (Step C uses Read, not auggie, because auggie's value was already extracted in Step B.)
+Carry at most three candidates into output construction: one primary, at most two genuinely distinct net-value alternatives. A matched routing row is one candidate, but every selected step is verified. Do not add alternatives merely for option variations.
 
-## When to ask the user a clarifying question instead of guessing
-
-If after Phase 0 Step B, auggie's top-ranked candidate has fit confidence < ~50% (the request was vague enough that 4+ candidates tied), **ask one clarifying question** rather than emitting a guess. The clarification cost is one short user turn; the cost of a wrong recommendation is the user re-asking from scratch.
-
-Example clarification: "You said 'research how X works' — is X (a) a third-party library you want docs for, (b) something in this repo whose code paths you need traced, or (c) an external system you want compared against this repo's approach? Each maps to a different delegation."
-
-Do not ask more than one clarifying question. If one is not enough, the request is too vague to recommend against; say so and ask the user to elaborate before invoking the skill again.
+If the complete objective remains ambiguous, ask one useful question about the desired deliverable or input format. Artifact labels alone do not choose the evaluation objective. Never send a user already inside recommendation back to recommend, or choose heavier MDTM process to avoid resolving ambiguity.

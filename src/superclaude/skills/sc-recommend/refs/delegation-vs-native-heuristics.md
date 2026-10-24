@@ -4,7 +4,7 @@ This reference owns the **how** of Phase 1 in SKILL.md. The skill's job is to re
 
 ## The default is native
 
-The default recommendation is "use `Read`, then `Edit`" (or the equivalent 2-3 step native sequence). Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
+When no explicit verified command, existing executor or specialized deliverable already decides the route, the default recommendation is "use `Read`, then `Edit`" (or the equivalent bounded native sequence). Preserve the requested outcome and authorization ceiling first. Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
 
 If the honest answer to **all** of the following is "yes", recommend native. Do not delegate.
 
@@ -35,9 +35,12 @@ Score the candidate delegation across these five axes. The candidate wins only i
 
 ### 2. Scope / breadth
 
-- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
-- Scope = 5-20 files: a written plan is required (level 3 or 4); if current behaviour is unknown, start with `/tech-research` (level 5).
-- Scope = whole repo or cross-domain (security + perf + arch + maintainability): delegation almost always wins (`/sc:cleanup-audit`, `/sc:troubleshoot` Tier 2+).
+- Choose the requested outcome and explicit command/executor before implementation-size heuristics. Reading many files for analysis, explanation, localization or other reports does not require an implementation plan. A specialist operation keeps its documented lifecycle, even when it writes many artifacts.
+- For actual implementation, the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): more than 5 edits or more than one source file plus its matching test requires a written plan, normally level 3 (`/sc:workflow` then `/sc:implement`). Standard is the ordinary workflow depth; quick is for a smaller checked plan, not a universal requirement.
+- Level 4 (`/task-builder` then `/task`) needs explicit MDTM intent or an exceptionally complex, long-running phased program with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone do not justify it. No numerical workflow capacity ceiling is invented.
+- Preserve the contained-folder `/sc:cleanup` and `/sc:improve` exception with a checkpoint commit and final `git diff` review; it does not exempt structural migrations. Explicit selection cannot waive the written-plan limit or add authority.
+- Existing approved plans go directly to their executor. Workflow packages use implement; existing MDTM execution uses task; explicit implement retains its own semantics. Do not rebuild a plan or treat memory save/load as executor resume.
+- Cross-domain static assessment can use `/sc:analyze`; cleanup evidence can use `/sc:cleanup-audit`; concrete broken behavior can use `/sc:troubleshoot`. Distinguish the objective rather than routing every broad request to debugging or implementation. Unknown current behavior may justify `/tech-research`, but a research-only request stops at its report.
 
 ### 3. Output structure required
 
@@ -57,7 +60,7 @@ Even when native would technically work, delegation can win because the skill **
 
 The framework's three tiers (commands → skills → agents) have different optimal use cases. Pick the *outermost* tier that fits.
 
-- **Command (`/sc:<name>`)** — the user-facing surface. Almost always the right thing to recommend when delegation wins. The command's `## Activation` handoff loads the skill automatically.
+- **Command (`/sc:<name>`)** - the user-facing surface. Prefer its verified interface when delegation wins. It may be self-contained or name a mandatory skill under Activation, Skill Invocation or another heading; read the actual handoff rather than guessing a protocol.
 - **Skill directly** — many IronClaude skills have no `/sc:` command and are run by their own slash name (`/task-builder`, `/task`, `/prd`, `/tech-research`, `/roadmap`; `/tdd` also has `/sc:tdd`, which runs the same skill). Recommend them that way whenever the routing guide names them. Otherwise recommend a skill directly (`Skill <name>`) only when the user explicitly wants the skill body's behavior outside a command's flag surface.
 - **Agent directly (`Agent <name>`)** — use `Agent <name>` directly only when no routing row or guide section covers the task (search the guide's routing table and sections 3.x first), the work is a single specialist execution, and the broader skill protocol around it would add overhead without value. When a routing row or guide section covers the job, use its command instead (a performance problem is `/sc:troubleshoot "<problem>" --type performance`; a focused web research question is `/sc:research "<question>" --depth deep`; neither is an agent).
 
@@ -73,7 +76,7 @@ Then synthesize the three returns into <deliverable>.
 
 ## When the skill should say "use native"
 
-These are the cases where the recommendation must be native tooling, no delegation:
+These favor native tooling only when no explicit verified selection or specialized deliverable takes precedence and the direct-change limit permits it. Do not override a requested command or inspection objective:
 
 - Reading a single file and reporting its contents.
 - Renaming a variable or symbol with 5 or fewer edits in total, in one source file and its test — `Grep` + `Edit` is faster than any skill. More needs level 3.

@@ -1,0 +1,85 @@
+# Research: /sc:auggie-review
+
+- **Topic type:** Command routing and recommendation research
+- **Scope:** Changes from 2026-04-24 through 2026-10-24; current recommendation contracts
+- **Status:** Research complete; no files changed; findings returned inline
+- **Date:** 2026-10-24
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Read-only Git history and actual patches show these changes to `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/auggie-review.md`:
+
+| Commit | Date | Verified change |
+|---|---|---|
+| `ffa35fc5` | 2026-05-20 | Added PR, diff, and snapshot review; grounded findings; PR posting; optional remediation. |
+| `89df2c11` | 2026-05-22 | Formatting only: blank lines around headings, lists, and fences. No semantic routing change. |
+| `cceb392c` | 2026-06-19 | Changed Auggie model default to `prism-b`; also added fence language labels. |
+| `3ae238b1`, `782621f4` | 2026-09-30, 2026-10-01 | Removed Sequential MCP dependency and replaced its synthesis description with native reasoning. |
+| `d136e3b2` | 2026-10-16 | Default remediation changed to workflow/implement; deep review retained MDTM remediation. |
+| `dc9e5609` | 2026-10-16 | Corrected managed workflow package paths and consumption of workflow's built-in pre-review. |
+| `417d1ca2` | 2026-10-20 | Added `--revagent` for internal reviewer-agent selection. |
+| `2916e062` | 2026-10-23 | Removed obsolete post-PR hook activation claims. |
+
+[CODE-VERIFIED] Delegated protocol changes also matter: `e97aa4fd` added mandatory indexing wait on 2026-06-09; `e9c8dbbc` preserved remediation feedback and corrected invocation of the prepared workflow source on 2026-10-16. These are protocol safeguards, not flags recommend should copy into its handoff.
+
+### Current command contract
+
+[CODE-VERIFIED] Required targets are a PR number/URL, `--diff <base>...HEAD`, or `--snapshot <path>`. Unresolvable targets stop. Activation is explicit invocation or a programmatic command call, not conversational “review” keywords. The command delegates to `sc:auggie-review-protocol`. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/auggie-review.md:13-30,63-73`.
+
+[CODE-VERIFIED] Defaults are `--depth standard`, `--focus all`, remediation offer enabled, and PR posting enabled for PR targets. Useful controls include `--no-post-pr`, `--no-remediation-offer`, `--output-dir`, and `--auggie-model`. `--revagent opus|sonnet|haiku|fable` changes only internal reviewer agents; quick/standard depths warn because no internal reviewer runs. It must not be described as changing Auggie's model. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/auggie-review.md:45-57`.
+
+[CODE-VERIFIED] The contract produces a review report, raw findings, and audit information. It does not edit reviewed source. PR mode can write review comments without another confirmation; remediation requires acceptance, and execution remains user-driven. Standard remediation consumes workflow's existing pre-review rather than running it twice. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:308-342`.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The guide correctly includes local branch review with mandatory `--no-post-pr`, but only inside the broader “review work and open a pull request” workflow. There is no standalone Auggie PR/diff/snapshot review row in the routing block. Thus a review-only request should not inherit commits, pushes, or PR creation. Compare the command's three targets above with `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:303-325`.
+
+[CODE-VERIFIED] Matching a guide row bypasses both cache paths and semantic ranking. Unmatched requests can use the cache; cold discovery reads candidate source. Therefore guide coverage directly affects whether review-only requests reach live discovery. Checkout source takes precedence over installed duplicates. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:39-67,100-135`.
+
+[CODE-VERIFIED] The classifier combines adversarial debate, reflection, and code review under `adversarial-review`. Dispatch validates only the cached row's selected source file, then returns its stored envelope; it does not distinguish PR posting, snapshot scope, or remediation consent. This is a verified conflation risk, not a demonstrated erroneous recommendation. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:50-67` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:103-136`.
+
+[CODE-VERIFIED] Surface freshness hashes discovered paths plus guide contents; per-row freshness hashes one candidate file. A protocol/ref-only edit can therefore leave a command-backed row valid when command and guide bytes are unchanged. The remediation handoff is a concrete dependency affected by this gap. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-103` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:116-124`.
+
+[CODE-CONTRADICTED] Deep review currently selects MDTM remediation automatically, regardless of actual remediation complexity. That conflicts with the user's desired policy reserving MDTM for the most complex, long-running workloads. It is existing behavior, not an already-completed policy update. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md:5-14`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed:** Extend the existing governing guide, not a new keyword table, with a standalone review-only route covering Auggie PR/diff/snapshot requests. Mark local report-only review `changes_files: no` under the guide's report-output convention. Keep PR posting explicit and disclosed; preserve the existing full shipping workflow separately. Example grounded in verified flags:
+
+`/sc:auggie-review 62 --depth deep --revagent sonnet --no-post-pr --no-remediation-offer`
+
+[UNVERIFIED] **MUST, proposed:** In `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`, distinguish review depth from remediation complexity. Coordinate the same policy change in `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/auggie-review.md` and its protocol/handoff reference. Recommend workflow/implement for ordinary planned remediation even after deep review; retain explicit MDTM task execution. Until those contracts change, disclose the current deep-to-MDTM coupling rather than claim it is absent.
+
+[UNVERIFIED] **SHOULD, proposed:** Strengthen candidate verification and cache validity around activation dependencies and request constraints. A cached artifact-debate recommendation must not answer a PR-review request merely because both share `adversarial-review`. Prefer cache bypass or capability-aware compatibility validation over adding another fixed keyword table.
+
+[UNVERIFIED] **MUST, proposed:** Update the plugin guide mirror when changing routing. Its current shipping row also names Auggie review, but tracked plugin inventory contains no Auggie command/protocol package. Missing steps must remain visibly unavailable, not silently become generic agents. Relevant mirror: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:323`.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression cases:
+
+1. Review PR 62 locally only: emit `--no-post-pr`; no commit, push, remediation execution, or PR creation.
+2. Review a supplied snapshot: preserve snapshot mode rather than manufacture a diff baseline.
+3. Explicitly post a PR review: disclose GitHub writes; never imply code fixes or approval.
+4. Request deep review with `--revagent sonnet`: preserve it and distinguish it from `--auggie-model`.
+5. Deep review with ordinary remediation: after coordinated policy changes, default to workflow/implement.
+6. Seed an artifact-debate cache row, then ask for PR review: no cross-purpose cached hit.
+7. Change only the remediation ref: invalidate or reverify any recommendation depending on it.
+8. Plugin-only installation lacking Auggie review: mark unavailable.
+9. An explicit MDTM task input still routes to `/task`.
+
+## Gaps
+
+[CODE-VERIFIED] Exact-path search found no tracked `sc-recommend-protocol` directory; `/config/.claude/skills/sc-recommend-protocol/SKILL.md:1-44` remains globally installed with legacy flags and keyword categories. Its presence is not evidence of current tracked behavior.
+
+[CODE-VERIFIED] The recommendation hook is advisory and fail-open, not mechanical proof that discovery happened: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh:4-19`.
+
+[CODE-VERIFIED] Existing routing tests pin text contracts; reviewer-model tests pin deep-only propagation. Neither establishes end-to-end recommendation correctness. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py:35-80` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_auggie_review_revagent.py:114-139`.
+
+[UNVERIFIED] Protocol prose mentions resume and force behavior outside the command's published options. Do not recommend those flags without reconciling the interface. No review, skill execution, or tests were run in this research.
+
+## Key Takeaways
+
+**CHANGE.** Preserve the dedicated review command and its full targeting/model/posting controls. **MUST:** separate review-only from shipping, coordinate deep-review remediation policy, preserve authorization boundaries and plugin parity. **SHOULD:** fix cache compatibility and dependency freshness. **NONE:** no replacement keyword router, runtime-capacity claims, or automatic implementation chain.

@@ -1,0 +1,89 @@
+# Research: sc:spec-panel recommendation refresh
+
+- **Topic type:** Command-specific routing analysis
+- **Scope:** Six-month command history, live command contract, recommendation guide, classifier/cache, plugin copy and tests
+- **Status:** Research complete; proposed changes only
+- **Date:** 2026-10-24
+- **Persistence destination:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/spec-panel.md`
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/spec-panel.txt`, worker `a0d56f36c50e1dac5`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Evidence key
+
+All references below identify absolute paths. A reference such as C:22 means line 22 of the corresponding file.
+
+- **C:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/spec-panel.md`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **S:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **P:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **H:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh`
+- **PC:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/spec-panel.md`
+- **PG:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`
+- **D:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py`
+- **CA:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py`
+- **TD:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/recommend/test_dispatch.py`
+- **TG:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py`
+
+### Historical changes
+
+[CODE-VERIFIED] Exact-path history contains four commits within the inventory window. `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, adds Markdown spacing only; its diff becomes empty when whitespace and blank lines are ignored. `021f715cda6d71faf1fc241be73bf6b34069f2cc`, dated 2026-05-27, compresses expert descriptions, mode examples and output schemas without introducing new routing capabilities. The existing correctness focus and PRD/TDD conversion behavior predate these changes. `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, removes Sequential MCP from declared dependencies and assigns panel coordination to native reasoning. `782621f480229748caf05d6c249087ee095811e3`, dated 2026-10-01, removes the remaining Sequential tool-coordination reference. Evidence: exact-command Git patches; current C:6,91-95,216-223.
+
+### Current command contract
+
+[CODE-VERIFIED] This is a self-contained command, not a protocol-skill dispatcher. It accepts specification content or `@file`; documented options are `--mode discussion|critique|socratic`, `--experts`, comma-separated `--focus`, `--iterations`, and `--format standard|structured|detailed`. One iteration is the documented default. No explicit mode default or resumable ledger is defined. The panel comprises simulated expert perspectives, not a promise of independently spawned reviewers. (C:19-25,113-125,225-266,455-460)
+
+[CODE-VERIFIED] Correctness review adds state-variable, boundary and pipeline analysis. `--focus correctness` requires a State Variable Registry and Guard Condition Boundary Table; pipelines trigger count-flow output. Ordinary reviews also require guard tables when conditional logic is present. These are prose-defined execution obligations, not runtime behavior exercised during this investigation. (C:173-210,291-318,335-365)
+
+[CODE-VERIFIED] Output is broader than critique alone. Existing, substantially populated TDDs can yield scoped release specs; missing TDD `target_release` requires a question. PRDs support review and derived specs without the same release requirement. Downstream intent may be expressed in natural language or through the prose-documented `--downstream roadmap`. Specifications cannot be modified without explicit consent and validation. (C:35-38,268-280,448-453)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] Basic discovery is already repaired: G:315 provides `critique-spec`, and S:94 explicitly records the historical failure to discover this command. Matched routes bypass both cache paths and semantic ranking, while still requiring source verification. Source-checkout precedence is explicit, so an older installed command must not replace this checkout’s definition. (G:315; S:41-60,110-116)
+
+[CODE-CONTRADICTED] The generic review route requires `--mode critique` even though the command supports discussion and Socratic questioning. A request to “review this spec through Socratic questions” can match the broad review intent but receive the wrong mandatory mode. Separately, calling spec-panel universally “review-only” in the classifier oversimplifies its authorized document-derivation capability. The restriction remains correct for generating new PRDs/TDDs from raw inputs. (G:315; C:115-125,268-280; P:55-56,73-75)
+
+[CODE-CONTRADICTED] Recommendation flag verification only accepts a target’s flag table or `argument-hint`, but spec-panel has neither: its normal options are declared in Usage, and downstream behavior is declared in prose. Literal application therefore rejects even the guide’s mandatory `--mode critique`. Verification must recognize authoritative Usage syntax without treating arbitrary flag mentions as supported arguments. (C:1-25,36; S:235-237,335-337)
+
+[CODE-VERIFIED] Cache tests currently seed `spec-generation` with `/sc:spec-panel`, contrary to the classifier’s stated distinction. Dispatch validates source bytes but does not validate semantic compatibility between classification key and candidate. These fixtures demonstrate cache mechanics, not correct routing. Ordinary matched critique requests bypass this cache, limiting the affected path to unmatched requests. (TD:20-56,124-166; P:55-56,73-75; D:104-136; S:60)
+
+[CODE-VERIFIED] Freshness protection hashes candidate bytes per row and hashes guide content globally; surface enumeration hashes paths, not every source body. Guide changes therefore invalidate old rows, but classifier/runbook wording changes alone are not covered by these hashes. The plugin guide repeats the current critique route, while the plugin command retains `Sequential` at PC:219 after the source changed to native reasoning. (CA:63-103; D:116-124; PG:315; C:219; PC:219)
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** amend G section 3.6 and `critique-spec` so critique is the recommendation default only when the user has not selected another supported mode. Preserve explicit modes, expert subsets, focus, iterations and format after source verification. Update PG and recommendation examples consistently, without adding another fixed keyword table. Supported example: `/sc:spec-panel @<existing-spec> --mode socratic --focus architecture`. (Basis: G:315; C:22,123-125,403-404)
+
+[UNVERIFIED] **MUST, proposed policy:** update S candidate verification, R1 and P’s cold-path R1 to accept authoritative Usage declarations. For prose-only downstream syntax, retain a limitation notice or use natural-language downstream intent until the command’s interface declaration is normalized. Do not invent `--output`, `--apply` or resume flags. (Basis: C:22,36,272; S:132,335-337; P:200-204)
+
+[UNVERIFIED] **SHOULD, proposed policy:** broaden the existing guide’s explanation to distinguish review, mentoring, correctness analysis and authorized derivation from existing documents. Example: `/sc:spec-panel @<existing-spec> --mode critique --focus correctness --format detailed`. For derivation, preserve the user’s instruction to produce a scoped release spec; do not automatically run roadmap, workflow or an executor. (Basis: C:173-190,264-280; G:315)
+
+[UNVERIFIED] **MUST, proposed policy:** correct classifier terminology and misleading cache fixtures, then add semantic regression cases. Preserve the generation-versus-review distinction while acknowledging conversion from existing populated documents. Do not add another command-routing keyword map. (Basis: P:55-75; TD:20-56)
+
+[UNVERIFIED] **MUST, user-directed boundary:** keep report-only review outside implementation planning. After findings are accepted, ordinary planned implementation should prefer workflow plus implement; task-builder plus task is reserved for the most complex, long-running workloads. Existing G:305-309 and S:155-157 use broader MDTM triggers, so the governing guide and fallback prose must change together. An existing spec, several files or resume requirements alone must not trigger MDTM.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed checks:
+
+1. Existing PRD critique selects spec-panel with requirements focus, reports only, and does not append implementation.
+2. Explicit Socratic mode survives a matched review route.
+3. Correctness review preserves `--focus correctness`; plain CRUD does not claim pipeline-count analysis.
+4. Raw-input PRD creation never selects spec-panel.
+5. Authorized populated-TDD conversion remains available; missing release scope produces a question.
+6. Matched review bypasses cache; an unmatched warm generation request cannot reuse a spec-panel fixture.
+7. Usage-declared flags pass verification; fabricated flags fail.
+8. Guide changes invalidate cached rows; plugin/source behavior remains aligned.
+
+## Gaps
+
+[CODE-VERIFIED] Tracked-file searches found no current sc-recommend-protocol or spec-panel protocol directory. `/config/.claude/skills/sc-recommend-protocol/SKILL.md` is an installed legacy artifact with keyword routing and retired flags, not the command’s current activation target. Its presence does not authorize restoring it.
+
+[CODE-CONTRADICTED] H:4-13 explicitly describes a fail-open reminder, whereas the recommend command claims its gate cannot be silently skipped. This is procedural guidance, not mechanical enforcement.
+
+[UNVERIFIED] No runtime review, classifier evaluation or test execution was performed. Existing TG:184-201,286-304 checks table structure, targets and flag-token existence; it does not establish mode-preservation or generation-versus-conversion behavior. Expert ordering also conflicts within C:82 and C:106; treat that as a separate command follow-up.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE. MUST:** preserve explicit review modes, fix Usage-based flag verification, separate generation/review/derivation, correct misleading cache fixtures and preserve report-only scope. **SHOULD:** surface correctness and authorized conversion capabilities; reconcile plugin dependency wording. **NONE:** no new spec-panel protocol, fixed keyword router, automatic execution chain or speculative resume mechanism.

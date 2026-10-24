@@ -1,0 +1,56 @@
+{
+  "verdict": "missing",
+  "ac": [
+    {
+      "id": "T6.AC1",
+      "status": "met",
+      "evidence": [
+        "tests/recommend/fixtures/routing_refresh_cases.json:665",
+        "tests/recommend/test_routing_refresh.py:145"
+      ],
+      "reason": "T01-T76 all present (order-asserted at test:124); every static ref is AST-resolved to a real test_ function. Sampled T07/T25/T36/T37/T47/T51/T62/T66: mapped tests contain the matching guide/skill assertions. Generation-dependent T14-T22/T47 carry behavioral=Task8. 29 S-cases each have request, environment, targets, mode_flags, retained_inputs, stop, authority, side_effects, negative.competitors+must_not (schema test:117-142); spot-checked against spec 8.3."
+    },
+    {
+      "id": "T6.AC2",
+      "status": "met",
+      "evidence": [
+        "tests/recommend/fixtures/routing_refresh_cases.json:113",
+        "tests/recommend/test_routing_refresh.py:254"
+      ],
+      "reason": "Every case has unavailable_plugin and seeded_wrong_cache variants, with key validated against CLASSIFICATION_KEYS and candidate != target. Direct targets: S04 cleanup-audit plus hidden-config repeat (:113-134), S09/S10 cli-eval create/run with forbidden opposite-mode step text and an ambiguous clarification repeat (:217-260), S12 split/--no-split/--resume-from (:282-304), S17 missing default suite (:387-409), S21 swarm-wizard (:471-491)."
+    },
+    {
+      "id": "T6.AC3",
+      "status": "met",
+      "evidence": [
+        "tests/recommend/test_routing_refresh.py:1",
+        "tests/recommend/fixtures/routing_refresh_cases.json:4"
+      ],
+      "reason": "Module docstring and evidence_class label the tests static, with generation left to Task8. The tests only read repo files and import a constant: no subprocess, network or authentication."
+    },
+    {
+      "id": "T6.AC4",
+      "status": "met",
+      "evidence": [
+        "tests/recommend/test_routing_refresh.py:317",
+        "tests/recommend/test_routing_refresh.py:368"
+      ],
+      "reason": "The 47 commands must equal the Appendix C rows exactly, match inventory.json and the live 43 shipped commands, keep the 4 retirements with R history, and keep the 10 formatting-only (F) histories pinned. Analyst reports and Appendix D are kept. T68-T70 are honestly marked pending Task7 (fixture:733-735)."
+    },
+    {
+      "id": "T6.AC5",
+      "status": "unmet",
+      "evidence": [],
+      "reason": "artifacts/ has only t6.diff for Task6: no t6 test/lint log, unlike t1-t5. A fresh run gives 235 passed and 2 failed (plugin skill tree, recommend command mirror). Both are Task7-owned and labeled, but they are not recorded."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    "MEDIUM: AC5 outcome log missing under ./artifacts/.",
+    "LOW: the T76 static test only checks report headings and Appendix D headings, not per-proposal dispositions. It is labeled research_evidence, so it is not hidden, but the coverage is thin.",
+    "LOW: competitor-absence is checked only on the primary route steps, not on repeat routes, and is disabled for S18-S20 (absent_from_route false). Those must_not rules rest on Task8.",
+    "INFO: the .dev/tasks spec dependency globs .dev/tasks/*/PKG, so it survives a move from to-do to done. Acceptable while .dev/tasks stays tracked."
+  ],
+  "self_audit": "Checked the diff hunks against the Q0 tree (git diff --stat matches the 4+11 lines; new files are untracked and match the diff line counts). Read the full fixture and test file and spec 8.1-8.3. Ran the 3 Task6 test files read-only. Grepped sampled mapped test bodies, the README mirror text, spec-panel modes and the artifacts listing."
+}

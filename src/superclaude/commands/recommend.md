@@ -41,13 +41,13 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
 
 `/sc:recommend` generates a **paste-ready prompt** that hands the user's goal off to the right delegation — or recommends native `Read`/`Edit`/`Glob`/`Grep`/`Bash` when no delegation adds net value. Every invocation:
 
-1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first); when a routing row matches the goal, returns that row's steps in order with their mandatory flags. Then enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates). No hand-written keyword table.
-2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
-3. Reads each candidate's source file before it is allowed into the recommendation.
-4. Evaluates whether the chosen delegation earns its overhead vs. native tooling, and falls back to native when it does not.
-5. Emits a hand-off envelope — never restates the target's protocol logic inline.
+1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first). It matches the whole requested outcome (deliverable, explicitly named command or existing artifact, compatible mode/depth/output choices and how much it may change) to one routing row, not any single phrase. A matched row's applicable steps are returned in order, with exactly one selected alternative and their verified flags, and stop at the requested deliverable: a report-only or plan-only request gains no execution, commit or push step. If the objective stays ambiguous, it asks one question and stops. No hand-written keyword table.
+2. When no row matches, it enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates) and issues one `mcp__auggie__codebase-retrieval` query to rank candidates against the verbatim request. In an IronClaude checkout an optional local cache may suggest a candidate first; a cache hit is only a hint that is re-verified like any live candidate, and the handoff is rebuilt from the current request's own inputs, never emitted verbatim. Matched rows, a missing guide and runs outside a checkout do not use the cache.
+3. Verifies every candidate before it is emitted: the copy that would actually run, its declared interface (option tables, argument hints, Usage, documented positional or keyword syntax), its backing skill and the references relevant to the advertised behavior, and current lifecycle guidance (deprecated or retired targets are excluded). A missing command or skill is shown as `not installed: <name>`; a material disagreement between sources is reported as a contract gap, not a runnable command.
+4. Applies the guide's levels: a bounded direct edit may use native tooling; larger implementation goes to `/sc:workflow`, then `/sc:implement`; MDTM task files only on explicit request or an exceptional documented need. Otherwise it falls back to native tooling when delegation does not earn its overhead.
+5. Emits a hand-off envelope that states which files, reports, memory or external systems the selected steps change, and never restates the target's protocol logic inline or runs it.
 
-With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`). Local skills and plugins do not bleed into each other's output.
+With `--plugin`, steps 1-4 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`) filtered by the `--minstar` floor, with optional `--eval`; no local routing row, guide level or `/sc:workflow` step is added to plugin results. Local skills and plugins do not bleed into each other's output.
 
 ## Activation
 
@@ -57,7 +57,7 @@ With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin ma
 
 Do NOT proceed using only this command file. The full behavioral specification — Phase 0 surface enumeration, Phase 1 net-value evaluation, Phase 2 refined-prompt construction, Phase 3 `--plugin` ecosystem search, anti-fabrication rules R1-R4 — is in the protocol skill.
 
-A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate at the moment the Skill tool is invoked. Even under context pressure, the gate cannot be silently skipped.
+Where it is registered (this repository's project `.claude/settings.json`), a PreToolUse hook (`sc-recommend-phase0.sh`) adds a short reminder of these steps when the Skill tool loads `sc-recommend`. The hook is advisory and fail-open: it never blocks the skill, adds nothing if it cannot parse the call (for example when `jq` is missing), and does not prove any step ran. The skill is the authority.
 
 ## Examples
 
@@ -112,8 +112,8 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 **Will:**
 
 - Read the routing guide first, then enumerate the live surface on every invocation
-- Use auggie to semantically rank candidates against the user's request
-- Verify every candidate against its source file before emitting it
+- Use auggie to semantically rank candidates against the user's request when no routing row matched
+- Verify every candidate's callable copy, declared interface, relevant dependencies and lifecycle before emitting it
 - Emit refined paste-ready prompts that invoke existing skills/commands/agents
 - Recommend native tooling when delegation does not add net value
 - Switch to ecosystem search when `--plugin` is set

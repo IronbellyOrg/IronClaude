@@ -1,0 +1,59 @@
+{
+  "verdict": "missing",
+  "ac": [
+    {
+      "id": "T8.AC1",
+      "status": "met",
+      "evidence": [
+        "artifacts/t8/inputs.json:251",
+        "artifacts/t8/results.json:6"
+      ],
+      "reason": "103 units (S01-S29 x primary/unavailable/seededcache + 16 repeats) identical across inputs/outputs/grades/results; 0 duplicate outputs; only 2 of 369 fixture expected strings appear in outputs, both verbatim guide phrases (HOW-WE-WORK.md:361,385); grader_status and final_status per unit, kept apart from t8-final-checks.log; no unexecuted unit"
+    },
+    {
+      "id": "T8.AC2",
+      "status": "unmet",
+      "evidence": [
+        "artifacts/t8/outputs.json:815",
+        "artifacts/t8/results.json:488"
+      ],
+      "reason": "S11-primary and S11-seededcache emit a runnable /sc:cli-portify after falsely calling the sc:/sc- activation mismatch 'the same pattern every protocol uses'. skills/*-protocol frontmatter shows only cli-portify (and validate-roadmap) are hyphen-named, and guide row cli-portification-spec (HOW-WE-WORK.md:383) requires a contract-gap result. So contract-gap degradation is not kept. Calling it 'generator error, not policy' leaves it uncorrected, yet the task allows changing approved recommendation files and no Ruling exists. The other 18 sampled outputs keep inputs, options, stop/authority and not-installed degradation"
+    },
+    {
+      "id": "T8.AC3",
+      "status": "met",
+      "evidence": [
+        "artifacts/t8-implementation-summary.md:1",
+        "artifacts/t8-implementation-summary.md:99"
+      ],
+      "reason": "Registered template is filled in: 12 FR rows and 47 capability rows (43 active + 4 retired). The overall line names 93/8/2 counts, the S11 failure, the S04 contradiction, fixture over-specification and the Task6 gaps"
+    },
+    {
+      "id": "T8.AC4",
+      "status": "met",
+      "evidence": [
+        "artifacts/t8-final-checks.log:53",
+        "artifacts/t8-final-checks.log:66"
+      ],
+      "reason": "pytest 989 passed rc0, ruff check/format rc0, verify-sync rc0; typecheck is honestly recorded as skipped"
+    },
+    {
+      "id": "T8.AC5",
+      "status": "met",
+      "evidence": [
+        "artifacts/t8/results.json:11",
+        "artifacts/t8-implementation-summary.md:99"
+      ],
+      "reason": "Diff vs Q0 for src/plugins/tests shows only the 2 untracked Task6 files as tree deletions; their blob hashes equal Q0 (8610c309, ae1a6637). The t8 artifacts are staged. HEAD is still 7728828. No FINAL or archive claim"
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    "S11 x2: false activation-name claim; contract-gap degradation fails; uncorrected",
+    "S04-repeat1 adjudication keeps both versions (results.json:199) but says the output 'names /sc:cleanup-audit' when it explicitly withholds it, and it does not address the grader's policy-ambiguity cause (guide 3.7 never says whether to emit the command or go native). The unit still has in_scope_routing_failure=true while confirmed list is []",
+    "Summary rows: cli-portify (line 53) and FR-04/FR-11 (lines 21,28) say Discharged=YES and the overall verdict says DISCHARGED even though 2 of 3 S11 units failed; author-written Required class conflicts with the template's loader-injected rule",
+    "Summary never states explicitly that zero evaluation cases went unexecuted"
+  ],
+  "self_audit": "Read qa.md, Constraints and Task8 text; spec lines 794 and 801; the template; mechanically checked unit sets, copying and Q0 blobs; sampled 20 outputs; did not read retries or prior reviews"
+}

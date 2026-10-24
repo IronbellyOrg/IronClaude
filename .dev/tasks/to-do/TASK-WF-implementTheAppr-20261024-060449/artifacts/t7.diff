@@ -1,0 +1,959 @@
+diff --git a/plugins/superclaude/commands/recommend.md b/plugins/superclaude/commands/recommend.md
+index 68e82eb4..31db9f04 100644
+--- a/plugins/superclaude/commands/recommend.md
++++ b/plugins/superclaude/commands/recommend.md
+@@ -41,13 +41,13 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
+ 
+ `/sc:recommend` generates a **paste-ready prompt** that hands the user's goal off to the right delegation — or recommends native `Read`/`Edit`/`Glob`/`Grep`/`Bash` when no delegation adds net value. Every invocation:
+ 
+-1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first); when a routing row matches the goal, returns that row's steps in order with their mandatory flags. Then enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates). No hand-written keyword table.
+-2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
+-3. Reads each candidate's source file before it is allowed into the recommendation.
+-4. Evaluates whether the chosen delegation earns its overhead vs. native tooling, and falls back to native when it does not.
+-5. Emits a hand-off envelope — never restates the target's protocol logic inline.
++1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first). It matches the whole requested outcome (deliverable, explicitly named command or existing artifact, compatible mode/depth/output choices and how much it may change) to one routing row, not any single phrase. A matched row's applicable steps are returned in order, with exactly one selected alternative and their verified flags, and stop at the requested deliverable: a report-only or plan-only request gains no execution, commit or push step. If the objective stays ambiguous, it asks one question and stops. No hand-written keyword table.
++2. When no row matches, it enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates) and issues one `mcp__auggie__codebase-retrieval` query to rank candidates against the verbatim request. In an IronClaude checkout an optional local cache may suggest a candidate first; a cache hit is only a hint that is re-verified like any live candidate, and the handoff is rebuilt from the current request's own inputs, never emitted verbatim. Matched rows, a missing guide and runs outside a checkout do not use the cache.
++3. Verifies every candidate before it is emitted: the copy that would actually run, its declared interface (option tables, argument hints, Usage, documented positional or keyword syntax), its backing skill and the references relevant to the advertised behavior, and current lifecycle guidance (deprecated or retired targets are excluded). A missing command or skill is shown as `not installed: <name>`; a material disagreement between sources is reported as a contract gap, not a runnable command.
++4. Applies the guide's levels: a bounded direct edit may use native tooling; larger implementation goes to `/sc:workflow`, then `/sc:implement`; MDTM task files only on explicit request or an exceptional documented need. Otherwise it falls back to native tooling when delegation does not earn its overhead.
++5. Emits a hand-off envelope that states which files, reports, memory or external systems the selected steps change, and never restates the target's protocol logic inline or runs it.
+ 
+-With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`). Local skills and plugins do not bleed into each other's output.
++With `--plugin`, steps 1-4 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`) filtered by the `--minstar` floor, with optional `--eval`; no local routing row, guide level or `/sc:workflow` step is added to plugin results. Local skills and plugins do not bleed into each other's output.
+ 
+ ## Activation
+ 
+@@ -57,7 +57,7 @@ With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin ma
+ 
+ Do NOT proceed using only this command file. The full behavioral specification — Phase 0 surface enumeration, Phase 1 net-value evaluation, Phase 2 refined-prompt construction, Phase 3 `--plugin` ecosystem search, anti-fabrication rules R1-R4 — is in the protocol skill.
+ 
+-A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate at the moment the Skill tool is invoked. Even under context pressure, the gate cannot be silently skipped.
++Where it is registered (this repository's project `.claude/settings.json`), a PreToolUse hook (`sc-recommend-phase0.sh`) adds a short reminder of these steps when the Skill tool loads `sc-recommend`. The hook is advisory and fail-open: it never blocks the skill, adds nothing if it cannot parse the call (for example when `jq` is missing), and does not prove any step ran. The skill is the authority.
+ 
+ ## Examples
+ 
+@@ -112,8 +112,8 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate
+ **Will:**
+ 
+ - Read the routing guide first, then enumerate the live surface on every invocation
+-- Use auggie to semantically rank candidates against the user's request
+-- Verify every candidate against its source file before emitting it
++- Use auggie to semantically rank candidates against the user's request when no routing row matched
++- Verify every candidate's callable copy, declared interface, relevant dependencies and lifecycle before emitting it
+ - Emit refined paste-ready prompts that invoke existing skills/commands/agents
+ - Recommend native tooling when delegation does not add net value
+ - Switch to ecosystem search when `--plugin` is set
+diff --git a/plugins/superclaude/skills/sc-recommend/SKILL.md b/plugins/superclaude/skills/sc-recommend/SKILL.md
+index 9cb68b31..b24a9a69 100644
+--- a/plugins/superclaude/skills/sc-recommend/SKILL.md
++++ b/plugins/superclaude/skills/sc-recommend/SKILL.md
+@@ -30,9 +30,9 @@ Every successful invocation emits one of:
+ 1. **Refined-prompt block** — a fenced `text` block containing the paste-ready prompt to invoke a target skill/command/agent. Includes explicit parameters, deliverable shape, and file/agent handoffs. Single-line bash commands only (no heredocs, no `\` continuations); the prompt body itself may be multi-line because it is an argument string.
+ 2. **Native-tooling recommendation** — when delegation adds no net value, a short paragraph naming the native tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`) and the order to run them in. No skill is invoked.
+ 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
+-4. **Ordered workflow** — when Step 0 matched a routing row in the guide: a numbered list of steps in the guide's order, each with the command or skill to run and every flag the guide makes mandatory for that step, plus the level, whether it changes files, and the guide section to read (Phase 2, ordered-workflow template).
++4. **Ordered workflow** - when Step 0 matches: selected applicable steps in guide order, with verified inputs/options, level, actual effects and guide section. Conditions and the requested stopping point are resolved before output (Phase 2).
+ 
+-If multiple distinct paths are reasonable (e.g., "either `/sc:workflow` + `/sc:implement` (level 3) or `/task-builder` + `/task` (level 4) fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
++Use one recommended path when the objective is clear. Multiple prompt blocks are only for genuinely different requested outcomes or justified machinery needs, each with a one-line disambiguator. Do not add a heavier MDTM alternative merely because it could perform the same ordinary work.
+ 
+ The skill never restates the target's internal logic (see Rule R3).
+ 
+@@ -55,14 +55,16 @@ When the guide is found, add its path to `verified_sources` and extract three bl
+ 
+ **Parse rule:** after the header and separator lines, each routing-table row must split on unescaped `|` into exactly 8 cells. A row that does not is skipped and named in `degradation_notes` (`routing row <n> skipped: <k> cells`). A block is absent only if either of its markers is missing or, for the routing table, no row parses; say so in `degradation_notes`.
+ 
+-**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level` (the guide's rule: when unsure between two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
++**Match the whole requested outcome to one routing row.** Resolve the requested deliverable, explicit command or existing artifact, compatible mode/depth/output preferences, and authorization ceiling before implementation-size heuristics. Intent phrases are discovery hints, not an any-one-phrase decision rule. A row fits only when its objective, inputs and stopping point fit the complete request. Prefer the specialist objective over a generic phrase: business viability of a PRD is not requirements critique, a localization placeholder error is not a runtime exception, and compiling existing code is not building a feature. Inspection breadth and report-artifact count are not implementation size.
+ 
+-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) or `task-file` (level 4) row instead.
++Preserve explicit command/executor selection after Step C verifies its availability and contract; do not replace it merely because another row is broader or heavier. Explicit selection cannot waive the written-plan limit or grant extra authority. An adequate approved plan goes to its existing executor without rebuilding. Distinguish a workflow plan, MDTM file and Sprint bundle before choosing a tasklist route. The `unsure` row is an inbound pointer, never a candidate that sends the user back to `/sc:recommend`. If the objective or tasklist format genuinely remains ambiguous, ask one clarifying question and stop; never break a tie by automatically escalating to MDTM.
++
++- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. Resolve the row's conditions and scope before Step C verifies its selected commands/skills, whether or not auggie would rank them. Then use the ordered-workflow template in Phase 2. For actual implementation above five edits or one source file plus its matching test, use `simple-plan` (level 3) by default; `task-file` (level 4) requires explicit MDTM intent or the exceptional complex, long-running machinery need described by the guide. Report-only work does not acquire a plan from how many files it reads.
+ - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
+ 
+ ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+ 
+-Before running the full Phase 0–3 **cold path** below, attempt the **hot path** — the lazily-populated YAML lookup cache that drops a repeat delegation request from ~91K to ~5–10K tokens. The cold path (Phase 0–3) only runs on a cache miss. Skip this whole section when Step 0 matched a routing row.
++For an unmatched local request, an available YAML cache may suggest a candidate/template before full discovery. It never establishes current intent, callable capability or complete source freshness. Full live discovery runs on a miss or rejected hint; every accepted hint still receives current verification and request binding. Skip this whole section when Step 0 matched a routing row. No measured savings or workload-capacity guarantee is implied.
+ 
+ **Availability gate (run once, before step 1).** The hot path runs only inside an IronClaude checkout. Every install has the `superclaude recommend` CLI, but its cache fingerprint is computed over the checkout's `src/superclaude/` (plus the installed `~/.claude/` and project `.claude/` command, skill and agent folders) and the cache lives in that project's `.claude/cache/`, so outside a checkout there is nothing valid to fingerprint or cache, and the skill skips the hot path. Use the hot path only if both checks pass: `test -f src/superclaude/cli/recommend/prompts.py`, then `uv run superclaude recommend --help` exits 0. Run both checks from the repository root (`git rev-parse --show-toplevel`; if that fails, the gate fails). Run the gate once per invocation, before the first `uv run superclaude recommend` call of any kind (hot path, write-back, or the `--plugin --eval` decision gate), and reuse its result. Do not run `uv run` in any other project: in a user's own uv project it would create or sync that project's environment. If either check fails, or any `uv run superclaude recommend ...` call in this skill exits non-zero, skip the rest of the hot path, run Phase 0–2 yourself in this context, skip the Cold-Path Write-Back, `--eval`, and telemetry, and add `recommend CLI unavailable; cache skipped` to `degradation_notes`.
+ 
+@@ -80,12 +82,22 @@ Under the resolved **Option P** layering, the `cli/recommend/` Python module own
+ 
+    It prints a JSON `DispatchResult`. The source_hash validation is the CLI's deterministic Read + sha256 compare — **never** trust a Haiku-computed hash.
+ 
+-3. **Interpret the outcome (the 5 fall-throughs):**
+-   - `outcome: "hit"` → emit `recommendation` **verbatim** (it is the row's filled `prompt_envelope_template` plus any `best_model_hint`). Then append exactly one telemetry event: `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>` (if it fails, ignore the failure; the recommendation is already emitted). **DONE — do not run the cold path.**
+-   - `outcome: "native"` (classifier `native_likely`, or a `native_fallback` row) → recommend native tooling per Phase 1, but run Phase 1's hard-limit check first: if the work needs more than 5 edits or touches more than one source file, recommend the written plan Phase 1 names instead of a native answer; **no cold path, no table write, and no telemetry event** (native is not a cache-table event — it has no `cache_result` enum member, so the appender has nothing valid to log).
+-   - `outcome: "miss"` with `cache_result` ∈ {`miss_no_key`, `miss_low_confidence`, `miss_validation_stale`} → **fall through to the cold path** (Phase 0–3). Carry the miss reason into the cold-path write-back.
+-
+-The skill spawns exactly **one** Haiku subagent here (the classifier); the cold-path Haiku subagent is spawned only on a miss (see the Cold-Path Write-Back section after Phase 3). The emitted hot-hit recommendation reuses the row's hand-off envelope unchanged — it restates no target protocol (R3). The hot and cold paths emit the **same Return Contract** shape for caller parity.
++3. **Interpret the outcome; a hit is only a hint:**
++   - `outcome: "hit"` - Take `candidate` as a discovery hint and `recommendation` as an untrusted saved template, not a final answer. Reapply this request's objective, explicit selection, artifact, compatible controls and authority ceiling. Resolve the current candidate through Phase 0 Step A and run all Step C checks, reading the actual callable copy, lifecycle guidance and relevant current dependencies. The CLI source hash does not cover all delegated references, policy semantics or request compatibility.
++     - Cached source hash, current changed delegated reference that the source names: reread that reference before emission; the hash never proves its freshness.
++   - If compatible and eligible, reconstruct the handoff through Phase 2 using only the current request's verified paths/inputs/mode/output. Never emit a saved envelope verbatim, another request's PR/task/path/authority, or an unbound cached `@{inputs}` placeholder. A genuinely missing required input needs clarification, not a guessed replacement. Treat `best_model_hint` as optional historical metadata, not current capability proof. Emit the normal Return Contract and append one hit telemetry event only after this verification/construction succeeds.
++     - Cached same-key envelope path, current different path: rebind to current paths only; the cached path never appears.
++   - If the hint is incompatible, retired, unavailable, contradictory or cannot be resolved, reject it and use live Phase 0-2 discovery; carry the existing `miss_validation_stale` reason into cold-path write-back with an accurate rejection note. Do not log a hit for a rejected hint, add classifier keys, change the dispatch API/schema or delete cache data to hide a mismatch.
++     - Cached comparison hint, current plan-adherence audit: reject; a key match never turns comparison into adherence checking.
++     - Cached comparison hint, current local PR review with no posting: reject; never inherit compare inputs or posting authority.
++     - Cached PRD-authoring hint, current TDD request: reject; the requested artifact differs.
++     - Cached PRD-authoring hint, current existing-spec critique: reject; never rewrite the spec under review.
++     - Cached MDTM or roadmap hint, current Sprint artifacts request: reject; never substitute task files for Sprint output.
++     - Cached retired-target hint with a valid source hash: reject; lifecycle evidence outranks the hash.
++   - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit or automatic MDTM. No cold-path insert and no telemetry event: native has no cache-event enum.
++   - `outcome: "miss"` with `miss_no_key`, `miss_low_confidence` or `miss_validation_stale` - Run the cold path and preserve the miss reason. A `miss_budget_exceeded` result must not reuse the row or bypass the budget; disclose the limit and use the bounded live/native fallback under Phase 1, without an additional cold-worker spawn.
++
++The classifier is the only mandatory hot-path Agent. A cold worker is spawned for a supported miss or rejected hint only when the availability gate permits it. Both paths emit the same Return Contract. Matched rows still bypass cache entirely; no-guide, unavailable-helper and non-checkout handling remain live-only. Telemetry is best-effort and occurs once for the actual accepted hit or cold outcome, never as a substitute for verification. After an accepted, reconstructed hit use `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>`; a telemetry failure does not turn the handoff into a failure or justify another event.
+ 
+ ## Phase 0 — Mandatory Surface Enumeration + Auggie Sweep (GATE)
+ 
+@@ -109,9 +121,9 @@ Search these locations. List the `$HOME` locations with one Bash call that uses
+ | 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
+ | 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
+ 
+-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
++Separate **canonical research authority** from the **actual callable copy**. Inside an IronClaude checkout, trust `src/` for the intended current framework contract, but do not certify an older active copy as equivalent. Resolve commands from the project then installed surface; resolve skills from `~/.claude/skills/` first, then project `.claude/skills/`; resolve agents from project `.claude/agents/` first, then `~/.claude/agents/`. A plugin-qualified invocation must resolve its actual plugin namespace, not silently lose that namespace. Record duplicates and any source/active-copy disagreement in `degradation_notes`. Do not update installed files automatically.
+ 
+-Commands are thin dispatchers that delegate to skills via `## Activation`. Treat the installed `$HOME/.claude/commands/sc/*.md` (or `src/superclaude/commands/*.md` inside an IronClaude checkout) as the fast-path discovery surface for `/sc:*` slash commands.
++Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
+ 
+ The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
+ 
+@@ -129,10 +141,12 @@ Query shape:
+ 
+ For each candidate auggie returns, **before** it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie ranked it):
+ 
+-1. **Direct read** — Read the candidate's source file at the path recorded in Step A (any location in the search list). Extract: flag table, required-input rules, activation handoff, return contract.
+-2. **Auggie record** (skip in matched mode) — record the usage notes, related skills, and caveats auggie surfaced in Step B for this candidate.
++1. **Direct read and interface evidence** - Read the resolved candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage or trigger signatures, and documented positional/keyword syntax, including `mode=update` and `mode=quick`. Verify values as well as names. Examples may corroborate a declaration, not add an example-only flag missing from or conflicting with the formal interface.
++2. **Activation and dependencies** - Read the actual backing skill for a mandatory handoff and only decision-relevant references/configuration: required inputs, mode, side effects, prerequisites, return/resume behavior and stopping boundary. Use both installed and project lookup surfaces with the kind-specific precedence in Step A; source-checkout references are research evidence, not unconditional installed dependencies. Follow mandatory instructions under any heading, including `Skill Invocation`. Resolve the actual skill name/frontmatter, including `tdd`; absence of a handoff makes a command self-contained, not broken. Do not recursively audit unrelated dependencies.
++3. **Lifecycle and provenance** - Read deprecated metadata and the guide's current lifecycle guidance. Exclude `deprecated: true` and proven retired framework remnants even if readable or cached. Source absence alone does not prove retirement: independently authored installed-only/custom commands remain eligible. Uncertain ownership of a same-named custom override needs clarification, never automatic deletion or rejection. Verify migration advice against the live replacement rather than copying stale metadata.
++4. **Auggie record** (skip in matched mode) - Record the usage notes, related skills and caveats surfaced in Step B.
+ 
+-A candidate that fails Step 1 (source file does not resolve) is a ghost. Drop it silently. Exception: a step of a matched routing row is never dropped; keep it and mark it `not installed: <name>` (see the ordered-workflow template in Phase 2). Do not warn the user about candidates that did not survive verification; the user does not need that noise.
++A missing command or backing skill is unavailable: a matched step remains visible as `not installed: <name>`, never an unqualified runnable instruction. A material command/skill or canonical/active-copy disagreement is a **contract gap**: explain the incompatible input, capability or authority claim and withhold the unsupported invocation; do not combine option sets into a fabricated interface. A proven retired target receives an intent-preserving retirement explanation when explicitly requested. Drop irrelevant unmatched ghosts without noise. Never install, delete, reconfigure, authenticate or execute a target to hide a limitation. Carry the verification record defined in `refs/surface-enumeration.md` into output construction. This is the emission gate for every local candidate, including a cached hint: no other path may waive it.
+ 
+ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`, `TodoWrite`, `WebFetch`, `WebSearch`) and for MCP server names referenced abstractly, and for the Claude Code built-in slash commands the routing guide names (`/code-review`, `/security-review`). Those have stable interfaces and verifying them adds overhead with no fabrication-risk return.
+ 
+@@ -147,14 +161,16 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
+ 
+ ## Phase 1 — Level Check, then Net-Value Evaluation
+ 
+-**Routing row matched (Step 0):** the row decides the route. Do not replace it with native tooling or with a lighter command. Phase 1 only checks that each step's command or skill survived Phase 0 Step C. If one did not resolve, do not drop the step silently: keep it in its place, mark it `not installed: <name>`, and give the install hint for the full set (`pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install`; plugin installs ship only some commands and skills). Also add one line to `degradation_notes`: `step <label> not installed: <name>`.
++**Routing row matched (Step 0):** the resolved objective and applicable branches decide the route, not every possible step in the row. Check each selected step through Phase 0 Step C. Preserve missing dependencies as `not installed: <name>` and material disagreement as `contract gap: <reason>`; never silently drop a required step or present an unsupported one as runnable. Plugin installs ship only a subset. Any install/update advice is a separate user action, with the guide's overwrite/backup caution; never perform installation to make a recommendation succeed.
+ 
+-**No row matched, guide found:** place the goal on the guide's level table first, then answer the net-value questions inside that level.
++**No row matched, guide found:** apply its process levels only to actual implementation after honoring explicit choices and specialist deliverables.
+ 
+-- Level 1 (a question, nothing changes) and level 2 (one source file plus its test, five edits or fewer, exact change known): native tooling is allowed and is often right.
+-- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) for a few files with clear scope, level 4 (`/task-builder` then `/task`) for anything larger, longer, or riskier. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
++- Level 1 answers and bounded level 2 edits may use native tooling. Explicit verified specialist selection and existing executor identity still take precedence over a net-value default.
++- The guide's **hard limit overrides native first.** If actual work needs more than 5 edits or touches more than one source file (its matching test file does not count), recommend a written plan, normally level 3: `/sc:workflow` at ordinary standard depth, then `/sc:implement` only when execution is requested. Quick is appropriate for a smaller checked plan, not a universal mandate.
++- Level 4 needs explicit MDTM creation/execution or exceptional complex, long-running phased work with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing specification, risk, auditability, drift or resume alone do not justify it. No new capacity ceiling is invented.
++- The contained-folder cleanup/improve exception retains the checkpoint commit and final `git diff` review; structural migrations still need a plan. Reading many files, generating reports or using an explicitly requested document skill does not become product implementation by output count.
+ 
+-**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
++**No guide:** skip cache helpers and apply the same whole-outcome, explicit-choice, direct-change and workflow-first rules above through live verification. Do not restore a broad MDTM escalation or replace report-only work with planning. An adequate existing plan goes straight to its executor; memory save/load is not executor recovery.
+ 
+ For **every** surviving candidate, answer explicitly before recommending:
+ 
+@@ -211,14 +227,14 @@ Goal: <one-line restatement of the user's intent>
+ 
+ Level: <the row's level; when the level is `-`, write "not on the six-level scale (a supporting task)"> — guide section <the row's section>, row `<the row's id>`
+ 
+-Changes files: <the row's changes_files: no | yes>
++Changes files: <effects of the selected steps; disclose report/memory/external effects separately>
+ 
+ Run these in order:
+ 
+-1. <step 1, with the user's values in place of <placeholders>, plus every flag mandatory_flags lists for step 1>
+-2. <step 2 ...>
+-3a. <...> or 3b. <...> — say which one fits this goal
+-<a step whose command or skill did not resolve keeps its number: N. <step> (not installed: <name>)>
++1. <applicable step with this request's verified values and conditionally required flags>
++2. <next applicable step, retaining the guide's label>
++<exactly one selected alternative, not both 3a and 3b>
++<a missing selected step retains its label and is marked not installed; a material disagreement is marked contract gap>
+ 
+ <only when a step is not installed:> Not installed here: <step labels and names>. Install the full set: pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install
+ 
+@@ -233,13 +249,13 @@ Sources verified:
+ 
+ Rules for this template:
+ 
+-1. Emit every step of the row, in the row's order, with the row's labels. Steps that are not commands (for example "commit locally", "read the plan") are written as plain-language steps.
+-2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a step MUST appear on that step. Rule R1 still applies: if a mandatory flag is not in the verified command file's flag table or `argument-hint`, leave it out and add the note `guide flag <flag> not found in <file>; the guide may be out of date`.
+-3. Replace `<placeholders>` with values from the user's goal. When the goal does not give a value, keep the placeholder visible (for example `<task file>`). Never invent a path.
+-4. Include a `notes` clause only when its condition matches the goal; drop the Notes section when none matches.
+-5. When `changes_files` is `yes`, the `Changes files:` line is mandatory.
+-6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) are printed as they are (Rule R4).
+-7. Rule R3 still applies: name each command with its arguments and flags; never restate its protocol.
++1. Resolve scope and conditions first, then emit only applicable steps in their original order/labels. Select exactly one alternative branch. A report-only or plan-only request stops at that deliverable; do not append execution, commits, pushing or shipping. Preserve applicable prerequisite/read/review steps without executing them.
++2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a selected, applicable step must satisfy R1 and the user's compatible explicit choices. Verify formal Usage, tables, argument hints or declared keyword syntax, including values. Omit an unsupported flag and explain `guide flag <flag> not found in <file>; the guide may be out of date`. An unresolved required interface disagreement is a contract gap, not a runnable union of options.
++3. Bind this request's verified inputs, mode, depth and output values. Never invent a path or plan identifier. A future printed plan path can remain visibly conditional; a missing required input needs clarification or an explicit not-ready limitation, not an unqualified runnable promise.
++4. Include only applicable notes. Supported explicit choices outrank ordinary defaults. If a stronger project rule conflicts with the requested authority ceiling, disclose the conflict and stop for clarification; never silently increase authority. Exactly one applicable monitor ordinal may be emitted.
++5. Derive the `Changes files:` disclosure from selected steps, not an unselected mutating branch. Separately name material report-artifact, memory, source/Git and external effects. Report-only is not automatically zero-write; do not promise every dry run writes nothing.
++6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) remain exempt under R4.
++7. Rule R3 still applies: invoke the verified target, never restate its internal protocol. Missing, retired and conflicting capabilities must remain visibly unavailable/non-runnable rather than silently substituted.
+ 
+ ## Phase 3 — `--plugin` Mode (ecosystem search)
+ 
+@@ -299,11 +315,11 @@ When `--plugin` is combined with `--eval <mode>` (mode ≠ `none`), the skill ru
+ 
+ ## Cold-Path Write-Back (populate the cache on a miss)
+ 
+-The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup returned `outcome: "miss"` (any of the three miss reasons this skill can get: `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`). A `native` outcome does **not** reach the cold path. Phase 0–3 run inside a **second** `model: haiku` subagent so the expensive enumerate→auggie→verify work happens in an isolated context, not the parent.
++Run this path for `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`, or a rejected hint mapped transparently to semantic staleness. A native result or exceeded budget does not spawn this worker. The availability gate must permit helper use; missing-guide/non-checkout/unavailable-helper cases remain live-only in the parent with no cache writes, telemetry or model evaluation.
+ 
+-1. **Spawn the cold-path Haiku subagent.** Use the Agent tool, `model: haiku`, handing it the condensed runbook as its system context (Read `src/superclaude/cli/recommend/prompts.py` under the repository root (`git rev-parse --show-toplevel`) and use the text of the string assigned to `COLD_PATH_RUNBOOK`, without the quote marks) — **not** the full SKILL.md body (inlining the full skill would recreate the exact ~91K cost the cache exists to remove). The subagent runs Phase 0–3 (Glob → auggie → Read-verify → net-value → prompt) and returns the recommendation **plus** a structured `cache_update` payload (the row to commit: `key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`). If the runbook file cannot be read, run Phase 0–2 inline in this context instead of spawning the subagent, and skip steps 2–4. Pass the guide's level-table block and its other-commands block (or the line `no guide`) and the Step 0 result (`no_match` or `absent`) in the subagent prompt.
++1. **Spawn the cold-path Haiku subagent.** Read `COLD_PATH_RUNBOOK` from `src/superclaude/cli/recommend/prompts.py` only inside the verified IronClaude checkout, then use that condensed text rather than the full skill body. Pass the verbatim current request, the classifier's existing key (or `unknown`), guide status/path and level/Other-command blocks, the guide's relevant lifecycle guidance, and resolved reference paths from the current skill directory. The worker performs live enumeration/ranking/verification and constructs a request-specific handoff. It may return `cache_update` with the existing fields (`key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`) only for an eligible target and an existing compatible classification key. Unknown/ambiguous objectives do not invent keys or force ordinary planning into task-file-generation; emit the verified result without insertion. If the runbook cannot be read, run Phase 0-2 inline and skip cache/eval helpers. Before any emission, the parent checks current objective, authority, verification evidence and parameter binding; the worker's text is not unconditionally surfaced verbatim.
+ 
+-2. **Parent commits the cache_update.** Haiku **cannot write files**, so the parent (this skill, the Claude session) commits the row by shelling to the CLI atomic writer:
++2. **Parent validates an optional cache_update before insertion.** Haiku cannot write files. Insert only when the payload exists, its existing key fits the current objective, and the candidate/evidence/parameter checks above succeeded. Null payload, unknown/incompatible key, missing capability or a contract gap means no insertion or row evaluation; preserve the honest non-cache result. An eligible row is committed through the CLI atomic writer:
+ 
+    `uv run superclaude recommend cache put --row-json '<the cache_update row as a single-line JSON object>'`
+ 
+@@ -311,7 +327,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
+ 
+    This routes through `LookupCache.save()` (atomic tmp + `os.replace`). The CLI recomputes the current `surface_hash` and the full per-row `source_hash` on write — the parent never trusts a Haiku-computed hash.
+ 
+-3. **Optional `--eval` trigger (Agent fan-out + finalize).** If the invocation carried `--eval <mode>` (mode ≠ `none`), evaluate the just-inserted row's `best_model`. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
++3. **Optional `--eval` trigger (Agent fan-out + finalize).** Only after successful row insertion, and only if the invocation carried `--eval <mode>` (mode is not `none`), evaluate that row's `best_model`. A hit, native result, null payload or failed cache write does not trigger this evaluation. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
+ 
+    a. **Resolve the panel** for `<mode>` from `MODE_MATRIX`: `quick` = `opus`×1 (**1** Agent call); `normal` = `opus`+`sonnet`×2 (**4** Agent calls); `deep` = `opus`+`sonnet`+`haiku`×3 (**9** Agent calls). `none` = no-op.
+ 
+@@ -324,7 +340,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
+ 
+    c. **Finalize (CLI, deterministic).** After all Agent calls complete, the parent shells: `uv run superclaude recommend eval run --key <key> --mode <mode> --iteration <N>` (the same `<N>` as in step b). This grades each deliverable, aggregates per model, selects `best_model` by tier, writes `row-<key>-results.json`, and patches the lookup row's `best_model` + `eval_history` via the atomic writer. The finalizer assumes the deliverables already exist on disk — the fan-out in (b) must have produced them at the exact layout above, or grading sees empty text. If this call exits non-zero, report the eval as not finalized and keep the recommendation.
+ 
+-4. **Emit + telemetry.** Surface the recommendation verbatim, then append exactly one telemetry event with `--cache-result cold_inserted` (or the original miss reason if no row was inserted): `uv run superclaude recommend telemetry append --mode delegate --cache-result cold_inserted --classification-key <key> --duration-ms <ms>`. If the telemetry call fails, ignore the failure.
++4. **Emit the checked handoff + telemetry.** Recheck the worker result against the current objective, verified sources, inputs/options and authority before emitting it; never surface worker text unconditionally verbatim. After a final cache-related outcome, append at most one telemetry event with `cold_inserted` only after a successful insert, otherwise its actual existing miss reason: `uv run superclaude recommend telemetry append --mode delegate --cache-result <actual-result> --classification-key <key> --duration-ms <ms>`. Clarification/native/live-only paths do not invent a cache event. A telemetry failure is ignored, not hidden as success or retried into duplicate events.
+ 
+ The cold path emits the **same Return Contract** shape as the hot path (caller parity). No protocol of any recommended target is restated in the `cache_update` (R3) — the `prompt_envelope_template` is a hand-off envelope.
+ 
+@@ -334,15 +350,15 @@ These rules are non-negotiable. They survived from the old skill because they we
+ 
+ ### Rule R1 — No unverified flags
+ 
+-A flag may appear in the recommended prompt **only if** it is present in the verified target's flag table (or `argument-hint`). Example: `/sc:adversarial` has a fixed flag set in `src/superclaude/commands/adversarial.md`; no flag may be attached to it that is not in that file. Fabricated flags (`--rounds`, `--measure-first`, `--verdict-per-claim`, etc., when they do not exist) are forbidden.
++A flag and its value may appear only when verified in the target's option/argument table, argument hint, formal Usage/trigger signature or explicit declared invocation syntax. Preserve documented positional/keyword forms such as `mode=update` and `mode=quick`; do not turn them into hypothetical flags. Examples corroborate formal declarations, but example-only flags missing from or conflicting with the declared interface remain unsupported. Prose-only ambiguous controls do not become verified options. For instance, do not emit build's example-only `--validate`, cleanup's `--preview` or design's undeclared `--output`. Read the actual resolved interface through Step C, not memory or an unconditional checkout path. Fabricated flags remain forbidden.
+ 
+ ### Rule R2 — No unverified commands or skills
+ 
+-A command or skill may appear **only if** its source file was resolved in Phase 0 Step C. Auggie-mentioned but not file-resolved → drop. Memory-recalled but not file-resolved → drop. A matched routing row's step whose file does not resolve appears only marked `not installed: <name>`, never as a runnable step. Exception: the Claude Code built-in slash commands that the routing guide names (`/code-review`, `/security-review`) have no source file and may appear without one (Rule R4).
++A runnable command or skill must pass all Phase 0 Step C checks: current lifecycle/provenance, actual callable copy, relevant backing skill/references, supported inputs/options and authority boundary. A readable file or Auggie/memory mention alone is insufficient. Keep matched missing steps marked `not installed: <name>`; expose a material disagreement as a contract gap, never an unqualified runnable instruction. Explain proven retired targets when explicitly asked without resurrecting them or rejecting genuine custom extensions. The Claude Code built-ins the guide names (`/code-review`, `/security-review`) remain exempt under R4.
+ 
+ ### Rule R3 — No protocol reimplementation (the load-bearing rule)
+ 
+-When a verified target has `activation_style: skill-indirected` (its command file delegates to a protocol skill via `## Activation > Skill <name>`), the generated prompt MUST be a **hand-off**, not a **specification**.
++When a verified target has `activation_style: skill-indirected` (its command file names a mandatory skill invocation under any heading, including `Skill Invocation`), the generated prompt MUST be a **hand-off**, not a **specification**. A self-contained command needs no invented protocol.
+ 
+ - **Allowed**: `Run: /sc:adversarial --compare fileA.md,fileB.md --focus structure --depth standard`
+ - **Forbidden**: any inline content that restates the target's protocol — debate rules, phase counts, scoring formulas, "steelman strategy", artifact lists. The protocol skill owns that behavior; the prompt invokes and trusts.
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md b/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+index 25efb554..96281522 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+@@ -6,20 +6,24 @@ This guide tells you which IronClaude skills and commands to use for each kind o
+ 
+ ## 1. How much process does this job need?
+ 
+-Every job falls into one of six levels. Find the first row that describes your job. If you are unsure between two rows, choose the heavier one.
++Match the requested outcome and any explicit command or existing plan first. These levels choose implementation process, not how much research or how many output artifacts a report needs. Most planned implementation uses level 3; choose level 4 only for its stated explicit or exceptional machinery need.
+ 
+ <!-- level-table:v1 -->
+ 
+ | Level | Use this when | What you run | What you end up with |
+ |---|---|---|---|
+ | **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+-| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
+-| **3. Follow a simple checked plan** | The change touches a few files, the requirements are clear, and it fits in one or two sessions. | `/sc:workflow "<what to change, why, which files>" --depth quick` writes a plan in which every step has acceptance criteria (a written definition of "done" for that step), then checks the plan against your request automatically. It prints the plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the plan folder's name, for example `TASK-WF-retry-limit-20261013-142530`; the plan file is `<id>.md` inside it. Copy the path `/sc:workflow` prints. Read the plan, then run `/sc:implement <that path>`. It builds one step at a time and has a reviewer check each step against its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus the code changes in your repository. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+-| **4. Build and run a task file** | The work touches many files, will take more than one session, or must not drift from what was agreed. | `/task-builder "<what to build, why, which code>"` researches the code and writes a task file: a checklist under `.dev/tasks/to-do/`. If you have a spec, PRD, or TDD, add `--spec <path to it>` so the task file is checked against it. Read the task file, then run `/task <path to task file>`. | `/task` works through the checklist item by item. The items are grouped into phases; after each phase except the first (setup) one, a panel of independent reviewer agents checks the work. At the end it runs the tests and an independent audit comparing what was built with the plan. It survives crashes. |
+-| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Then build the task file from it: `/task-builder "<what to build> as recommended in <path to the report>. Code: <folders>"` (level 4). | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan. |
+-| **6. Write a full specification** | You are building a new product, a new component, or a major feature that other people will build against. | `/prd`, then `/tdd`, then `/roadmap`. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | A product requirements document, a technical design document, a phased roadmap, and a task file for every phase. |
++| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. Inspect the actual classification and verification evidence: STANDARD permits affected tests or documented manual verification; LIGHT includes scope/sanity checks; EXEMPT covers non-code operations. Do not assume every tier ran tests, describe LIGHT as unchecked, or report manual verification as a test pass. Run the related test if it has not run. | The bounded edit and its recorded verification, including an observed related-test result when available. |
++| **3. Follow a checked implementation plan** | Ordinary implementation needs a written plan, including work across many files or several sessions, with or without an existing spec. | `/sc:workflow "<what to change, why, which files or spec>" --depth standard --handoff none` writes a plan with acceptance criteria (a written definition of "done" for each step) and runs an advisory check against your request. Standard is the default; use quick for smaller checked plans, not all ordinary work. It prints the actual plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the generated plan folder's name. Read the plan and check result, then, only when execution is requested, run `/sc:implement <that path>`. It implements each step and checks compliance with its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus code changes if execution was requested. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
++| **4. Explicit or exceptional task-file work** | You explicitly select MDTM (the task-file/checklist format), supply an existing MDTM task for execution, or have an exceptionally complex, long-running phased program with a stated need for its research, checklist and phase-reviewer machinery. | For creation, `/task-builder "<what to build, why, which code, why MDTM>"` researches the code and writes a task file under `.dev/tasks/to-do/`. Add `--spec <path>` when a spec, PRD or TDD exists. Read the task file and check result; only when execution is requested, run `/task <path to task file>`. An existing MDTM task goes directly to `/task`, without rebuilding it. | The requested task file, or its execution through the checklist and reviewer panels after each phase except setup, followed by tests and a final audit. Resume with the same executor. |
++| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Stop at the report for a research-only request. If you decide to build, use `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`, then read its plan and use `/sc:implement <printed plan path>` when execution is requested (level 3). Level 4 needs its own explicit or exceptional justification. | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan; implementation is a separate decision. |
++| **6. Write a full specification** | You need a PRD and TDD for a new product, component or major feature that others will build against. | `/prd`, then `/tdd`, with the requested reviews. Stop after the requested documents for document-only work. Ordinary subsequent implementation planning uses `/sc:workflow`, then `/sc:implement` when execution is requested. Offer `/roadmap` only for explicit composer selection or the exceptional level-4 machinery need; it internally uses `/task-builder` and `/task` and can create phase task files. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | The requested reviewed documents. Planning and execution are separate; expressly selected document skills and the roadmap composer keep their own internal machinery. |
+ 
+-**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards.
++**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits and requires a written plan. The one exception is contained `/sc:cleanup` and `/sc:improve` work on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards. This exception does not cover structural migrations. Direct command selection does not waive the written-plan requirement.
++
++File count, multiple sessions, an existing spec/PRD/TDD, risk, auditability, drift concerns or resume alone never select level 4. A twelve-file feature across several sessions still uses level 3 without a concrete MDTM machinery need. Inspection breadth is not mutation breadth: reading thirty files for an explanation or report does not require an implementation plan.
++
++When an adequate approved plan already exists, use its existing executor directly; do not rebuild it. Managed workflow packages use `/sc:implement`; existing MDTM execution uses `/task`. Explicit `/sc:implement` selection retains that executor's own semantics, not MDTM checklist/phase execution, even if the source resembles MDTM.
+ 
+ <!-- /level-table -->
+ 
+@@ -46,11 +50,11 @@ Every research, document, and task skill works from the same four things. If the
+ 
+ ### 3.1 Build a new product or major feature (full specification)
+ 
+-Use this when the work is big enough that people need to agree on *what* is being built and *how* before anyone writes code. The example builds usage-based billing.
++Use this when people need to agree on *what* is being built and *how* before anyone writes code. The example specifies usage-based billing. **For documents only, stop after the requested documents and reviews; do not append a roadmap, phase tasks, implementation or shipping.** PRD and TDD skills keep their own document-generation machinery, including any internal task-builder/task use. That does not choose the later product implementation process.
+ 
+ 1. **Shape the idea (only if it is still vague).**
+    `/sc:brainstorm "Usage-based billing for API customers: metering, monthly invoices, overage alerts" --depth standard`
+-   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If you will build it directly without a PRD, add `--handoff task`: it then builds a task file from the merged requirements (level 4).
++   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If no PRD is needed and implementation is requested, take those requirements into `/sc:workflow`, then `/sc:implement` after reading the plan. Do not add a task-file handoff merely because no PRD is needed.
+ 
+ 2. **Write the product requirements document (PRD).** The PRD defines *what* to build and *why*: users, problems, requirements, success measures, and scope.
+    `/prd "Create a PRD for usage-based billing. Purpose: align product and engineering on the first release. Start from .dev/brainstorms/<timestamp>-usage-billing/merged-requirements.md. Relevant code: src/billing/, src/api/metering/. Output to docs/billing/PRD_BILLING.md."`
+@@ -71,16 +75,17 @@ Use this when the work is big enough that people need to agree on *what* is bein
+    `/sc:release-split docs/billing/TDD_BILLING.md`
+    It writes its analysis to `docs/billing/release-split/`. "Do not split" is a normal answer. If it recommends a split, it writes a separate spec for each release: use the Release 1 spec in place of the TDD in step 7, and do not plan Release 2 until Release 1 is built and validated.
+ 
+-7. **Turn the PRD and TDD into a phased plan.**
+-   `/roadmap "Create a full roadmap from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Each phase must be independently deployable and keep the old invoice API working. Project name: billing-v2. Dry run first so I can review the phase plan."`
+-   The dry run shows the proposed phases and waits for your yes. The finished run prints the roadmap path (under `.dev/tasks/to-do/TASK-ROADMAP-billing-v2-<timestamp>/`) and the list of phase task files in run order. At its full setting it also checks the phase task files against the roadmap and your PRD and TDD; those check reports are in the roadmap folder's `qa/` subfolder. Read the roadmap before running anything.
+-   - If the summary lists build requests (`build-requests/BUILD_REQUEST-phase-NN-<name>.md`) but no task files, the run chose its middle setting, which stops at build requests. (A build request is the short input file `/task-builder` turns into a task file.) Create each phase's task file with `/task-builder <path to that build request> --spec docs/billing/TDD_BILLING.md`. Saying "full roadmap" or "comprehensive" in the request avoids this.
++7. **Plan only if implementation planning is requested.** Ordinary post-document planning uses workflow, not an automatic roadmap/task-builder chain:
++   `/sc:workflow "Plan usage-based billing from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Keep the old invoice API working. Code: src/billing/, src/api/metering/." --depth standard --handoff none`
++   Read the actual printed plan and advisory check result. Standard is the ordinary default; quick is appropriate for smaller checked plans. A new component or accepted PRD/TDD is not itself a reason to select MDTM.
++   - **Conditional roadmap alternative:** only when you explicitly select `/roadmap`, or have an exceptionally complex, long-running phased program with a stated need for MDTM research, checklists and phase-reviewer panels, use `/roadmap "Create a full roadmap from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Each phase must be independently deployable and keep the old invoice API working. Project name: billing-v2. Dry run first so I can review the phase plan."`
++   - The expressly selected composer internally uses `/task-builder` and `/task` to generate the roadmap and can create downstream phase task files. This is its document machinery, not permission to implement product phases. Its dry run presents phases for approval; the full run prints the roadmap path under `.dev/tasks/to-do/TASK-ROADMAP-billing-v2-<timestamp>/`, phase task paths and checks under `qa/`. Read them before any product execution.
++   - If the summary lists only build requests (`build-requests/BUILD_REQUEST-phase-NN-<name>.md`), its middle setting stopped before phase task creation. Within this selected MDTM route, `/task-builder <path to that build request> --spec docs/billing/TDD_BILLING.md` creates each phase task. Asking for a full roadmap selects the full composer pipeline. Do not use this branch solely because a spec exists or work spans files or sessions.
+ 
+-8. **Build one phase at a time.**
+-   `/task <path to the phase 1 task file>`
+-   Let it run to the end. Each task file already contains everything that checks the work: reviewer panels after each group of items inside it (except the first, setup group), the tests, and, as its last steps, an independent audit (`/sc:reflect`) comparing what was built with the plan. Do not re-run the reviewer panels or the tests yourself. That final audit compares a commit range, and `/task` does not commit, so it does not see the phase's uncommitted work: always run the re-confirm audit in step 9.
++8. **Execute only when requested, using the selected plan's executor.** For the ordinary workflow plan, `/sc:implement <actual printed plan path>` implements and checks each step; read its ledger and final independent review. Do not rebuild an adequate approved plan.
++   For the conditional MDTM branch only, `/task <path to the phase 1 task file>` runs its checklist, phase-reviewer panels (except setup), tests and final audit. Do not repeat its own checks. The internal audit compares a commit range and can miss uncommitted work, so use the re-confirm audit in step 9.
+ 
+-9. **Confirm the phase passed, then start the next one.** Open the task file and read the `reflect_post` entry at the top: the audit's verdict and the path to its report. Any problems the audit could not fix are listed under the task file's Open Questions. Decide each one with your lead (or yourself, if you work alone), the same way as a `/task` stop (note below): fix the code, correct the spec, or accept it in writing. Then re-confirm with `/sc:reflect --mode post --tasklist <path to the task file> --spec docs/billing/TDD_BILLING.md --diff <commit before the work started> --no-promote` before starting the next phase. Give that one commit, not a `..HEAD` range: a single commit is compared with your working tree, so the audit also sees work you have not committed (`/task` does not commit). Run `git add -A` first so that new files are included. Commit each phase once it passes, so that commit is the one you made when the previous phase passed (for the first phase, the commit before the work started). It is `HEAD` if you have not committed since this phase started; otherwise find it with `git log --oneline`. The final audit runs before the task is marked done, so the folder stays in `.dev/tasks/to-do/`. Leave the folder where it is; nothing in this guide needs it moved.
++9. **Confirm the selected work passed.** For a workflow plan, consume its compliance results and final review before shipping. For MDTM phases, open the task file's `reflect_post` entry and report; resolve Open Questions with your lead (or yourself), then re-confirm with `/sc:reflect --mode post --tasklist <path to the task file> --spec docs/billing/TDD_BILLING.md --diff <commit before the work started> --no-promote` before the next phase. Give one commit, not a `..HEAD` range, so the working tree is included. Stage only intended new files before auditing; never stage generated `.claude/` mirrors. Commit a passing phase only when authorized; the next phase's baseline is the commit made when the previous phase passed (the first uses the commit before work started). Use `HEAD` only if no commit was made since this phase started; otherwise find the baseline with `git log --oneline`. The internal audit runs before the MDTM task is marked done, so leave its folder in `.dev/tasks/to-do/`.
+ 
+ 10. **Review and open a pull request.** Workflow 3.11.
+ 
+@@ -97,23 +102,23 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ 2. **Write and agree the spec.** Save a short spec file, for example `docs/specs/invoice-csv-export.md`, saying what changes, which files, and how you will know it works. If it includes a new interface or API, `/sc:design invoice-export-api --type api --format spec` drafts that part; paste its output into the spec file. Have your lead approve the spec.
+ 
+-3. **Build the task file, passing the spec.**
+-   `/task-builder "Implement monthly CSV export for the invoices list. Why: finance month-end. Code: src/invoices/, src/api/routes/invoices.py" --spec docs/specs/invoice-csv-export.md`
+-   Passing `--spec` makes task-builder check that every requirement in the spec has a task. The result is in the `reflect_pre` entry at the top of the task file. If the check fails (less than 90% of requirements covered), the missed requirements are added to the task file's Open Questions. Without `--spec` this check is skipped. Read the task file and its Open Questions before running it. To resolve an Open Question: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not tick checklist items.
++3. **Plan from the approved spec.**
++   `/sc:workflow docs/specs/invoice-csv-export.md --depth standard --handoff none`
++   Read the actual printed plan and its advisory check result before execution. Resolve gaps before the first step starts; do not repeat workflow's built-in pre-check. An existing spec, multiple files or several sessions do not by themselves select MDTM. If an adequate approved plan already exists, skip plan creation and use its executor directly.
+ 
+-4. **Run it.** `/task <path to task file>`. If it stops partway, see the note at the end of 3.1.
++4. **Run the approved plan only when execution is requested.** `/sc:implement <actual printed plan path>`. It checks compliance step by step and records the results. If it stops, follow 3.3; resume with the same command, not a replacement task file.
+ 
+-5. **Confirm and ship.** Read the task file's `reflect_post` verdict (as in 3.1 step 9), then workflow 3.11.
++5. **Confirm and ship only when requested.** Read the compliance results and final review, then follow workflow 3.11. Explicit MDTM creation/execution or exceptional complex long-running phase machinery remains level 4; use `/task-builder ... --spec <spec path>` and `/task <task file>` only for that justified branch (3.1).
+ 
+ ### 3.3 Make a small, well-defined change
+ 
+ 1. **One source file (plus its test), five edits or fewer:** use level 2 (section 1).
+ 
+-2. **A few files with clear scope:**
+-   `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick`
++2. **Beyond the direct-change limit:** normally use `/sc:workflow`, then `/sc:implement`. Standard is the ordinary planning default; for this smaller checked plan, quick is appropriate:
++   `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick --handoff none`
+    Read the plan at the path it prints (`.dev/tasks/to-do/<id>/<id>.md`; `<id>` is defined in section 1, level 3) and the check result printed with it, and check that each step's acceptance criteria clearly say what "done" means. Then:
+    `/sc:implement .dev/tasks/to-do/<id>/<id>.md`
+-   It runs the tests itself as it goes.
++   It records available lint, typecheck and tests as extras; compliance with the acceptance criteria is the task verdict. Small first-pass checks can be inline, so not every task uses an independent agent; the managed package's final review is independent.
+    - **If a step still fails its check after the automatic retries (one fix pass, then up to three new attempts written from stronger models' advice; the step's acceptance criteria never change),** `/sc:implement` stops with the code `E-HALT-QA` and prints the progress file path (`progress.md`, beside the plan). Either fix the code and resume, or have your lead explicitly accept the explained gap in the current conversation. A clear reply such as "yes, accept step 2 as explained" is sufficient after Claude explains the exact scope, reason and cost if wrong. Claude records that confirmation automatically as a `Ruling:` in the progress file and retains the non-compliant verdict; you do not need to hand-write task or archive records. Unclear or missing acceptance stays blocked. The same acceptance covers ordinary archiving of unchanged accepted work, but never waives a fresh independent final review or authorizes commit, PR, merge or release. Existing manually written records remain valid. If it stops with `E-RESUME-NEEDED`, something outside the step failed (for example the reviewer crashed): run the same command again, and do not add a ruling. (The installed rule: `~/.claude/skills/sc-implement-protocol/refs/ledger.md`.) Do not edit the plan after the first step starts; the tool stops with `E-PLAN-CHANGED`.
+ 
+ 3. **Ship.** Run the tests yourself only if nothing ran them (a plain edit, or a trivial `/sc:task` change). Then follow workflow 3.11. Its `/code-review` step looks for bugs, which the step-by-step reviewer does not.
+@@ -122,55 +127,57 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ 1. **Diagnose it.** Describe what happens, what you expected, how to reproduce it, and paste the exact error.
+    `/sc:troubleshoot "Nightly invoice job fails with KeyError: 'tenant_id' in src/billing/invoice_job.py since yesterday's deploy. Expected: invoices for all tenants. Reproduce: python -m billing.invoice_job --date 2026-09-30" --type bug`
+-   Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. It finds the root cause with file and line evidence and changes nothing. A simple bug takes 1-3 minutes. If it is not confident, or the problem is intermittent or spans several areas, it automatically brings in more agents, which can take another 4-15 minutes. `--depth quick` stops it after the first pass; `--depth deep` always brings in several agents testing competing explanations after that first pass.
+-   If you suspect the fix will be larger or riskier than a few files with clear scope, add `--fix` now. If the diagnosis succeeds, it then offers to build a task file for the fix, and changes nothing unless you accept.
++   Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. Diagnosis writes tool-owned reports and evidence, not product fixes; diagnostic runs still require the relevant execution permission. It can return supported, inconclusive, failed or blocked results. Standard depth can escalate to competing hypotheses; quick stops after the first pass and deep requests the deeper investigation. No duration or success is guaranteed.
++   For a remediation-planning offer, add `--fix` only if you want it: after a supported successful diagnosis and your acceptance, standard depth offers workflow planning. It does not authorize implementation. `--depth quick --fix` is invalid. Explicit `--depth deep --fix` currently selects MDTM remediation; depth is coupled to that route, not a file-count or risk rule. For deep diagnosis followed by ordinary planning, omit `--fix`, then plan separately from the supported report.
+ 
+ 2. **Read the report** at `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`. It says whether the fix belongs in the code, the test, or the documentation.
+ 
+ 3. **Fix it.**
+    - **Small fix (one source file plus its test, five edits or fewer):** first ask Claude to add a test that reproduces the bug (using the report's reproduction steps) and confirm the test fails. Then make the fix and run `/sc:test tests/billing/test_invoice_job.py --coverage` to confirm the new test and the existing ones pass.
+-   - **A few files with clear scope:** `/sc:workflow "<the fix described in REPORT.md, with a test that reproduces the bug>" --depth quick`, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (the plan path it prints; level 3).
+-   - **Larger or riskier fix:** accept the task-file offer from step 1. If you did not pass `--fix`, do not diagnose again; build the task file from the report you already have: `/task-builder "Fix the root cause described in .dev/troubleshoot/<name>-<timestamp>/REPORT.md, with a test that reproduces the bug. Code: <files the report cites>"`. Then `/task <path>`; if it stops partway, see the note at the end of 3.1. The task file runs its own reviews, tests, and final audit; read its `reflect_post` verdict when it finishes.
+-   - **If the report says the cause is not confirmed:** do not fix anything yet. Run the checks the report lists, then run `/sc:troubleshoot` again with what you learned added to the description, or with `--depth deep`.
++   - **Ordinary planned fix:** `/sc:workflow "<the supported fix described in REPORT.md, with a test that reproduces the bug>" --depth standard --handoff none`, then read the printed plan and use `/sc:implement <printed plan path>` only when execution is requested. If a planning offer already produced an adequate approved plan, use it directly. Do not diagnose again merely to obtain planning.
++   - **Explicit or exceptional MDTM fix:** use level 4 only for explicit MDTM selection or an exceptionally complex, long-running program needing its research/checklist/phase-panel machinery. If an explicitly requested deep-plus-fix offer is accepted, its current route creates an MDTM task for `/task`; read its checks and final audit. Ordinary deep diagnosis can instead feed the separate workflow plan above.
++   - **Unconfirmed, failed or blocked report:** do not plan or apply a speculative fix or bypass its blocker. Preserve the report's evidence, hardening blockers and authorization limits; follow only its supported conditional checks or next steps. A deeper investigation is not an unconditional rerun instruction.
+ 
+ 4. **Ship.** Workflow 3.11.
+ 
+ ### 3.5 Investigate how something works, or whether an idea is feasible
+ 
+-| You want to know | Run |
++| You want to know | Run and stop |
+ |---|---|
+-| How part of our system works, what would need to change, or whether something is feasible | `/tech-research "How do background jobs get scheduled and retried today, and could we move them to a queue without downtime? Look at src/jobs/ and deploy/worker.yaml."` It writes a report with findings, options, and a recommended plan. |
+-| Something outside our code: a library, a standard, a best practice | `/sc:research "Current best practice for idempotent webhook handling with Stripe" --depth deep` (searches the web) |
+-| The general health of a module | `/sc:analyze src/billing/ --focus security` (or `quality`, `performance`, `architecture`). It reports only and changes nothing. |
+-| What a specific piece of code does | `/sc:explain src/billing/invoice_job.py` |
++| How our system works or whether a change is feasible | `/tech-research "<question, purpose, code paths>"` produces a code-grounded report. Stop there unless implementation planning was requested. |
++| Current external, academic, competitive, market, standards or technical evidence | `/sc:research "<question and constraints>"`. Preserve requested depth: quick, standard, deep or exhaustive. Do not force deep over an explicit preference. Stop at the evidence and synthesis. |
++| Whole-project or module static health | `/sc:analyze <target>`. No focus is required for a broad assessment. Add the requested quality, security, performance or architecture focus, quick/deep depth or text/json/report format only when applicable. It reports findings, not source fixes. |
++| An audience-tailored explanation | Ask directly for a simple answer, or `/sc:explain <target>` with the requested basic/intermediate/advanced level, text/examples/interactive format and domain context. Inspection breadth alone does not require implementation planning. |
+ 
+ ### 3.6 Make a hard decision or compare options
+ 
+-| Situation | Run |
++| Situation | Run and stop |
+ |---|---|
+-| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. It ends with merged requirements you can take into `/prd` (3.1). Add `--handoff task` to go straight to a task file instead. |
+-| You have two or more competing designs, plans, or drafts | `/sc:adversarial --compare docs/design-a.md,docs/design-b.md`. Agents debate them, score them, and merge the strongest parts into one document. |
+-| A spec, PRD, or TDD needs an outside expert critique | `/sc:spec-panel @docs/specs/invoice-csv-export.md --mode critique`. It only reports; you decide what to apply. |
+-| You want reviewers from other AI model families | `/sc:swarm-wizard`. It asks what you want reviewed, picks the settings, proves them with a safe dry run, and launches the real review only after you say go. Real runs need an OpenAI-compatible model proxy set in `~/.aienv`: one `export KEY=value` line each for `T2ProxyUrl` (proxy base URL), `T2ProxyKey` (API key), and `T2Model01` (model name), and make sure your shell sources the file (for example from your shell profile) before you start Claude; without it you get the dry run only. The full list of review styles by goal is in the IronClaude repository (not installed): https://github.com/IronbellyOrg/IronClaude/blob/master/docs/swarm/wizard-guide.md |
+-| The question is about business strategy, not code | `/sc:business-panel @docs/billing/PRD_BILLING.md` |
++| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. Stop at merged requirements. Later requested planning uses workflow/implement, not an automatic task-file handoff. A brainstorm dry run can write preparatory artifacts; it is not a zero-write promise. |
++| Compare existing designs, plans or drafts | `/sc:adversarial --compare <file-a>,<file-b>` requires 2-10 existing readable files. Keep requested depth, focus, interaction and output. Stop at comparison and merged artifacts, not product implementation. |
++| Generate competing designs from a source | `/sc:adversarial --source <file> --generate <type> --agents <specs>`. Preserve all three required inputs. Do not turn a single source into an invalid one-file comparison. |
++| Continue an adversarial pipeline | `/sc:adversarial --pipeline @<pipeline.yaml> --pipeline-resume --output <existing output>` preserves the pipeline and checkpoint location. Pipeline mode is mutually exclusive with compare and source/generate/agents modes. |
++| Review a populated spec, PRD or TDD | `/sc:spec-panel @<file>`. Critique is the recommendation default for a critique request without another supported mode, not a forced command default. Preserve discussion or socratic requests, focus and format. A business-viability question belongs to business-panel, not spec critique merely because its input is a PRD. |
++| Explicitly derive a scoped spec from a populated document | `/sc:spec-panel @<file>` with the derivation intent in the request. Obtain the required target release when missing for TDD input; preserve consent before changing the input. Raw PRD/TDD authoring belongs to the document skills. Do not invent a downstream flag from prose-only examples. |
++| Use swarm, choose its settings or request multi-model review | `/sc:swarm-wizard --goal "<goal>" --target <path>` preserves the supplied goal, target and output. Missing goal/target is gathered by interview; a target needs at least 50 non-whitespace bytes. The installed swarm CLI must be reachable. A real run requires explicit go-ahead, a passing stub dry run and the T2ProxyUrl/T2ProxyKey/T2Model01 environment contract. Command and protocol disagree on missing-proxy STOP versus stub fallback: disclose this contract gap, not a guaranteed fallback. Settings help does not authorize a real launch. Run preparation and previews write artifacts. |
++| Business viability, market position or strategic choices | `/sc:business-panel <document-or-inline-content>` uses simulated expert perspectives. Preserve discussion/debate/socratic/adaptive mode, requested experts, focus and synthesis-only output. Stop at analysis, not a measured commercial prediction or automatic specification rewrite. |
+ 
+ ### 3.7 Refactor or clean up code
+ 
+-1. **Find what needs cleaning.**
+-   `/sc:cleanup-audit src/billing/ --pass all`
+-   It writes an evidence-backed report (under `.claude-audit/`) of files to delete, consolidate, move, or keep, and changes nothing. Without `--pass all` it runs only its quick first pass (delete, review, or keep). Leave out the path only when you mean the whole repository.
++1. **Audit only when that is the requested outcome.**
++   `/sc:cleanup-audit <folder>` writes reports and checkpoints under `.claude-audit/`; it does not edit audited inputs. Preserve the requested surface/structural/cross-cutting/all pass, domain focus and batch size. Structural and cross-cutting work need the earlier pass context. Hidden paths and BMAD-owned paths are excluded by an unremovable scope floor; a hidden-config-only target is not exhaustively audited. Do not force all passes. **For report-only auditing, stop here: no cleanup, improve or commit.**
+ 
+-2. **Small, contained cleanups.** Commit first so every change can be undone. Then:
+-   `/sc:cleanup src/billing/ --type code --safe --interactive` removes dead code and unused imports.
+-   `/sc:improve src/billing/ --type quality --safe --interactive` improves code quality.
+-   `--interactive` asks before complex changes, but some changes are applied automatically even then: `/sc:cleanup` removes unused imports, code nothing references, empty blocks, and redundant type annotations; `/sc:improve` fixes formatting and naming, removes unused variables, reorders imports, and adds simple type annotations. Review `git diff` before keeping anything.
++2. **Small, contained cleanups or improvements, only when requested.** Commit first so every change can be undone. Choose the operation requested, not both by default:
++   `/sc:cleanup src/billing/ --type code --safe --interactive` for cleanup, or `/sc:improve src/billing/ --type maintainability --safe --interactive` for maintainability.
++   Improve also supports quality, performance or style. Preserve the supplied type, safety and interaction controls. `--interactive` asks before complex changes, but some edits still apply automatically: cleanup can remove unused imports and unreferenced code; improve can change formatting, naming, imports and annotations. Review `git diff` before keeping anything. An improvement-only request does not authorize compulsory cleanup/deletion. Neither command's example-only preview or validation controls establish a supported flag.
+ 
+-3. **Large refactors** (many files or a structural change): treat it as a feature. Write a spec and build a task file with `/task-builder ... --spec` (3.2), so every step is checked.
++3. **Structural refactors or work outside the contained-folder exception:** write down the intended change and acceptance criteria, then use `/sc:workflow <spec path>`, read its plan, and run `/sc:implement <printed plan path>` when execution is requested (3.2). Many files or risk alone do not select MDTM; level 4 needs explicit selection or a stated exceptional complex long-running machinery need. The cleanup exception does not cover an architectural migration.
+ 
+ ### 3.8 Run tests and check coverage
+ 
+-- `/sc:test tests/billing/ --coverage` runs the tests and reports coverage. Add `--type unit`, `integration`, or `e2e` to narrow it.
+-- `/sc:test` does not write new tests. To add tests, put them in the spec and the task file (3.2), or ask Claude to write them for a small change (3.4 step 3).
++- `/sc:test <target>` runs an existing suite. Preserve a requested unit/integration/e2e/all type, coverage or watch setting. Watch alone does not add fix. E2E needs its browser tooling and services ready; tests can write caches, reports, fixtures and external state, so execution is not read-only inspection.
++- Only an explicit `/sc:test <target> --fix` request permits its simple-failure repair behavior; disclose source edits and retain applicable planning limits. A failing-test diagnosis and YAML tier validation are different outcomes (3.4 and 3.13). Do not invent a numerical ceiling for what it can repair.
++- `/sc:test` does not write new tests. For ordinary planned test authoring, include tests in the spec and workflow plan (3.2); for a bounded direct change, ask Claude to write them (3.4 step 3). Existing approved plans keep their executor.
+ 
+ ### 3.9 Document existing work
+ 
+@@ -181,28 +188,39 @@ These skills document things that already exist. A PRD and a TDD are planning do
+ | A technical reference for a built feature: architecture, how it works, how to extend it | `/tech-reference "Document the usage billing feature. Code: src/billing/, src/api/metering/. Audience: engineers who maintain it. Output: docs/billing/billing-technical-reference.md."` |
+ | Step-by-step instructions to install, deploy, or operate something | `/operational-guide "Write the operational guide for deploying the billing worker to staging and production, including rollback. Sources: deploy/worker.yaml, scripts/deploy_worker.sh. Audience: on-call engineers. Output: docs/billing/billing-worker-deploy-operational-guide.md."` |
+ | A README for a project, module, or package | `/readme "Write the README for the src/billing/ package: what it does, setup, configuration, and how to run its tests. Use docs/billing/billing-technical-reference.md if it exists. Audience: new engineers. Output: src/billing/README.md."` |
+-| Reference text for specific functions, classes, or API endpoints | `/sc:document src/api/routes/invoices.py --type api` |
++| Focused inline docstrings, external reference, API reference or a user guide | `/sc:document <target> --type <inline/external/api/guide> --style <brief/detailed>` uses the requested type and style. Inline output edits source: retain the direct-change limit or use a written workflow plan when exceeded. Do not silently replace a short docstring request with a full TDD. |
++| Coordinated project-wide documentation and navigation | `/sc:index <target>` with requested docs/api/structure/readme type and md/json/yaml format; not the compact repository map from index-repo. |
++
++All document routes retain supplied source paths, audience, output intent and existing project standards. Template-led README, operations and technical-reference skills own their research/review lifecycles. A requested Technical Design Document uses `/tdd` or `/sc:tdd`, not test-driven development, and stops at that document (3.13).
++
++### 3.10 Check plans or finished work without changing them
++
++- **Pre-execution coverage:** `/sc:reflect --mode pre --spec <spec>` requires the spec; tasklist is optional. Include `/sc:reflect --mode pre --spec <spec> --tasklist <plan>` when a plan exists. Do not manufacture a missing tasklist or rebuild an adequate approved plan just to audit it.
++- **Consume existing checks:** a workflow plan's advisory pre-review is printed and recorded in `return-contract.yaml`; consume it rather than repeat it. For MDTM, read `reflect_pre` and resolve its Open Questions. A genuinely separate governing spec can warrant a separate comparison; a skipped/failed review is not a passing check.
++- **Post-execution audit:** use either `/sc:reflect --mode post --diff <ref-or-diff-path> --no-promote` or `/sc:reflect --mode post --task-log <log-path> --no-promote`. Spec and tasklist are recommended context when available, not mandatory together. One baseline commit includes the current working tree; a commit range audits that range. Intended new files must be staged to appear in the working-tree diff. Preserve the actual baseline and never stage generated mirrors just for an audit.
++- **Report-only:** post audits need `--no-promote` to suppress folder promotion; they still write audit artifacts and may run verification tools subject to their execution permissions. Do not substitute a headless auto-fix wrapper for interactive report-only work. Preserve failed, partial, inconclusive or blocked results, carried hardening blockers and human-decision requirements.
++- **Optional remediation:** standard `/sc:reflect --remediate` offers workflow planning only after the audit and acceptance; execution is a separate user action. Requested `/sc:reflect --depth deep --remediate` currently couples remediation to MDTM. Deep alone does not remediate. For ensemble review plus ordinary planning, `/sc:reflect --tier 2 --depth standard --remediate` avoids selecting the deep-MDTM branch. Consume workflow's built-in pre-review rather than reflecting twice. Legacy task analyze/validate aliases remain supported; prefer mode syntax for new handoffs.
++
++### 3.11 Review only, or deliberately ship and open a pull request
+ 
+-### 3.10 Check a plan before you run it
++**Review-only stop:** `/sc:auggie-review <PR-number-or-URL> --no-post-pr --no-remediation-offer` keeps findings local and suppresses the planning offer. For a diff use `/sc:auggie-review --diff <base>...HEAD --no-post-pr --no-remediation-offer`; for a snapshot use `/sc:auggie-review --snapshot <path> --no-post-pr --no-remediation-offer`. Do not append commits, pushes or PR creation to findings-only work. Resolve a real target, the Auggie CLI and Git working tree, plus authenticated gh for a PR. Preserve requested depth, focus, output and internal reviewer selection. The Auggie model defaults to prism-b when not overridden; revagent chooses an internal reviewer, not Auggie's model.
+ 
+-For a task file, open it and read the `reflect_pre:` block in the file's header (between the first two `---` lines). That entry, not how the file was built, tells you whether the check already ran.
++Accepted ordinary remediation offers use design then workflow/implement; accepted deep-review offers currently select task-builder/task. Planning never authorizes execution. For deep findings followed by ordinary planning, suppress the automatic offer and separately hand accepted findings to workflow. The internal design referral has an undeclared destination option: that contract gap must not be copied into a runnable chain or silently repaired here.
+ 
+-- **`verdict: pass` or `verdict: fail`:** it has already been checked against the spec. Resolve anything listed under Open Questions before running `/task`: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not run the check again.
+-- **A `/sc:workflow` plan:** it was checked against your request when it was written; the result is printed with the plan path and stored in the plan folder's `return-contract.yaml` (`reflect_status`, `reflect_report_path`). If a separate spec, PRD, or TDD exists beyond your request, run the check below against that spec.
+-- **`verdict: skipped`** (no spec was found when it was built, which can happen with task files made from roadmap build requests or from a research or troubleshoot report), or **a plan you wrote yourself:** it has not been checked. If you have a spec, PRD, or TDD for this work, run:
+-  `/sc:reflect --mode pre --spec docs/specs/invoice-csv-export.md --tasklist <task file or plan path>` (for a plan you wrote yourself, give the path to your plan file; for a plan made by `/sc:workflow`, the path is `.dev/tasks/to-do/<id>/<id>.md`)
+-  The report in `.dev/reflect/pre-<name>-<timestamp>/` lists every requirement the plan misses. For a task file: add each missed requirement to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. For a plan, add the missing requirements to the plan before its first step starts, then run it: a `/sc:workflow` plan with `/sc:implement .dev/tasks/to-do/<id>/<id>.md`, a plan you wrote yourself with `/sc:implement <path to your plan file>`. If there is no spec, there is nothing to check against; read the plan yourself.
++**Shipping only when requested and authorized:**
+ 
+-### 3.11 Review your work and open a pull request
++1. Commit locally on the feature branch only when authorized.
++2. Run `/code-review`; use `/security-review` when authentication, permissions, secrets, input or paths changed. Authorize and record any fixes before branch review.
++3. Review the branch with `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr --no-remediation-offer`.
++4. Push only with approval, preserving the intended origin repository and head branch.
++5. For creation, `/sc:pr-submit --head <branch> --title "<title>" --body "<body>"` needs authenticated gh. For attachment use `/sc:pr-submit --pr <number>` instead of creating another PR. For continuation use `/sc:pr-submit --resume <run-log.jsonl>` and retain that monitor's PR, repository, head and recorded authority.
++6. Select **exactly one** monitor ceiling for the chosen operation, before emitting the handoff:
++   - Creation only, or absent/uncertain review App: monitor 0.
++   - Proposals without source edits: monitor 1.
++   - Local fixes without publication: monitor 2 (halts before push).
++   - Requested and authorized full loop: monitor 3 (the current command default). This may commit and push fixes, retrigger review, and reply to and resolve fixed threads.
+ 
+-1. **Commit locally** on your feature branch. Do not push yet.
+-2. **Bug review.** `/code-review`. Fix what it finds.
+-3. **Security review.** If you touched login, permissions, secrets, user input, or file paths: `/security-review`. Commit any fixes from steps 2 and 3 before step 4, so the branch review and the push include them.
+-4. **Branch review.** `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr` (`git remote show origin | grep 'HEAD branch'` prints the main branch name). It reviews the whole branch for bugs, architecture risks, and bad patterns, and keeps results local. At the end it offers to plan fixes as a task file; accept only if you want one.
+-5. **Push.** Only after your lead approves.
+-6. **Open the PR.** You need the GitHub command-line tool (`gh`) installed and logged in.
+-   `/sc:pr-submit --monitor 3 --head feature/invoice-csv-export --title "Add monthly CSV export to invoices list" --body "Adds CSV export for finance month-end. Spec: docs/specs/invoice-csv-export.md. Tests: tests/invoices/test_export.py."`
+-   It opens the PR, waits for the automated review bot, checks each of its findings, fixes the confirmed ones of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes those fixes to your branch without asking, and replies to and resolves the review comments it fixed. To see the fixes before they are pushed, use `--monitor 2` instead: it makes them locally and stops before pushing. This needs the Augment Code review app on your repository. Without it, or if you are not sure the app is installed (the repository's Settings > GitHub Apps page lists it), use `--monitor 0`, which only opens the PR.
++Pass the one selected monitor value explicitly. A stronger project rule can require monitor 3: if that conflicts with the requested lower ceiling, disclose the policy conflict and withhold execution, never silently increase authority. Monitored runs require the review App, matching PR head checkout/commit and CI-wait prerequisites. They are attended in-session loops, not daemons. Monitor 3 publishes only the cycle's permitted fix commit to origin, never an upstream or protected/default branch, and never an unrelated local commit range. Silence or timeout is not a clean review. Recommending any branch performs no Git/GitHub action.
+ 
+ ### 3.12 Resume after a crash or a lost session
+ 
+@@ -212,10 +230,45 @@ There are two ways to resume. Use the first if you set it up; the second always
+ 
+ **2. Restart from the work's own files.** This works in a brand-new conversation.
+ 
++- **A supplied PR monitor log.** `/sc:pr-submit --resume <run-log.jsonl>` resumes that PR monitor, not general implementation. Preserve recorded repository, PR, head and ceiling; do not create a second PR. A plain existing-PR attachment uses `/sc:pr-submit --pr <number>` with one explicitly selected ceiling (3.11).
+ - **A task file (`/task`).** Run `/task <path to the task file>` again. It continues from the first unchecked item.
+ - **A simple plan (`/sc:implement`).** Run `/sc:implement .dev/tasks/to-do/<id>/<id>.md` again. The `progress.md` file beside the plan records every finished step, and the run continues from the first unfinished one. If the folder has already moved to `.dev/tasks/done/`, the work is finished. Folders named `TASK-WF-*` are `/sc:workflow` plans: run them with `/sc:implement`, never with `/task`.
+ 
+-`/sc:save` and `/sc:load` store and load Serena project memory. (Serena is an optional code-navigation tool; its project memory is notes it keeps between sessions.) They are not a way to resume work.
++`/sc:save` and `/sc:load` store and load Serena project memory. They are not a way to resume work or a guarantee of complete executor state. Other command-owned continuations keep their own supplied pipeline, output folder, validated proposal or document-task input; do not convert them into task-builder or a fresh generic plan. Clarify the artifact when it is not known.
++
++### 3.13 Specialist deliverables and operations
++
++Select the whole requested outcome, not a generic phrase such as review, error, no changes, tasklist or many files. All routes require their actual callable command/skill and relevant dependencies; a missing plugin capability is **unavailable**, not a promise to install it. Read the active contracts and preserve supported explicit controls. A real contract disagreement is a **contract gap**, not a union of both interfaces. Do not execute a recommendation.
++
++| Outcome | Verified input and controls | Deliverable and stop |
++|---|---|---|
++| Installed inventory | `/sc:help` reads live global/project/plugin surfaces. | Inventory and guide pointer, not automatic install/update or repair. |
++| Focused design | `/sc:design <target>` supports architecture/api/component/database and diagram/spec/code formats. | Design artifacts only; code format does not authorize implementation. No declared destination option. |
++| Technical Design Document | `/sc:tdd <component> --from-prd <prd>` or `/tdd "<request with inputs and output>"`. Preserve optional tier, focus, output, stub or document-task resume. | Reviewed TDD, not test-driven development. The tdd skill owns its internal document workflow; verify its template/tools exist. No automatic product planning. |
++| Cleanup inventory only | `/sc:cleanup-audit <folder>` with requested pass, focus and batch size. | Tool-owned reports/checkpoints; excluded hidden/BMAD paths are a scope floor. Stop before cleanup, improve or commit (3.7). |
++| Contained improvement | `/sc:improve <folder>` with quality/performance/maintainability/style, safe and interactive controls as requested. | Source changes; retain checkpoint/diff safeguards and automatic-edit warning. No compulsory cleanup operation. |
++| Auggie review only | `/sc:auggie-review` needs a PR, diff or snapshot target and its tools. Preserve posting, remediation, reviewer and output controls. | Local findings when requested; no shipping chain. PR targets post by default unless no-post is selected (3.11). |
++| Localization review | `/sc:review-translation <source> <translations...>` supports strict, quick/standard/deep, tone matrix, platform and export. | Context confirmation before review, then locale/project reports and requested export. Input fixes need separate consent; placeholder errors are not runtime exceptions. |
++| Context-weight audit | `/sc:init-lite --context-optimized` accepts project-root and output, plus explicit dry-run/scaffold/force. | Default report; dry-run is stdout only and writes nothing. Scaffold is advisory and opt-in; force cannot overwrite context inputs and is limited to owned artifacts. |
++| Create an evaluation suite | `/sc:cli-eval create --name <stem> --from @<design>` preserves supplied name/design and optional agents. | Owned fresh-contract load, design/critique/debate/author/schema-validation/docs lifecycle. Stop at authored suite; no automatic suite run. |
++| Run an existing evaluation suite | `/sc:cli-eval run --suite <name> --eval <id>` retains supplied selectors; absent suite is an interactive selection. | Confirm invocation and safety controls, supervise real execution and report actual results/artifacts. No invented resume mode or claim of read-only execution. |
++| Workflow-to-CLI specification | `/sc:cli-portify --workflow <skill-name-or-directory>` needs an unambiguous skill containing SKILL.md; preserve name/output/dry-run. | Specification only, not working code files. Dry-run writes Phase 0-2 contracts, not a reviewed full spec. Command/protocol code-generation and activation-name disagreement must be disclosed if unresolved. |
++| Release boundary assessment | `/sc:release-split <artifact>` needs identifiable scope. Preserve output, depth, interaction, no-split or validated-proposal resume-from input. | Neutral split/no-split decision and release artifacts/fidelity evidence. No product plan execution or Git operations. Release 2 planning stays gated on real Release 1 validation. |
++| Tagged-release follow-through | `/sc:post-release <existing-tag>` with requested output. | Owned mutating lifecycle: docs, install/deploy surface and human test guides with real validation. Preserve consolidated-plan and outward-action approvals; no unsupported install success claims. |
++| Release-pipeline roadmap artifacts | Explicit `/sc:roadmap` intent retains supplied spec/TDD/PRD and output preferences. | Contract gap: command's 1-3 positional Markdown inputs and CLI controls disagree with backing skill grammar. Do not certify a runnable combined slash interface or substitute MDTM roadmap. |
++| Sprint-compatible tasklist bundle | `/sc:tasklist <roadmap>` with optional spec/output. Input must be a readable non-empty roadmap; verify supplied spec and writable output parent. | Index and phase files plus generation checks. Stop before Sprint/task execution. A workflow plan or merged brainstorm is not a roadmap input; no source flag. |
++| Roadmap fidelity audit | Preserve roadmap and requirement sources, or the supplied pipeline output directory, according to the requested surface. | Contract gap: `/sc:validate-roadmap` command takes an output directory, skill requires roadmap plus specs. Investigative audit is not CLI parity; report counts decide quality, not zero exit. No combined grammar. |
++| Tier-rule validation | `/sc:validate-tests <YAML-file-or-directory>` retains verbose/summary/category/stop-on-fail/report controls. | Classification expectation results only, not application coverage or repairs. Verify the supplied/default suite exists; advertised default tests/sc-task is absent in this checkout. Report missing prerequisite, never illustrative test counts as results. |
++
++If evaluation intent is ambiguous, ask whether the user wants a new suite or a supervised existing-suite run. If tasklist intent is ambiguous, distinguish a checked workflow plan, an MDTM checklist and a roadmap-to-Sprint bundle before selecting. A business review of a PRD, placeholder review of translations and a compile of existing code keep their specialized outcomes; a broken build instead needs diagnosis.
++
++### 3.14 Known contract limitations and lifecycle
++
++- **Roadmap and fidelity activation:** keep generation's positional-input command separate from its legacy multi-spec/template protocol, and keep the directory validator separate from the investigative roadmap/spec auditor. Do not advertise mixed flags or successful validation from exit zero. These are unresolved source-contract gaps, not missing input alone.
++- **Portification and optional referrals:** prefer the specification-only portify deliverable; do not promise direct code files. Resolve the actual activation name. Workflow/brainstorm referrals using a source flag do not establish tasklist support for that flag or for a non-roadmap input. TDD's task-as-creator referral does not change task's executor identity. Auggie's design destination referral is undeclared; offer separate ordinary planning from accepted findings, not a certified broken chain.
++- **Other deferred differences:** spawn's final decomposition-only stop wins over earlier execution prose. Swarm's missing-proxy STOP/fallback disagreement is disclosed without promising a real run or fallback. Load's example-only checkpoint option is not executor recovery. Task's classification-before-tools prose does not waive the governing skill-first rule; do not duplicate its internals here. Active plugin copies can lack skills or safeguards even when command files exist: verify them or report unavailable/contract gap. Planning depth is not a guarantee of multi-session plan generation, while implement execution is resumable. Validate-tests needs a real YAML suite. Startup status messages do not prove agent/PM activation.
++- **Retired framework identities:** estimate, the sc dispatcher, select-tool and task-mcp are not current runnable framework targets, even if readable installed remnants survive. Explicit deprecated metadata and verified canonical retirement outrank readability. Answer retirement questions with the underlying intent and a current independently verified alternative; do not trust task-mcp's stale replacement metadata or resurrect bypass flags. Do not delete, update or reinstall anything automatically. Independently authored installed-only/custom commands remain eligible; uncertain ownership of a same-name override needs clarification, not blanket rejection.
++- **Evidence:** static routing assertions, generated recommendation results and actual specialized-command execution are distinct. Do not report fabricated quality scores, timing, savings or test counts. A report-only stop can still write tool-owned artifacts; memory, product edits, Git operations and external publication must be described separately.
+ 
+ ---
+ 
+@@ -240,88 +293,99 @@ Where this guide says "your lead", read "yourself" if you work alone.
+ | These look alike | The difference |
+ |---|---|
+ | `/task` and `/sc:task` | `/task` runs a task file from disk, with reviewer panels after each group of items except the first (setup) one. `/sc:task` does one job directly, with no file. |
+-| `/sc:workflow` + `/sc:implement` and `/task-builder` + `/task` | The first pair writes a short plan, checks it against your request, has one reviewer check each step, then runs one final independent review of the whole plan. The second pair researches the code, writes a full task file, and has a panel of reviewers check each group of items after the setup group. Use the second pair for many files, multi-session work, or anything that must not drift. |
++| `/sc:workflow` + `/sc:implement` and `/task-builder` + `/task` | Workflow/implement is the ordinary planned-implementation default: a checked plan, step compliance checks, ledger and final independent managed-package review. Task-builder/task adds MDTM research, checklists and phase-reviewer panels. Choose it only explicitly or for an exceptionally complex, long-running phased program needing that machinery, not for file count, sessions, a spec, risk, auditability, drift or resume alone. |
+ | `/sc:design` and `/tdd` | `/sc:design` drafts one design (an API, a component, a schema) in a single pass. `/tdd` writes a full technical design document from the template, with research and independent reviewers. Use `/tdd` when other people will build against the design. |
+-| `/roadmap` and `/sc:roadmap` | `/roadmap` produces a roadmap plus task files you run with `/task`. `/sc:roadmap` belongs to a separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). Use `/roadmap` unless your lead says otherwise. |
++| `/roadmap` and `/sc:roadmap` | `/roadmap` is the expressly selected or exceptionally justified MDTM composer: it uses task-builder/task internally and can produce phase task files for later `/task` execution. It is not the ordinary post-PRD/TDD default; use workflow/implement for ordinary implementation. `/sc:roadmap` belongs to a separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`), not the MDTM composer. |
+ | `/tech-reference` and `/sc:document` | `/tech-reference` researches a whole feature and writes a reviewed architecture document. `/sc:document` writes reference text for specific code in one pass. |
+ | `/tech-research` and `/sc:research` | `/tech-research` investigates our codebase. `/sc:research` searches the web. |
+ | `/sc:cleanup-audit` and `/sc:cleanup` | The audit only reports. Cleanup changes files. |
+ 
+ | Command | What it does unless you say otherwise | What to do |
+ |---|---|---|
+-| `/sc:reflect --mode post` | When you run it yourself on finished work and the audit passes, it moves the work folder to a "done" location. (The audit inside a `/task` run leaves the folder in place: the final audit runs before the task is marked done, so the folder stays in `.dev/tasks/to-do/`.) | Add `--no-promote` when you want a report only. |
++| `/sc:reflect --mode post` | May promote the work folder when its strict promotion gate passes. Audit artifacts and authorized verification can still write state even when promotion is suppressed. | Add `--no-promote` for report-only audits; diff or task log is required, while spec/tasklist are optional context. No automatic remediation from deep depth alone. |
+ | `/sc:auggie-review <PR number>` | Posts its review publicly on the PR. | Add `--no-post-pr` to keep it local. |
+-| `/sc:pr-submit` | With no `--monitor` setting it uses `--monitor 3`: it fixes the confirmed review findings of Medium severity or higher and failing CI checks, pushes the fixes to your branch without asking, and replies to and resolves the review comments it fixed. | Always pass `--monitor 3`. Use `--monitor 0` when the Augment Code review app is not on the repository or you are not sure it is (3.11 step 6). |
+-| `/tech-research` and `/roadmap` | Run at their deepest setting, with many agents, unless the request is clearly small. | For `/tech-research`, ask a narrow, specific question if you want a smaller run. For `/roadmap`, keep the full setting if you want a task file for every phase (3.1 step 7). |
++| `/sc:pr-submit` | Default monitor 3 is the full mutating/publishing loop, including permitted fix commits/pushes and review-thread actions. | Select exactly one ceiling under 3.11: creation-only 0, proposals 1, local fixes 2, authorized full loop 3. Disclose conflicts with stronger project policy rather than silently increasing authority. Preserve existing PR attachment or supplied run-log resume. |
++| `/sc:workflow` | Standard depth and no executing handoff. | Use quick for smaller checked plans, preserve a supported requested depth, and read the actual printed plan before `/sc:implement`. Planning does not authorize execution. |
++| `/tech-research` and explicitly selected `/roadmap` | Run at their deepest setting unless the request is clearly small. | Keep research-only work at the report. Only select the roadmap composer under the explicit or exceptional boundary in 3.1 step 7; its full setting creates phase task files using its own MDTM machinery. |
+ | `/sc:implement` on a `/sc:workflow` plan | Moves the plan folder to `.dev/tasks/done/` when every step passes; on any system other than Linux (including macOS) it refuses on purpose and leaves the folder in `.dev/tasks/to-do/` | Nothing. Never move the folder by hand. |
+ 
+ ---
+ 
+ ## Other commands
+ 
+-These commands are installed but no workflow above routes to them.
++Additional operations and explicit coordination choices. These entries can be referenced by outcome routes; they do not become default implementation planners. Preserve the requested operation and verify its actual callable surface.
+ 
+ <!-- other-commands:v1 -->
+ 
+ | Command | When to use it |
+ |---|---|
+-| `/sc:agent` | A general session controller. Prefer this guide's levels instead. |
+-| `/sc:build` | Build or package the project. |
+-| `/sc:cli-eval` | IronClaude contributors: write or run CLI evaluation suites. |
+-| `/sc:cli-portify` | IronClaude contributors: turn a skill into a CLI pipeline. |
+-| `/sc:git` | Commit with a generated message. Still never push without approval. |
+-| `/sc:help` | List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide. |
+-| `/sc:index` | Build a documentation index for a project. |
+-| `/sc:index-repo` | Write `PROJECT_INDEX.md` and `.json` so later sessions read less. |
+-| `/sc:init-lite` | Check a project's Claude setup files without changing them. |
+-| `/sc:load` | Load Serena project memory. Not a way to resume work (3.12). |
+-| `/sc:pm` | Agent-coordinated work. Prefer this guide's levels instead. |
+-| `/sc:post-release` | After tagging a release. |
+-| `/sc:review-translation` | Review translated text. |
+-| `/sc:save` | Save Serena project memory. Not a way to resume work (3.12). |
+-| `/sc:spawn` | Break a large job into parts. For work that changes code, prefer `/task-builder`. |
+-| `/sc:tdd` | Same as `/tdd` (it invokes the same skill). Not test-driven development. |
+-| `/sc:validate-roadmap` | Part of the separate `/sc:roadmap` release pipeline (section 5). |
+-| `/sc:validate-tests` | IronClaude contributors: test `/sc:task` tier rules. |
+-
+-One more user-facing skill: `/confidence-check` checks readiness before you start an implementation.
++| `/sc:agent` | Explicit session controller: inspect status, orient, then wait for the task. It is self-contained, not a missing protocol. Startup announcements do not prove automatic activation. |
++| `/sc:build` | Compile/package existing code with requested dev/prod/test, clean, optimize or verbose controls. It writes build artifacts and clean can remove outputs; it is not new-feature implementation or proof of deployment. Broken compilation needs diagnosis. Exclude example-only validate controls. |
++| `/sc:git` | Requested status, add, local smart commit, branch or merge operations using declared controls. Status-only stays inspection; a commit needs authorization. Do not append push, merge or PR creation. Native tools may be enough. |
++| `/sc:index` | Coordinated project docs/API/structure/README and requested output format; writes documentation. Distinct from a compact repo map. |
++| `/sc:index-repo` | Compact PROJECT_INDEX.md and PROJECT_INDEX.json map. Preserve documented keyword mode=quick or mode=update and existing-output intent. Verify invocation naming in the active copy; no measured token-savings promise. |
++| `/sc:load` | Load/refresh Serena project context with supported type/refresh/analyze controls; requires Serena. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
++| `/sc:pm` | Explicit PM coordination with requested strategy/verbosity and available protocol/tools. It can write memory/docs; verify dependencies. Not a default planner, automatic-start guarantee or universal executor-resume method. |
++| `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Requires Serena and writes memory; not durable task execution state or a latency guarantee. |
++| `/sc:spawn` | Requested decomposition with sequential/parallel/adaptive strategy and normal/deep depth. Its critical stop is a task hierarchy only: no source edits or downstream implementation. Branch tracing is limited to its documented filter-pipeline trigger, not every delegation. Ordinary implementation planning still uses workflow/implement. |
++
++One more user-facing skill: `/confidence-check` checks readiness before implementation. Supporting command protocols are loaded through their command's actual activation directive; do not infer a protocol name from a filename. Self-contained commands are valid, and TDD resolves to the tdd skill through Skill Invocation. Verify required agents, templates and tools before promising execution.
+ 
+ <!-- /other-commands -->
+ 
+-The 22 skills whose names end in `-protocol` are loaded by their `/sc:` commands and are not run directly. `sc-bare-review` is internal (used by `/sc:swarm-wizard`; its output can feed `/sc:adversarial`).
++Protocol skills are loaded by their commands, not selected merely by their suffix. Internal helpers do not establish an independent user-facing command or installed availability.
+ 
+ ---
+ 
+ ## Routing table
+ 
+-This table is read by `/sc:recommend` and checked by tests. Each row is one kind of job: its steps in order, the flags each step must carry, and where the guide explains it. Numbered steps run in order; lettered steps with the same number (3a, 3b, ...) are alternatives, so do only the one that fits. The `changes_files` column says whether following the row changes your work: `yes` means a step edits source code, docs, or git state (a commit, or a task folder moved to `done/`); `no` means it only answers, or saves a report under `.dev/`, `claudedocs/`, or the tool's own output folder.
++This table is read by `/sc:recommend` and checked by static tests. Match the whole requested outcome, explicit selection, supplied artifact and authority ceiling before generic phrases. Specialist objectives outrank generic review/error/tasklist/no-changes wording. Resolve conditions before emitting steps: lettered alternatives are mutually exclusive, and only the selected branch contributes mandatory flags. Preserve applicable inputs, reads and checks without appending execution or shipping to report-only goals. If intent remains ambiguous, ask one useful question; never loop recommendation back to itself.
++
++The `changes_files` column is not a zero-write promise: `yes` includes requested product/code/docs/Git changes, `no` permits tool-owned reports and analysis artifacts but no product changes, and `asks first` means the mode controls mutation or a capability gap must be resolved. Memory writes, build/test/evaluation state, preview artifacts and external publication are stated separately in the route. A command file alone is not availability proof: verify the actual backing skill, dependencies and relevant active contracts. Missing capability is unavailable; material disagreement is a contract gap. Recommendations execute nothing.
+ 
+ <!-- routing-table:v1 -->
+ 
+ | id | intent | level | steps | mandatory_flags | changes_files | section | notes |
+ |---|---|---|---|---|---|---|---|
+-| ask | understand code; explain; how does something work; no changes wanted | 1 | 1. ask in plain English, or `/sc:explain <path>` | - | no | 1, 3.5 | - |
+-| small-change | one source file plus its test; five edits or fewer; exact change known | 2 | 1. `/sc:task "<change>"` or a plain edit<br>2. run the related test | - | yes | 1, 3.3 | `/sc:task` prints a `Tier:` line at the start; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped its own checks, so run the test yourself afterwards |
+-| simple-plan | a few files; clear scope; one or two sessions | 3 | 1. `/sc:workflow "<what to change, why, which files>"`<br>2. read the printed plan `.dev/tasks/to-do/<id>/<id>.md` and the check result printed with it<br>3. `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | 1: `--depth quick` | yes | 1, 3.3 | to resume, rerun step 3; on any system other than Linux (including macOS) the finished plan folder stays in `.dev/tasks/to-do/` and reports archive-blocked, which is expected |
+-| task-file | many files; more than one session; must not drift | 4 | 1. `/task-builder "<what to build, why, which code>"`<br>2. read the task file and its `reflect_pre` entry<br>3. `/task <task file>` | - | yes | 1, 3.2 | add `--spec <path>` to step 1 when a spec, PRD, or TDD exists |
+-| feature-existing | add a feature to an existing system; requirements clear; no PRD | 4 | 1. `/tech-research "<question, why, which code>"` (optional)<br>2. write and agree a spec file<br>3. `/task-builder "<what to build, why, which code>"`<br>4. `/task <task file>` | 3: `--spec <spec file>` | yes | 3.2 | `/sc:design <name> --type api --format spec` can draft an interface section for the spec |
+-| research-first | how does our system work; is it feasible; what would need to change | 5 | 1. `/tech-research "<question, why, which code>"`<br>2. only if you decide to build: `/task-builder "<what to build> as recommended in <report path>. Code: <folders>"`<br>3. only after step 2: `/task <task file>` | - | yes | 1, 3.5 | step 1 alone writes only a report; for a question you only want answered (is it feasible, how does it work), stop after step 1 |
+-| full-spec | new product; new component; major feature others build against | 6 | 1. `/sc:brainstorm "<idea>"` (only if the idea is vague)<br>2. `/prd "<request>"`<br>3. `/sc:spec-panel @<prd file>`<br>4. `/tdd "<request>"`<br>5. `/sc:spec-panel @<tdd file>`<br>6. `/sc:release-split <tdd file>` (optional)<br>7. `/roadmap "<request>"`<br>8. `/task <phase task file>` for each phase in order<br>9. read the task file's `reflect_post` entry, then follow review-pr | 3: `--mode critique --focus requirements`; 5: `--mode critique --focus architecture,testing` | yes | 3.1 | `/sc:brainstorm` uses `--depth standard` by default, so step 1 need not pass it; in step 7 ask for a full roadmap from the PRD and TDD and a dry run first; if anything changed to resolve step 9, re-confirm with `/sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote` (row confirm-built) before the next phase |
+-| shape-idea | idea or requirements still unclear | - | 1. `/sc:brainstorm "<the idea, who it is for, the main constraint>"` | - | no | 3.1, 3.6 | add `--handoff task` to go straight to a task file when no PRD is needed (level 4); `--depth standard` is the default, so it need not be passed |
+-| bug | bug; error; stack trace; failing test | - | 1. `/sc:troubleshoot "<what happens, what you expected, how to reproduce, exact error>"`<br>2. read `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`<br>3a. small fix (one source file plus its test, five edits or fewer): add a failing test, fix the code, then `/sc:test <test path>`<br>3b. a few files with clear scope: `/sc:workflow "<the fix from REPORT.md, with a test that reproduces the bug>"`, then step 4<br>3c. larger or riskier fix: accept the task-file offer, or `/task-builder "Fix the root cause described in <REPORT.md path>, with a test that reproduces the bug. Code: <folders>"` then `/task <task file>`<br>4. only after 3b: read the plan it prints, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | 1: `--type <kind>`; 3a: `--coverage`; 3b: `--depth quick` | yes | 3.4 | kind is one of bug, test, build, performance, deployment, security; add `--fix` to step 1 only when the fix may be larger or riskier than a few files with clear scope; if the cause is not confirmed, rerun step 1 with `--depth deep` |
+-| external-research | library; standard; best practice outside our code | - | 1. `/sc:research "<question>"` | 1: `--depth deep` | no | 3.5 | - |
+-| module-health | general health of a module | - | 1. `/sc:analyze <path>` | 1: `--focus <area>` | no | 3.5 | area is one of security, quality, performance, architecture |
+-| compare-options | two or more designs, plans, or drafts; pick or merge | - | 1. `/sc:adversarial --compare <file a>,<file b>` | - | no | 3.6 | writes one merged document as its own output |
+-| critique-spec | review a spec, PRD, or TDD | - | 1. `/sc:spec-panel @<file>` | 1: `--mode critique` | no | 3.6 | - |
+-| business-strategy | business strategy, not code | - | 1. `/sc:business-panel @<file>` | - | no | 3.6 | - |
+-| multi-model-review | reviewers from other AI model families | - | 1. `/sc:swarm-wizard` | - | no | 3.6 | real runs need an OpenAI-compatible model proxy set in `~/.aienv` (T2ProxyUrl, T2ProxyKey, T2Model01); without it you get the dry run only |
+-| cleanup | dead code; unused imports; tidy a folder | - | 1. `/sc:cleanup-audit <path>`<br>2. commit<br>3. `/sc:cleanup <path>`<br>4. `/sc:improve <path>`<br>5. review `git diff` | 1: `--pass all`; 3: `--type code --safe --interactive`; 4: `--type quality --safe --interactive` | yes | 3.7 | for a large or structural refactor use feature-existing instead |
+-| tests | run tests; check coverage | - | 1. `/sc:test <path>` | 1: `--coverage` | no | 3.8 | add `--type unit`, `--type integration`, or `--type e2e` to narrow |
+-| document-built | technical reference; operational guide; README; API reference for existing code | - | 1. one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`, `/sc:document <path>` | - | yes | 3.9 | for API reference use `/sc:document <path> --type api` |
+-| check-plan | check a plan or task file against a spec before running it | - | 1. `/sc:reflect --mode pre --spec <spec file> --tasklist <plan or task file>` | - | no | 3.10 | skip it when the task file's `reflect_pre` verdict is pass or fail; a `/sc:workflow` plan was already checked against its request when written |
+-| confirm-built | confirm finished work matches the plan | - | 1. `/sc:reflect --mode post --tasklist <task file> --spec <spec file> --diff <commit before the work started> --no-promote` | 1: `--no-promote` | yes | 3.1, 5 | give one commit, not a `..HEAD` range, so uncommitted work is audited too (`/task` does not commit); run `git add -A` first so new files are included; that commit is `HEAD` if nothing was committed since the work started, otherwise find it with `git log --oneline`; when re-confirming one roadmap phase, commit each phase once it passes and give the commit made when the previous phase passed; `--no-promote` keeps the work folder where it is (this row is a report-only check); the audit inside `/task` compares a commit range and misses uncommitted work, so run this row after `/task` finishes |
+-| review-pr | review the work and open a pull request | - | 1. commit locally<br>2. `/code-review`<br>3. `/security-review`, then commit any fixes from steps 2-3<br>4. `/sc:auggie-review --diff origin/<main branch>...HEAD`<br>5. push only after approval<br>6. `/sc:pr-submit --head <branch> --title "<title>" --body "<body>"` | 4: `--no-post-pr`; 6: `--monitor 3` | yes | 3.11 | step 3 only when login, permissions, secrets, user input, or file paths changed; step 6 needs `gh` logged in and the Augment Code review app on the repository, without which use `--monitor 0` to only open the PR |
+-| resume | lost session; crash; continue earlier work | - | 1a. from a terminal, `ccsession <name>` if the session was tagged with `/ccsession-tag <name>`<br>1b. otherwise rerun the same command: `/task <task file>`, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | - | yes | 3.12 | `/sc:save` and `/sc:load` are not resume methods |
+-| unsure | which tool; how to start | - | 1. `/sc:recommend "<what you want to do, and why>"` | - | no | 4 | - |
++| ask | simple code/concept explanation; audience-tailored learning; not a more specific specialist deliverable | 1 | 1. answer directly when sufficient, or `/sc:explain <target>` | - | no | 1, 3.5 | preserve target and requested `/sc:explain --level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>`; stop at explanation with no fixes or implementation plan from inspection breadth |
++| small-change | one source file plus its test; five edits or fewer; exact change known | 2 | 1. `/sc:task "<change>"` or a plain edit<br>2. inspect actual verification and run the related test if it has not run | - | yes | 1, 3.3 | classification and recorded evidence matter, not a universal tests-ran promise; STANDARD permits affected tests or documented manual verification, LIGHT includes scope/sanity checks and EXEMPT is a non-code operation; never describe LIGHT as no checking or manual verification as an observed test pass; direct-change limits still apply |
++| simple-plan | ordinary checked implementation planning; with or without a spec; across files or sessions | 3 | 1. `/sc:workflow "<what to change, why, which files or spec>"`<br>2. read the actual printed plan `.dev/tasks/to-do/<id>/<id>.md` and its advisory check result<br>3. only when execution is requested: `/sc:implement <actual printed plan path>` | - | yes | 1, 3.3 | standard depth and no executing handoff are the defaults; quick is conditional for smaller checked plans; an adequate approved plan goes directly to its executor, without rebuilding; resume with step 3, never task-builder; non-Linux managed archiving reports archive-blocked and keeps the folder in place |
++| task-file | explicit MDTM creation or existing MDTM execution; exceptionally complex long-running phased program with stated research/checklist/phase-panel machinery need | 4 | 1a. for creation: `/task-builder "<what to build, why, which code, why MDTM>"`<br>1b. for an existing MDTM task: keep that task file without rebuilding<br>2. read the task file and its check result<br>3. only when execution is requested: `/task <task file>` | - | yes | 1, 3.1 | add `--spec <path>` to task-builder when a spec, PRD or TDD exists; file count, sessions, a spec, risk, auditability, drift or resume alone do not select this row; explicit implement selection keeps implement semantics |
++| feature-existing | add a feature to an existing system; requirements clear; no PRD | 3 | 1. `/tech-research "<question, why, which code>"` (only if needed)<br>2. write and agree a spec file, unless an adequate approved plan exists<br>3. `/sc:workflow <spec file>` unless an adequate approved plan exists<br>4. read its actual printed plan and advisory check result<br>5. only when execution is requested: `/sc:implement <approved plan path>` | - | yes | 3.2 | existing approved plans keep their executor directly; `/sc:design <name> --type api --format spec` can draft an interface section; MDTM needs explicit selection or the exceptional level-4 machinery need, not just an existing spec |
++| research-first | how does our system work; is it feasible; what would need to change | 5 | 1. `/tech-research "<question, why, which code>"`<br>2. only if implementation planning is requested: `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`<br>3. read its actual printed plan and advisory check result<br>4. only when execution is requested: `/sc:implement <printed plan path>` | - | yes | 1, 3.5 | research-only requests stop after step 1; do not append implementation or shipping; inspection breadth is not mutation breadth; explicit or exceptional MDTM is a separate level-4 choice |
++| full-spec | reviewed PRD/TDD for new product or component; optional later implementation planning | 6 | 1. `/sc:brainstorm "<idea>"` (only if vague)<br>2. `/prd "<request>"`<br>3. `/sc:spec-panel @<prd file>`<br>4. `/tdd "<request>"`<br>5. `/sc:spec-panel @<tdd file>`<br>6. `/sc:release-split <tdd file>` (only if requested or needed)<br>7a. only for requested ordinary planning: `/sc:workflow "<plan from the accepted PRD/TDD paths and constraints>"`, then read its actual printed plan and check result<br>7b. only for explicit composer selection or exceptional level-4 machinery needs: `/roadmap "<request with supplied documents>"`, then read its outputs<br>8a. only for requested execution of 7a: `/sc:implement <printed plan path>`<br>8b. only for requested execution of phase tasks from 7b: `/task <phase task file>` in order<br>9. consume the chosen executor's checks; review-pr only when shipping is requested | 3: `--mode critique --focus requirements`; 5: `--mode critique --focus architecture,testing` | yes | 3.1 | documents-only requests stop after the requested documents and reviews, without a roadmap or phase tasks; new components and existing specs do not justify MDTM; PRD/TDD retain internal document machinery; the explicitly selected roadmap composer uses task-builder/task internally and its full setting creates phase task files; product phase execution is separate consent; ordinary planning defaults to standard depth |
++| shape-idea | idea or requirements still unclear | - | 1. `/sc:brainstorm "<the idea, who it is for, the main constraint>"` | - | no | 3.1, 3.6 | stop at merged requirements; only if later requested, take them to PRD creation or ordinary workflow/implement planning; no automatic task-file handoff just because no PRD is needed; standard depth is the default |
++| bug | bug; error; stack trace; failing test | - | 1. `/sc:troubleshoot "<what happens, what you expected, how to reproduce, exact error>"`<br>2. read `.dev/troubleshoot/<name>-<timestamp>/REPORT.md` and preserve its status and blockers<br>3a. supported small fix (one source file plus its test, five edits or fewer): add a failing test, fix the code, then `/sc:test <test path>`<br>3b. ordinary planned fix: `/sc:workflow "<supported fix from REPORT.md, with a reproducing test>"`, read the printed plan and advisory check result, then `/sc:implement <printed plan path>` only when execution is requested<br>3c. only explicit or exceptionally justified MDTM: `/task-builder "<supported fix and concrete MDTM need>"`, then read the task and use `/task <task file>` only when execution is requested | 1: `--type <kind>`; 3a: `--coverage` | yes | 3.4 | kind is bug, test, build, performance, deployment or security; diagnosis-only stops after step 2; no speculative fix for an unconfirmed, failed or blocked result; standard `/sc:troubleshoot --fix` offers workflow planning after supported diagnosis and acceptance; `/sc:troubleshoot --depth quick --fix` is invalid; explicit `/sc:troubleshoot --depth deep --fix` couples to MDTM, while deep diagnosis without fix can feed separate ordinary workflow planning; planning never authorizes execution |
++| external-research | current external, academic, competitive, market, standards or technical evidence outside our code | - | 1. `/sc:research "<question, purpose, constraints>"` | - | no | 3.5 | preserve requested quick/standard/deep/exhaustive depth and supported strategy, not forced deep; stop at cited synthesis and tool-owned research artifacts |
++| module-health | whole-project or module static quality, security, performance or architecture assessment | - | 1. `/sc:analyze <target>` | - | no | 3.5 | broad assessment needs no forced focus; retain requested `/sc:analyze --focus <area> --depth <quick/deep> --format <text/json/report>`; findings only, no automatic edits |
++| compare-options | compare existing artifacts; generate competing designs; continue an adversarial pipeline | - | 1a. existing 2-10 readable files: `/sc:adversarial --compare <file-a>,<file-b>`<br>1b. generation: `/sc:adversarial --source <file> --generate <type> --agents <specs>`<br>1c. pipeline continuation: `/sc:adversarial --pipeline @<pipeline.yaml> --pipeline-resume --output <existing output>`<br>2. stop at comparison, merged output and tool-owned artifacts | - | no | 3.6 | select one mode only; pipeline is mutually exclusive with compare/source/generate/agents; preserve requested depth, focus, interaction and output; no one-file comparison or product execution |
++| critique-spec | requirements/architecture/testing/correctness review of populated spec/PRD/TDD; explicit scoped derivation | - | 1. `/sc:spec-panel <content-or-@file>` using the selected mode<br>2. stop at requested critique/questions or explicitly authorized derived document | - | asks first | 3.6 | default to critique only for critique intent without a supported explicit mode; preserve discussion/socratic, focus, iterations and format; TDD derivation requires target-release clarification when absent and consent before input edits; not raw PRD/TDD authoring, business viability or automatic implementation |
++| business-strategy | business viability, market position or strategy, even when input is a PRD | - | 1. `/sc:business-panel <document-or-inline-content>`<br>2. stop at strategic analysis | - | no | 3.6 | preserve `/sc:business-panel --mode <discussion/debate/socratic/adaptive> --experts <names> --focus <domain> --synthesis-only` when requested; simulated perspectives, not measured commercial certainty or automatic spec rewrite |
++| multi-model-review | explicit swarm use; swarm settings help; reviewers from other model families | - | 1. `/sc:swarm-wizard` with supplied goal/target and supported pre-seed controls<br>2. stop at settings/preparation unless a real launch was explicitly authorized and prerequisites pass | - | asks first | 3.6 | keep goal, target and output; interview missing inputs or ambiguous lens; target needs 50 non-whitespace bytes and reachable swarm CLI; real runs need T2ProxyUrl/T2ProxyKey/T2Model01 and confirmation after a passing stub dry run; previews write artifacts; contract gap on missing-proxy STOP versus fallback, never guarantee a real run or fallback |
++| cleanup | requested contained cleanup; not report-only audit or improvement-only intent | - | 1. establish an authorized checkpoint commit<br>2. `/sc:cleanup <path>` with requested supported controls<br>3. review `git diff` | - | yes | 3.7 | contained-folder exception keeps checkpoint and diff safeguards; preserve requested `/sc:cleanup --type <code/imports/files/all> --safe --interactive` where applicable, never overwrite supported explicit choices with code-only defaults; report-only uses cleanup-audit-only and improvement-only uses contained-improve, with no compulsory cleanup/improve chain; structural migrations are outside the exception and use ordinary workflow/implement planning; automatic edits can occur even interactively |
++| tests | execute existing suite; coverage; watch; E2E; explicit simple failure repair | - | 1. `/sc:test <target>` with requested controls<br>2. report actual results and generated test artifacts | - | asks first | 3.8 | retain `/sc:test --type <unit/integration/e2e/all> --coverage --watch` only as requested; watch never adds fix; `/sc:test --fix` can edit source and needs explicit repair intent plus applicable planning limits; execution writes caches/reports and can affect external state; verify browser/services for E2E; new tests are authoring, YAML tier validation is separate |
++| document-built | focused inline/external/API/guide docs; coordinated project docs; template-led README/operations/technical reference | - | 1a. focused output: `/sc:document <target>` with requested type/style<br>1b. coordinated project documentation: `/sc:index <target>` with requested type/format<br>1c. template-led output: one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`<br>2. stop at the requested documentation | - | yes | 3.9 | preserve source paths, audience and output intent; `/sc:document --type <inline/external/api/guide> --style <brief/detailed>` distinguishes focused outputs; inline source changes retain direct-change limits or workflow planning; Technical Design Document uses technical-design-document, not generic docstrings or test-driven development |
++| check-plan | pre-execution coverage audit against supplied spec, with optional plan | - | 1. consume applicable existing pre-review before requesting another<br>2. only when needed: `/sc:reflect --mode pre --spec <spec>` with optional supplied tasklist<br>3. stop at coverage/gap report | - | no | 3.10 | spec is required, tasklist optional; workflow built-in advisory pre-review is consumed, not duplicated; retain requested depth/tier/output; skipped or failed is not pass; no automatic remediation or execution |
++| confirm-built | post-execution deviation/adherence audit; diff-only or task-log-only inputs are valid | - | 1a. diff input: `/sc:reflect --mode post --diff <ref-or-path> --no-promote`<br>1b. log input: `/sc:reflect --mode post --task-log <log-path> --no-promote`<br>2. stop at report and preserve blockers | 1a: `--no-promote`; 1b: `--no-promote` | no | 3.10, 5 | choose a supplied diff or task log, or retain both if supplied; spec/tasklist are context, not mandatory together; one baseline commit includes working-tree work, a range does not; intended new files need staging, never generated mirrors; report-only suppresses promotion but can run authorized verification; standard `/sc:reflect --remediate` offers workflow after acceptance, explicit deep remediation couples to MDTM; `/sc:reflect --tier 2 --depth standard --remediate` permits ensemble plus ordinary planning; legacy task analyze/validate aliases remain supported; no headless auto-fix substitution |
++| review-pr | explicitly ship/open a PR or attach an existing PR monitor; not findings-only review | - | 1. local commits/reviews only within requested shipping authority<br>2. `/code-review`<br>3. `/security-review` only for relevant changes<br>4. `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr --no-remediation-offer`<br>5. push only after approval<br>6a. creation-only or review App absent/uncertain: `/sc:pr-submit <creation-context> --monitor 0`<br>6b. proposals without source edits: `/sc:pr-submit <creation-or-attachment-context> --monitor 1`<br>6c. local fixes without publication: `/sc:pr-submit <creation-or-attachment-context> --monitor 2`<br>6d. requested/authorized full loop: `/sc:pr-submit <creation-or-attachment-context> --monitor 3` | 4: `--no-post-pr --no-remediation-offer`; 6a: `--monitor 0`; 6b: `--monitor 1`; 6c: `--monitor 2`; 6d: `--monitor 3` | yes | 3.11 | choose exactly one 6 branch and one monitor ordinal; 3 is the current command default and can commit/push/retrigger/reply/resolve; stronger-project-policy conflict with a lower requested ceiling is disclosed, never silently increased; attach existing PR with `/sc:pr-submit --pr <number>`, not another creation; attachment skips shipping steps 1-5; supplied run-log uses resume instead; verify gh, review App and head/CI prerequisites; preserve origin repo, PR head and bounded cycle-fix push range; attended in-session, not daemon; silence/timeout is not clean; recommendation executes no Git/GitHub actions |
++| resume | supplied PR monitor log; existing PR attachment; lost session; command-owned continuation | - | 1a. supplied monitor log: `/sc:pr-submit --resume <run-log.jsonl>`<br>1b. existing PR attachment: `/sc:pr-submit --pr <number>` with one chosen monitor ceiling<br>1c. tagged conversation: terminal `ccsession <name>` if tagged with `/ccsession-tag <name>`<br>1d. existing implementation: rerun the same command, `/task <task file>` or `/sc:implement .dev/tasks/to-do/<id>/<id>.md`<br>1e. other owned continuation: retain the supplied pipeline/output, validated proposal or document-task input and that command's verified controls | - | asks first | 3.12 | supplied monitor log resumes that PR/repo/head and recorded ceiling, not task execution or PR recreation; managed workflow stays implement, MDTM stays task, no task-builder rebuild from resume alone; `/sc:save` and `/sc:load` are memory, not executor resume; no invented generic continuation flag; ask which artifact if genuinely ambiguous |
++| unsure | unresolved substantive goal or ambiguous artifact type while choosing a tool | - | 1. resolve the whole requested outcome, or ask one useful clarification | - | no | 4, 3.13 | inbound discovery pointer only; when already recommending, never recommend recommend to itself; distinguish checked workflow plan, MDTM checklist and Sprint bundle, or evaluation suite create versus run |
++| installed-inventory | list visible installed commands/skills; inventory only | - | 1. `/sc:help`<br>2. stop at live inventory and guide pointer | - | no | 3.13 | global/project/plugin listings reflect what exists; no install repair, update or implementation plan from inventory intent |
++| focused-design | draft architecture/API/component/database design without implementing | - | 1. `/sc:design <target>` with requested type/format<br>2. stop at design artifacts | - | no | 3.13 | preserve target and `/sc:design --type <architecture/api/component/database> --format <diagram/spec/code>`; code format is design guidance, not feature implementation; no declared output flag, do not copy the broken Auggie referral |
++| technical-design-document | create/populate/update a reviewed Technical Design Document from component/stub/PRD | - | 1a. `/tdd "<component, supplied PRD/stub, code paths, output and tier intent>"`<br>1b. explicit command alias: `/sc:tdd <component>` with supported supplied controls<br>2. stop at the requested TDD | - | yes | 3.13, 3.9 | choose one callable surface; TDD means Technical Design Document, not test-driven development; `/sc:tdd --from-prd <prd> --tier <tier> --focus <paths> --output <path>` preserves supplied inputs when applicable; activation resolves to tdd and keeps its document-owned MDTM machinery, not product implementation; verify template/agents/tools; explicit document-task resume stays owned |
++| cleanup-audit-only | evidence-backed dead-code/sprawl inventory; report-only audit with supplied pass/focus | - | 1. `/sc:cleanup-audit <target>` with requested pass/focus/batch-size<br>2. stop at audit reports/checkpoints | - | no | 3.7, 3.13 | default surface, not forced all; retain `/sc:cleanup-audit --pass <surface/structural/cross-cutting/all> --focus <infrastructure/frontend/backend/all> --batch-size <N>`; later passes need earlier context; hidden/BMAD paths are an unremovable exclusion floor, hidden-only targets are not exhaustively covered; no cleanup, improve or commit |
++| contained-improve | explicitly improve quality/performance/maintainability/style in a contained folder | - | 1. establish authorized checkpoint commit<br>2. `/sc:improve <target>` with requested type/safe/interactive controls<br>3. review `git diff` | - | yes | 3.7, 3.13 | preserve `/sc:improve --type <quality/performance/maintainability/style> --safe --interactive` when requested; automatic edits can occur interactively; no compulsory cleanup/deletions; structural migration stays planned workflow work, not this exception; exclude example-only preview/validate options |
++| auggie-review-only | standalone PR/diff/snapshot review; local findings or explicit posting | - | 1. `/sc:auggie-review <resolved target and supported controls>`<br>2. stop at findings and report unless separately accepted planning was requested | - | asks first | 3.11, 3.13 | preserve PR number/URL or `/sc:auggie-review --diff <base>...HEAD` or `/sc:auggie-review --snapshot <path>`; PR posting defaults on, local-only uses `/sc:auggie-review --no-post-pr --no-remediation-offer`; retain depth/focus/output and `/sc:auggie-review --revagent <alias>` for internal reviewer only, distinct from `/sc:auggie-review --auggie-model <id>` default prism-b when not overridden; accepted deep offer currently selects MDTM, ordinary review offer uses workflow; deep plus ordinary later planning suppresses offer and plans separately; resolve undeclared design referral gap, not a fabricated chain |
++| localization-review | source-versus-translation QA; placeholder/tone/platform review; reports first | - | 1. `/sc:review-translation <source-file> <translation-files...>` with requested controls<br>2. confirm context before review<br>3. stop at language/project reports and requested export | - | no | 3.13 | retain all source/locale inputs and `/sc:review-translation --strict --depth <quick/standard/deep> --tone-matrix --platform <name> --export` as requested; input edits/protected-element fixes need separate consent; not runtime troubleshooting or generic code repair |
++| context-audit | audit project-local context weight; explicit stdout preview or advisory scaffold | - | 1. `/sc:init-lite --context-optimized` with supplied project-root/output and explicit mode controls<br>2. stop at report, stdout preview or requested advisory scaffold | 1: `--context-optimized` | asks first | 3.13 | default tool-owned report; `/sc:init-lite --dry-run` writes nothing and creates no output directory; `/sc:init-lite --scaffold` is opt-in; `/sc:init-lite --force` is limited to owned artifacts, never context inputs; preserve supplied project-root/output |
++| cli-eval-create | author new cliEval suite from supplied design and suite name | - | 1. `/sc:cli-eval create` with supplied name/from/agents<br>2. retain fresh-contract load and owned design/critique/debate/author/validate/document lifecycle<br>3. stop at authored, schema-validated suite and documentation | - | yes | 3.13 | preserve `/sc:cli-eval create --name <stem> --from @<design>` and supported agents; verify live CLI/schema and required capabilities; no automatic suite run, application coverage test, new PRD or task-builder |
++| cli-eval-run | select and supervise existing cliEval suite, optionally restricted to supplied eval ID | - | 1. `/sc:cli-eval run` with supplied suite/eval selectors<br>2. load current contracts, confirm exact invocation/safety settings, then supervise authorized run<br>3. report actual status, run artifacts and preserved failure evidence | - | asks first | 3.13 | preserve `/sc:cli-eval run --suite <name> --eval <id>`; menu only when selector absent; real execution and artifact writes, not read-only inspection; no invented resume mode or suite creation; ask create or run when ambiguous; missing runtime prerequisites remain blockers |
++| cli-portification-spec | produce workflow-to-CLI specification; artifact-producing dry-run if requested | - | 1. verify unambiguous workflow skill directory containing SKILL.md and actual activation<br>2. `/sc:cli-portify --workflow <skill-name-or-path>` with supplied name/output/dry-run only if contract resolution permits it<br>3. stop at specification or Phase 0-2 contracts | 2: `--workflow <skill-name-or-path>` | asks first | 3.13, 3.14 | retain `/sc:cli-portify --name <name> --output <dir> --dry-run` as supplied; dry-run writes Phase 0-2 artifacts, no full spec synthesis or panel artifacts; code-generation prose conflicts with protocol's no-direct-code-files boundary, so specification only; unresolved activation-name disagreement is a contract gap/unavailable result, not working-code promise |
++| release-boundary | assess release split versus intact release; explicit no-split or validated-proposal continuation | - | 1. `/sc:release-split <release-artifact>` with supplied controls<br>2. stop at neutral decision, generated release artifacts and fidelity evidence | - | no | 3.13 | artifact needs identifiable scope; preserve `/sc:release-split --output <dir> --depth <depth> --interactive --no-split --resume-from <validated proposal>` only as applicable, do not combine conflicting branches; no-split is valid, not a failure; no product execution or Git changes; Release 2 planning waits for real Release 1 validation |
++| post-release | bring shipped tagged-release docs/install/deploy/human-test surface current | - | 1. `/sc:post-release <existing release tag>` with supplied output<br>2. retain owned scan/consolidate/update/create/verify lifecycle and its approvals<br>3. stop at observed external-surface results, manifest and human test guides | - | yes | 3.13 | keep exact tag and `/sc:post-release --output <dir>`; anchor evidence to tagged commit; prerequisite tag and consolidated-plan gate remain; real install/deploy validation can affect external state and needs separate outward-action approval; gaps/failing installs are reported, never fabricated success |
++| roadmap-artifacts | explicitly requested release-pipeline sc:roadmap artifacts from supplied spec/TDD/PRD | - | 1. preserve explicit `/sc:roadmap` target, supplied documents and requested controls<br>2. report current activation contract gap before emitting a runnable handoff | - | asks first | 3.13, 3.14 | command uses 1-3 positional Markdown inputs and CLI controls while protocol retains incompatible multi-spec/template/resume grammar; no combined interface or certified parity; retain artifact-only stop, not MDTM roadmap substitution or product execution; separately verified CLI is a different surface, not a silent replacement |
++| sprint-tasklist-bundle | existing roadmap to Sprint-compatible index and phase tasklist files | - | 1. `/sc:tasklist <roadmap-path>` with supplied spec/output<br>2. retain generation checks and stop at bundle | - | yes | 3.13 | preserve positional readable non-empty roadmap and `/sc:tasklist --spec <spec-path> --output <output-dir>` when supplied; check optional spec and writable output parent; no unsupported source flag or workflow-plan/merged-brainstorm input; no automatic Sprint/task execution; generated post-reflect tasks are not yet executed |
++| roadmap-fidelity | investigative roadmap-versus-requirements fidelity audit or explicit pipeline-directory validation | - | 1. preserve roadmap/spec sources or supplied output directory and explicit `/sc:validate-roadmap` target<br>2. report current command/protocol contract gap without mixing inputs/flags<br>3. stop at the requested validation objective, not implementation | - | asks first | 3.13, 3.14 | command needs output directory with roadmap/test-strategy/extraction artifacts; skill needs roadmap plus specs and explicitly denies CLI equivalence; do not union directory-agent grammar with investigative flags or replace with generic reflect; finding counts/report decide quality, exit zero is not clean validation; no source edits or execution |
++| tier-validation | validate task-tier behavior against YAML expectations, not application coverage | - | 1. verify supplied YAML file/directory or advertised default suite exists<br>2. `/sc:validate-tests <verified target>` with supplied controls only when prerequisites exist<br>3. stop at classification result and requested report | - | no | 3.13, 3.14 | retain `/sc:validate-tests --verbose --summary --category <name> --stop-on-fail --report <path>` only as requested and without conflicting verbosity; advertised tests/sc-task default is absent here, so report missing prerequisite rather than invent a fixture/result; no code/config repairs or fabricated counts |
+ 
+ <!-- /routing-table -->
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md b/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+index f4aa1b65..fc2213d5 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+@@ -4,7 +4,7 @@ This reference owns the **how** of Phase 1 in SKILL.md. The skill's job is to re
+ 
+ ## The default is native
+ 
+-The default recommendation is "use `Read`, then `Edit`" (or the equivalent 2-3 step native sequence). Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
++When no explicit verified command, existing executor or specialized deliverable already decides the route, the default recommendation is "use `Read`, then `Edit`" (or the equivalent bounded native sequence). Preserve the requested outcome and authorization ceiling first. Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
+ 
+ If the honest answer to **all** of the following is "yes", recommend native. Do not delegate.
+ 
+@@ -35,9 +35,12 @@ Score the candidate delegation across these five axes. The candidate wins only i
+ 
+ ### 2. Scope / breadth
+ 
+-- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
+-- Scope = 5-20 files: a written plan is required (level 3 or 4); if current behaviour is unknown, start with `/tech-research` (level 5).
+-- Scope = whole repo or cross-domain (security + perf + arch + maintainability): delegation almost always wins (`/sc:cleanup-audit`, `/sc:troubleshoot` Tier 2+).
++- Choose the requested outcome and explicit command/executor before implementation-size heuristics. Reading many files for analysis, explanation, localization or other reports does not require an implementation plan. A specialist operation keeps its documented lifecycle, even when it writes many artifacts.
++- For actual implementation, the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): more than 5 edits or more than one source file plus its matching test requires a written plan, normally level 3 (`/sc:workflow` then `/sc:implement`). Standard is the ordinary workflow depth; quick is for a smaller checked plan, not a universal requirement.
++- Level 4 (`/task-builder` then `/task`) needs explicit MDTM intent or an exceptionally complex, long-running phased program with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone do not justify it. No numerical workflow capacity ceiling is invented.
++- Preserve the contained-folder `/sc:cleanup` and `/sc:improve` exception with a checkpoint commit and final `git diff` review; it does not exempt structural migrations. Explicit selection cannot waive the written-plan limit or add authority.
++- Existing approved plans go directly to their executor. Workflow packages use implement; existing MDTM execution uses task; explicit implement retains its own semantics. Do not rebuild a plan or treat memory save/load as executor resume.
++- Cross-domain static assessment can use `/sc:analyze`; cleanup evidence can use `/sc:cleanup-audit`; concrete broken behavior can use `/sc:troubleshoot`. Distinguish the objective rather than routing every broad request to debugging or implementation. Unknown current behavior may justify `/tech-research`, but a research-only request stops at its report.
+ 
+ ### 3. Output structure required
+ 
+@@ -57,7 +60,7 @@ Even when native would technically work, delegation can win because the skill **
+ 
+ The framework's three tiers (commands → skills → agents) have different optimal use cases. Pick the *outermost* tier that fits.
+ 
+-- **Command (`/sc:<name>`)** — the user-facing surface. Almost always the right thing to recommend when delegation wins. The command's `## Activation` handoff loads the skill automatically.
++- **Command (`/sc:<name>`)** - the user-facing surface. Prefer its verified interface when delegation wins. It may be self-contained or name a mandatory skill under Activation, Skill Invocation or another heading; read the actual handoff rather than guessing a protocol.
+ - **Skill directly** — many IronClaude skills have no `/sc:` command and are run by their own slash name (`/task-builder`, `/task`, `/prd`, `/tech-research`, `/roadmap`; `/tdd` also has `/sc:tdd`, which runs the same skill). Recommend them that way whenever the routing guide names them. Otherwise recommend a skill directly (`Skill <name>`) only when the user explicitly wants the skill body's behavior outside a command's flag surface.
+ - **Agent directly (`Agent <name>`)** — use `Agent <name>` directly only when no routing row or guide section covers the task (search the guide's routing table and sections 3.x first), the work is a single specialist execution, and the broader skill protocol around it would add overhead without value. When a routing row or guide section covers the job, use its command instead (a performance problem is `/sc:troubleshoot "<problem>" --type performance`; a focused web research question is `/sc:research "<question>" --depth deep`; neither is an agent).
+ 
+@@ -73,7 +76,7 @@ Then synthesize the three returns into <deliverable>.
+ 
+ ## When the skill should say "use native"
+ 
+-These are the cases where the recommendation must be native tooling, no delegation:
++These favor native tooling only when no explicit verified selection or specialized deliverable takes precedence and the direct-change limit permits it. Do not override a requested command or inspection objective:
+ 
+ - Reading a single file and reporting its contents.
+ - Renaming a variable or symbol with 5 or fewer edits in total, in one source file and its test — `Grep` + `Edit` is faster than any skill. More needs level 3.
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md b/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+index 5a852fdb..74b3b34e 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+@@ -1,111 +1,99 @@
+-# Phase 0 — Surface Enumeration and Auggie Sweep
++# Phase 0 - Surface Enumeration and Auggie Sweep
+ 
+-This reference documents the algorithm SKILL.md Phase 0 calls. SKILL.md owns the *when* and *why*; this file owns the *how*.
++SKILL.md owns when to enumerate, match and emit. This reference owns source resolution and the per-invocation verification record. The routing guide remains the only fixed routing authority; do not copy it into a keyword/synonym registry.
+ 
+-## Why enumeration is dynamic, not tabular
++## Live surface enumeration
+ 
+-The previous version of this skill carried a hand-curated `keyword → command-category` mapping (a 10-row table covering ml/web/api/debug/performance/security/create/test/improve/learning). It went stale on every framework release. A live invocation missed `/sc:spec-panel` even though the command file was sitting in `src/superclaude/commands/spec-panel.md`. That single miss is the proximate reason this skill was rewritten.
++List installed locations with `find` or absolute-path Glob calls, not unmatched shell globs. Never put `~` in a Glob pattern. Resolve the home directory first. Run independent project/checkout discovery in parallel and record every candidate's provenance.
+ 
+-The replacement is: enumerate the actual surface every invocation, rank with auggie, verify against source files. There is no list of "categories" in this skill, no synonyms, no keyword aliases. If a command exists in the surface, enumeration finds it; if it does not, it is never recommended. That is the entire contract. The one fixed routing source is the routing table in the guide (`~/.claude/HOW-WE-WORK.md`), which SKILL.md Step 0 reads before this enumeration runs; this file never copies it.
++| Surface | Location | When |
++|---|---|---|
++| Installed commands | `$HOME/.claude/commands/sc/*.md` | Always |
++| Installed skills | `$HOME/.claude/skills/*/SKILL.md` | Always |
++| Installed agents | `$HOME/.claude/agents/*.md` | Always |
++| Installed templates | `$HOME/.claude/templates/**/*.md` | Always |
++| Project primitives | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` | Always |
++| Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
++| In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
+ 
+-## Glob set
++The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
+ 
+-Search these locations. List the `$HOME` locations with one Bash call that uses `find`, not shell globs (zsh aborts the whole command on an unmatched glob, and `2>/dev/null` cannot stop that): `find -L "$HOME/.claude/commands/sc" "$HOME/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null; find -L "$HOME/.claude/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null; find -L "$HOME/.claude/templates" -name '*.md' 2>/dev/null`. Or resolve `$HOME` once and give Glob the absolute folder as `path`. Never put `~` in a Glob pattern. Run the project and checkout globs in parallel. Record the path where each name was found; Step C reads that path.
++### Research authority versus actual callable copy
+ 
+-| # | Surface | Location | When |
+-|---|---|---|---|
+-| 1 | Installed commands | `$HOME/.claude/commands/sc/*.md` | always |
+-| 2 | Installed skills | `$HOME/.claude/skills/*/SKILL.md` | always |
+-| 3 | Installed agents | `$HOME/.claude/agents/*.md` | always |
+-| 4 | Installed templates | `$HOME/.claude/templates/**/*.md` | always |
+-| 5 | Project commands, skills, agents | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` (cwd) | always |
+-| 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
+-| 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
++Inside an IronClaude checkout, source is authoritative for the intended current contract. That does not prove the same bytes or backing skill will run. Identify the actual callable copy separately:
+ 
+-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
++- Commands: project `.claude/commands/` before installed `~/.claude/commands/`.
++- Skills: installed `~/.claude/skills/<name>/SKILL.md` first, then project `.claude/skills/<name>/SKILL.md`.
++- Agents: project `.claude/agents/<name>.md` first, then installed `~/.claude/agents/<name>.md`.
++- Plugin-qualified invocations: preserve the resolved plugin namespace and inspect its actual primitive; do not silently strip the namespace or substitute an unrelated global copy.
+ 
+-### Worktree awareness
++Both installed and project surfaces are valid existence-check locations. When one file must be read, use the kind-specific precedence above. Record duplicates. If canonical and active copies disagree materially, disclose the disagreement as a contract gap instead of certifying intended source behavior as available execution. Do not install/update or edit user configuration to remove the gap.
+ 
+-The current working directory may be a worktree under `.dev/worktrees/<name>/` rather than the main checkout. The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. Inside a worktree under `.dev/worktrees/<name>/` that command returns the worktree's root, so both resolve against that worktree, not the main checkout. Run it once at the start of Phase 0 if uncertain — the cost is a single Bash call.
++## Auggie semantic ranking (Step B)
+ 
+-## Auggie semantic-rank query (Step B)
+-
+-Skip this step in matched mode (SKILL.md Step 0 matched a routing row) and set `auggie_status: skipped`; Step A and Step C still run. Otherwise: one query. One. Iterating across files defeats the purpose of having auggie.
++Matched guide rows skip ranking and set `auggie_status: skipped`; enumeration and verification still run. Otherwise issue one semantic query, with the literal enumerated candidate names and the verbatim request:
+ 
+ ```text
+-mcp__auggie__codebase-retrieval(
+-  information_request: "Given the user request: '<verbatim user request>',
+-    and the project's enumerated surface (commands: <comma-separated names>;
+-    skills: <comma-separated names>; agents: <comma-separated names>;
+-    templates: <comma-separated names>), rank the top 3-5 candidates by
+-    capability fit for this specific request. For each candidate, return:
+-    (1) one-line summary of what it does;
+-    (2) when it wins over native Read/Edit/Glob/Grep/Bash;
+-    (3) required flags or inputs it expects;
+-    (4) any known caveats or recent behavioral changes;
+-    (5) related skills/commands typically paired with it in this repo.
+-    Do NOT invent candidates not in the enumerated list.",
+-  directory_path: "<absolute path to cwd>"
+-)
++Rank the top 3-5 enumerated candidates by fit to this request's complete
++objective, explicit selection, inputs, deliverable and authorization ceiling.
++For each, identify its actual capability, required inputs, useful options,
++side effects, relevant dependencies and recent caveats. Do not invent a target
++outside the enumerated surface or treat broad wording as implementation intent.
+ ```
+ 
+-Keep the enumerated-surface list literal in the query — auggie has stronger grounding when shown the candidate set rather than asked to discover it.
+-
+-## Per-candidate verification (Step C) — the prerequisite gate
++Use the current worktree as `directory_path`. No per-candidate Auggie calls. Unavailable or empty ranking degrades transparently to direct file inspection; neither makes an unread target verified.
+ 
+-For each candidate auggie ranks, before it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie would rank it):
++## Per-candidate verification (Step C)
+ 
+-1. **Direct Read** of the candidate's source file. Extract:
+-   - For commands: flag table (Options section), `## Required Input` rules (if any), `## Activation > Skill <name>` handoff, `## Boundaries`.
+-   - For skills: frontmatter (`name`, `description`, `allowed-tools`, `argument-hint`), Return Contract, Boundaries.
+-   - For agents: frontmatter `description` line + Tools list + Boundaries.
+-2. **Auggie record** (skip in matched mode) — capture the usage notes, caveats, and related-skills auggie surfaced in Step B for this candidate.
+-3. **Outcome**:
+-   - Source resolved + auggie record present → full verified record. Proceed.
+-   - Source resolved + matched mode (Step B skipped) → verified record with `auggie_summary: skipped`. Proceed. Emit no degradation notice.
+-   - Source resolved + auggie query failed (unavailable) / returned nothing (empty) → degraded record. Emit the degradation notice in the output header.
+-   - Source missing → ghost candidate. Drop silently. Do not warn the user. Exception: in matched mode a routing row's step is kept and marked `not installed: <name>` (SKILL.md Phase 2), never dropped.
++Apply this gate to each selected matched-row step and each unmatched candidate before output. A cached target is not exempt.
+ 
+-If the literal path misses but the name looks close (e.g., user said "deep research" and surface contains `deep-research-agent.md` and `deep-research.md`), run a `Grep -r <name>` over the folder where the near-miss was found to rule out a rename before dropping.
++- **Read the interface.** Read the candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage/trigger signatures and documented positional/keyword syntax. Extract allowed values, required inputs, output/resume behavior, side effects and stopping boundary, not merely flag-looking tokens. Keyword forms such as `mode=update` and `mode=quick` are not invented `--mode` flags.
++- **Resolve activation.** Commands may be self-contained or skill-indirected. Follow mandatory skill instructions wherever documented, including `Skill Invocation`, not only `## Activation`. Resolve actual names/frontmatter, including `tdd`; never construct a hypothetical `sc-*-protocol` from a filename.
++- **Read relevant dependencies.** Read the backing skill and only references/configuration bearing on the advertised capability, mode, prerequisites or authority. Inspect both installed/project lookup surfaces using the precedence above. Do not recursively audit unrelated dependencies or require an unconditional checkout-only path in a consumer project.
++- **Verify lifecycle/provenance.** Reject `deprecated: true` and proven retired framework remnants using current guide lifecycle guidance or verified canonical retirement evidence. A readable installed remnant or matching cached hash does not establish support. Source absence alone is not retirement evidence: legitimate installed-only/custom extensions remain eligible. Uncertain same-name custom ownership needs clarification, not blanket rejection/deletion. Verify replacements independently instead of trusting stale migration metadata.
++- **Keep evidence narrow.** Examples corroborate formal declarations. An example-only flag missing from or conflicting with the declared interface is not supported. Ambiguous prose-only controls remain unverified; retain natural-language intent if the verified target supports it, or disclose the limitation. Read prerequisite inputs before promising a runnable handoff.
+ 
+-## Verified candidate record (per surviving candidate)
++### Outcomes
+ 
+-Carry this record into Phase 1 (net-value evaluation) and Phase 2 (prompt construction):
++| Evidence | Output treatment |
++|---|---|
++| Interface, actual copy and relevant dependencies agree | Eligible candidate; ranking can still be degraded |
++| Command or required backing skill is missing | Unavailable; keep a matched step visible as `not installed: <name>`, never an unqualified runnable claim |
++| Required input, mode, authority or canonical/active-copy contracts materially disagree | Contract gap; state the incompatible claim, withhold the unsupported invocation and never union conflicting interfaces |
++| Proven shipped retirement or explicit deprecation | Not a current-framework runnable target; explicit questions receive an intent-preserving retirement explanation |
++| Custom override ownership is uncertain | Ask one targeted clarification; do not delete, reinstall or silently substitute |
++| Irrelevant unmatched source is missing | Drop the ghost without noisy warnings |
+ 
+-```yaml
+-target: "sc:spec-panel"                       # canonical name
+-kind: "command"                                # command | skill | agent | template | native
+-source_path: "src/superclaude/commands/spec-panel.md"
+-activation_style: "self-contained"             # skill-indirected | self-contained | n/a
+-protocol_skill: null                           # the protocol skill name if skill-indirected
+-flags:                                         # exact set from the source file
+-  - "--mode"
+-  - "--experts"
+-  - "--focus"
+-  - "--iterations"
+-  - "--format"
+-required_inputs:                               # from a Required Input section, if any
+-  - "<file>"
+-return_contract: "<summary if present>"        # from skill frontmatter / return section
+-auggie_summary: |
+-  How this is actually used in the repo, common flag combos, related skills,
+-  caveats. "skipped" in matched mode (Step B not run); "unavailable" only if the
+-  auggie query failed; "empty" if auggie returned nothing.
+-related: ["sc:reflect", "..."]                 # only what auggie surfaced AND was verified
+-caveats: "<one-line, or 'none surfaced'>"
+-```
++A resolvable file alone is not success. Never authenticate, execute the recommended command, delete remnants or expand plugin packaging to conceal a limitation.
+ 
+-Cache these records within a single `/sc:recommend` invocation keyed by `target`. Cache does not persist across invocations.
++## Verified candidate record
+ 
+-## Cardinality bound
++This record is local to one invocation, keyed by target. It is not a durable ownership database or a cache-schema change.
+ 
+-- Hard cap: **3 candidates max** carried into Phase 2. The skill picks one as the primary recommendation; up to two more may appear as multi-path branches if and only if they reach the net-value bar (Phase 1) and represent a genuinely different approach (not a flag variation of the primary). A matched routing row (SKILL.md Step 0) counts as one candidate; each of its steps is verified in Step C on its own.
+-- Auggie calls per invocation: **1 in Step B** (0 in matched mode, where Step B is skipped). No per-candidate auggie calls. (Step C uses Read, not auggie, because auggie's value was already extracted in Step B.)
++```yaml
++target: "sc:spec-panel"
++kind: command
++source_path: "<resolved research source>"
++active_source_path: "<resolved callable copy>"
++source_provenance: "<installed, project, plugin, or checkout research fallback>"
++activation_style: self-contained
++protocol_skill: null
++dependency_paths: []
++interface_evidence: "<table, argument hint, formal Usage, or declared keyword syntax>"
++flags: ["--mode", "--focus"]
++required_inputs: ["<existing specification>"]
++requested_scope: "<deliverable, compatible selected controls and authority ceiling>"
++side_effects: "<source/report/memory/external effects and explicit stop>"
++lifecycle_status: current
++availability: eligible
++contract_gap: null
++auggie_summary: "<verified rank notes, skipped, unavailable, or empty>"
++```
+ 
+-## When to ask the user a clarifying question instead of guessing
++Include only verified fields and exact interface values. Current source/dependency reads must precede emission; if a relevant file changes, invalidate its local record and reread it. No record survives into another invocation as authority.
+ 
+-If after Phase 0 Step B, auggie's top-ranked candidate has fit confidence < ~50% (the request was vague enough that 4+ candidates tied), **ask one clarifying question** rather than emitting a guess. The clarification cost is one short user turn; the cost of a wrong recommendation is the user re-asking from scratch.
++## Cardinality and clarification
+ 
+-Example clarification: "You said 'research how X works' — is X (a) a third-party library you want docs for, (b) something in this repo whose code paths you need traced, or (c) an external system you want compared against this repo's approach? Each maps to a different delegation."
++Carry at most three candidates into output construction: one primary, at most two genuinely distinct net-value alternatives. A matched routing row is one candidate, but every selected step is verified. Do not add alternatives merely for option variations.
+ 
+-Do not ask more than one clarifying question. If one is not enough, the request is too vague to recommend against; say so and ask the user to elaborate before invoking the skill again.
++If the complete objective remains ambiguous, ask one useful question about the desired deliverable or input format. Artifact labels alone do not choose the evaluation objective. Never send a user already inside recommendation back to recommend, or choose heavier MDTM process to avoid resolving ambiguity.
+diff --git a/plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md b/plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+index 84c6e198..592bf02d 100644
+--- a/plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
++++ b/plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+@@ -5,7 +5,7 @@
+ | Neighbor | Do | Do not |
+ |----------|----|--------|
+ | `/sc:implement` | `--handoff implement` → `Skill sc:implement-protocol` with `<pkg>/<id>.md`. Missing skill or implement STOP → contract `partial` (plan stays valid, handoff failed); never silently skip, never `failed` | write product code |
+-| `/sc:tasklist` | print `/sc:tasklist --source <roadmap>` | invoke on `<id>.md`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
++| `/sc:tasklist` | print `/sc:tasklist <roadmap-path>` (positional roadmap file; only when a roadmap exists) | pass `<id>.md` or any workflow plan as its input; print `--source`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
+ | `/sc:roadmap` | INFO if source already looks like a roadmap | run `superclaude roadmap` |
+ | `/sc:design` | print `/sc:design @<pkg>/<id>.md` | invoke design |
+ | `/task` (MDTM) | nothing — a `TASK-WF-*` package is an implement package, not an MDTM task file | route a package to `/task` |
+diff --git a/src/superclaude/core/CLAUDE.md b/src/superclaude/core/CLAUDE.md
+index 5d4081e9..aa65650e 100644
+--- a/src/superclaude/core/CLAUDE.md
++++ b/src/superclaude/core/CLAUDE.md
+@@ -52,7 +52,7 @@ Match the requested outcome and any explicit command or existing plan first. Mos
+ | Level | Use this when | What you run | What you end up with |
+ |---|---|---|---|
+ | **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+-| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
++| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. Inspect the actual classification and verification evidence: STANDARD permits affected tests or documented manual verification; LIGHT includes scope/sanity checks; EXEMPT covers non-code operations. Do not assume every tier ran tests, describe LIGHT as unchecked, or report manual verification as a test pass. Run the related test if it has not run. | The bounded edit and its recorded verification, including an observed related-test result when available. |
+ | **3. Follow a checked implementation plan** | Ordinary implementation needs a written plan, including work across many files or several sessions, with or without an existing spec. | `/sc:workflow "<what to change, why, which files or spec>" --depth standard --handoff none` writes a plan with acceptance criteria (a written definition of "done" for each step) and runs an advisory check against your request. Standard is the default; use quick for smaller checked plans, not all ordinary work. It prints the actual plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the generated plan folder's name. Read the plan and check result, then, only when execution is requested, run `/sc:implement <that path>`. It implements each step and checks compliance with its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus code changes if execution was requested. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+ | **4. Explicit or exceptional task-file work** | You explicitly select MDTM (the task-file/checklist format), supply an existing MDTM task for execution, or have an exceptionally complex, long-running phased program with a stated need for its research, checklist and phase-reviewer machinery. | For creation, `/task-builder "<what to build, why, which code, why MDTM>"` researches the code and writes a task file under `.dev/tasks/to-do/`. Add `--spec <path>` when a spec, PRD or TDD exists. Read the task file and check result; only when execution is requested, run `/task <path to task file>`. An existing MDTM task goes directly to `/task`, without rebuilding it. | The requested task file, or its execution through the checklist and reviewer panels after each phase except setup, followed by tests and a final audit. Resume with the same executor. |
+ | **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Stop at the report for a research-only request. If you decide to build, use `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`, then read its plan and use `/sc:implement <printed plan path>` when execution is requested (level 3). Level 4 needs its own explicit or exceptional justification. | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan; implementation is a separate decision. |

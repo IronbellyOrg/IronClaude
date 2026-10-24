@@ -1,0 +1,24 @@
+CHANGE. Preserve `/sc:validate-tests` as a specialized, report-only contributor command, distinct from ordinary project test execution.
+
+- **History:** `89df2c1105c01caff199288f949d5783f6594e70` (2026-05-22) changes whitespace only. `3ae238b178fb7c67ca02809d24745de620c2bd50` (2026-09-30) removes the sequential MCP declaration only. Neither introduces broader testing capabilities.
+- **Current contract:** validates `/sc:task` tier-classification YAML expectations, including tiers, confidence and confirmation flags. Supports `--all`, `--verbose`, `--summary`, `--category`, `--stop-on-fail`, and `--report`. Does not authorize source/configuration repairs. Activation target is `sc:validate-tests-protocol`.
+- **Routing problem:** the guide lists this command only under Other commands. Recommend consults that block only when no routing row matches, while generic `tests` matches “run tests” and selects `/sc:test --coverage`. This can overshadow classifier-validation requests. This is a source-verified routing risk, not an observed runtime failure.
+- **MUST proposal:** add a specific `validate-task-tiers` supporting route to the existing canonical routing table, explain it in section 3.8, mirror the guide, and move the command out of Other commands. Adjust the test set that currently requires its Other commands membership. Existing artifact-specific matching should distinguish this route from general unit/integration/e2e testing. Do not introduce a separate keyword table.
+- **SHOULD proposal:** expose category, verbose, stop-on-failure and report capabilities. Example envelope after verifying user paths: `/sc:validate-tests <verified-YAML-directory> --category routing --verbose --report <requested-report-path>`. Do not invent coverage, fix, watch or depth flags.
+- **Availability gaps:** the documented default fixture directory is absent in this checkout. The tracked plugin mirror contains neither the validator command nor its protocol. Require verified inputs; preserve “not installed” handling rather than promising runnable validation.
+- **Cache:** a canonical-guide edit changes the surface fingerprint; matched routes already bypass both cache paths. No new classifier key or cache migration is necessary.
+- **Regressions:** classifier YAML versus ordinary coverage requests; supported flag preservation; absent default fixtures; unavailable plugin command; report-only behavior without repair/planning; cached generic answers unable to override the specific guide match.
+
+Full incremental report content was supplied to `report-persistence` for this assigned destination:
+
+`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/validate-tests.md`
+
+Principal evidence files:
+
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/validate-tests.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-validate-tests-protocol/SKILL.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py`
+
+No source changes, skill execution, staging, commits or publication performed.

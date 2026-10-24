@@ -1,0 +1,96 @@
+# Research: /sc:pm recommendation alignment
+
+- **Topic type:** Command-specific routing research
+- **Scope:** Six-month history, current PM contract, recommendation surfaces, plugin availability and regression requirements
+- **Status:** Complete static-source review; no implementation or runtime tests
+- **Date:** 2026-10-24
+- **Delivery:** Inline handoff; no report file written
+
+## Evidence references
+
+All references below resolve inside the assigned worktree.
+
+| ID | Absolute source path |
+|---|---|
+| A | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/pm.md` |
+| B | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-pm-protocol/SKILL.md` |
+| C | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md` |
+| D | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` |
+| E | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py` |
+| F | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py` |
+| G | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py` |
+| H | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/pm.md` |
+| I | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` |
+| J | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/scripts/session-init.sh` |
+| K | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py` |
+| L | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py` |
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/pm.txt`, worker `a073954f54390e33e`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, only inserted blank lines around PM examples and boundary lists. The patch contains no new capability, flag, trigger or handoff. This formatting-only change qualifies for the inventory but does not justify a semantic routing change. The affected current sections are A:57-112.
+
+[CODE-VERIFIED] Commit `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, changed only PM's `mcp-servers` metadata, removing `sequential`, `magic` and `chrome-devtools`. Current metadata lists `context7`, `playwright`, `morphllm`, `serena` and `tavily` (A:1-8). It did not turn PM into a new planning or execution system.
+
+[CODE-VERIFIED] The delegated protocol received a related cleanup in commit `046a03ab41ac98c39a11d940794c6e96cfab6ceb`, dated 2026-10-03: `sequential` was removed from discovery, design and testing tool lists. The live protocol still names `magic` for design and implementation (B:84-98). This is a source inconsistency, not evidence that recommendation should advertise that dependency.
+
+### Current command contract
+
+[CODE-VERIFIED] PM accepts a request, `--strategy brainstorm|direct|wave`, and `--verbose`. The flag table describes collaborative discovery, direct implementation and multi-phase execution respectively; it does not specify a default strategy. Activation explicitly delegates to `Skill sc:pm-protocol`, and execution from the command text alone is prohibited (A:23-55).
+
+[CODE-VERIFIED] This is not report-only orchestration. The protocol includes implementation delegation, tests, memory writes, documentation creation and potential CLAUDE.md updates (B:41-82,139-166). Recommendation must not present PM as a harmless status query or imply that producing a recommendation authorizes those mutations.
+
+[CODE-VERIFIED] PM's documented persistence consists of Serena memory restoration, periodic checkpoints and session-end memory writes (B:21-52). It has no structured return-contract section, executable task-file input contract or documented workflow-ledger resume interface. By contrast, the guide directs task and workflow continuation to their original executors (C:207-218,324). PM memory is not evidence of equivalent durable execution recovery.
+
+[UNVERIFIED] Automatic PM activation at every session start is asserted in A:10-18 and B:13-16, but was not demonstrated. The inspected startup script reports Git state, available services and readiness; it does not invoke PM or restore Serena memories (J:5-30). Recommendation should describe documented PM behavior without claiming proven harness enforcement.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] PM is not missing from the governing guide. Its existing “Other commands” entry says “Agent-coordinated work. Prefer this guide's levels instead” (C:264-289). The plugin guide contains the same entry (I:264-289). Adding a broad PM route would therefore change deliberate existing policy, not repair an absent command listing.
+
+[CODE-VERIFIED] Recommendation considers “Other commands” only when no routing row matches; matched rows determine the workflow and bypass both cache paths (D:50-61). Ordinary feature work, brainstorming, debugging and continuation already have dedicated rows (C:305-311,324). PM's broad trigger language must not override those specialized routes.
+
+[CODE-VERIFIED] There is nevertheless a recommendation-verification gap. Step C asks the recommender to extract a candidate's activation handoff but explicitly rejects only a missing candidate source file (D:128-145). The plugin PM command exists and requires `sc:pm-protocol` (H:49-55), while the inspected tracked plugin tree has no `skills/sc-pm-protocol/` directory. Command-file existence alone cannot establish that this particular indirected command is runnable in a plugin-only installation.
+
+[CODE-VERIFIED] Current policy still over-escalates planned work independently of PM: the guide routes “many files,” “more than one session” and “must not drift” to MDTM (C:306-307); recommendation repeats “anything larger, longer, or riskier” (D:155-157), including its cold-path runbook (E:160-168). The user's workflow-first preference is a desired policy change, not current verified behavior.
+
+[CODE-VERIFIED] The cache classifier has no PM-specific key (E:28-39,50-68). Adding one is unnecessary for dynamic discovery. Cache freshness hashes surface path membership and guide content, while dispatch validates the selected row's single source file (F:63-103; G:103-124). A protocol-content-only edit does not necessarily invalidate a row pointing at the unchanged PM command.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST: clarify the existing PM entry in C and I.** Proposed replacement: “Explicit PM-style coordination with specialist delegation, Serena notes and PDCA learning. Not the default implementation planner or a workflow/task resume mechanism. Prefer the guide's dedicated routes unless PM coordination is specifically requested.” This preserves discoverability without creating another fixed keyword table.
+
+[UNVERIFIED] **MUST: extend generic activation verification in D Step C and its corresponding discovery reference, cold-path runbook and plugin mirror.** For an indirected command, resolve and Read the named backing skill using installed/project surfaces. A missing dependency must not leave the command advertised as fully runnable. Do not require another project to possess package-source paths.
+
+[UNVERIFIED] **MUST: preserve explicit command intent without allowing it to waive safeguards.** When a user specifically requests PM coordination, retain that target after availability verification rather than silently substituting a generic implementation route. Still explain mutation scope and applicable written-plan requirements. `--strategy direct` is not permission to evade those requirements.
+
+[UNVERIFIED] **SHOULD: use a minimal verified handoff.** For a request explicitly choosing PM coordination, a valid example is `/sc:pm "Coordinate the agreed implementation across backend, security and testing specialists" --strategy wave --verbose`. The flags come directly from A:36-43. Do not inline the PM protocol, attach unsupported flags or promise automatic recovery.
+
+[UNVERIFIED] **MUST, shared policy dependency:** update the guide and recommendation's repeated escalation language so ordinary planned implementation defaults to workflow plus implement. Reserve MDTM for the most complex, long-running workloads or explicit MDTM inputs. File count, sessions, specs, auditability and resume alone must not select MDTM. This must be coordinated with the other command analyses rather than implemented as a PM exception.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Add scenarios covering:
+
+1. Ordinary cross-domain implementation selects workflow plus implement, not PM merely because multiple specialists are useful.
+2. Explicit PM coordination preserves `--strategy wave --verbose`, verifies the backing skill and remains a non-executing recommendation.
+3. Plugin-only PM command without its backing protocol is identified as incomplete, never falsely certified runnable.
+4. Existing workflow or MDTM execution resumes through its original executor, not PM memory restoration.
+5. A read-only investigation or health report keeps its dedicated report-only route rather than becoming PM implementation.
+6. A cached PM recommendation is reconsidered when its required protocol disappears or relevant contract content changes.
+
+## Gaps
+
+[CODE-VERIFIED] Literal searches found no PM-specific routing logic in recommendation's skill refs, classifier/runbook, hooks or recommendation tests. PM appeared in the guide entry and the required “Other commands” set. K:275-283 checks presence and source existence, not appropriate selection; L:35-80 checks general routing prose, not PM behavior.
+
+[UNVERIFIED] Plugin-only runtime activation and installation repair were not tested. The missing tracked protocol establishes an availability-check requirement, not a universal claim that every installation is broken.
+
+[UNVERIFIED] Session-start automation, zero-token efficiency and seamless cross-session continuation remain prose claims, not measured or executed behavior. Correcting PM itself is follow-up work unless necessary to prevent inaccurate recommendations.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE:** tighten recommendation's PM eligibility, backing-skill verification and caveats. **MUST:** preserve dedicated routes, explicit intent, mutation boundaries and workflow-first policy. **SHOULD:** add the PM regression scenarios and dependency-aware cache coverage. **NONE:** no new broad PM routing row, classifier bucket or keyword table. The six-month changes do not justify promoting PM to the default planner.

@@ -1,0 +1,76 @@
+{
+ "evidence_class": "Independent regrade of round-4 outputs plus recheck of earlier fixture-defect grades against the governing spec",
+ "run_id": "wf_e896d6a2-a2b",
+ "grades": [
+  {
+   "unit": "S23-unavailable",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation (variants.unavailable_plugin): 'not installed: sc:git; justified native git status may be offered instead'. The output has selected_targets 'not installed: sc:git' and text 'Not installed here: sc:git ... so no /sc:git invocation is given'. The native offer is justified: 'The guide says native tools may be enough for /sc:git status, and a status check is one read-only command', which matches guide line 324 'Native tools may be enough'. It stays status-only ('This does not stage, commit, branch, merge or push anything. A commit would need separate authorization'). That meets spec S23, FR-06 line 319 and SKILL line 159 ('Offer a justified native alternative only where the guide permits'). The install advice is given as a separate user action with the overwrite caution.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S24-unavailable",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation: 'not installed: sc:index-repo; no substitution by sc:index'. The output says 'Not installed here: sc:index-repo ... there is no runnable invocation' and refuses the competitor: '/sc:index is a different deliverable (coordinated project documentation), not a compact repo map'. It keeps mode=quick only for after a separate install. It discloses the writes ('writes PROJECT_INDEX.md and PROJECT_INDEX.json') and makes no savings claim ('No token-savings figure is promised'). It flags the naming check the guide requires at line 326. Missing capability stays visibly unavailable (FR-06, 8.2).",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S25-unavailable",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation: 'not installed: sc:save; Serena prerequisite disclosed'. The output says 'Not installed here: sc:save ... The guide gives no native replacement, so none is offered', and discloses Serena: 'It requires Serena; without it the command will not run.' It keeps memory separate from executor state, as the case negative requires: 'It does not store task or plan executor state; to resume work, rerun /sc:implement <plan> or /task <task file>'. It gives no latency guarantee, consistent with guide line 329.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S26-unavailable",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation: 'not installed: sc-pm-protocol; pm stays unavailable rather than runnable'. The requested target is sc:agent, and the output recommends '/sc:agent', which is self-contained per the guide (line 322) and its command file. The missing protocol is shown as unavailable and /sc:pm is never made runnable: 'sc-pm-protocol backs /sc:pm, a different command ... which is not what you asked for and is unavailable here anyway', and the gap notes say 'The absent primitive sc-pm-protocol only blocks /sc:pm'. Caveat: it says 'absent' rather than the literal label 'not installed: sc-pm-protocol'. The skill applies that literal label to requested or selected steps (line 149/159), and pm is not requested here, so the visible-unavailability requirement (FR-06 line 319) holds. The stop and startup claims are correct: 'then stops and waits for you to describe the task'; 'That startup message does not prove it is active'.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S27-unavailable",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation: 'not installed: sc:spawn; no substitution by task-builder'. The output says 'Not installed here: sc:spawn ... there is no runnable invocation' and 'No substitute is offered', and it emits no task-builder, workflow or implement invocation. It keeps the decomposition-only stop ('Expect epics, a task hierarchy with dependencies ... No code edits or downstream implementation'), omits --strategy and --depth because they were not requested, and limits branch tracing ('The branch-trace rule does not apply'), matching spec S27 and guide line 330.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S23-primary",
+   "status": "fixture-defect",
+   "target_ok": false,
+   "reason": "The fixture case requires targets ['sc:git']. The output selected 'native: Bash git status', with routing_row_or_other 'Other commands: /sc:git ... Final answer is native tooling.' The governing spec row S23 (line 813) expects 'git or justified native tooling within each requested operation', and guide line 324 says 'Native tools may be enough'. A sc:git-only expectation therefore contradicts the spec. The fixture itself allows native git status in the unavailable variant. Against the spec, the output is sound. The native choice is justified: 'The guide's Other-commands entry for /sc:git says status-only stays inspection and native tools may be enough.' It stays status-only ('Stop there. Do not add, commit or push anything') and adds no push, merge or PR. Fixture fix: allow justified native git status for the primary as well.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S23-seededcache",
+   "status": "fixture-defect",
+   "target_ok": false,
+   "reason": "The seeded expectation needs live discovery to select /sc:git from Other commands, no hit telemetry, and /sc:pr-submit never emitted. The output routes through 'Other commands: /sc:git' and the seeded row is never used: 'the seeded /sc:pr-submit row is never hit ... No hit telemetry'. /sc:pr-submit is never emitted; the output says only 'Opening or monitoring a PR is a different outcome'. Its final target, though, is 'native: Bash git status', and the primary targets ['sc:git'] exclude that. Spec S23 explicitly allows 'justified native tooling' and the guide says 'Native tools may be enough', so the sc:git-only primary expectation contradicts the spec. This is the same fixture defect as S23-primary. Apart from that, the output meets every seeded-cache condition.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S26-repeat1",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "Expectation: 'explicit PM coordination with verified dependencies; no resume guarantee'. The output selects '/sc:pm (backing skill sc:pm-protocol)' and checked the protocol: 'src/superclaude/skills/sc-pm-protocol/SKILL.md (Read; installed and project copies identical)'. The command's '> Skill sc:pm-protocol' matches the skill's 'name: sc:pm-protocol', so there is no naming gap. It discloses the MCP prerequisites ('expects Serena (plus other MCP servers it lists)') and the memory and doc writes. It disclaims resume and auto-start, matching the guide phrase: 'It is not a default planner, a guarantee that it starts automatically, or a way to resume an existing plan.' The case lists --strategy in mode_flags, which the tests check only as a declared flag (test_case_mode_flags_are_declared_by_their_target). Guide line 328 says 'with requested strategy/verbosity', so leaving it out when nothing was requested ('No strategy was requested, so --strategy (brainstorm|direct|wave) ... omitted') is correct. It does not become the default implementation route ('Ordinary implementation planning still goes through /sc:workflow, then /sc:implement').",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S27-primary",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "The target matches: '/sc:spawn'. The supplied input is kept in the paste-ready prompt ('Decompose the architecture work in A fixture architecture work description into a task hierarchy ... Stop after the decomposition: do not execute any task, write code, or run downstream commands'). --strategy and --depth are disclosed as available but not forced ('Add --strategy ... or --depth ... only if you want to force one'). The competitors are explicitly rejected ('/task-builder would create an MDTM task file you did not ask for'). The stop matches 'task hierarchy only', and the guide 3.14 precedence is cited. Cache handling is consistent with the skill: miss_no_key, no insert, one telemetry miss event.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S27-seededcache",
+   "status": "pass",
+   "target_ok": true,
+   "reason": "The seeded expectation needs /sc:spawn from Other commands, a rejected cache hint if one is hit (miss_validation_stale), no hit telemetry, and /task-builder never emitted. The output selects '/sc:spawn'. Its cache handling says 'If the classifier instead returns parallel-agent-fanout, dispatch hits /task-builder; that hint is REJECTED ... carried as miss_validation_stale ... no hit telemetry'. /task-builder appears only as a rejected suggestion ('I rejected it because that builds an MDTM task file'), never as an invocation. The primary requirements also hold: input kept, decomposition-only stop, flags not forced.",
+   "in_scope_routing_failure": false
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T7.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/core/CLAUDE.md:55",
+        "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:16"
+      ],
+      "reason": "cmp: bundled guide = canonical guide; plugin recommend.md and overlap-routing.md = src copies. diff -r: plugin sc-recommend = src plus refs/HOW-WE-WORK.md only. All 6 core level rows occur verbatim in the guide. Re-ran 4 parity/core test files: 93 passed."
+    },
+    {
+      "id": "T7.AC2",
+      "status": "met",
+      "evidence": [
+        ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t7-sync.log:218",
+        ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t7-path-audit.log:12"
+      ],
+      "reason": "diff -r src vs .claude/skills/sc-recommend: identical. git diff --cached -- .claude: empty. Task diff covers only plugin sc-recommend, recommend.md and overlap-routing.md; no other plugin package changed."
+    },
+    {
+      "id": "T7.AC3",
+      "status": "met",
+      "evidence": [
+        "plugins/superclaude/skills/sc-recommend/SKILL.md:320",
+        "plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md:17"
+      ],
+      "reason": "3 added src/superclaude refs (t7.diff:14,209,773). Each is either a fallback after installed/bundled paths or gated on 'only inside the verified IronClaude checkout'. Cache/runbook reads stay checkout-gated (SKILL.md:69,73)."
+    },
+    {
+      "id": "T7.AC4",
+      "status": "met",
+      "evidence": [
+        ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t7-tests.log:51",
+        ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t7-sync.log:9"
+      ],
+      "reason": "Logs record real output with return codes: sync_rc=0, verify_rc=0, 989 passed with pytest_rc=0. No baseline failures to separate. My re-run of the parity subset matched."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    "core/CLAUDE.md level-2 row edit is a recopy of the guide row (HOW-WE-WORK.md:16), not new authoring.",
+    "Path-audit log compares against HEAD, so it also lists earlier tasks' src/ changes (commands/README.md items 5-6: maintainer guidance, allowed)."
+  ],
+  "self_audit": "Checked: cmp/diff -r of all 4 parity pairs; level-table rows against guide; .claude mirror against src; staged .claude paths; git status and diff --stat vs Q0 for plugin scope; every added src/superclaude line in t7.diff; re-ran 4 parity test files. Not independently checked: the 'missing capabilities remain visibly unavailable' clause beyond confirming no unrelated plugin packages changed. Did not read retries or prior review JSON."
+}

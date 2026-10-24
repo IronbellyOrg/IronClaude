@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: failed
+slug: TASK-WF-specScRecommendR-20261024-055620
+plan_path: null
+source_path: null
+source_origin: .dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - No plan was generated in this package. The intake is superseded by an explicit execution request referencing the approved specification; no product files were changed.

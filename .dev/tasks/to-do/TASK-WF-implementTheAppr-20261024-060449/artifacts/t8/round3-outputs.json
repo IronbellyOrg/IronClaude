@@ -1,0 +1,33 @@
+{
+ "evidence_class": "Task 8 retry A3: S04-repeat1 regenerated after section 3.7 was reworded to keep /sc:cleanup-audit as the target with disclosed non-exhaustive coverage",
+ "run_id": "wf_e28e5ab0-648",
+ "results": [
+  {
+   "unit": "S04-repeat1",
+   "guide_status": "matched",
+   "routing_row_or_other": "cleanup-audit-only",
+   "cache_handling": "Skipped. Step 0 matched routing row `cleanup-audit-only`, so the Hot-Path Cache Lookup and Cold-Path Write-Back are bypassed (no classifier, no dispatch, no telemetry). auggie_status: skipped (matched row).",
+   "selected_targets": [
+    "/sc:cleanup-audit (command, skill-indirected -> Skill sc:cleanup-audit-protocol)"
+   ],
+   "flags_and_inputs": [
+    "positional target-path = the fixture folder whose only contents are hidden configuration paths (bind the actual folder path; none is invented here)",
+    "no --pass supplied: the default surface pass is kept; the guide says not to force all passes, and --pass all would not make coverage exhaustive because every path in the target is excluded",
+    "no --focus or --batch-size: the request does not name either",
+    "row mandatory_flags: '-' (none)"
+   ],
+   "stop_point": "Stop at the audit reports and checkpoints. No cleanup, improve or commit.",
+   "side_effects_stated": "The audited folder is not edited. The tool writes its own reports and progress.json checkpoint under .claude-audit/. The Hidden paths + BMAD scope floor cannot be removed, so this hidden-config-only target is effectively out of scope and the audit will report little or nothing for it.",
+   "unavailable_or_gap_notes": "Coverage limit: the cleanup-audit protocol always excludes hidden paths (any path starting with '.' or containing '/.'), and a per-project SCOPE.md can tighten that floor but not loosen it. Every path in this target falls under the exclusion, so the requested exhaustive audit cannot be delivered. Coverage must never be claimed as exhaustive. No contract gap: the command Usage and the protocol skill argument-hint agree. The canonical src/ copy and the project .claude/ copies of both the command and the skill are present.",
+   "verified_sources": [
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md",
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md (routing table, row `cleanup-audit-only`; section 3.7)",
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md (Read: Usage, Arguments, Activation)",
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md (name: sc:cleanup-audit-protocol; argument-hint; default scope exclusions / Scope Floor)",
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.claude/commands/sc/cleanup-audit.md (exists)",
+    "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.claude/skills/sc-cleanup-audit-protocol/SKILL.md (exists)"
+   ],
+   "output": "Goal: Audit a fixture folder whose only contents are hidden configuration paths for dead code, as a report only.\n\nLevel: not on the six-level scale (a supporting task). Guide section 3.7, 3.13, row `cleanup-audit-only`.\n\nChanges files: The audited folder is not edited. /sc:cleanup-audit writes its own reports and a progress.json checkpoint under .claude-audit/.\n\nRun these in order:\n\n1. /sc:cleanup-audit <hidden-config-dir>\n   (Replace <hidden-config-dir> with the real path of the fixture folder. No --pass, --focus or --batch-size is set because the request names none. The default surface pass is used.)\n2. Stop at the audit reports and checkpoints. No cleanup, improve or commit.\n\nNotes:\n- The audit cannot be exhaustive. The cleanup-audit protocol always excludes hidden paths (anything starting with '.' or containing '/.') and BMAD-owned folders. This exclusion cannot be removed, and a project SCOPE.md can only tighten it, never loosen it. Every path in this target is hidden, so all of them fall under the exclusion and the reports will cover few or none of them. Do not read the result as exhaustive coverage.\n- Passing --pass all would not change this, because each pass applies the same exclusion. Later passes (structural, cross-cutting) also need the context from the earlier passes.\n- This route only reports. To act on the findings later, choose that as a separate step (contained /sc:cleanup with a checkpoint commit and a git diff review).\n\nSources verified:\n- src/superclaude/core/HOW-WE-WORK.md (routing table, row `cleanup-audit-only`; section 3.7)\n- src/superclaude/commands/cleanup-audit.md (Read)\n- src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md (Read; name sc:cleanup-audit-protocol)\n- auggie semantic rank: skipped (matched row)"
+  }
+ ]
+}

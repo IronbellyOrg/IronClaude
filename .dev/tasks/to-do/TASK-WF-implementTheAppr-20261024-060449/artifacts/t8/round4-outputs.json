@@ -1,0 +1,122 @@
+{
+ "evidence_class": "Task 8 retry A4: Other-commands unavailable units regenerated after the SKILL.md missing-candidate rule fix",
+ "run_id": "wf_e896d6a2-a2b",
+ "results": [
+  {
+   "unit": "S23-unavailable",
+   "guide_status": "no_match (guide found at the plugin copy refs/HOW-WE-WORK.md; no routing row covers repository status; the Other commands entry for /sc:git is the matching entry)",
+   "cache_handling": "Skipped. Plugin install with no IronClaude checkout and no cache helper, so the availability gate fails: no classifier, no dispatch, no cold-path write-back, no telemetry. degradation_notes: recommend CLI unavailable; cache skipped",
+   "routing_row_or_other": "Other commands: /sc:git (status-only stays inspection; native tools may be enough)",
+   "selected_targets": [
+    "not installed: sc:git",
+    "Bash (native, built-in): git status"
+   ],
+   "flags_and_inputs": [
+    "No /sc:git flags emitted (the command is not callable here)",
+    "Native: git status (read-only)"
+   ],
+   "stop_point": "Stop at the status report. No add, commit, branch, merge, push or PR creation.",
+   "side_effects_stated": "None. git status only reads the working tree and index. No product, memory, Git or external changes.",
+   "output": "Goal: Inspect the repository status (read-only).\n\nNot installed here: sc:git. The guide's Other commands entry for /sc:git covers status inspection, but this plugin install does not ship it, so no /sc:git invocation is given.\n\nNo skill/agent delegation adds net value here. The guide says native tools may be enough for /sc:git status, and a status check is one read-only command.\n\n1. Bash: git status\n   (Optional, same read-only scope: git status --short --branch for a compact view.)\n2. Report the branch, staged, unstaged and untracked files. Stop there.\n\nThis does not stage, commit, branch, merge or push anything. A commit would need separate authorization.\n\nIf you want /sc:git itself later, installing the full set is a separate step you run yourself: pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install (superclaude update overwrites shipped files with no backup; copy edited files first).\n\nSources verified:\n- ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md (Other commands block: /sc:git)\n- src/superclaude/commands/git.md (Read as canonical contract; not callable in this environment)\n- auggie semantic rank: not run; ranking from the guide entry and file content only\n\nguide_status: no_match | recommendation_kind: native_tooling | status: degraded",
+   "unavailable_or_gap_notes": "sc:git is absent from the callable surface, so it is shown as not installed and not as a runnable step. The native git status replacement is allowed because the guide's /sc:git entry says native tools may be enough.",
+   "verified_sources": [
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md (byte-identical to src/superclaude/core/HOW-WE-WORK.md)",
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/commands/git.md"
+   ]
+  },
+  {
+   "unit": "S24-unavailable",
+   "guide_status": "no_match (guide found at the plugin copy; no routing row; the Other commands entry for /sc:index-repo matches a compact repo map)",
+   "cache_handling": "Skipped. No checkout and no cache helper, so the availability gate fails. degradation_notes: recommend CLI unavailable; cache skipped",
+   "routing_row_or_other": "Other commands: /sc:index-repo (compact PROJECT_INDEX.md and PROJECT_INDEX.json; preserve keyword mode=quick)",
+   "selected_targets": [
+    "not installed: sc:index-repo"
+   ],
+   "flags_and_inputs": [
+    "mode=quick (declared keyword form in the command's Usage section: /index-repo mode=quick); kept only as the request to carry over once the command exists",
+    "No other options"
+   ],
+   "stop_point": "Stop at the compact repo map (PROJECT_INDEX.md and PROJECT_INDEX.json). No implementation or other docs.",
+   "side_effects_stated": "If run once installed, it writes PROJECT_INDEX.md and PROJECT_INDEX.json in the project. Nothing runs now.",
+   "output": "Goal: Produce a compact repo map (PROJECT_INDEX.md + PROJECT_INDEX.json) in quick mode.\n\nNot installed here: sc:index-repo. The guide's Other commands entry for /sc:index-repo is the right tool for this request, but this plugin install does not ship it, so there is no runnable invocation.\n\nNo substitute is offered:\n- /sc:index is a different deliverable (coordinated project documentation), not a compact repo map.\n- The guide gives no native alternative for this map, and rebuilding the index by hand would duplicate the command's own process.\n\nIf you install the full set (a separate step you run yourself): pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install\n(superclaude update overwrites shipped files with no backup; copy edited files first.)\n\nThen, after confirming the name the installed copy uses (its frontmatter says sc:index-repo while its Usage section shows /index-repo):\n\n```text\n/sc:index-repo mode=quick\n```\n\nEffect once installed: writes PROJECT_INDEX.md and PROJECT_INDEX.json. Quick mode skips tests. No token-savings figure is promised.\n\nSources verified:\n- ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md (Other commands block: /sc:index-repo)\n- src/superclaude/commands/index-repo.md (Read as canonical contract; mode=quick declared in Usage; not callable here)\n- auggie semantic rank: not run; ranking from the guide entry and file content only\n\nguide_status: no_match | status: degraded",
+   "unavailable_or_gap_notes": "sc:index-repo is absent, so it is shown as not installed and the command block only applies after a separate install. Name mismatch to verify in the active copy: frontmatter name sc:index-repo vs Usage /index-repo. The command's advertised 94% token reduction is not repeated as a promise.",
+   "verified_sources": [
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/commands/index-repo.md"
+   ]
+  },
+  {
+   "unit": "S25-unavailable",
+   "guide_status": "no_match (guide found at the plugin copy; no routing row; the Other commands entry for /sc:save matches)",
+   "cache_handling": "Skipped. No checkout and no cache helper. degradation_notes: recommend CLI unavailable; cache skipped",
+   "routing_row_or_other": "Other commands: /sc:save (persist session/learnings/context/all memory; requires Serena; writes memory)",
+   "selected_targets": [
+    "not installed: sc:save"
+   ],
+   "flags_and_inputs": [
+    "Declared Usage: /sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]",
+    "Request asks for session memory, so --type session would apply once installed; no other controls requested"
+   ],
+   "stop_point": "Stop once the session memory is saved. It is not task-executor state or a resume mechanism.",
+   "side_effects_stated": "If run once installed, it writes Serena project memory. Nothing runs now.",
+   "output": "Goal: Save this session's project memory.\n\nNot installed here: sc:save. The guide's Other commands entry for /sc:save is the matching tool, but this plugin install does not ship it, so there is no runnable invocation. The guide gives no native replacement, so none is offered.\n\nIf you install the full set (a separate step you run yourself): pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install\n(superclaude update overwrites shipped files with no backup; copy edited files first.)\n\nThen, with Serena MCP available:\n\n```text\n/sc:save --type session\n```\n\nEffect once installed: writes Serena project memory. It requires Serena; without it the command will not run. This is memory only. It does not store task or plan executor state; to resume work, rerun /sc:implement <plan> or /task <task file>. No timing guarantee is made.\n\nSources verified:\n- ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md (Other commands block: /sc:save; section 3.12)\n- src/superclaude/commands/save.md (Read as canonical contract; --type values declared in Usage; not callable here)\n- auggie semantic rank: not run; ranking from the guide entry and file content only\n\nguide_status: no_match | status: degraded",
+   "unavailable_or_gap_notes": "sc:save is absent, so it is shown as not installed. Serena MCP is a required dependency whose availability is unverified. The command's <200ms and <1s performance claims are not passed on as guarantees.",
+   "verified_sources": [
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/commands/save.md"
+   ]
+  },
+  {
+   "unit": "S26-unavailable",
+   "guide_status": "no_match (guide found at the plugin copy; no routing row; the Other commands entry for /sc:agent, the explicit session controller, matches)",
+   "cache_handling": "Skipped. No checkout and no cache helper. degradation_notes: recommend CLI unavailable; cache skipped",
+   "routing_row_or_other": "Other commands: /sc:agent (explicit session controller: inspect status, orient, then wait for the task; self-contained)",
+   "selected_targets": [
+    "/sc:agent"
+   ],
+   "flags_and_inputs": [
+    "No flags (the command declares none)",
+    "No inputs; the task is given after startup"
+   ],
+   "stop_point": "Startup checklist, then wait for your task. Nothing is planned or implemented until you give the task.",
+   "side_effects_stated": "Startup runs read-only git status --porcelain and prints status lines. No file, memory or Git changes before a task is assigned.",
+   "output": "Goal: Explicitly start the session controller and have it wait for your task.\n\nRecommended delegation: /sc:agent. It is the guide's explicit session controller and is self-contained: its file names no protocol skill, so the absent sc-pm-protocol does not affect it. sc-pm-protocol backs /sc:pm, a different command (PM coordination), which is not what you asked for and is unavailable here anyway.\n\nPaste-ready prompt:\n\n```text\n/sc:agent\n```\n\nWhat happens: it runs its startup checklist (read-only git status, a token-budget reminder, a list of core services), then stops and waits for you to describe the task.\n\nNotes:\n- The command file says the plugin launches it automatically at session start. That startup message does not prove it is active, which is why starting it explicitly is right.\n- Once you give a task, it uses the confidence-check skill and the deep-research, repo-index and self-review agents. Those exist in the canonical source; this plugin install's copies were not checked. If one is missing, the command says it falls back to native tools and reports the gap.\n\nSources verified:\n- ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md (Other commands block: /sc:agent, /sc:pm)\n- src/superclaude/commands/agent.md (Read; self-contained, no skill invocation)\n- src/superclaude/commands/pm.md (Read; requires the protocol skill, so excluded)\n- auggie semantic rank: not run; ranking from the guide entry and file content only\n\nguide_status: no_match | recommendation_kind: delegation_prompt | status: degraded",
+   "unavailable_or_gap_notes": "The absent primitive sc-pm-protocol only blocks /sc:pm (whose Activation names it), not /sc:agent. Minor: the canonical agent.md is missing its opening '---' frontmatter line, but the body is intact. This install's copies of the helper agents/skill used after a task is assigned were not verified.",
+   "verified_sources": [
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/commands/agent.md",
+    "src/superclaude/commands/pm.md",
+    "src/superclaude/agents/repo-index.md (exists)",
+    "src/superclaude/agents/deep-research.md (exists)",
+    "src/superclaude/agents/self-review.md (exists)",
+    "src/superclaude/skills/confidence-check (exists)"
+   ]
+  },
+  {
+   "unit": "S27-unavailable",
+   "guide_status": "no_match (guide found at the plugin copy; no routing row; the Other commands entry for /sc:spawn matches decomposition-only into a task hierarchy)",
+   "cache_handling": "Skipped. No checkout and no cache helper. degradation_notes: recommend CLI unavailable; cache skipped",
+   "routing_row_or_other": "Other commands: /sc:spawn (requested decomposition; its critical stop is a task hierarchy only)",
+   "selected_targets": [
+    "not installed: sc:spawn"
+   ],
+   "flags_and_inputs": [
+    "Input: the supplied fixture architecture work description (bound as given; no path invented)",
+    "Declared Usage: /sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]; no strategy or depth was requested, so none is emitted"
+   ],
+   "stop_point": "Task hierarchy only (epics, tasks, dependencies, delegation assignments, coordination strategy). No execution, source edits or follow-on implementation.",
+   "side_effects_stated": "Nothing runs now. Once installed, the deliverable is a task-breakdown document only, with no code or system changes.",
+   "output": "Goal: Break the supplied architecture work description into a task hierarchy, without executing it.\n\nNot installed here: sc:spawn. The guide's Other commands entry for /sc:spawn is the right tool for decomposition only, but this plugin install does not ship it, so there is no runnable invocation.\n\nNo substitute is offered. /sc:workflow writes an implementation plan, a different deliverable from a decomposition-only hierarchy, and the guide gives no native replacement.\n\nIf you install the full set (a separate step you run yourself): pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install\n(superclaude update overwrites shipped files with no backup; copy edited files first.)\n\nThen:\n\n```text\n/sc:spawn \"<the supplied architecture work description>. Produce the task hierarchy only; do not execute any task.\"\n```\n\nStop point: spawn's final boundary is decomposition only, and it overrides the execution wording earlier in its file. Expect epics, a task hierarchy with dependencies, which /sc:* command handles each task, and a coordination strategy. No code edits or downstream implementation; running those tasks is a separate decision. --strategy and --depth are left out because you didn't ask for them.\n\nSources verified:\n- ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md (Other commands block: /sc:spawn; section 3.14 spawn stop)\n- src/superclaude/commands/spawn.md (Read as canonical contract; Usage and CRITICAL BOUNDARIES; not callable here)\n- auggie semantic rank: not run; ranking from the guide entry and file content only\n\nguide_status: no_match | status: degraded",
+   "unavailable_or_gap_notes": "sc:spawn is absent, so it is shown as not installed and the command block only applies after a separate install. Known source disagreement, settled by the guide (section 3.14): earlier execution wording in spawn.md loses to its decomposition-only stop. The branch-trace rule does not apply (it only fires for filter-pipeline work).",
+   "verified_sources": [
+    "plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md",
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/commands/spawn.md"
+   ]
+  }
+ ]
+}

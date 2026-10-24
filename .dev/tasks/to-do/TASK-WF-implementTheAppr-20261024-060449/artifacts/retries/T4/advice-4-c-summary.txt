@@ -1,0 +1,21 @@
+outcome: ready
+
+I sent the full advice to team-lead. It cites only `attempt-3.diff`, `review-3.md`, `extras-3.log`, the plan and the spec.
+
+- **Why the last attempt failed the fourth criterion:** the skill's rules for a cached hint covered only general categories, so no case had its own sentence for a test to check. All eight test fixtures checked the same shared words, and the "changed reference" was a temporary file that the cached source never mentions.
+- **Proposed fix:** add one rule line per case under the section that owns its required action: reject, rebind (use only the current request's paths), or reread (read the changed reference again before answering). Each fixture's data then gets a real hazard that the cache lookup cannot detect, for example a source file that names the reference which changes.
+- **What makes it different from earlier approaches:** one extra test compares all eight cases against all eight rule lines at once. Each case must match its own line and no other, so swapping, merging or deleting a line fails the test.
+- **What stays the same:** the first three criteria, which already passed. No cache, dispatch or schema code changes.
+- **Expected result:** 81 tests collected instead of 80, because the cross-case test is new. This is static text checking only; real recommendation generation is still Task 8.
+
+| Status | Result |
+|---|---|
+| DONE | Read the Task 4 criteria and constraints, the spec's cache rules (FR-07, T48, T52-T58), the attempt-3 diff, review and test log, and the two earlier advice texts as background only. |
+| DONE | Sent the advice to team-lead. |
+| NEXT | Team-lead runs attempt 4 from these steps. |
+
+Files:
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/attempt-3.diff`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/review-3.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/extras-3.log`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md`

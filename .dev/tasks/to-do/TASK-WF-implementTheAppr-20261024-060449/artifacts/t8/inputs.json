@@ -1,0 +1,652 @@
+{
+ "evidence_class": "Task 8 generation inputs (expected answers withheld from generators)",
+ "fixture_inputs": {
+  "component": "A small component description file supplied with the evaluation fixture",
+  "prd": "A populated PRD fixture file",
+  "tdd": "A populated TDD fixture file",
+  "spec": "A release spec fixture file",
+  "release-spec": "A release spec fixture that may or may not warrant a split",
+  "validated-proposal": "A validated release-split proposal fixture",
+  "roadmap": "A roadmap fixture file",
+  "output-dir": "A temporary output directory under the evaluation tmp path",
+  "legacy-folder": "A fixture source folder containing dead code",
+  "hidden-config-dir": "A fixture folder whose only contents are hidden configuration paths",
+  "contained-folder": "A self-contained fixture folder suitable for contained improvement",
+  "pr-number": "A fixture pull-request number; never a live PR",
+  "source-strings": "A fixture source-language strings file",
+  "locale-files": "Fixture translation files with placeholder mistakes",
+  "suite-name": "A fixture cliEval suite stem",
+  "eval-design": "A fixture eval design document",
+  "eval-id": "A fixture eval identifier inside the suite",
+  "workflow-skill": "A fixture workflow skill directory containing SKILL.md",
+  "release-tag": "A fixture tag name for an already-tagged release",
+  "tier-yaml": "A fixture task-tier YAML file",
+  "report-path": "A temporary report path under the evaluation tmp path",
+  "review-target": "A fixture document to review with swarm",
+  "design-source": "A fixture design source file",
+  "pipeline": "A fixture adversarial pipeline YAML and its existing output directory",
+  "project": "The fixture project root",
+  "architecture-work": "A fixture architecture work description",
+  "module": "A fixture source module"
+ },
+ "units": [
+  {
+   "case": "S01",
+   "unit": "S01-primary",
+   "request": "List the commands and skills installed here.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S01",
+   "unit": "S01-unavailable",
+   "request": "List the commands and skills installed here.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:help"
+  },
+  {
+   "case": "S01",
+   "unit": "S01-seededcache",
+   "request": "List the commands and skills installed here.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:recommend, recommendation template 'Run: /sc:recommend list my tools'. Any other key is a miss."
+  },
+  {
+   "case": "S02",
+   "unit": "S02-primary",
+   "request": "Draft an API specification for A small component description file supplied with the evaluation fixture, without implementing it.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S02",
+   "unit": "S02-repeat1",
+   "request": "Draft the architecture design for A small component description file supplied with the evaluation fixture.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S02",
+   "unit": "S02-repeat2",
+   "request": "Draft the component design for A small component description file supplied with the evaluation fixture.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S02",
+   "unit": "S02-repeat3",
+   "request": "Draft the database design for A small component description file supplied with the evaluation fixture.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S02",
+   "unit": "S02-unavailable",
+   "request": "Draft an API specification for A small component description file supplied with the evaluation fixture, without implementing it.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:design"
+  },
+  {
+   "case": "S02",
+   "unit": "S02-seededcache",
+   "request": "Draft an API specification for A small component description file supplied with the evaluation fixture, without implementing it.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'spec-generation', dispatch returns hit: candidate /tdd, recommendation template 'Run: /tdd docs/previous.md'. Any other key is a miss."
+  },
+  {
+   "case": "S03",
+   "unit": "S03-primary",
+   "request": "Create a full Technical Design Document from the populated PRD A populated PRD fixture file.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S03",
+   "unit": "S03-unavailable",
+   "request": "Create a full Technical Design Document from the populated PRD A populated PRD fixture file.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: tdd"
+  },
+  {
+   "case": "S03",
+   "unit": "S03-seededcache",
+   "request": "Create a full Technical Design Document from the populated PRD A populated PRD fixture file.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'spec-generation', dispatch returns hit: candidate /prd, recommendation template 'Run: /prd docs/raw.md'. Any other key is a miss."
+  },
+  {
+   "case": "S04",
+   "unit": "S04-primary",
+   "request": "Audit dead code in A fixture source folder containing dead code; surface pass, backend focus, report only.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S04",
+   "unit": "S04-repeat1",
+   "request": "Audit A fixture folder whose only contents are hidden configuration paths exhaustively for dead code.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S04",
+   "unit": "S04-unavailable",
+   "request": "Audit dead code in A fixture source folder containing dead code; surface pass, backend focus, report only.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:cleanup-audit"
+  },
+  {
+   "case": "S04",
+   "unit": "S04-seededcache",
+   "request": "Audit dead code in A fixture source folder containing dead code; surface pass, backend focus, report only.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'cleanup-audit', dispatch returns hit: candidate /sc:cleanup, recommendation template 'Run: /sc:cleanup src/legacy --type all'. Any other key is a miss."
+  },
+  {
+   "case": "S05",
+   "unit": "S05-primary",
+   "request": "Improve maintainability in A self-contained fixture folder suitable for contained improvement, safely and interactively.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S05",
+   "unit": "S05-unavailable",
+   "request": "Improve maintainability in A self-contained fixture folder suitable for contained improvement, safely and interactively.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:improve"
+  },
+  {
+   "case": "S05",
+   "unit": "S05-seededcache",
+   "request": "Improve maintainability in A self-contained fixture folder suitable for contained improvement, safely and interactively.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'cleanup-audit', dispatch returns hit: candidate /sc:cleanup, recommendation template 'Run: /sc:cleanup src/legacy --type all'. Any other key is a miss."
+  },
+  {
+   "case": "S06",
+   "unit": "S06-primary",
+   "request": "Deep Auggie review of PR A fixture pull-request number; never a live PR, Sonnet as the internal reviewer, local findings only.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S06",
+   "unit": "S06-unavailable",
+   "request": "Deep Auggie review of PR A fixture pull-request number; never a live PR, Sonnet as the internal reviewer, local findings only.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:auggie-review"
+  },
+  {
+   "case": "S06",
+   "unit": "S06-seededcache",
+   "request": "Deep Auggie review of PR A fixture pull-request number; never a live PR, Sonnet as the internal reviewer, local findings only.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'adversarial-review', dispatch returns hit: candidate /sc:adversarial, recommendation template 'Run: /sc:adversarial --compare docs/a.md,docs/b.md'. Any other key is a miss."
+  },
+  {
+   "case": "S07",
+   "unit": "S07-primary",
+   "request": "Review A fixture source-language strings file and Fixture translation files with placeholder mistakes for placeholder mistakes; report only.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S07",
+   "unit": "S07-unavailable",
+   "request": "Review A fixture source-language strings file and Fixture translation files with placeholder mistakes for placeholder mistakes; report only.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:review-translation"
+  },
+  {
+   "case": "S07",
+   "unit": "S07-seededcache",
+   "request": "Review A fixture source-language strings file and Fixture translation files with placeholder mistakes for placeholder mistakes; report only.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'troubleshoot-debug', dispatch returns hit: candidate /sc:troubleshoot, recommendation template 'Run: /sc:troubleshoot \"placeholder error\"'. Any other key is a miss."
+  },
+  {
+   "case": "S08",
+   "unit": "S08-primary",
+   "request": "Audit project context size; print a dry run and change nothing.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S08",
+   "unit": "S08-repeat1",
+   "request": "Audit project context size and write the advisory scaffold.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S08",
+   "unit": "S08-unavailable",
+   "request": "Audit project context size; print a dry run and change nothing.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:init-lite"
+  },
+  {
+   "case": "S08",
+   "unit": "S08-seededcache",
+   "request": "Audit project context size; print a dry run and change nothing.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:analyze, recommendation template 'Run: /sc:analyze .'. Any other key is a miss."
+  },
+  {
+   "case": "S09",
+   "unit": "S09-primary",
+   "request": "Author a cliEval suite named A fixture cliEval suite stem from A fixture eval design document.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S09",
+   "unit": "S09-unavailable",
+   "request": "Author a cliEval suite named A fixture cliEval suite stem from A fixture eval design document.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:cli-eval"
+  },
+  {
+   "case": "S09",
+   "unit": "S09-seededcache",
+   "request": "Author a cliEval suite named A fixture cliEval suite stem from A fixture eval design document.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'spec-generation', dispatch returns hit: candidate /prd, recommendation template 'Run: /prd docs/raw.md'. Any other key is a miss."
+  },
+  {
+   "case": "S10",
+   "unit": "S10-primary",
+   "request": "Supervise a run of existing cliEval suite A fixture cliEval suite stem, restricted to eval A fixture eval identifier inside the suite.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S10",
+   "unit": "S10-repeat1",
+   "request": "Evaluate my cliEval suite.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S10",
+   "unit": "S10-unavailable",
+   "request": "Supervise a run of existing cliEval suite A fixture cliEval suite stem, restricted to eval A fixture eval identifier inside the suite.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:cli-eval"
+  },
+  {
+   "case": "S10",
+   "unit": "S10-seededcache",
+   "request": "Supervise a run of existing cliEval suite A fixture cliEval suite stem, restricted to eval A fixture eval identifier inside the suite.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'task-file-generation', dispatch returns hit: candidate /task-builder, recommendation template 'Run: /task-builder \"run the eval suite\"'. Any other key is a miss."
+  },
+  {
+   "case": "S11",
+   "unit": "S11-primary",
+   "request": "Analyze how A fixture workflow skill directory containing SKILL.md could become a CLI; dry run only.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S11",
+   "unit": "S11-unavailable",
+   "request": "Analyze how A fixture workflow skill directory containing SKILL.md could become a CLI; dry run only.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:cli-portify"
+  },
+  {
+   "case": "S11",
+   "unit": "S11-seededcache",
+   "request": "Analyze how A fixture workflow skill directory containing SKILL.md could become a CLI; dry run only.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'cli-portify', dispatch returns hit: candidate /sc:workflow, recommendation template 'Run: /sc:workflow \"port the workflow\"'. Any other key is a miss."
+  },
+  {
+   "case": "S12",
+   "unit": "S12-primary",
+   "request": "Assess whether A release spec fixture that may or may not warrant a split should split; an intact release is acceptable.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S12",
+   "unit": "S12-repeat1",
+   "request": "Keep A release spec fixture that may or may not warrant a split intact; do not split it.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S12",
+   "unit": "S12-repeat2",
+   "request": "Continue the release split of A release spec fixture that may or may not warrant a split from A validated release-split proposal fixture.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S12",
+   "unit": "S12-repeat3",
+   "request": "Continue the release split from A validated release-split proposal fixture.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S12",
+   "unit": "S12-unavailable",
+   "request": "Assess whether A release spec fixture that may or may not warrant a split should split; an intact release is acceptable.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:release-split"
+  },
+  {
+   "case": "S12",
+   "unit": "S12-seededcache",
+   "request": "Assess whether A release spec fixture that may or may not warrant a split should split; an intact release is acceptable.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'roadmap-generation', dispatch returns hit: candidate /roadmap, recommendation template 'Run: /roadmap docs/spec.md'. Any other key is a miss."
+  },
+  {
+   "case": "S13",
+   "unit": "S13-primary",
+   "request": "Bring docs, install/deploy surface and human test guides current for existing release tag A fixture tag name for an already-tagged release.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S13",
+   "unit": "S13-unavailable",
+   "request": "Bring docs, install/deploy surface and human test guides current for existing release tag A fixture tag name for an already-tagged release.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:post-release"
+  },
+  {
+   "case": "S13",
+   "unit": "S13-seededcache",
+   "request": "Bring docs, install/deploy surface and human test guides current for existing release tag A fixture tag name for an already-tagged release.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'spec-generation', dispatch returns hit: candidate /sc:document, recommendation template 'Run: /sc:document docs/'. Any other key is a miss."
+  },
+  {
+   "case": "S14",
+   "unit": "S14-primary",
+   "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from A release spec fixture file and A populated TDD fixture file.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S14",
+   "unit": "S14-unavailable",
+   "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from A release spec fixture file and A populated TDD fixture file.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:roadmap"
+  },
+  {
+   "case": "S14",
+   "unit": "S14-seededcache",
+   "request": "Use /sc:roadmap to produce release-pipeline roadmap artifacts from A release spec fixture file and A populated TDD fixture file.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'roadmap-generation', dispatch returns hit: candidate /roadmap, recommendation template 'Run: /roadmap docs/spec.md'. Any other key is a miss."
+  },
+  {
+   "case": "S15",
+   "unit": "S15-primary",
+   "request": "Convert A roadmap fixture file to a Sprint-compatible tasklist bundle using spec A release spec fixture file and output A temporary output directory under the evaluation tmp path.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S15",
+   "unit": "S15-unavailable",
+   "request": "Convert A roadmap fixture file to a Sprint-compatible tasklist bundle using spec A release spec fixture file and output A temporary output directory under the evaluation tmp path.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:tasklist"
+  },
+  {
+   "case": "S15",
+   "unit": "S15-seededcache",
+   "request": "Convert A roadmap fixture file to a Sprint-compatible tasklist bundle using spec A release spec fixture file and output A temporary output directory under the evaluation tmp path.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'task-file-generation', dispatch returns hit: candidate /task-builder, recommendation template 'Run: /task-builder \"Create an MDTM task from docs/spec.md\"'. Any other key is a miss."
+  },
+  {
+   "case": "S16",
+   "unit": "S16-primary",
+   "request": "Audit roadmap fidelity of A roadmap fixture file against A release spec fixture file through the roadmap validator.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S16",
+   "unit": "S16-unavailable",
+   "request": "Audit roadmap fidelity of A roadmap fixture file against A release spec fixture file through the roadmap validator.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:validate-roadmap"
+  },
+  {
+   "case": "S16",
+   "unit": "S16-seededcache",
+   "request": "Audit roadmap fidelity of A roadmap fixture file against A release spec fixture file through the roadmap validator.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'adversarial-review', dispatch returns hit: candidate /sc:reflect, recommendation template 'Run: /sc:reflect --mode pre --spec docs/previous.md'. Any other key is a miss."
+  },
+  {
+   "case": "S17",
+   "unit": "S17-primary",
+   "request": "Validate task-tier YAML expectations in A fixture task-tier YAML file with verbose output, stop on first failure, report to A temporary report path under the evaluation tmp path.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S17",
+   "unit": "S17-repeat1",
+   "request": "Validate the task tiers against the default suite.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S17",
+   "unit": "S17-unavailable",
+   "request": "Validate task-tier YAML expectations in A fixture task-tier YAML file with verbose output, stop on first failure, report to A temporary report path under the evaluation tmp path.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:validate-tests"
+  },
+  {
+   "case": "S17",
+   "unit": "S17-seededcache",
+   "request": "Validate task-tier YAML expectations in A fixture task-tier YAML file with verbose output, stop on first failure, report to A temporary report path under the evaluation tmp path.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:test, recommendation template 'Run: /sc:test tests/'. Any other key is a miss."
+  },
+  {
+   "case": "S18",
+   "unit": "S18-primary",
+   "request": "A new bounded component needs a reviewed PRD and TDD, followed by ordinary implementation planning.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S18",
+   "unit": "S18-unavailable",
+   "request": "A new bounded component needs a reviewed PRD and TDD, followed by ordinary implementation planning.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: prd"
+  },
+  {
+   "case": "S18",
+   "unit": "S18-seededcache",
+   "request": "A new bounded component needs a reviewed PRD and TDD, followed by ordinary implementation planning.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'task-file-generation', dispatch returns hit: candidate /task-builder, recommendation template 'Run: /task-builder \"Create an MDTM task from docs/spec.md\"'. Any other key is a miss."
+  },
+  {
+   "case": "S19",
+   "unit": "S19-primary",
+   "request": "Write and review a PRD and TDD for A small component description file supplied with the evaluation fixture only; no implementation plan.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S19",
+   "unit": "S19-unavailable",
+   "request": "Write and review a PRD and TDD for A small component description file supplied with the evaluation fixture only; no implementation plan.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: tdd"
+  },
+  {
+   "case": "S19",
+   "unit": "S19-seededcache",
+   "request": "Write and review a PRD and TDD for A small component description file supplied with the evaluation fixture only; no implementation plan.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'roadmap-generation', dispatch returns hit: candidate /roadmap, recommendation template 'Run: /roadmap docs/spec.md'. Any other key is a miss."
+  },
+  {
+   "case": "S20",
+   "unit": "S20-primary",
+   "request": "Explicitly use /roadmap to create the full roadmap and phase task files from A populated PRD fixture file and A populated TDD fixture file.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S20",
+   "unit": "S20-unavailable",
+   "request": "Explicitly use /roadmap to create the full roadmap and phase task files from A populated PRD fixture file and A populated TDD fixture file.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: roadmap"
+  },
+  {
+   "case": "S20",
+   "unit": "S20-seededcache",
+   "request": "Explicitly use /roadmap to create the full roadmap and phase task files from A populated PRD fixture file and A populated TDD fixture file.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'roadmap-generation', dispatch returns hit: candidate /sc:workflow, recommendation template 'Run: /sc:workflow docs/prd.md'. Any other key is a miss."
+  },
+  {
+   "case": "S21",
+   "unit": "S21-primary",
+   "request": "Help choose swarm settings for reviewing A fixture document to review with swarm; no real-model launch is authorized.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S21",
+   "unit": "S21-unavailable",
+   "request": "Help choose swarm settings for reviewing A fixture document to review with swarm; no real-model launch is authorized.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:swarm-wizard"
+  },
+  {
+   "case": "S21",
+   "unit": "S21-seededcache",
+   "request": "Help choose swarm settings for reviewing A fixture document to review with swarm; no real-model launch is authorized.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'adversarial-review', dispatch returns hit: candidate /sc:spec-panel, recommendation template 'Run: /sc:spec-panel docs/previous.md'. Any other key is a miss."
+  },
+  {
+   "case": "S22",
+   "unit": "S22-primary",
+   "request": "Generate competing designs from A fixture design source file.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S22",
+   "unit": "S22-repeat1",
+   "request": "Resume the adversarial pipeline A fixture adversarial pipeline YAML and its existing output directory.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S22",
+   "unit": "S22-unavailable",
+   "request": "Generate competing designs from A fixture design source file.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:adversarial"
+  },
+  {
+   "case": "S22",
+   "unit": "S22-seededcache",
+   "request": "Generate competing designs from A fixture design source file.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'adversarial-review', dispatch returns hit: candidate /sc:reflect, recommendation template 'Run: /sc:reflect --mode post --diff HEAD'. Any other key is a miss."
+  },
+  {
+   "case": "S23",
+   "unit": "S23-primary",
+   "request": "Inspect the repository status.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S23",
+   "unit": "S23-repeat1",
+   "request": "Explicitly create a generated local commit of the staged changes.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S23",
+   "unit": "S23-unavailable",
+   "request": "Inspect the repository status.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:git"
+  },
+  {
+   "case": "S23",
+   "unit": "S23-seededcache",
+   "request": "Inspect the repository status.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'parallel-agent-fanout', dispatch returns hit: candidate /sc:pr-submit, recommendation template 'Run: /sc:pr-submit --monitor 3'. Any other key is a miss."
+  },
+  {
+   "case": "S24",
+   "unit": "S24-primary",
+   "request": "Produce a compact repo map in quick mode.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S24",
+   "unit": "S24-repeat1",
+   "request": "Generate coordinated project documentation for The fixture project root.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S24",
+   "unit": "S24-unavailable",
+   "request": "Produce a compact repo map in quick mode.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:index-repo"
+  },
+  {
+   "case": "S24",
+   "unit": "S24-seededcache",
+   "request": "Produce a compact repo map in quick mode.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:index, recommendation template 'Run: /sc:index .'. Any other key is a miss."
+  },
+  {
+   "case": "S25",
+   "unit": "S25-primary",
+   "request": "Save the project memory for this session.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S25",
+   "unit": "S25-repeat1",
+   "request": "Load and refresh the saved project context.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S25",
+   "unit": "S25-unavailable",
+   "request": "Save the project memory for this session.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:save"
+  },
+  {
+   "case": "S25",
+   "unit": "S25-seededcache",
+   "request": "Save the project memory for this session.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:implement, recommendation template 'Run: /sc:implement .dev/tasks/to-do/previous/previous.md'. Any other key is a miss."
+  },
+  {
+   "case": "S26",
+   "unit": "S26-primary",
+   "request": "Explicitly start the session controller and wait for my task.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S26",
+   "unit": "S26-repeat1",
+   "request": "Explicitly use PM coordination for The fixture project root.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S26",
+   "unit": "S26-unavailable",
+   "request": "Explicitly start the session controller and wait for my task.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc-pm-protocol"
+  },
+  {
+   "case": "S26",
+   "unit": "S26-seededcache",
+   "request": "Explicitly start the session controller and wait for my task.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'parallel-agent-fanout', dispatch returns hit: candidate /sc:workflow, recommendation template 'Run: /sc:workflow \"coordinate agents\"'. Any other key is a miss."
+  },
+  {
+   "case": "S27",
+   "unit": "S27-primary",
+   "request": "Decompose A fixture architecture work description into a task hierarchy; do not execute it.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S27",
+   "unit": "S27-unavailable",
+   "request": "Decompose A fixture architecture work description into a task hierarchy; do not execute it.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:spawn"
+  },
+  {
+   "case": "S27",
+   "unit": "S27-seededcache",
+   "request": "Decompose A fixture architecture work description into a task hierarchy; do not execute it.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'parallel-agent-fanout', dispatch returns hit: candidate /task-builder, recommendation template 'Run: /task-builder \"build the architecture\"'. Any other key is a miss."
+  },
+  {
+   "case": "S28",
+   "unit": "S28-primary",
+   "request": "Explain A fixture source module to a beginner using examples, without edits.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S28",
+   "unit": "S28-unavailable",
+   "request": "Explain A fixture source module to a beginner using examples, without edits.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:explain"
+  },
+  {
+   "case": "S28",
+   "unit": "S28-seededcache",
+   "request": "Explain A fixture source module to a beginner using examples, without edits.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'codebase-research', dispatch returns hit: candidate /sc:workflow, recommendation template 'Run: /sc:workflow \"refactor the module\"'. Any other key is a miss."
+  },
+  {
+   "case": "S29",
+   "unit": "S29-primary",
+   "request": "Review A release spec fixture file through Socratic questions.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S29",
+   "unit": "S29-repeat1",
+   "request": "Derive a scoped spec from the populated TDD A populated TDD fixture file.",
+   "environment": "IronClaude development checkout; canonical guide present; recommend cache helper available; no cache row for this request"
+  },
+  {
+   "case": "S29",
+   "unit": "S29-unavailable",
+   "request": "Review A release spec fixture file through Socratic questions.",
+   "environment": "Plugin install without a checkout or cache helper; the named primitive (command or backing skill) is absent from the callable surface. Absent primitive: sc:spec-panel"
+  },
+  {
+   "case": "S29",
+   "unit": "S29-seededcache",
+   "request": "Review A release spec fixture file through Socratic questions.",
+   "environment": "Checkout as above, plus a valid-hash cache row whose candidate is the wrong primitive for this request. If (and only if) your protocol consults the cache and the classifier returns key 'spec-generation', dispatch returns hit: candidate /prd, recommendation template 'Run: /prd docs/raw.md'. Any other key is a miss."
+  }
+ ]
+}

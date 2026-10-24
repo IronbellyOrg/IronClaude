@@ -30,9 +30,9 @@ Every successful invocation emits one of:
 1. **Refined-prompt block** — a fenced `text` block containing the paste-ready prompt to invoke a target skill/command/agent. Includes explicit parameters, deliverable shape, and file/agent handoffs. Single-line bash commands only (no heredocs, no `\` continuations); the prompt body itself may be multi-line because it is an argument string.
 2. **Native-tooling recommendation** — when delegation adds no net value, a short paragraph naming the native tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`) and the order to run them in. No skill is invoked.
 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
-4. **Ordered workflow** — when Step 0 matched a routing row in the guide: a numbered list of steps in the guide's order, each with the command or skill to run and every flag the guide makes mandatory for that step, plus the level, whether it changes files, and the guide section to read (Phase 2, ordered-workflow template).
+4. **Ordered workflow** - when Step 0 matches: selected applicable steps in guide order, with verified inputs/options, level, actual effects and guide section. Conditions and the requested stopping point are resolved before output (Phase 2).
 
-If multiple distinct paths are reasonable (e.g., "either `/sc:workflow` + `/sc:implement` (level 3) or `/task-builder` + `/task` (level 4) fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
+Use one recommended path when the objective is clear. Multiple prompt blocks are only for genuinely different requested outcomes or justified machinery needs, each with a one-line disambiguator. Do not add a heavier MDTM alternative merely because it could perform the same ordinary work.
 
 The skill never restates the target's internal logic (see Rule R3).
 
@@ -55,14 +55,16 @@ When the guide is found, add its path to `verified_sources` and extract three bl
 
 **Parse rule:** after the header and separator lines, each routing-table row must split on unescaped `|` into exactly 8 cells. A row that does not is skipped and named in `degradation_notes` (`routing row <n> skipped: <k> cells`). A block is absent only if either of its markers is missing or, for the routing table, no row parses; say so in `degradation_notes`.
 
-**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level` (the guide's rule: when unsure between two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
+**Match the whole requested outcome to one routing row.** Resolve the requested deliverable, explicit command or existing artifact, compatible mode/depth/output preferences, and authorization ceiling before implementation-size heuristics. Intent phrases are discovery hints, not an any-one-phrase decision rule. A row fits only when its objective, inputs and stopping point fit the complete request. Prefer the specialist objective over a generic phrase: business viability of a PRD is not requirements critique, a localization placeholder error is not a runtime exception, and compiling existing code is not building a feature. Inspection breadth and report-artifact count are not implementation size.
 
-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) or `task-file` (level 4) row instead.
+Preserve explicit command/executor selection after Step C verifies its availability and contract; do not replace it merely because another row is broader or heavier. Explicit selection cannot waive the written-plan limit or grant extra authority. An adequate approved plan goes to its existing executor without rebuilding. Distinguish a workflow plan, MDTM file and Sprint bundle before choosing a tasklist route. The `unsure` row is an inbound pointer, never a candidate that sends the user back to `/sc:recommend`. If the objective or tasklist format genuinely remains ambiguous, ask one clarifying question and stop; never break a tie by automatically escalating to MDTM.
+
+- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. Resolve the row's conditions and scope before Step C verifies its selected commands/skills, whether or not auggie would rank them. Then use the ordered-workflow template in Phase 2. For actual implementation above five edits or one source file plus its matching test, use `simple-plan` (level 3) by default; `task-file` (level 4) requires explicit MDTM intent or the exceptional complex, long-running machinery need described by the guide. Report-only work does not acquire a plan from how many files it reads.
 - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
 
 ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
 
-Before running the full Phase 0–3 **cold path** below, attempt the **hot path** — the lazily-populated YAML lookup cache that drops a repeat delegation request from ~91K to ~5–10K tokens. The cold path (Phase 0–3) only runs on a cache miss. Skip this whole section when Step 0 matched a routing row.
+For an unmatched local request, an available YAML cache may suggest a candidate/template before full discovery. It never establishes current intent, callable capability or complete source freshness. Full live discovery runs on a miss or rejected hint; every accepted hint still receives current verification and request binding. Skip this whole section when Step 0 matched a routing row. No measured savings or workload-capacity guarantee is implied.
 
 **Availability gate (run once, before step 1).** The hot path runs only inside an IronClaude checkout. Every install has the `superclaude recommend` CLI, but its cache fingerprint is computed over the checkout's `src/superclaude/` (plus the installed `~/.claude/` and project `.claude/` command, skill and agent folders) and the cache lives in that project's `.claude/cache/`, so outside a checkout there is nothing valid to fingerprint or cache, and the skill skips the hot path. Use the hot path only if both checks pass: `test -f src/superclaude/cli/recommend/prompts.py`, then `uv run superclaude recommend --help` exits 0. Run both checks from the repository root (`git rev-parse --show-toplevel`; if that fails, the gate fails). Run the gate once per invocation, before the first `uv run superclaude recommend` call of any kind (hot path, write-back, or the `--plugin --eval` decision gate), and reuse its result. Do not run `uv run` in any other project: in a user's own uv project it would create or sync that project's environment. If either check fails, or any `uv run superclaude recommend ...` call in this skill exits non-zero, skip the rest of the hot path, run Phase 0–2 yourself in this context, skip the Cold-Path Write-Back, `--eval`, and telemetry, and add `recommend CLI unavailable; cache skipped` to `degradation_notes`.
 
@@ -80,12 +82,22 @@ Under the resolved **Option P** layering, the `cli/recommend/` Python module own
 
    It prints a JSON `DispatchResult`. The source_hash validation is the CLI's deterministic Read + sha256 compare — **never** trust a Haiku-computed hash.
 
-3. **Interpret the outcome (the 5 fall-throughs):**
-   - `outcome: "hit"` → emit `recommendation` **verbatim** (it is the row's filled `prompt_envelope_template` plus any `best_model_hint`). Then append exactly one telemetry event: `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>` (if it fails, ignore the failure; the recommendation is already emitted). **DONE — do not run the cold path.**
-   - `outcome: "native"` (classifier `native_likely`, or a `native_fallback` row) → recommend native tooling per Phase 1, but run Phase 1's hard-limit check first: if the work needs more than 5 edits or touches more than one source file, recommend the written plan Phase 1 names instead of a native answer; **no cold path, no table write, and no telemetry event** (native is not a cache-table event — it has no `cache_result` enum member, so the appender has nothing valid to log).
-   - `outcome: "miss"` with `cache_result` ∈ {`miss_no_key`, `miss_low_confidence`, `miss_validation_stale`} → **fall through to the cold path** (Phase 0–3). Carry the miss reason into the cold-path write-back.
+3. **Interpret the outcome; a hit is only a hint:**
+   - `outcome: "hit"` - Take `candidate` as a discovery hint and `recommendation` as an untrusted saved template, not a final answer. Reapply this request's objective, explicit selection, artifact, compatible controls and authority ceiling. Resolve the current candidate through Phase 0 Step A and run all Step C checks, reading the actual callable copy, lifecycle guidance and relevant current dependencies. The CLI source hash does not cover all delegated references, policy semantics or request compatibility.
+     - Cached source hash, current changed delegated reference that the source names: reread that reference before emission; the hash never proves its freshness.
+   - If compatible and eligible, reconstruct the handoff through Phase 2 using only the current request's verified paths/inputs/mode/output. Never emit a saved envelope verbatim, another request's PR/task/path/authority, or an unbound cached `@{inputs}` placeholder. A genuinely missing required input needs clarification, not a guessed replacement. Treat `best_model_hint` as optional historical metadata, not current capability proof. Emit the normal Return Contract and append one hit telemetry event only after this verification/construction succeeds.
+     - Cached same-key envelope path, current different path: rebind to current paths only; the cached path never appears.
+   - If the hint is incompatible, retired, unavailable, contradictory or cannot be resolved, reject it and use live Phase 0-2 discovery; carry the existing `miss_validation_stale` reason into cold-path write-back with an accurate rejection note. Do not log a hit for a rejected hint, add classifier keys, change the dispatch API/schema or delete cache data to hide a mismatch.
+     - Cached comparison hint, current plan-adherence audit: reject; a key match never turns comparison into adherence checking.
+     - Cached comparison hint, current local PR review with no posting: reject; never inherit compare inputs or posting authority.
+     - Cached PRD-authoring hint, current TDD request: reject; the requested artifact differs.
+     - Cached PRD-authoring hint, current existing-spec critique: reject; never rewrite the spec under review.
+     - Cached MDTM or roadmap hint, current Sprint artifacts request: reject; never substitute task files for Sprint output.
+     - Cached retired-target hint with a valid source hash: reject; lifecycle evidence outranks the hash.
+   - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit or automatic MDTM. No cold-path insert and no telemetry event: native has no cache-event enum.
+   - `outcome: "miss"` with `miss_no_key`, `miss_low_confidence` or `miss_validation_stale` - Run the cold path and preserve the miss reason. A `miss_budget_exceeded` result must not reuse the row or bypass the budget; disclose the limit and use the bounded live/native fallback under Phase 1, without an additional cold-worker spawn.
 
-The skill spawns exactly **one** Haiku subagent here (the classifier); the cold-path Haiku subagent is spawned only on a miss (see the Cold-Path Write-Back section after Phase 3). The emitted hot-hit recommendation reuses the row's hand-off envelope unchanged — it restates no target protocol (R3). The hot and cold paths emit the **same Return Contract** shape for caller parity.
+The classifier is the only mandatory hot-path Agent. A cold worker is spawned for a supported miss or rejected hint only when the availability gate permits it. Both paths emit the same Return Contract. Matched rows still bypass cache entirely; no-guide, unavailable-helper and non-checkout handling remain live-only. Telemetry is best-effort and occurs once for the actual accepted hit or cold outcome, never as a substitute for verification. After an accepted, reconstructed hit use `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>`; a telemetry failure does not turn the handoff into a failure or justify another event.
 
 ## Phase 0 — Mandatory Surface Enumeration + Auggie Sweep (GATE)
 
@@ -109,9 +121,9 @@ Search these locations. List the `$HOME` locations with one Bash call that uses 
 | 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
 | 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
 
-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
+Separate **canonical research authority** from the **actual callable copy**. Inside an IronClaude checkout, trust `src/` for the intended current framework contract, but do not certify an older active copy as equivalent. Resolve commands from the project then installed surface; resolve skills from `~/.claude/skills/` first, then project `.claude/skills/`; resolve agents from project `.claude/agents/` first, then `~/.claude/agents/`. A plugin-qualified invocation must resolve its actual plugin namespace, not silently lose that namespace. Record duplicates and any source/active-copy disagreement in `degradation_notes`. Do not update installed files automatically.
 
-Commands are thin dispatchers that delegate to skills via `## Activation`. Treat the installed `$HOME/.claude/commands/sc/*.md` (or `src/superclaude/commands/*.md` inside an IronClaude checkout) as the fast-path discovery surface for `/sc:*` slash commands.
+Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
 
 The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
 
@@ -129,10 +141,12 @@ Query shape:
 
 For each candidate auggie returns, **before** it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie ranked it):
 
-1. **Direct read** — Read the candidate's source file at the path recorded in Step A (any location in the search list). Extract: flag table, required-input rules, activation handoff, return contract.
-2. **Auggie record** (skip in matched mode) — record the usage notes, related skills, and caveats auggie surfaced in Step B for this candidate.
+1. **Direct read and interface evidence** - Read the resolved candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage or trigger signatures, and documented positional/keyword syntax, including `mode=update` and `mode=quick`. Verify values as well as names. Examples may corroborate a declaration, not add an example-only flag missing from or conflicting with the formal interface.
+2. **Activation and dependencies** - Read the actual backing skill for a mandatory handoff and only decision-relevant references/configuration: required inputs, mode, side effects, prerequisites, return/resume behavior and stopping boundary. Use both installed and project lookup surfaces with the kind-specific precedence in Step A; source-checkout references are research evidence, not unconditional installed dependencies. Follow mandatory instructions under any heading, including `Skill Invocation`. Resolve the actual skill name/frontmatter, including `tdd`; absence of a handoff makes a command self-contained, not broken. Do not recursively audit unrelated dependencies.
+3. **Lifecycle and provenance** - Read deprecated metadata and the guide's current lifecycle guidance. Exclude `deprecated: true` and proven retired framework remnants even if readable or cached. Source absence alone does not prove retirement: independently authored installed-only/custom commands remain eligible. Uncertain ownership of a same-named custom override needs clarification, never automatic deletion or rejection. Verify migration advice against the live replacement rather than copying stale metadata.
+4. **Auggie record** (skip in matched mode) - Record the usage notes, related skills and caveats surfaced in Step B.
 
-A candidate that fails Step 1 (source file does not resolve) is a ghost. Drop it silently. Exception: a step of a matched routing row is never dropped; keep it and mark it `not installed: <name>` (see the ordered-workflow template in Phase 2). Do not warn the user about candidates that did not survive verification; the user does not need that noise.
+A missing command or backing skill is unavailable: a matched or selected requested step remains visible as `not installed: <name>`, never an unqualified runnable instruction. A material command/skill or canonical/active-copy disagreement is a **contract gap**: explain the incompatible input, capability or authority claim and withhold the unsupported invocation; do not combine option sets into a fabricated interface. A proven retired target receives an intent-preserving retirement explanation when explicitly requested. Drop irrelevant unmatched ghosts without noise. Never install, delete, reconfigure, authenticate or execute a target to hide a limitation. Carry the verification record defined in `refs/surface-enumeration.md` into output construction. This is the emission gate for every local candidate, including a cached hint: no other path may waive it.
 
 Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`, `TodoWrite`, `WebFetch`, `WebSearch`) and for MCP server names referenced abstractly, and for the Claude Code built-in slash commands the routing guide names (`/code-review`, `/security-review`). Those have stable interfaces and verifying them adds overhead with no fabrication-risk return.
 
@@ -142,19 +156,21 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
 |---|---|
 | Auggie MCP unavailable | Proceed with Glob+Read only. Emit a one-line header notice on the output: `Auggie unavailable — ranking falls back to literal Glob+Read; usage nuance may be thin.` Do not silently skip the gate, except in matched mode (Step 0 matched a routing row), where Step B is skipped. |
 | Auggie returns empty | Note the gap in the output (`no auggie matches; ranking from file content only`) and proceed. The candidate may be new or rarely exercised — flag it rather than fake confidence. |
-| Candidate source missing | Drop the candidate. Do not surface it. Exception: a matched routing row's step is kept and marked `not installed: <name>`. |
+| Candidate source missing | Drop an irrelevant candidate without noise. A requested or selected target stays visible as `not installed: <name>`, never runnable: a matched routing row's step, an explicitly named command, or the command the guide's Other commands entry selects for this request. Offer a justified native alternative only where the guide permits. |
 | User request is too vague to enumerate against | Ask one clarifying question. Do not emit a recommendation built on a guess. |
 
 ## Phase 1 — Level Check, then Net-Value Evaluation
 
-**Routing row matched (Step 0):** the row decides the route. Do not replace it with native tooling or with a lighter command. Phase 1 only checks that each step's command or skill survived Phase 0 Step C. If one did not resolve, do not drop the step silently: keep it in its place, mark it `not installed: <name>`, and give the install hint for the full set (`pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install`; plugin installs ship only some commands and skills). Also add one line to `degradation_notes`: `step <label> not installed: <name>`.
+**Routing row matched (Step 0):** the resolved objective and applicable branches decide the route, not every possible step in the row. Check each selected step through Phase 0 Step C. Preserve missing dependencies as `not installed: <name>` and material disagreement as `contract gap: <reason>`; never silently drop a required step or present an unsupported one as runnable. Plugin installs ship only a subset. Any install/update advice is a separate user action, with the guide's overwrite/backup caution; never perform installation to make a recommendation succeed.
 
-**No row matched, guide found:** place the goal on the guide's level table first, then answer the net-value questions inside that level.
+**No row matched, guide found:** apply its process levels only to actual implementation after honoring explicit choices and specialist deliverables.
 
-- Level 1 (a question, nothing changes) and level 2 (one source file plus its test, five edits or fewer, exact change known): native tooling is allowed and is often right.
-- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) for a few files with clear scope, level 4 (`/task-builder` then `/task`) for anything larger, longer, or riskier. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
+- Level 1 answers and bounded level 2 edits may use native tooling. Explicit verified specialist selection and existing executor identity still take precedence over a net-value default.
+- The guide's **hard limit overrides native first.** If actual work needs more than 5 edits or touches more than one source file (its matching test file does not count), recommend a written plan, normally level 3: `/sc:workflow` at ordinary standard depth, then `/sc:implement` only when execution is requested. Quick is appropriate for a smaller checked plan, not a universal mandate.
+- Level 4 needs explicit MDTM creation/execution or exceptional complex, long-running phased work with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing specification, risk, auditability, drift or resume alone do not justify it. No new capacity ceiling is invented.
+- The contained-folder cleanup/improve exception retains the checkpoint commit and final `git diff` review; structural migrations still need a plan. Reading many files, generating reports or using an explicitly requested document skill does not become product implementation by output count.
 
-**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
+**No guide:** skip cache helpers and apply the same whole-outcome, explicit-choice, direct-change and workflow-first rules above through live verification. Do not restore a broad MDTM escalation or replace report-only work with planning. An adequate existing plan goes straight to its executor; memory save/load is not executor recovery.
 
 For **every** surviving candidate, answer explicitly before recommending:
 
@@ -211,14 +227,14 @@ Goal: <one-line restatement of the user's intent>
 
 Level: <the row's level; when the level is `-`, write "not on the six-level scale (a supporting task)"> — guide section <the row's section>, row `<the row's id>`
 
-Changes files: <the row's changes_files: no | yes>
+Changes files: <effects of the selected steps; disclose report/memory/external effects separately>
 
 Run these in order:
 
-1. <step 1, with the user's values in place of <placeholders>, plus every flag mandatory_flags lists for step 1>
-2. <step 2 ...>
-3a. <...> or 3b. <...> — say which one fits this goal
-<a step whose command or skill did not resolve keeps its number: N. <step> (not installed: <name>)>
+1. <applicable step with this request's verified values and conditionally required flags>
+2. <next applicable step, retaining the guide's label>
+<exactly one selected alternative, not both 3a and 3b>
+<a missing selected step retains its label and is marked not installed; a material disagreement is marked contract gap>
 
 <only when a step is not installed:> Not installed here: <step labels and names>. Install the full set: pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install
 
@@ -233,13 +249,13 @@ Sources verified:
 
 Rules for this template:
 
-1. Emit every step of the row, in the row's order, with the row's labels. Steps that are not commands (for example "commit locally", "read the plan") are written as plain-language steps.
-2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a step MUST appear on that step. Rule R1 still applies: if a mandatory flag is not in the verified command file's flag table or `argument-hint`, leave it out and add the note `guide flag <flag> not found in <file>; the guide may be out of date`.
-3. Replace `<placeholders>` with values from the user's goal. When the goal does not give a value, keep the placeholder visible (for example `<task file>`). Never invent a path.
-4. Include a `notes` clause only when its condition matches the goal; drop the Notes section when none matches.
-5. When `changes_files` is `yes`, the `Changes files:` line is mandatory.
-6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) are printed as they are (Rule R4).
-7. Rule R3 still applies: name each command with its arguments and flags; never restate its protocol.
+1. Resolve scope and conditions first, then emit only applicable steps in their original order/labels. Select exactly one alternative branch. A report-only or plan-only request stops at that deliverable; do not append execution, commits, pushing or shipping. Preserve applicable prerequisite/read/review steps without executing them.
+2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a selected, applicable step must satisfy R1 and the user's compatible explicit choices. Verify formal Usage, tables, argument hints or declared keyword syntax, including values. Omit an unsupported flag and explain `guide flag <flag> not found in <file>; the guide may be out of date`. An unresolved required interface disagreement is a contract gap, not a runnable union of options.
+3. Bind this request's verified inputs, mode, depth and output values. Never invent a path or plan identifier. A future printed plan path can remain visibly conditional; a missing required input needs clarification or an explicit not-ready limitation, not an unqualified runnable promise.
+4. Include only applicable notes. Supported explicit choices outrank ordinary defaults. If a stronger project rule conflicts with the requested authority ceiling, disclose the conflict and stop for clarification; never silently increase authority. Exactly one applicable monitor ordinal may be emitted.
+5. Derive the `Changes files:` disclosure from selected steps, not an unselected mutating branch. Separately name material report-artifact, memory, source/Git and external effects. Report-only is not automatically zero-write; do not promise every dry run writes nothing.
+6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) remain exempt under R4.
+7. Rule R3 still applies: invoke the verified target, never restate its internal protocol. Missing, retired and conflicting capabilities must remain visibly unavailable/non-runnable rather than silently substituted.
 
 ## Phase 3 — `--plugin` Mode (ecosystem search)
 
@@ -299,11 +315,11 @@ When `--plugin` is combined with `--eval <mode>` (mode ≠ `none`), the skill ru
 
 ## Cold-Path Write-Back (populate the cache on a miss)
 
-The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup returned `outcome: "miss"` (any of the three miss reasons this skill can get: `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`). A `native` outcome does **not** reach the cold path. Phase 0–3 run inside a **second** `model: haiku` subagent so the expensive enumerate→auggie→verify work happens in an isolated context, not the parent.
+Run this path for `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`, or a rejected hint mapped transparently to semantic staleness. A native result or exceeded budget does not spawn this worker. The availability gate must permit helper use; missing-guide/non-checkout/unavailable-helper cases remain live-only in the parent with no cache writes, telemetry or model evaluation.
 
-1. **Spawn the cold-path Haiku subagent.** Use the Agent tool, `model: haiku`, handing it the condensed runbook as its system context (Read `src/superclaude/cli/recommend/prompts.py` under the repository root (`git rev-parse --show-toplevel`) and use the text of the string assigned to `COLD_PATH_RUNBOOK`, without the quote marks) — **not** the full SKILL.md body (inlining the full skill would recreate the exact ~91K cost the cache exists to remove). The subagent runs Phase 0–3 (Glob → auggie → Read-verify → net-value → prompt) and returns the recommendation **plus** a structured `cache_update` payload (the row to commit: `key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`). If the runbook file cannot be read, run Phase 0–2 inline in this context instead of spawning the subagent, and skip steps 2–4. Pass the guide's level-table block and its other-commands block (or the line `no guide`) and the Step 0 result (`no_match` or `absent`) in the subagent prompt.
+1. **Spawn the cold-path Haiku subagent.** Read `COLD_PATH_RUNBOOK` from `src/superclaude/cli/recommend/prompts.py` only inside the verified IronClaude checkout, then use that condensed text rather than the full skill body. Pass the verbatim current request, the classifier's existing key (or `unknown`), guide status/path and level/Other-command blocks, the guide's relevant lifecycle guidance, and resolved reference paths from the current skill directory. The worker performs live enumeration/ranking/verification and constructs a request-specific handoff. It may return `cache_update` with the existing fields (`key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`) only for an eligible target and an existing compatible classification key. Unknown/ambiguous objectives do not invent keys or force ordinary planning into task-file-generation; emit the verified result without insertion. If the runbook cannot be read, run Phase 0-2 inline and skip cache/eval helpers. Before any emission, the parent checks current objective, authority, verification evidence and parameter binding; the worker's text is not unconditionally surfaced verbatim.
 
-2. **Parent commits the cache_update.** Haiku **cannot write files**, so the parent (this skill, the Claude session) commits the row by shelling to the CLI atomic writer:
+2. **Parent validates an optional cache_update before insertion.** Haiku cannot write files. Insert only when the payload exists, its existing key fits the current objective, and the candidate/evidence/parameter checks above succeeded. Null payload, unknown/incompatible key, missing capability or a contract gap means no insertion or row evaluation; preserve the honest non-cache result. An eligible row is committed through the CLI atomic writer:
 
    `uv run superclaude recommend cache put --row-json '<the cache_update row as a single-line JSON object>'`
 
@@ -311,7 +327,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
 
    This routes through `LookupCache.save()` (atomic tmp + `os.replace`). The CLI recomputes the current `surface_hash` and the full per-row `source_hash` on write — the parent never trusts a Haiku-computed hash.
 
-3. **Optional `--eval` trigger (Agent fan-out + finalize).** If the invocation carried `--eval <mode>` (mode ≠ `none`), evaluate the just-inserted row's `best_model`. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
+3. **Optional `--eval` trigger (Agent fan-out + finalize).** Only after successful row insertion, and only if the invocation carried `--eval <mode>` (mode is not `none`), evaluate that row's `best_model`. A hit, native result, null payload or failed cache write does not trigger this evaluation. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
 
    a. **Resolve the panel** for `<mode>` from `MODE_MATRIX`: `quick` = `opus`×1 (**1** Agent call); `normal` = `opus`+`sonnet`×2 (**4** Agent calls); `deep` = `opus`+`sonnet`+`haiku`×3 (**9** Agent calls). `none` = no-op.
 
@@ -324,7 +340,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
 
    c. **Finalize (CLI, deterministic).** After all Agent calls complete, the parent shells: `uv run superclaude recommend eval run --key <key> --mode <mode> --iteration <N>` (the same `<N>` as in step b). This grades each deliverable, aggregates per model, selects `best_model` by tier, writes `row-<key>-results.json`, and patches the lookup row's `best_model` + `eval_history` via the atomic writer. The finalizer assumes the deliverables already exist on disk — the fan-out in (b) must have produced them at the exact layout above, or grading sees empty text. If this call exits non-zero, report the eval as not finalized and keep the recommendation.
 
-4. **Emit + telemetry.** Surface the recommendation verbatim, then append exactly one telemetry event with `--cache-result cold_inserted` (or the original miss reason if no row was inserted): `uv run superclaude recommend telemetry append --mode delegate --cache-result cold_inserted --classification-key <key> --duration-ms <ms>`. If the telemetry call fails, ignore the failure.
+4. **Emit the checked handoff + telemetry.** Recheck the worker result against the current objective, verified sources, inputs/options and authority before emitting it; never surface worker text unconditionally verbatim. After a final cache-related outcome, append at most one telemetry event with `cold_inserted` only after a successful insert, otherwise its actual existing miss reason: `uv run superclaude recommend telemetry append --mode delegate --cache-result <actual-result> --classification-key <key> --duration-ms <ms>`. Clarification/native/live-only paths do not invent a cache event. A telemetry failure is ignored, not hidden as success or retried into duplicate events.
 
 The cold path emits the **same Return Contract** shape as the hot path (caller parity). No protocol of any recommended target is restated in the `cache_update` (R3) — the `prompt_envelope_template` is a hand-off envelope.
 
@@ -334,15 +350,15 @@ These rules are non-negotiable. They survived from the old skill because they we
 
 ### Rule R1 — No unverified flags
 
-A flag may appear in the recommended prompt **only if** it is present in the verified target's flag table (or `argument-hint`). Example: `/sc:adversarial` has a fixed flag set in `src/superclaude/commands/adversarial.md`; no flag may be attached to it that is not in that file. Fabricated flags (`--rounds`, `--measure-first`, `--verdict-per-claim`, etc., when they do not exist) are forbidden.
+A flag and its value may appear only when verified in the target's option/argument table, argument hint, formal Usage/trigger signature or explicit declared invocation syntax. Preserve documented positional/keyword forms such as `mode=update` and `mode=quick`; do not turn them into hypothetical flags. Examples corroborate formal declarations, but example-only flags missing from or conflicting with the declared interface remain unsupported. Prose-only ambiguous controls do not become verified options. For instance, do not emit build's example-only `--validate`, cleanup's `--preview` or design's undeclared `--output`. Read the actual resolved interface through Step C, not memory or an unconditional checkout path. Fabricated flags remain forbidden.
 
 ### Rule R2 — No unverified commands or skills
 
-A command or skill may appear **only if** its source file was resolved in Phase 0 Step C. Auggie-mentioned but not file-resolved → drop. Memory-recalled but not file-resolved → drop. A matched routing row's step whose file does not resolve appears only marked `not installed: <name>`, never as a runnable step. Exception: the Claude Code built-in slash commands that the routing guide names (`/code-review`, `/security-review`) have no source file and may appear without one (Rule R4).
+A runnable command or skill must pass all Phase 0 Step C checks: current lifecycle/provenance, actual callable copy, relevant backing skill/references, supported inputs/options and authority boundary. A readable file or Auggie/memory mention alone is insufficient. Keep matched missing steps marked `not installed: <name>`; expose a material disagreement as a contract gap, never an unqualified runnable instruction. Explain proven retired targets when explicitly asked without resurrecting them or rejecting genuine custom extensions. The Claude Code built-ins the guide names (`/code-review`, `/security-review`) remain exempt under R4.
 
 ### Rule R3 — No protocol reimplementation (the load-bearing rule)
 
-When a verified target has `activation_style: skill-indirected` (its command file delegates to a protocol skill via `## Activation > Skill <name>`), the generated prompt MUST be a **hand-off**, not a **specification**.
+When a verified target has `activation_style: skill-indirected` (its command file names a mandatory skill invocation under any heading, including `Skill Invocation`), the generated prompt MUST be a **hand-off**, not a **specification**. A self-contained command needs no invented protocol.
 
 - **Allowed**: `Run: /sc:adversarial --compare fileA.md,fileB.md --focus structure --depth standard`
 - **Forbidden**: any inline content that restates the target's protocol — debate rules, phase counts, scoring formulas, "steelman strategy", artifact lists. The protocol skill owns that behavior; the prompt invokes and trusts.

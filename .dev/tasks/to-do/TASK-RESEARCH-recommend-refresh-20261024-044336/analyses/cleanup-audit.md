@@ -1,0 +1,81 @@
+# Research: /sc:cleanup-audit recommendation refresh
+
+- **Topic type:** Command-contract and routing comparison
+- **Scope:** Six-month command history, delegated audit protocol, recommendation surfaces, cache, plugin coverage, and routing tests
+- **Status:** Research complete; no files changed
+- **Date:** 2026-10-24
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/cleanup-audit.txt`, worker `ab6c0870eeb4fd9bb`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Exact-command history contains three changes within the requested window:
+
+- `89df2c1105c01caff199288f949d5783f6594e70`, 2026-05-22: Markdown formatting only. Added spacing around headings, lists, and fences; no semantic change.
+- `89933922312cefc6b43109203a4f91fc68948ba0`, 2026-05-30: Added separate tracked-file and default-excluded inventory counts. Supporting protocol/script changes introduced the hidden-path, BMAD, and audit-output exclusion floor, plus additive project exclusions.
+- `3ae238b178fb7c67ca02809d24745de620c2bd50`, 2026-09-30: Removed `sequential` from command MCP metadata. The command remains active; this was not its removal.
+
+Evidence: inspected exact-path Git patches; current contract at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:7-20`.
+
+[CODE-VERIFIED] Supporting commit `1a00efb257601b3ccb0dc6b5392c228a36b21fbe`, 2026-06-03, changed inventory error handling so malformed project exclusion expressions fail instead of silently yielding an empty audit. This affects accurate coverage claims, not command flags. Evidence: inspected patch and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/scripts/repo-inventory.sh:29-44,53-95`.
+
+### Current command contract
+
+[CODE-VERIFIED] The command accepts a directory, defaulting to the repository, and three controls: `--pass surface|structural|cross-cutting|all`, `--batch-size N`, and `--focus infrastructure|frontend|backend|all`. Batch defaults are 50, 25, and 30 for the respective passes. Bare invocation performs the surface pass; structural analysis requires Pass 1 context. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:28-77`.
+
+[CODE-VERIFIED] This is more than dead-code detection. Structural analysis checks placement, staleness, documentation claims, references, automation usage, and removal risk through mandatory eight-field profiles. Cross-cutting analysis compares related files and quantifies duplication. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/rules/pass2-structural-audit.md:32-103` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/rules/pass3-cross-cutting.md:28-87`.
+
+[CODE-VERIFIED] Activation delegates to `sc:cleanup-audit-protocol`. The audit must not modify existing repository files or execute its recommendations. It writes reports and checkpoint state only under its audit-output directory; human review remains mandatory before cleanup. Checkpoint resume is documented, but no `--resume` flag is advertised. These are verified written contracts, not observed execution. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:79-119`.
+
+[CODE-VERIFIED] “Whole repository” does not mean every tracked path. The protocol excludes hidden paths, including `.github/` and `.dev/`, BMAD directories, and audit output. Project scope rules may tighten this floor, never loosen it. Hidden files can still provide reference evidence without becoming audit targets. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:52-66` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/rules/pass2-structural-audit.md:11-24`.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide correctly distinguishes reporting from mutation in section 3.7 and its easy-mix-ups table. However, its only cleanup routing row combines audit, commit, cleanup, improvement, and diff review, with `changes_files=yes` and mandatory `--pass all`. It lacks a dedicated report-only cleanup-audit row. A request to identify dead code without changing anything therefore has no exact audit-only workflow row, despite the command supporting that intent. Evidence on both sides: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:157-168,248,318` versus `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:95-117`.
+
+[CODE-VERIFIED] This matters because recommend treats matched guide rows as authoritative and skips semantic ranking and cache lookup for them. Verifying the command exists does not repair a row that adds unwanted implementation steps. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:58-61,148-155`.
+
+[CODE-VERIFIED] Recommendation heuristics recognize evidence-backed multi-pass auditing, but describe broad cross-domain scope as a delegation win without its exclusion caveat. The cache classifier labels its audit key “repository cleanup / dead-code / sprawl audit,” without distinguishing reporting from applying changes. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:24-40` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:50-67`.
+
+[CODE-VERIFIED] Cache freshness covers guide contents, surface filenames, and one selected source file. It does not transitively hash delegated rules or scripts. Thus an audit-protocol-only scope change need not invalidate a cache row sourced from the unchanged command. Updating the guide does invalidate the surface hash. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-94` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:104-124`.
+
+[CODE-VERIFIED] Existing tests validate routing-table structure, command existence, flags, recommend prose requirements, and plugin parity. They do not exercise cleanup-audit intent selection or audit-only versus mutation behavior. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py:176-201,286-304`, `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py:35-81`, and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** Add an audit-only row to the existing governing routing table, not a separate keyword table. Its intent should cover evidence-backed cleanup inventories, stale-file/reference checks, duplication audits, and explicit “report only” requests. Mark it `changes_files=no` under the guide’s existing report-output definition. Stop after the audit unless the user also requests implementation. Preserve requested pass and focus rather than forcing all passes. Example supported by `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:31-39`:
+
+`/sc:cleanup-audit src/ --pass all --focus backend`
+
+[UNVERIFIED] **MUST, proposed policy:** Add a scope warning to guide section 3.7 and recommendation candidate verification. Infrastructure audits must not promise examination of excluded workflow files. Follow the activation target when its rules contain material limitations absent from the thin command. Evidence motivating this change: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:54-66`.
+
+[UNVERIFIED] **MUST, user-directed policy:** Replace section 3.7’s automatic many-files/structural-refactor escalation to task-builder. After findings are accepted, prefer workflow plus implement for most planned remediation; reserve MDTM for the most complex, long-running work or explicit MDTM inputs. This is a proposed policy change, not current routing. A supported planning handoff is `/sc:workflow "<approved audit recommendations, scope, and required tests>" --depth standard`, followed by implement on the actual printed plan. Evidence: current escalation at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:168`; supported planning interface at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md:18-42,78-80`.
+
+[UNVERIFIED] **SHOULD:** Clarify the existing classifier key as report-only audit intent, strengthen semantic regression cases, and invalidate cached recommendations when their verified delegated contracts change. Mirror guide and recommendation-reference changes into the plugin copies. Do not add unsupported audit flags or inline its orchestration protocol.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed checks, grounded in the verified contracts above:
+
+1. “Find dead code and stale docs; report only” recommends cleanup-audit without commit, cleanup, improve, or task-builder.
+2. “Quick surface inventory” preserves the surface pass rather than upgrading to all passes.
+3. “Compare infrastructure duplication” preserves infrastructure focus and states excluded-path limitations.
+4. “Audit `.github/`” does not promise supported coverage or invent an include-hidden flag.
+5. “Implement approved findings across many files” defaults to workflow plus implement; explicit MDTM input remains on its executor.
+6. Warm-cache and cold-path outputs preserve the same report-only intent and scope caveats.
+7. Plugin-only installations do not present a missing audit command as runnable.
+
+## Gaps
+
+[CODE-VERIFIED] Tracked-path inspection found neither the cleanup-audit command/protocol in the plugin subset nor a source `sc-recommend-protocol` directory. The globally installed legacy protocol remains present and contains the superseded keyword/category machinery. It is not current source authority. Evidence: inspected `git ls-files`; `/config/.claude/skills/sc-recommend-protocol/SKILL.md:20-44`.
+
+[CODE-VERIFIED] The command’s legacy Target Scope counters use different exclusions from the delegated inventory. This can confuse coverage reporting but is a follow-up source defect, not permission to expand recommendation scope. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cleanup-audit.md:22-26` versus `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cleanup-audit-protocol/scripts/repo-inventory.sh:15-44`.
+
+[UNVERIFIED] No audit, skill, model evaluation, or test suite was executed. Resume mechanics and achieved audit coverage were not runtime-validated.
+
+## Key Takeaways
+
+**CHANGE.** MUST preserve dedicated report-only auditing, disclose exclusions, and stop treating file count alone as grounds for MDTM remediation. SHOULD improve cache dependency freshness, classifier intent, plugin handling, and semantic regressions. NONE: new fixed keyword tables, new audit flags, automatic cleanup, or speculative capacity claims.

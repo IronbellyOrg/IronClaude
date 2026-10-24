@@ -1,0 +1,36 @@
+{
+ "evidence_class": "Independent regrade of round-2 outputs",
+ "run_id": "wf_f8dee757-61c",
+ "grades": [
+  {
+   "unit": "S04-primary",
+   "status": "pass",
+   "reason": "Fixture S04 wants target sc:cleanup-audit with --pass surface and --focus backend, the folder kept as input, a stop at audit reports and checkpoints, report-only, and no cleanup, improve, commit or full-pass escalation. The output gives '1. /sc:cleanup-audit <legacy-folder> --pass surface --focus backend' and '2. Stop at the audit reports and checkpoints in .claude-audit/'. It discloses the floor: 'Hidden paths and BMAD-owned paths ... are always excluded by a scope floor that cannot be removed'. It says 'Report only: no cleanup, improve or commit' and 'Surface pass was requested, so later passes are not forced.' This matches guide row cleanup-audit-only (HOW-WE-WORK.md line 376). The activation is correct: the command has '> Skill sc:cleanup-audit-protocol' and the skill has 'name: sc:cleanup-audit-protocol'.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S04-repeat1",
+   "status": "pass",
+   "reason": "repeats[0] expects the output to 'disclose the hidden-path exclusion floor and reject an exhaustive coverage claim'. The output says the skill 'always excludes hidden paths ... that exclusion is a floor', and that 'even `--pass all` would audit nothing and an exhaustive result would be false'. It then offers report-only native inspection with no deletion. The inherited targets field ['sc:cleanup-audit'] seems to ask for the command, but guide section 3.7 (HOW-WE-WORK.md line 168) explicitly says 'do not present `/sc:cleanup-audit` as covering it: say why and offer report-only native inspection of those paths instead'. Withholding the command therefore follows the current guide and satisfies the stated expectation. That inherited targets field is loose and should be reworded so it cannot be read as requiring the command for hidden-only targets.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S11-primary",
+   "status": "pass",
+   "reason": "Fixture S11 wants sc:cli-portify with --workflow (mandatory flag for step 2) and --dry-run, a stop at Phase 0-2 contracts, disclosure of contract gap C04, and no code, full spec or zero-write promise. The output gives '/sc:cli-portify --workflow <workflow-skill> --dry-run' under 'contract gap: ... is not given as runnable', citing '> Skill sc:cli-portify-protocol' against 'name: sc-cli-portify-protocol'. I confirmed the mismatch: cli-portify.md line 81 versus SKILL.md line 2. The guide row cli-portification-spec (line 383) says to report the gap rather than a runnable invocation. The output also says '--dry-run runs Phases 0-2 only', 'Specification only ... Do not expect working CLI code', and 'Dry-run is not a zero-write promise' (side_effects). The verify-workflow step 1 and the stop step 3 match the row.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S11-unavailable",
+   "status": "pass",
+   "reason": "variants.unavailable_plugin.expected is 'not installed: sc:cli-portify; no substitution by sc:implement'. The output has the exact text 'not installed: sc:cli-portify' and 'Not installed here: 2. sc:cli-portify', with the install command. It neither recommends nor mentions sc:implement as a substitute. It keeps the step visible but not runnable, still discloses the activation-name gap and the specification-only limit, and correctly skips the cache because there is no helper.",
+   "in_scope_routing_failure": false
+  },
+  {
+   "unit": "S11-seededcache",
+   "status": "pass",
+   "reason": "variants.seeded_wrong_cache.expected is 'guide route matched; cache not consulted; cached /sc:workflow never emitted'. The output reports guide_status 'matched' and routing row 'cli-portification-spec'. cache_handling says 'Not consulted ... the seeded /sc:workflow row ... is never read or used'. The output only mentions /sc:workflow to rule it out ('/sc:workflow is not the route') and never emits it as a step. The primary expectations also hold: '--workflow <workflow-skill> --dry-run' withheld for the contract gap, Phase 0-2 only, specification only, and no zero-write promise.",
+   "in_scope_routing_failure": false
+  }
+ ]
+}

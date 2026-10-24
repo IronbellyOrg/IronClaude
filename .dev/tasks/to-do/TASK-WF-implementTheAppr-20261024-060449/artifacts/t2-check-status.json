@@ -1,0 +1,9 @@
+{
+  "task": "T2",
+  "compliance_review": "compliant",
+  "scoped_guide_tests": {"result": "pass", "passed": 79, "log": "./artifacts/t2-tests.log"},
+  "lint_and_format": {"result": "pass", "log": "./artifacts/t2-lint.log"},
+  "typecheck": {"result": "skip", "reason": "mypy executable unavailable; no tool installation authorized or performed", "availability_evidence": "./artifacts/t1-typecheck.log"},
+  "interim_core_copy_probe": {"result": "fail", "failed": 1, "passed": 5, "log": "./artifacts/t2-interim-core-parity.log", "reason": "Canonical level-2 verification wording changed in T2; copied core block synchronization is explicitly owned by T7", "resolution_required_in": "T7"},
+  "runtime_recommendation_evaluations": "not run"
+}

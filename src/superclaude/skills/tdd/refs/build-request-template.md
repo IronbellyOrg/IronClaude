@@ -155,7 +155,7 @@ Phase 7 — Present to User & Complete Task (ANTI-ORPHANING):
 
 - Present summary to user (TDD location, line count, tier, sections populated vs skipped, research artifacts location, gaps)
 - Ask about cleanup of consolidation sources (if applicable)
-- Suggest downstream workflow: "This TDD can feed directly into implementation task files. Would you like me to create implementation tasks using the `/task` skill? The research files and design specifications are already in place." If yes, invoke the task skill with the TDD as context.
+- Suggest downstream workflow (optional): "This TDD can feed an implementation plan. To plan ordinary implementation, run `/sc:workflow docs/[domain]/TDD_[COMPONENT-NAME].md`, then `/sc:implement` on the plan path it prints. `/task` only executes an MDTM task file that already exists; use it only if one already exists for this work." Print these commands for the user to run; do not invoke `/task` to create tasks.
 - Write task summary to Task Log / Notes section of the task file (completion date, total phases, key outputs, duration)
 - Update task file frontmatter: status to "🟢 Done", set completion_date to today's date
 

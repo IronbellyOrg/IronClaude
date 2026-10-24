@@ -1,0 +1,90 @@
+# Research: /sc:implement recommendation accuracy
+
+- **Topic type:** Command history and recommendation-routing analysis
+- **Scope:** Changes from 2026-04-24 through 2026-10-24, current executor contract, governing recommendation surfaces
+- **Status:** Research complete; no source changes or runtime execution
+- **Date:** 2026-10-24
+- **Handoff:** Returned as text because worker instructions prohibit writing report files.
+
+## Findings
+
+### Evidence register
+
+Citations below use these absolute paths:
+
+- **C:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/implement.md`
+- **P:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-implement-protocol/SKILL.md`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **R:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **Q:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **H:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md`
+- **K:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py`
+- **T:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py`
+
+### Historical changes
+
+[CODE-VERIFIED] Actual command patches establish four substantive changes, not merely renamed documentation:
+
+1. **2026-05-22, `89df2c11`:** Blank-line normalization and final newline only. No semantic change.
+2. **2026-09-24, `246acd7b`:** Replaced persona/framework implementation mode with the middleweight executor. Removed the old `--type`, `--framework`, `--safe`, and `--with-tests` interface; added source intake, per-task acceptance review, persistent ledger, and explicit skill activation.
+3. **2026-10-03, `6dc56b1a`:** Added managed workflow packages, sibling progress/evidence, fresh FINAL review, protected archive movement, and package-specific ledger restrictions.
+4. **2026-10-22, `1edc7591` and `3ad7e20`:** Added executor-recorded scoped user acceptance and up to three adviser-guided retry attempts after the initial fix pass. `5c6a7d91`, the same date, corrected the activation reference to an installed location, not a new execution capability.
+
+These are verified from `git show` for the exact command path. Current corresponding provisions remain at C:24-83 and C:119-134.
+
+### Current command contract
+
+[CODE-VERIFIED] `/sc:implement` accepts one existing spec, PRD, tasklist, informal document, or inline prompt. File aliases are `--spec`, `--prd`, and `--tasklist`; `--resume` is optional because matching-ledger resume is implicit. `--ledger` is constrained, and `--skip-final-review` prevents managed archiving. The command activates `sc:implement-protocol`; it does not itself contain the executor. Bare invocation has no source and stops. (C:15-83)
+
+[CODE-VERIFIED] The protocol supports enumerable markdown tasks and whole-document fallback for informal text. It explicitly warns, rather than stops or splits, at twenty tasks. Sequential execution is the default; parallel execution requires source-marked independence and sets of at most three. Therefore neither a short-session ceiling nor a small-task-count ceiling is a documented executor limit. This is a verified contract, not measured capacity. (P:63-101)
+
+[CODE-VERIFIED] The executor changes product files and writes progress. Per-task acceptance compliance is the verdict; lint, typechecks, and tests are recorded extras unless required by the acceptance criteria. Small first-pass reviews may occur inline, so recommendations must not promise an independent subagent for every task. Managed FINAL is always independent. The command neither auto-commits nor opens PRs nor releases. (P:99-157; C:119-134)
+
+[CODE-VERIFIED] Resume preserves the original task baseline and consults the ledger. Managed package detection precedes ordinary source resolution, including stale pre-archive paths. QA failure and infrastructure failure have different stops: `E-HALT-QA` versus `E-RESUME-NEEDED`. Clear informed user acceptance can be recorded automatically, but `--force` is not an escape hatch. (P:24-65, 105-132)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The central mismatch is policy, not command discovery. The guide’s `simple-plan` row limits workflow/implement to “a few files” and “one or two sessions.” Its `task-file` row promotes “many files,” “more than one session,” or “must not drift” to MDTM. Its `feature-existing` row defaults even clear existing-system features to task-builder/task. Meanwhile implement explicitly supports resume, acceptance-based review, and larger enumerable lists. These facts do not establish unlimited capacity, but they undermine those automatic escalation proxies. (G:305-307; P:63-101, 123-132)
+
+[CODE-VERIFIED] Recommendation cannot correct that mismatch merely by ranking implement more highly: a matched guide row decides the answer, bypasses cache and semantic ranking, and cannot be replaced with a lighter command in Phase 1. The guide must change together with recommendation wording. (R:58-60, 148-157)
+
+[CODE-VERIFIED] The same old boundary appears in three fallback surfaces: recommendation Phase 1, its native-versus-delegation reference, and the cold-path runbook. The classifier also equates generic tasklist generation from a spec/report with task-builder/task. Fixing only the main guide would leave fallback behavior inconsistent. (R:155-157; H:38-39; Q:58-59, 78-79, 160-166)
+
+[CODE-VERIFIED] Existing resume guidance already names both executors, and the guide expressly states that workflow packages belong to implement, not task. Preserve that behavior rather than rebuilding or converting an interrupted package. (G:213-216, 324)
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** Update G’s level table, hard-limit explanation, sections 3.2/3.3/3.4/3.7, comparison table, and routing rows `simple-plan`, `task-file`, and `feature-existing`. Make workflow plus implement the default for most planned implementation. Reserve task-builder/task for explicitly requested MDTM or the most complex, long-running workloads requiring its documented execution structure. File count, multiple sessions, an existing spec, auditability, and resume are not sufficient alone. This follows the user’s requested policy, not current source policy. Existing conflicting rules are evidenced at G:17-22, 100-117, 243, 305-307.
+
+[UNVERIFIED] **MUST, artifact-aware handoff:** Distinguish planning from execution using the existing guide, not an extra keyword table. When an actionable approved plan already exists, recommend `/sc:implement <verified-plan-path>` directly. When decomposition is still needed, recommend `/sc:workflow <verified-source-or-prompt>`, read its returned plan, then `/sc:implement <returned-plan-path>`. Preserve `/task <verified-MDTM-path>` for explicit MDTM execution requests. An explicit implement invocation remains implement: its own contract accepts MDTM-shaped markdown but does not perform MDTM F1 execution. (C:24-49; P:79; G:305-306)
+
+[UNVERIFIED] **MUST, synchronized fallbacks:** Replace the old “larger, longer, or riskier” automatic escalation wording in R:155-157, H:38, and Q:160-166. Narrow Q’s `task-file-generation` explanation and few-shot so ordinary checked-plan requests do not inherit an MDTM target. Retain semantic discovery and source verification; do not add fixed keyword routing.
+
+[UNVERIFIED] **SHOULD, concise capability notes:** Describe acceptance-based review, durable resume, bounded retries, and managed FINAL/archive without copying the executor’s protocol. Never add removed flags, `--force`, or routine `--skip-final-review`. Do not promise tests are the sole gate or archive implies commit approval. (C:53-65, 119-146; P:32-42)
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Add these recommendation checks alongside T’s existing structural assertions:
+
+1. Clear work across twelve files and several sessions defaults to workflow/implement unless additional extreme-workload requirements justify MDTM.
+2. An existing approved workflow plan executes directly; resume does not regenerate it.
+3. Explicit MDTM execution remains `/task`; an explicit implement invocation is not silently rerouted.
+4. QA failure never produces `--force`; managed archive never receives routine `--skip-final-review`.
+5. A review-only request remains review-only, not implementation.
+6. Guide-matched, no-guide, and cold-path recommendations agree on the revised boundary.
+
+## Gaps
+
+[CODE-VERIFIED] Targeted searches found no implement-specific behavioral recommendation scenario in the inspected recommendation tests. T checks ordering, hard-limit wording, flags, built-ins, and CLI gating, not whether a particular request selects the correct executor. (T:35-81)
+
+[CODE-VERIFIED] Cache fingerprints include routing-guide contents, so changing the authoritative guide invalidates existing rows. Candidate-source validation does not imply transitive protocol-reference validation: the surface hash otherwise enumerates paths, and source hashes cover supplied file bytes. Avoid claiming every retry/ref change automatically refreshes an unchanged command’s recommendation. (K:63-103)
+
+[UNVERIFIED] Practical workload ceilings and recommendation success rates were not measured. No skill, tests, or archive helper was executed. Plugin guide parity was checked read-only and showed no differences; future policy changes need the plugin guide copy and governing level-table copy updated together.
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE.** Implement already has the resumable, acceptance-driven execution features that recommendation reserves too narrowly for small plans. The guide currently overrides any attempt to correct this through candidate ranking alone. (P:63-101, 123-157; R:58-60, 150)
+
+[UNVERIFIED] **MUST:** Align the governing guide, matched routing, and fallback/classifier prose with the user’s workflow-first policy while preserving explicit executor selection.
+
+[UNVERIFIED] **SHOULD:** Add artifact-aware execution/resume scenarios and concise capability notes. **NONE:** No executor implementation change or new fixed keyword table is required by these findings.

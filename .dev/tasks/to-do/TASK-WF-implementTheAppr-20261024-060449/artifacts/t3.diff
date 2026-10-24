@@ -1,0 +1,477 @@
+diff --git a/src/superclaude/skills/sc-recommend/SKILL.md b/src/superclaude/skills/sc-recommend/SKILL.md
+index 9cb68b31..ac015be6 100644
+--- a/src/superclaude/skills/sc-recommend/SKILL.md
++++ b/src/superclaude/skills/sc-recommend/SKILL.md
+@@ -30,9 +30,9 @@ Every successful invocation emits one of:
+ 1. **Refined-prompt block** — a fenced `text` block containing the paste-ready prompt to invoke a target skill/command/agent. Includes explicit parameters, deliverable shape, and file/agent handoffs. Single-line bash commands only (no heredocs, no `\` continuations); the prompt body itself may be multi-line because it is an argument string.
+ 2. **Native-tooling recommendation** — when delegation adds no net value, a short paragraph naming the native tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`) and the order to run them in. No skill is invoked.
+ 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
+-4. **Ordered workflow** — when Step 0 matched a routing row in the guide: a numbered list of steps in the guide's order, each with the command or skill to run and every flag the guide makes mandatory for that step, plus the level, whether it changes files, and the guide section to read (Phase 2, ordered-workflow template).
++4. **Ordered workflow** - when Step 0 matches: selected applicable steps in guide order, with verified inputs/options, level, actual effects and guide section. Conditions and the requested stopping point are resolved before output (Phase 2).
+ 
+-If multiple distinct paths are reasonable (e.g., "either `/sc:workflow` + `/sc:implement` (level 3) or `/task-builder` + `/task` (level 4) fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
++Use one recommended path when the objective is clear. Multiple prompt blocks are only for genuinely different requested outcomes or justified machinery needs, each with a one-line disambiguator. Do not add a heavier MDTM alternative merely because it could perform the same ordinary work.
+ 
+ The skill never restates the target's internal logic (see Rule R3).
+ 
+@@ -55,9 +55,11 @@ When the guide is found, add its path to `verified_sources` and extract three bl
+ 
+ **Parse rule:** after the header and separator lines, each routing-table row must split on unescaped `|` into exactly 8 cells. A row that does not is skipped and named in `degradation_notes` (`routing row <n> skipped: <k> cells`). A block is absent only if either of its markers is missing or, for the routing table, no row parses; say so in `degradation_notes`.
+ 
+-**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level` (the guide's rule: when unsure between two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
++**Match the whole requested outcome to one routing row.** Resolve the requested deliverable, explicit command or existing artifact, compatible mode/depth/output preferences, and authorization ceiling before implementation-size heuristics. Intent phrases are discovery hints, not an any-one-phrase decision rule. A row fits only when its objective, inputs and stopping point fit the complete request. Prefer the specialist objective over a generic phrase: business viability of a PRD is not requirements critique, a localization placeholder error is not a runtime exception, and compiling existing code is not building a feature. Inspection breadth and report-artifact count are not implementation size.
+ 
+-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) or `task-file` (level 4) row instead.
++Preserve explicit command/executor selection after Step C verifies its availability and contract; do not replace it merely because another row is broader or heavier. Explicit selection cannot waive the written-plan limit or grant extra authority. An adequate approved plan goes to its existing executor without rebuilding. Distinguish a workflow plan, MDTM file and Sprint bundle before choosing a tasklist route. The `unsure` row is an inbound pointer, never a candidate that sends the user back to `/sc:recommend`. If the objective or tasklist format genuinely remains ambiguous, ask one clarifying question and stop; never break a tie by automatically escalating to MDTM.
++
++- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. Resolve the row's conditions and scope before Step C verifies its selected commands/skills, whether or not auggie would rank them. Then use the ordered-workflow template in Phase 2. For actual implementation above five edits or one source file plus its matching test, use `simple-plan` (level 3) by default; `task-file` (level 4) requires explicit MDTM intent or the exceptional complex, long-running machinery need described by the guide. Report-only work does not acquire a plan from how many files it reads.
+ - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
+ 
+ ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+@@ -109,9 +111,9 @@ Search these locations. List the `$HOME` locations with one Bash call that uses
+ | 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
+ | 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
+ 
+-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
++Separate **canonical research authority** from the **actual callable copy**. Inside an IronClaude checkout, trust `src/` for the intended current framework contract, but do not certify an older active copy as equivalent. Resolve commands from the project then installed surface; resolve skills from `~/.claude/skills/` first, then project `.claude/skills/`; resolve agents from project `.claude/agents/` first, then `~/.claude/agents/`. A plugin-qualified invocation must resolve its actual plugin namespace, not silently lose that namespace. Record duplicates and any source/active-copy disagreement in `degradation_notes`. Do not update installed files automatically.
+ 
+-Commands are thin dispatchers that delegate to skills via `## Activation`. Treat the installed `$HOME/.claude/commands/sc/*.md` (or `src/superclaude/commands/*.md` inside an IronClaude checkout) as the fast-path discovery surface for `/sc:*` slash commands.
++Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
+ 
+ The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
+ 
+@@ -129,10 +131,12 @@ Query shape:
+ 
+ For each candidate auggie returns, **before** it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie ranked it):
+ 
+-1. **Direct read** — Read the candidate's source file at the path recorded in Step A (any location in the search list). Extract: flag table, required-input rules, activation handoff, return contract.
+-2. **Auggie record** (skip in matched mode) — record the usage notes, related skills, and caveats auggie surfaced in Step B for this candidate.
++1. **Direct read and interface evidence** - Read the resolved candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage or trigger signatures, and documented positional/keyword syntax, including `mode=update` and `mode=quick`. Verify values as well as names. Examples may corroborate a declaration, not add an example-only flag missing from or conflicting with the formal interface.
++2. **Activation and dependencies** - Read the actual backing skill for a mandatory handoff and only decision-relevant references/configuration: required inputs, mode, side effects, prerequisites, return/resume behavior and stopping boundary. Use both installed and project lookup surfaces with the kind-specific precedence in Step A; source-checkout references are research evidence, not unconditional installed dependencies. Follow mandatory instructions under any heading, including `Skill Invocation`. Resolve the actual skill name/frontmatter, including `tdd`; absence of a handoff makes a command self-contained, not broken. Do not recursively audit unrelated dependencies.
++3. **Lifecycle and provenance** - Read deprecated metadata and the guide's current lifecycle guidance. Exclude `deprecated: true` and proven retired framework remnants even if readable or cached. Source absence alone does not prove retirement: independently authored installed-only/custom commands remain eligible. Uncertain ownership of a same-named custom override needs clarification, never automatic deletion or rejection. Verify migration advice against the live replacement rather than copying stale metadata.
++4. **Auggie record** (skip in matched mode) - Record the usage notes, related skills and caveats surfaced in Step B.
+ 
+-A candidate that fails Step 1 (source file does not resolve) is a ghost. Drop it silently. Exception: a step of a matched routing row is never dropped; keep it and mark it `not installed: <name>` (see the ordered-workflow template in Phase 2). Do not warn the user about candidates that did not survive verification; the user does not need that noise.
++A missing command or backing skill is unavailable: a matched step remains visible as `not installed: <name>`, never an unqualified runnable instruction. A material command/skill or canonical/active-copy disagreement is a **contract gap**: explain the incompatible input, capability or authority claim and withhold the unsupported invocation; do not combine option sets into a fabricated interface. A proven retired target receives an intent-preserving retirement explanation when explicitly requested. Drop irrelevant unmatched ghosts without noise. Never install, delete, reconfigure, authenticate or execute a target to hide a limitation. Carry the verification record defined in `refs/surface-enumeration.md` into output construction. This is the emission gate for every local candidate, including a cached hint: no other path may waive it.
+ 
+ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`, `TodoWrite`, `WebFetch`, `WebSearch`) and for MCP server names referenced abstractly, and for the Claude Code built-in slash commands the routing guide names (`/code-review`, `/security-review`). Those have stable interfaces and verifying them adds overhead with no fabrication-risk return.
+ 
+@@ -147,14 +151,16 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
+ 
+ ## Phase 1 — Level Check, then Net-Value Evaluation
+ 
+-**Routing row matched (Step 0):** the row decides the route. Do not replace it with native tooling or with a lighter command. Phase 1 only checks that each step's command or skill survived Phase 0 Step C. If one did not resolve, do not drop the step silently: keep it in its place, mark it `not installed: <name>`, and give the install hint for the full set (`pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install`; plugin installs ship only some commands and skills). Also add one line to `degradation_notes`: `step <label> not installed: <name>`.
++**Routing row matched (Step 0):** the resolved objective and applicable branches decide the route, not every possible step in the row. Check each selected step through Phase 0 Step C. Preserve missing dependencies as `not installed: <name>` and material disagreement as `contract gap: <reason>`; never silently drop a required step or present an unsupported one as runnable. Plugin installs ship only a subset. Any install/update advice is a separate user action, with the guide's overwrite/backup caution; never perform installation to make a recommendation succeed.
+ 
+-**No row matched, guide found:** place the goal on the guide's level table first, then answer the net-value questions inside that level.
++**No row matched, guide found:** apply its process levels only to actual implementation after honoring explicit choices and specialist deliverables.
+ 
+-- Level 1 (a question, nothing changes) and level 2 (one source file plus its test, five edits or fewer, exact change known): native tooling is allowed and is often right.
+-- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) for a few files with clear scope, level 4 (`/task-builder` then `/task`) for anything larger, longer, or riskier. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
++- Level 1 answers and bounded level 2 edits may use native tooling. Explicit verified specialist selection and existing executor identity still take precedence over a net-value default.
++- The guide's **hard limit overrides native first.** If actual work needs more than 5 edits or touches more than one source file (its matching test file does not count), recommend a written plan, normally level 3: `/sc:workflow` at ordinary standard depth, then `/sc:implement` only when execution is requested. Quick is appropriate for a smaller checked plan, not a universal mandate.
++- Level 4 needs explicit MDTM creation/execution or exceptional complex, long-running phased work with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing specification, risk, auditability, drift or resume alone do not justify it. No new capacity ceiling is invented.
++- The contained-folder cleanup/improve exception retains the checkpoint commit and final `git diff` review; structural migrations still need a plan. Reading many files, generating reports or using an explicitly requested document skill does not become product implementation by output count.
+ 
+-**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
++**No guide:** skip cache helpers and apply the same whole-outcome, explicit-choice, direct-change and workflow-first rules above through live verification. Do not restore a broad MDTM escalation or replace report-only work with planning. An adequate existing plan goes straight to its executor; memory save/load is not executor recovery.
+ 
+ For **every** surviving candidate, answer explicitly before recommending:
+ 
+@@ -211,14 +217,14 @@ Goal: <one-line restatement of the user's intent>
+ 
+ Level: <the row's level; when the level is `-`, write "not on the six-level scale (a supporting task)"> — guide section <the row's section>, row `<the row's id>`
+ 
+-Changes files: <the row's changes_files: no | yes>
++Changes files: <effects of the selected steps; disclose report/memory/external effects separately>
+ 
+ Run these in order:
+ 
+-1. <step 1, with the user's values in place of <placeholders>, plus every flag mandatory_flags lists for step 1>
+-2. <step 2 ...>
+-3a. <...> or 3b. <...> — say which one fits this goal
+-<a step whose command or skill did not resolve keeps its number: N. <step> (not installed: <name>)>
++1. <applicable step with this request's verified values and conditionally required flags>
++2. <next applicable step, retaining the guide's label>
++<exactly one selected alternative, not both 3a and 3b>
++<a missing selected step retains its label and is marked not installed; a material disagreement is marked contract gap>
+ 
+ <only when a step is not installed:> Not installed here: <step labels and names>. Install the full set: pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install
+ 
+@@ -233,13 +239,13 @@ Sources verified:
+ 
+ Rules for this template:
+ 
+-1. Emit every step of the row, in the row's order, with the row's labels. Steps that are not commands (for example "commit locally", "read the plan") are written as plain-language steps.
+-2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a step MUST appear on that step. Rule R1 still applies: if a mandatory flag is not in the verified command file's flag table or `argument-hint`, leave it out and add the note `guide flag <flag> not found in <file>; the guide may be out of date`.
+-3. Replace `<placeholders>` with values from the user's goal. When the goal does not give a value, keep the placeholder visible (for example `<task file>`). Never invent a path.
+-4. Include a `notes` clause only when its condition matches the goal; drop the Notes section when none matches.
+-5. When `changes_files` is `yes`, the `Changes files:` line is mandatory.
+-6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) are printed as they are (Rule R4).
+-7. Rule R3 still applies: name each command with its arguments and flags; never restate its protocol.
++1. Resolve scope and conditions first, then emit only applicable steps in their original order/labels. Select exactly one alternative branch. A report-only or plan-only request stops at that deliverable; do not append execution, commits, pushing or shipping. Preserve applicable prerequisite/read/review steps without executing them.
++2. **Mandatory flags.** Every flag listed in the row's `mandatory_flags` for a selected, applicable step must satisfy R1 and the user's compatible explicit choices. Verify formal Usage, tables, argument hints or declared keyword syntax, including values. Omit an unsupported flag and explain `guide flag <flag> not found in <file>; the guide may be out of date`. An unresolved required interface disagreement is a contract gap, not a runnable union of options.
++3. Bind this request's verified inputs, mode, depth and output values. Never invent a path or plan identifier. A future printed plan path can remain visibly conditional; a missing required input needs clarification or an explicit not-ready limitation, not an unqualified runnable promise.
++4. Include only applicable notes. Supported explicit choices outrank ordinary defaults. If a stronger project rule conflicts with the requested authority ceiling, disclose the conflict and stop for clarification; never silently increase authority. Exactly one applicable monitor ordinal may be emitted.
++5. Derive the `Changes files:` disclosure from selected steps, not an unselected mutating branch. Separately name material report-artifact, memory, source/Git and external effects. Report-only is not automatically zero-write; do not promise every dry run writes nothing.
++6. Claude Code built-in slash commands the guide names (`/code-review`, `/security-review`) remain exempt under R4.
++7. Rule R3 still applies: invoke the verified target, never restate its internal protocol. Missing, retired and conflicting capabilities must remain visibly unavailable/non-runnable rather than silently substituted.
+ 
+ ## Phase 3 — `--plugin` Mode (ecosystem search)
+ 
+@@ -334,15 +340,15 @@ These rules are non-negotiable. They survived from the old skill because they we
+ 
+ ### Rule R1 — No unverified flags
+ 
+-A flag may appear in the recommended prompt **only if** it is present in the verified target's flag table (or `argument-hint`). Example: `/sc:adversarial` has a fixed flag set in `src/superclaude/commands/adversarial.md`; no flag may be attached to it that is not in that file. Fabricated flags (`--rounds`, `--measure-first`, `--verdict-per-claim`, etc., when they do not exist) are forbidden.
++A flag and its value may appear only when verified in the target's option/argument table, argument hint, formal Usage/trigger signature or explicit declared invocation syntax. Preserve documented positional/keyword forms such as `mode=update` and `mode=quick`; do not turn them into hypothetical flags. Examples corroborate formal declarations, but example-only flags missing from or conflicting with the declared interface remain unsupported. Prose-only ambiguous controls do not become verified options. For instance, do not emit build's example-only `--validate`, cleanup's `--preview` or design's undeclared `--output`. Read the actual resolved interface through Step C, not memory or an unconditional checkout path. Fabricated flags remain forbidden.
+ 
+ ### Rule R2 — No unverified commands or skills
+ 
+-A command or skill may appear **only if** its source file was resolved in Phase 0 Step C. Auggie-mentioned but not file-resolved → drop. Memory-recalled but not file-resolved → drop. A matched routing row's step whose file does not resolve appears only marked `not installed: <name>`, never as a runnable step. Exception: the Claude Code built-in slash commands that the routing guide names (`/code-review`, `/security-review`) have no source file and may appear without one (Rule R4).
++A runnable command or skill must pass all Phase 0 Step C checks: current lifecycle/provenance, actual callable copy, relevant backing skill/references, supported inputs/options and authority boundary. A readable file or Auggie/memory mention alone is insufficient. Keep matched missing steps marked `not installed: <name>`; expose a material disagreement as a contract gap, never an unqualified runnable instruction. Explain proven retired targets when explicitly asked without resurrecting them or rejecting genuine custom extensions. The Claude Code built-ins the guide names (`/code-review`, `/security-review`) remain exempt under R4.
+ 
+ ### Rule R3 — No protocol reimplementation (the load-bearing rule)
+ 
+-When a verified target has `activation_style: skill-indirected` (its command file delegates to a protocol skill via `## Activation > Skill <name>`), the generated prompt MUST be a **hand-off**, not a **specification**.
++When a verified target has `activation_style: skill-indirected` (its command file names a mandatory skill invocation under any heading, including `Skill Invocation`), the generated prompt MUST be a **hand-off**, not a **specification**. A self-contained command needs no invented protocol.
+ 
+ - **Allowed**: `Run: /sc:adversarial --compare fileA.md,fileB.md --focus structure --depth standard`
+ - **Forbidden**: any inline content that restates the target's protocol — debate rules, phase counts, scoring formulas, "steelman strategy", artifact lists. The protocol skill owns that behavior; the prompt invokes and trusts.
+diff --git a/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md b/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+index f4aa1b65..fc2213d5 100644
+--- a/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
++++ b/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+@@ -4,7 +4,7 @@ This reference owns the **how** of Phase 1 in SKILL.md. The skill's job is to re
+ 
+ ## The default is native
+ 
+-The default recommendation is "use `Read`, then `Edit`" (or the equivalent 2-3 step native sequence). Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
++When no explicit verified command, existing executor or specialized deliverable already decides the route, the default recommendation is "use `Read`, then `Edit`" (or the equivalent bounded native sequence). Preserve the requested outcome and authorization ceiling first. Delegation must **earn** its overhead — spawning a subagent, loading a 500-line skill body, running a multi-phase protocol, or invoking an MCP server are not free. A recommendation engine that delegates reflexively trains users to over-invoke. That is bad for the user and bad for the framework.
+ 
+ If the honest answer to **all** of the following is "yes", recommend native. Do not delegate.
+ 
+@@ -35,9 +35,12 @@ Score the candidate delegation across these five axes. The candidate wins only i
+ 
+ ### 2. Scope / breadth
+ 
+-- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
+-- Scope = 5-20 files: a written plan is required (level 3 or 4); if current behaviour is unknown, start with `/tech-research` (level 5).
+-- Scope = whole repo or cross-domain (security + perf + arch + maintainability): delegation almost always wins (`/sc:cleanup-audit`, `/sc:troubleshoot` Tier 2+).
++- Choose the requested outcome and explicit command/executor before implementation-size heuristics. Reading many files for analysis, explanation, localization or other reports does not require an implementation plan. A specialist operation keeps its documented lifecycle, even when it writes many artifacts.
++- For actual implementation, the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): more than 5 edits or more than one source file plus its matching test requires a written plan, normally level 3 (`/sc:workflow` then `/sc:implement`). Standard is the ordinary workflow depth; quick is for a smaller checked plan, not a universal requirement.
++- Level 4 (`/task-builder` then `/task`) needs explicit MDTM intent or an exceptionally complex, long-running phased program with a stated research/checklist/phase-reviewer machinery need. File count, sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone do not justify it. No numerical workflow capacity ceiling is invented.
++- Preserve the contained-folder `/sc:cleanup` and `/sc:improve` exception with a checkpoint commit and final `git diff` review; it does not exempt structural migrations. Explicit selection cannot waive the written-plan limit or add authority.
++- Existing approved plans go directly to their executor. Workflow packages use implement; existing MDTM execution uses task; explicit implement retains its own semantics. Do not rebuild a plan or treat memory save/load as executor resume.
++- Cross-domain static assessment can use `/sc:analyze`; cleanup evidence can use `/sc:cleanup-audit`; concrete broken behavior can use `/sc:troubleshoot`. Distinguish the objective rather than routing every broad request to debugging or implementation. Unknown current behavior may justify `/tech-research`, but a research-only request stops at its report.
+ 
+ ### 3. Output structure required
+ 
+@@ -57,7 +60,7 @@ Even when native would technically work, delegation can win because the skill **
+ 
+ The framework's three tiers (commands → skills → agents) have different optimal use cases. Pick the *outermost* tier that fits.
+ 
+-- **Command (`/sc:<name>`)** — the user-facing surface. Almost always the right thing to recommend when delegation wins. The command's `## Activation` handoff loads the skill automatically.
++- **Command (`/sc:<name>`)** - the user-facing surface. Prefer its verified interface when delegation wins. It may be self-contained or name a mandatory skill under Activation, Skill Invocation or another heading; read the actual handoff rather than guessing a protocol.
+ - **Skill directly** — many IronClaude skills have no `/sc:` command and are run by their own slash name (`/task-builder`, `/task`, `/prd`, `/tech-research`, `/roadmap`; `/tdd` also has `/sc:tdd`, which runs the same skill). Recommend them that way whenever the routing guide names them. Otherwise recommend a skill directly (`Skill <name>`) only when the user explicitly wants the skill body's behavior outside a command's flag surface.
+ - **Agent directly (`Agent <name>`)** — use `Agent <name>` directly only when no routing row or guide section covers the task (search the guide's routing table and sections 3.x first), the work is a single specialist execution, and the broader skill protocol around it would add overhead without value. When a routing row or guide section covers the job, use its command instead (a performance problem is `/sc:troubleshoot "<problem>" --type performance`; a focused web research question is `/sc:research "<question>" --depth deep`; neither is an agent).
+ 
+@@ -73,7 +76,7 @@ Then synthesize the three returns into <deliverable>.
+ 
+ ## When the skill should say "use native"
+ 
+-These are the cases where the recommendation must be native tooling, no delegation:
++These favor native tooling only when no explicit verified selection or specialized deliverable takes precedence and the direct-change limit permits it. Do not override a requested command or inspection objective:
+ 
+ - Reading a single file and reporting its contents.
+ - Renaming a variable or symbol with 5 or fewer edits in total, in one source file and its test — `Grep` + `Edit` is faster than any skill. More needs level 3.
+diff --git a/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md b/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+index 5a852fdb..74b3b34e 100644
+--- a/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
++++ b/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+@@ -1,111 +1,99 @@
+-# Phase 0 — Surface Enumeration and Auggie Sweep
++# Phase 0 - Surface Enumeration and Auggie Sweep
+ 
+-This reference documents the algorithm SKILL.md Phase 0 calls. SKILL.md owns the *when* and *why*; this file owns the *how*.
++SKILL.md owns when to enumerate, match and emit. This reference owns source resolution and the per-invocation verification record. The routing guide remains the only fixed routing authority; do not copy it into a keyword/synonym registry.
+ 
+-## Why enumeration is dynamic, not tabular
++## Live surface enumeration
+ 
+-The previous version of this skill carried a hand-curated `keyword → command-category` mapping (a 10-row table covering ml/web/api/debug/performance/security/create/test/improve/learning). It went stale on every framework release. A live invocation missed `/sc:spec-panel` even though the command file was sitting in `src/superclaude/commands/spec-panel.md`. That single miss is the proximate reason this skill was rewritten.
++List installed locations with `find` or absolute-path Glob calls, not unmatched shell globs. Never put `~` in a Glob pattern. Resolve the home directory first. Run independent project/checkout discovery in parallel and record every candidate's provenance.
+ 
+-The replacement is: enumerate the actual surface every invocation, rank with auggie, verify against source files. There is no list of "categories" in this skill, no synonyms, no keyword aliases. If a command exists in the surface, enumeration finds it; if it does not, it is never recommended. That is the entire contract. The one fixed routing source is the routing table in the guide (`~/.claude/HOW-WE-WORK.md`), which SKILL.md Step 0 reads before this enumeration runs; this file never copies it.
++| Surface | Location | When |
++|---|---|---|
++| Installed commands | `$HOME/.claude/commands/sc/*.md` | Always |
++| Installed skills | `$HOME/.claude/skills/*/SKILL.md` | Always |
++| Installed agents | `$HOME/.claude/agents/*.md` | Always |
++| Installed templates | `$HOME/.claude/templates/**/*.md` | Always |
++| Project primitives | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` | Always |
++| Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
++| In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
+ 
+-## Glob set
++The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
+ 
+-Search these locations. List the `$HOME` locations with one Bash call that uses `find`, not shell globs (zsh aborts the whole command on an unmatched glob, and `2>/dev/null` cannot stop that): `find -L "$HOME/.claude/commands/sc" "$HOME/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null; find -L "$HOME/.claude/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null; find -L "$HOME/.claude/templates" -name '*.md' 2>/dev/null`. Or resolve `$HOME` once and give Glob the absolute folder as `path`. Never put `~` in a Glob pattern. Run the project and checkout globs in parallel. Record the path where each name was found; Step C reads that path.
++### Research authority versus actual callable copy
+ 
+-| # | Surface | Location | When |
+-|---|---|---|---|
+-| 1 | Installed commands | `$HOME/.claude/commands/sc/*.md` | always |
+-| 2 | Installed skills | `$HOME/.claude/skills/*/SKILL.md` | always |
+-| 3 | Installed agents | `$HOME/.claude/agents/*.md` | always |
+-| 4 | Installed templates | `$HOME/.claude/templates/**/*.md` | always |
+-| 5 | Project commands, skills, agents | `.claude/commands/**/*.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` (cwd) | always |
+-| 6 | Plugin install | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | only when the variable is expanded (plugin skill) |
+-| 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
++Inside an IronClaude checkout, source is authoritative for the intended current contract. That does not prove the same bytes or backing skill will run. Identify the actual callable copy separately:
+ 
+-If the same name is found in several places: inside an IronClaude checkout trust `src/` (`.claude/` there is the `make sync-dev` mirror); otherwise prefer the project `.claude/` copy, then `$HOME/.claude/`, then the plugin. Note duplicates in `degradation_notes`.
++- Commands: project `.claude/commands/` before installed `~/.claude/commands/`.
++- Skills: installed `~/.claude/skills/<name>/SKILL.md` first, then project `.claude/skills/<name>/SKILL.md`.
++- Agents: project `.claude/agents/<name>.md` first, then installed `~/.claude/agents/<name>.md`.
++- Plugin-qualified invocations: preserve the resolved plugin namespace and inspect its actual primitive; do not silently strip the namespace or substitute an unrelated global copy.
+ 
+-### Worktree awareness
++Both installed and project surfaces are valid existence-check locations. When one file must be read, use the kind-specific precedence above. Record duplicates. If canonical and active copies disagree materially, disclose the disagreement as a contract gap instead of certifying intended source behavior as available execution. Do not install/update or edit user configuration to remove the gap.
+ 
+-The current working directory may be a worktree under `.dev/worktrees/<name>/` rather than the main checkout. The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. Inside a worktree under `.dev/worktrees/<name>/` that command returns the worktree's root, so both resolve against that worktree, not the main checkout. Run it once at the start of Phase 0 if uncertain — the cost is a single Bash call.
++## Auggie semantic ranking (Step B)
+ 
+-## Auggie semantic-rank query (Step B)
+-
+-Skip this step in matched mode (SKILL.md Step 0 matched a routing row) and set `auggie_status: skipped`; Step A and Step C still run. Otherwise: one query. One. Iterating across files defeats the purpose of having auggie.
++Matched guide rows skip ranking and set `auggie_status: skipped`; enumeration and verification still run. Otherwise issue one semantic query, with the literal enumerated candidate names and the verbatim request:
+ 
+ ```text
+-mcp__auggie__codebase-retrieval(
+-  information_request: "Given the user request: '<verbatim user request>',
+-    and the project's enumerated surface (commands: <comma-separated names>;
+-    skills: <comma-separated names>; agents: <comma-separated names>;
+-    templates: <comma-separated names>), rank the top 3-5 candidates by
+-    capability fit for this specific request. For each candidate, return:
+-    (1) one-line summary of what it does;
+-    (2) when it wins over native Read/Edit/Glob/Grep/Bash;
+-    (3) required flags or inputs it expects;
+-    (4) any known caveats or recent behavioral changes;
+-    (5) related skills/commands typically paired with it in this repo.
+-    Do NOT invent candidates not in the enumerated list.",
+-  directory_path: "<absolute path to cwd>"
+-)
++Rank the top 3-5 enumerated candidates by fit to this request's complete
++objective, explicit selection, inputs, deliverable and authorization ceiling.
++For each, identify its actual capability, required inputs, useful options,
++side effects, relevant dependencies and recent caveats. Do not invent a target
++outside the enumerated surface or treat broad wording as implementation intent.
+ ```
+ 
+-Keep the enumerated-surface list literal in the query — auggie has stronger grounding when shown the candidate set rather than asked to discover it.
+-
+-## Per-candidate verification (Step C) — the prerequisite gate
++Use the current worktree as `directory_path`. No per-candidate Auggie calls. Unavailable or empty ranking degrades transparently to direct file inspection; neither makes an unread target verified.
+ 
+-For each candidate auggie ranks, before it is allowed into the recommendation (in matched mode, for each step's command or skill in the matched routing row, whether or not auggie would rank it):
++## Per-candidate verification (Step C)
+ 
+-1. **Direct Read** of the candidate's source file. Extract:
+-   - For commands: flag table (Options section), `## Required Input` rules (if any), `## Activation > Skill <name>` handoff, `## Boundaries`.
+-   - For skills: frontmatter (`name`, `description`, `allowed-tools`, `argument-hint`), Return Contract, Boundaries.
+-   - For agents: frontmatter `description` line + Tools list + Boundaries.
+-2. **Auggie record** (skip in matched mode) — capture the usage notes, caveats, and related-skills auggie surfaced in Step B for this candidate.
+-3. **Outcome**:
+-   - Source resolved + auggie record present → full verified record. Proceed.
+-   - Source resolved + matched mode (Step B skipped) → verified record with `auggie_summary: skipped`. Proceed. Emit no degradation notice.
+-   - Source resolved + auggie query failed (unavailable) / returned nothing (empty) → degraded record. Emit the degradation notice in the output header.
+-   - Source missing → ghost candidate. Drop silently. Do not warn the user. Exception: in matched mode a routing row's step is kept and marked `not installed: <name>` (SKILL.md Phase 2), never dropped.
++Apply this gate to each selected matched-row step and each unmatched candidate before output. A cached target is not exempt.
+ 
+-If the literal path misses but the name looks close (e.g., user said "deep research" and surface contains `deep-research-agent.md` and `deep-research.md`), run a `Grep -r <name>` over the folder where the near-miss was found to rule out a rename before dropping.
++- **Read the interface.** Read the candidate and actual callable copy. Accept option/argument tables, argument hints, formal Usage/trigger signatures and documented positional/keyword syntax. Extract allowed values, required inputs, output/resume behavior, side effects and stopping boundary, not merely flag-looking tokens. Keyword forms such as `mode=update` and `mode=quick` are not invented `--mode` flags.
++- **Resolve activation.** Commands may be self-contained or skill-indirected. Follow mandatory skill instructions wherever documented, including `Skill Invocation`, not only `## Activation`. Resolve actual names/frontmatter, including `tdd`; never construct a hypothetical `sc-*-protocol` from a filename.
++- **Read relevant dependencies.** Read the backing skill and only references/configuration bearing on the advertised capability, mode, prerequisites or authority. Inspect both installed/project lookup surfaces using the precedence above. Do not recursively audit unrelated dependencies or require an unconditional checkout-only path in a consumer project.
++- **Verify lifecycle/provenance.** Reject `deprecated: true` and proven retired framework remnants using current guide lifecycle guidance or verified canonical retirement evidence. A readable installed remnant or matching cached hash does not establish support. Source absence alone is not retirement evidence: legitimate installed-only/custom extensions remain eligible. Uncertain same-name custom ownership needs clarification, not blanket rejection/deletion. Verify replacements independently instead of trusting stale migration metadata.
++- **Keep evidence narrow.** Examples corroborate formal declarations. An example-only flag missing from or conflicting with the declared interface is not supported. Ambiguous prose-only controls remain unverified; retain natural-language intent if the verified target supports it, or disclose the limitation. Read prerequisite inputs before promising a runnable handoff.
+ 
+-## Verified candidate record (per surviving candidate)
++### Outcomes
+ 
+-Carry this record into Phase 1 (net-value evaluation) and Phase 2 (prompt construction):
++| Evidence | Output treatment |
++|---|---|
++| Interface, actual copy and relevant dependencies agree | Eligible candidate; ranking can still be degraded |
++| Command or required backing skill is missing | Unavailable; keep a matched step visible as `not installed: <name>`, never an unqualified runnable claim |
++| Required input, mode, authority or canonical/active-copy contracts materially disagree | Contract gap; state the incompatible claim, withhold the unsupported invocation and never union conflicting interfaces |
++| Proven shipped retirement or explicit deprecation | Not a current-framework runnable target; explicit questions receive an intent-preserving retirement explanation |
++| Custom override ownership is uncertain | Ask one targeted clarification; do not delete, reinstall or silently substitute |
++| Irrelevant unmatched source is missing | Drop the ghost without noisy warnings |
+ 
+-```yaml
+-target: "sc:spec-panel"                       # canonical name
+-kind: "command"                                # command | skill | agent | template | native
+-source_path: "src/superclaude/commands/spec-panel.md"
+-activation_style: "self-contained"             # skill-indirected | self-contained | n/a
+-protocol_skill: null                           # the protocol skill name if skill-indirected
+-flags:                                         # exact set from the source file
+-  - "--mode"
+-  - "--experts"
+-  - "--focus"
+-  - "--iterations"
+-  - "--format"
+-required_inputs:                               # from a Required Input section, if any
+-  - "<file>"
+-return_contract: "<summary if present>"        # from skill frontmatter / return section
+-auggie_summary: |
+-  How this is actually used in the repo, common flag combos, related skills,
+-  caveats. "skipped" in matched mode (Step B not run); "unavailable" only if the
+-  auggie query failed; "empty" if auggie returned nothing.
+-related: ["sc:reflect", "..."]                 # only what auggie surfaced AND was verified
+-caveats: "<one-line, or 'none surfaced'>"
+-```
++A resolvable file alone is not success. Never authenticate, execute the recommended command, delete remnants or expand plugin packaging to conceal a limitation.
+ 
+-Cache these records within a single `/sc:recommend` invocation keyed by `target`. Cache does not persist across invocations.
++## Verified candidate record
+ 
+-## Cardinality bound
++This record is local to one invocation, keyed by target. It is not a durable ownership database or a cache-schema change.
+ 
+-- Hard cap: **3 candidates max** carried into Phase 2. The skill picks one as the primary recommendation; up to two more may appear as multi-path branches if and only if they reach the net-value bar (Phase 1) and represent a genuinely different approach (not a flag variation of the primary). A matched routing row (SKILL.md Step 0) counts as one candidate; each of its steps is verified in Step C on its own.
+-- Auggie calls per invocation: **1 in Step B** (0 in matched mode, where Step B is skipped). No per-candidate auggie calls. (Step C uses Read, not auggie, because auggie's value was already extracted in Step B.)
++```yaml
++target: "sc:spec-panel"
++kind: command
++source_path: "<resolved research source>"
++active_source_path: "<resolved callable copy>"
++source_provenance: "<installed, project, plugin, or checkout research fallback>"
++activation_style: self-contained
++protocol_skill: null
++dependency_paths: []
++interface_evidence: "<table, argument hint, formal Usage, or declared keyword syntax>"
++flags: ["--mode", "--focus"]
++required_inputs: ["<existing specification>"]
++requested_scope: "<deliverable, compatible selected controls and authority ceiling>"
++side_effects: "<source/report/memory/external effects and explicit stop>"
++lifecycle_status: current
++availability: eligible
++contract_gap: null
++auggie_summary: "<verified rank notes, skipped, unavailable, or empty>"
++```
+ 
+-## When to ask the user a clarifying question instead of guessing
++Include only verified fields and exact interface values. Current source/dependency reads must precede emission; if a relevant file changes, invalidate its local record and reread it. No record survives into another invocation as authority.
+ 
+-If after Phase 0 Step B, auggie's top-ranked candidate has fit confidence < ~50% (the request was vague enough that 4+ candidates tied), **ask one clarifying question** rather than emitting a guess. The clarification cost is one short user turn; the cost of a wrong recommendation is the user re-asking from scratch.
++## Cardinality and clarification
+ 
+-Example clarification: "You said 'research how X works' — is X (a) a third-party library you want docs for, (b) something in this repo whose code paths you need traced, or (c) an external system you want compared against this repo's approach? Each maps to a different delegation."
++Carry at most three candidates into output construction: one primary, at most two genuinely distinct net-value alternatives. A matched routing row is one candidate, but every selected step is verified. Do not add alternatives merely for option variations.
+ 
+-Do not ask more than one clarifying question. If one is not enough, the request is too vague to recommend against; say so and ask the user to elaborate before invoking the skill again.
++If the complete objective remains ambiguous, ask one useful question about the desired deliverable or input format. Artifact labels alone do not choose the evaluation objective. Never send a user already inside recommendation back to recommend, or choose heavier MDTM process to avoid resolving ambiguity.
+diff --git a/tests/skills/test_sc_recommend_routing_contract.py b/tests/skills/test_sc_recommend_routing_contract.py
+index 1fa0280a..2988f01d 100644
+--- a/tests/skills/test_sc_recommend_routing_contract.py
++++ b/tests/skills/test_sc_recommend_routing_contract.py
+@@ -78,3 +78,98 @@ def test_uv_cache_step_is_gated():
+     assert "test -f src/superclaude/cli/recommend/prompts.py" in hot
+     assert "uv run superclaude recommend --help" in hot
+     assert "recommend CLI unavailable; cache skipped" in hot
++
++
++def test_match_uses_the_whole_objective_and_preserves_explicit_selection():
++    step0 = _section(_text(), "## Step 0", "## Hot-Path Cache Lookup")
++    for rule in (
++        "whole requested outcome",
++        "authorization ceiling",
++        "existing artifact",
++        "Intent phrases are discovery hints",
++        "Preserve explicit command/executor selection",
++        "never a candidate that sends the user back",
++        "ask one clarifying question",
++    ):
++        assert rule in step0
++    assert "take the row with the higher" not in step0
++    assert "at least one of its `intent` phrases" not in step0
++
++
++def test_ordered_output_resolves_branches_before_emitting_steps():
++    ordered = _section(_text(), "### Ordered-workflow template", "## Phase 3")
++    for rule in (
++        "Select exactly one alternative branch",
++        "report-only or plan-only request stops",
++        "Supported explicit choices outrank ordinary defaults",
++        "stronger project rule conflicts",
++        "never silently increase authority",
++        "missing required input needs clarification",
++        "Report-only is not automatically zero-write",
++    ):
++        assert rule in ordered
++    assert "Emit every step of the row" not in ordered
++
++
++def test_interface_evidence_accepts_declarations_not_conflicting_examples():
++    rule = _section(_text(), "### Rule R1", "### Rule R2")
++    reference = (_SKILL.parent / "refs/surface-enumeration.md").read_text()
++    for text in (rule, reference):
++        assert "formal Usage" in text
++        assert "keyword" in text
++        assert "mode=update" in text and "mode=quick" in text
++        assert "example-only" in text
++        assert "conflicting" in text
++    for unsupported in ("--validate", "--preview", "--output"):
++        assert unsupported in rule
++
++
++def test_verification_follows_actual_activation_and_relevant_dependencies():
++    source = _text()
++    candidate = _section(source, "### Step C", "### Graceful degradation")
++    reference = (_SKILL.parent / "refs/surface-enumeration.md").read_text()
++    for text in (candidate, reference):
++        assert "self-contained" in text
++        assert "Skill Invocation" in text
++        assert "backing skill" in text
++        assert "tdd" in text
++        assert "contract gap" in text.lower()
++        assert "not installed" in text
++    assert "Commands are thin dispatchers" not in source
++    assert "skills/<name>/SKILL.md` first" in reference
++    assert "project `.claude/agents/<name>.md` first" in reference
++    assert "source/active-copy disagreement" in source
++    assert "including a cached hint" in candidate
++
++
++def test_retirement_checks_provenance_without_excluding_custom_commands():
++    reference = (_SKILL.parent / "refs/surface-enumeration.md").read_text()
++    for rule in (
++        "deprecated: true",
++        "Source absence alone is not retirement evidence",
++        "installed-only/custom extensions remain eligible",
++        "Uncertain same-name custom ownership needs clarification",
++        "not blanket rejection/deletion",
++        "Verify replacements independently",
++    ):
++        assert rule in reference
++    r2 = _section(_text(), "### Rule R2", "### Rule R3")
++    assert "readable file" in r2
++    assert "retired targets" in r2
++    assert "custom extensions" in r2
++
++
++def test_live_and_no_guide_fallbacks_keep_workflow_first_policy():
++    phase1 = _section(_text(), "## Phase 1", "## Phase 2")
++    rubric = (_SKILL.parent / "refs/delegation-vs-native-heuristics.md").read_text()
++    for text in (phase1, rubric):
++        assert "level 3" in text
++        assert "explicit MDTM" in text
++        assert "long-running" in text
++        assert "standard" in text.lower()
++        assert "quick" in text.lower()
++        assert "structural migrations" in text
++        assert "for anything larger, longer, or riskier" not in text
++    assert "**No guide:** skip cache helpers" in phase1
++    assert "Reading many files" in phase1
++    assert "existing plan goes straight to its executor" in phase1

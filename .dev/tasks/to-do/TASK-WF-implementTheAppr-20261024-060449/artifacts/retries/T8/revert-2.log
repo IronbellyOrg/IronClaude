@@ -1,0 +1,6 @@
+SWEEP refs/superclaude/implement/TASK-WF-implementTheAppr-20261024-060449/retry/T8/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+RESTORED src/superclaude/core/HOW-WE-WORK.md
+DONE
+rc=0

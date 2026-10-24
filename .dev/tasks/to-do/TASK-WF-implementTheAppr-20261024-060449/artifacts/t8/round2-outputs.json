@@ -1,0 +1,140 @@
+{
+ "evidence_class": "Regenerated outputs after Task 8 fix-pass guide clarifications (HOW-WE-WORK.md section 3.7 hidden-only rule; cli-portification-spec activation-name check)",
+ "run_id": "wf_f8dee757-61c",
+ "results": [
+  {
+   "unit": "S04-primary",
+   "guide_status": "matched",
+   "cache_handling": "Not consulted. Step 0 matched routing row cleanup-audit-only, so the Hot-Path Cache Lookup and Cold-Path Write-Back are skipped (no classifier, dispatch, cache write or telemetry).",
+   "routing_row_or_other": "cleanup-audit-only",
+   "selected_targets": [
+    "/sc:cleanup-audit (self-described command; mandatory handoff to skill sc:cleanup-audit-protocol, name matches skill frontmatter)"
+   ],
+   "flags_and_inputs": [
+    "positional target-path: <legacy-folder> (the fixture source folder containing dead code)",
+    "--pass surface (declared values surface|structural|cross-cutting|all)",
+    "--focus backend (declared values infrastructure|frontend|backend|all)",
+    "no --batch-size (not requested; command default applies)"
+   ],
+   "stop_point": "Stop at the Pass 1 audit reports and checkpoints under .claude-audit/. No /sc:cleanup, /sc:improve, /sc:test or commit, even though the command file suggests them as a next step.",
+   "side_effects_stated": "No product or source changes; audited inputs are not edited. The tool writes its own reports and checkpoint (per-batch reports, pass summary, progress.json) under .claude-audit/. Report-only does not mean zero writes.",
+   "output": "Goal: Report-only dead-code audit of the fixture source folder: surface pass only, backend focus.\n\nLevel: not on the six-level scale (a supporting task) \u2014 guide section 3.7, 3.13, row `cleanup-audit-only`\n\nChanges files: no product changes. /sc:cleanup-audit writes only its own audit reports and checkpoint state under .claude-audit/; it does not edit, move or delete the audited files.\n\nRun these in order:\n\n1. /sc:cleanup-audit <legacy-folder> --pass surface --focus backend\n2. Stop at the audit reports and checkpoints in .claude-audit/ (Pass 1 summary at .claude-audit/pass1-summary.md).\n\nNotes:\n- Surface pass was requested, so later passes are not forced. Structural and cross-cutting passes need this pass's results as context if you run them later.\n- Hidden paths and BMAD-owned paths (_bmad/, _bmad-output/, _planning-input/) are always excluded by a scope floor that cannot be removed. Anything hidden inside the folder is not audited.\n- Report only: no cleanup, improve or commit. The command's suggested next step (/sc:cleanup, /sc:test, /sc:git) is not part of this request.\n\nSources verified:\n- src/superclaude/core/HOW-WE-WORK.md (routing table, row `cleanup-audit-only`; section 3.7)\n- src/superclaude/commands/cleanup-audit.md (Read; Usage declares [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]; Activation: Skill sc:cleanup-audit-protocol)\n- src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md (Read; name: sc:cleanup-audit-protocol matches the command; argument-hint matches; hidden/BMAD scope floor; writes restricted to .claude-audit/)\n- .claude/commands/sc/cleanup-audit.md and ~/.claude/commands/sc/cleanup-audit.md, plus the matching skill copies (active copies agree with source)\n- auggie semantic rank: skipped (matched row)",
+   "verified_sources": [
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/core/HOW-WE-WORK.md",
+    "src/superclaude/commands/cleanup-audit.md",
+    "src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md",
+    ".claude/commands/sc/cleanup-audit.md",
+    ".claude/skills/sc-cleanup-audit-protocol/SKILL.md",
+    "~/.claude/commands/sc/cleanup-audit.md",
+    "~/.claude/skills/sc-cleanup-audit-protocol/SKILL.md"
+   ],
+   "unavailable_or_gap_notes": "None. The command and backing skill exist in source, project and installed copies, and the activation name matches the skill name. auggie_status: skipped."
+  },
+  {
+   "unit": "S04-repeat1",
+   "guide_status": "matched",
+   "cache_handling": "Not consulted. Step 0 matched routing row cleanup-audit-only, so the cache lookup and write-back are skipped.",
+   "routing_row_or_other": "cleanup-audit-only (scope-floor branch: hidden-only target)",
+   "selected_targets": [
+    "Read",
+    "Grep",
+    "Glob",
+    "Bash (read-only listing)"
+   ],
+   "flags_and_inputs": [
+    "target: <hidden-config-dir> (the fixture folder whose only contents are hidden configuration paths)",
+    "exhaustive intent noted; /sc:cleanup-audit --pass all is NOT emitted because the scope floor would exclude every file in the target"
+   ],
+   "stop_point": "Stop at a report of the native inspection findings. No deletion, cleanup, improve or commit.",
+   "side_effects_stated": "Native inspection is read-only: no files change and no .claude-audit/ artifacts are created.",
+   "output": "Goal: Exhaustive dead-code audit of a folder whose only contents are hidden configuration paths.\n\nLevel: not on the six-level scale (a supporting task) \u2014 guide section 3.7, 3.13, row `cleanup-audit-only`\n\nChanges files: none. The recommended path is read-only native inspection.\n\n/sc:cleanup-audit cannot cover this target. Its skill always excludes hidden paths (any path starting with `.` or containing `/.`), and that exclusion is a floor: a project SCOPE.md can add exclusions but cannot remove this one. Every file in this folder is hidden, so even `--pass all` would audit nothing and an exhaustive result would be false. I am not recommending /sc:cleanup-audit for this request.\n\nInstead, inspect the hidden paths natively, report only:\n\n1. Bash: find <hidden-config-dir> -type f  (lists the hidden files; Glob may skip dotfiles)\n2. Read each listed hidden config file to learn what it configures and which tool loads it.\n3. Grep the repository for each file's name and its tool or loader name (for example, references in scripts, CI files, package or tool configs) to find which ones are still referenced or loaded by convention.\n4. Write up a report in the chat: for each hidden file, referenced or not, evidence (grep hits or the convention that loads it), and a keep / review / candidate-for-removal call. Do not delete or edit anything.\n\nNotes:\n- Hidden config files are often loaded by tool convention with no textual reference, so zero grep hits alone does not prove a file is dead; mark those as review, not delete.\n- Report only: no cleanup, improve or commit.\n\nSources verified:\n- src/superclaude/core/HOW-WE-WORK.md (routing table, row `cleanup-audit-only`: hidden-only targets are not exhaustively covered; section 3.7: say why and offer report-only native inspection instead)\n- src/superclaude/commands/cleanup-audit.md (Read; Usage and default excludes)\n- src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md (Read; Default scope exclusions: hidden paths; scope floor cannot be loosened)\n- auggie semantic rank: skipped (matched row)",
+   "verified_sources": [
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/core/HOW-WE-WORK.md",
+    "src/superclaude/commands/cleanup-audit.md",
+    "src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md"
+   ],
+   "unavailable_or_gap_notes": "/sc:cleanup-audit is available but its unremovable hidden-path scope floor means it cannot audit a hidden-only target; it is withheld for this request and native report-only inspection is offered instead. auggie_status: skipped."
+  },
+  {
+   "unit": "S11-primary",
+   "guide_status": "matched",
+   "cache_handling": "Not consulted. Step 0 matched routing row cli-portification-spec, so the cache lookup and write-back are skipped.",
+   "routing_row_or_other": "cli-portification-spec",
+   "selected_targets": [
+    "/sc:cli-portify (contract gap: withheld as runnable)",
+    "backing skill sc-cli-portify-protocol"
+   ],
+   "flags_and_inputs": [
+    "--workflow <workflow-skill> (row mandatory flag for step 2; verified in Usage and Arguments table; target is the fixture workflow skill directory containing SKILL.md)",
+    "--dry-run (requested; verified in Usage and Arguments table)",
+    "no --name or --output (not supplied)"
+   ],
+   "stop_point": "Stop at the contract-gap report. If the gap is resolved, the run would stop at the Phase 0-2 dry-run contracts: no spec synthesis, no panel review, no code files.",
+   "side_effects_stated": "This recommendation executes nothing. Once the gap is fixed, a --dry-run still writes Phase 0-2 contract artifacts (status dry_run, downstream_ready false); it does not write a full spec or working code. Dry-run is not a zero-write promise.",
+   "output": "Goal: Analyze how the fixture workflow skill could become a CLI, as a dry run only.\n\nLevel: not on the six-level scale (a supporting task) \u2014 guide section 3.13, 3.14, row `cli-portification-spec`\n\nChanges files: asks first. Nothing runs now. A resolved dry run would write only Phase 0-2 contract artifacts; no specification, panel review or code files.\n\nRun these in order:\n\n1. Verify that <workflow-skill> resolves to exactly one skill directory containing SKILL.md, and check the command's actual activation.\n2. contract gap: /sc:cli-portify --workflow <workflow-skill> --dry-run is not given as runnable. The command file activates `> Skill sc:cli-portify-protocol`, but the backing skill declares `name: sc-cli-portify-protocol`. The names do not match in the source, the project .claude/ copy or the installed ~/.claude/ copy, so the mandatory skill load cannot be relied on.\n3. Stop at the Phase 0-2 contracts once the gap is resolved.\n\nNotes:\n- Until the command's `> Skill` name matches the skill's `name:` field, this is a contract gap, not a runnable invocation. Fix it in src/superclaude/ (then make sync-dev) or reinstall a corrected release; that is a separate action, not part of this recommendation.\n- --dry-run runs Phases 0-2 only: no spec synthesis (Phase 3) or panel review (Phase 4).\n- Specification only: the command describes code generation, but the protocol will not generate code files directly. Do not expect working CLI code from this command.\n\nSources verified:\n- src/superclaude/core/HOW-WE-WORK.md (routing table, row `cli-portification-spec`; sections 3.13, 3.14)\n- src/superclaude/commands/cli-portify.md (Read; Usage: --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]; Activation: Skill sc:cli-portify-protocol)\n- src/superclaude/skills/sc-cli-portify-protocol/SKILL.md (Read; name: sc-cli-portify-protocol; dry-run contract emission; Will Not: generate code files directly)\n- .claude/commands/sc/cli-portify.md, ~/.claude/commands/sc/cli-portify.md, .claude/skills/sc-cli-portify-protocol/SKILL.md, ~/.claude/skills/sc-cli-portify-protocol/SKILL.md (same mismatch in active copies)\n- auggie semantic rank: skipped (matched row)",
+   "verified_sources": [
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/core/HOW-WE-WORK.md",
+    "src/superclaude/commands/cli-portify.md",
+    "src/superclaude/skills/sc-cli-portify-protocol/SKILL.md",
+    ".claude/commands/sc/cli-portify.md",
+    ".claude/skills/sc-cli-portify-protocol/SKILL.md",
+    "~/.claude/commands/sc/cli-portify.md",
+    "~/.claude/skills/sc-cli-portify-protocol/SKILL.md"
+   ],
+   "unavailable_or_gap_notes": "Contract gap: the command activates sc:cli-portify-protocol but the skill's name: is sc-cli-portify-protocol, in source and in every active copy. The invocation is withheld as non-runnable. There is also a code-generation versus specification-only disagreement, disclosed as specification only. auggie_status: skipped."
+  },
+  {
+   "unit": "S11-unavailable",
+   "guide_status": "matched",
+   "cache_handling": "Not consulted. The guide matched routing row cli-portification-spec, so the cache is bypassed. The plugin install has no checkout or cache helper anyway, so no recommend CLI, cache write or telemetry is used.",
+   "routing_row_or_other": "cli-portification-spec",
+   "selected_targets": [
+    "not installed: sc:cli-portify"
+   ],
+   "flags_and_inputs": [
+    "--workflow <workflow-skill> (row mandatory flag; the command file is absent, so it could not be verified on this install)",
+    "--dry-run requested (could not be verified on this install)"
+   ],
+   "stop_point": "Stop at the unavailable result. No portification runs.",
+   "side_effects_stated": "None. This recommendation executes nothing and does not install anything.",
+   "output": "Goal: Analyze how the fixture workflow skill could become a CLI, as a dry run only.\n\nLevel: not on the six-level scale (a supporting task) \u2014 guide section 3.13, 3.14, row `cli-portification-spec`\n\nChanges files: none here. The required command is not installed, so nothing can run.\n\nRun these in order:\n\n1. Verify that <workflow-skill> resolves to exactly one skill directory containing SKILL.md.\n2. not installed: sc:cli-portify. The /sc:cli-portify --workflow <workflow-skill> --dry-run step cannot run on this plugin install, because neither the command nor its backing skill is on the callable surface.\n3. Stop at specification or Phase 0-2 contracts (only once the command is available).\n\nNot installed here: 2. sc:cli-portify. Install the full set: pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install\n\nNotes:\n- Installing is a separate action you choose. superclaude update overwrites every file it ships and keeps no backup, so copy any file you changed first.\n- Even on a full install, the routing guide records a contract gap for this command: its `> Skill` name (sc:cli-portify-protocol) must match the skill's `name:` field (sc-cli-portify-protocol). Check that before relying on a run.\n- The deliverable is specification only, never working CLI code. --dry-run produces Phase 0-2 contracts only.\n\nSources verified:\n- ${CLAUDE_SKILL_DIR}/refs/HOW-WE-WORK.md (routing table, row `cli-portification-spec`)\n- auggie semantic rank: skipped (matched row)",
+   "verified_sources": [
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/core/HOW-WE-WORK.md (canonical copy of the plugin refs/HOW-WE-WORK.md guide)"
+   ],
+   "unavailable_or_gap_notes": "not installed: sc:cli-portify (command and backing skill absent from the plugin's callable surface). The step is kept visible but not runnable. No cache helper, so recommend CLI unavailable; cache skipped. auggie_status: skipped."
+  },
+  {
+   "unit": "S11-seededcache",
+   "guide_status": "matched",
+   "cache_handling": "Not consulted. Step 0 matched routing row cli-portification-spec, and SKILL.md says to skip the Hot-Path Cache Lookup when a row matches. The classifier is not spawned and dispatch is not called, so the seeded /sc:workflow row ('Run: /sc:workflow \"port the workflow\"') is never read or used. No cache write and no telemetry.",
+   "routing_row_or_other": "cli-portification-spec",
+   "selected_targets": [
+    "/sc:cli-portify (contract gap: withheld as runnable)",
+    "backing skill sc-cli-portify-protocol"
+   ],
+   "flags_and_inputs": [
+    "--workflow <workflow-skill> (row mandatory flag; verified in Usage and Arguments table)",
+    "--dry-run (requested; verified)",
+    "no --name or --output (not supplied)"
+   ],
+   "stop_point": "Stop at the contract-gap report. After resolution: Phase 0-2 dry-run contracts only.",
+   "side_effects_stated": "This recommendation executes nothing. A resolved dry run writes Phase 0-2 contract artifacts only: no spec, no panel artifacts, no code files.",
+   "output": "Goal: Analyze how the fixture workflow skill could become a CLI, as a dry run only.\n\nLevel: not on the six-level scale (a supporting task) \u2014 guide section 3.13, 3.14, row `cli-portification-spec`\n\nChanges files: asks first. Nothing runs now. A resolved dry run would write only Phase 0-2 contract artifacts; no specification, panel review or code files.\n\nRun these in order:\n\n1. Verify that <workflow-skill> resolves to exactly one skill directory containing SKILL.md, and check the command's actual activation.\n2. contract gap: /sc:cli-portify --workflow <workflow-skill> --dry-run is not given as runnable. The command activates `> Skill sc:cli-portify-protocol`, but the skill declares `name: sc-cli-portify-protocol`, in the source and in both active copies.\n3. Stop at the Phase 0-2 contracts once the gap is resolved.\n\nNotes:\n- Until the command's `> Skill` name matches the skill's `name:` field, report the gap instead of running the command. The fix is a separate source change (src/superclaude/, then make sync-dev).\n- --dry-run runs Phases 0-2 only, with no spec synthesis or panel review.\n- Specification only: the protocol will not generate code files directly.\n- This is a workflow-to-CLI specification request, not ordinary implementation planning, so /sc:workflow is not the route.\n\nSources verified:\n- src/superclaude/core/HOW-WE-WORK.md (routing table, row `cli-portification-spec`)\n- src/superclaude/commands/cli-portify.md (Read)\n- src/superclaude/skills/sc-cli-portify-protocol/SKILL.md (Read)\n- .claude/ and ~/.claude/ copies of both (Read; same mismatch)\n- auggie semantic rank: skipped (matched row)",
+   "verified_sources": [
+    "src/superclaude/skills/sc-recommend/SKILL.md",
+    "src/superclaude/core/HOW-WE-WORK.md",
+    "src/superclaude/commands/cli-portify.md",
+    "src/superclaude/skills/sc-cli-portify-protocol/SKILL.md",
+    ".claude/commands/sc/cli-portify.md",
+    ".claude/skills/sc-cli-portify-protocol/SKILL.md",
+    "~/.claude/commands/sc/cli-portify.md",
+    "~/.claude/skills/sc-cli-portify-protocol/SKILL.md"
+   ],
+   "unavailable_or_gap_notes": "Contract gap on the activation name (sc:cli-portify-protocol vs sc-cli-portify-protocol). The seeded wrong-primitive cache row is never reached, because a matched routing row bypasses the cache. auggie_status: skipped."
+  }
+ ]
+}

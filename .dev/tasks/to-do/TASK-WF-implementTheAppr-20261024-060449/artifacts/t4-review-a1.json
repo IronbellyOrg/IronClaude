@@ -1,0 +1,70 @@
+{
+  "verdict": "missing",
+  "ac": [
+    {
+      "id": "T4.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:86",
+        "src/superclaude/skills/sc-recommend/SKILL.md:87",
+        "src/superclaude/skills/sc-recommend/SKILL.md:92",
+        "src/superclaude/skills/sc-recommend/SKILL.md:312"
+      ],
+      "reason": "Matched routing retains cache bypass. Hits require current objective, authority, callable-source, lifecycle and dependency checks followed by reconstruction using current inputs. Both hot and cold paths prohibit unconditional verbatim emission."
+    },
+    {
+      "id": "T4.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:88",
+        "src/superclaude/skills/sc-recommend/SKILL.md:90",
+        "src/superclaude/skills/sc-recommend/SKILL.md:310",
+        "src/superclaude/skills/sc-recommend/SKILL.md:314",
+        "src/superclaude/skills/sc-recommend/SKILL.md:322",
+        "src/superclaude/skills/sc-recommend/SKILL.md:335"
+      ],
+      "reason": "Semantic rejection uses live discovery and existing stale-miss handling. Missing-guide, unavailable-helper and non-checkout safeguards remain explicit. Insertion, evaluation and telemetry have eligibility/success guards. Cache/dispatch implementations are unchanged against Q0, preserving existing source hashes, guide invalidation, budgets and miss handling."
+    },
+    {
+      "id": "T4.AC3",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/cli/recommend/prompts.py:54",
+        "src/superclaude/cli/recommend/prompts.py:57",
+        "src/superclaude/cli/recommend/prompts.py:61",
+        "src/superclaude/cli/recommend/prompts.py:75",
+        "tests/skills/test_sc_recommend_routing_contract.py:229"
+      ],
+      "reason": "The ten existing keys are retained and pinned. Ordinary multi-file planning and workflow resume become unknown rather than forced MDTM. Raw generation, populated-document derivation and roadmap artifacts are distinguished. Cache/dispatch fixtures now pair spec-panel with adversarial-review while retaining round-trip, hash, budget and dispatch assertions."
+    },
+    {
+      "id": "T4.AC4",
+      "status": "unmet",
+      "evidence": [
+        "tests/skills/test_sc_recommend_routing_contract.py:184",
+        "tests/skills/test_sc_recommend_routing_contract.py:203",
+        "tests/skills/test_sc_recommend_routing_contract.py:256"
+      ],
+      "reason": "Cold-worker policy agrees with the main verification and request-binding rules, but the required concrete negative consumer cases are missing. Added tests check generic wording rather than distinguish comparison versus adherence/PR review, PRD versus TDD/critique, roadmap/MDTM versus Sprint artifacts, changed request paths, dependency-only changes or hash-valid retired candidates."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    {
+      "ac": "T4.AC4",
+      "evidence": [
+        "tests/skills/test_sc_recommend_routing_contract.py:184",
+        "tests/skills/test_sc_recommend_routing_contract.py:198",
+        "src/superclaude/skills/sc-recommend/SKILL.md:88"
+      ],
+      "issue": "The hot-consumer test does not require the incompatible/retired/unavailable/contradictory rejection branch or its live-discovery action. Its miss_validation_stale assertion can be satisfied by the ordinary miss list even if the semantic-rejection instruction is removed. This leaves required negative consumer coverage absent despite the correct production prose.",
+      "required_change": "Add focused static consumer-contract assertions or explicit negative fixtures for T52-T56 and cached retirement rejection, including rejection-to-live-discovery and suppression of hit telemetry. Preserve the existing runtime API/schema; do not describe static checks as model-generation proof."
+    }
+  ],
+  "self_audit": {
+    "root": "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate",
+    "checked": "Read the QA rubric, plan constraints and Task 4, governing specification, supplied t4.diff, all five live touched files, both verification references and unchanged cache/dispatch dependencies. Inspected the actual diff against a862f29ba9ea74a376fbfd442b27ebdfbdf2446e.",
+    "limits": "No edits, test execution, recommended workflows, git mutations, agent spawning or retry/adviser-folder reads. Static policy evidence is not generation or target-execution proof. Task 5 public wording/hooks and Task 7 mirrors were excluded."
+  }
+}

@@ -1,0 +1,1024 @@
+diff --git a/src/superclaude/core/HOW-WE-WORK.md b/src/superclaude/core/HOW-WE-WORK.md
+index 23278bae..96281522 100644
+--- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -13,7 +13,7 @@ Match the requested outcome and any explicit command or existing plan first. The
+ | Level | Use this when | What you run | What you end up with |
+ |---|---|---|---|
+ | **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+-| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
++| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. Inspect the actual classification and verification evidence: STANDARD permits affected tests or documented manual verification; LIGHT includes scope/sanity checks; EXEMPT covers non-code operations. Do not assume every tier ran tests, describe LIGHT as unchecked, or report manual verification as a test pass. Run the related test if it has not run. | The bounded edit and its recorded verification, including an observed related-test result when available. |
+ | **3. Follow a checked implementation plan** | Ordinary implementation needs a written plan, including work across many files or several sessions, with or without an existing spec. | `/sc:workflow "<what to change, why, which files or spec>" --depth standard --handoff none` writes a plan with acceptance criteria (a written definition of "done" for each step) and runs an advisory check against your request. Standard is the default; use quick for smaller checked plans, not all ordinary work. It prints the actual plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the generated plan folder's name. Read the plan and check result, then, only when execution is requested, run `/sc:implement <that path>`. It implements each step and checks compliance with its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus code changes if execution was requested. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+ | **4. Explicit or exceptional task-file work** | You explicitly select MDTM (the task-file/checklist format), supply an existing MDTM task for execution, or have an exceptionally complex, long-running phased program with a stated need for its research, checklist and phase-reviewer machinery. | For creation, `/task-builder "<what to build, why, which code, why MDTM>"` researches the code and writes a task file under `.dev/tasks/to-do/`. Add `--spec <path>` when a spec, PRD or TDD exists. Read the task file and check result; only when execution is requested, run `/task <path to task file>`. An existing MDTM task goes directly to `/task`, without rebuilding it. | The requested task file, or its execution through the checklist and reviewer panels after each phase except setup, followed by tests and a final audit. Resume with the same executor. |
+ | **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Stop at the report for a research-only request. If you decide to build, use `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`, then read its plan and use `/sc:implement <printed plan path>` when execution is requested (level 3). Level 4 needs its own explicit or exceptional justification. | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan; implementation is a separate decision. |
+@@ -118,7 +118,7 @@ Use this when the requirements are already clear and the feature extends somethi
+    `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick --handoff none`
+    Read the plan at the path it prints (`.dev/tasks/to-do/<id>/<id>.md`; `<id>` is defined in section 1, level 3) and the check result printed with it, and check that each step's acceptance criteria clearly say what "done" means. Then:
+    `/sc:implement .dev/tasks/to-do/<id>/<id>.md`
+-   It runs the tests itself as it goes.
++   It records available lint, typecheck and tests as extras; compliance with the acceptance criteria is the task verdict. Small first-pass checks can be inline, so not every task uses an independent agent; the managed package's final review is independent.
+    - **If a step still fails its check after the automatic retries (one fix pass, then up to three new attempts written from stronger models' advice; the step's acceptance criteria never change),** `/sc:implement` stops with the code `E-HALT-QA` and prints the progress file path (`progress.md`, beside the plan). Either fix the code and resume, or have your lead explicitly accept the explained gap in the current conversation. A clear reply such as "yes, accept step 2 as explained" is sufficient after Claude explains the exact scope, reason and cost if wrong. Claude records that confirmation automatically as a `Ruling:` in the progress file and retains the non-compliant verdict; you do not need to hand-write task or archive records. Unclear or missing acceptance stays blocked. The same acceptance covers ordinary archiving of unchanged accepted work, but never waives a fresh independent final review or authorizes commit, PR, merge or release. Existing manually written records remain valid. If it stops with `E-RESUME-NEEDED`, something outside the step failed (for example the reviewer crashed): run the same command again, and do not add a ruling. (The installed rule: `~/.claude/skills/sc-implement-protocol/refs/ledger.md`.) Do not edit the plan after the first step starts; the tool stops with `E-PLAN-CHANGED`.
+ 
+ 3. **Ship.** Run the tests yourself only if nothing ran them (a plain edit, or a trivial `/sc:task` change). Then follow workflow 3.11. Its `/code-review` step looks for bugs, which the step-by-step reviewer does not.
+@@ -127,7 +127,7 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ 1. **Diagnose it.** Describe what happens, what you expected, how to reproduce it, and paste the exact error.
+    `/sc:troubleshoot "Nightly invoice job fails with KeyError: 'tenant_id' in src/billing/invoice_job.py since yesterday's deploy. Expected: invoices for all tenants. Reproduce: python -m billing.invoice_job --date 2026-09-30" --type bug`
+-   Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. It finds the root cause with file and line evidence and changes nothing. A simple bug takes 1-3 minutes. If it is not confident, or the problem is intermittent or spans several areas, it automatically brings in more agents, which can take another 4-15 minutes. `--depth quick` stops it after the first pass; `--depth deep` always brings in several agents testing competing explanations after that first pass.
++   Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. Diagnosis writes tool-owned reports and evidence, not product fixes; diagnostic runs still require the relevant execution permission. It can return supported, inconclusive, failed or blocked results. Standard depth can escalate to competing hypotheses; quick stops after the first pass and deep requests the deeper investigation. No duration or success is guaranteed.
+    For a remediation-planning offer, add `--fix` only if you want it: after a supported successful diagnosis and your acceptance, standard depth offers workflow planning. It does not authorize implementation. `--depth quick --fix` is invalid. Explicit `--depth deep --fix` currently selects MDTM remediation; depth is coupled to that route, not a file-count or risk rule. For deep diagnosis followed by ordinary planning, omit `--fix`, then plan separately from the supported report.
+ 
+ 2. **Read the report** at `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`. It says whether the fix belongs in the code, the test, or the documentation.
+@@ -142,39 +142,41 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ ### 3.5 Investigate how something works, or whether an idea is feasible
+ 
+-| You want to know | Run |
++| You want to know | Run and stop |
+ |---|---|
+-| How part of our system works, what would need to change, or whether something is feasible | `/tech-research "How do background jobs get scheduled and retried today, and could we move them to a queue without downtime? Look at src/jobs/ and deploy/worker.yaml."` It writes a report with findings, options, and a recommended plan. |
+-| Something outside our code: a library, a standard, a best practice | `/sc:research "Current best practice for idempotent webhook handling with Stripe" --depth deep` (searches the web) |
+-| The general health of a module | `/sc:analyze src/billing/ --focus security` (or `quality`, `performance`, `architecture`). It reports only and changes nothing. |
+-| What a specific piece of code does | `/sc:explain src/billing/invoice_job.py` |
++| How our system works or whether a change is feasible | `/tech-research "<question, purpose, code paths>"` produces a code-grounded report. Stop there unless implementation planning was requested. |
++| Current external, academic, competitive, market, standards or technical evidence | `/sc:research "<question and constraints>"`. Preserve requested depth: quick, standard, deep or exhaustive. Do not force deep over an explicit preference. Stop at the evidence and synthesis. |
++| Whole-project or module static health | `/sc:analyze <target>`. No focus is required for a broad assessment. Add the requested quality, security, performance or architecture focus, quick/deep depth or text/json/report format only when applicable. It reports findings, not source fixes. |
++| An audience-tailored explanation | Ask directly for a simple answer, or `/sc:explain <target>` with the requested basic/intermediate/advanced level, text/examples/interactive format and domain context. Inspection breadth alone does not require implementation planning. |
+ 
+ ### 3.6 Make a hard decision or compare options
+ 
+-| Situation | Run |
++| Situation | Run and stop |
+ |---|---|
+-| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. Stop at merged requirements. If later requested, take them into `/prd` (3.1), or ordinary `/sc:workflow` planning followed by `/sc:implement`; no automatic task-file handoff. |
+-| You have two or more competing designs, plans, or drafts | `/sc:adversarial --compare docs/design-a.md,docs/design-b.md`. Agents debate them, score them, and merge the strongest parts into one document. |
+-| A spec, PRD, or TDD needs an outside expert critique | `/sc:spec-panel @docs/specs/invoice-csv-export.md --mode critique`. It only reports; you decide what to apply. |
+-| You want reviewers from other AI model families | `/sc:swarm-wizard`. It asks what you want reviewed, picks the settings, proves them with a safe dry run, and launches the real review only after you say go. Real runs need an OpenAI-compatible model proxy set in `~/.aienv`: one `export KEY=value` line each for `T2ProxyUrl` (proxy base URL), `T2ProxyKey` (API key), and `T2Model01` (model name), and make sure your shell sources the file (for example from your shell profile) before you start Claude; without it you get the dry run only. The full list of review styles by goal is in the IronClaude repository (not installed): https://github.com/IronbellyOrg/IronClaude/blob/master/docs/swarm/wizard-guide.md |
+-| The question is about business strategy, not code | `/sc:business-panel @docs/billing/PRD_BILLING.md` |
++| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. Stop at merged requirements. Later requested planning uses workflow/implement, not an automatic task-file handoff. A brainstorm dry run can write preparatory artifacts; it is not a zero-write promise. |
++| Compare existing designs, plans or drafts | `/sc:adversarial --compare <file-a>,<file-b>` requires 2-10 existing readable files. Keep requested depth, focus, interaction and output. Stop at comparison and merged artifacts, not product implementation. |
++| Generate competing designs from a source | `/sc:adversarial --source <file> --generate <type> --agents <specs>`. Preserve all three required inputs. Do not turn a single source into an invalid one-file comparison. |
++| Continue an adversarial pipeline | `/sc:adversarial --pipeline @<pipeline.yaml> --pipeline-resume --output <existing output>` preserves the pipeline and checkpoint location. Pipeline mode is mutually exclusive with compare and source/generate/agents modes. |
++| Review a populated spec, PRD or TDD | `/sc:spec-panel @<file>`. Critique is the recommendation default for a critique request without another supported mode, not a forced command default. Preserve discussion or socratic requests, focus and format. A business-viability question belongs to business-panel, not spec critique merely because its input is a PRD. |
++| Explicitly derive a scoped spec from a populated document | `/sc:spec-panel @<file>` with the derivation intent in the request. Obtain the required target release when missing for TDD input; preserve consent before changing the input. Raw PRD/TDD authoring belongs to the document skills. Do not invent a downstream flag from prose-only examples. |
++| Use swarm, choose its settings or request multi-model review | `/sc:swarm-wizard --goal "<goal>" --target <path>` preserves the supplied goal, target and output. Missing goal/target is gathered by interview; a target needs at least 50 non-whitespace bytes. The installed swarm CLI must be reachable. A real run requires explicit go-ahead, a passing stub dry run and the T2ProxyUrl/T2ProxyKey/T2Model01 environment contract. Command and protocol disagree on missing-proxy STOP versus stub fallback: disclose this contract gap, not a guaranteed fallback. Settings help does not authorize a real launch. Run preparation and previews write artifacts. |
++| Business viability, market position or strategic choices | `/sc:business-panel <document-or-inline-content>` uses simulated expert perspectives. Preserve discussion/debate/socratic/adaptive mode, requested experts, focus and synthesis-only output. Stop at analysis, not a measured commercial prediction or automatic specification rewrite. |
+ 
+ ### 3.7 Refactor or clean up code
+ 
+-1. **Find what needs cleaning.**
+-   `/sc:cleanup-audit src/billing/ --pass all`
+-   It writes an evidence-backed report (under `.claude-audit/`) of files to delete, consolidate, move, or keep, and changes nothing. Without `--pass all` it runs only its quick first pass (delete, review, or keep). Leave out the path only when you mean the whole repository.
++1. **Audit only when that is the requested outcome.**
++   `/sc:cleanup-audit <folder>` writes reports and checkpoints under `.claude-audit/`; it does not edit audited inputs. Preserve the requested surface/structural/cross-cutting/all pass, domain focus and batch size. Structural and cross-cutting work need the earlier pass context. Hidden paths and BMAD-owned paths are excluded by an unremovable scope floor; a hidden-config-only target is not exhaustively audited. Do not force all passes. **For report-only auditing, stop here: no cleanup, improve or commit.**
+ 
+-2. **Small, contained cleanups.** Commit first so every change can be undone. Then:
+-   `/sc:cleanup src/billing/ --type code --safe --interactive` removes dead code and unused imports.
+-   `/sc:improve src/billing/ --type quality --safe --interactive` improves code quality.
+-   `--interactive` asks before complex changes, but some changes are applied automatically even then: `/sc:cleanup` removes unused imports, code nothing references, empty blocks, and redundant type annotations; `/sc:improve` fixes formatting and naming, removes unused variables, reorders imports, and adds simple type annotations. Review `git diff` before keeping anything.
++2. **Small, contained cleanups or improvements, only when requested.** Commit first so every change can be undone. Choose the operation requested, not both by default:
++   `/sc:cleanup src/billing/ --type code --safe --interactive` for cleanup, or `/sc:improve src/billing/ --type maintainability --safe --interactive` for maintainability.
++   Improve also supports quality, performance or style. Preserve the supplied type, safety and interaction controls. `--interactive` asks before complex changes, but some edits still apply automatically: cleanup can remove unused imports and unreferenced code; improve can change formatting, naming, imports and annotations. Review `git diff` before keeping anything. An improvement-only request does not authorize compulsory cleanup/deletion. Neither command's example-only preview or validation controls establish a supported flag.
+ 
+ 3. **Structural refactors or work outside the contained-folder exception:** write down the intended change and acceptance criteria, then use `/sc:workflow <spec path>`, read its plan, and run `/sc:implement <printed plan path>` when execution is requested (3.2). Many files or risk alone do not select MDTM; level 4 needs explicit selection or a stated exceptional complex long-running machinery need. The cleanup exception does not cover an architectural migration.
+ 
+ ### 3.8 Run tests and check coverage
+ 
+-- `/sc:test tests/billing/ --coverage` runs the tests and reports coverage. Add `--type unit`, `integration`, or `e2e` to narrow it.
++- `/sc:test <target>` runs an existing suite. Preserve a requested unit/integration/e2e/all type, coverage or watch setting. Watch alone does not add fix. E2E needs its browser tooling and services ready; tests can write caches, reports, fixtures and external state, so execution is not read-only inspection.
++- Only an explicit `/sc:test <target> --fix` request permits its simple-failure repair behavior; disclose source edits and retain applicable planning limits. A failing-test diagnosis and YAML tier validation are different outcomes (3.4 and 3.13). Do not invent a numerical ceiling for what it can repair.
+ - `/sc:test` does not write new tests. For ordinary planned test authoring, include tests in the spec and workflow plan (3.2); for a bounded direct change, ask Claude to write them (3.4 step 3). Existing approved plans keep their executor.
+ 
+ ### 3.9 Document existing work
+@@ -186,28 +188,39 @@ These skills document things that already exist. A PRD and a TDD are planning do
+ | A technical reference for a built feature: architecture, how it works, how to extend it | `/tech-reference "Document the usage billing feature. Code: src/billing/, src/api/metering/. Audience: engineers who maintain it. Output: docs/billing/billing-technical-reference.md."` |
+ | Step-by-step instructions to install, deploy, or operate something | `/operational-guide "Write the operational guide for deploying the billing worker to staging and production, including rollback. Sources: deploy/worker.yaml, scripts/deploy_worker.sh. Audience: on-call engineers. Output: docs/billing/billing-worker-deploy-operational-guide.md."` |
+ | A README for a project, module, or package | `/readme "Write the README for the src/billing/ package: what it does, setup, configuration, and how to run its tests. Use docs/billing/billing-technical-reference.md if it exists. Audience: new engineers. Output: src/billing/README.md."` |
+-| Reference text for specific functions, classes, or API endpoints | `/sc:document src/api/routes/invoices.py --type api` |
++| Focused inline docstrings, external reference, API reference or a user guide | `/sc:document <target> --type <inline/external/api/guide> --style <brief/detailed>` uses the requested type and style. Inline output edits source: retain the direct-change limit or use a written workflow plan when exceeded. Do not silently replace a short docstring request with a full TDD. |
++| Coordinated project-wide documentation and navigation | `/sc:index <target>` with requested docs/api/structure/readme type and md/json/yaml format; not the compact repository map from index-repo. |
+ 
+-### 3.10 Check a plan before you run it
++All document routes retain supplied source paths, audience, output intent and existing project standards. Template-led README, operations and technical-reference skills own their research/review lifecycles. A requested Technical Design Document uses `/tdd` or `/sc:tdd`, not test-driven development, and stops at that document (3.13).
+ 
+-For a task file, open it and read the `reflect_pre:` block in the file's header (between the first two `---` lines). That entry, not how the file was built, tells you whether the check already ran.
++### 3.10 Check plans or finished work without changing them
+ 
+-- **`verdict: pass` or `verdict: fail`:** it has already been checked against the spec. Resolve anything listed under Open Questions before running `/task`: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not run the check again.
+-- **A `/sc:workflow` plan:** it was checked against your request when it was written; the result is printed with the plan path and stored in the plan folder's `return-contract.yaml` (`reflect_status`, `reflect_report_path`). If a separate spec, PRD, or TDD exists beyond your request, run the check below against that spec.
+-- **`verdict: skipped`** (no spec was found when it was built, which can happen with task files made from roadmap build requests or from a research or troubleshoot report), or **a plan you wrote yourself:** it has not been checked. If you have a spec, PRD, or TDD for this work, run:
+-  `/sc:reflect --mode pre --spec docs/specs/invoice-csv-export.md --tasklist <task file or plan path>` (for a plan you wrote yourself, give the path to your plan file; for a plan made by `/sc:workflow`, the path is `.dev/tasks/to-do/<id>/<id>.md`)
+-  The report in `.dev/reflect/pre-<name>-<timestamp>/` lists every requirement the plan misses. For a task file: add each missed requirement to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. For a plan, add the missing requirements to the plan before its first step starts, then run it: a `/sc:workflow` plan with `/sc:implement .dev/tasks/to-do/<id>/<id>.md`, a plan you wrote yourself with `/sc:implement <path to your plan file>`. If there is no spec, there is nothing to check against; read the plan yourself.
++- **Pre-execution coverage:** `/sc:reflect --mode pre --spec <spec>` requires the spec; tasklist is optional. Include `/sc:reflect --mode pre --spec <spec> --tasklist <plan>` when a plan exists. Do not manufacture a missing tasklist or rebuild an adequate approved plan just to audit it.
++- **Consume existing checks:** a workflow plan's advisory pre-review is printed and recorded in `return-contract.yaml`; consume it rather than repeat it. For MDTM, read `reflect_pre` and resolve its Open Questions. A genuinely separate governing spec can warrant a separate comparison; a skipped/failed review is not a passing check.
++- **Post-execution audit:** use either `/sc:reflect --mode post --diff <ref-or-diff-path> --no-promote` or `/sc:reflect --mode post --task-log <log-path> --no-promote`. Spec and tasklist are recommended context when available, not mandatory together. One baseline commit includes the current working tree; a commit range audits that range. Intended new files must be staged to appear in the working-tree diff. Preserve the actual baseline and never stage generated mirrors just for an audit.
++- **Report-only:** post audits need `--no-promote` to suppress folder promotion; they still write audit artifacts and may run verification tools subject to their execution permissions. Do not substitute a headless auto-fix wrapper for interactive report-only work. Preserve failed, partial, inconclusive or blocked results, carried hardening blockers and human-decision requirements.
++- **Optional remediation:** standard `/sc:reflect --remediate` offers workflow planning only after the audit and acceptance; execution is a separate user action. Requested `/sc:reflect --depth deep --remediate` currently couples remediation to MDTM. Deep alone does not remediate. For ensemble review plus ordinary planning, `/sc:reflect --tier 2 --depth standard --remediate` avoids selecting the deep-MDTM branch. Consume workflow's built-in pre-review rather than reflecting twice. Legacy task analyze/validate aliases remain supported; prefer mode syntax for new handoffs.
+ 
+-### 3.11 Review your work and open a pull request
++### 3.11 Review only, or deliberately ship and open a pull request
+ 
+-1. **Commit locally** on your feature branch. Do not push yet.
+-2. **Bug review.** `/code-review`. Fix what it finds.
+-3. **Security review.** If you touched login, permissions, secrets, user input, or file paths: `/security-review`. Commit any fixes from steps 2 and 3 before step 4, so the branch review and the push include them.
+-4. **Branch review.** `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr` (`git remote show origin | grep 'HEAD branch'` prints the main branch name). It reviews the whole branch for bugs, architecture risks, and bad patterns, and keeps results local. At the end it offers to plan fixes as a task file; accept only if you want one.
+-5. **Push.** Only after your lead approves.
+-6. **Open the PR.** You need the GitHub command-line tool (`gh`) installed and logged in.
+-   `/sc:pr-submit --monitor 3 --head feature/invoice-csv-export --title "Add monthly CSV export to invoices list" --body "Adds CSV export for finance month-end. Spec: docs/specs/invoice-csv-export.md. Tests: tests/invoices/test_export.py."`
+-   It opens the PR, waits for the automated review bot, checks each of its findings, fixes the confirmed ones of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes those fixes to your branch without asking, and replies to and resolves the review comments it fixed. To see the fixes before they are pushed, use `--monitor 2` instead: it makes them locally and stops before pushing. This needs the Augment Code review app on your repository. Without it, or if you are not sure the app is installed (the repository's Settings > GitHub Apps page lists it), use `--monitor 0`, which only opens the PR.
++**Review-only stop:** `/sc:auggie-review <PR-number-or-URL> --no-post-pr --no-remediation-offer` keeps findings local and suppresses the planning offer. For a diff use `/sc:auggie-review --diff <base>...HEAD --no-post-pr --no-remediation-offer`; for a snapshot use `/sc:auggie-review --snapshot <path> --no-post-pr --no-remediation-offer`. Do not append commits, pushes or PR creation to findings-only work. Resolve a real target, the Auggie CLI and Git working tree, plus authenticated gh for a PR. Preserve requested depth, focus, output and internal reviewer selection. The Auggie model defaults to prism-b when not overridden; revagent chooses an internal reviewer, not Auggie's model.
++
++Accepted ordinary remediation offers use design then workflow/implement; accepted deep-review offers currently select task-builder/task. Planning never authorizes execution. For deep findings followed by ordinary planning, suppress the automatic offer and separately hand accepted findings to workflow. The internal design referral has an undeclared destination option: that contract gap must not be copied into a runnable chain or silently repaired here.
++
++**Shipping only when requested and authorized:**
++
++1. Commit locally on the feature branch only when authorized.
++2. Run `/code-review`; use `/security-review` when authentication, permissions, secrets, input or paths changed. Authorize and record any fixes before branch review.
++3. Review the branch with `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr --no-remediation-offer`.
++4. Push only with approval, preserving the intended origin repository and head branch.
++5. For creation, `/sc:pr-submit --head <branch> --title "<title>" --body "<body>"` needs authenticated gh. For attachment use `/sc:pr-submit --pr <number>` instead of creating another PR. For continuation use `/sc:pr-submit --resume <run-log.jsonl>` and retain that monitor's PR, repository, head and recorded authority.
++6. Select **exactly one** monitor ceiling for the chosen operation, before emitting the handoff:
++   - Creation only, or absent/uncertain review App: monitor 0.
++   - Proposals without source edits: monitor 1.
++   - Local fixes without publication: monitor 2 (halts before push).
++   - Requested and authorized full loop: monitor 3 (the current command default). This may commit and push fixes, retrigger review, and reply to and resolve fixed threads.
++
++Pass the one selected monitor value explicitly. A stronger project rule can require monitor 3: if that conflicts with the requested lower ceiling, disclose the policy conflict and withhold execution, never silently increase authority. Monitored runs require the review App, matching PR head checkout/commit and CI-wait prerequisites. They are attended in-session loops, not daemons. Monitor 3 publishes only the cycle's permitted fix commit to origin, never an upstream or protected/default branch, and never an unrelated local commit range. Silence or timeout is not a clean review. Recommending any branch performs no Git/GitHub action.
+ 
+ ### 3.12 Resume after a crash or a lost session
+ 
+@@ -217,10 +230,45 @@ There are two ways to resume. Use the first if you set it up; the second always
+ 
+ **2. Restart from the work's own files.** This works in a brand-new conversation.
+ 
++- **A supplied PR monitor log.** `/sc:pr-submit --resume <run-log.jsonl>` resumes that PR monitor, not general implementation. Preserve recorded repository, PR, head and ceiling; do not create a second PR. A plain existing-PR attachment uses `/sc:pr-submit --pr <number>` with one explicitly selected ceiling (3.11).
+ - **A task file (`/task`).** Run `/task <path to the task file>` again. It continues from the first unchecked item.
+ - **A simple plan (`/sc:implement`).** Run `/sc:implement .dev/tasks/to-do/<id>/<id>.md` again. The `progress.md` file beside the plan records every finished step, and the run continues from the first unfinished one. If the folder has already moved to `.dev/tasks/done/`, the work is finished. Folders named `TASK-WF-*` are `/sc:workflow` plans: run them with `/sc:implement`, never with `/task`.
+ 
+-`/sc:save` and `/sc:load` store and load Serena project memory. (Serena is an optional code-navigation tool; its project memory is notes it keeps between sessions.) They are not a way to resume work.
++`/sc:save` and `/sc:load` store and load Serena project memory. They are not a way to resume work or a guarantee of complete executor state. Other command-owned continuations keep their own supplied pipeline, output folder, validated proposal or document-task input; do not convert them into task-builder or a fresh generic plan. Clarify the artifact when it is not known.
++
++### 3.13 Specialist deliverables and operations
++
++Select the whole requested outcome, not a generic phrase such as review, error, no changes, tasklist or many files. All routes require their actual callable command/skill and relevant dependencies; a missing plugin capability is **unavailable**, not a promise to install it. Read the active contracts and preserve supported explicit controls. A real contract disagreement is a **contract gap**, not a union of both interfaces. Do not execute a recommendation.
++
++| Outcome | Verified input and controls | Deliverable and stop |
++|---|---|---|
++| Installed inventory | `/sc:help` reads live global/project/plugin surfaces. | Inventory and guide pointer, not automatic install/update or repair. |
++| Focused design | `/sc:design <target>` supports architecture/api/component/database and diagram/spec/code formats. | Design artifacts only; code format does not authorize implementation. No declared destination option. |
++| Technical Design Document | `/sc:tdd <component> --from-prd <prd>` or `/tdd "<request with inputs and output>"`. Preserve optional tier, focus, output, stub or document-task resume. | Reviewed TDD, not test-driven development. The tdd skill owns its internal document workflow; verify its template/tools exist. No automatic product planning. |
++| Cleanup inventory only | `/sc:cleanup-audit <folder>` with requested pass, focus and batch size. | Tool-owned reports/checkpoints; excluded hidden/BMAD paths are a scope floor. Stop before cleanup, improve or commit (3.7). |
++| Contained improvement | `/sc:improve <folder>` with quality/performance/maintainability/style, safe and interactive controls as requested. | Source changes; retain checkpoint/diff safeguards and automatic-edit warning. No compulsory cleanup operation. |
++| Auggie review only | `/sc:auggie-review` needs a PR, diff or snapshot target and its tools. Preserve posting, remediation, reviewer and output controls. | Local findings when requested; no shipping chain. PR targets post by default unless no-post is selected (3.11). |
++| Localization review | `/sc:review-translation <source> <translations...>` supports strict, quick/standard/deep, tone matrix, platform and export. | Context confirmation before review, then locale/project reports and requested export. Input fixes need separate consent; placeholder errors are not runtime exceptions. |
++| Context-weight audit | `/sc:init-lite --context-optimized` accepts project-root and output, plus explicit dry-run/scaffold/force. | Default report; dry-run is stdout only and writes nothing. Scaffold is advisory and opt-in; force cannot overwrite context inputs and is limited to owned artifacts. |
++| Create an evaluation suite | `/sc:cli-eval create --name <stem> --from @<design>` preserves supplied name/design and optional agents. | Owned fresh-contract load, design/critique/debate/author/schema-validation/docs lifecycle. Stop at authored suite; no automatic suite run. |
++| Run an existing evaluation suite | `/sc:cli-eval run --suite <name> --eval <id>` retains supplied selectors; absent suite is an interactive selection. | Confirm invocation and safety controls, supervise real execution and report actual results/artifacts. No invented resume mode or claim of read-only execution. |
++| Workflow-to-CLI specification | `/sc:cli-portify --workflow <skill-name-or-directory>` needs an unambiguous skill containing SKILL.md; preserve name/output/dry-run. | Specification only, not working code files. Dry-run writes Phase 0-2 contracts, not a reviewed full spec. Command/protocol code-generation and activation-name disagreement must be disclosed if unresolved. |
++| Release boundary assessment | `/sc:release-split <artifact>` needs identifiable scope. Preserve output, depth, interaction, no-split or validated-proposal resume-from input. | Neutral split/no-split decision and release artifacts/fidelity evidence. No product plan execution or Git operations. Release 2 planning stays gated on real Release 1 validation. |
++| Tagged-release follow-through | `/sc:post-release <existing-tag>` with requested output. | Owned mutating lifecycle: docs, install/deploy surface and human test guides with real validation. Preserve consolidated-plan and outward-action approvals; no unsupported install success claims. |
++| Release-pipeline roadmap artifacts | Explicit `/sc:roadmap` intent retains supplied spec/TDD/PRD and output preferences. | Contract gap: command's 1-3 positional Markdown inputs and CLI controls disagree with backing skill grammar. Do not certify a runnable combined slash interface or substitute MDTM roadmap. |
++| Sprint-compatible tasklist bundle | `/sc:tasklist <roadmap>` with optional spec/output. Input must be a readable non-empty roadmap; verify supplied spec and writable output parent. | Index and phase files plus generation checks. Stop before Sprint/task execution. A workflow plan or merged brainstorm is not a roadmap input; no source flag. |
++| Roadmap fidelity audit | Preserve roadmap and requirement sources, or the supplied pipeline output directory, according to the requested surface. | Contract gap: `/sc:validate-roadmap` command takes an output directory, skill requires roadmap plus specs. Investigative audit is not CLI parity; report counts decide quality, not zero exit. No combined grammar. |
++| Tier-rule validation | `/sc:validate-tests <YAML-file-or-directory>` retains verbose/summary/category/stop-on-fail/report controls. | Classification expectation results only, not application coverage or repairs. Verify the supplied/default suite exists; advertised default tests/sc-task is absent in this checkout. Report missing prerequisite, never illustrative test counts as results. |
++
++If evaluation intent is ambiguous, ask whether the user wants a new suite or a supervised existing-suite run. If tasklist intent is ambiguous, distinguish a checked workflow plan, an MDTM checklist and a roadmap-to-Sprint bundle before selecting. A business review of a PRD, placeholder review of translations and a compile of existing code keep their specialized outcomes; a broken build instead needs diagnosis.
++
++### 3.14 Known contract limitations and lifecycle
++
++- **Roadmap and fidelity activation:** keep generation's positional-input command separate from its legacy multi-spec/template protocol, and keep the directory validator separate from the investigative roadmap/spec auditor. Do not advertise mixed flags or successful validation from exit zero. These are unresolved source-contract gaps, not missing input alone.
++- **Portification and optional referrals:** prefer the specification-only portify deliverable; do not promise direct code files. Resolve the actual activation name. Workflow/brainstorm referrals using a source flag do not establish tasklist support for that flag or for a non-roadmap input. TDD's task-as-creator referral does not change task's executor identity. Auggie's design destination referral is undeclared; offer separate ordinary planning from accepted findings, not a certified broken chain.
++- **Other deferred differences:** spawn's final decomposition-only stop wins over earlier execution prose. Swarm's missing-proxy STOP/fallback disagreement is disclosed without promising a real run or fallback. Load's example-only checkpoint option is not executor recovery. Task's classification-before-tools prose does not waive the governing skill-first rule; do not duplicate its internals here. Active plugin copies can lack skills or safeguards even when command files exist: verify them or report unavailable/contract gap. Planning depth is not a guarantee of multi-session plan generation, while implement execution is resumable. Validate-tests needs a real YAML suite. Startup status messages do not prove agent/PM activation.
++- **Retired framework identities:** estimate, the sc dispatcher, select-tool and task-mcp are not current runnable framework targets, even if readable installed remnants survive. Explicit deprecated metadata and verified canonical retirement outrank readability. Answer retirement questions with the underlying intent and a current independently verified alternative; do not trust task-mcp's stale replacement metadata or resurrect bypass flags. Do not delete, update or reinstall anything automatically. Independently authored installed-only/custom commands remain eligible; uncertain ownership of a same-name override needs clarification, not blanket rejection.
++- **Evidence:** static routing assertions, generated recommendation results and actual specialized-command execution are distinct. Do not report fabricated quality scores, timing, savings or test counts. A report-only stop can still write tool-owned artifacts; memory, product edits, Git operations and external publication must be described separately.
+ 
+ ---
+ 
+@@ -254,9 +302,9 @@ Where this guide says "your lead", read "yourself" if you work alone.
+ 
+ | Command | What it does unless you say otherwise | What to do |
+ |---|---|---|
+-| `/sc:reflect --mode post` | When you run it yourself on finished work and the audit passes, it moves the work folder to a "done" location. (The audit inside a `/task` run leaves the folder in place: the final audit runs before the task is marked done, so the folder stays in `.dev/tasks/to-do/`.) | Add `--no-promote` when you want a report only. |
++| `/sc:reflect --mode post` | May promote the work folder when its strict promotion gate passes. Audit artifacts and authorized verification can still write state even when promotion is suppressed. | Add `--no-promote` for report-only audits; diff or task log is required, while spec/tasklist are optional context. No automatic remediation from deep depth alone. |
+ | `/sc:auggie-review <PR number>` | Posts its review publicly on the PR. | Add `--no-post-pr` to keep it local. |
+-| `/sc:pr-submit` | With no `--monitor` setting it uses `--monitor 3`: it fixes the confirmed review findings of Medium severity or higher and failing CI checks, pushes the fixes to your branch without asking, and replies to and resolves the review comments it fixed. | Always pass `--monitor 3`. Use `--monitor 0` when the Augment Code review app is not on the repository or you are not sure it is (3.11 step 6). |
++| `/sc:pr-submit` | Default monitor 3 is the full mutating/publishing loop, including permitted fix commits/pushes and review-thread actions. | Select exactly one ceiling under 3.11: creation-only 0, proposals 1, local fixes 2, authorized full loop 3. Disclose conflicts with stronger project policy rather than silently increasing authority. Preserve existing PR attachment or supplied run-log resume. |
+ | `/sc:workflow` | Standard depth and no executing handoff. | Use quick for smaller checked plans, preserve a supported requested depth, and read the actual printed plan before `/sc:implement`. Planning does not authorize execution. |
+ | `/tech-research` and explicitly selected `/roadmap` | Run at their deepest setting unless the request is clearly small. | Keep research-only work at the report. Only select the roadmap composer under the explicit or exceptional boundary in 3.1 step 7; its full setting creates phase task files using its own MDTM machinery. |
+ | `/sc:implement` on a `/sc:workflow` plan | Moves the plan folder to `.dev/tasks/done/` when every step passes; on any system other than Linux (including macOS) it refuses on purpose and leaves the folder in `.dev/tasks/to-do/` | Nothing. Never move the folder by hand. |
+@@ -265,49 +313,42 @@ Where this guide says "your lead", read "yourself" if you work alone.
+ 
+ ## Other commands
+ 
+-These commands are installed but no workflow above routes to them.
++Additional operations and explicit coordination choices. These entries can be referenced by outcome routes; they do not become default implementation planners. Preserve the requested operation and verify its actual callable surface.
+ 
+ <!-- other-commands:v1 -->
+ 
+ | Command | When to use it |
+ |---|---|
+-| `/sc:agent` | A general session controller. Prefer this guide's levels instead. |
+-| `/sc:build` | Build or package the project. |
+-| `/sc:cli-eval` | IronClaude contributors: write or run CLI evaluation suites. |
+-| `/sc:cli-portify` | IronClaude contributors: turn a skill into a CLI pipeline. |
+-| `/sc:git` | Commit with a generated message. Still never push without approval. |
+-| `/sc:help` | List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide. |
+-| `/sc:index` | Build a documentation index for a project. |
+-| `/sc:index-repo` | Write `PROJECT_INDEX.md` and `.json` so later sessions read less. |
+-| `/sc:init-lite` | Check a project's Claude setup files without changing them. |
+-| `/sc:load` | Load Serena project memory. Not a way to resume work (3.12). |
+-| `/sc:pm` | Agent-coordinated work. Prefer this guide's levels instead. |
+-| `/sc:post-release` | After tagging a release. |
+-| `/sc:review-translation` | Review translated text. |
+-| `/sc:save` | Save Serena project memory. Not a way to resume work (3.12). |
+-| `/sc:spawn` | Break a large job into parts. Ordinary implementation planning uses `/sc:workflow` then `/sc:implement`; MDTM needs the level-4 justification. |
+-| `/sc:tdd` | Same as `/tdd` (it invokes the same skill). Not test-driven development. |
+-| `/sc:validate-roadmap` | Part of the separate `/sc:roadmap` release pipeline (section 5). |
+-| `/sc:validate-tests` | IronClaude contributors: test `/sc:task` tier rules. |
+-
+-One more user-facing skill: `/confidence-check` checks readiness before you start an implementation.
++| `/sc:agent` | Explicit session controller: inspect status, orient, then wait for the task. It is self-contained, not a missing protocol. Startup announcements do not prove automatic activation. |
++| `/sc:build` | Compile/package existing code with requested dev/prod/test, clean, optimize or verbose controls. It writes build artifacts and clean can remove outputs; it is not new-feature implementation or proof of deployment. Broken compilation needs diagnosis. Exclude example-only validate controls. |
++| `/sc:git` | Requested status, add, local smart commit, branch or merge operations using declared controls. Status-only stays inspection; a commit needs authorization. Do not append push, merge or PR creation. Native tools may be enough. |
++| `/sc:index` | Coordinated project docs/API/structure/README and requested output format; writes documentation. Distinct from a compact repo map. |
++| `/sc:index-repo` | Compact PROJECT_INDEX.md and PROJECT_INDEX.json map. Preserve documented keyword mode=quick or mode=update and existing-output intent. Verify invocation naming in the active copy; no measured token-savings promise. |
++| `/sc:load` | Load/refresh Serena project context with supported type/refresh/analyze controls; requires Serena. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
++| `/sc:pm` | Explicit PM coordination with requested strategy/verbosity and available protocol/tools. It can write memory/docs; verify dependencies. Not a default planner, automatic-start guarantee or universal executor-resume method. |
++| `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Requires Serena and writes memory; not durable task execution state or a latency guarantee. |
++| `/sc:spawn` | Requested decomposition with sequential/parallel/adaptive strategy and normal/deep depth. Its critical stop is a task hierarchy only: no source edits or downstream implementation. Branch tracing is limited to its documented filter-pipeline trigger, not every delegation. Ordinary implementation planning still uses workflow/implement. |
++
++One more user-facing skill: `/confidence-check` checks readiness before implementation. Supporting command protocols are loaded through their command's actual activation directive; do not infer a protocol name from a filename. Self-contained commands are valid, and TDD resolves to the tdd skill through Skill Invocation. Verify required agents, templates and tools before promising execution.
+ 
+ <!-- /other-commands -->
+ 
+-The 22 skills whose names end in `-protocol` are loaded by their `/sc:` commands and are not run directly. `sc-bare-review` is internal (used by `/sc:swarm-wizard`; its output can feed `/sc:adversarial`).
++Protocol skills are loaded by their commands, not selected merely by their suffix. Internal helpers do not establish an independent user-facing command or installed availability.
+ 
+ ---
+ 
+ ## Routing table
+ 
+-This table is read by `/sc:recommend` and checked by tests. Each row is one kind of job: its steps in order, the flags each step must carry, and where the guide explains it. Numbered steps run in order; lettered steps with the same number (3a, 3b, ...) are alternatives, so do only the one that fits. The `changes_files` column says whether following the row changes your work: `yes` means a step edits source code, docs, or git state (a commit, or a task folder moved to `done/`); `no` means it only answers, or saves a report under `.dev/`, `claudedocs/`, or the tool's own output folder.
++This table is read by `/sc:recommend` and checked by static tests. Match the whole requested outcome, explicit selection, supplied artifact and authority ceiling before generic phrases. Specialist objectives outrank generic review/error/tasklist/no-changes wording. Resolve conditions before emitting steps: lettered alternatives are mutually exclusive, and only the selected branch contributes mandatory flags. Preserve applicable inputs, reads and checks without appending execution or shipping to report-only goals. If intent remains ambiguous, ask one useful question; never loop recommendation back to itself.
++
++The `changes_files` column is not a zero-write promise: `yes` includes requested product/code/docs/Git changes, `no` permits tool-owned reports and analysis artifacts but no product changes, and `asks first` means the mode controls mutation or a capability gap must be resolved. Memory writes, build/test/evaluation state, preview artifacts and external publication are stated separately in the route. A command file alone is not availability proof: verify the actual backing skill, dependencies and relevant active contracts. Missing capability is unavailable; material disagreement is a contract gap. Recommendations execute nothing.
+ 
+ <!-- routing-table:v1 -->
+ 
+ | id | intent | level | steps | mandatory_flags | changes_files | section | notes |
+ |---|---|---|---|---|---|---|---|
+-| ask | understand code; explain; how does something work; no changes wanted | 1 | 1. ask in plain English, or `/sc:explain <path>` | - | no | 1, 3.5 | - |
+-| small-change | one source file plus its test; five edits or fewer; exact change known | 2 | 1. `/sc:task "<change>"` or a plain edit<br>2. run the related test | - | yes | 1, 3.3 | `/sc:task` prints a `Tier:` line at the start; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped its own checks, so run the test yourself afterwards |
++| ask | simple code/concept explanation; audience-tailored learning; not a more specific specialist deliverable | 1 | 1. answer directly when sufficient, or `/sc:explain <target>` | - | no | 1, 3.5 | preserve target and requested `/sc:explain --level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>`; stop at explanation with no fixes or implementation plan from inspection breadth |
++| small-change | one source file plus its test; five edits or fewer; exact change known | 2 | 1. `/sc:task "<change>"` or a plain edit<br>2. inspect actual verification and run the related test if it has not run | - | yes | 1, 3.3 | classification and recorded evidence matter, not a universal tests-ran promise; STANDARD permits affected tests or documented manual verification, LIGHT includes scope/sanity checks and EXEMPT is a non-code operation; never describe LIGHT as no checking or manual verification as an observed test pass; direct-change limits still apply |
+ | simple-plan | ordinary checked implementation planning; with or without a spec; across files or sessions | 3 | 1. `/sc:workflow "<what to change, why, which files or spec>"`<br>2. read the actual printed plan `.dev/tasks/to-do/<id>/<id>.md` and its advisory check result<br>3. only when execution is requested: `/sc:implement <actual printed plan path>` | - | yes | 1, 3.3 | standard depth and no executing handoff are the defaults; quick is conditional for smaller checked plans; an adequate approved plan goes directly to its executor, without rebuilding; resume with step 3, never task-builder; non-Linux managed archiving reports archive-blocked and keeps the folder in place |
+ | task-file | explicit MDTM creation or existing MDTM execution; exceptionally complex long-running phased program with stated research/checklist/phase-panel machinery need | 4 | 1a. for creation: `/task-builder "<what to build, why, which code, why MDTM>"`<br>1b. for an existing MDTM task: keep that task file without rebuilding<br>2. read the task file and its check result<br>3. only when execution is requested: `/task <task file>` | - | yes | 1, 3.1 | add `--spec <path>` to task-builder when a spec, PRD or TDD exists; file count, sessions, a spec, risk, auditability, drift or resume alone do not select this row; explicit implement selection keeps implement semantics |
+ | feature-existing | add a feature to an existing system; requirements clear; no PRD | 3 | 1. `/tech-research "<question, why, which code>"` (only if needed)<br>2. write and agree a spec file, unless an adequate approved plan exists<br>3. `/sc:workflow <spec file>` unless an adequate approved plan exists<br>4. read its actual printed plan and advisory check result<br>5. only when execution is requested: `/sc:implement <approved plan path>` | - | yes | 3.2 | existing approved plans keep their executor directly; `/sc:design <name> --type api --format spec` can draft an interface section; MDTM needs explicit selection or the exceptional level-4 machinery need, not just an existing spec |
+@@ -315,19 +356,36 @@ This table is read by `/sc:recommend` and checked by tests. Each row is one kind
+ | full-spec | reviewed PRD/TDD for new product or component; optional later implementation planning | 6 | 1. `/sc:brainstorm "<idea>"` (only if vague)<br>2. `/prd "<request>"`<br>3. `/sc:spec-panel @<prd file>`<br>4. `/tdd "<request>"`<br>5. `/sc:spec-panel @<tdd file>`<br>6. `/sc:release-split <tdd file>` (only if requested or needed)<br>7a. only for requested ordinary planning: `/sc:workflow "<plan from the accepted PRD/TDD paths and constraints>"`, then read its actual printed plan and check result<br>7b. only for explicit composer selection or exceptional level-4 machinery needs: `/roadmap "<request with supplied documents>"`, then read its outputs<br>8a. only for requested execution of 7a: `/sc:implement <printed plan path>`<br>8b. only for requested execution of phase tasks from 7b: `/task <phase task file>` in order<br>9. consume the chosen executor's checks; review-pr only when shipping is requested | 3: `--mode critique --focus requirements`; 5: `--mode critique --focus architecture,testing` | yes | 3.1 | documents-only requests stop after the requested documents and reviews, without a roadmap or phase tasks; new components and existing specs do not justify MDTM; PRD/TDD retain internal document machinery; the explicitly selected roadmap composer uses task-builder/task internally and its full setting creates phase task files; product phase execution is separate consent; ordinary planning defaults to standard depth |
+ | shape-idea | idea or requirements still unclear | - | 1. `/sc:brainstorm "<the idea, who it is for, the main constraint>"` | - | no | 3.1, 3.6 | stop at merged requirements; only if later requested, take them to PRD creation or ordinary workflow/implement planning; no automatic task-file handoff just because no PRD is needed; standard depth is the default |
+ | bug | bug; error; stack trace; failing test | - | 1. `/sc:troubleshoot "<what happens, what you expected, how to reproduce, exact error>"`<br>2. read `.dev/troubleshoot/<name>-<timestamp>/REPORT.md` and preserve its status and blockers<br>3a. supported small fix (one source file plus its test, five edits or fewer): add a failing test, fix the code, then `/sc:test <test path>`<br>3b. ordinary planned fix: `/sc:workflow "<supported fix from REPORT.md, with a reproducing test>"`, read the printed plan and advisory check result, then `/sc:implement <printed plan path>` only when execution is requested<br>3c. only explicit or exceptionally justified MDTM: `/task-builder "<supported fix and concrete MDTM need>"`, then read the task and use `/task <task file>` only when execution is requested | 1: `--type <kind>`; 3a: `--coverage` | yes | 3.4 | kind is bug, test, build, performance, deployment or security; diagnosis-only stops after step 2; no speculative fix for an unconfirmed, failed or blocked result; standard `/sc:troubleshoot --fix` offers workflow planning after supported diagnosis and acceptance; `/sc:troubleshoot --depth quick --fix` is invalid; explicit `/sc:troubleshoot --depth deep --fix` couples to MDTM, while deep diagnosis without fix can feed separate ordinary workflow planning; planning never authorizes execution |
+-| external-research | library; standard; best practice outside our code | - | 1. `/sc:research "<question>"` | 1: `--depth deep` | no | 3.5 | - |
+-| module-health | general health of a module | - | 1. `/sc:analyze <path>` | 1: `--focus <area>` | no | 3.5 | area is one of security, quality, performance, architecture |
+-| compare-options | two or more designs, plans, or drafts; pick or merge | - | 1. `/sc:adversarial --compare <file a>,<file b>` | - | no | 3.6 | writes one merged document as its own output |
+-| critique-spec | review a spec, PRD, or TDD | - | 1. `/sc:spec-panel @<file>` | 1: `--mode critique` | no | 3.6 | - |
+-| business-strategy | business strategy, not code | - | 1. `/sc:business-panel @<file>` | - | no | 3.6 | - |
+-| multi-model-review | reviewers from other AI model families | - | 1. `/sc:swarm-wizard` | - | no | 3.6 | real runs need an OpenAI-compatible model proxy set in `~/.aienv` (T2ProxyUrl, T2ProxyKey, T2Model01); without it you get the dry run only |
+-| cleanup | requested contained folder cleanup; dead code; unused imports | - | 1. `/sc:cleanup-audit <path>`<br>2. commit<br>3. `/sc:cleanup <path>`<br>4. `/sc:improve <path>`<br>5. review `git diff` | 1: `--pass all`; 3: `--type code --safe --interactive`; 4: `--type quality --safe --interactive` | yes | 3.7 | the contained-folder exception keeps checkpoint and diff safeguards; structural migrations are outside it and use ordinary workflow/implement planning through feature-existing; many files alone do not justify MDTM |
+-| tests | run tests; check coverage | - | 1. `/sc:test <path>` | 1: `--coverage` | no | 3.8 | add `--type unit`, `--type integration`, or `--type e2e` to narrow |
+-| document-built | technical reference; operational guide; README; API reference for existing code | - | 1. one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`, `/sc:document <path>` | - | yes | 3.9 | for API reference use `/sc:document <path> --type api` |
+-| check-plan | check a plan or task file against a spec before running it | - | 1. `/sc:reflect --mode pre --spec <spec file> --tasklist <plan or task file>` | - | no | 3.10 | skip it when the task file's `reflect_pre` verdict is pass or fail; a `/sc:workflow` plan was already checked against its request when written |
+-| confirm-built | confirm finished work matches the plan | - | 1. `/sc:reflect --mode post --tasklist <task file> --spec <spec file> --diff <commit before the work started> --no-promote` | 1: `--no-promote` | yes | 3.1, 5 | give one commit, not a `..HEAD` range, so uncommitted work is audited too (`/task` does not commit); run `git add -A` first so new files are included; that commit is `HEAD` if nothing was committed since the work started, otherwise find it with `git log --oneline`; when re-confirming one roadmap phase, commit each phase once it passes and give the commit made when the previous phase passed; `--no-promote` keeps the work folder where it is (this row is a report-only check); the audit inside `/task` compares a commit range and misses uncommitted work, so run this row after `/task` finishes |
+-| review-pr | review the work and open a pull request | - | 1. commit locally<br>2. `/code-review`<br>3. `/security-review`, then commit any fixes from steps 2-3<br>4. `/sc:auggie-review --diff origin/<main branch>...HEAD`<br>5. push only after approval<br>6. `/sc:pr-submit --head <branch> --title "<title>" --body "<body>"` | 4: `--no-post-pr`; 6: `--monitor 3` | yes | 3.11 | step 3 only when login, permissions, secrets, user input, or file paths changed; step 6 needs `gh` logged in and the Augment Code review app on the repository, without which use `--monitor 0` to only open the PR |
+-| resume | lost session; crash; continue earlier work | - | 1a. from a terminal, `ccsession <name>` if the session was tagged with `/ccsession-tag <name>`<br>1b. otherwise rerun the same command: `/task <task file>`, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | - | yes | 3.12 | `/sc:save` and `/sc:load` are not resume methods |
+-| unsure | which tool; how to start | - | 1. `/sc:recommend "<what you want to do, and why>"` | - | no | 4 | - |
++| external-research | current external, academic, competitive, market, standards or technical evidence outside our code | - | 1. `/sc:research "<question, purpose, constraints>"` | - | no | 3.5 | preserve requested quick/standard/deep/exhaustive depth and supported strategy, not forced deep; stop at cited synthesis and tool-owned research artifacts |
++| module-health | whole-project or module static quality, security, performance or architecture assessment | - | 1. `/sc:analyze <target>` | - | no | 3.5 | broad assessment needs no forced focus; retain requested `/sc:analyze --focus <area> --depth <quick/deep> --format <text/json/report>`; findings only, no automatic edits |
++| compare-options | compare existing artifacts; generate competing designs; continue an adversarial pipeline | - | 1a. existing 2-10 readable files: `/sc:adversarial --compare <file-a>,<file-b>`<br>1b. generation: `/sc:adversarial --source <file> --generate <type> --agents <specs>`<br>1c. pipeline continuation: `/sc:adversarial --pipeline @<pipeline.yaml> --pipeline-resume --output <existing output>`<br>2. stop at comparison, merged output and tool-owned artifacts | - | no | 3.6 | select one mode only; pipeline is mutually exclusive with compare/source/generate/agents; preserve requested depth, focus, interaction and output; no one-file comparison or product execution |
++| critique-spec | requirements/architecture/testing/correctness review of populated spec/PRD/TDD; explicit scoped derivation | - | 1. `/sc:spec-panel <content-or-@file>` using the selected mode<br>2. stop at requested critique/questions or explicitly authorized derived document | - | asks first | 3.6 | default to critique only for critique intent without a supported explicit mode; preserve discussion/socratic, focus, iterations and format; TDD derivation requires target-release clarification when absent and consent before input edits; not raw PRD/TDD authoring, business viability or automatic implementation |
++| business-strategy | business viability, market position or strategy, even when input is a PRD | - | 1. `/sc:business-panel <document-or-inline-content>`<br>2. stop at strategic analysis | - | no | 3.6 | preserve `/sc:business-panel --mode <discussion/debate/socratic/adaptive> --experts <names> --focus <domain> --synthesis-only` when requested; simulated perspectives, not measured commercial certainty or automatic spec rewrite |
++| multi-model-review | explicit swarm use; swarm settings help; reviewers from other model families | - | 1. `/sc:swarm-wizard` with supplied goal/target and supported pre-seed controls<br>2. stop at settings/preparation unless a real launch was explicitly authorized and prerequisites pass | - | asks first | 3.6 | keep goal, target and output; interview missing inputs or ambiguous lens; target needs 50 non-whitespace bytes and reachable swarm CLI; real runs need T2ProxyUrl/T2ProxyKey/T2Model01 and confirmation after a passing stub dry run; previews write artifacts; contract gap on missing-proxy STOP versus fallback, never guarantee a real run or fallback |
++| cleanup | requested contained cleanup; not report-only audit or improvement-only intent | - | 1. establish an authorized checkpoint commit<br>2. `/sc:cleanup <path>` with requested supported controls<br>3. review `git diff` | - | yes | 3.7 | contained-folder exception keeps checkpoint and diff safeguards; preserve requested `/sc:cleanup --type <code/imports/files/all> --safe --interactive` where applicable, never overwrite supported explicit choices with code-only defaults; report-only uses cleanup-audit-only and improvement-only uses contained-improve, with no compulsory cleanup/improve chain; structural migrations are outside the exception and use ordinary workflow/implement planning; automatic edits can occur even interactively |
++| tests | execute existing suite; coverage; watch; E2E; explicit simple failure repair | - | 1. `/sc:test <target>` with requested controls<br>2. report actual results and generated test artifacts | - | asks first | 3.8 | retain `/sc:test --type <unit/integration/e2e/all> --coverage --watch` only as requested; watch never adds fix; `/sc:test --fix` can edit source and needs explicit repair intent plus applicable planning limits; execution writes caches/reports and can affect external state; verify browser/services for E2E; new tests are authoring, YAML tier validation is separate |
++| document-built | focused inline/external/API/guide docs; coordinated project docs; template-led README/operations/technical reference | - | 1a. focused output: `/sc:document <target>` with requested type/style<br>1b. coordinated project documentation: `/sc:index <target>` with requested type/format<br>1c. template-led output: one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`<br>2. stop at the requested documentation | - | yes | 3.9 | preserve source paths, audience and output intent; `/sc:document --type <inline/external/api/guide> --style <brief/detailed>` distinguishes focused outputs; inline source changes retain direct-change limits or workflow planning; Technical Design Document uses technical-design-document, not generic docstrings or test-driven development |
++| check-plan | pre-execution coverage audit against supplied spec, with optional plan | - | 1. consume applicable existing pre-review before requesting another<br>2. only when needed: `/sc:reflect --mode pre --spec <spec>` with optional supplied tasklist<br>3. stop at coverage/gap report | - | no | 3.10 | spec is required, tasklist optional; workflow built-in advisory pre-review is consumed, not duplicated; retain requested depth/tier/output; skipped or failed is not pass; no automatic remediation or execution |
++| confirm-built | post-execution deviation/adherence audit; diff-only or task-log-only inputs are valid | - | 1a. diff input: `/sc:reflect --mode post --diff <ref-or-path> --no-promote`<br>1b. log input: `/sc:reflect --mode post --task-log <log-path> --no-promote`<br>2. stop at report and preserve blockers | 1a: `--no-promote`; 1b: `--no-promote` | no | 3.10, 5 | choose a supplied diff or task log, or retain both if supplied; spec/tasklist are context, not mandatory together; one baseline commit includes working-tree work, a range does not; intended new files need staging, never generated mirrors; report-only suppresses promotion but can run authorized verification; standard `/sc:reflect --remediate` offers workflow after acceptance, explicit deep remediation couples to MDTM; `/sc:reflect --tier 2 --depth standard --remediate` permits ensemble plus ordinary planning; legacy task analyze/validate aliases remain supported; no headless auto-fix substitution |
++| review-pr | explicitly ship/open a PR or attach an existing PR monitor; not findings-only review | - | 1. local commits/reviews only within requested shipping authority<br>2. `/code-review`<br>3. `/security-review` only for relevant changes<br>4. `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr --no-remediation-offer`<br>5. push only after approval<br>6a. creation-only or review App absent/uncertain: `/sc:pr-submit <creation-context> --monitor 0`<br>6b. proposals without source edits: `/sc:pr-submit <creation-or-attachment-context> --monitor 1`<br>6c. local fixes without publication: `/sc:pr-submit <creation-or-attachment-context> --monitor 2`<br>6d. requested/authorized full loop: `/sc:pr-submit <creation-or-attachment-context> --monitor 3` | 4: `--no-post-pr --no-remediation-offer`; 6a: `--monitor 0`; 6b: `--monitor 1`; 6c: `--monitor 2`; 6d: `--monitor 3` | yes | 3.11 | choose exactly one 6 branch and one monitor ordinal; 3 is the current command default and can commit/push/retrigger/reply/resolve; stronger-project-policy conflict with a lower requested ceiling is disclosed, never silently increased; attach existing PR with `/sc:pr-submit --pr <number>`, not another creation; attachment skips shipping steps 1-5; supplied run-log uses resume instead; verify gh, review App and head/CI prerequisites; preserve origin repo, PR head and bounded cycle-fix push range; attended in-session, not daemon; silence/timeout is not clean; recommendation executes no Git/GitHub actions |
++| resume | supplied PR monitor log; existing PR attachment; lost session; command-owned continuation | - | 1a. supplied monitor log: `/sc:pr-submit --resume <run-log.jsonl>`<br>1b. existing PR attachment: `/sc:pr-submit --pr <number>` with one chosen monitor ceiling<br>1c. tagged conversation: terminal `ccsession <name>` if tagged with `/ccsession-tag <name>`<br>1d. existing implementation: rerun the same command, `/task <task file>` or `/sc:implement .dev/tasks/to-do/<id>/<id>.md`<br>1e. other owned continuation: retain the supplied pipeline/output, validated proposal or document-task input and that command's verified controls | - | asks first | 3.12 | supplied monitor log resumes that PR/repo/head and recorded ceiling, not task execution or PR recreation; managed workflow stays implement, MDTM stays task, no task-builder rebuild from resume alone; `/sc:save` and `/sc:load` are memory, not executor resume; no invented generic continuation flag; ask which artifact if genuinely ambiguous |
++| unsure | unresolved substantive goal or ambiguous artifact type while choosing a tool | - | 1. resolve the whole requested outcome, or ask one useful clarification | - | no | 4, 3.13 | inbound discovery pointer only; when already recommending, never recommend recommend to itself; distinguish checked workflow plan, MDTM checklist and Sprint bundle, or evaluation suite create versus run |
++| installed-inventory | list visible installed commands/skills; inventory only | - | 1. `/sc:help`<br>2. stop at live inventory and guide pointer | - | no | 3.13 | global/project/plugin listings reflect what exists; no install repair, update or implementation plan from inventory intent |
++| focused-design | draft architecture/API/component/database design without implementing | - | 1. `/sc:design <target>` with requested type/format<br>2. stop at design artifacts | - | no | 3.13 | preserve target and `/sc:design --type <architecture/api/component/database> --format <diagram/spec/code>`; code format is design guidance, not feature implementation; no declared output flag, do not copy the broken Auggie referral |
++| technical-design-document | create/populate/update a reviewed Technical Design Document from component/stub/PRD | - | 1a. `/tdd "<component, supplied PRD/stub, code paths, output and tier intent>"`<br>1b. explicit command alias: `/sc:tdd <component>` with supported supplied controls<br>2. stop at the requested TDD | - | yes | 3.13, 3.9 | choose one callable surface; TDD means Technical Design Document, not test-driven development; `/sc:tdd --from-prd <prd> --tier <tier> --focus <paths> --output <path>` preserves supplied inputs when applicable; activation resolves to tdd and keeps its document-owned MDTM machinery, not product implementation; verify template/agents/tools; explicit document-task resume stays owned |
++| cleanup-audit-only | evidence-backed dead-code/sprawl inventory; report-only audit with supplied pass/focus | - | 1. `/sc:cleanup-audit <target>` with requested pass/focus/batch-size<br>2. stop at audit reports/checkpoints | - | no | 3.7, 3.13 | default surface, not forced all; retain `/sc:cleanup-audit --pass <surface/structural/cross-cutting/all> --focus <infrastructure/frontend/backend/all> --batch-size <N>`; later passes need earlier context; hidden/BMAD paths are an unremovable exclusion floor, hidden-only targets are not exhaustively covered; no cleanup, improve or commit |
++| contained-improve | explicitly improve quality/performance/maintainability/style in a contained folder | - | 1. establish authorized checkpoint commit<br>2. `/sc:improve <target>` with requested type/safe/interactive controls<br>3. review `git diff` | - | yes | 3.7, 3.13 | preserve `/sc:improve --type <quality/performance/maintainability/style> --safe --interactive` when requested; automatic edits can occur interactively; no compulsory cleanup/deletions; structural migration stays planned workflow work, not this exception; exclude example-only preview/validate options |
++| auggie-review-only | standalone PR/diff/snapshot review; local findings or explicit posting | - | 1. `/sc:auggie-review <resolved target and supported controls>`<br>2. stop at findings and report unless separately accepted planning was requested | - | asks first | 3.11, 3.13 | preserve PR number/URL or `/sc:auggie-review --diff <base>...HEAD` or `/sc:auggie-review --snapshot <path>`; PR posting defaults on, local-only uses `/sc:auggie-review --no-post-pr --no-remediation-offer`; retain depth/focus/output and `/sc:auggie-review --revagent <alias>` for internal reviewer only, distinct from `/sc:auggie-review --auggie-model <id>` default prism-b when not overridden; accepted deep offer currently selects MDTM, ordinary review offer uses workflow; deep plus ordinary later planning suppresses offer and plans separately; resolve undeclared design referral gap, not a fabricated chain |
++| localization-review | source-versus-translation QA; placeholder/tone/platform review; reports first | - | 1. `/sc:review-translation <source-file> <translation-files...>` with requested controls<br>2. confirm context before review<br>3. stop at language/project reports and requested export | - | no | 3.13 | retain all source/locale inputs and `/sc:review-translation --strict --depth <quick/standard/deep> --tone-matrix --platform <name> --export` as requested; input edits/protected-element fixes need separate consent; not runtime troubleshooting or generic code repair |
++| context-audit | audit project-local context weight; explicit stdout preview or advisory scaffold | - | 1. `/sc:init-lite --context-optimized` with supplied project-root/output and explicit mode controls<br>2. stop at report, stdout preview or requested advisory scaffold | 1: `--context-optimized` | asks first | 3.13 | default tool-owned report; `/sc:init-lite --dry-run` writes nothing and creates no output directory; `/sc:init-lite --scaffold` is opt-in; `/sc:init-lite --force` is limited to owned artifacts, never context inputs; preserve supplied project-root/output |
++| cli-eval-create | author new cliEval suite from supplied design and suite name | - | 1. `/sc:cli-eval create` with supplied name/from/agents<br>2. retain fresh-contract load and owned design/critique/debate/author/validate/document lifecycle<br>3. stop at authored, schema-validated suite and documentation | - | yes | 3.13 | preserve `/sc:cli-eval create --name <stem> --from @<design>` and supported agents; verify live CLI/schema and required capabilities; no automatic suite run, application coverage test, new PRD or task-builder |
++| cli-eval-run | select and supervise existing cliEval suite, optionally restricted to supplied eval ID | - | 1. `/sc:cli-eval run` with supplied suite/eval selectors<br>2. load current contracts, confirm exact invocation/safety settings, then supervise authorized run<br>3. report actual status, run artifacts and preserved failure evidence | - | asks first | 3.13 | preserve `/sc:cli-eval run --suite <name> --eval <id>`; menu only when selector absent; real execution and artifact writes, not read-only inspection; no invented resume mode or suite creation; ask create or run when ambiguous; missing runtime prerequisites remain blockers |
++| cli-portification-spec | produce workflow-to-CLI specification; artifact-producing dry-run if requested | - | 1. verify unambiguous workflow skill directory containing SKILL.md and actual activation<br>2. `/sc:cli-portify --workflow <skill-name-or-path>` with supplied name/output/dry-run only if contract resolution permits it<br>3. stop at specification or Phase 0-2 contracts | 2: `--workflow <skill-name-or-path>` | asks first | 3.13, 3.14 | retain `/sc:cli-portify --name <name> --output <dir> --dry-run` as supplied; dry-run writes Phase 0-2 artifacts, no full spec synthesis or panel artifacts; code-generation prose conflicts with protocol's no-direct-code-files boundary, so specification only; unresolved activation-name disagreement is a contract gap/unavailable result, not working-code promise |
++| release-boundary | assess release split versus intact release; explicit no-split or validated-proposal continuation | - | 1. `/sc:release-split <release-artifact>` with supplied controls<br>2. stop at neutral decision, generated release artifacts and fidelity evidence | - | no | 3.13 | artifact needs identifiable scope; preserve `/sc:release-split --output <dir> --depth <depth> --interactive --no-split --resume-from <validated proposal>` only as applicable, do not combine conflicting branches; no-split is valid, not a failure; no product execution or Git changes; Release 2 planning waits for real Release 1 validation |
++| post-release | bring shipped tagged-release docs/install/deploy/human-test surface current | - | 1. `/sc:post-release <existing release tag>` with supplied output<br>2. retain owned scan/consolidate/update/create/verify lifecycle and its approvals<br>3. stop at observed external-surface results, manifest and human test guides | - | yes | 3.13 | keep exact tag and `/sc:post-release --output <dir>`; anchor evidence to tagged commit; prerequisite tag and consolidated-plan gate remain; real install/deploy validation can affect external state and needs separate outward-action approval; gaps/failing installs are reported, never fabricated success |
++| roadmap-artifacts | explicitly requested release-pipeline sc:roadmap artifacts from supplied spec/TDD/PRD | - | 1. preserve explicit `/sc:roadmap` target, supplied documents and requested controls<br>2. report current activation contract gap before emitting a runnable handoff | - | asks first | 3.13, 3.14 | command uses 1-3 positional Markdown inputs and CLI controls while protocol retains incompatible multi-spec/template/resume grammar; no combined interface or certified parity; retain artifact-only stop, not MDTM roadmap substitution or product execution; separately verified CLI is a different surface, not a silent replacement |
++| sprint-tasklist-bundle | existing roadmap to Sprint-compatible index and phase tasklist files | - | 1. `/sc:tasklist <roadmap-path>` with supplied spec/output<br>2. retain generation checks and stop at bundle | - | yes | 3.13 | preserve positional readable non-empty roadmap and `/sc:tasklist --spec <spec-path> --output <output-dir>` when supplied; check optional spec and writable output parent; no unsupported source flag or workflow-plan/merged-brainstorm input; no automatic Sprint/task execution; generated post-reflect tasks are not yet executed |
++| roadmap-fidelity | investigative roadmap-versus-requirements fidelity audit or explicit pipeline-directory validation | - | 1. preserve roadmap/spec sources or supplied output directory and explicit `/sc:validate-roadmap` target<br>2. report current command/protocol contract gap without mixing inputs/flags<br>3. stop at the requested validation objective, not implementation | - | asks first | 3.13, 3.14 | command needs output directory with roadmap/test-strategy/extraction artifacts; skill needs roadmap plus specs and explicitly denies CLI equivalence; do not union directory-agent grammar with investigative flags or replace with generic reflect; finding counts/report decide quality, exit zero is not clean validation; no source edits or execution |
++| tier-validation | validate task-tier behavior against YAML expectations, not application coverage | - | 1. verify supplied YAML file/directory or advertised default suite exists<br>2. `/sc:validate-tests <verified target>` with supplied controls only when prerequisites exist<br>3. stop at classification result and requested report | - | no | 3.13, 3.14 | retain `/sc:validate-tests --verbose --summary --category <name> --stop-on-fail --report <path>` only as requested and without conflicting verbosity; advertised tests/sc-task default is absent here, so report missing prerequisite rather than invent a fixture/result; no code/config repairs or fabricated counts |
+ 
+ <!-- /routing-table -->
+diff --git a/tests/core/test_how_we_work_routing_table.py b/tests/core/test_how_we_work_routing_table.py
+index d0b743a0..08f31903 100644
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -23,21 +23,17 @@ _LEVEL_BEGIN, _LEVEL_END = "<!-- level-table:v1 -->", "<!-- /level-table -->"
+ _ROUTE_BEGIN, _ROUTE_END = "<!-- routing-table:v1 -->", "<!-- /routing-table -->"
+ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -->"
+ 
+-# Spec section 4 row 10: commands the guide must route through "Other commands".
++# Additional operations and explicit coordination, not an Other-only namespace.
+ _OTHER_COMMANDS = {
+     "sc:build",
+     "sc:git",
+     "sc:spawn",
++    "sc:index",
+     "sc:index-repo",
+     "sc:agent",
+     "sc:pm",
+     "sc:save",
+     "sc:load",
+-    "sc:cli-eval",
+-    "sc:post-release",
+-    "sc:review-translation",
+-    "sc:validate-tests",
+-    "sc:init-lite",
+ }
+ 
+ _COLUMNS = [
+@@ -78,6 +74,23 @@ _EXPECTED_IDS = {
+     "review-pr",
+     "resume",
+     "unsure",
++    "installed-inventory",
++    "focused-design",
++    "technical-design-document",
++    "cleanup-audit-only",
++    "contained-improve",
++    "auggie-review-only",
++    "localization-review",
++    "context-audit",
++    "cli-eval-create",
++    "cli-eval-run",
++    "cli-portification-spec",
++    "release-boundary",
++    "post-release",
++    "roadmap-artifacts",
++    "sprint-tasklist-bundle",
++    "roadmap-fidelity",
++    "tier-validation",
+ }
+ 
+ # Claude Code built-in slash commands the guide may name without a source file.
+@@ -272,14 +285,26 @@ def test_notes_flag_check_ignores_flags_of_non_slash_commands():
+     assert _notes_flag_errors("probe", notes, [reflect]) == []
+ 
+ 
+-def test_other_commands_block_names_spec_row_10_commands():
++def test_other_commands_membership_and_live_references():
+     t = _text()
+     assert t.count(_OTHER_BEGIN) == 1 and t.count(_OTHER_END) == 1
+     assert t.index(_LEVEL_END) < t.index(_OTHER_BEGIN) < t.index(_ROUTE_BEGIN)
+     block = _block(t, _OTHER_BEGIN, _OTHER_END)
+-    named = set(_TOKEN_RE.findall(block))
+-    assert _OTHER_COMMANDS <= named, _OTHER_COMMANDS - named
+-    for token in named:
++    members = {_TOKEN_RE.findall(_cells(line)[0])[0] for line in _table_rows(block)[2:]}
++    assert members == _OTHER_COMMANDS
++    assert "entries can be referenced by outcome routes" in t
++    assert not members & {
++        "sc:help",
++        "sc:cli-eval",
++        "sc:cli-portify",
++        "sc:init-lite",
++        "sc:post-release",
++        "sc:review-translation",
++        "sc:tdd",
++        "sc:validate-roadmap",
++        "sc:validate-tests",
++    }
++    for token in set(_TOKEN_RE.findall(block)):
+         _command_text(token)
+ 
+ 
+@@ -335,7 +360,6 @@ def test_guide_is_not_an_at_import_anywhere():
+ # lists the flag as mandatory on that step, so /sc:recommend always emits it.
+ _MANDATORY_FLAGS = {
+     "/sc:auggie-review": "--no-post-pr",
+-    "/sc:pr-submit": "--monitor 3",
+     "/sc:reflect --mode post": "--no-promote",
+ }
+ 
+@@ -350,7 +374,11 @@ def test_named_mandatory_flags_are_on_their_steps(command, flag):
+             if f"`{command}" not in step:
+                 continue
+             checked += 1
+-            assert f"{label}: `{flag}`" in row["mandatory_flags"], (
++            mandatory = {
++                entry.partition(":")[0].strip(): entry.partition(":")[2]
++                for entry in row["mandatory_flags"].split(";")
++            }
++            assert flag in _FLAG_RE.findall(mandatory.get(label, "")), (
+                 f"{row['id']} step {label}: {flag} not mandatory"
+             )
+     assert checked, f"no review-pr or confirm-built step runs {command}"
+@@ -575,3 +603,592 @@ def test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm():
+ )
+ def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
+     assert stale_policy not in _text()
++
++
++@pytest.mark.parametrize(
++    "case,row_id,targets,inputs,boundaries",
++    [
++        (
++            "S01",
++            "installed-inventory",
++            {"sc:help"},
++            ["live inventory"],
++            ["no install repair"],
++        ),
++        (
++            "S02",
++            "focused-design",
++            {"sc:design"},
++            ["<target>", "type/format"],
++            ["code format is design guidance", "no declared output flag"],
++        ),
++        (
++            "S03",
++            "technical-design-document",
++            {"tdd", "sc:tdd"},
++            ["supplied PRD/stub", "code paths", "output", "tier"],
++            [
++                "Technical Design Document",
++                "document-owned MDTM machinery",
++                "verify template/agents/tools",
++            ],
++        ),
++        (
++            "S04",
++            "cleanup-audit-only",
++            {"sc:cleanup-audit"},
++            ["<target>", "pass/focus/batch-size"],
++            [
++                "exclusion floor",
++                "hidden-only targets are not exhaustively covered",
++                "no cleanup, improve or commit",
++            ],
++        ),
++        (
++            "S05",
++            "contained-improve",
++            {"sc:improve"},
++            ["<target>", "type/safe/interactive"],
++            [
++                "automatic edits",
++                "no compulsory cleanup/deletions",
++                "structural migration stays planned",
++            ],
++        ),
++        (
++            "S06",
++            "auggie-review-only",
++            {"sc:auggie-review"},
++            ["resolved target", "supported controls"],
++            [
++                "--no-post-pr --no-remediation-offer",
++                "internal reviewer only",
++                "default prism-b",
++            ],
++        ),
++        (
++            "S07",
++            "localization-review",
++            {"sc:review-translation"},
++            ["<source-file>", "<translation-files...>"],
++            [
++                "confirm context before review",
++                "separate consent",
++                "not runtime troubleshooting",
++            ],
++        ),
++        (
++            "S08",
++            "context-audit",
++            {"sc:init-lite"},
++            ["--context-optimized", "project-root/output"],
++            ["dry-run` writes nothing", "scaffold` is opt-in", "never context inputs"],
++        ),
++        (
++            "S09",
++            "cli-eval-create",
++            {"sc:cli-eval"},
++            ["create", "supplied name/from/agents"],
++            ["schema-validated suite", "no automatic suite run"],
++        ),
++        (
++            "S10",
++            "cli-eval-run",
++            {"sc:cli-eval"},
++            ["run", "supplied suite/eval selectors"],
++            [
++                "confirm exact invocation/safety",
++                "real execution and artifact writes",
++                "no invented resume",
++            ],
++        ),
++        (
++            "S11",
++            "cli-portification-spec",
++            {"sc:cli-portify"},
++            ["--workflow <skill-name-or-path>", "name/output/dry-run"],
++            [
++                "Phase 0-2",
++                "no full spec synthesis or panel artifacts",
++                "no-direct-code-files",
++                "contract gap/unavailable",
++            ],
++        ),
++        (
++            "S12",
++            "release-boundary",
++            {"sc:release-split"},
++            ["<release-artifact>", "supplied controls"],
++            [
++                "--no-split --resume-from <validated proposal>",
++                "no-split is valid",
++                "no product execution or Git",
++            ],
++        ),
++        (
++            "S13",
++            "post-release",
++            {"sc:post-release"},
++            ["<existing release tag>", "supplied output"],
++            [
++                "tagged commit",
++                "consolidated-plan gate",
++                "separate outward-action approval",
++                "never fabricated success",
++            ],
++        ),
++        (
++            "S14",
++            "roadmap-artifacts",
++            {"sc:roadmap"},
++            ["supplied documents", "requested controls"],
++            ["contract gap", "no combined interface", "not MDTM roadmap substitution"],
++        ),
++        (
++            "S15",
++            "sprint-tasklist-bundle",
++            {"sc:tasklist"},
++            ["<roadmap-path>", "supplied spec/output"],
++            [
++                "readable non-empty roadmap",
++                "writable output parent",
++                "no unsupported source flag",
++                "no automatic Sprint/task execution",
++            ],
++        ),
++        (
++            "S16",
++            "roadmap-fidelity",
++            {"sc:validate-roadmap"},
++            ["roadmap/spec sources", "supplied output directory"],
++            [
++                "command/protocol contract gap",
++                "explicitly denies CLI equivalence",
++                "exit zero is not clean validation",
++            ],
++        ),
++        (
++            "S17",
++            "tier-validation",
++            {"sc:validate-tests"},
++            ["YAML file/directory", "<verified target>"],
++            [
++                "default is absent",
++                "report missing prerequisite",
++                "no code/config repairs or fabricated counts",
++            ],
++        ),
++    ],
++    ids=lambda value: (
++        value if isinstance(value, str) and re.fullmatch(r"S\d+", value) else None
++    ),
++)
++def test_specialist_static_targets_inputs_and_stops(
++    case, row_id, targets, inputs, boundaries
++):
++    """Static S01-S17 contracts; these are not model-generation evaluations."""
++    row = next(r for r in _routing_rows() if r["id"] == row_id)
++    assert targets <= set(_TOKEN_RE.findall(row["steps"])), case
++    assert "3.13" in row["section"].split(", "), case
++    for retained in inputs:
++        assert retained in row["steps"], (case, retained)
++    for boundary in boundaries:
++        assert boundary in row["steps"] + " " + row["notes"], (case, boundary)
++    assert not {"sc:workflow", "sc:implement", "task-builder", "task"} & set(
++        _TOKEN_RE.findall(row["steps"])
++    ), f"{case}: specialist deliverable acquired generic implementation"
++
++
++def test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first():
++    """T14-T22/T42/T45: outcome, authority and availability precede broad words."""
++    guide = _text()
++    routing = _block(guide, "## Routing table", _ROUTE_BEGIN)
++    assert (
++        "Match the whole requested outcome, explicit selection, supplied artifact and authority ceiling"
++        in routing
++    )
++    assert (
++        "Specialist objectives outrank generic review/error/tasklist/no-changes wording"
++        in routing
++    )
++    assert "Resolve conditions before emitting steps" in routing
++    assert "only the selected branch contributes mandatory flags" in routing
++    assert "without appending execution or shipping to report-only goals" in routing
++    section = _block(guide, "### 3.13 ", "### 3.14 ")
++    assert "missing plugin capability is **unavailable**" in section
++    assert "actual callable command/skill and relevant dependencies" in section
++    assert "contract gap**, not a union of both interfaces" in section
++    assert "new suite or a supervised existing-suite run" in section
++    assert (
++        "checked workflow plan, an MDTM checklist and a roadmap-to-Sprint bundle"
++        in section
++    )
++    unsure = next(r for r in _routing_rows() if r["id"] == "unsure")
++    assert "one useful clarification" in unsure["steps"]
++    assert "sc:recommend" not in _TOKEN_RE.findall(unsure["steps"])
++    assert "never recommend recommend to itself" in unsure["notes"]
++
++
++def test_reports_keep_specialist_objective_instead_of_generic_competitor():
++    """T15-T17/S07/S29: artifact labels and errors do not determine the objective."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    business = rows["business-strategy"]
++    assert "even when input is a PRD" in business["intent"]
++    assert "document-or-inline-content" in business["steps"]
++    assert "--mode <discussion/debate/socratic/adaptive>" in business["notes"]
++    assert "--synthesis-only" in business["notes"]
++    critique = rows["critique-spec"]
++    assert critique["mandatory_flags"] == "-"
++    assert "without a supported explicit mode" in critique["notes"]
++    assert "discussion/socratic" in critique["notes"]
++    assert "target-release clarification" in critique["notes"]
++    assert "consent before input edits" in critique["notes"]
++    assert "not raw PRD/TDD authoring, business viability" in critique["notes"]
++    locale = rows["localization-review"]
++    assert locale["changes_files"] == "no"
++    assert "not runtime troubleshooting" in locale["notes"]
++    assert not {"sc:troubleshoot", "sc:analyze"} & set(
++        _TOKEN_RE.findall(locale["steps"])
++    )
++
++
++def test_requested_analysis_research_explain_modes_are_not_forced_defaults():
++    """T22/T32/T33/S28: retain explicit controls and broad-analysis scope."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    assert rows["module-health"]["mandatory_flags"] == "-"
++    assert "no forced focus" in rows["module-health"]["notes"]
++    assert (
++        "--focus <area> --depth <quick/deep> --format <text/json/report>"
++        in rows["module-health"]["notes"]
++    )
++    assert rows["external-research"]["mandatory_flags"] == "-"
++    assert "quick/standard/deep/exhaustive" in rows["external-research"]["notes"]
++    assert "not forced deep" in rows["external-research"]["notes"]
++    assert (
++        "--level <basic/intermediate/advanced> --format <text/examples/interactive> --context <domain>"
++        in rows["ask"]["notes"]
++    )
++    assert rows["ask"]["changes_files"] == "no"
++
++
++def test_adversarial_generation_comparison_and_pipeline_remain_exclusive():
++    """S22: static required inputs and owned continuation, not single-file compare."""
++    row = next(r for r in _routing_rows() if r["id"] == "compare-options")
++    steps = _steps(row)
++    assert "2-10 readable files" in steps["1a"]
++    assert "--compare" in steps["1a"] and "--source" not in steps["1a"]
++    assert all(flag in steps["1b"] for flag in ("--source", "--generate", "--agents"))
++    assert all(
++        flag in steps["1c"] for flag in ("--pipeline", "--pipeline-resume", "--output")
++    )
++    assert not {"--compare", "--source", "--generate", "--agents"} & set(
++        _FLAG_RE.findall(steps["1c"])
++    )
++    assert "mutually exclusive" in row["notes"]
++    assert "no one-file comparison or product execution" in row["notes"]
++
++
++def test_cleanup_audit_and_improvement_have_separate_authority_boundaries():
++    """S04/S05: reporting cannot acquire deletion, improvement or a commit."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    audit = rows["cleanup-audit-only"]
++    assert audit["changes_files"] == "no"
++    assert _TOKEN_RE.findall(audit["steps"]) == ["sc:cleanup-audit"]
++    assert "commit" not in audit["steps"]
++    assert "default surface, not forced all" in audit["notes"]
++    assert "later passes need earlier context" in audit["notes"]
++    assert "hidden/BMAD paths are an unremovable exclusion floor" in audit["notes"]
++    improve = rows["contained-improve"]
++    assert _TOKEN_RE.findall(improve["steps"]) == ["sc:improve"]
++    assert "checkpoint commit" in improve["steps"] and "git diff" in improve["steps"]
++    assert "sc:cleanup" not in _TOKEN_RE.findall(improve["steps"])
++    assert "sc:improve" not in _TOKEN_RE.findall(rows["cleanup"]["steps"])
++
++
++def test_previews_documentation_and_suite_runs_disclose_actual_writes():
++    """T34-T39: preview artifacts, document forms and real runs stay distinct."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    section = _block(_text(), "### 3.6 ", "### 3.7 ")
++    assert "brainstorm dry run can write preparatory artifacts" in section
++    portify = rows["cli-portification-spec"]["notes"]
++    assert "dry-run writes Phase 0-2 artifacts" in portify
++    assert "no full spec synthesis or panel artifacts" in portify
++    context = rows["context-audit"]
++    assert "--context-optimized" in context["mandatory_flags"]
++    assert "dry-run` writes nothing and creates no output directory" in context["notes"]
++    assert (
++        "force` is limited to owned artifacts, never context inputs" in context["notes"]
++    )
++    tests = rows["tests"]
++    assert tests["mandatory_flags"] == "-"
++    assert "watch never adds fix" in tests["notes"]
++    assert "needs explicit repair intent" in tests["notes"]
++    assert "new tests are authoring, YAML tier validation is separate" in tests["notes"]
++    docs = rows["document-built"]
++    assert {
++        "sc:document",
++        "sc:index",
++        "tech-reference",
++        "operational-guide",
++        "readme",
++    } <= set(_TOKEN_RE.findall(docs["steps"]))
++    assert (
++        "--type <inline/external/api/guide> --style <brief/detailed>" in docs["notes"]
++    )
++    assert (
++        "inline source changes retain direct-change limits or workflow planning"
++        in docs["notes"]
++    )
++    assert "real execution and artifact writes" in rows["cli-eval-run"]["notes"]
++    assert "no automatic suite run" in rows["cli-eval-create"]["notes"]
++
++
++def test_diagnosis_reflection_and_review_preserve_remediation_coupling():
++    """T23-T27/T59-T62/S06: depth is not unrequested execution authority."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    bug = rows["bug"]
++    assert "diagnosis-only stops after step 2" in bug["notes"]
++    assert (
++        "no speculative fix for an unconfirmed, failed or blocked result"
++        in bug["notes"]
++    )
++    assert "standard `/sc:troubleshoot --fix` offers workflow planning" in bug["notes"]
++    assert "after supported diagnosis and acceptance" in bug["notes"]
++    assert "--depth quick --fix` is invalid" in bug["notes"]
++    assert "--depth deep --fix` couples to MDTM" in bug["notes"]
++    assert (
++        "deep diagnosis without fix can feed separate ordinary workflow planning"
++        in bug["notes"]
++    )
++    reflect = rows["confirm-built"]["notes"]
++    assert (
++        "standard `/sc:reflect --remediate` offers workflow after acceptance" in reflect
++    )
++    assert "explicit deep remediation couples to MDTM" in reflect
++    assert "--tier 2 --depth standard --remediate" in reflect
++    assert "legacy task analyze/validate aliases remain supported" in reflect
++    assert "no headless auto-fix substitution" in reflect
++    section = _block(_text(), "### 3.10 ", "### 3.11 ")
++    assert "Deep alone does not remediate" in section
++    assert "carried hardening blockers" in section
++    assert "consume it rather than repeat it" in section
++    review = rows["auggie-review-only"]["notes"]
++    assert "accepted deep offer currently selects MDTM" in review
++    assert "ordinary review offer uses workflow" in review
++    assert (
++        "deep plus ordinary later planning suppresses offer and plans separately"
++        in review
++    )
++    assert "undeclared design referral gap" in review
++    assert "no-post-pr --no-remediation-offer" in review
++
++
++def test_reflect_optional_inputs_and_report_only_post_flags():
++    """T28-T31: pre needs a spec; post accepts diff-only or log-only."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    pre = rows["check-plan"]
++    pre_step = _steps(pre)["2"]
++    assert "--mode pre --spec <spec>" in pre_step
++    assert "--tasklist" not in pre_step
++    assert "spec is required, tasklist optional" in pre["notes"]
++    post = rows["confirm-built"]
++    steps = _steps(post)
++    assert "--diff <ref-or-path>" in steps["1a"]
++    assert "--task-log" not in steps["1a"]
++    assert "--task-log <log-path>" in steps["1b"]
++    assert "--diff" not in steps["1b"]
++    for label in ("1a", "1b"):
++        assert not {"--spec", "--tasklist"} & set(_FLAG_RE.findall(steps[label]))
++        assert "--no-promote" in steps[label]
++        assert f"{label}: `--no-promote`" in post["mandatory_flags"]
++    assert post["changes_files"] == "no"
++    assert "not mandatory together" in post["notes"]
++
++
++def test_pr_monitor_ceiling_is_conditional_and_each_branch_has_one_exact_value():
++    """T63: keep the full-loop default while respecting lower authority ceilings."""
++    row = next(r for r in _routing_rows() if r["id"] == "review-pr")
++    steps = _steps(row)
++    mandatory = {
++        entry.partition(":")[0].strip(): entry.partition(":")[2].strip(" `")
++        for entry in row["mandatory_flags"].split(";")
++    }
++    expected = {
++        "6a": ("0", "creation-only or review App absent/uncertain"),
++        "6b": ("1", "proposals without source edits"),
++        "6c": ("2", "local fixes without publication"),
++        "6d": ("3", "requested/authorized full loop"),
++    }
++    for label, (ordinal, condition) in expected.items():
++        assert condition in steps[label]
++        assert re.findall(r"--monitor\s+(\d+)", steps[label]) == [ordinal]
++        assert mandatory[label] == f"--monitor {ordinal}"
++        assert _TOKEN_RE.findall(steps[label]) == ["sc:pr-submit"]
++    assert "6" not in mandatory, "No unconditional monitor ceiling on all branches"
++    assert "--no-post-pr" in mandatory["4"]
++    assert "--no-remediation-offer" in mandatory["4"]
++    assert "choose exactly one 6 branch and one monitor ordinal" in row["notes"]
++    assert "3 is the current command default" in row["notes"]
++    assert "can commit/push/retrigger/reply/resolve" in row["notes"]
++    assert "stronger-project-policy conflict" in row["notes"]
++    assert "never silently increased" in row["notes"]
++    assert "Always pass `--monitor 3`" not in _text()
++
++
++def test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping():
++    """T64-T66: PR identity, logged ceiling and terminal failures stay explicit."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    shipping = rows["review-pr"]["notes"]
++    assert "--pr <number>" in shipping
++    assert "not another creation" in shipping
++    assert "origin repo, PR head and bounded cycle-fix push range" in shipping
++    assert "head/CI prerequisites" in shipping
++    assert "attended in-session, not daemon" in shipping
++    assert "silence/timeout is not clean" in shipping
++    assert "recommendation executes no Git/GitHub actions" in shipping
++    resume = rows["resume"]
++    steps = _steps(resume)
++    assert _TOKEN_RE.findall(steps["1a"]) == ["sc:pr-submit"]
++    assert "--resume <run-log.jsonl>" in steps["1a"]
++    assert "--pr <number>" in steps["1b"]
++    assert "recorded ceiling, not task execution or PR recreation" in resume["notes"]
++    assert "no task-builder rebuild from resume alone" in resume["notes"]
++    local = rows["auggie-review-only"]["notes"]
++    assert "PR posting defaults on, local-only uses" in local
++    assert "--no-post-pr --no-remediation-offer" in local
++    assert "review-pr" not in rows["auggie-review-only"]["steps"]
++
++
++def test_other_operations_preserve_requested_authority_and_owned_state():
++    """S23-S27/T19/T72: utility operations are not generic implementation."""
++    other = _block(_text(), _OTHER_BEGIN, _OTHER_END)
++    assert "Status-only stays inspection" in other
++    assert "a commit needs authorization" in other
++    assert "Do not append push, merge or PR creation" in other
++    assert "Compile/package existing code" in other
++    assert "not new-feature implementation" in other
++    assert "Broken compilation needs diagnosis" in other
++    assert "mode=quick or mode=update" in other
++    assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
++    assert "Coordinated project docs/API/structure/README" in other
++    assert "requires Serena" in other
++    assert "writes memory; not durable task execution state" in other
++    assert "Not executor resume" in other
++    assert "inspect status, orient, then wait" in other
++    assert "self-contained, not a missing protocol" in other
++    assert "Not a default planner, automatic-start guarantee" in other
++    assert "critical stop is a task hierarchy only" in other
++    assert "no source edits or downstream implementation" in other
++    assert "Branch tracing is limited" in other
++
++
++def test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces():
++    """T44-T51/T60/T74: keep known limits, without resurrecting retired targets."""
++    guide = _text()
++    limits = _block(guide, "### 3.14 ", "## 4. ")
++    for retired in ("estimate", "the sc dispatcher", "select-tool", "task-mcp"):
++        assert retired in limits
++    assert "not current runnable framework targets" in limits
++    assert "readable installed remnants survive" in limits
++    assert "Explicit deprecated metadata and verified canonical retirement" in limits
++    assert (
++        "Independently authored installed-only/custom commands remain eligible"
++        in limits
++    )
++    assert "uncertain ownership of a same-name override needs clarification" in limits
++    assert "Do not delete, update or reinstall anything automatically" in limits
++    for row in _routing_rows():
++        assert not {"sc:estimate", "sc:sc", "sc:select-tool", "sc:task-mcp"} & set(
++            _TOKEN_RE.findall(row["steps"] + row["notes"])
++        )
++    rows = {r["id"]: r for r in _routing_rows()}
++    for row_id in ("roadmap-artifacts", "roadmap-fidelity"):
++        assert "contract gap" in rows[row_id]["steps"]
++        assert "asks first" == rows[row_id]["changes_files"]
++        assert not {"--specs", "--agents", "--template", "--depth"} & set(
++            _FLAG_RE.findall(rows[row_id]["steps"])
++        ), "No runnable union of the conflicting command/protocol interfaces"
++    assert (
++        "Command and protocol disagree on missing-proxy STOP versus stub fallback"
++        in guide
++    )
++    assert "Startup status messages do not prove agent/PM activation" in limits
++    assert (
++        "static routing assertions, generated recommendation results" in limits.lower()
++    )
++    assert (
++        "Do not report fabricated quality scores, timing, savings or test counts"
++        in limits
++    )
++
++
++def test_swarm_settings_help_retains_inputs_without_inferred_real_launch():
++    """S21: settings help is specialized preparation, not real-model permission."""
++    row = next(r for r in _routing_rows() if r["id"] == "multi-model-review")
++    assert "swarm settings help" in row["intent"]
++    assert _TOKEN_RE.findall(_steps(row)["1"]) == ["sc:swarm-wizard"]
++    assert "supplied goal/target" in row["steps"]
++    assert "stop at settings/preparation" in row["steps"]
++    assert "explicitly authorized and prerequisites pass" in row["steps"]
++    assert "keep goal, target and output" in row["notes"]
++    assert "interview missing inputs or ambiguous lens" in row["notes"]
++    assert "50 non-whitespace bytes" in row["notes"]
++    assert "T2ProxyUrl/T2ProxyKey/T2Model01" in row["notes"]
++    assert "confirmation after a passing stub dry run" in row["notes"]
++    assert "contract gap on missing-proxy STOP versus fallback" in row["notes"]
++    assert not {"sc:spec-panel", "sc:explain", "task-builder"} & set(
++        _TOKEN_RE.findall(row["steps"])
++    )
++
++
++def test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions():
++    """T22/T64: defaults apply only after preserving explicit operation intent."""
++    rows = {r["id"]: r for r in _routing_rows()}
++    cleanup = rows["cleanup"]
++    assert cleanup["mandatory_flags"] == "-"
++    assert "--type <code/imports/files/all>" in cleanup["notes"]
++    assert "never overwrite supported explicit choices" in cleanup["notes"]
++    assert "attachment skips shipping steps 1-5" in rows["review-pr"]["notes"]
++
++
++def test_grouped_required_flags_still_use_exact_flag_tokens():
++    """Grouping two required controls cannot hide a missing or lookalike flag."""
++    row = next(r for r in _routing_rows() if r["id"] == "review-pr")
++    entry = next(
++        item for item in row["mandatory_flags"].split(";") if item.startswith("4:")
++    )
++    required = _FLAG_RE.findall(entry.partition(":")[2])
++    assert required == ["--no-post-pr", "--no-remediation-offer"]
++    source = _command_text("sc:auggie-review")
++    assert source is not None
++    assert all(flag in source for flag in required)
++    assert "--no-post-pr" not in _FLAG_RE.findall("--no-post-pr-lookalike")
++
++
++def test_task_and_implement_verification_claims_are_not_universal_test_guarantees():
++    """T73: static route claims distinguish manual checks, sanity and extras."""
++    small = next(r for r in _routing_rows() if r["id"] == "small-change")
++    assert "run the related test if it has not run" in small["steps"]
++    assert (
++        "STANDARD permits affected tests or documented manual verification"
++        in small["notes"]
++    )
++    assert "LIGHT includes scope/sanity checks" in small["notes"]
++    assert "manual verification as an observed test pass" in small["notes"]
++    level_block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    direct = _cells(_table_rows(level_block)[3])
++    assert (
++        "STANDARD permits affected tests or documented manual verification" in direct[2]
++    )
++    assert "LIGHT includes scope/sanity checks" in direct[2]
++    assert "Run the related test if it has not run" in direct[2]
++    assert "it runs the affected tests itself" not in direct[2]
++    assert "it skipped checking" not in direct[2]
++    assert "observed related-test result when available" in direct[3]
++    implementation = _block(_text(), "### 3.3 ", "### 3.4 ")
++    assert (
++        "tests as extras; compliance with the acceptance criteria is the task verdict"
++        in implementation
++    )
++    assert "not every task uses an independent agent" in implementation
++    assert "managed package's final review is independent" in implementation

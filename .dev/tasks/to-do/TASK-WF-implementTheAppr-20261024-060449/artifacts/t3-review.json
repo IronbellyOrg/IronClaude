@@ -1,0 +1,72 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T3.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:58",
+        "src/superclaude/skills/sc-recommend/SKILL.md:60",
+        "src/superclaude/skills/sc-recommend/SKILL.md:242",
+        "src/superclaude/skills/sc-recommend/SKILL.md:245",
+        "tests/skills/test_sc_recommend_routing_contract.py:83",
+        "tests/skills/test_sc_recommend_routing_contract.py:99"
+      ],
+      "reason": "Matching considers the complete objective, explicit choice, artifact and authority ceiling. Output resolves conditions, selects one branch, preserves applicable prerequisites and stops at the requested deliverable. Unsure handling asks for clarification instead of recommending itself."
+    },
+    {
+      "id": "T3.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:134",
+        "src/superclaude/skills/sc-recommend/SKILL.md:135",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:50",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:54",
+        "tests/skills/test_sc_recommend_routing_contract.py:114",
+        "tests/skills/test_sc_recommend_routing_contract.py:127"
+      ],
+      "reason": "Formal Usage, tables, argument hints and declared positional/keyword syntax qualify. Conflicting example-only options do not. Mandatory skill invocations are followed under any heading, actual names including tdd are resolved, and self-contained commands need no invented protocol."
+    },
+    {
+      "id": "T3.AC3",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:23",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:25",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:30",
+        "src/superclaude/skills/sc-recommend/SKILL.md:135",
+        "src/superclaude/skills/sc-recommend/SKILL.md:139",
+        "tests/skills/test_sc_recommend_routing_contract.py:127"
+      ],
+      "reason": "Research authority and the callable copy are separate, with kind-specific installed/project precedence and plugin namespaces preserved. Verification reads backing skills and relevant dependencies; missing capabilities remain unavailable and material disagreements withhold unsupported invocations."
+    },
+    {
+      "id": "T3.AC4",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:136",
+        "src/superclaude/skills/sc-recommend/SKILL.md:139",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:53",
+        "src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:63",
+        "tests/skills/test_sc_recommend_routing_contract.py:145"
+      ],
+      "reason": "Verification consults current guide lifecycle guidance and rejects explicit deprecation or proven framework retirement, including readable remnants. Source absence alone does not reject custom commands. Uncertain same-name ownership requires clarification; replacements are independently verified and nothing is deleted automatically."
+    },
+    {
+      "id": "T3.AC5",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-recommend/SKILL.md:158",
+        "src/superclaude/skills/sc-recommend/SKILL.md:163",
+        "src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:38",
+        "src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:42",
+        "tests/skills/test_sc_recommend_routing_contract.py:162"
+      ],
+      "reason": "Native and no-guide handling preserve direct-change limits, workflow-first planning, explicit MDTM exceptions, existing executors and contained-cleanup safeguards. Added static assertions cover clarification, interface evidence, dependency/lifecycle checks and safe fallback policy without claiming generated behavior."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [],
+  "self_audit": "Independently read the rubric, constraints, Task3, governing requirements, supplied diff and all four live touched files; inspected the live diff against f0cfc02ee8a7970180fbcd7b7548081c8c23f03c. Challenged explicit-choice overrides, branch stopping, interface evidence, callable precedence, missing dependencies and retirement/custom exceptions. No confirmed Task3 defect found. Existing plugin/star/eval controls and built-in exemptions remain unchanged. No router, classifier keys, durable schema or unconditional checkout dependency was added. Cache reconstruction/condensed prompts and mirror completion remain later-task work, not certified here. No edits, tests, Git mutations, agent spawning or retry/adviser reads."
+}

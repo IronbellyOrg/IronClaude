@@ -1,0 +1,92 @@
+# Research: /sc:build recommendation accuracy
+
+- **Topic type:** Command-specific routing research
+- **Scope:** Six-month command history and current recommendation contracts
+- **Status:** Complete; source inspection only, no runtime validation
+- **Date:** 2026-10-24
+- **Handoff:** Returned inline because worker instructions prohibit writing report files. No files changed.
+
+## Evidence paths
+
+Citation identifiers below resolve to these absolute paths:
+
+- **B:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/build.md`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **R:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **S:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md`
+- **P:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **T:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py`
+- **PG:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The exact command has one reachable change during 2026-04-24 through 2026-10-24: commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, “chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74).” Its actual patch adds blank lines and a final newline. No flags, triggers, execution responsibilities, or boundaries changed. This command belongs in the inventory because formatting-only updates were explicitly included, not because it acquired new capabilities. Evidence: exact-path `git log` and `git show` for B.
+
+### Current command contract
+
+[CODE-VERIFIED] `/sc:build` compiles and packages an existing project. Its optional target selects a component; its Usage declaration lists `--type dev|prod|test`, `--clean`, `--optimize`, and `--verbose`. With no arguments, the example describes building the whole project with its default configuration. The document does not specify a concrete default value for `--type`. It describes dependency/toolchain validation, execution, artifact optimization, packaging, timing metrics, and artifact analysis. These are verified documentation contracts, not observed execution. (B:19-38,63-85)
+
+[CODE-VERIFIED] The command is self-contained: the complete file contains no Activation section or delegated protocol skill. It explicitly uses Bash to execute build systems and Write for reports. It can therefore create build outputs and reports, rather than merely advise. Its boundaries forbid modifying build configuration, creating new build scripts, installing missing dependencies/tools, and deploying beyond artifact preparation. No approval, durable ledger, automatic resume, or downstream implementation handoff is documented. (B:1-108, particularly 46-52,95-107)
+
+[CODE-CONTRADICTED] The development example uses `--validate`, but the Usage declaration does not list that flag. There is no Options table or frontmatter `argument-hint` to clarify it. Recommendation output must not treat the example as sufficient proof of a coherent supported interface. Resolving the command defect is a follow-up; withholding this ambiguous flag directly affects recommendation accuracy. (B:1-8,19-23,87-93)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide does mention `/sc:build`, but only as “Build or package the project” in Other commands. It has no dedicated routing row. The plugin-bundled guide repeats that same short description. This is under-description, not complete omission. (G:260-269,299-327; PG:260-269)
+
+[CODE-VERIFIED] The recommendation skill already has machinery to discover this command without another fixed keyword table. In `no_match`, it makes fitting Other commands entries candidates; the cold-path prompt repeats that instruction. However, matched routing rows decide the answer before this secondary discovery path. Thus clearer meaning in the existing guide entry is useful, while an extra hardcoded command classifier would duplicate the intended discovery design. (R:50-61; P:125-148)
+
+[CODE-CONTRADICTED] The flag-verification rules exclude the very syntax `/sc:build` uses. R1 permits flags only from a flag table or `argument-hint`, and the surface reference asks for an Options table. Build supplies neither; its supported options are declared in Usage. Strict compliance therefore prevents recommending even its documented production combination. The condensed cold-path R1 repeats the mismatch. (R:128-132,335-337; S:54-60; P:200-202; B:19-23,71-77)
+
+[CODE-VERIFIED] The cache classifier has no successful-build/packaging key. It distinguishes task-file generation and broken-build diagnosis, while unmatched requests are supposed to return `unknown`. A successful packaging request should therefore fall through to live discovery, not be forced into task-builder or troubleshooting simply because it contains “build.” This is a contract expectation, not a measured classification result. (P:42-67)
+
+[CODE-VERIFIED] Existing routing tests require `/sc:build` to remain in Other commands and verify that named commands resolve. Their flag checks test whether text occurs anywhere in the command source, rather than whether it appears in the declared interface. These structural checks do not demonstrate that packaging, feature creation, and failing-build requests receive different recommendations. (T:26-41,275-304)
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST: Clarify the existing Other commands entry in G and PG.** Proposed wording: “Compile/package existing code with the project's existing build configuration; supports component targets, environment selection, clean builds, optimization, and verbose reporting. Not feature implementation, build-system authoring, dependency installation, or deployment.” This preserves the command's documented scope and uses the existing guide mechanism. No extra keyword routing table is proposed. Grounding: B:19-38,95-107; G:269.
+
+[UNVERIFIED] **MUST: Make interface verification work for self-contained commands.** Update R Phase 0 Step C and R1, S's command-extraction instructions, and P's cold-path extraction/R1. When no Options table or `argument-hint` exists, accept an explicit Usage declaration as the interface source. Keep example-only flags unverified when they conflict with, or are absent from, that declaration. This enables documented build options without weakening anti-fabrication into “any flag mentioned anywhere.” Grounding: R:128-132,335-337; S:54-60; P:145-148,200-202; B:19-23,90.
+
+[UNVERIFIED] **SHOULD: Preserve three separate intents in recommendation examples and regression coverage.**
+
+1. Existing project compilation/packaging: `/sc:build`.
+2. Diagnosing a broken build: the existing guide's troubleshooting route, with type `build`.
+3. Creating a feature or changing build-system source: planned implementation, not `/sc:build`.
+
+A paste-ready production example, after the verification-rule correction, is `/sc:build --type prod --clean --optimize`; a component-scoped example is `/sc:build frontend --verbose`. These exact combinations occur in B:71-85. The recommendation must not imply either command deploys software.
+
+[UNVERIFIED] **MUST: Apply the user's proposed planning policy without swallowing operational builds.** Ordinary planned implementation should default to workflow plus implement; reserve task-builder plus task for the exceptionally complex, long-running workload, or explicit MDTM inputs. This differs from current guide rows that select MDTM for many files, multiple sessions, or clear existing-system features. Those current criteria should not become reasons to turn a packaging request into task generation. Grounding for the current conflict: G:243,305-307; R:155-157; P:160-167.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Add these source-grounded behavioral cases:
+
+- “Package the existing project for production; clean and optimize” produces the documented production build invocation, without task generation or deployment.
+- “Build the frontend component with detailed output” preserves the target and `--verbose`.
+- “Why does compilation fail with this error?” selects build diagnosis, not a blind clean-build recommendation.
+- “Build a CSV export feature across several files” selects the proposed workflow/implement default, not packaging or automatic MDTM escalation.
+- A command with options only in Usage remains recommendable; example-only `--validate` is not emitted.
+- No build-specific cache key is required: an unmatched packaging intent reaches live candidate discovery.
+- Plugin-installed and checkout recommendations preserve the same packaging boundary.
+- Tests continue requiring build discovery through Other commands. Grounding: B:19-23,71-107; G:269,305-311; P:50-67; T:275-283.
+
+## Gaps
+
+[UNVERIFIED] No build invocation, recommendation session, classifier evaluation, or tests were executed. Browser validation and optimization claims remain documentation-only.
+
+[CODE-VERIFIED] Exact-reference searches found no build-specific coverage in the recommendation test directory; the concrete build reference found in routing tests enforces inventory presence. Broad “build” matches are often false positives for task-building, roadmap construction, or broken-build diagnosis. (P:58-65; T:26-41,275-283)
+
+[CODE-VERIFIED] Tracked-file inspection found no source or plugin `sc-recommend-protocol` directory. An installed legacy protocol exists at `/config/.claude/skills/sc-recommend-protocol/SKILL.md`; its lines 29-44 contain the old fixed categories. The current command instead activates `sc-recommend`, as verified at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:52-58`. Do not restore legacy routing to solve build discovery.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE**, despite a formatting-only command delta: recommendation verification cannot faithfully express the current build interface, and the guide obscures its boundaries.
+
+- **MUST:** Recognize explicit Usage interfaces, exclude contradictory example-only flags, and separate packaging from implementation.
+- **SHOULD:** Expand the existing guide entry and add build-intent regression cases on both distribution surfaces.
+- **NONE:** No new build protocol, fixed keyword table, cache category, or invented resume/deploy capability is justified.
+
+[UNVERIFIED] Recommended next step: incorporate these narrowly scoped requirements into the consolidated specification; leave command implementation and the ambiguous validation flag for separately authorized follow-up.

@@ -1,0 +1,36 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 139 items
+
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 15%]
+.....                                                                    [ 18%]
+tests/commands/test_workflow_command.py ......F..........                [ 30%]
+tests/commands/test_routing_plugin_parity.py F                           [ 31%]
+tests/cli/test_install_hooks.py ......................                   [ 47%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 66%]
+...............................................                          [100%]
+
+=================================== FAILURES ===================================
+________________________ test_plugin_mirror_matches_src ________________________
+tests/commands/test_workflow_command.py:101: in test_plugin_mirror_matches_src
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['refs/overlap-routing.md']
+E   assert (not ['refs/overlap-routing.md'])
+_____________ test_sc_recommend_plugin_tree_mirrors_src_plus_guide _____________
+tests/commands/test_routing_plugin_parity.py:35: in test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md']
+E   assert (not ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md'])
+=========================== short test summary info ============================
+FAILED tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src
+FAILED tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+======================== 2 failed, 137 passed in 0.61s =========================
+pytest_rc=1
+All checks passed!
+ruff_rc=0
+2 files already formatted
+format_rc=0

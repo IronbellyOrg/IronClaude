@@ -1,0 +1,47 @@
+input_tree_sha256: 77da068d6dc102c871cbb2d87d2d7aae0827632eb3530f4a39ec4ee7560517c9
+file_count: 22
+file_list:
+  - path: .dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md
+    sha256: 43076245faf471fffde8475832065fd9997f0dce8d58fd3775097071157ac0b0
+  - path: .dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/TASK-WF-implementTheAppr-20261024-060449.md
+    sha256: e7d1cb46f1d8996ecef54d2702de20a3617e9b3e4856f84afc6c15bb952794db
+  - path: .dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/source.md
+    sha256: 9b90953f6a24f382532d21d0a973ae793b94b7685e43be4db61a479ebdee28d0
+  - path: plugins/superclaude/commands/recommend.md
+    sha256: 30f06e8ff568f5f4e051a3f03b5e00d5a5c8349a217813d12d5b23d7db28f57e
+  - path: plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+    sha256: 76b86a28a6864c50829464b56f69c5a8a0d40c5627775284b5da2207796fcfbf
+  - path: src/superclaude/cli/recommend/prompts.py
+    sha256: 789fd70222a136dc080abf2116aceafb9c655e1733a867891f9e56bcea13819d
+  - path: src/superclaude/commands/README.md
+    sha256: 3ca75f0c7b68552af17ef7627c6dbb0c9e10a6f5cbec02126008e78cdb7d3944
+  - path: src/superclaude/commands/recommend.md
+    sha256: 30f06e8ff568f5f4e051a3f03b5e00d5a5c8349a217813d12d5b23d7db28f57e
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: d6ac5f20eb7cb191e8dc95d0920cb054b93e4beb09168928e22a827d067804bd
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: ca24a8b6c2ee12b14a4294b1c78f3ab0eda397eb239b7d381b8a570c7a6743e0
+  - path: src/superclaude/hooks/scripts/sc-recommend-phase0.sh
+    sha256: 1f28c5a6674963b1c58a73855d919086d0568cd32e25416d3edea8744e181221
+  - path: src/superclaude/skills/sc-recommend/SKILL.md
+    sha256: 01c5eaaae2cd827f1e997800a9d9d6e73d880797fd06ddb4d47dee4b7204b138
+  - path: src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+    sha256: 4211b11562b5c455138a115866b9864621ac25131a47528336290dd9bf44e992
+  - path: src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+    sha256: ecc31759b64bccd6d5441fa495c13e580413c942d78cc51074e5ff387a851dcf
+  - path: src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+    sha256: 76b86a28a6864c50829464b56f69c5a8a0d40c5627775284b5da2207796fcfbf
+  - path: src/superclaude/skills/tdd/refs/build-request-template.md
+    sha256: 8d013db6e5d4be1e13b09a6dddab327478de0fc5e5eaf7650b1e67e0b5f09133
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: f8e0e09c277f9effae9da7f9133fd7928329a44f946cde1e2e403b1ee5111b11
+  - path: tests/core/test_claude_md_routing_block.py
+    sha256: fb7178c485864a1341e50c273d85d32020e48331c863e315a29cc2c18c8ce891
+  - path: tests/core/test_how_we_work_routing_table.py
+    sha256: b8695e41e6214c8721c35e5e3e507ee693af3e062576f244945c2985701149ea
+  - path: tests/recommend/test_cache.py
+    sha256: 437599d45feffeb6a51040ba0492c19f29ba7c2ae15468668c071fc928828544
+  - path: tests/recommend/test_dispatch.py
+    sha256: 7a7459bd5362aea56e68869f2045ab937c931e74ee246685cbdfd6b069293053
+  - path: tests/skills/test_sc_recommend_routing_contract.py
+    sha256: b78aa70210021257acc0a767ec879f661024309dae37bab3e7129ff511933067

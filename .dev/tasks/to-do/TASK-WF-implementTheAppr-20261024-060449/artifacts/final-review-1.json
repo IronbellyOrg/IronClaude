@@ -1,0 +1,73 @@
+{
+  "final": "issues",
+  "evidence": [
+    "src/superclaude/core/HOW-WE-WORK.md:17",
+    "src/superclaude/core/HOW-WE-WORK.md:24",
+    "src/superclaude/core/HOW-WE-WORK.md:270",
+    "src/superclaude/core/HOW-WE-WORK.md:370",
+    "src/superclaude/core/HOW-WE-WORK.md:383",
+    "src/superclaude/core/CLAUDE.md:50",
+    "src/superclaude/skills/sc-recommend/SKILL.md:58",
+    "src/superclaude/skills/sc-recommend/SKILL.md:86",
+    "src/superclaude/skills/sc-recommend/SKILL.md:149",
+    "src/superclaude/cli/recommend/prompts.py:54",
+    "src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md:8",
+    "src/superclaude/skills/tdd/refs/build-request-template.md:158",
+    "tests/recommend/test_cache.py:25",
+    "tests/recommend/fixtures/routing_refresh_cases.json:606",
+    "./artifacts/t5-final-checks.log:31",
+    "./artifacts/t6-a5-tests.log:64",
+    "./artifacts/t8-final-checks.log:52",
+    "./artifacts/retries/T6/review-5.md:20",
+    "./artifacts/retries/T8/review-5.md:11"
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "status": "met",
+      "reason": "Level 3 is the default and level 4 is explicit or exceptional only (guide:17-26); the core level-table copy matches; tests pass"
+    },
+    {
+      "id": "T2",
+      "status": "met",
+      "reason": "Specialist rows guide:359-389, PR monitor branches :370, retirement note :270; the 8-column schema test passes"
+    },
+    {
+      "id": "T3",
+      "status": "met",
+      "reason": "Whole-outcome matching SKILL:58-62; callable copy vs canonical source :124; interface/lifecycle checks :144-149"
+    },
+    {
+      "id": "T4",
+      "status": "met",
+      "reason": "A cache hit is only a hint and is rebound to the current request (SKILL:86-98); classifier key set unchanged (diffed); spec-panel fixture rekeyed; no cache/dispatch code changed"
+    },
+    {
+      "id": "T5",
+      "status": "issue",
+      "reason": "Content AC met, but its latest complete line cites t5-final-checks.log:31 = '2 failed, 137 passed' (pytest_rc=1), and there is no Ruling for T5"
+    },
+    {
+      "id": "T6",
+      "status": "accepted-gap",
+      "reason": "T6.AC2 is unmet exactly as accepted: fixture:606 S26 unavailable variant, the S25/S26 repeats, the S24 competitor, side_effects presence-only. Fixture (17:42) and test (17:43) unchanged since review-5 (17:48). Cited log :64 shows 4 failed (later fixed by T7), which is disclosed in review-5 AC5"
+    },
+    {
+      "id": "T7",
+      "status": "met",
+      "reason": "cmp byte-identical for guide, skill tree, command and overlap mirrors; verify-sync in sync; no .claude staged"
+    },
+    {
+      "id": "T8",
+      "status": "accepted-gap",
+      "reason": "T8.AC1/AC3 are unmet exactly as accepted: 6 pass units keep false criteria (2 stop_and_authority_ok, 1 variant_behavior_ok, 3 inputs_and_flags_ok); 12 rows say '989 passed' vs log 990; the FR-12 note says 'changed no final verdict'. No delivery file is newer than review-5"
+    }
+  ],
+  "issues": [
+    {
+      "path_line": ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t5-final-checks.log:31",
+      "problem": "T5's latest complete line (progress.md:20, extras test:fail) cites a log whose outcome line is '2 failed' (mirror-parity tests, later fixed by T7). The qa.md FINAL rule says this is issues, and there is no T5 Ruling. t6-a5-tests.log:64 ('4 failed') also trips the rule; T6's Ruling names only the fixture gaps, but the review-5 it accepted discloses those failures."
+    }
+  ],
+  "self_audit": "State digest recomputed = 7039787c...7085 (matches). HEAD 77288289 unchanged; only .dev/tasks staged, nothing under .claude. Rerun: 473 passed across tests/core, commands, recommend, the routing contract and dual-surface tests; ruff clean; make verify-sync OK; cmp of all mirrors OK. New src/superclaude mentions in primitives are labelled checkout fallbacks that already existed at HEAD. The only cli change is prompts.py constants (kebab key set unchanged). No install/auth/config edits. Read every cited outcome log line, T6/T8 review-5 and mtimes. Content ACs not re-derived in full for every T01-T76/S01-S29 case; relied on passing tests plus spot reads."
+}

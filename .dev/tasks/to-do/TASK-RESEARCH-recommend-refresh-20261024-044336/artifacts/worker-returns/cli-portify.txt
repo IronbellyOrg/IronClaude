@@ -1,0 +1,109 @@
+# Research: /sc:cli-portify
+
+- **Topic type:** Command routing and capability analysis
+- **Scope:** Six-month command history and current recommendation contracts
+- **Status:** Research complete; no files changed or tests executed
+- **Date:** 2026-10-24
+
+## Evidence paths
+
+All citations below use these absolute-path identifiers:
+
+- **C:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cli-portify.md`
+- **P:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md`
+- **PS:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **R:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **RC:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md`
+- **CP:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **CA:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py`
+- **D:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py`
+- **H:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh`
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Exact-command history within 2026-04-24 through 2026-10-24 contains two commits:
+
+- `89df2c1105c01caff199288f949d5783f6594e70`, 2026-05-22: blank-line formatting only. The command patch changes no arguments, boundaries, activation, or dry-run behavior. Its delegated protocol, analysis reference, and pipeline-spec reference also receive only blank-line additions.
+- `3ae238b178fb7c67ca02809d24745de620c2bd50`, 2026-09-30: removes `sequential` from command and protocol `mcp-servers` metadata. This changes declared tooling, not the workflow-to-specification contract.
+
+Evidence: inspected both commits’ patches for **C** and the delegated protocol directory. The current declarations retain Serena and Context7; the protocol also declares Auggie (**C:7**, **P:7**).
+
+[CODE-VERIFIED] Specification synthesis and panel review already existed before these window changes. They must not be described as newly added functionality in this research window. The formatting patch contains those sections as unchanged context; current boundaries explicitly describe them (**P:448-458**).
+
+### Current command contract
+
+[CODE-VERIFIED] Required input is `--workflow <skill-name-or-path>`, resolving to a skill directory containing `SKILL.md`. Optional flags are `--name`, `--output`, and `--dry-run`. The name is derived when omitted; the documented output default is the derived CLI module directory. Validation rejects missing, invalid, ambiguous, unwritable, or colliding inputs (**C:23-74**).
+
+[CODE-VERIFIED] The useful deliverable is a workflow decomposition and pipeline specification, followed on a full run by a reviewed release specification and panel report. The protocol explicitly prohibits generating code files directly, executing the pipeline, or modifying original primitives. Its pipeline-spec reference independently confirms that Phase 2 produces specification documents, not runnable code (**P:103-105,150-152,448-458**; **PS:7-13**).
+
+[CODE-VERIFIED] `--dry-run` still produces analysis/specification-stage contracts, but skips release-spec synthesis and panel review. Its return contract reports `status: dry_run`, zero quality scores, and `downstream_ready: false`. It is not synonymous with “no files written” (**C:35**; **P:568-577**).
+
+[CODE-VERIFIED] The protocol requires user review after analysis, approval before synthesis, and final approval before delivery. Resume metadata identifies resumable substeps and preserved artifacts. The slash command exposes no `--resume` option, so recommendation must not invent one (**P:105,152,393,517-565**; **C:23-35**).
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide mentions this command only in “Other commands,” with the abbreviated description “turn a skill into a CLI pipeline.” There is no corresponding workflow-portification routing row. That wording omits the actual specification deliverable and the dry-run/full-run distinction (**G:260-289,301-325** versus **P:448-458,568-577**).
+
+[CODE-VERIFIED] Recommendation consults “Other commands” only after no routing row matches. A matched generic row decides the answer and bypasses semantic ranking and cache lookup. Thus specialized portification is not protected by the guide’s current routing structure when a request also describes “many files,” an existing-system feature, or a new component. This is a contract-level collision risk, not an observed runtime reproduction (**R:54-60,150-155**; **G:305-309**).
+
+[CODE-VERIFIED] The cache classifier already contains a `cli-portify` key, described broadly as porting a workflow into CLI orchestration. Its comments explicitly say that this surface-derived key lacks iteration-1 evaluation coverage. An exact search under `tests/recommend/` found no references to `cli-portify`, `CLASSIFIER_PROMPT`, or `COLD_PATH_RUNBOOK` (**CP:21-38,55-84**).
+
+[CODE-VERIFIED] A hot hit returns the stored prompt envelope rather than rediscovering the command. The surface fingerprint hashes primitive path membership and guide contents; the per-row source check hashes only the selected `source_path`. Therefore a delegated-protocol-only edit is not necessarily sufficient to invalidate a command-backed row. A guide update does change the fingerprint (**D:104-136**; **CA:63-103**).
+
+[CODE-VERIFIED] Candidate verification currently asks for the command’s activation handoff, but does not explicitly require reading that delegated protocol before summarizing capabilities. Here, that matters: the command calls itself a multi-file code-generation operation, while the delegated boundary says no direct code-file generation (**R:128-135**; **C:78**; **P:456**).
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST: Add a specific supporting route to the existing authoritative guide table**, not a second keyword table. Match the requested artifact: conversion of an existing SuperClaude workflow into a reviewed CLI-pipeline specification. Give it level `-`, require `--workflow`, and stop after specification delivery unless implementation is separately requested. Add explanatory text to section 3.5 and remove the obsolete “Other commands” entry once routed. Under the guide’s existing convention, report/specification artifacts in the tool’s own output directory do not imply source implementation (**G:271,297**; **P:448-458**).
+
+[UNVERIFIED] A grounded recommendation example for a user-supplied skill directory is:
+
+`/sc:cli-portify --workflow <verified-skill-directory> --dry-run`
+
+For a full specification, omit `--dry-run`; preserve user-provided `--name` and `--output` without adding unsupported flags. The placeholder must remain visible until an actual directory is supplied (**C:23-35,61-68**).
+
+[UNVERIFIED] **MUST: Strengthen source verification generically** in **R**, its surface-enumeration reference, and **CP**’s cold-path runbook: when a command delegates to a skill, verify that skill’s output and mutation boundaries before describing the recommendation. Continue emitting only the public command invocation, not an inline reimplementation. This prevents the misleading “generates a working CLI” promise in this case (**R:128-135**; **P:448-458**).
+
+[UNVERIFIED] **MUST: Preserve the user’s requested stopping point.** A full portification spec must not automatically trigger `/roadmap`, `/task-builder`, `/task`, implementation, or pipeline execution. If implementation is subsequently requested, apply the requested new default of `/sc:workflow` plus `/sc:implement`; reserve MDTM for the most complex and long-running work or explicit MDTM inputs. Current generic guide rows do not express that policy and require coordinated correction (**G:305-309**). This is proposed policy, not a demonstrated capacity limit.
+
+[UNVERIFIED] **SHOULD: Narrow the existing classifier description**, without adding keys, to distinguish existing-workflow portification from an arbitrary request to create a CLI. Add positive and negative examples. Update the plugin recommendation skill/reference mirrors and the plugin’s guide copy alongside canonical changes. Existing parity tests require byte equality:
+
+`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression cases grounded in **C:23-74**, **P:448-577**, and **R:54-60,128-150**:
+
+1. Existing-workflow conversion selects `/sc:cli-portify`, not a generic product-build chain.
+2. Analysis-only intent preserves `--dry-run` and promises neither release spec nor panel report.
+3. Full specification intent omits `--dry-run` and stops before implementation.
+4. Missing workflow input produces a visible placeholder or clarification, never a fabricated path.
+5. “Build a small unrelated CLI” does not select portification merely because it contains “CLI.”
+6. Plugin-only installation without this command does not present it as installed.
+7. A guide-matched route bypasses both a stale `cli-portify` cache row and cold-path write-back.
+8. Existing cache and routing tests remain intact, with added behavioral cases rather than text-presence checks alone.
+
+## Gaps
+
+[CODE-CONTRADICTED] The activation names `sc:cli-portify-protocol`, while the tracked skill declares `sc-cli-portify-protocol`. Alias resolution was not executed. Treat this as a follow-up affecting callable-target confidence, not permission to bypass the public command (**C:81**; **P:2**).
+
+[CODE-CONTRADICTED] The command’s code-generation classification and generated-module output wording conflict with its protocol’s specification-only boundary. Recommendation should disclose the narrower documented deliverable pending source reconciliation (**C:34,78**; **P:456**).
+
+[CODE-VERIFIED] Exact tracked-path inspection found no plugin command/protocol counterpart and no tracked legacy `sc-recommend-protocol` directory. The hook’s legacy-name matcher is compatibility text, not proof of an authoritative tracked protocol (**H:15-19**).
+
+[CODE-CONTRADICTED] The recommendation command says the Phase 0 gate cannot silently be skipped, but its hook explicitly describes itself as fail-open and non-blocking. Do not claim mechanical enforcement (**RC:60**; **H:4-13**).
+
+[UNVERIFIED] No runtime portification, alias resolution, or recommendation evaluations were executed. Existing routing-contract tests assert source-text requirements, not demonstrated model routing accuracy:
+
+`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py:1-8,35-80`.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE. MUST:** Protect this specialized specification-producing command from generic implementation routing, verify its delegated boundaries, preserve dry-run/full-run behavior, and stop at the requested artifact.
+
+[UNVERIFIED] **SHOULD:** Tighten the existing classifier meaning, add command-specific routing regressions, and preserve plugin parity.
+
+[CODE-VERIFIED] **NONE:** No new flags, classifier keys, fixed keyword table, implementation executor, or runtime-success claims are justified by the inspected changes. The window contains formatting and declared-tooling updates, not a new portification capability (**C:23-35**; inspected historical patches).

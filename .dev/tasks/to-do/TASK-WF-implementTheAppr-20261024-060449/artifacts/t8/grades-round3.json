@@ -1,0 +1,12 @@
+{
+ "evidence_class": "Independent regrade of round-3 output",
+ "run_id": "wf_e28e5ab0-648",
+ "grades": [
+  {
+   "unit": "S04-repeat1",
+   "status": "pass",
+   "reason": "The expectation is repeats[0] of S04: target sc:cleanup-audit, mode_flags [], 'disclose the hidden-path exclusion floor and reject an exhaustive coverage claim', with the case-level must_not 'cleanup, improve, commit or full-pass escalation'. It agrees with guide section 3.7 (line 168: 'a hidden-config-only target is not exhaustively audited... still route to /sc:cleanup-audit... never claim exhaustive coverage. Do not force all passes'), routing row cleanup-audit-only (line 376), and spec row S04 ('Repeat with a hidden-config-only target and reject exhaustive coverage claims'). The output meets each part. Route: routing_row 'cleanup-audit-only'; step 1 is '/sc:cleanup-audit <hidden-config-dir>'. Flags: 'No --pass, --focus or --batch-size is set because the request names none', which matches the empty mode_flags. No full-pass escalation: 'Passing --pass all would not change this'. Floor disclosed: 'always excludes hidden paths ... This exclusion cannot be removed, and a project SCOPE.md can only tighten it'. Exhaustive claim rejected: 'The audit cannot be exhaustive ... Do not read the result as exhaustive coverage.' Stop point: 'Stop at the audit reports and checkpoints. No cleanup, improve or commit.' Side effects are tool-owned .claude-audit/ reports and checkpoints, with the audited folder not edited. Cache was correctly skipped on a matched row. No competitor (sc:cleanup, sc:improve, sc:git) appears as a target; /sc:cleanup is mentioned only as an optional separate later step, not added to the route.",
+   "in_scope_routing_failure": false
+  }
+ ]
+}
