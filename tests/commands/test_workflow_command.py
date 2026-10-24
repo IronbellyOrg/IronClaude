@@ -218,6 +218,20 @@ def test_digit_prefix_precedes_final_subject_truncation():
     assert "`1234567890123456` → `plan123456789012`" in parse
 
 
+def test_tasklist_referral_uses_positional_roadmap():
+    usage = (_REPO / "src/superclaude/commands/tasklist.md").read_text(encoding="utf-8")
+    assert "/sc:tasklist <roadmap-path>" in usage and "--source" not in usage
+    row = next(
+        line
+        for line in _ref("overlap-routing.md").splitlines()
+        if line.startswith("| `/sc:tasklist`")
+    )
+    do, do_not = row.split(" | ")[1:3]
+    assert "`/sc:tasklist <roadmap-path>`" in do
+    assert "--source" not in do and "<id>.md" not in do
+    assert "<id>.md" in do_not and "workflow plan" in do_not
+
+
 def test_final_reflect_pre_precedes_contract_and_handoff():
     skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert skill.index("## Wave 3 — Gate") < skill.index("## Wave 4 — Reflect")

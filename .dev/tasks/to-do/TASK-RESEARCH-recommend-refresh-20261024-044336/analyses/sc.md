@@ -1,0 +1,73 @@
+Report returned directly because this subagent's developer instructions prohibit writing report Markdown files. The assigned file `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/sc.md` was not created.
+
+# Research: Retired `/sc:sc` dispatcher
+
+- **Topic type:** Command retirement and recommendation-source freshness
+- **Scope:** Historical `sc.md`, live recommendation contracts, installed residue, plugin mirrors and cache validation
+- **Status:** Research complete; no implementation or runtime execution
+- **Date:** 2026-10-24
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/sc.txt`, worker `a5605d93f19cf48b3`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The selected command had exactly two commits in the inventory window. Commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, changed blank-line formatting and wrapped one bare URL. The inspected patch contains no semantic command change. Commit `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, deleted the entire 144-line dispatcher. Its commit message explicitly identifies removal of the “sc dispatcher.” Evidence: both commits' patches for historical `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/sc.md`.
+
+[CODE-VERIFIED] The retired text advertised `/sc` as help and linked research, repository indexing, agent invocation and recommendation. It was a small static catalogue, not an implementation planner. Historical removal-patch lines 18-98 establish this contract. The current installed residue preserves that same catalogue at `/config/.claude/commands/sc/sc.md:18-98`.
+
+### Current command contract
+
+[CODE-VERIFIED] There is no current tracked command contract at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/sc.md`: direct Read returned “File does not exist.” Historical syntax was `/sc [command]` in frontmatter and `/sc:command [args...]` in its body. It had no flag table, delegated protocol skill, authorization gate, durable execution state, implementation handoff or resume contract. These are properties of the inspected historical file, not evidence of executable behavior.
+
+[CODE-VERIFIED] Naming is itself misleading: the residue's frontmatter calls it `sc` and advertises `/sc`, while the current help contract derives `/sc:<name>` from installed command filenames. Thus an installed `commands/sc/sc.md` is discoverable as `/sc:sc`, regardless of its stale self-description. Evidence: `/config/.claude/commands/sc/sc.md:1-15` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/help.md:25-33`.
+
+[CODE-VERIFIED] The supported replacement for listing available capabilities is `/sc:help`. Its triggers explicitly include “What commands do I have?” and installation checks. It reads live listings; it does not execute listed commands. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/help.md:11-33,121-135`. The paste-ready invocation needs no invented flags: `/sc:help`.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] Current source guidance already points listing requests at `/sc:help`, not the retired dispatcher. The guide's “Other commands” entry describes help as listing installed commands and skills, while recommendation handles choosing a tool. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:266-285` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/help.md:87-93`.
+
+[CODE-VERIFIED] Nevertheless, `/config/.claude/commands/sc/sc.md` still exists in this environment. This is concrete installed residue, not a hypothetical missing-file case. Its lines 44-58 still claim `/sc` shows help.
+
+[CODE-VERIFIED] Recommendation discovery unions installed, project, plugin and checkout surfaces. Checkout precedence applies only “if the same name is found in several places.” With no current checkout `sc.md`, there is no same-name source candidate to override the installed residue. The candidate-verification rule reads whichever discovered path was recorded; it rejects nonexistent sources, not retired sources that remain readable. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:100-135`.
+
+[CODE-VERIFIED] The plugin enumeration reference carries the same duplicate-only precedence rule. Consequently, merely updating the canonical skill without its plugin counterpart would leave inconsistent retirement handling. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md:13-25`.
+
+[CODE-VERIFIED] Cache validation addresses a different problem. Surface hashing includes source, installed and project command paths, plus guide contents. A removal changes that hash and discards old rows, but a cold-path recommendation can still select a surviving installed residue. Dispatch later checks that the cached `source_path` exists and its bytes match the stored digest; it does not verify current canonical membership. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-94,118-140` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:103-137`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed requirement:** Strengthen Phase 0 candidate provenance in `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` and its surface-enumeration reference. Inside this framework checkout, readable installed residue must not establish that a framework-owned command remains supported when authoritative source history establishes its retirement. Preserve legitimate project commands and separately installed capabilities. This requirement addresses the concrete duplicate-only gap above; it is not existing behavior.
+
+[UNVERIFIED] **MUST, proposed requirement:** Apply the same eligibility decision before accepting cache writes and before emitting cache hits. An unchanged residue file must not pass solely because its hash matches. Keep selection capability-based; do not introduce another fixed keyword-routing table. Implementation must define reliable ownership/retirement evidence rather than treating every installed-only name as obsolete.
+
+[UNVERIFIED] **SHOULD, proposed requirement:** Preserve the existing help-versus-recommend distinction. “List available commands” should produce `/sc:help`; “Choose a command for this goal” should use the live recommendation path. Do not recreate the dispatcher, copy its catalogue, or import its old examples and unsupported generic `--help` suggestions.
+
+[UNVERIFIED] **SHOULD, proposed requirement:** Mirror provenance changes into the plugin skill/reference and the condensed cold-path runbook. Relevant targets are `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`. The latter currently verifies readable sources without a retirement check at lines 132-148.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression: retain a historical installed `commands/sc/sc.md`, omit its canonical checkout counterpart, and ask for command discovery. The recommendation must choose verified `/sc:help`, not `/sc` or `/sc:sc`.
+
+[UNVERIFIED] Proposed regression: seed a cache row pointing at the readable retired residue with a valid source digest and current surface hash. It must not be emitted as supported merely because byte validation passes.
+
+[UNVERIFIED] Proposed regression: add an unrelated project-local custom command absent from framework source. It must remain eligible after verification. Retirement handling must not become a blanket checkout-only allowlist.
+
+[UNVERIFIED] Proposed regression: preserve explicit MDTM task execution routing and ordinary planned implementation routing while applying retirement filtering. Dispatcher removal provides no reason to increase use of task-builder or to alter dedicated report-only commands.
+
+## Gaps
+
+[CODE-VERIFIED] Exact-token searches found no retired dispatcher references in current canonical recommendation skill, guide, CLI, hooks, maintained plugin recommendation surfaces or inspected routing tests. Broader searches produced namespace-directory false positives and malformed `/sc:sc:<command>` chains. A separate legacy distribution file, `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/commands/sc-help.md`, still uses `/sc:sc` as a namespace label; that is a follow-up naming defect, not proof the deleted dispatcher remains canonical.
+
+[UNVERIFIED] No end-to-end invocation demonstrated that semantic ranking actually selects this residue. The verified defect is eligibility under current written discovery and implemented cache checks, not an observed user-facing wrong recommendation.
+
+[UNVERIFIED] Installer cleanup behavior and ownership metadata were not established. Do not promise that updating automatically deletes this residue, and do not delete installed user files as part of this research.
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE:** Missing-file rejection is insufficient because the retired command remains readable in the installed surface. **MUST:** enforce supported provenance consistently across discovery and cache paths. **SHOULD:** add stale-installed and custom-command-preservation regressions and mirror the rule into plugin/cold-path contracts.
+
+[CODE-VERIFIED] **NO CHANGE:** Keep the dispatcher retired and retain `/sc:help` as the catalogue entry point. **NONE:** no dispatcher-specific new flags, implementation pipeline, resume flow or task-builder escalation is justified.

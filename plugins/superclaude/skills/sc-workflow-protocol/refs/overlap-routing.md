@@ -5,7 +5,7 @@
 | Neighbor | Do | Do not |
 |----------|----|--------|
 | `/sc:implement` | `--handoff implement` → `Skill sc:implement-protocol` with `<pkg>/<id>.md`. Missing skill or implement STOP → contract `partial` (plan stays valid, handoff failed); never silently skip, never `failed` | write product code |
-| `/sc:tasklist` | print `/sc:tasklist --source <roadmap>` | invoke on `<id>.md`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
+| `/sc:tasklist` | print `/sc:tasklist <roadmap-path>` (positional roadmap file; only when a roadmap exists) | pass `<id>.md` or any workflow plan as its input; print `--source`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
 | `/sc:roadmap` | INFO if source already looks like a roadmap | run `superclaude roadmap` |
 | `/sc:design` | print `/sc:design @<pkg>/<id>.md` | invoke design |
 | `/task` (MDTM) | nothing — a `TASK-WF-*` package is an implement package, not an MDTM task file | route a package to `/task` |

@@ -1,0 +1,68 @@
+# Research: /sc:research recommendation refresh
+
+- **Topic type:** Command routing and contract analysis
+- **Scope:** Six-month command history, current research behavior, recommendation guide, skill references, cache prompts, plugin copies, and regression tests.
+- **Status:** Research complete. No files changed or tests executed. Returned for coordinator persistence.
+- **Date:** 2026-10-24
+- **Assigned output:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/research.md`
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/research.txt`, worker `ae18f8f5d54c128fd`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Read-only git history for the exact command identified four changes within the requested window. `89df2c11`, 2026-05-22, added Markdown spacing and a final newline only. `b3ebeab0`, 2026-06-25, substantively added references to depth profiles and Tavily site mapping/domain crawling; its code-fence language additions were formatting. `3ae238b1`, 2026-09-30, removed Sequential from MCP metadata. `782621f4`, 2026-10-01, replaced the remaining Sequential reasoning bullet with native reasoning. These changes do not introduce implementation authority or retire the command. Current evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:6-7,86-100,122-142`.
+
+### Current command contract
+
+[CODE-VERIFIED] The command accepts a quoted research question, `--depth quick|standard|deep|exhaustive`, and `--strategy planning|intent|unified`. Its declared scope includes current events, academic and technical research, market analysis, and competitive intelligence. It is self-contained: no `## Activation` section dispatches to a protocol skill. Metadata names the `deep-research-agent` persona; that agent independently lists command activation as a trigger. This is documentation-verified behavior, not proof of an executed dispatch. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:14-26`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/agents/deep-research-agent.md:24-30`.
+
+[CODE-VERIFIED] Output is a cited research report under `claudedocs/research_[topic]_[timestamp].md`, including an executive summary and confidence levels. The command explicitly stops after the report and forbids code implementation, architectural decisions, and system changes. Its next-step sentence leaves further action to the user. It documents no durable task ledger or resume command. Source: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:102-142`.
+
+[CODE-VERIFIED] Depth is capability-bearing, not merely output length. Configuration enables search at quick, extraction at standard, mapping at deep, and crawling only at exhaustive. Unified planning is the configured strategy default and presents a plan before execution after confirmation. Profile source/time quantities are written configuration targets, not verified capacity guarantees. Source: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/RESEARCH_CONFIG.md:5-20,59-98`.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The guide correctly distinguishes local `/tech-research` from web `/sc:research`, but its machine-readable `external-research` row covers only libraries, standards, and best practices and mandates `--depth deep`. That is narrower than the command’s current-events, academic, and competitive-research triggers and cannot preserve an explicit quick or exhaustive request as written. The generic `ask` row also includes “how does something work,” so external subject matter needs clearer differentiation. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:138-145,247,303-312`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:14-26,86-93`.
+
+[CODE-CONTRADICTED] Recommendation Rule R1 accepts flags only from a target’s flag table or `argument-hint`, but research declares its legitimate flags in `Context Trigger Pattern`, with neither accepted container. The ordered-workflow rule could therefore reject the guide’s own mandatory depth flag despite its documented existence. This is a contract contradiction, not an observed runtime failure. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:234-239,335-337`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:22-26`.
+
+[CODE-VERIFIED] Plugin-search routing already uses research appropriately: deep comparative discovery prefers `/sc:research`, shallow discovery may use Tavily directly, and `/tech-research` is explicitly excluded. However, the main skill lists this as search priority, while its reference says to generate a handoff rather than search inline. The existing focused `deep-research` agent is real and distinct from `deep-research-agent`; it is not a missing-name defect. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:244-268`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md:18-29`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/agents/deep-research.md:1-29`.
+
+[CODE-VERIFIED] A matched guide row bypasses both cache paths and semantic ranking, making the guide the decisive correction point. For unmatched requests, the classifier already has `web-research`, explicitly distinguished from codebase research. Cache validation hashes the selected source’s contents and the guide’s contents, but the surface fingerprint hashes agent paths, not agent contents, and does not include research configuration. Thus a research-engine-only edit is not covered by those content checks. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:58-67`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:55-67`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-103`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:116-136`.
+
+[CODE-CONTRADICTED] The plugin research command still names Sequential for reasoning while the source command now says native reasoning. The recommendation hook also does not mechanically guarantee verification: its own header explicitly says fail-open and procedural, despite the command claiming the gate cannot silently be skipped. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/research.md:95-100`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:95-100`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh:4-13`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:60`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed routing policy:** Update guide section 3.5 and the existing `external-research` row to cover current external evidence, academic synthesis, market research, and competitive comparisons. Preserve report-only termination and distinguish repository investigation. Remove the unconditional deep requirement; preserve requested depth and describe deep as suitable for comparative synthesis, exhaustive for domain crawling. Example: `/sc:research "Compare current public evidence on AI coding assistants; cite sources and separate claims from measured results" --depth deep`. Flags are grounded in `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/research.md:22-26`; capability distinctions are grounded in `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/RESEARCH_CONFIG.md:66-98`.
+
+[UNVERIFIED] **MUST, proposed verification change:** Extend R1, the ordered-workflow verification rule, surface-enumeration reference, and condensed cold-path R1 to recognize explicitly documented command usage syntax such as `Context Trigger Pattern`. Continue rejecting invented options. This fixes verification at the shared rule rather than inventing a research-specific flag table inside recommend. Evidence basis: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:234-239,335-337`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:200-204`.
+
+[UNVERIFIED] **SHOULD, proposed consistency changes:** Preserve the existing plugin research handoff and clarify who executes the eventual search; update applicable plugin mirrors and remove the stale Sequential claim. Do not add another fixed keyword-routing table. Any later implementation after research should follow the user’s new workflow-first policy, not automatically escalate because research occurred. This is a requested policy change, not current behavior: the existing `research-first` row still offers task-builder next. Evidence basis: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:308`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md:18-29`.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed checks:
+
+1. Current competitive or academic research selects `/sc:research`, returns report-only instructions, and never appends implementation.
+2. Explicit quick and exhaustive requests retain their depth; exhaustive domain research is not silently downgraded to deep.
+3. Local subsystem investigation selects `/tech-research`, not web research.
+4. Documented depth/strategy syntax passes verification; invented `--crawl` and `--output` fail.
+5. A matched research row bypasses cache; unavailable CLI does not prevent recommendation.
+6. Source and plugin research commands agree about native reasoning.
+7. Ordinary implementation requested after a report uses workflow plus implement by default; explicit MDTM inputs remain `/task`.
+
+Existing tests verify tier names, nonduplicated Tavily parameters, routing syntax, and flag-token existence, but these are not evidence that the scenarios above ran. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_research_command.py:25-57`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py:286-304`.
+
+## Gaps
+
+[CODE-VERIFIED] Tracked-file lookup found no `sc-recommend-protocol` source directory. A globally installed legacy copy exists and describes old mapping/estimation behavior; it is not the current command’s activation target. Sources: `/config/.claude/skills/sc-recommend-protocol/SKILL.md:1-43`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:52-58`.
+
+[UNVERIFIED] Command strategy aliases `planning`/`intent` versus configuration names `planning_only`/`intent_planning` have no verified parser mapping. Default depth, operational persistence, live MCP availability, and cached research-row contents were not established. No runtime guarantees should be inferred from these Markdown contracts.
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE. MUST:** broaden the existing external-research route, preserve explicit depth, accept verified usage-block flags, and retain report-only boundaries. **SHOULD:** reconcile plugin/handoff wording and document dependency freshness limits. **NONE:** no new research protocol, fixed keyword table, automatic implementation chain, or capacity claim is justified. The command remains useful; recommendation coverage and verification rules need correction.

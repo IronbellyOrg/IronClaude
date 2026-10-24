@@ -1,0 +1,17 @@
+validator_agent_id: a63bb748fd445ec7e
+model_requested: opus
+verdict: PASS
+verdict_scope: failure disclosure only; not plan PASS and not completed reflection
+citations_total: 0
+citations_revalidated: 0
+citations_dropped: 0
+zero_drop_flag: true
+evidence_supported: true
+unsupported_claims_disposition:
+  - Report-write restriction attributed to parent task instruction, not artifact evidence.
+  - Header contract version and citation policy are protocol-selected fields, not observed evaluation results.
+  - Human-report partial status is template rendering for incomplete work; actual execution status remains failed.
+  - Calibration did not run; no claim about completed calibration method.
+  - Workflow fallback mechanism not validated; final report does not claim which fallback executes.
+self_audit: Validator Read execution-failure.yaml, input-snapshot.yaml and audit.log; checked failure disclosure; no mutations or delegation. Zero citations gives no substantive plan validation.
+audit_timestamp_note: Audit log records retrospective event outcomes at snapshot time, not measured per-step timing.

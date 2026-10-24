@@ -1,0 +1,55 @@
+stage: wave-1B-coverage-mapping
+status: failed
+reason: requirements-analyst returned incomplete extraction and hand-estimated matching instead of a complete deterministic coverage map
+worker_agent_id: a1d6b3f9db5e531ed
+worker_model_requested: sonnet
+worker_verdict: FAIL
+worker_verdict_accepted: false
+worker_report_markdown_written: false
+negative_evidence:
+  - First named Agent invocation failed because teammates cannot spawn named teammates. Retried without name; requirements-analyst executed and returned.
+  - Worker explicitly said containment ratios were hand counts, not machine output.
+  - Worker reported 105 inferred rows and explicitly excluded another 121 requirement-shaped rows from containment.
+  - Worker did not provide the requested JSON-only complete extraction.
+  - Worker treated lexical misses as findings despite admitting semantic coverage by reference.
+  - Worker could not establish whether an optional TDD plugin mirror exists.
+invalid_worker_metrics_not_used:
+  claimed_coverage_pct_union: 0.1429
+  claimed_S_dev_density: 0.8571
+  reason: incomplete population and non-deterministic hand estimates cannot feed tier rubric
+unresolved_candidates_not_validated:
+  - Whether tasks explicitly exercise approved-spec Section 5.1 printed-plan-path and destination-override safeguards.
+  - Whether generation evidence covers Section 8.2 integration scenarios and Section 8.3 behavioral families beyond S01-S29.
+  - Whether Task 6 all-affected-static-tests criterion requires mirror parity before Task 7 synchronization.
+  - Whether operative acceptance criteria sufficiently cover worktree correctness and concise handoffs.
+calibration:
+  ran: false
+  reason: no valid complete coverage card to calibrate
+rubric:
+  completed: false
+  reason: S_dev_density and complete coverage denominator unavailable
+ensemble:
+  ran: false
+  reason: prerequisite coverage and calibrated Tier-1 card unavailable
+adversarial_merge:
+  ran: false
+  reason: no calibrated reviewer cards
+source_or_plan_modified: false
+product_tests_run: false
+generation_evaluations_run: false
+remediation_run: false
+promotion_run: false
+output_guards:
+  checked_before_first_write: true
+  component_containment: true
+  overlap: false
+  forbidden_primitive_output: false
+  parent_components: false
+model_aliases:
+  opus: claude-opus-5-5[1m]
+  sonnet: claude-sonnet-5-5[1m]
+  haiku: grok-4.7[1m]
+  executor: unknown
+model_alias_probe_exit: 1
+model_alias_probe_exit_reason: printenv final EXECUTOR_MODEL_CLASS was unset; three reviewer aliases were printed
+report_path_is_intended_only: true

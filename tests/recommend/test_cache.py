@@ -23,9 +23,9 @@ from superclaude.cli.recommend.cache import (
 def _sample_rows() -> list[dict]:
     return [
         {
-            "key": "spec-generation",
+            "key": "adversarial-review",
             "candidate": "/sc:spec-panel",
-            "flags": ["--mode discussion|critique|socratic"],
+            "flags": ["--mode critique"],
             "prompt_envelope_template": "Run: /sc:spec-panel @{inputs}",
             "rationale": "spec review",
             "source_hash": "a" * 64,
@@ -52,9 +52,9 @@ class TestLookupCachePersistence:
         assert loaded.surface_hash == "surf-abc"
         assert len(loaded.rows) == 1
         row = loaded.rows[0]
-        assert row["key"] == "spec-generation"
+        assert row["key"] == "adversarial-review"
         assert row["candidate"] == "/sc:spec-panel"
-        assert row["flags"] == ["--mode discussion|critique|socratic"]
+        assert row["flags"] == ["--mode critique"]
         assert row["native_fallback"] is False
         assert row["best_model"]["model"] == "opus"
         assert row["eval_history"][0]["run_id"] == "r1"
@@ -90,14 +90,14 @@ class TestLookupCacheRowOps:
 
     def test_get_row_returns_match_or_none(self):
         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())
-        assert cache.get_row("spec-generation")["candidate"] == "/sc:spec-panel"
+        assert cache.get_row("adversarial-review")["candidate"] == "/sc:spec-panel"
         assert cache.get_row("nonexistent") is None
 
     def test_upsert_replaces_existing_key(self):
         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())
-        cache.upsert_row({"key": "spec-generation", "candidate": "/sc:other"})
+        cache.upsert_row({"key": "adversarial-review", "candidate": "/sc:other"})
         assert len(cache.rows) == 1
-        assert cache.get_row("spec-generation")["candidate"] == "/sc:other"
+        assert cache.get_row("adversarial-review")["candidate"] == "/sc:other"
 
     def test_upsert_appends_new_key(self):
         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())

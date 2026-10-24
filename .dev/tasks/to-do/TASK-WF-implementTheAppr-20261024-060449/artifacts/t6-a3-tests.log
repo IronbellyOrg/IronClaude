@@ -1,0 +1,68 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 357 items
+
+tests/commands/test_routing_plugin_parity.py F.F..                       [  1%]
+tests/commands/test_workflow_command.py ......F..........                [  6%]
+tests/core/test_claude_md_routing_block.py F.....                        [  7%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 15%]
+....................................................                     [ 29%]
+tests/core/test_research_config.py ....                                  [ 31%]
+tests/recommend/test_best_model.py ........                              [ 33%]
+tests/recommend/test_cache.py ...............                            [ 37%]
+tests/recommend/test_cli_registration.py ...                             [ 38%]
+tests/recommend/test_dispatch.py ................                        [ 42%]
+tests/recommend/test_eval_pipeline.py .....                              [ 44%]
+tests/recommend/test_plugin_eval.py ........                             [ 46%]
+tests/recommend/test_routing_refresh.py ................................ [ 55%]
+........................................................................ [ 75%]
+....................................................                     [ 90%]
+tests/recommend/test_telemetry.py .........                              [ 92%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 98%]
+.....                                                                    [100%]
+
+=================================== FAILURES ===================================
+_____________ test_sc_recommend_plugin_tree_mirrors_src_plus_guide _____________
+tests/commands/test_routing_plugin_parity.py:37: in test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md']
+E   assert (not ['SKILL.md', 'refs/delegation-vs-native-heuristics.md', 'refs/surface-enumeration.md'])
+___________ test_readme_listed_command_mirrors_match_src[recommend] ____________
+tests/commands/test_routing_plugin_parity.py:47: in test_readme_listed_command_mirrors_match_src
+    assert filecmp.cmp(src, plug, shallow=False), f"{plug} differs from {src}"
+E   AssertionError: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/recommend.md differs from /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md
+E   assert False
+E    +  where False = <function cmp at 0x7514d8df3f60>(PosixPath('/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md'), PosixPath('/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/recommend.md'), shallow=False)
+E    +    where <function cmp at 0x7514d8df3f60> = filecmp.cmp
+________________________ test_plugin_mirror_matches_src ________________________
+tests/commands/test_workflow_command.py:101: in test_plugin_mirror_matches_src
+    assert not mismatch and not errors, mismatch + errors
+E   AssertionError: ['refs/overlap-routing.md']
+E   assert (not ['refs/overlap-routing.md'])
+_____________________ test_level_table_copy_matches_guide ______________________
+tests/core/test_claude_md_routing_block.py:29: in test_level_table_copy_matches_guide
+    assert _block(_CLAUDE) == _block(_GUIDE), (
+E   AssertionError: core/CLAUDE.md level table differs from HOW-WE-WORK.md; re-copy the block between the level-table markers from the guide
+E   assert '\n\n| Level ...les MDTM.\n\n' == '\n\n| Level ...les MDTM.\n\n'
+E     
+E     Skipping 662 identical leading characters in diff, use -v to show
+E     -  tests"`. Inspect the actual classification and verification evidence: STANDARD permits affected tests or documented manual verification; LIGHT includes scope/sanity checks; EXEMPT covers non-code operations. Do not assume every tier ran tests, describe LIGHT as unchecked, or report manual verification as a test pass. Run the related test if it has not run. | The bounded edit and its recorded verification, including an observed related-test result when available. |
+E     +  tests"`. `/sc:task` prints a `Tier:` ...
+E     
+E     ...Full output truncated (12 lines hidden), use '-vv' to show
+=========================== short test summary info ============================
+FAILED tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide
+FAILED tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[recommend]
+FAILED tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src
+FAILED tests/core/test_claude_md_routing_block.py::test_level_table_copy_matches_guide
+======================== 4 failed, 353 passed in 8.98s =========================
+pytest_rc=1
+All checks passed!
+ruff_rc=0
+3 files already formatted
+format_rc=0
+fixture_json=valid

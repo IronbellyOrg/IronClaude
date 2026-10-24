@@ -1,0 +1,19 @@
+pick: advice-4-b.md; runner-up: advice-4-a.md; reason: 5 vs 4 review findings cited
+## Task 6: Encode every specified contract and specialist regression case
+
+Acceptance criteria:
+T6.AC1: - Map each of the approved T01-T76 checks to a real focused assertion or a clearly identified behavioral-evaluation requirement. Every S01-S29 fixture has a concrete request, environment, expected target/mode/input retention, negative competitor and side-effect boundary.
+T6.AC2: - Specialist fixtures include unavailable-plugin and seeded-wrong-cache variants. In particular cleanup-audit, cliEval create/run, release split/no-split/proposal continuation, swarm settings and tier-validation missing-suite cases have direct selection expectations, not unrelated IDs.
+T6.AC3: - Fixtures never execute recommended commands, authenticate or make external changes. Static text/schema/cache tests are labeled static and do not pretend to demonstrate model generation.
+T6.AC4: - The 47-command coverage/dispositions remain traceable; four retirements and formatting-only histories are preserved. No prior research check is silently rewritten as runtime success, and original research evidence is retained.
+T6.AC5: - All affected static regression tests run, with outcomes recorded under ./artifacts/. Failures are repaired within approved scope rather than weakened, skipped or hidden.
+
+Steps:
+1. Fixture S28 (attempt-3.diff:675): change `--level beginner` to `--level basic`. Do not change anything else in S28.
+2. Rewrite the five Other-commands `expected` strings (attempt-3.diff:580, 602, 624, 646, 666) to this template: "no routing row matched; if dispatch hits <key>: cache hint consulted, cached <candidate> rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /<target> from Other commands; no hit telemetry; cached <candidate> never emitted". Wording sources: SKILL.md:67, 90 and prompts.py:7. Keep each `cache_row` as it is. Do not add keys, schema or fields (plan:22).
+3. In `test_variants_name_real_primitives_and_wrong_cache_rows`, replace the "other" branch (attempt-3.diff:1145-1149). Require `f"if dispatch hits {row['key']}"`, "rejected", "on a miss", "no_key", `f"selects /{case['targets'][0]}"` and "no hit telemetry". Keep the check that "cache not consulted" is absent, and keep the routing branch and the never-emitted assertion (:1142-1144, :1150) unchanged. Changing a key or a target without updating the text now fails.
+4. Add one negative self-check: a made-up Other-commands case whose text is the old unconditional wording (attempt-3.diff:580) must fail the same helper predicate. Move the branch logic into a small helper so it can be called directly, like the existing `_conditional_step` guard (attempt-3.diff:1153-1157).
+5. In `test_case_mode_flags_are_declared_by_their_target` (attempt-3.diff:1080-1093): when `len(flag.split()) == 2` and the source matches `\[` + re.escape(word) + `\s+([^\]\s]+)\]` with a `|` in the group, assert that the value is in `group.split("|")`. Add a negative self-check that `--level beginner` against the explain.md:22 text fails. Values of non-enumerated or placeholder flags are left unchecked.
+6. Make no SKILL, guide, prompts, product or mirror edits. Rerun the four Task 6 test files plus the parity tests with `uv run pytest`, then ruff. Record the log under artifacts/. Report the 4 Task 7 parity failures honestly (extras-3.log:58-61).
+
+differs-by: the seeded-wrong-cache expectation for unmatched (Other-commands) cases branches on the actual dispatch outcome (hit on the seeded key, or `no_key`/miss). The test binds the hit branch to the row's own key. Earlier attempts claimed either "not consulted" or an unconditional "consulted then rejected".

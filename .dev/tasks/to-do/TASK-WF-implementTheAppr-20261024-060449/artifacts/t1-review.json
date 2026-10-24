@@ -1,0 +1,44 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T1.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:17",
+        "src/superclaude/core/HOW-WE-WORK.md:24"
+      ],
+      "reason": "Ordinary planned implementation uses workflow/implement. File count, sessions, existing specifications, risk, auditability, drift and resume alone cannot select MDTM; explicit and exceptional machinery needs remain supported."
+    },
+    {
+      "id": "T1.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:53",
+        "src/superclaude/core/HOW-WE-WORK.md:78"
+      ],
+      "reason": "Document-only requests stop after their documents and reviews. Ordinary subsequent planning uses workflow; the conditional roadmap branch discloses its internal task-builder/task machinery and requires separate product-execution consent."
+    },
+    {
+      "id": "T1.AC3",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:22",
+        "src/superclaude/core/HOW-WE-WORK.md:26"
+      ],
+      "reason": "The one-source-file plus matching-test/five-edit limit remains intact. Contained cleanup retains checkpoint/diff safeguards and excludes structural migrations. Approved plans and managed resumes retain their executor without rebuilding."
+    },
+    {
+      "id": "T1.AC4",
+      "status": "met",
+      "evidence": [
+        "tests/core/test_claude_md_routing_block.py:84",
+        "tests/core/test_how_we_work_routing_table.py:359"
+      ],
+      "reason": "Inspected marker-delimited core and guide blocks agree. Standard remains the ordinary default and quick is conditional. Added concrete static assertions cover T01-T13 and S18-S20, without claiming model-generation evidence."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "self_audit": "Challenged indirect full-spec escalation, loss of explicit MDTM support, weakened direct-change limits, cleanup migration loopholes, executor replacement, universal quick depth and false generation claims. No Task1 defect found. Independently inspected the supplied diff and live changes against Q0 tree 9127d2289c9fb88a4c6e3fa87c440143ea0ef19f; product changes were confined to the four permitted files and deferred engines remained unchanged. No tests or recommended workflows were run. Later specialist routes, skill/cache changes, synchronization and generation evaluations were not treated as Task1 obligations."
+}

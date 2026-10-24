@@ -1,0 +1,77 @@
+# Research: /sc:analyze recommendation accuracy
+
+- **Topic type:** Command-to-recommendation contract comparison
+- **Scope:** Current command, six-month history, recommendation guide, verification rules, cold-path prompt, plugin surfaces and routing tests
+- **Status:** Complete; documentation contracts inspected, not executed
+- **Date:** 2026-10-24
+- **Delivery:** Findings returned directly. No report file or source changes written.
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The command has one reachable change during the inventory window, commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22. Its actual patch adds blank lines around headings, lists and fenced examples, plus a final newline. It changes no flags, analysis behavior, authorization boundary or handoff. This is a formatting-only inclusion, not evidence of a newly expanded analysis capability. Evidence: exact-path git log and patch for `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md`.
+
+### Current command contract
+
+[CODE-VERIFIED] `/sc:analyze` is self-contained: its file contains its behavioral instructions and no Activation section delegating to another skill. It accepts an optional target, `--focus quality|security|performance|architecture`, `--depth quick|deep`, and `--format text|json|report`. The comprehensive example invokes the command without a target or focus, demonstrating whole-project, multi-domain analysis. No default depth or output format is explicitly specified. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md:19-38,55-86`.
+
+[CODE-VERIFIED] Its intended deliverable is prioritized static-analysis findings, severity and impact assessments, metrics, recommendations and improvement guidance. The command excludes dynamic analysis requiring compilation or runtime, source modification without explicit consent, and dependency analysis beyond import and usage patterns. Report writing is allowed, so “report-only” must mean no product-code changes, not literally no filesystem writes. There is no progress ledger or resume contract. Its final source-side suggestion names improve or cleanup after review, rather than automatically executing either. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md:25-46,89-111`.
+
+### Comparison with recommendation surfaces
+
+[CODE-CONTRADICTED] The guide preserves the correct command but narrows its capability unnecessarily. The `module-health` row describes only “general health of a module” and mandates `--focus <area>`. The command instead supports whole-project assessment and optional focus. A broad health request should not require an invented area or retain an unresolved mandatory-focus placeholder. Evidence on both sides: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:313`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md:22,57-62`.
+
+[CODE-CONTRADICTED] Recommendation flag verification excludes a documentation shape this command actually uses. R1 and the ordered-workflow rule permit flags only from a flag table or `argument-hint`; analyze documents all three flags in its Usage synopsis, with neither a table nor an argument hint. Strictly following recommendation's own rule would reject legitimate analyze flags, including the guide's mandatory `--focus`. This is a verified textual contradiction, not proof of a particular model's runtime response. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:237,335-337`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md:1-23`.
+
+[CODE-VERIFIED] The same restrictive assumption appears in the surface-verification reference and condensed cold-path prompt, so changing the main skill alone would leave inconsistent verification instructions. The reference already supports `activation_style: self-contained`, which fits analyze; no new protocol skill is needed. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:58-80`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:145-148,200-204`.
+
+[CODE-VERIFIED] The net-value rubric lists cleanup-audit and troubleshoot Tier 2+ as whole-repository or cross-domain examples, but omits analyze despite its comprehensive static-assessment contract. This omission is not a formal ban, yet the examples fail to distinguish preventive assessment from cleanup inventory and symptom-driven diagnosis. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:36-40`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/analyze.md:14-17,33-38`.
+
+[CODE-VERIFIED] Correcting the existing guide row directly affects matched recommendations: Step 0 reads the guide before cache lookup, verifies matched targets and explicitly bypasses hot lookup and cold write-back. No analyze-specific cache key or additional keyword-routing table is necessary. Plugin installations have the same restrictive module-health row, and the parity test requires recommendation skill/reference copies plus the bundled guide to match their canonical sources. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:39-60`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:313`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed:** Expand the existing `module-health` intent and section 3.5 explanation to cover preventive static quality, security, performance and architecture assessment of a module or project. Retain its stable row ID and report-only classification. Remove mandatory focus; preserve focus, depth and output-format preferences when supplied. Examples grounded in the command's Usage contract:
+
+```text
+/sc:analyze
+/sc:analyze <user-supplied-target> --focus security --depth deep --format json
+```
+
+Do not add implementation steps to an assessment-only request. Proposed targets: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:138-145,313` and its plugin guide copy.
+
+[UNVERIFIED] **MUST, proposed:** Extend flag evidence rules to accept an explicit Usage synopsis as well as an Options table or argument hint, while still validating exact flag values and prohibiting invented flags. Apply consistently to R1, ordered-workflow verification, the surface-enumeration reference and the cold-path runbook cited above. This fixes verification at its shared source instead of adding redundant documentation to analyze solely to satisfy the verifier.
+
+[UNVERIFIED] **SHOULD, proposed:** Add analyze to the existing net-value rubric as the preventive static-assessment example. State the boundary explicitly: health assessment is analyze; a reported failure is diagnosis; dead-code or file-consolidation inventory is cleanup auditing. Preserve these distinctions without treating isolated words such as “performance” or “security” as sufficient routing decisions.
+
+[UNVERIFIED] **SHOULD, proposed policy alignment:** If the user separately authorizes implementing accepted findings, default most planned changes to workflow then implement; reserve task-builder/task for the exceptionally complex, long-running MDTM case or explicit MDTM input. Current guide rows still escalate on file count or session count alone. Workflow already accepts a file or inline prompt and offers quick, standard and deep planning, but these contracts do not establish unlimited capacity. Example:
+
+```text
+/sc:workflow "Implement the accepted findings from <actual-report-path>, preserving its scope and adding regression checks" --depth standard
+```
+
+Then review the emitted plan and use its actual printed path with implement. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:305-308`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md:18-40`.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression cases:
+
+1. “Assess this project's general health, no fixes” selects analyze without forced focus or implementation.
+2. A targeted deep security assessment requesting JSON preserves all three valid flags without a false stale-guide warning.
+3. A whole-project static assessment covers multiple domains without requiring a target.
+4. A runtime regression request remains diagnosis, not static assessment.
+5. A dependency vulnerability scan is not misrepresented as analyze's supported dependency scope.
+6. Assessment-only output remains report-only; accepted fixes require a separate authorized handoff.
+7. Adding a fabricated flag fails even after Usage synopses become accepted evidence.
+8. Canonical and plugin guide/reference changes remain consistent.
+
+## Gaps
+
+[CODE-VERIFIED] Exact searches found analyze/module-health references in the governing and plugin guides, but no analyze-specific scenario in the inspected recommendation tests. Existing mandatory-flag validation checks only whether a flag string occurs anywhere in command text, so it cannot detect the contradiction between R1's table-only rule and a Usage-only command. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py:286-304`.
+
+[UNVERIFIED] No command execution or tests ran. HTML report generation is promised by an example, not demonstrated here. No global legacy-protocol or cache-freshness conclusion is made from this command-specific inspection.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE:** MUST preserve broad report-only analysis and fix shared flag verification; SHOULD improve assessment-versus-diagnosis examples and adopt the user's workflow-first remediation policy. **NONE:** no analyze implementation rewrite, new protocol, cache taxonomy or keyword table is justified by its formatting-only history. Consolidate these changes into the specification, with regression cases covering both matched routing and cold-path verification.

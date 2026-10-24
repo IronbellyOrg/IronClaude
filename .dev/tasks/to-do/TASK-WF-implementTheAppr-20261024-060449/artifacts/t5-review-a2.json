@@ -1,0 +1,58 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T5.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md:8",
+        "tests/commands/test_workflow_command.py:221"
+      ],
+      "reason": "Prints positional /sc:tasklist <roadmap-path> only when a roadmap exists; Do-not forbids <id>.md, any workflow plan and --source; matches tasklist.md:23 Usage. No MDTM task route added (/task row unchanged)."
+    },
+    {
+      "id": "T5.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/tdd/refs/build-request-template.md:158",
+        "tests/skills/test_sc_recommend_routing_contract.py:294"
+      ],
+      "reason": "Optional follow-on: /sc:workflow on TDD then /sc:implement; /task only for an already existing MDTM file; print-only, no task creation. Only that Phase 7 line changed."
+    },
+    {
+      "id": "T5.AC3",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/commands/recommend.md:44-50",
+        "tests/skills/test_sc_recommend_routing_contract.py:307"
+      ],
+      "reason": "argument-hint, flag table, only-flags line, 500 floor, opt-in eval untouched. Summary covers whole-outcome match, one alternative, deliverable stop, advisory cache hint never verbatim, callable-copy/interface/backing-skill/lifecycle verification, contract gap; plugin replaces steps 1-4 with no local row/level/workflow step. No savings/timing claims."
+    },
+    {
+      "id": "T5.AC4",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/hooks/scripts/sc-recommend-phase0.sh:26-43",
+        "src/superclaude/commands/README.md:11"
+      ],
+      "reason": "Prefilter/jq/case match lines identical to Q0; only exit 0. Header and block say advisory, fail-open, proves nothing; branches (plugin, matched, no_match, absent, cache hint, budget miss) agree with SKILL.md:47,62-63,98. recommend.md:60 registration claim verified (.claude/settings.json:21). No post-PR hook or agent/PM activation claim. README item 5 names canonical guide, core level-table copy, plugin copy, and static-vs-model-eval maintenance."
+    },
+    {
+      "id": "T5.AC5",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md:8",
+        "tests/skills/test_sc_recommend_routing_contract.py:338-369"
+      ],
+      "reason": "Diff confined to the 7-file touched set; only C06/C08 narrow fixes; no other engine/referral touched. T44 (tasklist test), T71-T74 (summary/hook tests) covered; T70 mirror parity is Task7."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    "Live git diff vs ef62d539 for the touched set is byte-identical to artifacts/t5-a2.diff (index lines excluded).",
+    "T70 / plugin copy of recommend.md not verified here; Task7 obligation, not waived.",
+    "Tests not run per instructions; hook subprocess test skips without jq."
+  ],
+  "self_audit": "Checked: artifact vs live tree; tasklist.md Usage; Q0 hook match/exit lines; FR-11 spec 439-464 and C06/C08; SKILL.md branch rules; hook registration in settings.json and install_hooks.py; flag/eval/minstar lines; grep for savings, post-PR, PM activation. No defect found."
+}

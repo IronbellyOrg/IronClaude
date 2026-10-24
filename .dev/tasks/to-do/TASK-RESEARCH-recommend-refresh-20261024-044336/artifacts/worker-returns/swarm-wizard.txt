@@ -1,0 +1,73 @@
+# Research: /sc:swarm-wizard recommendation alignment
+
+- **Topic type:** Command-specific routing research
+- **Scope:** Six-month command history, delegated protocol, recommendation guide, discovery/cache prompts, plugin surface and regression contracts
+- **Status:** Complete, contract inspection only; no runtime execution or source modifications
+- **Date:** 2026-10-24
+- **Intended persistence path:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/swarm-wizard.md`
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Commit `6c04cca19aaefe8a31065c282b3267fcd82ecfd5`, dated 2026-06-19, introduced the command, protocol, three references and summary template. Its actual command patch establishes interview-driven swarm preparation, mandatory stub validation, consent before real execution, monitoring and downstream handoff. This was substantive functionality, not formatting. The live command retains that contract. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:13-90`; verified introduction diff.)
+
+[CODE-VERIFIED] Commit `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, removes only `mcp-servers: [sequential]` from this command. The corresponding protocol change also removes obsolete MCP metadata. This is dependency-metadata cleanup, not a new interview, launch or routing capability. These are the only command/protocol history entries found in the supplied window. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:1-8`; inspected exact-path history and patches.)
+
+### Current command contract
+
+[CODE-VERIFIED] This is the friendly front door for people who want to **use swarm**, request multi-model review, need help selecting a lens, or cannot act on technical swarm documentation. A goal and target are required eventually, but the wizard collects missing inputs itself. The target must exist and meet the 50 non-whitespace-byte floor. The command delegates to the actual skill name `sc:swarm-wizard-protocol`; it does not implement the workflow itself. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:13-33,57-78`.)
+
+[CODE-VERIFIED] Verified wizard options are `--goal`, `--target`, `--output`, `--real`, `--detached`, `--advanced` and `--yes`. Defaults are guided questioning, stub-first operation and a fresh generated output directory. `--real` expresses intent, not authorization to skip consent. `--yes` minimizes questions, not safety gates. CLI options such as `--lens`, `--reviewers`, `--transport`, `--tui` and `--resume` are not wizard options. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:45-55,80-90`.)
+
+[CODE-VERIFIED] Running the wizard writes run artifacts, but its purpose is analysis rather than source-code implementation. The protocol requires a successful stub dry-run, explains that stub findings are placeholders, then requires satisfied proxy prerequisites and explicit consent for real execution. Outputs include worker outcomes, merged findings, contract location and a recommended next command. Failed/partial runs can lead to a CLI resume offer; the wizard has no public `--resume` flag. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md:121-181,189-198`.)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The guide already routes `multi-model-review` to `/sc:swarm-wizard`. However, its only intent phrase is “reviewers from other AI model families,” substantially narrower than the command's explicit swarm-use, lens-selection and documentation-help triggers. This is an underexpressed existing route, not a missing command. Broader requests can also overlap the guide's generic explanation, bug or spec-review rows. Actual misclassification frequency is unverified. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:303,311,315,317`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:18-21`.)
+
+[CODE-VERIFIED] Recommendation first semantically matches guide rows. A match bypasses both cache lookup and cold write-back, skips Auggie ranking, and verifies the row's steps directly. Consequently, broadening the existing guide row fixes the primary route without adding a separate keyword table or classifier category. Source precedence correctly favors checkout source over stale installation copies. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:39-61,112-116`.)
+
+[CODE-VERIFIED] For unmatched requests, the classifier's broad `adversarial-review` category includes artifact code review but has no swarm-specific distinction. Cached hits are emitted verbatim. The surface fingerprint hashes enumerated paths plus guide content; it does not hash every delegated reference's contents. Therefore, this inspection does not establish transitive invalidation when only wizard references change. Broadening the guide route is preferable to manufacturing a new wizard cache key. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:50-67`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:81-88`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-103`.)
+
+[CODE-VERIFIED] The plugin guide contains the same wizard route, but tracked-file searches found no packaged wizard command/protocol. The recommendation contract already requires missing matched steps to remain visible as “not installed,” rather than silently disappearing. Plugin parity tests require the recommendation skill tree plus guide to mirror source, so guide changes must reach that mirror. This does not justify expanding plugin packaging within this research task. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:317`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:128-135`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`.)
+
+### Proposed recommendation changes
+
+[CODE-VERIFIED] **MUST, proposed policy:** Expand the existing guide's `multi-model-review` intent and section 3.6 explanation to cover running swarm, guided multi-model review and help choosing swarm settings. Explicit swarm-use intent should win over generic review/explanation phrasing; merely mentioning swarm implementation should not. Preserve ordinary bug, spec and documentation routes when the user does not request swarm or model diversity. The verified command triggers support this distinction. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:317`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:13-22`.)
+
+[CODE-VERIFIED] **SHOULD, proposed policy:** Preserve supplied goal, target, output and explicitly requested wizard preferences in the handoff instead of returning only the bare command. Keep missing inputs for the wizard to interview; do not reproduce lens-selection tables or launch recipes inside recommendation. A flag-grounded example, with the target supplied by the user, is `/sc:swarm-wizard --goal "find correctness bugs using multiple models" --target <user-supplied-file>`. Add `--real` only when real execution was requested, retaining the consent gate. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:45-55,80-90`.)
+
+[CODE-VERIFIED] **MUST, proposed policy:** Keep this a supporting analysis route, outside implementation-planning escalation. Its run artifacts do not make it a multi-file implementation task. If the user later requests implementation of findings, apply the user's new workflow-first policy separately; the current guide instead escalates on “many files,” sessions and drift concerns. That existing text must change in the consolidated specification, not be treated as evidence that swarm requires MDTM. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:297,305-307,317`.)
+
+### Acceptance/regression scenarios
+
+[CODE-VERIFIED] Proposed scenarios derived from the contracts:
+
+1. “Help me run swarm on this file; which lens?” selects the wizard.
+2. “Review this spec using several model families” preserves swarm intent rather than selecting only spec-panel.
+3. “Explain the swarm target loader” remains an explanation request.
+4. Bare “review this spec” does not automatically select swarm.
+5. Supplied goal/target survive; no CLI-only options are attached to the wizard.
+6. `--yes --real` never implies permission to skip dry-run or consent.
+7. Plugin-only missing wizard remains clearly marked unavailable.
+8. A matched wizard request bypasses a seeded generic review cache entry.
+
+Existing routing tests pin text, guide ordering, flags and availability gates, but do not establish these semantic outcomes. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py:35-80`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:18-21,45-55,87-90`.)
+
+## Gaps
+
+[CODE-VERIFIED] The tracked legacy recommendation-protocol directory is absent; an installed legacy file remains and advertises obsolete flags and a different activation. The live command activates `sc-recommend`, not that legacy protocol. Do not recreate the missing tracked directory. (`/config/.claude/skills/sc-recommend-protocol/SKILL.md:1-18`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:52-58`; negative exact-path search.)
+
+[CODE-CONTRADICTED] The recommendation command claims its hook prevents silent skipping, but the hook explicitly documents fail-open reminder injection, not blocking enforcement. Treat correcting this claim as shared recommendation follow-up. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:60`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh:4-13`.)
+
+[CODE-CONTRADICTED] Missing proxy configuration is a command-level STOP but a protocol-level WARN offering stub fallback. Recommendation should promise no unauthorized real run, not resolve this inconsistency silently. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md:31-33`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md:193`.)
+
+[UNVERIFIED] No live swarm, recommendation classifier or routing evaluation was executed. Runtime correctness and misrouting prevalence remain unmeasured.
+
+## Key Takeaways
+
+- **CHANGE, MUST:** Broaden the existing wizard route and add intent-preservation regressions.
+- **CHANGE, SHOULD:** Preserve verified pre-seed arguments and mirror the governing guide.
+- **NO CHANGE, NONE:** No new fixed routing table, cache key, lens table, wizard implementation or automatic MDTM handoff is needed.
+- **Follow-up only:** Resolve legacy-install drift, hook overclaim and command/protocol prerequisite contradiction.

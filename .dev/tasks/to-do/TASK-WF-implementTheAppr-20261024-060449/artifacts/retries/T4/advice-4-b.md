@@ -1,0 +1,81 @@
+# Adviser ladder entry: opus
+
+The attempt-3 tests would still pass with every case-specific consumer obligation removed, so the reviewer's AC4 finding holds. The outcome is ready, not dispute. I also sent this advice to team-lead.
+
+**How the check fails:**
+- **Nothing specific to remove:** the hot-hit consumer text (`attempt-3.diff:388-393`) never mentions comparison, adherence audit, PR review, TDD, existing-spec critique or Sprint.
+- **Shared generic words:** every T52/T53/T54 fixture pins the same generic words ("objective", "artifact", "explicit selection", "authority ceiling") in the same sentence (`attempt-3.diff:596`, `605`, `614`, `623`, `632` against `389`). Swapping the request text between any two of those fixtures still passes.
+- **Request never checked:** `current_request` never reaches an assertion. It is used only in failure messages and the T56 phrase branch (`attempt-3.diff:698`, `727`, `734`).
+- **T56 file is unrelated:** T56 rewrites a temporary file that is never seeded, hashed or sent to dispatch (`attempt-3.diff:686-699`).
+- **Specific clauses not pinned:** the clauses that do name cases sit in the classifier prompt (`attempt-3.diff:49-50`) and the cold-worker runbook (`attempt-3.diff:263-264`). Neither is in the assertion lists (`attempt-3.diff:792-810`, `830-837`).
+
+The 80 passing tests (`extras-3.log:8`, `19`) therefore do not prove AC4 (`review-3.md:38`, `50`).
+
+outcome: ready
+| AC | why earlier attempts missed it (path:line) | change |
+|---|---|---|
+| T4.AC1 | Not missed. Met in attempt 3 (`review-3.md:5-12`); `attempt-3.diff:376`, `389-390`. | Keep `attempt-3.diff:367-431` byte-for-byte. The only SKILL.md change is the insert placed after line 391. |
+| T4.AC2 | Not missed. Met (`review-3.md:14-21`); `attempt-3.diff:391`, `393`, `405`. | Keep the rejection bullet unchanged; the new counterexamples point to it. No change to dispatch, cache or schema code. |
+| T4.AC3 | Not missed. Met (`review-3.md:23-30`); `attempt-3.diff:40-54`, `433-478`, `816-828`. | Keep those hunks exactly. Only add the one pin in step 4. |
+| T4.AC4 | All attempts checked that words were present, not that each case has its own obligation. Attempt 1 used generic wording (`t4-review-a1.json:48`). Attempts 2 and 3 pinned shared generic words in one shared sentence (`attempt-3.diff:587-668` against `389`). The consumer has no per-case text (`attempt-3.diff:388-393`). The cold/classifier case clauses are unpinned (`attempt-3.diff:49-50`, `263-264` against `792-837`). See `review-3.md:38`, `50`. | Add one counterexample line per collision to the hot-hit consumer. Assert each case by its own unique words appearing together on one line. Prove inside the test that deleting that line fails the check while the generic words remain. Pin the existing cold/classifier "interchangeable targets" clauses. |
+
+differs-by: Each collision is checked by words unique to that case appearing together on one line of its own counterexample in the hot-hit consumer, and the test deletes that line itself to prove the check fails while the generic words are still present.
+
+steps:
+1. Start from the failed tree (checkpoint 141b02d5).
+   - Keep the hunks at `attempt-3.diff:1-366`, `367-431`, `433-478` and `735-857`, except for the edits below.
+   - Do not touch dispatch, cache or schema code. Add no classifier keys and no runtime logic.
+2. In `src/superclaude/skills/sc-recommend/SKILL.md`, insert the block below directly after the "If the hint is incompatible" bullet (`attempt-3.diff:391`) and before the `outcome: "native"` bullet. Each item is one physical line.
+   ```text
+      - Cached-hint counterexamples (static consumer contract, not a runtime router):
+        - Cached comparison for an adherence audit of completed work against its plan: reject; the audit objective differs.
+        - Cached comparison for a local PR review with a no-post ceiling: reject; never inherit compare inputs or posting authority.
+        - Cached PRD authoring for a TDD request: reject; the requested artifact differs.
+        - Cached PRD authoring for a critique of an existing spec: reject; critique reviews the spec and must not rewrite it.
+        - Cached MDTM or roadmap handoff for requested Sprint artifacts: reject; Sprint output is its own artifact.
+        - Same key with a previous path in the saved envelope: rebind to current paths only; the previous path never appears.
+        - Delegated-reference-only change while the source hash still matches: reread the current reference before emission.
+        - Hash-valid cached retired target: reject; lifecycle evidence outranks a matching hash.
+   ```
+   - These lines restate spec FR-07 acceptance items (`SPEC-sc-recommend-refresh.md:340`, `348-352`) and T48/T52-T56 (`:721`, `:725-729`). They add no requirement.
+   - No line may start with "- If" or contain `` `outcome: "native"` ``, because the existing section splits rely on those markers (`attempt-3.diff:715-719`, `776-778`).
+3. In `tests/recommend/test_dispatch.py`:
+   - Keep the eight fixture IDs, the request texts, the hash-valid transport part (`attempt-3.diff:685-709`), the five shared rejection terms (`720-727`) and the static-only docstring (`680-683`).
+   - Replace the `guard_scope` and `guards` columns with one `tokens` column, matched case-insensitively:
+     - T52 audit: ("cached comparison", "adherence audit", "reject")
+     - T52 PR: ("cached comparison", "pr review", "no-post", "reject")
+     - T53 TDD: ("cached prd authoring", "tdd", "reject")
+     - T53 critique: ("cached prd authoring", "existing spec", "critique", "reject")
+     - T54: ("cached mdtm or roadmap", "sprint", "reject")
+     - T55: ("same key", "previous path", "current paths only")
+     - T56: ("delegated-reference-only change", "source hash", "reread")
+     - T48: ("hash-valid", "retired", "reject")
+   - Replace the section and guard loop (`attempt-3.diff:728-734`) with three checks:
+     - (a) Take the lines between the counterexample header and the `outcome: "native"` bullet.
+     - (b) Assert exactly one line contains every token.
+     - (c) Delete that line from the hot-path text. Assert no remaining line matches the tokens, and assert "objective", "artifact" and "authority ceiling" are still present.
+   - For T56, keep the reference rewrite. Add a comment that dispatch still returns a hit because the source hash covers only the source path, so the reread duty has to live in the consumer text.
+4. In `tests/skills/test_sc_recommend_routing_contract.py`, add two pins and change nothing else:
+   - Add "sprint bundles and roadmap artifacts into interchangeable targets" to the cold-worker rule list (`attempt-3.diff:792-810`).
+   - Add "these are distinct objectives, not interchangeable targets" to the classifier rule list (`attempt-3.diff:830-837`).
+   - Both phrases already exist once whitespace is collapsed (`attempt-3.diff:49-50`, `263-264`).
+5. Run the tests and linters and record the real output in `extras-4.log`:
+   - `uv run pytest tests/recommend tests/skills/test_sc_recommend_routing_contract.py`
+   - `ruff check` and `ruff format --check` on the four touched files.
+   - The count should stay at 80, since no test functions or parameters are added (`extras-3.log:8`).
+6. In `approach-4.md`, record the coverage and how it was produced:
+   - Map T52 (two IDs), T53 (two IDs), T54, T55, T56 and T48 to their counterexample lines.
+   - Map T57 to the existing guide surface-hash tests in `test_cache.py`, and T58 to the live-only and no-guide pins.
+   - Label all of it static consumer-contract evidence. Model generation stays with Task8.
+
+Files:
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/attempt-3.diff`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/review-3.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/extras-3.log`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md`
+
+| Status | Result |
+|---|---|
+| DONE | Read the Task4 criteria and constraints, spec FR-07 and T48/T52-T58, and the attempt-3 diff, review, approach and extras files. Confirmed the generic-word checks survive removing every case-specific obligation. |
+| DONE | Sent the advice (outcome: ready) to team-lead. |
+| NEXT | Team-lead compares this with the other adviser's advice and runs attempt 4. |

@@ -1,0 +1,91 @@
+# Research: /sc:init-lite recommendation coverage
+
+- **Topic type:** Command routing and capability preservation
+- **Scope:** Six-month command history, current contract, recommendation surfaces, relevant tests
+- **Status:** Research complete; no implementation or test execution
+- **Date:** 2026-10-24
+- **Handoff:** Returned inline because developer instructions prohibit writing report files.
+
+## Evidence locations
+
+All locations are absolute within the assigned worktree.
+
+| ID | File |
+|---|---|
+| C | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/init-lite.md` |
+| P | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-init-lite-protocol/SKILL.md` |
+| G | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md` |
+| R | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` |
+| Q | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py` |
+| I | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/init_lite.py` |
+| T | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py` |
+| U | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/cli/test_init_lite.py` |
+| M | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` |
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Read-only Git history for 2026-04-24 through 2026-10-24 identifies one commit touching this command and its protocol: `681a347fe417f8f924b8ed62ca5f047fc48e0b3c`, dated 2026-06-04, titled `feat(cli): add superclaude init-lite --context-optimized (#128)`. The actual patch adds both files rather than merely reformatting them. This is a substantive new capability, not a later semantic revision. Its implementation includes protected-input checks, report ownership, atomic writes, existing-directory validation, and project-root-relative output resolution. These remain visible in C:14-45, P:35-66, and I:200-264,283-358.
+
+### Current command contract
+
+[CODE-VERIFIED] `/sc:init-lite` audits project-local context surfaces: root guidance and MCP configuration, project settings, Markdown commands, skill entry files, and agent Markdown. It estimates weight using `ceil(bytes / 4)`. It is not a runtime measurement of what a session actually loaded, an exact tokenizer, or an automatic context optimizer. The implementation discovers file sizes and renders a manual-advice report. C:14-43; I:65-112,129-174.
+
+[CODE-VERIFIED] `--context-optimized` is mandatory. Optional flags are `--project-root`, `--output`, `--dry-run`, `--scaffold`, and `--force`. The default writes a generated report; only `--dry-run` guarantees no writes. `--scaffold` explicitly opts into two advisory guidance files. Existing context inputs remain protected, including under `--force`. Relative output paths resolve against the selected project root. C:23-35; P:35-66; I:283-358.
+
+[CODE-VERIFIED] The command hands off to `Skill sc:init-lite-protocol`, whose frontmatter uses that exact colon-form name. The filesystem directory is named `sc-init-lite-protocol`; that difference must not be “corrected” by recommendation generation. The protocol prefers the mechanical CLI and tells users not to invoke the protocol directly. No implementation-planning or execution handoff is part of this audit. Repeating the audit overwrites marked reports; there is no progress ledger to resume. C:47-60; P:1-5,18-33,59-73.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide does mention the command, but only as “Check a project's Claude setup files without changing them” in Other commands. That understates context-weight estimation, report generation, preview-only operation, and advisory scaffolding. It also omits the mandatory flag. In contrast, the actual command specifies all these capabilities. G:260-276 versus C:14-43.
+
+[CODE-VERIFIED] This is not complete discovery absence. Recommendation Step 0 explicitly consumes Other commands when no routing row matches, and candidate verification reads the target interface. The cold-path runbook similarly consumes the supplied Other commands block. Therefore a cold-path recommendation can discover and correctly invoke init-lite today. R:50-61,128-135; Q:125-148.
+
+[CODE-VERIFIED] The weaker point is routing precedence. Other commands are considered only after `no_match`; the guide already has broad rows for “no changes wanted,” code understanding, module health, and cleanup. There is no dedicated context-audit row. Consequently the contracts do not guarantee that a request such as “audit my Claude context weight without changing anything” reaches init-lite rather than a broader matched route. This is a contract exposure, not an observed failed execution. G:303-318; R:54-60.
+
+[CODE-VERIFIED] The cache classifier has no context-audit category. Its existing categories include codebase research and repository cleanup audits. A suitable specific guide row would avoid that ambiguity without extending the classifier: matched routes skip both cache lookup and cold-path write-back. R:58-65; Q:50-68.
+
+[CODE-VERIFIED] The plugin guide repeats the same abbreviated init-lite entry. A tracked-path inspection found neither a plugin init-lite command nor its protocol at the corresponding plugin locations. Recommendation already distinguishes missing matched steps from runnable commands, so the guide must not imply that this command is universally shipped by plugin installations. M:276; R:135.
+
+[CODE-VERIFIED] Existing guide tests require init-lite’s presence in Other commands and validate mandatory flags on routing-table steps. They do not establish that a natural-language context-audit request selects init-lite. Separate CLI tests cover the required flag, dry-run, report default, scaffold, protected inputs, and force boundaries; these are implementation tests, not recommendation-selection tests. T:26-41,275-304; U:134-191,213-261,329-385.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST: Add a specific context-audit route to the existing authoritative guide table.** This is proposed policy, not current behavior. Target G’s Routing table and a short explanatory section. Route requests for project-local context-weight inventory, non-destructive context audit, or advisory context-guidance scaffolding to `/sc:init-lite --context-optimized`. Use supporting-task level `-`, not an implementation level. The report-only default fits the guide’s existing `changes_files: no` definition, but the explanatory note must explicitly distinguish report writes from zero-write dry-run. Basis: G:297; C:23-43.
+
+[UNVERIFIED] **MUST: Preserve flags according to intent.** Preview-only requests receive `/sc:init-lite --context-optimized --dry-run`. Explicit advisory-scaffold requests receive `/sc:init-lite --context-optimized --scaffold`. Ordinary audit requests receive `/sc:init-lite --context-optimized`. Preserve user-provided root and output values; do not invent paths or add `--force` automatically. Basis: C:28-35,62-78.
+
+[UNVERIFIED] **SHOULD: Expand the Other commands description and synchronize the plugin guide.** State that the command inventories local context surfaces, estimates weight, writes a report by default, supports a zero-write preview, and scaffolds only on request. Preserve the absence/install handling for plugin-only environments. No extra keyword routing table or classifier category is needed. Basis: G:276; M:276; R:54-60,135.
+
+[UNVERIFIED] **MUST: Keep this report-only capability outside the workflow-versus-MDTM implementation decision.** An audit spanning many configuration files is still an audit. If the user later authorizes actual context restructuring, that is a separate implementation request; apply the requested workflow-first policy then. Do not append task-builder merely because the audit inspected many files. Basis: C:81-96; P:75-79.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed checks should establish:
+
+1. “Estimate my project’s Claude context weight” selects init-lite with the required flag and describes the report write.
+2. “Preview the context audit; write nothing” includes `--dry-run` and excludes unsolicited scaffold/force flags.
+3. “Create advisory project guidance too” includes `--scaffold` without promising automatic migration.
+4. “Explain this one configuration file” remains a native/explanation request, not a compulsory audit.
+5. “Automatically rewrite my CLAUDE.md” is not presented as an init-lite capability.
+6. A pre-existing generic research cache row cannot override the new specific matched route.
+7. Plugin-only installations lacking init-lite show a missing capability rather than a runnable ghost command.
+
+These expectations follow C:23-43,91-96 and R:58-65,135; they were not executed.
+
+## Gaps
+
+[CODE-VERIFIED] Literal searches found init-lite references in the authoritative and plugin guides, but none in recommendation-specific heuristic/reference prose, classifier prompts, or recommendation hooks. Generic discovery mechanisms exist, so these negative results do not prove the command is unreachable.
+
+[CODE-VERIFIED] The tracked legacy `sc-recommend-protocol` directory is absent, while `/config/.claude/skills/sc-recommend-protocol/SKILL.md:1-16` contains an older protocol with obsolete flags. Current recommendation activation instead names `sc-recommend`. Legacy installation cleanup is a recommendation-system follow-up, not an init-lite feature change.
+
+[UNVERIFIED] Actual recommendation selection and plugin-install execution were not exercised. No runtime failure, performance gain, exact token savings, or successful end-to-end routing is claimed.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE, MUST:** Give context auditing a specific route in the existing guide, require `--context-optimized`, distinguish report-only from zero-write, and preserve scaffold/force authorization boundaries.
+
+[UNVERIFIED] **CHANGE, SHOULD:** Expand the abbreviated discovery description, mirror the guide change for plugin recommendation, and add semantic routing regression cases.
+
+[CODE-VERIFIED] **NONE for command implementation:** The reviewed command already exposes the relevant audit, preview, reporting, and advisory-scaffold capabilities. The recommendation gap is incomplete routing specificity and capability description, not missing init-lite functionality.

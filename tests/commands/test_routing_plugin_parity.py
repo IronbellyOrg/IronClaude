@@ -10,6 +10,8 @@ from __future__ import annotations
 import filecmp
 from pathlib import Path
 
+import pytest
+
 _REPO = Path(__file__).resolve().parents[2]
 _SRC_SKILL = _REPO / "src/superclaude/skills/sc-recommend"
 _PLUG_SKILL = _REPO / "plugins/superclaude/skills/sc-recommend"
@@ -34,3 +36,12 @@ def test_sc_recommend_plugin_tree_mirrors_src_plus_guide():
     )
     assert not mismatch and not errors, mismatch + errors
     assert filecmp.cmp(_GUIDE, _PLUG_SKILL / "refs/HOW-WE-WORK.md", shallow=False)
+
+
+@pytest.mark.parametrize("name", ["help", "recommend", "workflow", "implement"])
+def test_readme_listed_command_mirrors_match_src(name):
+    """T70: the four commands src/superclaude/commands/README.md says are mirrored."""
+    src = _REPO / "src/superclaude/commands" / f"{name}.md"
+    plug = _REPO / "plugins/superclaude/commands" / f"{name}.md"
+    assert f"`{name}.md`" in (src.parent / "README.md").read_text(encoding="utf-8")
+    assert filecmp.cmp(src, plug, shallow=False), f"{plug} differs from {src}"

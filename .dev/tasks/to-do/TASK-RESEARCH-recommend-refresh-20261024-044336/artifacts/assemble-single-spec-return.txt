@@ -1,0 +1,992 @@
+---
+title: "sc:recommend Routing Refresh"
+version: "1.0.0"
+status: draft-pending-independent-review
+feature_id: recommend-routing-refresh
+parent_feature: null
+spec_type: refactoring
+complexity_score: "not scored"
+complexity_class: "not scored"
+target_release: null
+authors: [user, claude]
+created: "2026-10-24"
+quality_scores:
+  clarity: "not scored"
+  completeness: "not scored"
+  testability: "not scored"
+  consistency: "not scored"
+  overall: "not scored"
+---
+
+# sc:recommend Routing Refresh
+
+**Intended specification destination:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md`
+
+**Research status:** All 47 registered analyst reports exist, contain their required substantive sections, and were read in full. A mechanical section/sentinel inspection found 47 complete reports, no incomplete reports, and 43 currently existing command files. Four scoped commands are retired.
+
+**Evidence status:** Findings establish inspected source behavior or written contracts. No recommended command implementation, inference evaluation, PR operation, deployment, or regression suite was executed during assembly. All tests below are **PROPOSED**, unless explicitly described as an inspected existing test.
+
+**Delivery status:** This assembler returns specification text. It did not overwrite the existing scaffold because its developer instructions prohibit writing report Markdown files. The coordinator must persist this text incrementally and arrange independent review.
+
+## 1. Problem Statement
+
+`/sc:recommend` now reads a governing routing guide before selecting commands. That repaired several older discovery problems, but makes stale guide decisions authoritative: a matching guide row bypasses cache lookup and semantic ranking.
+
+The guide still sends ordinary implementation to task-builder because work spans many files, another session, or requires protection against drift. Those conditions contradict the user's requested policy and unnecessarily exclude existing workflow/implement capabilities.
+
+A second problem is outcome confusion. Generic phrases such as “no changes wanted,” “error,” “review,” and “tasklist” overlap specialized reporting and artifact-generation requests. Specialized commands placed only in “Other commands” cannot compete once a generic routing row has matched.
+
+Verification also has concrete gaps:
+
+- Many active commands declare their options in formal Usage syntax, while recommendation rules accept only an options table or argument hint.
+- Commands are incorrectly generalized as thin skill dispatchers, despite self-contained commands and TDD's differently headed skill invocation.
+- Reading a dispatcher does not establish that its backing skill exists or agrees with its interface.
+- A cache hit can return another request's stored envelope without current-request binding or complete current-source verification.
+- Removed framework commands remain readable in installed locations.
+- Plugin recommendations can encounter missing protocols or materially older command contracts.
+- Advisory hook reminders are described more strongly than their actual implementation warrants.
+
+### 1.1 Evidence
+
+The following evidence register uses absolute paths. Section names identify the relevant inspected text; analyst reports provide additional precise line citations and historical patches.
+
+| ID | Source | Verified observation |
+|---|---|---|
+| E01 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md` | Level table, sections 3.2 through 3.4, section 3.7, comparison table, and routing rows encode broad MDTM escalation. |
+| E02 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` | Step 0 makes matching guide rows decisive; Phase 1 repeats broad escalation; R1 excludes Usage-only options; hot-hit handling orders verbatim emission. |
+| E03 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md` | Enumeration unions installed/project/plugin/checkout sources; duplicate precedence and source existence do not establish retirement or backing-skill compatibility. |
+| E04 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md` | Scope rubric repeats “larger, longer, or riskier” as MDTM escalation. |
+| E05 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py` | Classifier and cold worker retain generic spec/report-to-task-builder assumptions and narrow flag-evidence rules. |
+| E06 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py` | `compute_surface_hash` hashes primitive path membership plus guide contents, not all delegated contract contents. |
+| E07 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py` | `dispatch` validates one source hash and returns the stored envelope; it receives no original request parameters. |
+| E08 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md` | Workflow accepts a file or prompt, supports quick/standard/deep, defaults to standard and non-executing handoff, and creates managed plan packages. |
+| E09 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-workflow-protocol/SKILL.md` | Plan creation includes structural gates and advisory pre-reflection; reflection failure does not invalidate an otherwise gated plan. |
+| E10 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/implement.md` | Implement accepts formal/informal sources, supports implicit resume, and does not automatically commit, open PRs, or release. |
+| E11 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-implement-protocol/SKILL.md` | Twenty tasks trigger a warning, not refusal; tasks default sequential; small first-pass reviews can be inline; managed FINAL is independent. |
+| E12 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/task-builder/SKILL.md` | MDTM creation supplies substantial research and independent quality-gate machinery; internal tier selection is not a recommendation mandate. |
+| E13 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/task/SKILL.md` | Existing MDTM files execute through their checklist and phase-review protocol. |
+| E14 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh` | The hook injects reminders and exits successfully; it explicitly does not block invocation. |
+| E15 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md` | Active recommendation flags are `--plugin`, `--eval`, and `--minstar`; activation names `sc-recommend`. |
+| E16 | `/config/.claude/skills/sc-recommend-protocol/SKILL.md` | Environment-specific stale installed protocol still advertises old keyword categories and removed recommendation flags. |
+| E17 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/README.md` | Current maintainer instructions already establish source ownership, sync requirements, and four command mirrors. |
+| E18 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py` | Recommendation plugin tree must mirror source, with the canonical guide as its additional bundled reference. |
+| E19 | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_claude_md_routing_block.py` | Core CLAUDE level-table block must match the guide; the guide must not become an automatic import. |
+
+### 1.2 Scope Boundary
+
+**In scope**
+
+- Recommendation policy, matching, handoff construction, source verification, lifecycle eligibility, cache consumption, and relevant documentation.
+- Existing governing guide, all corresponding level-table copies, recommendation references/cold prompt, hook wording, maintained recommendation/plugin mirrors, and routing/cache tests.
+- Narrow referral corrections in directly relevant supporting primitives.
+- Recognition of specialized outcomes and authorized stopping points across all 47 scoped commands.
+- Explicit limitation handling where command/protocol contracts disagree.
+- Dependency inspection of task-builder, task, documentation skills, README, and prior research.
+
+**Out of scope**
+
+- Running recommended workflows or implementing product changes.
+- Changing executor capacities, review machinery, archive behavior, remediation-depth coupling, PR autonomy behavior, or specialized command internals to make a desired recommendation possible.
+- Restoring retired commands or the retired recommendation protocol.
+- A second keyword registry, additional command classifier taxonomy, generic dependency framework, installer ownership database, or automatic installed-file cleanup.
+- Automatically installing capabilities, completing authentication, changing configuration, committing, pushing, or publishing research.
+- Broad plugin-package expansion or wholesale synchronization of unrelated commands.
+- Unsupported runtime, timing, savings, accuracy, or workload-capacity claims.
+
+## 2. Solution Overview
+
+Keep the existing architecture: one governing routing guide, live capability discovery, source-backed handoffs, and optional cache infrastructure.
+
+Change the decision order and its interpretation:
+
+1. Preserve the requested outcome, explicit command selection, supplied artifact, and authorization ceiling.
+2. Apply specialized command ownership before generic implementation-size heuristics.
+3. For actual implementation, retain the existing direct-change limit.
+4. Use workflow/implement for most planned implementation.
+5. Use task-builder/task only for explicit MDTM intent or an exceptionally complex, long-running program whose required phase/checklist/reviewer machinery justifies it.
+6. Resolve and verify the actual callable surface and relevant dependencies.
+7. Emit a current-request handoff, never an unchecked cached answer.
+8. Stop at the requested deliverable.
+
+### 2.1 Key Design Decisions
+
+| Decision | Choice | Rejected alternative | Rationale |
+|---|---|---|---|
+| Routing authority | Existing guide remains the only fixed routing source. | New keyword table in recommendation or CLI. | Avoids repeating the failure that prompted the earlier rewrite. |
+| Implementation default | Workflow plus implement for most planned work. | MDTM based on file/session/spec counts. | Follows user policy and existing documented capabilities. |
+| MDTM threshold | Explicit MDTM or exceptional complexity plus long-running phase coordination with a concrete machinery need. | Automatic escalation for risk, breadth, auditability, or resume alone. | Distinguishes useful process from proxies. |
+| Explicit choice | Preserve it unless unavailable, contradictory, or prohibited; report the limitation. | Silently substitute a supposedly better command. | Recommendation does not override intent or safeguards. |
+| Specialized operations | Keep their owned lifecycle. | Prepend generic planning whenever they write multiple artifacts. | Artifact generation, review, builds, and release follow-through are distinct jobs. |
+| Cache safety | Treat cached targets/templates as advisory inputs; perform current verification and current-request binding before emission. | Verbatim hit replay. | Existing dispatch cannot establish request compatibility or transitive freshness. |
+| Cache implementation | Reuse existing schema and source hash mechanisms initially. | New cache schema/dependency engine. | Mandatory re-verification closes the safety gap without new infrastructure. |
+| Retired commands | Explicit lifecycle guidance and verified provenance; retain custom-command exceptions. | Reject every installed-only command. | Source absence alone does not prove retirement. |
+| Contradictions | Surface them; withhold unsupported runnable claims. | Union incompatible option sets. | Prevents fabricated interfaces. |
+| Plugin drift | Verify the actual plugin/installed capability; mark missing or incompatible capabilities. | Assume checkout behavior exists everywhere. | Broad plugin repairs are not authorized by this research. |
+
+### 2.2 Workflow / Data Flow
+
+```text
+User goal
+  -> requested deliverable + explicit choice + supplied artifact + mutation ceiling
+  -> current guide
+  -> specialized route or implementation-level decision
+  -> live surface resolution
+  -> candidate + activation dependency + relevant contract verification
+  -> optional cache hint, never a verification bypass
+  -> current-request handoff with applicable conditional flags
+  -> stop; user decides whether to execute
+```
+
+Missing guide or unavailable cache CLI must degrade to current live verification, not stale replay. A matched guide row continues to bypass cache lookup/write-back.
+
+## 3. Functional Requirements
+
+### FR-01: Workflow-first implementation policy
+
+**Priority:** P0.
+
+Update guide level 3 to mean ordinary checked implementation planning, without “few files” or “one or two sessions” capacity restrictions. Keep the stable `simple-plan` row ID to reduce unnecessary churn.
+
+Update level 4 and `task-file` to require either:
+
+- Explicit selection of MDTM creation/execution or its established input format; or
+- An exceptionally complex, long-running phased program with a stated need for MDTM's documented research/checklist/phase-panel machinery.
+
+Neither criterion may be inferred solely from file count, multiple sessions, an existing spec/PRD/TDD, auditability, risk, drift concerns, or resume.
+
+Update `feature-existing`, research follow-ons, bug repair, structural refactoring, test authoring, brainstorm follow-ons, and post-design/post-review planning accordingly.
+
+**Acceptance criteria**
+
+- [ ] A clear ordinary feature across twelve files and several sessions selects workflow/implement absent an additional MDTM justification.
+- [ ] Explicit task-builder and existing MDTM inputs remain supported.
+- [ ] An existing spec does not automatically select MDTM.
+- [ ] No numerical file/task/session ceiling is invented for workflow/implement.
+- [ ] Level 6 document creation does not automatically authorize MDTM execution; requested documents may be terminal deliverables.
+- [ ] All repeated fallback/classifier wording agrees with the governing policy.
+
+**Dependencies:** FR-02, FR-03, FR-10. Tests T01-T09.
+
+### FR-02: Preserve direct-change limits and existing executor identity
+
+**Priority:** P0.
+
+Native/direct implementation remains limited to one source file plus its matching test file, five edits or fewer, with the exact change already known. One edit remains one consecutive changed block. Inspection breadth is not mutation breadth.
+
+Preserve the existing contained-folder cleanup/improve exception, checkpoint prerequisite, and final diff review. Do not extend that exception to arbitrary architectural migrations.
+
+When an adequate approved plan already exists, recommend its executor directly rather than rebuilding it. Managed workflow packages use implement. Existing MDTM execution uses task. Explicit implement selection remains implement under its own documented semantics; it does not become MDTM F1 execution merely because the source resembles MDTM.
+
+**Acceptance criteria**
+
+- [ ] A three-edit one-source-file rename may remain native or use the bounded direct executor.
+- [ ] An eight-edit rename requires a written plan.
+- [ ] Reading thirty files for a report does not require an implementation plan.
+- [ ] Workflow-package resume never becomes task-builder or task.
+- [ ] Resume alone never creates new MDTM work.
+- [ ] Direct-command selection cannot waive applicable written-plan requirements.
+
+Tests T01-T05, T10-T13.
+
+### FR-03: Match the whole requested outcome before generic phrases
+
+**Priority:** P0.
+
+Replace “any one matching phrase decides” interpretation with semantic matching against the complete requested outcome, inputs, artifact type, explicit command, and stopping point.
+
+Specific evaluation objective outranks artifact labels alone. A business-viability review of a PRD differs from requirements critique. A localization placeholder error differs from a runtime exception. “Build a feature” differs from compiling existing code.
+
+Generic “no changes wanted,” “many files,” “review,” or “tasklist” phrases must not suppress a more specific verified capability.
+
+The `unsure` row is an inbound discovery/clarification pointer, not permission for recommend to recommend itself. When already inside recommendation, select the substantive goal or ask one useful question.
+
+**Acceptance criteria**
+
+- [ ] Report-only and artifact-only requests do not acquire implementation, commit, push, or shipping steps.
+- [ ] Explicit mode/depth/output preferences survive unless unsupported.
+- [ ] Ambiguous tasklist requests distinguish checked plan, MDTM task, and Sprint bundle.
+- [ ] No recommendation loops back to recommend.
+- [ ] Genuine unresolved objective ambiguity asks one clarification rather than guessing.
+
+Tests T14-T22.
+
+### FR-04: Preserve specialized capabilities in the existing guide
+
+**Priority:** P1.
+
+Use the existing routing table and explanations, not a second registry.
+
+Add outcome-specific supporting routes where a generic matched row currently excludes an important specialized capability:
+
+| Proposed stable ID | Outcome | Boundary |
+|---|---|---|
+| `installed-inventory` | List visible commands and skills through help. | Inventory, not install repair or workflow selection. |
+| `focused-design` | Draft architecture/API/component/database design. | Design deliverable, not implementation. |
+| `technical-design-document` | Create/populate/update a TDD. | Technical Design Document, not test-driven development. |
+| `cleanup-audit-only` | Evidence-backed cleanup inventory. | Report only; disclose excluded scope. |
+| `contained-improve` | Requested contained improvement. | No compulsory cleanup/deletion operation. |
+| `auggie-review-only` | PR/diff/snapshot review. | Local-only requests suppress posting; no shipping chain. |
+| `localization-review` | Source-versus-translation QA. | Reports first; input edits require separate authorization. |
+| `context-audit` | Project context-weight audit. | Require `--context-optimized`; dry-run/scaffold remain explicit. |
+| `cli-eval-create` | Author a cliEval suite. | Keep its owned design/validation lifecycle. |
+| `cli-eval-run` | Select and supervise an existing suite. | Real execution and artifact writes, not read-only inspection. |
+| `cli-portification-spec` | Produce a workflow-to-CLI specification. | Do not promise generated working code. |
+| `release-boundary` | Assess split versus intact release. | “Do not split” remains valid. |
+| `post-release` | Tagged-release external-surface follow-through. | Mutating owned lifecycle, with its authorization gates. |
+| `roadmap-artifacts` | Requested release-pipeline roadmap artifacts. | Contract-gap handling applies until activation agrees. |
+| `sprint-tasklist-bundle` | Existing roadmap to Sprint-compatible files. | Generation only, not execution. |
+| `roadmap-fidelity` | Audit roadmap against requirements. | Contract-gap handling applies until activation agrees. |
+| `tier-validation` | Validate task-tier behavior against YAML. | Not application coverage testing. |
+
+Extend existing routes rather than adding duplicates where they already fit:
+
+- `ask`: native/simple explanation and audience-tailored explain options.
+- `module-health`: whole-project or module static assessment; no forced focus.
+- `external-research`: current external, academic, competitive, market, standards and technical evidence; preserve requested depth.
+- `compare-options`: existing comparison, generation, and requested adversarial-pipeline continuation.
+- `critique-spec`: default critique only when no supported explicit mode was selected; preserve authorized derivation from populated documents.
+- `business-strategy`: inline/document input and requested modes.
+- `multi-model-review`: explicit swarm use and settings help, not only model-family diversity.
+- `tests`: existing-suite execution, watch, E2E and explicit repair distinctions.
+- `document-built`: focused inline/external/API/guide output, coordinated project documentation, and template-led alternatives.
+- `check-plan`/`confirm-built`: optional-input rules from reflect.
+- `review-pr`/`resume`: conditional PR autonomy, attachment and command-specific continuation.
+
+Enrich Other commands entries for build, git, index, index-repo, load, save, agent, pm and spawn. If a command moves to routed coverage, remove its redundant Other-only listing or change that block's explanatory contract consistently with its tests.
+
+**Acceptance criteria**
+
+- [ ] Each new route names a current verified capability or an explicit unavailable/contract-gap result.
+- [ ] Specialized routes outrank generic implementation/test/report phrases where their objective matches.
+- [ ] No new route duplicates internal agent rosters, scoring formulas, or execution phases.
+- [ ] No specialized operation is replaced merely because it writes many artifacts.
+- [ ] Agent and PM remain explicit coordination options, not default planners.
+- [ ] Spawn remains decomposition-only under its critical stop boundary.
+
+Tests T14-T39.
+
+### FR-05: Make source verification match actual command documentation
+
+**Priority:** P0.
+
+Update candidate extraction, R1, ordered-output verification, and cold-worker rules consistently.
+
+Accepted public interface evidence:
+
+1. Directly read option/argument tables.
+2. Argument hints.
+3. Formal Usage or command trigger signatures defining options and values.
+4. Explicitly documented positional/keyword invocation syntax, including index-repo's `mode=update` and `mode=quick`.
+
+Examples may corroborate those definitions. An example-only extension that is missing from or conflicts with the formal interface is not sufficient for a new flag. Prose-only ambiguous controls remain unverified; use natural-language intent where supported or disclose the gap.
+
+Identify self-contained commands as valid. Follow mandatory skill invocations wherever documented, including `Skill Invocation`, rather than requiring the literal heading `Activation`. Resolve actual skill names/frontmatter; do not invent a `sc-*-protocol` name from a command filename.
+
+For indirected commands, read the backing skill and only the references/configuration relevant to the capability, mode, side effects, or guarantees being advertised. Do not recursively audit unrelated dependencies.
+
+**Acceptance criteria**
+
+- [ ] Usage-only options for analyze/build/cleanup/design/document/explain/git/improve/index/load/save/spawn/test/spec-panel remain usable.
+- [ ] TDD resolves to `tdd`.
+- [ ] Self-contained help/agent commands do not fail for lacking a protocol.
+- [ ] Missing backing skills prevent an unqualified runnable recommendation.
+- [ ] Conflicting required inputs or mutation boundaries produce an explicit contract-gap result.
+- [ ] Unsupported options remain rejected, including build's example-only `--validate`, cleanup's `--preview`, and design's undeclared `--output`.
+
+Tests T40-T45.
+
+### FR-06: Current callable surface and lifecycle eligibility
+
+**Priority:** P0.
+
+Retain worktree-aware checkout research authority and existing installed/project/plugin enumeration. Separately identify the copy that would actually be activated.
+
+Within this development checkout, source is authoritative for the intended current framework contract, but a stale active skill/project mirror is not silently certified as equivalent. Outside the checkout, use actual available copies and their verified dependencies.
+
+Add a short lifecycle note to the existing governing guide for the four scoped retired shipped identities: estimate, sc dispatcher, select-tool and task-mcp. This is retirement guidance, not a new routing registry.
+
+Reject explicit `deprecated: true` as a current-framework runnable recommendation. Resolve replacement guidance independently; task-mcp's stale `deprecated_by` field must not override the live task migration contract.
+
+For framework-owned installed remnants, canonical retirement evidence outranks readability. Preserve independently authored project commands and third-party skills. A same-named custom override with uncertain provenance requires clarification, not blanket deletion or automatic rejection.
+
+**Acceptance criteria**
+
+- [ ] Installed-only retired framework files cannot re-enter through discovery or cache.
+- [ ] Explicit questions about retired commands receive a retirement explanation and intent-preserving alternative.
+- [ ] Unrelated installed-only custom commands remain eligible.
+- [ ] Missing plugin capabilities remain visibly unavailable.
+- [ ] No automatic deletion, reinstall, or configuration repair occurs.
+- [ ] A source/active-copy disagreement is disclosed instead of hidden.
+
+Tests T46-T51.
+
+### FR-07: Cache hints must never bypass current routing/source checks
+
+**Priority:** P0.
+
+Keep matched-row cache bypass. Keep missing-guide and non-checkout CLI safeguards.
+
+For an unmatched request, a hit is a **candidate/template hint**, not a finished recommendation:
+
+1. Reapply current goal/authorization/artifact constraints.
+2. Verify the candidate using FR-05 and FR-06.
+3. Read current relevant delegated contracts.
+4. Bind this request's inputs and paths.
+5. Reconstruct a current handoff before emission.
+6. Reject incompatible, retired, unavailable, or contradictory candidates and use live discovery.
+
+Do not emit the saved envelope verbatim. Do not carry another request's path, task name, target PR, mutation choice, or mode into the output.
+
+The current deterministic source hash remains useful, but it must not be described as complete semantic compatibility or transitive freshness proof.
+
+**Minimum implementation:** Change recommendation/cold-worker consumption contracts to reverify every hit. Preserve the current Python schema and dispatch API unless implementation demonstrates a necessary minimal adjustment. No new classifier keys are required.
+
+**Acceptance criteria**
+
+- [ ] A comparison cache row cannot answer an adherence audit or PR review.
+- [ ] A PRD cache row cannot answer TDD creation.
+- [ ] A roadmap/task-builder row cannot override requested Sprint/artifact output.
+- [ ] Same key with different paths produces current paths only.
+- [ ] Delegated skill/reference/policy changes are observed through mandatory rereads before emission.
+- [ ] Guide edits continue to invalidate existing surface hashes.
+- [ ] No-guide, unavailable CLI, or non-checkout conditions skip cache helpers.
+- [ ] Existing hash/budget/miss protections remain intact.
+
+Tests T52-T58.
+
+### FR-08: Accurate diagnosis, reflection and review remediation
+
+**Priority:** P0.
+
+Preserve current command behavior rather than claiming that the new routing policy changed it.
+
+- Troubleshoot: diagnosis only by default; standard `--fix` offers workflow planning after supported diagnosis and acceptance; quick-plus-fix is invalid; requested deep-plus-fix selects MDTM.
+- Reflect: pre mode requires a spec, not necessarily a tasklist; post mode requires diff or task log, not necessarily both spec and tasklist. Report-only post audits use `--no-promote`. Standard remediation uses workflow; requested deep remediation selects MDTM.
+- Auggie review: preserve PR/diff/snapshot targeting, posting behavior, `prism-b` default, and distinction between internal `--revagent` and Auggie's model. Deep review currently selects MDTM if its remediation offer is accepted.
+- Interactive remediation planning does not itself authorize implementation.
+- Workflow's built-in pre-reflection must be consumed, not duplicated.
+- Preserve failed/blocked/inconclusive diagnosis and carried hardening blockers.
+
+For deep diagnosis plus ordinary subsequent planning, omit troubleshoot's fix coupling and plan separately from the supported report. For reflect's ensemble plus ordinary remediation, its existing tier-2 option can request ensemble review without selecting deep-MDTM routing. For deep Auggie review plus ordinary planning, suppress the automatic remediation offer and offer a separate workflow handoff after accepted findings.
+
+Do not change remediation coupling in this implementation.
+
+**Acceptance criteria**
+
+- [ ] Deep analysis does not silently add a coupled MDTM remediation flag.
+- [ ] Explicit coupled deep remediation is accurately disclosed.
+- [ ] Legacy reflect aliases are not falsely labeled removed.
+- [ ] No automatic wrapper/auto-fix path replaces report-only interactive review.
+- [ ] No blocked result receives unconditional rerun/bypass advice.
+- [ ] Unresolved internal referral contradictions are disclosed as such.
+
+Tests T23-T27, T59-T62.
+
+### FR-09: Conditional PR monitoring and review-only boundaries
+
+**Priority:** P0.
+
+Keep current monitor 3 as the normal full-loop command default. Disclose its commit/push/reply/resolve effects.
+
+Make guide branches mutually exclusive:
+
+- Creation-only or absent/uncertain review App: monitor 0.
+- Proposals without edits: monitor 1.
+- Local fixes without publication: monitor 2.
+- Requested/authorized full loop: monitor 3.
+
+Respect stronger project policy. A conflict between that policy and a user's requested lower ceiling must be reported, not resolved by silently increasing authority.
+
+Support existing-PR attachment and supplied run-log resume without recreating the PR or restarting general task execution. Preserve the PR head, origin repository, bounded push range, and attended-session limitations.
+
+A request to review only must not acquire commit/push/PR creation merely because `review-pr` contains those steps.
+
+**Acceptance criteria**
+
+- [ ] Exactly one monitor value appears.
+- [ ] Existing PR requests retain `--pr`.
+- [ ] Run-log resume retains the specific PR monitor.
+- [ ] Silence is not reported as clean review.
+- [ ] Report-only PR review includes appropriate no-post behavior.
+- [ ] Recommendation does not execute any GitHub/Git action.
+
+Tests T28-T31, T63-T66.
+
+### FR-10: Synchronize governing and fallback surfaces
+
+**Priority:** P0.
+
+Update the canonical guide, its level-table block in core CLAUDE, and plugin bundled guide together. Preserve existing marker names and eight-column routing-table shape unless a separately reviewed need establishes a change.
+
+Update recommendation skill, references, classifier examples, cold worker and hook reminders consistently.
+
+Keep help as a live inventory/guide reader. Do not revert it to the static list described by prior research.
+
+Maintain the four existing command mirrors when their canonical files change. Copy recommendation plugin-tree files byte-for-byte, with only its existing bundled guide addition.
+
+**Acceptance criteria**
+
+- [ ] Level-table copies are byte-equivalent.
+- [ ] Recommendation plugin tree and guide satisfy current parity intent.
+- [ ] No stale broad MDTM escalation remains on an active recommendation path.
+- [ ] No primitive receives an unconditional dependency on checkout-only paths.
+- [ ] Missing plugin dependencies do not become promises that the full source distribution is installed.
+
+Tests T67-T71.
+
+### FR-11: Honest defaults, side effects and verification claims
+
+**Priority:** P1.
+
+Output must distinguish:
+
+- Product/source/document/Git changes.
+- Tool-owned report and analysis artifacts.
+- Memory mutations.
+- External PR comments or pushes.
+- True zero-write previews.
+
+Do not describe every dry-run as zero-write: brainstorm and cli-portify have artifact-producing previews. Init-lite's documented dry-run is zero-write.
+
+Do not promise that task STANDARD always runs tests: its contract permits documented manual verification. LIGHT has a sanity check, not zero checking. Do not promise implement uses independent agents for every task or that passing extras is its acceptance verdict.
+
+Replace the recommendation command's absolute hook-enforcement claim with an accurate advisory/fail-open description. Do not restore removed post-PR hook claims or claim session-init status announcements actually launch agent/PM.
+
+**Acceptance criteria**
+
+- [ ] Side effects match the chosen mode and verified active contract.
+- [ ] Report-only does not misleadingly mean no files are written.
+- [ ] No unmeasured token-savings, timing, review-accuracy or test-count claims are presented as facts.
+- [ ] No quality scores are fabricated.
+
+Tests T32-T39, T72-T74.
+
+### FR-12: Evidence, coverage and maintainer regression ownership
+
+**Priority:** P1.
+
+Retain the 47-command appendix and accepted/rejected/deferred dispositions as implementation traceability. Keep README as supporting documentation, not a forty-eighth command analyst.
+
+Extend existing test areas rather than create a new routing subsystem. Separate deterministic text/schema/cache tests from model-behavior evaluations.
+
+**Acceptance criteria**
+
+- [ ] All 47 registered commands map to a requirement/test or explicit no-change/deferred rationale.
+- [ ] Four retirements and formatting-only histories are correctly represented.
+- [ ] Proposed tests remain labeled proposed until their results are recorded.
+- [ ] Independent correctness/architecture and critique reviews occur before approval.
+- [ ] No command implementation is invoked merely to review this specification.
+
+Tests T75-T76.
+
+## 4. Architecture
+
+### 4.1 New Files
+
+No new runtime module, keyword registry, or dependency service is required.
+
+A focused recommendation behavioral fixture/test file may be added beside the existing recommendation tests if existing modules are not a clear fit. Its exact name should be chosen during implementation, not advertised here as an existing file.
+
+### 4.2 Modified Files
+
+| Absolute target | Sections / change |
+|---|---|
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md` | Level table/hard limit; sections 3.1 through 3.12 as affected; comparisons/defaults; Other commands; existing routing table; lifecycle note. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/CLAUDE.md` | Recopy the level-table block, including its hard-limit explanation. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` | Step 0 outcome matching; cache-hit consumption; Phase 0 verification; Phase 1 policy; ordered output; R1-R3; accurate boundaries. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md` | Formal syntax extraction; self-contained/indirected resolution; actual active dependency; retirement and contradiction handling. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md` | Workflow-first policy, inspection-versus-mutation breadth, specialized outcome examples, no unsupported process thresholds. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py` | Narrow existing MDTM classifier description/examples; distinguish artifact outputs; cold-worker policy and verification parity; no new key registry. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md` | Accurate verification/cache summary and advisory-hook wording. Public flags unchanged. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh` | Reminder agrees with current matching, verification and cache handling; keep fail-open behavior. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/README.md` | Brief maintainer update describing guide/copy synchronization and behavior-level routing checks. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md` | Narrow correction: tasklist referral uses positional roadmap, not unsupported `--source`. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/tdd/refs/build-request-template.md` | Narrow optional referral correction: task executes existing MDTM; it does not create implementation tasks. Offer workflow planning for ordinary implementation instead. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/` | Mirror changed recommendation files; bundled guide matches canonical guide. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/recommend.md` | Match the changed canonical command. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md` | Match narrow positional-tasklist referral correction. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py` | Preserve schema/markers; update route membership and conditional flags/defaults; validate formal-interface evidence. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_claude_md_routing_block.py` | Keep level-table/pointer/no-import protections. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py` | Pin revised intent, cache-consumption and verification contracts. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py` | Preserve source/plugin parity contract. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/recommend/test_dispatch.py` | Replace semantically misleading fixtures where practical; retain deterministic dispatch protections and test that hit output is not final request authorization. |
+| `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/recommend/test_cache.py` | Preserve guide/surface invalidation and source freshness tests; add relevant hint/revalidation fixtures. |
+
+Python cache/dispatch/model code is not automatically in the modification set. The mandatory safety mechanism is live verification in the consumer. Any necessary Python change must be narrowly justified against FR-07 and the existing schema.
+
+Other specialized command/protocol repairs listed in Section 11 are follow-up dependencies, not authorization for redesign.
+
+### 4.3 Removed Files / Sections
+
+- Remove stale routing conditions and unconditional mode/depth/monitor values where they conflict with supported explicit intent.
+- Remove the statement that every command is a thin dispatcher.
+- Remove verbatim cache-hit emission as a final-answer rule.
+- Remove unconditional brainstorm-to-task-builder advice based only on not needing a PRD.
+- Do not delete retired installed files, legacy root artifacts, cache data, or whole plugin packages in this change.
+
+### 4.4 Module Dependency Graph
+
+```text
+Canonical guide
+  -> core CLAUDE level-table copy
+  -> help's displayed level table
+  -> recommend Step 0
+  -> plugin bundled guide
+
+Recommend
+  -> surface verification reference
+  -> net-value reference
+  -> existing classifier/cold-worker prose
+  -> optional cache dispatch result as hint
+  -> verified command
+       -> actual activation skill, when present
+       -> decision-relevant references only
+
+Maintainer tests
+  -> guide schema and conditional policy
+  -> mirror parity
+  -> source/interface verification
+  -> cache mechanics
+  -> behavioral recommendation fixtures
+```
+
+### 4.6 Implementation Order
+
+1. Update the governing implementation policy and outcome boundaries.
+2. Update recommendation matching, conditional output and live verification.
+3. In parallel after policy agreement:
+   - Update classifier/cold-worker wording and cache-hit consumption.
+   - Update specialized guide descriptions/routes and narrow referral defects.
+4. Synchronize core level block and maintained plugin copies.
+5. Extend deterministic contract/cache tests and behavioral fixtures.
+6. Run focused tests, then sync/parity checks.
+7. Run independent correctness/architecture and critique review of the implementation/spec alignment.
+8. Record remaining limitations; do not silently implement deferred command repairs.
+
+## 5. Interface Contracts
+
+### 5.1 Public Recommendation Interface
+
+No new public flags.
+
+Supported recommendation controls remain `--plugin`, `--eval none|quick|normal|deep`, and `--minstar N`. Evaluation remains opt-in. Plugin search retains its current popularity filtering, unranked credible-candidate handling, and authentication boundaries.
+
+Verified ordinary planning handoff shape:
+
+```text
+/sc:workflow "<goal, constraints, code areas and acceptance expectations>" --depth standard --handoff none
+```
+
+Then read the actual printed plan and review result before:
+
+```text
+/sc:implement <actual-printed-plan-path>
+```
+
+Quick is appropriate for smaller checked plans; standard is the existing default. Deep or enterprise reflects requested planning detail, not an invented file/session threshold. Do not emit a workflow destination override or fabricate a package identifier.
+
+### 5.2 Conditional Output Contract
+
+Retain the existing eight routing columns and return-contract fields where possible.
+
+Interpret ordered steps as a sequence **after** resolving their conditions and the user's requested scope:
+
+- Preserve applicable prerequisite/read/review steps.
+- Select exactly one alternative branch.
+- Do not include implementation/shipping steps beyond a report-only goal.
+- Apply supported explicit choices before ordinary defaults.
+- Omit unsupported flags with an accurate explanation.
+- Keep genuinely missing capabilities visibly unavailable.
+- Describe material contract disagreement as `contract gap`, not simply `not installed`.
+- Do not synthesize a runnable union of incompatible interfaces.
+
+For PR rows, represent monitor alternatives with separate labeled conditional branches inside the existing mechanism. Do not retain unconditional `mandatory_flags: --monitor 3` on every branch.
+
+### 5.3 Verification Record
+
+Extend the existing per-invocation record in prose only as needed:
+
+- Canonical target and kind.
+- Resolved source path and provenance.
+- Actual active copy when different from research authority.
+- Self-contained or skill-indirected activation.
+- Resolved skill path and relevant references read.
+- Supported interface evidence and exact values.
+- Required inputs and prerequisites.
+- Requested deliverable and mutation/external-effect boundary.
+- Lifecycle status.
+- Contract disagreement or missing-dependency limitation.
+
+This is not a new durable database.
+
+### 5.4 Authorization Contract
+
+Recommendation never executes its handoff.
+
+Planning does not authorize execution. Review does not authorize posting. Posting does not authorize source edits. PR monitor ordinal and project policy control the actual later command. Suggesting an install command does not authorize installation.
+
+The research request itself authorizes no source implementation, sync, commit, push, or network publication.
+
+## 6. Non-Functional Requirements
+
+| ID | Requirement | Target / measurement |
+|---|---|---|
+| NFR-01 | One routing authority | Guide owns fixed routing; no second command keyword registry. |
+| NFR-02 | Installed portability | No unconditional checkout path in installed primitives; installed/project lookup remains valid. |
+| NFR-03 | Worktree correctness | Paths resolve under the active worktree, never the parent checkout by assumption. |
+| NFR-04 | Minimal complexity | Reuse current table, schema and tests; no new routing engine. |
+| NFR-05 | Honest evidence | Written contracts, inspected code and executed results remain distinct. |
+| NFR-06 | No fabricated capacity | No guaranteed unlimited workflow capacity or measured savings without evidence. |
+| NFR-07 | Review usability | Main handoff concise; capability details remain in target primitives. |
+| NFR-08 | Conservative uncertainty | Contradictory/missing interfaces degrade visibly instead of fabricating flags or success. |
+| NFR-09 | Complete scope traceability | 47 appendix rows; all analyst proposals dispositioned. |
+| NFR-10 | Mutation discipline | Research only now; later implementation obeys approved target boundaries. |
+
+## 7. Risk Assessment
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| A broad route continues swallowing specialist intent. | Wrong command or unwanted implementation. | Whole-outcome matching and paired positive/negative fixtures. |
+| “Workflow-first” becomes an unsupported unlimited-capacity claim. | Misleading expectations. | Preserve documented behavior and practical limits as unmeasured. |
+| Explicit MDTM users are silently downgraded. | Broken existing process. | Artifact/explicit-choice precedence and resume fixtures. |
+| Guide changes alone leave cold/no-guide behavior stale. | Inconsistent recommendations. | Change all repeated active policy surfaces together. |
+| Cached prompts retain previous paths or authority. | Wrong target or unauthorized handoff. | Hint-only use and current-request binding. |
+| Retirement filter removes legitimate custom commands. | Lost extensibility. | Provenance-aware explicit retirement evidence, custom-command fixture. |
+| Plugin guide claims capabilities not installed. | Unrunnable or unsafe handoff. | Actual dependency checks and visible unavailable/contract-gap results. |
+| Static tests pass while model behavior remains wrong. | False confidence. | Separate deterministic and behavioral evaluation evidence. |
+| Upstream command contradictions expand implementation scope. | Unrequested redesign. | Conservative recommendation fallback and named deferred repairs. |
+| Install/update overwrites user customization. | Data loss. | No automatic updates; retain guide's backup warning when offering upgrade guidance. |
+
+## 8. Test Plan
+
+All cases are **PROPOSED**.
+
+### 8.1 Unit / Contract Tests
+
+Use the existing guide/core/recommendation/parity/cache test areas named in Section 4.2.
+
+| IDs | Cases and required outcome |
+|---|---|
+| T01-T05 | Three-edit direct rename allowed; eight-edit rename planned; many-file ordinary feature uses workflow; explicit MDTM creation remains task-builder; workflow resume remains implement. |
+| T06-T09 | Spec presence, multiple sessions, auditability and risk alone do not force MDTM; full-spec document-only request stops at requested documents. |
+| T10-T13 | Approved plan executes without rebuilding; explicit implement semantics preserved; reading many files stays report-only; contained cleanup exception does not exempt architectural migration. |
+| T14-T18 | Inventory selects help; business viability of PRD selects business-panel; requirements critique selects spec-panel; localization placeholder errors remain localization; unsure never recommends itself. |
+| T19-T22 | Existing build packaging differs from feature implementation and broken-build diagnosis; tasklist ambiguity distinguishes plan/MDTM/Sprint; explicit modes survive. |
+| T23-T27 | Troubleshoot diagnosis-only; standard fix planning; invalid quick-plus-fix rejected; deep diagnosis without fix does not select MDTM; blocked report retains blocker. |
+| T28-T31 | Reflect spec-only pre, diff-only post, log-only post, and report-only no-promote; no invented required inputs. |
+| T32-T35 | Analyze broad health without forced focus; research preserves quick/exhaustive; brainstorm preview writes are disclosed; cli-portify preview does not promise full release specification. |
+| T36-T39 | Existing-suite watch omits unrequested fix; new test authoring is not test execution; documentation type distinctions; init-lite dry-run/scaffold/force boundaries. |
+| T40-T45 | Usage-only flags accepted; unsupported/example-only flags rejected; TDD Skill Invocation resolved; self-contained commands accepted; missing protocol unavailable; incompatible command/protocol contract surfaced. |
+| T46-T51 | Four installed retired identities rejected as current framework targets; explicit retirement explanation; cached retired target rejected; unrelated installed-only command preserved; custom same-name ambiguity handled; stale active/source copy disclosed. |
+| T52-T58 | Comparison/reflection cache collision; PRD/TDD collision; roadmap/Sprint collision; new paths bound; delegated-ref change reread; guide hash invalidation; cache/no-guide/non-checkout safeguards. |
+| T59-T62 | Ensemble reflect plus ordinary remediation uses existing non-deep tier control; explicit deep coupling disclosed; deep Auggie review can stop before remediation; legacy reflect aliases remain recognized as legacy supported syntax. |
+| T63-T66 | Exactly one PR ordinal; existing PR attachment; monitor-log resume; bot silence not clean; stronger project-policy conflict not silently overridden. |
+| T67-T71 | Guide markers/eight cells preserved; core level block parity; recommendation plugin-tree parity; changed command mirror parity; cold/hook/no-guide policy consistency. |
+| T72-T74 | No hook hard-enforcement claim; task verification promises corrected; no fabricated timing/savings/test-count/quality scores. |
+| T75-T76 | Inventory matches 47 coverage rows and 43 active/four retired; every analyst proposal group has accepted/rejected/deferred traceability. |
+
+Existing tests that merely search for a flag anywhere in a command must be supplemented with cases that distinguish formal interface definitions from contradictory examples. Do not make a brittle generic Markdown parser when small explicit fixtures suffice.
+
+### 8.2 Integration Tests
+
+| Scenario | Expected result |
+|---|---|
+| Checkout with stale installed guide and skill mirror | Current source policy is research authority; actual active-copy mismatch is disclosed; no unsupported execution claim. |
+| Consumer project without checkout/cache CLI | Live installed/project verification works; no project UV helper mutates that environment. |
+| Plugin-only installation with a missing command/protocol | Requested step remains visibly unavailable; no silent substitution. |
+| Missing guide | Clear degradation, no hot replay, same safe implementation boundary. |
+| Guide-matched specialized request plus seeded wrong cache | Guide route wins and cache is not consulted. |
+| Unmatched request plus valid cache hash but changed dependency | Current reread detects changed capability before emission. |
+| Command/protocol mismatch | Contract-gap output, not a fabricated supported invocation. |
+| Standard plan flow | Actual returned plan path is used; no invented task identifier or output flag. |
+
+### 8.3 Behavioral / Manual Evaluation Matrix
+
+Run recommendation generation only against fixtures. Do not execute the recommended commands during routing evaluation.
+
+| Family | Representative request | Must not happen |
+|---|---|---|
+| Ordinary implementation | Multi-file feature from an approved spec over several sessions. | Automatic MDTM solely from size/spec/resume. |
+| Explicit MDTM | Resume supplied well-formed MDTM file. | Conversion into workflow or direct task execution. |
+| Reporting | Audit thirty locale files without changes. | Generic code bug fix or task-builder. |
+| Review | Deep PR review locally, findings only. | Posting, shipping, accepted remediation assumed. |
+| Planning | Produce a checked plan only. | Executable workflow handoff added. |
+| Documentation | Add brief docstrings versus create a reviewed TDD. | Same route for both. |
+| Operations | Compile/package existing code. | Feature-planning pipeline or deployment promise. |
+| Specialized artifacts | Roadmap to Sprint bundle. | Generic MDTM or immediate Sprint execution. |
+| Release | Tagged release installation/docs/test-guide follow-through. | Generic document-only route or unapproved external install. |
+| Recovery | Resume supplied PR monitor JSONL. | Task-builder, task or implement. |
+| Lifecycle | Ask about removed estimate/select-tool/dispatcher/task-mcp. | Resurrection from installed remnants. |
+| Capability gap | Request deep roadmap fidelity with conflicting active dispatcher. | Unsupported union of CLI and skill flags. |
+
+Record request, environment fixture, sources resolved, selected route/target, emitted options, side-effect declaration, and pass/fail rationale. Report actual evaluation totals only after execution.
+
+## 9. Migration & Rollout
+
+### Breaking changes
+
+No public recommendation flag changes. Recommendations intentionally change for ordinary planned implementation, specialized outcomes, conditional defaults and stale cache hits.
+
+### Rollout
+
+1. Apply the approved canonical changes and associated tests.
+2. Recopy the level-table block into core CLAUDE.
+3. Mirror the recommendation skill tree and bundled guide.
+4. Maintain changed command mirrors under the existing README/parity rule.
+5. Apply the two narrowly scoped referral corrections and their existing mirror where present.
+6. Run focused tests and behavioral fixtures.
+7. Run `make sync-dev`, followed by `make verify-sync`, during the later implementation session.
+8. Keep `.claude/` generated mirrors unstaged. Stage task-package artifacts under the project's existing rule; committing remains a separate user decision.
+9. Obtain independent correctness/architecture and critique review before approval.
+
+### Cache transition
+
+Changing the guide already changes the existing surface hash. Do not promise that this alone fingerprints all behavior.
+
+The new consumer contract must reverify cached candidates and relevant dependencies, so unchanged or newly inserted cached rows cannot bypass policy, lifecycle, request compatibility, or source checks. No destructive cache cleanup or schema migration is necessary for this minimum design.
+
+### Installed and plugin transition
+
+Do not automatically run install/update. The guide already warns that update overwrites shipped files and recopying skills can remove user additions. Preserve that warning when suggesting an update.
+
+Do not remove stale installed protocols or commands. Explain that they are not current-framework authority. Independently authored overrides require separate treatment.
+
+### Rollback
+
+Revert canonical recommendation/guide changes and their maintained mirrors together. Regenerate development copies using the established sync process. Do not roll back one level-table/plugin copy in isolation.
+
+Rollback must not restore false hook guarantees or silently re-enable retired command recommendations.
+
+## 10. Downstream Inputs
+
+### Preferred implementation handoff
+
+This specification is suitable for a reviewed workflow plan followed by implement. It does not require MDTM merely because it touches several files or has a long coverage appendix.
+
+The plan should separate:
+
+- Policy and intent matching.
+- Source/lifecycle/interface verification.
+- Cache consumption and cold-worker parity.
+- Specialized route coverage.
+- Mirrors and focused regression evidence.
+
+### For roadmap consumers
+
+Only generate roadmap artifacts if explicitly requested. This document does not authorize automatic roadmap, tasklist, Sprint, task-builder or task execution.
+
+### For tasklist/MDTM consumers
+
+Preserve explicit MDTM selection. Any task file must map its items back to FR requirements and test IDs, not infer new command capabilities from the desired policy.
+
+## 11. Open Items and Contradiction Register
+
+These are current source contradictions or unverified dependencies. They do not authorize source redesign during research. The recommendation implementation is complete when it handles each conservatively and preserves its limitation.
+
+| ID | State and sources | Required recommendation treatment | Follow-up owner / target |
+|---|---|---|---|
+| C01 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/roadmap.md` uses positional 1-3 Markdown inputs and CLI-style flags; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-roadmap-protocol/SKILL.md` retains incompatible multi-spec/template/resume/dry-run grammar. | Do not certify slash-command parity or combine interfaces. Identify artifact intent and expose the contract gap. A separately verified CLI may be offered as a different surface, never silently substituted. | Roadmap maintainer; before claiming runnable parity. |
+| C02 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/validate-roadmap.md` takes a pipeline output directory; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md` requires a roadmap file plus specs and explicitly denies CLI equivalence. | Keep CLI directory validation distinct from investigative audit. No union of `--agents` CLI grammar and deep-skill flags. | Validator maintainer; before unqualified deep slash handoff. |
+| C03 | **CONTRADICTION:** validator skill describes deterministic pass/fail gating, while `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/roadmap/commands.py` surfaces counts without converting blocking findings into a failure exit. | Finding counts/report determine quality; exit zero is not clean validation. Exceptions or runtime errors are not promised to exit zero. | Validator documentation owner; next validator correction. |
+| C04 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/cli-portify.md` contains code-generation wording; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md` prohibits direct code generation. | Advertise the narrower specification deliverable; disclose activation-name ambiguity if unresolved in the actual environment. | Portification maintainer; before stronger generation claims. |
+| C05 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/spawn.md` has early execution language and a final critical decomposition-only stop. | Honor the explicit critical stop; do not promise implementation. | Spawn maintainer; next command cleanup. |
+| C06 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md` refers tasklist through unsupported `--source`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/tasklist.md` requires positional roadmap. | Narrow referral correction is included in scope. | Recommendation implementation; FR-05/T44. |
+| C07 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` invokes tasklist with merged requirements and `--source`; tasklist's public contract requires roadmap input. | Do not strengthen/promote that handoff as verified. Prefer artifact-only brainstorm or separate workflow planning for ordinary work. | Brainstorm/tasklist maintainer; before promoting handoff. |
+| C08 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/tdd/refs/build-request-template.md` offers task as a task creator; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/task/SKILL.md` executes existing task files. | Narrow optional-referral correction is included; internal TDD document machinery is unchanged. | Recommendation implementation; FR-02/FR-04. |
+| C09 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md` passes design `--output`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/design.md` declares no such option. | Do not copy that unsupported invocation or certify the complete chain. Separate accepted findings from ordinary workflow planning when requested. | Review/design maintainer; before promising chain compatibility. |
+| C10 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/swarm-wizard.md` stops on missing proxy configuration; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md` describes warning/stub fallback. | Never promise an unauthorized real run; disclose prerequisite uncertainty rather than guarantee fallback. | Swarm maintainer; before stronger prerequisite claims. |
+| C11 | **CONTRADICTION:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/load.md` checkpoint restoration wording exceeds the guide's executor-resume boundary and uses an undeclared example-only checkpoint option. | Context loading is not task execution resume; do not emit that ambiguous option as verified. | Memory-command maintainer; next contract cleanup. |
+| C12 | **CONTRADICTION:** task's classification-before-tools wording and the governing skill-first instruction are not aligned. Sources: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/task.md` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`. | Do not reproduce task internals inside recommendation; preserve applicable higher-level skill-first rule. | Task maintainer; separate execution-contract review. |
+| C13 | **CONTRADICTION:** multiple plugin commands omit current safeguards or retain obsolete dependencies; command-file presence can coexist with a missing backing skill. | Verify actual copy; mark unsupported/missing capability. Broad plugin repair deferred. | Plugin maintainer; per capability before parity claim. |
+| C14 | **UNVERIFIED:** workflow phase-template reference says deep planning is one session, while implement supports durable execution resume. | Describe planning depth and resumable execution separately; no guaranteed multi-session plan-generation capacity. | Workflow maintainer; before capacity claims. |
+| C15 | **UNVERIFIED:** validate-tests' advertised default YAML suite is absent in the inspected checkout. | Verify supplied/default fixture path; report missing prerequisite, never illustrative suite counts as actual results. | Validator owner; before execution claims. |
+| C16 | **UNVERIFIED:** automatic agent/PM startup claims exceed inspected status-printing startup scripts. | Do not repeat as mechanically enforced behavior. | Startup maintainer; separate automation review. |
+
+**Important reconciliation:** Reflect's `--type task --analyze` and `--type task --validate` grammar is explicitly preserved as legacy compatibility in the current command. It is not retired. New recommendation examples should prefer `--mode`, but existing callers must not be falsely rejected.
+
+No implementation-capacity decision requires inventing new flags or changing these commands to fit the policy.
+
+## 12. Gap Analysis
+
+| Gap | Severity | Resolution in this specification |
+|---|---|---|
+| Ordinary work over-routed to MDTM | High | FR-01 and synchronized fallback policy. |
+| Generic matching loses requested deliverable | High | FR-03 and specialized guide coverage. |
+| Dispatcher-only verification misses real behavior | High | FR-05 and contradiction handling. |
+| Cache replay can retain wrong inputs/authority | High | FR-07 hint-only consumption and current binding. |
+| Installed remnants look current | High | FR-06 lifecycle/provenance checks. |
+| Guide defaults overrule explicit autonomy/mode | High | FR-03/FR-09 conditional branches. |
+| Distribution copies disagree | High | FR-06/FR-10, actual-copy verification. |
+| Text tests mistaken for behavioral proof | Medium | Separate unit/integration/model fixture evidence. |
+| Specialist commands undersold | Medium | FR-04 without copying their internals. |
+| Excessive proposed command redesign | Medium | Deferred dependencies and explicit mutation boundary. |
+
+## Appendix A: Glossary
+
+| Term | Meaning |
+|---|---|
+| Direct-change limit | One source file plus its matching test, five edits or fewer, exact change known. |
+| Managed workflow package | Workflow-created plan/source/contract package owned by implement for execution and archive handling. |
+| MDTM | Existing task-file/checklist/phase-gate format executed by task. |
+| Supporting task | Analysis, review, artifact generation, operation or lifecycle action not itself a general implementation process level. |
+| Report-only | No requested product/source/Git mutation; tool-owned reports may still be written. |
+| Current callable surface | The command/skill copies and dependencies actually available to the user's invocation. |
+| Contract gap | Verified conflicting or insufficient interface/dependency evidence; not equivalent to successful runtime capability. |
+| Cache hint | Stored target/template information that still requires current intent and source verification. |
+
+## Appendix B: Research Provenance and Prior Work
+
+- Inventory: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/inventory.json`.
+- Registered template: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/templates/documents/release-spec-template.md`.
+- Prior research: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/research/ironclaude-routing-consolidation-20261012/03-help-recommend.md`.
+
+The prior report correctly identified historical guide/discovery/cache/plugin issues. Its snapshot is not current truth:
+
+- Guide-first recommendation, installed/project enumeration, live help, built-in exemptions, guide-content hashing and README maintenance instructions now exist.
+- This change must not recreate those already implemented repairs.
+- Prior cache digest values, command inventories and framework-sync activity are snapshot evidence, not current claims.
+- Active source, current contracts and inspected implementation outrank prior reports and installed legacy skill descriptions.
+
+## Appendix C: Forty-Seven-Command Coverage
+
+History codes: **F** formatting only; **M** substantive capability/contract change; **D** dependency metadata/prose cleanup; **R** retirement. A formatting-only history can still expose a current recommendation defect.
+
+All `CHANGE` dispositions concern recommendation handling unless explicitly stated otherwise. Command implementations remain unchanged.
+
+| Command | Active / history | Disposition | Recommendation delta | Requirement / tests | Analyst |
+|---|---|---|---|---|---|
+| adversarial | Active; F+D, meaningful delegated safeguards | CHANGE | Preserve compare/generate/pipeline modes, output boundary and cache intent separation. | FR-03/05/07; T22/T40-T45/T52 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/adversarial.md) |
+| agent | Active; F | CHANGE, narrow; no role promotion | Self-contained controller, startup then wait; not default planner/resume. | FR-04/05/11; T41/T72 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/agent.md) |
+| analyze | Active; F | CHANGE | Broad static assessment, optional focus, formal Usage flags. | FR-04/05; T32/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/analyze.md) |
+| auggie-review | Active; M+D | CHANGE | Standalone review, posting/model controls, accurate deep-remediation coupling. | FR-08/09; T59-T66 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/auggie-review.md) |
+| brainstorm | Active; M+D | CHANGE | Requirements-only stop; optional interaction/preview; ordinary follow-on workflow, no invented handoff. | FR-01/04/11; T06/T34 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/brainstorm.md) |
+| build | Active; F | CHANGE | Existing compilation/packaging versus feature building or diagnosis; Usage options. | FR-03/04/05; T19/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/build.md) |
+| business-panel | Active; F+D | CHANGE | Strategic objective outranks PRD label; simulated perspectives and synthesis-only boundary. | FR-03/04/11; T15/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/business-panel.md) |
+| cleanup-audit | Active; M+D | CHANGE | Dedicated audit-only route; requested pass/focus and excluded-path caveat. | FR-04/11; T14-T18/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/cleanup-audit.md) |
+| cleanup | Active; F+D | CHANGE | Separate audit, requested cleanup, improvement and planned refactor; disclose automatic edits. | FR-01/02/05; T13/T40/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/cleanup.md) |
+| cli-eval | Active; M+D | CHANGE | Distinguish suite create/run and retain owned lifecycle. | FR-04; T20/T21 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/cli-eval.md) |
+| cli-portify | Active; F+D | CHANGE | Specification outcome, preview/full distinction; surface C04. | FR-04/05/11; T35/T45 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/cli-portify.md) |
+| design | Active; F | CHANGE | Standalone four-type design; code format is not implementation permission. | FR-04/05; T22/T40/T44 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/design.md) |
+| document | Active; F | CHANGE | Inline/external/API/guide outputs and source-edit planning boundary. | FR-02/04/05; T38/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/document.md) |
+| estimate | Retired; F+R | CHANGE filtering; NO CHANGE retirement | Reject installed remnant; preserve estimation/report intent, no fabricated duration. | FR-06/11; T46-T51/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/estimate.md) |
+| explain | Active; F+D | CHANGE | Educational objective and audience/format options; inspection breadth is not implementation. | FR-03/04/05; T12/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/explain.md) |
+| git | Active; F | CHANGE | Intelligent status/commit/branch/merge scope; no added mutation authority. | FR-04/05/09; T19/T40/T66 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/git.md) |
+| help | Active; M+D | CHANGE guide; NO CHANGE live-help contract | Dedicated inventory route, not choosing or repairing. | FR-04/10; T14/T67-T71 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/help.md) |
+| implement | Active; M | CHANGE routing; NO CHANGE executor | Broad ordinary planned execution, direct approved-plan handoff, implicit resume, honest QA. | FR-01/02/11; T01-T13/T73 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/implement.md) |
+| improve | Active; F+D | CHANGE | Targeted improvement without compulsory cleanup; declared options; mutation disclosure. | FR-01/02/04/05; T13/T40/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/improve.md) |
+| index-repo | Active; F | CHANGE | Compact two-file map; update/quick keyword modes; no percentage guarantee. | FR-04/05/11; T22/T40/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/index-repo.md) |
+| index | Active; F+D | CHANGE | Coordinated documentation/knowledge base versus compact repo map. | FR-04/05; T38/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/index.md) |
+| init-lite | Active; M | CHANGE | Specific context audit; mandatory flag, report/dry-run/scaffold distinctions. | FR-04/11; T39 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/init-lite.md) |
+| load | Active; F | CHANGE | Context activation/refresh, not execution resume; C11. | FR-02/04/05; T10/T40/T44 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/load.md) |
+| pm | Active; F+D | CHANGE, narrow; no default promotion | Explicit coordination, verified protocol, no false startup/resume guarantees. | FR-04/05/11; T41/T42/T72 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/pm.md) |
+| post-release | Active; M+D/alias retirement | CHANGE | Tagged-release external-surface lifecycle, mutation and authorization. | FR-04/11; T20/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/post-release.md) |
+| pr-submit | Active; M+D | CHANGE | Conditional ceilings, attach/resume, origin/head/session constraints. | FR-09; T63-T66 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/pr-submit.md) |
+| recommend | Active; M+F | CHANGE | Policy, whole-goal matching, syntax/dependency/lifecycle verification and cache hints. | FR-01-FR-12; T01-T76 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/recommend.md) |
+| reflect | Active; M+D | CHANGE | Pre/post optional inputs, no-promote, tier/depth distinction, specific readiness/continuation. | FR-08/11; T28-T31/T59-T62 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/reflect.md) |
+| release-split | Active; M+D | CHANGE | Standalone neutral boundary assessment, intact option and proposal continuation. | FR-04; T20/T22 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/release-split.md) |
+| research | Active; M+D+F | CHANGE | Broader external research, explicit depth retained, report-only stop. | FR-04/05/11; T33/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/research.md) |
+| review-translation | Active; F+D | CHANGE | Localization-specific reports-first route; consent/export/tone/platform options. | FR-03/04; T17/T18 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/review-translation.md) |
+| roadmap | Active; M | CHANGE | Artifact versus MDTM distinction, explicit source gap C01. | FR-03/04/05; T21/T45/T54 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/roadmap.md) |
+| save | Active; F | CHANGE generic verification; NO CHANGE resume exclusion | Serena memory/summary/checkpoint options, not task continuation. | FR-02/04/05; T10/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/save.md) |
+| sc | Retired; F+R | CHANGE filtering; NO CHANGE retirement | Help replaces inventory dispatcher; installed residue not current authority. | FR-06; T46-T51 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/sc.md) |
+| select-tool | Retired; F+R | CHANGE filtering; NO CHANGE retirement | Preserve tool-selection explanation intent; no restored accuracy/latency claims. | FR-06/11; T46-T51/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/select-tool.md) |
+| spawn | Active; M+F | CHANGE | Decomposition stop and declared options; narrowly scoped branch-trace caveat. | FR-04/05; T22/T40/T45 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/spawn.md) |
+| spec-panel | Active; compression+D+F | CHANGE | Preserve modes, correctness/authorized derivation and generation distinction. | FR-03/04/05/07; T16/T22/T40/T53 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/spec-panel.md) |
+| swarm-wizard | Active; M+D | CHANGE | Explicit swarm/settings help, safe preseed controls, C10. | FR-04/11; T20/T22/T45/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/swarm-wizard.md) |
+| task-mcp | Retired; R | CHANGE filtering; NO CHANGE retirement | Deprecation-aware migration to independently verified task, no legacy bypass flags. | FR-06; T46-T51 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/task-mcp.md) |
+| task | Active; M+D+F | CHANGE routing/claims; NO CHANGE classifier | Bounded direct execution versus MDTM; actual verification evidence; preserve TFEP. | FR-01/02/11; T01/T02/T73 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/task.md) |
+| tasklist | Active; M+D+F | CHANGE | Explicit roadmap-to-Sprint generation, positional syntax and no auto-execution. | FR-04/05; T21/T44/T54 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/tasklist.md) |
+| tdd | Active; heading change+D+F, delegated M | CHANGE | Standalone Technical Design Document create/update; actual tdd handoff, C08. | FR-04/05/07; T22/T41/T53 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/tdd.md) |
+| test | Active; F | CHANGE | Execution/watch/E2E versus authoring, explicit fix mutations and Usage options. | FR-04/05/11; T36/T37/T40 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/test.md) |
+| troubleshoot | Active; M+D+F | CHANGE | Default workflow fix offer, report-only/blocked preservation, explicit deep coupling. | FR-08; T23-T27 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/troubleshoot.md) |
+| validate-roadmap | Active; M+D+F | CHANGE | Preserve investigative capability but surface C02/C03; CLI distinct. | FR-04/05; T45/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/validate-roadmap.md) |
+| validate-tests | Active; F+D | CHANGE | Specialized YAML tier validator; verify missing suite prerequisite. | FR-04/05/11; T20/T42/T74 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/validate-tests.md) |
+| workflow | Active; M+F | CHANGE routing; NO CHANGE planner capacity | Ordinary default, standard depth, managed handoff and advisory-review honesty. | FR-01/02/08; T01-T13/T59 | [Report](/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/workflow.md) |
+
+## Appendix D: Analyst Finding Dispositions
+
+Every substantive proposal in the 47 reports is covered by the accepted groups below or a named exception. Historical observations are retained as evidence, not treated as new capability. Repeated “no runtime execution” gaps are accepted limitations.
+
+### Accepted consolidated groups
+
+| Group | Accepted findings and applicable reports | Rationale / linkage |
+|---|---|---|
+| A01 | Workflow-first policy and synchronized fallbacks across all reports proposing a later implementation route. | User's requested policy; FR-01/02/10. |
+| A02 | Preserve explicit command, supplied artifact, report-only outcome, and original executor across all 47. | Prevents unauthorized scope conversion; FR-02/03. |
+| A03 | Usage-based option verification and self-contained activation findings from agent, analyze, build, business-panel, cleanup, design, document, explain, git, help, improve, index, index-repo, load, save, spawn, spec-panel, task, task-mcp, test, research and tdd. | Shared verifier defect, not twenty command rewrites; FR-05. |
+| A04 | Missing backing-skill, delegated-contract freshness, current-source and cache-compatibility findings wherever raised. | Candidate-file readability is insufficient; FR-05/06/07. |
+| A05 | Specialized route/capability descriptions and requested-option preservation for all active command rows in Appendix C. | Existing capabilities should remain reachable; FR-04. |
+| A06 | Retirement/provenance protections from estimate, sc, select-tool and task-mcp; stale installed recommend-protocol findings repeated elsewhere. | Lifecycle evidence outranks surviving residue, without rejecting custom extensions; FR-06. |
+| A07 | Mutation, posting, dry-run, scope-exclusion, verification and performance-claim caveats across reports. | Accurate side-effect and evidence boundaries; FR-08/09/11. |
+| A08 | Guide/core/plugin parity and behavioral regression proposals across reports. | One policy must reach every maintained consumer; FR-10/12. |
+| A09 | Default troubleshoot/reflect/Auggie workflow remediation and coupled deep-route disclosures. | Present behavior is preserved, desired policy handled through accurate separate handoffs; FR-08. |
+| A10 | Narrow invalid referral fixes from tasklist and tdd. | Directly affects recommendation handoff accuracy without redesigning executors; C06/C08. |
+| A11 | Agent/PM no-default-promotion; save/load no-executor-resume; help live inventory; no restoration of retired commands. | Existing correct boundaries remain; FR-02/04/06/11. |
+| A12 | Correctness/architecture and critique review, quality fields unscored until review, complete command coverage. | Template quality intent and research honesty; FR-12. |
+
+### Rejected or refined proposals
+
+| Reports / proposal | Disposition | Rationale |
+|---|---|---|
+| auggie-review: coordinate a change to deep-review remediation selection in the command/protocol. | **REJECTED for this implementation; deferred separate change.** | Recommendation must not change command behavior to force hypothetical routing. FR-08 provides a current supported alternative. |
+| workflow/implement/task: always use quick for ordinary planned work. | **REFINED.** | Quick remains useful for smaller plans; standard is the current default. No universal quick mandate. |
+| git: accept affirmative examples as sufficient new flag definitions. | **PARTLY REJECTED.** | Examples corroborate formal definitions; conflicting example-only flags remain unverified. This avoids admitting build/cleanup/improve inconsistencies. |
+| spec-panel/classifier: call spec-panel universally review-only. | **REJECTED as overbroad.** | Populated-document derivation is documented and consent-bound; raw PRD/TDD creation remains distinct. |
+| roadmap/validate-roadmap: advertise unqualified runnable slash invocations immediately after describing desired routes. | **DEFERRED pending contract reconciliation.** | Current activation disagreements are material; FR-05 requires contract-gap handling. |
+| business-panel/cleanup/explain/research/spawn and others: repair every stale plugin command mirror now. | **REFINED to actual-copy verification and maintained routing mirrors.** | Broad plugin resynchronization is separate scope; missing/older capability is disclosed rather than fabricated. |
+| any report suggesting an extra classifier key or command synonym mapping as a convenience | **REJECTED.** | Existing guide/discovery plus unknown fallback are sufficient; avoid a second routing registry. |
+| any inference that report/artifact writes require general implementation planning | **REJECTED.** | The requested deliverable and owned command lifecycle decide; inspection/output count is not source mutation count. |
+| any inference that a recommendation authorizes installs, fixes, Git operations or publication | **REJECTED.** | Handoff construction does not execute or expand consent. |
+
+### Deferred source-contract and operational findings
+
+| Report(s) | Deferred finding | Current handling |
+|---|---|---|
+| adversarial | Pipeline example conflicts with mutual exclusion; sufficiency depth nuance; missing plugin package. | Use unambiguous mode, verify depth/dependencies; no pipeline redesign. |
+| agent, pm | Startup automation claims exceed inspected scripts; PM retains stale internal dependency names. | C16; do not promise automatic activation or absent tools. |
+| build, cleanup, improve, load | Example-only unsupported options; rollback/default ambiguities. | Exclude unsupported options; no invented guarantees. |
+| cleanup-audit | Legacy counters and protocol inventory differ; excluded hidden paths limit audit targets. | Disclose scope floor; counter repair separate. |
+| cli-eval | No documented resume mode; nested fan-out reliability unmeasured. | No invented resume or proven runtime claim. |
+| cli-portify | Activation-name resolution and code/spec wording disagree. | C04; conservative specification-only description. |
+| design | Plugin copy lacks canonical output tail. | Actual-copy verification; broad mirror repair separate. |
+| index-repo | Alias spelling, overwrite/update semantics and savings not established. | Canonical command name, documented modes only, no metrics promise. |
+| init-lite | Runtime recommendation selection unmeasured; plugin package absent. | Verify availability; no auto-optimization promise. |
+| post-release | Tag-resolution/prior-tag ambiguity and live install validation not exercised. | Preserve tag input/gates; no new flags or runtime proof. |
+| pr-submit | Live bot/CI/monitor operation not exercised. | Current contract only; no daemon or success promise. |
+| reflect | Plugin lacks current protocol; readiness CLI distinct; headless wrapper materially different. | Preserve availability and interactive boundaries. |
+| release-split | Integration reference still names Haiku despite Sonnet current default. | Do not copy stale default; repair reference separately. |
+| research | Strategy aliases versus config mapping and search handoff wording are not fully reconciled. | Emit only supported public controls; no invented parser behavior. |
+| review-translation | Strict/depth semantics and deterministic resume not fully defined. | Preserve documented options without extra guarantees. |
+| roadmap | Full dispatcher/protocol mismatch. | C01. |
+| save, load | Memory checkpoint completeness, latency and automatic timing unmeasured. | Memory-only description and explicit prerequisites. |
+| spawn | Early execution prose conflicts with critical stop; branch tracing applies only under narrow conditions. | C05; no universal tracing or execution claim. |
+| spec-panel | Expert ordering conflicts; downstream option is prose-only. | Preserve requested substantive focus; prefer natural-language derivation intent over ambiguous flags. |
+| swarm-wizard | Proxy STOP versus stub fallback. | C10. |
+| task | Classification/skill-first ordering disagreement; task tests may use manual evidence. | C12 and corrected verification description. |
+| tasklist | Protocol mentions extra dry-run/enrichment controls absent from public grammar; generated post-reflect tasks are not executed yet. | Public verified interface only; no execution claim. |
+| tdd | Internal task/document pipeline has its own task-builder usage. | Preserve it; workflow-first policy concerns subsequent product implementation, not a forced rewrite of document machinery. |
+| test | Scope of “simple” auto-fix is unspecified. | No numerical guarantee; explicit request and mutation disclosure required. |
+| troubleshoot | Hardening blockers and diagnostic execution-locus evidence must remain intact. | Preserve report verdicts; no bypass/rerun promise. |
+| validate-roadmap | Directory CLI versus investigative skill and exit-status disagreement. | C02/C03. |
+| validate-tests | Default suite absent and illustrative test count not verified. | C15. |
+| workflow | One-session planning wording versus durable execution; advisory reflection availability. | C14; distinguish the two. |
+| estimate, sc, select-tool, task-mcp | Installer cleanup/provenance outside checkout not established. | No automatic deletion; explicit lifecycle guidance and custom-command exception. |
+| recommend and repeated hook findings | Hook is advisory; stale global legacy protocol remains installed. | Correct current recommendation claims, do not resurrect or delete legacy files. |
+
+## Appendix E: Independent Review
+
+**Status: not performed by this assembler. Quality scores: not scored.**
+
+The coordinator must obtain two independent report-only reviews after persistence:
+
+1. **Correctness and architecture**
+   - Verify live source support for policy boundaries and examples.
+   - Check cache safety, callable-surface resolution, lifecycle filtering and mirror scope.
+   - Verify contradictions are not silently presented as runnable capabilities.
+
+2. **Critique and testability**
+   - Challenge scope creep, redundant mechanisms, missing negative cases and ambiguous acceptance criteria.
+   - Confirm each analyst proposal has a disposition.
+   - Check that the specification is implementable without changing specialized commands to invent capabilities.
+
+Reviewers must not invoke command implementations, perform product edits, or fabricate numeric scores. Record actual findings, coordinator dispositions and review evidence before changing status to approved.

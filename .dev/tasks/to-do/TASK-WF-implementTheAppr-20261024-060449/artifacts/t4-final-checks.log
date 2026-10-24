@@ -1,0 +1,23 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 81 items
+
+tests/recommend/test_best_model.py ........                              [  9%]
+tests/recommend/test_cache.py ...............                            [ 28%]
+tests/recommend/test_cli_registration.py ...                             [ 32%]
+tests/recommend/test_dispatch.py ................                        [ 51%]
+tests/recommend/test_eval_pipeline.py .....                              [ 58%]
+tests/recommend/test_plugin_eval.py ........                             [ 67%]
+tests/recommend/test_telemetry.py .........                              [ 79%]
+tests/skills/test_sc_recommend_routing_contract.py .................     [100%]
+
+============================== 81 passed in 6.75s ==============================
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+4 files already formatted

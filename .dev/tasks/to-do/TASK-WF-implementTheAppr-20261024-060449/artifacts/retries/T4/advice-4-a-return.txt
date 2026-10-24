@@ -1,0 +1,60 @@
+outcome: ready
+
+The reviewer's finding holds up against its own citations. In the live `test_dispatch.py`, line N is line N+405 of `attempt-3.diff`, so `test_dispatch.py:293/302/315` are `attempt-3.diff:698/707/720`.
+- **Tests:** every collision fixture checks only what dispatch returns (`attempt-3.diff:707-709`). Its guard words ("objective", "artifact", "authority ceiling", "explicit selection") come from one shared verification sentence (`attempt-3.diff:596, 605, 614, 623, 632, 389`). Swapping or deleting a scenario changes nothing.
+- **The "changed reference":** it is a temp file the seeded source never mentions (`attempt-3.diff:686-699`). Dispatch only hashes the row's own source file (`src/superclaude/cli/recommend/dispatch.py:117-123`, unchanged).
+- **Root cause:** it starts in the production text. `SKILL.md` describes rejection, rebinding and rereading only as general categories (`attempt-3.diff:389-391`). No sentence links "this cached item plus this current request" to "this required action", so a static test has nothing specific to check.
+
+| AC | why earlier attempts missed it (path:line) | change |
+|---|---|---|
+| T4.AC1 | Not missed (`review-3.md:4-12`; `attempt-3.diff:375-396`). | Keep `attempt-3.diff:367-431`. Only add sentences inside the existing verification and binding bullets. Keep the substrings checked at `attempt-3.diff:758-787` and the bullet split markers at `attempt-3.diff:715-719`. |
+| T4.AC2 | Not missed (`review-3.md:14-21`; `attempt-3.diff:391-393, 404-405`). | Keep as is. No change to `dispatch.py`, `cache.py` or the schema. The new rejection lines go inside the existing rejection bullet, before the native bullet. |
+| T4.AC3 | Not missed (`review-3.md:23-30`; `attempt-3.diff:37-54, 433-478, 816-840`). | Keep the `prompts.py`, `test_cache.py` and classifier-key hunks byte-for-byte. |
+| T4.AC4 | Attempt 1 used generic words. Attempt 2 listed fixtures but covered only one of the two T53 cases. Attempt 3 added the missing one (`approach-3.md:4-7`). All three kept the same generic guard loop (`attempt-3.diff:720-734`), checks on dispatch output only (`attempt-3.diff:707-709`) and an unlinked reference file (`attempt-3.diff:686-699`). The reviewer names this at `review-3.md:37` and `review-3.md:50`. Spec: `SPEC-sc-recommend-refresh.md:340, 348-352, 721, 725-729`. | (a) In `SKILL.md`, add one short negative sentence per scenario inside the matching bullet. Each names the cached item, the current request and its own required action, and names no replacement command. (b) In the tests, each fixture finds exactly one such sentence in its own section and checks it holds that fixture's request phrases and action word. Each fixture's data also proves its risk is real and that dispatch cannot see it: an old path in the hit text, a referenced file changing under a matching hash, or a valid-hash source marked `deprecated: true`. |
+
+differs-by: Put one scenario-specific negative sentence per collision into the `SKILL.md` consumer contract, and have each fixture check its own sentence. Attempt 1 checked shared words, attempt 2 listed fixtures, and attempt 3 added one more fixture against the same generic loop.
+
+steps:
+1. **`SKILL.md` verification bullet** (`attempt-3.diff:389`). Append: "Reread: when a delegated reference named by the candidate's source changed while its source hash still matches, reread that reference before emission; the hash match is not freshness proof."
+2. **`SKILL.md` binding bullet** (`attempt-3.diff:390`). Append: "Rebind: a compatible same-key hint that carries a cached path, task, PR, mode or authority drops those values and binds only this request's paths and constraints."
+3. **`SKILL.md` rejection bullet** (`attempt-3.diff:391`). Add an indented sub-list (`  - `, never starting with `- If` or `` - `outcome: ``) of examples rejected even with a valid hash:
+   - "Reject a cached comparison candidate offered for a plan-adherence audit or a local PR review."
+   - "Reject a cached PRD-authoring candidate offered for a TDD request or a critique of an existing spec."
+   - "Reject a cached MDTM or roadmap handoff offered when Sprint artifacts were requested."
+   - "Reject a cached candidate whose current source declares `deprecated: true` or is a retired framework remnant."
+
+   No command names, no `Run:`, no "route to". Live discovery stays the only thing that chooses a target.
+4. **`test_dispatch.py` parameters.** Replace the `guard_scope`/`guards` parameters and the loops at `attempt-3.diff:711-734`. The shared rejection-word loop is already covered at `attempt-3.diff:775-787`. New parameters:
+   - `hazard`: objective, stale-path, reference-change or retired.
+   - `source_body`, and `section` (verification, binding or rejection).
+   - `antecedent`, for example "cached comparison candidate", "cached PRD-authoring candidate", "cached MDTM or roadmap handoff", "declares `deprecated: true`", "same-key hint", "delegated reference named".
+   - `goals`, for example ("plan-adherence audit",), ("local PR review",), ("TDD request",), ("critique of an existing spec",), ("Sprint artifacts",).
+   - `obligation`: Reject, Rebind or Reread.
+
+   Keep all eight fixture IDs.
+5. **Make each risk real**, branching on `hazard`, not on the request text:
+   - stale-path: assert `docs/previous.md` is in `result.recommendation` and not in the current request.
+   - reference-change: the seeded source names `backing-reference.md`. Change that file after seeding, then assert the hash still matches and the outcome is `hit`.
+   - retired: the seeded source contains `deprecated: true` and the outcome is still `hit`.
+   - objective: assert `result.candidate` is the cached candidate and the cached command's key token (`--compare`, `/prd`, `/task-builder`) is absent from the current request.
+6. **Sentence checks per fixture.** Take the named section using the existing split markers, then run `clauses = [ln for ln in section.splitlines() if antecedent in ln]` and `assert len(clauses) == 1`.
+   - Assert `obligation` and every `goals` phrase are in that one sentence.
+   - Assert the sentence contains neither `/sc:` nor `Run:` (no positive routing).
+   - For stale-path, also assert `Reject` is absent (it is rebinding, not rejection).
+7. **Docstring.** Keep the static-only docstring (`attempt-3.diff:680-683`). Extend it to say these are static contract plus dispatch checks, not model generation or specialist-command execution, which stays in Task 8.
+8. **Checks.** Run `uv run pytest tests/recommend tests/skills/test_sc_recommend_routing_contract.py`, then `ruff check` and `ruff format --check` on the touched files. Record the real output in `extras-4.log`. Expect 80 collected, the same as `extras-3.log:8`.
+9. **Approach file.** In `approach-4.md`, map each fixture ID to its `SKILL.md` sentence and action word, and describe the evidence type honestly.
+
+There are no grounds for a dispute. The finding (`review-3.md:37`, `review-3.md:47-50`) is backed by `attempt-3.diff:698-734`, and this fix stays within the Task 4 files and constraints (`TASK-WF-implementTheAppr-20261024-060449.md:22, 25, 85`). I also sent this advice to team-lead.
+
+| Status | Result |
+|---|---|
+| DONE | Read the Task 4 criteria and constraints, spec FR-07 and T48/T52-T58, the attempt-3 diff, review, approach and extras files, the attempt-3 advice and brief, and the unchanged dispatch hashing code. |
+| DONE | Sent the advice to team-lead. |
+| NEXT | Team-lead runs attempt 4 with the per-scenario `SKILL.md` sentences and fixture checks. |
+
+Files:
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/attempt-3.diff`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/retries/T4/review-3.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/SPEC-sc-recommend-refresh.md`
+- `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py`

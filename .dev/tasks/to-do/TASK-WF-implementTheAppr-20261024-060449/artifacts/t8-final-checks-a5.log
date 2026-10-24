@@ -1,0 +1,70 @@
+$ uv run pytest (affected suites)
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 990 items
+
+tests/core/test_claude_md_routing_block.py ......                        [  0%]
+tests/core/test_how_we_work_routing_table.py ........................... [  3%]
+....................................................                     [  8%]
+tests/core/test_research_config.py ....                                  [  8%]
+tests/commands/test_auggie_review_revagent.py ............               [ 10%]
+tests/commands/test_help_command.py ......                               [ 10%]
+tests/commands/test_research_command.py ..                               [ 11%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 11%]
+tests/commands/test_workflow_command.py .................                [ 13%]
+tests/recommend/test_best_model.py ........                              [ 14%]
+tests/recommend/test_cache.py ...............                            [ 15%]
+tests/recommend/test_cli_registration.py ...                             [ 15%]
+tests/recommend/test_dispatch.py ................                        [ 17%]
+tests/recommend/test_eval_pipeline.py .....                              [ 17%]
+tests/recommend/test_plugin_eval.py ........                             [ 18%]
+tests/recommend/test_routing_refresh.py ................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 43%]
+                                                                         [ 43%]
+tests/recommend/test_telemetry.py .........                              [ 44%]
+tests/skills/test_brainstorm_protocol.py .                               [ 44%]
+tests/skills/test_implement_retry_revert.py ............................ [ 47%]
+..........................                                               [ 50%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 50%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 52%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 52%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 54%]
+......                                                                   [ 55%]
+tests/skills/test_task_builder_merge.py ................................ [ 58%]
+....................................                                     [ 62%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 64%]
+...............................................                          [ 69%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 70%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 70%]
+tests/skills/test_workflow_archive.py .................................. [ 73%]
+........................................................................ [ 81%]
+....................................................................     [ 88%]
+tests/cli/test_install_hooks.py ......................                   [ 90%]
+tests/unit/test_cli_install.py ......................................... [ 94%]
+.......................................................                  [100%]
+
+============================= 990 passed in 18.23s =============================
+pytest_rc=0
+$ ruff check
+All checks passed!
+ruff_rc=0
+$ ruff format --check
+28 files already formatted
+format_rc=0
+$ make verify-sync
+✅ All components in sync.
+verify_rc=0
+$ cmp copies
+cmp_guide_identical
+cmp_skill_identical
+$ typecheck
+typecheck=skip (mypy not installed; no install performed)
+$ staged .claude paths other than settings.json
+none
+HEAD=7728828941242c9f096ecd8422599f7073175525

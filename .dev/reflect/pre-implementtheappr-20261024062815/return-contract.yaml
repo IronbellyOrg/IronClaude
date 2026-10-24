@@ -1,0 +1,94 @@
+contract_version: "1.8.0"
+status: failed
+mode: pre
+tier_reached: 1
+tier_completed: false
+stop_reason: required-coverage-mapping-incomplete
+report_path: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/reflect/pre-implementtheappr-20261024062815/REPORT.md
+report_written: false
+report_persistence_owner: parent
+report_write_restriction_source: parent task instruction and worker developer restriction
+report_template: /config/.claude/skills/sc-reflect-protocol/refs/report-template.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/reflect/pre-implementtheappr-20261024062815/audit.log
+audit_log_retrospective: true
+confidence_calibrated: null
+calibration_ran: false
+calibrator_diversity: degraded
+escalation_rule_matched: null
+tier_decision_completed: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+coverage_degraded: null
+coverage_mapping_complete: false
+unmapped_requirements: []
+unmapped_requirements_union: []
+unmapped_lists_complete: false
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+input_sha256:
+  tasklist: e7d1cb46f1d8996ecef54d2702de20a3617e9b3e4856f84afc6c15bb952794db
+  spec: 9b90953f6a24f382532d21d0a973ae793b94b7685e43be4db61a479ebdee28d0
+input_tree_sha256: 77da068d6dc102c871cbb2d87d2d7aae0827632eb3530f4a39ec4ee7560517c9
+input_tree_file_count: 22
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/reflect/pre-implementtheappr-20261024062815/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 0
+citations_revalidated: 0
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+evidence_validator_scope: failure-disclosure-only
+evidence_validator_path: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/reflect/pre-implementtheappr-20261024062815/artifacts/evidence-validator.yaml
+zero_drop_flag: true
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_ran: false
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+reviewer_aliases_available_only: true
+executor_class_resolved: false
+executor_class_source: unknown
+onboarding_ran: false
+verification_ran: false
+verification_invocations: 0
+product_tests_run: false
+generation_evaluations_run: false
+remediation_offered: false
+remediation_accepted: null
+remediation_plan_path: null
+remediation_task_path: null
+handoff_memory_key: null
+promotion_action: not-applicable
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+cannot_validate_without_user_input: false
+plan_verdict: null
+confirmed_findings: []
+provisional_findings_are_not_accepted: true
+required_stage_failures:
+  - wave-1B incomplete two-pass requirement extraction and non-machine containment estimates
+required_stages_not_completed:
+  - wave-0 full environment and capability preflight
+  - wave-1A full source grounding
+  - wave-1D calibration
+  - wave-2 tier rubric
+  - conditional wave-3 ensemble and calibration
+  - conditional wave-4 adversarial merge
+  - wave-5 substantive reflection synthesis
+execution_failure_path: /config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/reflect/pre-implementtheappr-20261024062815/artifacts/execution-failure.yaml
+next_action: parent-record-advisory-reflect-status-failed

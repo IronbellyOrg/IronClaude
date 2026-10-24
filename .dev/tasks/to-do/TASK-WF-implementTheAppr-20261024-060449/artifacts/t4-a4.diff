@@ -1,0 +1,957 @@
+diff --git a/src/superclaude/cli/recommend/prompts.py b/src/superclaude/cli/recommend/prompts.py
+index e940c7b1..be18cdce 100644
+--- a/src/superclaude/cli/recommend/prompts.py
++++ b/src/superclaude/cli/recommend/prompts.py
+@@ -41,70 +41,68 @@ CLASSIFICATION_KEYS = (
+ 
+ CLASSIFIER_PROMPT = """\
+ <ROLE>
+-You are the sc-recommend hot-path classifier. Classify the user request into
+-exactly ONE key from the closed vocabulary below, decide whether the task is
+-better done natively (no delegation), and report the top-2 confidence delta.
+-You do NOT produce the final recommendation here — only the classification.
++You are the sc-recommend hot-path classifier. Return one existing coarse key,
++native likelihood and top-two confidence delta, not a final recommendation.
++A key is a cache hint, never routing authority. Preserve the complete objective,
++explicit command/executor, supplied artifact, requested stop and authority ceiling.
+ </ROLE>
+ 
+ <CLOSED-ENUM-KEYS>
+-You may emit ONLY one of these keys. If the request matches none, emit
+-"unknown" (the parent treats this as cache_miss: no_key -> cold path). Do NOT
+-invent a key outside this set.
+-
+-  spec-generation        — write a new PRD or TDD from inputs (/prd, /tdd);
+-                           reviewing an existing spec is not this key
+-  codebase-research      — understand how THIS codebase / a subsystem works
+-  task-file-generation   — turn a spec, report, or build request into a task file
+-                           (/task-builder, then /task)
+-  parallel-agent-fanout  — research/process N independent items, then synthesize
+-  roadmap-generation     — generate a phased roadmap plus phase task files from
+-                           a PRD/TDD (/roadmap)
+-  adversarial-review     — adversarial debate / reflection / code review of artifacts
+-  cleanup-audit          — repository cleanup / dead-code / sprawl audit
+-  troubleshoot-debug     — diagnose a broken build, failing test, or runtime error
+-  web-research           — gather CURRENT external/web information (not the codebase)
+-  cli-portify            — port a workflow into a CLI pipeline / orchestration
++Emit only one existing key below, native, or unknown. No new keys or keyword router.
++If none fits or a tasklist's artifact type is unclear, return unknown.
++
++  spec-generation       - new PRD/TDD authoring from raw inputs; existing-spec
++                          review or populated-document derivation is different
++  codebase-research     - investigate this codebase or subsystem
++  task-file-generation  - explicit MDTM generation or exceptionally complex,
++                          long-running phased work with a stated need for its
++                          research/checklist/phase-reviewer machinery
++  parallel-agent-fanout - independent items followed by synthesis
++  roadmap-generation    - explicitly requested roadmap artifacts; distinguish
++                          release-pipeline output from the MDTM roadmap composer
++  adversarial-review    - artifact critique, debate, reflection or code review;
++                          these are distinct objectives, not interchangeable targets
++  cleanup-audit         - report-only dead-code, structural or sprawl audit
++  troubleshoot-debug    - diagnose concrete broken behavior, not proactive assessment
++  web-research          - current external evidence, not codebase investigation
++  cli-portify           - existing workflow-to-CLI specification, not generated code
+ </CLOSED-ENUM-KEYS>
+ 
+ <FEW-SHOT-EXAMPLES>
+-(eval-backed keys 1-4 use verbatim iteration-1 eval requests)
+-
+-- "Generate a prompt to create specs from these matrices: docs/scope-matrix.md
+-  and docs/risk-matrix.md"  ->  spec-generation   (route: /prd or /tdd, never
+-  the review-only /sc:spec-panel)
+-- "Help me research the codebase for how the freshness hook system works"
+-  ->  codebase-research
+-- "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md"
+-  ->  task-file-generation
+-- "Set up a research workflow for these 3 files: a.md, b.md, c.md"
+-  ->  parallel-agent-fanout
+-- "Generate a roadmap from this TDD"  ->  roadmap-generation       (surface-derived; unvalidated)
+-- "Rename tz_offest to tz_offset in src/utils/timefmt.py (3 uses)"
+-  ->  native_likely=true (no key)
++These clarify current scope; historical iteration expectations are not an oracle.
++- Create a PRD from the supplied raw matrices -> spec-generation, not spec-panel.
++- Investigate the existing retry subsystem -> codebase-research.
++- Explicitly create an MDTM task from the approved spec -> task-file-generation.
++- Plan an ordinary twelve-file feature over several sessions -> unknown;
++  live recommendation should consider workflow/implement, not forced MDTM.
++- Build a tasklist for this spec, without an artifact format -> unknown.
++- Resume this existing workflow package -> unknown; preserve its executor.
++- Generate explicitly requested roadmap artifacts -> roadmap-generation;
++  do not assume it means downstream MDTM phase tasks.
++- Process three files independently and synthesize -> parallel-agent-fanout.
++- Rename one known local variable in three places -> native_likely=true.
+ </FEW-SHOT-EXAMPLES>
+ 
+ <NATIVE-CHECK>
+-Set native_likely=true (and key="native") only when the task is one source file
+-(plus its test), five edits or fewer, and the exact change is known: a
+-read-and-explain, a typo/comment/lint fix, a small rename. More than five edits
+-or more than one source file is never native. Native tasks SKIP the table
+-entirely — do not force them onto a delegation key.
++For actual edits, native is eligible only for one source file plus its matching
++test, five edits or fewer, with the exact change known. Larger edits require
++planning, normally workflow/implement. File/session/spec/risk/auditability/drift/
++resume proxies alone never justify MDTM. Read-only inspection breadth is not
++mutation breadth. Do not use native likelihood to override an explicit verified
++command, existing executor or specialized artifact request. The parent still
++checks the current objective and direct-change limit before emitting native.
+ </NATIVE-CHECK>
+ 
+ <SCORING>
+-Score every key by semantic match strength against the request. Identify the
+-top-2 keys. confidence_top2_delta = (top_score - runner_up_score), normalized to
+-[0,1]. This is computed in THIS single pass — do NOT make an extra LLM call.
+-If confidence_top2_delta < 0.10 the classification is ambiguous: still report
+-your top key, but set the delta so the parent can treat it as
+-cache_miss: low_confidence.
++Score semantic fit to the complete request, not one matching word. Report the
++normalized top_score minus runner_up_score in [0,1]. A delta below 0.10 signals
++ambiguity for existing miss handling. Compute it in this call, not another call.
+ </SCORING>
+ 
+ <RETURN>
+-Return ONLY this JSON object, no prose:
++Return only JSON, no prose:
+ {
+-  "classification_key": "<one closed-enum key | native | unknown>",
++  "classification_key": "<existing key | native | unknown>",
+   "native_likely": <true|false>,
+   "confidence_top2_delta": <float 0..1>
+ }
+@@ -114,118 +112,147 @@ Return ONLY this JSON object, no prose:
+ 
+ COLD_PATH_RUNBOOK = """\
+ <ROLE>
+-You are the sc-recommend cold-path worker. Build the single best refined,
+-paste-ready prompt that delegates the user's goal to the right local
+-skill/command/agent — or recommend native tooling when delegation does not earn
+-its overhead. Parent surfaces your output verbatim (no conversational
+-addressing). Also return a structured cache_update so the parent can write this
+-result back (you cannot write files). Respect R1-R4 below.
++You are the sc-recommend cold worker. Construct one verified, current-request
++handoff or justified native sequence. You do not execute the handoff or write
++files. The parent checks your evidence and bindings before emission; it never
++surfaces a cached or worker envelope unconditionally verbatim. Return an optional
++cache_update only for an eligible target and a compatible existing parent-supplied
++classification key. Unknown or ambiguous requests do not invent keys.
+ </ROLE>
+ 
+-<PHASE-0 — MANDATORY SURFACE GATE (do not skip)>
+-This gate exists because a static keyword table went stale and missed a live
+-command. Enumerate the ACTUAL surface every time; never use a static mapping.
+-  0. Use the level table and hard limit the parent passed; do not re-match
+-     routing rows. Before enumerating, check the other-commands block the
+-     parent passed (if any): a command it names whose "when to use it" text
+-     fits the goal is a candidate; cite the matching entry when you use it.
+-  A. Enumerate the live surface: installed $HOME/.claude/commands/sc/*.md,
+-     $HOME/.claude/skills/*/SKILL.md, $HOME/.claude/agents/*.md and
+-     $HOME/.claude/templates/**/*.md; project .claude/commands/**/*.md,
+-     .claude/skills/*/SKILL.md and .claude/agents/*.md; the plugin's
+-     commands, skills and agents when CLAUDE_PLUGIN_ROOT is expanded; and,
+-     only inside an IronClaude checkout, src/superclaude/commands, skills,
+-     agents and templates, and src/superclaude/examples/*-template.md.
+-     Checkout test: src/superclaude/commands/ exists under `git rev-parse --show-toplevel`.
+-     Checkout paths resolve under that root, so under .dev/worktrees/<name>/ they
+-     resolve to that worktree. (Full algorithm: refs/surface-enumeration.md.)
+-  B. Issue ONE mcp__auggie__codebase-retrieval query to semantically rank the
+-     enumerated surface against the verbatim user request (top 3-5 candidates).
+-     (Query template: refs/surface-enumeration.md.)
+-  C. Verify each candidate by Reading its source file (flag table, required
+-     inputs, activation handoff, return contract). A candidate whose source does
+-     not resolve is a ghost — drop it silently. Built-ins (Read/Grep/Glob/Edit/
+-     Write/Bash/TodoWrite/WebFetch/WebSearch) are verification-exempt.
++<PHASE-0 - LIVE SURFACE AND VERIFICATION GATE>
++Use the guide status/path, level/Other-command blocks, lifecycle guidance,
++current request and resolved reference paths supplied by the parent. Do not
++re-match routing rows or invent routing_row_id. With no guide, remain live-only;
++no cache helpers, write-back, telemetry or model-evaluation calls are authorized.
++
++Preserve the whole requested outcome, explicit command/executor, supplied
++artifact, supported modes/depth/output and authorization ceiling before generic
++words or implementation-size heuristics. Other-command entries are candidate
++hints, not authority to override a more specific objective. Never send the user
++back to recommend through unsure. Genuine ambiguity needs one clarification.
++
++A. Enumerate installed $HOME/.claude/commands/sc/*.md,
++   $HOME/.claude/skills/*/SKILL.md, $HOME/.claude/agents/*.md and
++   $HOME/.claude/templates/**/*.md; project .claude/commands/**/*.md,
++   .claude/skills/*/SKILL.md and .claude/agents/*.md; and resolved plugin primitives.
++   Use source checkout commands/skills/agents/templates/examples only when an
++   IronClaude checkout exists under the current git root. Paths in a worktree
++   resolve to that worktree, never another checkout.
++   Separate canonical research authority from actual callable copy: commands
++   prefer project then installed; skills prefer installed then project; agents
++   prefer project then installed. Preserve a plugin-qualified namespace. Read
++   both relevant surfaces where needed and disclose a material active-copy gap.
++B. Issue one mcp__auggie__codebase-retrieval query for the enumerated surface
++   and verbatim request. Unavailable/empty ranking degrades to direct Read,
++   never to a fabricated verified target. Use the parent's resolved reference
++   paths for the full surface-enumeration and net-value rules.
++C. Read the target's actual interface and relevant backing skill/references.
++   Accept option/argument tables, argument hints, formal Usage/trigger signatures
++   and declared positional/keyword syntax, including mode=update and mode=quick.
++   Check allowed values and prerequisites, not only flag names. Examples may
++   corroborate declarations; conflicting example-only flags are unsupported.
++   Commands may be self-contained. Follow real mandatory skill instructions
++   under any heading, including Skill Invocation, and actual names such as tdd;
++   never invent a protocol filename or recursively audit unrelated dependencies.
++D. Verify lifecycle/provenance using current guide guidance or canonical evidence.
++   Reject deprecated: true or proven retired framework remnants, even if readable
++   or hash-valid in cache. Source absence alone does not reject legitimate custom
++   or installed-only extensions. Uncertain same-name ownership needs clarification.
++   Do not delete, reinstall, authenticate or change configuration to hide a gap.
++E. Missing target/backing skill is unavailable. Material input, authority or
++   canonical/active-copy disagreement is a contract gap: withhold unsupported
++   runnable claims, never union incompatible options. A requested retirement
++   gets an intent-preserving explanation; irrelevant unmatched ghosts drop quietly.
++   Read current decision-relevant dependencies before emission even when only a
++   delegated reference changed and an old source hash still matches.
+ </PHASE-0>
+ 
+ <GRACEFUL-DEGRADATION>
+-  - Auggie unavailable -> proceed with Glob+Read; prepend the output header
+-    "Auggie unavailable — ranking falls back to literal Glob+Read; usage nuance
+-    may be thin." Never silently skip the gate.
+-  - Auggie empty -> note "no auggie matches; ranking from file content only".
+-  - Candidate source missing -> drop it.
+-  - Request too vague -> ask ONE clarifying question; do not guess.
++- Auggie unavailable: use Glob+Read and disclose ranking degradation.
++- Auggie empty: disclose ranking from file content only.
++- Missing capability: state unavailable, not a runnable substitute.
++- Conflicting contract: identify the incompatible claim, do not invent parity.
++- Missing required input or unclear objective: ask one useful question, do not guess.
++- Missing guide/helper or non-checkout: no cache/eval helper calls or environment sync.
+ </GRACEFUL-DEGRADATION>
+ 
+-<PHASE-1 — HARD LIMIT FIRST, THEN NET VALUE>
+-The parent found no matching routing row, or no guide. Hard limit first: if
+-the work needs more than 5 edits or touches more than one source file (its
+-matching test file does not count), it must go through a written plan, never
+-native edits: level 3 (/sc:workflow --depth quick then /sc:implement) for a
+-few files with clear scope, level 4 (/task-builder then /task) for anything
+-larger, longer, or riskier. The one exception is /sc:cleanup and /sc:improve
+-run on a folder (guide section 3.7): commit first and review git diff
+-afterwards. Otherwise, for every surviving
+-candidate answer before recommending: (1) Does delegating beat a 2-3 step
+-Read/Grep/Glob/Edit/Write sequence? (2) Is the overhead justified by
+-capability the model lacks natively here? (3) Would a senior engineer
+-delegate, or roll it faster themselves? If any answer is "no"/"barely",
+-DEFAULT TO NATIVE tooling and say so — that is a complete, valid
+-recommendation. Prefer the smallest delegation that wins. (Full rubric:
+-refs/delegation-vs-native-heuristics.md.)
++<PHASE-1 - OUTCOME FIRST, THEN IMPLEMENTATION LIMITS AND NET VALUE>
++Report-only inspection and specialist artifact generation do not require an
++implementation plan from file/output count. Preserve adequate existing plans and
++explicit executor identity; memory save/load is not executor recovery.
++
++For actual implementation, more than 5 edits or more than one source file plus
++its matching test requires a written plan, normally level 3: workflow then
++implement only when execution is requested. Standard is the ordinary planning
++depth; quick is for a smaller checked plan, not a universal requirement.
++Level 4 needs explicit MDTM intent or exceptionally complex, long-running phased
++work with a stated research/checklist/phase-reviewer machinery need. File count,
++sessions, an existing spec/PRD/TDD, risk, auditability, drift and resume alone
++never justify MDTM. No numerical workflow capacity guarantee is invented.
++The contained-folder cleanup/improve exception retains checkpoint and final diff
++review; structural migrations remain planned work. Explicit selection cannot
++waive these safeguards or increase authority.
++
++Within those boundaries, delegate only when its verified specialized capability
++earns its overhead versus a bounded native sequence. Do not replace a requested
++specialist lifecycle or structured document merely because it writes many files.
++Do not turn raw document authoring, populated-document derivation, reflection,
++comparison, Sprint bundles and roadmap artifacts into interchangeable targets.
+ </PHASE-1>
+ 
+-<PHASE-2 — HAND-OFF ENVELOPE>
+-Build the prompt as a hand-off envelope: target invocation + verified params/
+-paths/flags + expected deliverable shape + worktree-aware paths. Do NOT restate
+-the target's protocol.
++<PHASE-2 - CURRENT-REQUEST HANDOFF>
++Construct the invocation from this request's verified paths, required inputs,
++compatible options and desired deliverable. Resolve conditional steps first,
++select exactly one alternative and stop at the requested outcome. A report-only
++request gets no implicit execution, commits, pushes, posting or shipping.
++Do not reuse another request's task/PR/path/mode/authority or unbound cached
++@{inputs}. Missing prerequisites remain explicit, never guessed placeholders
++presented as runnable. If a stronger project rule conflicts with the requested
++authority ceiling, disclose it and ask rather than silently increasing authority.
++Distinguish report artifacts, memory writes, product/Git edits and external
++operations. Do not claim every dry run is zero-write or every verification is a
++passing test. Invoke the target; do not restate its internal protocol.
+ </PHASE-2>
+ 
+-<PHASE-3 — PLUGIN>
+-If --plugin is set, ignore the local surface and search the plugin/community
+-ecosystem instead (see refs/plugin-ecosystem-sources.md). Do not mix local and
+-plugin results. Apply the --minstar floor (default 500, applied even when the
+-flag is omitted; --minstar 0 disables): primary section lists candidates with
+-own-repo GitHub stars >= floor, sorted by stars descending; a separate "Bonus —
+-not ranked by GitHub stars" section lists credible candidates with no own-repo
+-star count (curated / non-github / nested), never filtered by the floor. Capture
+-each candidate's star count + source URL; never invent one. Reject an invalid
+---minstar (negative or non-integer) by emitting EXACTLY this STOP (matching
+-SKILL.md): "--minstar requires a non-negative integer (e.g. --minstar 500). Use
+---minstar 0 to disable the floor." If --minstar is passed WITHOUT --plugin, emit
+-EXACTLY this notice and then proceed with the local recommendation: "--minstar
+-has no effect without --plugin (the local surface has no stars); ignoring it."
++<PHASE-3 - PLUGIN SEARCH>
++If --plugin is set, ignore local-surface candidates and search the plugin/community
++ecosystem through its verified sources. Keep local and ecosystem output separate.
++Use --minstar default 500 even when omitted; 0 disables the floor. Primary results
++need own-repo stars >= floor and sort descending; credible curated/non-github/nested
++candidates without their own star count belong to the unranked bonus section.
++Capture source URLs and real counts; never fabricate stars or auto-complete auth.
++An invalid value emits exactly:
++--minstar requires a non-negative integer (e.g. --minstar 500). Use --minstar 0 to disable the floor.
++A local-mode --minstar emits exactly, then continues:
++--minstar has no effect without --plugin (the local surface has no stars); ignoring it.
+ </PHASE-3>
+ 
+-<RULES (anti-fabrication — non-negotiable)>
+-  R1 — No unverified flags: a flag may appear only if it is in the verified
+-       target's flag table / argument-hint.
+-  R2 — No unverified commands/skills: a target may appear only if its source file
+-       was resolved in Phase 0 Step C.
+-  R3 — No protocol reimplementation (load-bearing): when a target is
+-       skill-indirected, the prompt MUST be a hand-off, not a specification.
+-       Allowed: "Run: /sc:adversarial --compare a.md,b.md --focus structure
+-       --depth standard".
+-       Forbidden: inlining the target's debate rules, phase counts, scoring
+-       formulas, agent roster, or return-contract internals. Invoke, don't
+-       reimplement — duplication causes drift.
+-  R4 — Built-ins exempt: recommend Read/Grep/Glob/Edit/Write/Bash/TodoWrite/
+-       WebFetch/WebSearch by name without verification.
+-       Also /code-review and /security-review (Claude Code built-ins named by the routing guide).
++<RULES>
++R1: Options and values need formal Usage, tables, hints or declared keyword syntax.
++    Conflicting example-only options and ambiguous prose-only controls are not verified.
++R2: A readable source alone is insufficient: check actual callable copy, current
++    lifecycle, relevant backing skill/references, inputs and authority. Missing or
++    contradictory capabilities are not unqualified runnable recommendations.
++R3: Skill-indirected or self-contained targets receive a handoff, never copied
++    rosters, phase counts, scoring rules or return-contract internals.
++R4: Built-in Read/Grep/Glob/Edit/Write/Bash/TodoWrite/WebFetch/WebSearch and the
++    guide's /code-review and /security-review remain verification-exempt.
+ </RULES>
+ 
+ <RETURN-CONTRACT>
+-Return JSON with: status (success|clarification_needed|degraded|plugin_search),
+-mode (local|plugin), recommendation_kind (delegation_prompt|native_tooling|
+-multi_path|plugin_candidate|ordered_workflow), prompt_block (empty for
+-native_tooling), verified_sources (paths Read in Step 0 (the guide) and Phase 0 Step C), auggie_status
+-(ok|unavailable|empty), guide_status (matched|no_match|absent|not_applicable),
+-routing_row_id (empty unless matched), degradation_notes, and cache_update (the
+-row(s) for the parent to commit:
+-key, candidate, flags, prompt_envelope_template, rationale, source_path,
+-native_fallback). source_path is the repo-relative path you Read in Phase 0
+-Step C (the candidate's verified source) — supply it for every non-native row so
+-the CLI can compute source_hash deterministically. Do NOT compute source_hash
+-yourself; the parent CLI Reads source_path and hashes it.
++Return JSON with the existing status, mode, recommendation_kind, prompt_block,
++verified_sources, auggie_status, guide_status, routing_row_id and degradation_notes
++fields. Keep existing enums: status success|clarification_needed|degraded|plugin_search;
++mode local|plugin; recommendation_kind delegation_prompt|native_tooling|multi_path|
++plugin_candidate|ordered_workflow; auggie_status ok|unavailable|empty|skipped;
++guide_status matched|no_match|absent|not_applicable. No invented row ID on this path.
++An optional cache_update has the existing key, candidate, flags,
++prompt_envelope_template, rationale, source_path and native_fallback fields only.
++Use the exact source path actually Read, absolute or current-worktree-relative,
++so the parent CLI can compute source_hash. Never compute that hash yourself.
++No eligible existing key or no verified runnable target means cache_update=null.
++The parent rechecks objective/authority/evidence and current-request binding before
++emission or insertion. This output is not proof of runtime target execution.
+ </RETURN-CONTRACT>
+ """
+diff --git a/src/superclaude/skills/sc-recommend/SKILL.md b/src/superclaude/skills/sc-recommend/SKILL.md
+index ac015be6..b24a9a69 100644
+--- a/src/superclaude/skills/sc-recommend/SKILL.md
++++ b/src/superclaude/skills/sc-recommend/SKILL.md
+@@ -64,7 +64,7 @@ Preserve explicit command/executor selection after Step C verifies its availabil
+ 
+ ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+ 
+-Before running the full Phase 0–3 **cold path** below, attempt the **hot path** — the lazily-populated YAML lookup cache that drops a repeat delegation request from ~91K to ~5–10K tokens. The cold path (Phase 0–3) only runs on a cache miss. Skip this whole section when Step 0 matched a routing row.
++For an unmatched local request, an available YAML cache may suggest a candidate/template before full discovery. It never establishes current intent, callable capability or complete source freshness. Full live discovery runs on a miss or rejected hint; every accepted hint still receives current verification and request binding. Skip this whole section when Step 0 matched a routing row. No measured savings or workload-capacity guarantee is implied.
+ 
+ **Availability gate (run once, before step 1).** The hot path runs only inside an IronClaude checkout. Every install has the `superclaude recommend` CLI, but its cache fingerprint is computed over the checkout's `src/superclaude/` (plus the installed `~/.claude/` and project `.claude/` command, skill and agent folders) and the cache lives in that project's `.claude/cache/`, so outside a checkout there is nothing valid to fingerprint or cache, and the skill skips the hot path. Use the hot path only if both checks pass: `test -f src/superclaude/cli/recommend/prompts.py`, then `uv run superclaude recommend --help` exits 0. Run both checks from the repository root (`git rev-parse --show-toplevel`; if that fails, the gate fails). Run the gate once per invocation, before the first `uv run superclaude recommend` call of any kind (hot path, write-back, or the `--plugin --eval` decision gate), and reuse its result. Do not run `uv run` in any other project: in a user's own uv project it would create or sync that project's environment. If either check fails, or any `uv run superclaude recommend ...` call in this skill exits non-zero, skip the rest of the hot path, run Phase 0–2 yourself in this context, skip the Cold-Path Write-Back, `--eval`, and telemetry, and add `recommend CLI unavailable; cache skipped` to `degradation_notes`.
+ 
+@@ -82,12 +82,22 @@ Under the resolved **Option P** layering, the `cli/recommend/` Python module own
+ 
+    It prints a JSON `DispatchResult`. The source_hash validation is the CLI's deterministic Read + sha256 compare — **never** trust a Haiku-computed hash.
+ 
+-3. **Interpret the outcome (the 5 fall-throughs):**
+-   - `outcome: "hit"` → emit `recommendation` **verbatim** (it is the row's filled `prompt_envelope_template` plus any `best_model_hint`). Then append exactly one telemetry event: `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>` (if it fails, ignore the failure; the recommendation is already emitted). **DONE — do not run the cold path.**
+-   - `outcome: "native"` (classifier `native_likely`, or a `native_fallback` row) → recommend native tooling per Phase 1, but run Phase 1's hard-limit check first: if the work needs more than 5 edits or touches more than one source file, recommend the written plan Phase 1 names instead of a native answer; **no cold path, no table write, and no telemetry event** (native is not a cache-table event — it has no `cache_result` enum member, so the appender has nothing valid to log).
+-   - `outcome: "miss"` with `cache_result` ∈ {`miss_no_key`, `miss_low_confidence`, `miss_validation_stale`} → **fall through to the cold path** (Phase 0–3). Carry the miss reason into the cold-path write-back.
+-
+-The skill spawns exactly **one** Haiku subagent here (the classifier); the cold-path Haiku subagent is spawned only on a miss (see the Cold-Path Write-Back section after Phase 3). The emitted hot-hit recommendation reuses the row's hand-off envelope unchanged — it restates no target protocol (R3). The hot and cold paths emit the **same Return Contract** shape for caller parity.
++3. **Interpret the outcome; a hit is only a hint:**
++   - `outcome: "hit"` - Take `candidate` as a discovery hint and `recommendation` as an untrusted saved template, not a final answer. Reapply this request's objective, explicit selection, artifact, compatible controls and authority ceiling. Resolve the current candidate through Phase 0 Step A and run all Step C checks, reading the actual callable copy, lifecycle guidance and relevant current dependencies. The CLI source hash does not cover all delegated references, policy semantics or request compatibility.
++     - Cached source hash, current changed delegated reference that the source names: reread that reference before emission; the hash never proves its freshness.
++   - If compatible and eligible, reconstruct the handoff through Phase 2 using only the current request's verified paths/inputs/mode/output. Never emit a saved envelope verbatim, another request's PR/task/path/authority, or an unbound cached `@{inputs}` placeholder. A genuinely missing required input needs clarification, not a guessed replacement. Treat `best_model_hint` as optional historical metadata, not current capability proof. Emit the normal Return Contract and append one hit telemetry event only after this verification/construction succeeds.
++     - Cached same-key envelope path, current different path: rebind to current paths only; the cached path never appears.
++   - If the hint is incompatible, retired, unavailable, contradictory or cannot be resolved, reject it and use live Phase 0-2 discovery; carry the existing `miss_validation_stale` reason into cold-path write-back with an accurate rejection note. Do not log a hit for a rejected hint, add classifier keys, change the dispatch API/schema or delete cache data to hide a mismatch.
++     - Cached comparison hint, current plan-adherence audit: reject; a key match never turns comparison into adherence checking.
++     - Cached comparison hint, current local PR review with no posting: reject; never inherit compare inputs or posting authority.
++     - Cached PRD-authoring hint, current TDD request: reject; the requested artifact differs.
++     - Cached PRD-authoring hint, current existing-spec critique: reject; never rewrite the spec under review.
++     - Cached MDTM or roadmap hint, current Sprint artifacts request: reject; never substitute task files for Sprint output.
++     - Cached retired-target hint with a valid source hash: reject; lifecycle evidence outranks the hash.
++   - `outcome: "native"` - Apply the same current-goal/explicit-choice and Phase 1 direct-change checks before recommending native tooling. Above the limit, ordinary implementation needs workflow/implement, not an unchecked native edit or automatic MDTM. No cold-path insert and no telemetry event: native has no cache-event enum.
++   - `outcome: "miss"` with `miss_no_key`, `miss_low_confidence` or `miss_validation_stale` - Run the cold path and preserve the miss reason. A `miss_budget_exceeded` result must not reuse the row or bypass the budget; disclose the limit and use the bounded live/native fallback under Phase 1, without an additional cold-worker spawn.
++
++The classifier is the only mandatory hot-path Agent. A cold worker is spawned for a supported miss or rejected hint only when the availability gate permits it. Both paths emit the same Return Contract. Matched rows still bypass cache entirely; no-guide, unavailable-helper and non-checkout handling remain live-only. Telemetry is best-effort and occurs once for the actual accepted hit or cold outcome, never as a substitute for verification. After an accepted, reconstructed hit use `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>`; a telemetry failure does not turn the handoff into a failure or justify another event.
+ 
+ ## Phase 0 — Mandatory Surface Enumeration + Auggie Sweep (GATE)
+ 
+@@ -305,11 +315,11 @@ When `--plugin` is combined with `--eval <mode>` (mode ≠ `none`), the skill ru
+ 
+ ## Cold-Path Write-Back (populate the cache on a miss)
+ 
+-The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup returned `outcome: "miss"` (any of the three miss reasons this skill can get: `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`). A `native` outcome does **not** reach the cold path. Phase 0–3 run inside a **second** `model: haiku` subagent so the expensive enumerate→auggie→verify work happens in an isolated context, not the parent.
++Run this path for `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`, or a rejected hint mapped transparently to semantic staleness. A native result or exceeded budget does not spawn this worker. The availability gate must permit helper use; missing-guide/non-checkout/unavailable-helper cases remain live-only in the parent with no cache writes, telemetry or model evaluation.
+ 
+-1. **Spawn the cold-path Haiku subagent.** Use the Agent tool, `model: haiku`, handing it the condensed runbook as its system context (Read `src/superclaude/cli/recommend/prompts.py` under the repository root (`git rev-parse --show-toplevel`) and use the text of the string assigned to `COLD_PATH_RUNBOOK`, without the quote marks) — **not** the full SKILL.md body (inlining the full skill would recreate the exact ~91K cost the cache exists to remove). The subagent runs Phase 0–3 (Glob → auggie → Read-verify → net-value → prompt) and returns the recommendation **plus** a structured `cache_update` payload (the row to commit: `key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`). If the runbook file cannot be read, run Phase 0–2 inline in this context instead of spawning the subagent, and skip steps 2–4. Pass the guide's level-table block and its other-commands block (or the line `no guide`) and the Step 0 result (`no_match` or `absent`) in the subagent prompt.
++1. **Spawn the cold-path Haiku subagent.** Read `COLD_PATH_RUNBOOK` from `src/superclaude/cli/recommend/prompts.py` only inside the verified IronClaude checkout, then use that condensed text rather than the full skill body. Pass the verbatim current request, the classifier's existing key (or `unknown`), guide status/path and level/Other-command blocks, the guide's relevant lifecycle guidance, and resolved reference paths from the current skill directory. The worker performs live enumeration/ranking/verification and constructs a request-specific handoff. It may return `cache_update` with the existing fields (`key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`) only for an eligible target and an existing compatible classification key. Unknown/ambiguous objectives do not invent keys or force ordinary planning into task-file-generation; emit the verified result without insertion. If the runbook cannot be read, run Phase 0-2 inline and skip cache/eval helpers. Before any emission, the parent checks current objective, authority, verification evidence and parameter binding; the worker's text is not unconditionally surfaced verbatim.
+ 
+-2. **Parent commits the cache_update.** Haiku **cannot write files**, so the parent (this skill, the Claude session) commits the row by shelling to the CLI atomic writer:
++2. **Parent validates an optional cache_update before insertion.** Haiku cannot write files. Insert only when the payload exists, its existing key fits the current objective, and the candidate/evidence/parameter checks above succeeded. Null payload, unknown/incompatible key, missing capability or a contract gap means no insertion or row evaluation; preserve the honest non-cache result. An eligible row is committed through the CLI atomic writer:
+ 
+    `uv run superclaude recommend cache put --row-json '<the cache_update row as a single-line JSON object>'`
+ 
+@@ -317,7 +327,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
+ 
+    This routes through `LookupCache.save()` (atomic tmp + `os.replace`). The CLI recomputes the current `surface_hash` and the full per-row `source_hash` on write — the parent never trusts a Haiku-computed hash.
+ 
+-3. **Optional `--eval` trigger (Agent fan-out + finalize).** If the invocation carried `--eval <mode>` (mode ≠ `none`), evaluate the just-inserted row's `best_model`. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
++3. **Optional `--eval` trigger (Agent fan-out + finalize).** Only after successful row insertion, and only if the invocation carried `--eval <mode>` (mode is not `none`), evaluate that row's `best_model`. A hit, native result, null payload or failed cache write does not trigger this evaluation. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
+ 
+    a. **Resolve the panel** for `<mode>` from `MODE_MATRIX`: `quick` = `opus`×1 (**1** Agent call); `normal` = `opus`+`sonnet`×2 (**4** Agent calls); `deep` = `opus`+`sonnet`+`haiku`×3 (**9** Agent calls). `none` = no-op.
+ 
+@@ -330,7 +340,7 @@ The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup re
+ 
+    c. **Finalize (CLI, deterministic).** After all Agent calls complete, the parent shells: `uv run superclaude recommend eval run --key <key> --mode <mode> --iteration <N>` (the same `<N>` as in step b). This grades each deliverable, aggregates per model, selects `best_model` by tier, writes `row-<key>-results.json`, and patches the lookup row's `best_model` + `eval_history` via the atomic writer. The finalizer assumes the deliverables already exist on disk — the fan-out in (b) must have produced them at the exact layout above, or grading sees empty text. If this call exits non-zero, report the eval as not finalized and keep the recommendation.
+ 
+-4. **Emit + telemetry.** Surface the recommendation verbatim, then append exactly one telemetry event with `--cache-result cold_inserted` (or the original miss reason if no row was inserted): `uv run superclaude recommend telemetry append --mode delegate --cache-result cold_inserted --classification-key <key> --duration-ms <ms>`. If the telemetry call fails, ignore the failure.
++4. **Emit the checked handoff + telemetry.** Recheck the worker result against the current objective, verified sources, inputs/options and authority before emitting it; never surface worker text unconditionally verbatim. After a final cache-related outcome, append at most one telemetry event with `cold_inserted` only after a successful insert, otherwise its actual existing miss reason: `uv run superclaude recommend telemetry append --mode delegate --cache-result <actual-result> --classification-key <key> --duration-ms <ms>`. Clarification/native/live-only paths do not invent a cache event. A telemetry failure is ignored, not hidden as success or retried into duplicate events.
+ 
+ The cold path emits the **same Return Contract** shape as the hot path (caller parity). No protocol of any recommended target is restated in the `cache_update` (R3) — the `prompt_envelope_template` is a hand-off envelope.
+ 
+diff --git a/tests/recommend/test_cache.py b/tests/recommend/test_cache.py
+index 9c938bec..c09ccebf 100644
+--- a/tests/recommend/test_cache.py
++++ b/tests/recommend/test_cache.py
+@@ -23,9 +23,9 @@ from superclaude.cli.recommend.cache import (
+ def _sample_rows() -> list[dict]:
+     return [
+         {
+-            "key": "spec-generation",
++            "key": "adversarial-review",
+             "candidate": "/sc:spec-panel",
+-            "flags": ["--mode discussion|critique|socratic"],
++            "flags": ["--mode critique"],
+             "prompt_envelope_template": "Run: /sc:spec-panel @{inputs}",
+             "rationale": "spec review",
+             "source_hash": "a" * 64,
+@@ -52,9 +52,9 @@ class TestLookupCachePersistence:
+         assert loaded.surface_hash == "surf-abc"
+         assert len(loaded.rows) == 1
+         row = loaded.rows[0]
+-        assert row["key"] == "spec-generation"
++        assert row["key"] == "adversarial-review"
+         assert row["candidate"] == "/sc:spec-panel"
+-        assert row["flags"] == ["--mode discussion|critique|socratic"]
++        assert row["flags"] == ["--mode critique"]
+         assert row["native_fallback"] is False
+         assert row["best_model"]["model"] == "opus"
+         assert row["eval_history"][0]["run_id"] == "r1"
+@@ -90,14 +90,14 @@ class TestLookupCacheRowOps:
+ 
+     def test_get_row_returns_match_or_none(self):
+         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())
+-        assert cache.get_row("spec-generation")["candidate"] == "/sc:spec-panel"
++        assert cache.get_row("adversarial-review")["candidate"] == "/sc:spec-panel"
+         assert cache.get_row("nonexistent") is None
+ 
+     def test_upsert_replaces_existing_key(self):
+         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())
+-        cache.upsert_row({"key": "spec-generation", "candidate": "/sc:other"})
++        cache.upsert_row({"key": "adversarial-review", "candidate": "/sc:other"})
+         assert len(cache.rows) == 1
+-        assert cache.get_row("spec-generation")["candidate"] == "/sc:other"
++        assert cache.get_row("adversarial-review")["candidate"] == "/sc:other"
+ 
+     def test_upsert_appends_new_key(self):
+         cache = LookupCache(path=Path("x.yaml"), surface_hash="s", rows=_sample_rows())
+diff --git a/tests/recommend/test_dispatch.py b/tests/recommend/test_dispatch.py
+index 21bb5662..b2ec726a 100644
+--- a/tests/recommend/test_dispatch.py
++++ b/tests/recommend/test_dispatch.py
+@@ -10,6 +10,7 @@ from __future__ import annotations
+ import json
+ from pathlib import Path
+ 
++import pytest
+ from click.testing import CliRunner
+ 
+ from superclaude.cli.recommend.cache import LookupCache, compute_source_hash
+@@ -21,7 +22,7 @@ def _seed(cache_path: Path, source_file: Path) -> None:
+     """Seed a one-row cache validating against a real source file."""
+     source_file.write_text("candidate source body\n", encoding="utf-8")
+     row = {
+-        "key": "spec-generation",
++        "key": "adversarial-review",
+         "candidate": "/sc:spec-panel",
+         "flags": ["--mode discussion"],
+         "prompt_envelope_template": "Run: /sc:spec-panel @{inputs}",
+@@ -44,17 +45,29 @@ def _seed(cache_path: Path, source_file: Path) -> None:
+ 
+ class TestDispatchOutcomes:
+     def test_hit(self, cache_path: Path, tmp_path: Path):
++        """Dispatch transports a hint; the skill must verify and bind it."""
+         _seed(cache_path, tmp_path / "src.md")
+         r = dispatch(
+-            classification_key="spec-generation",
++            classification_key="adversarial-review",
+             native_likely=False,
+             confidence_top2_delta=0.5,
+             cache_path=cache_path,
+         )
+         assert r.outcome == "hit"
+         assert r.cache_result == "hit"
++        assert r.candidate == "/sc:spec-panel"
++        # Raw transport deliberately does not bind this to the current request.
+         assert r.recommendation == "Run: /sc:spec-panel @{inputs}"
+         assert r.needs_cold_path is False
++        assert set(r.to_dict()) == {
++            "outcome",
++            "cache_result",
++            "miss_reason",
++            "recommendation",
++            "best_model_hint",
++            "candidate",
++            "needs_cold_path",
++        }
+ 
+     def test_native_likely(self, cache_path: Path):
+         r = dispatch(
+@@ -80,7 +93,7 @@ class TestDispatchOutcomes:
+     def test_miss_low_confidence(self, cache_path: Path, tmp_path: Path):
+         _seed(cache_path, tmp_path / "src.md")
+         r = dispatch(
+-            classification_key="spec-generation",
++            classification_key="adversarial-review",
+             native_likely=False,
+             confidence_top2_delta=0.05,
+             cache_path=cache_path,
+@@ -95,7 +108,7 @@ class TestDispatchOutcomes:
+         # Mutate the source file so its hash no longer matches the stored one.
+         src.write_text("MUTATED body\n", encoding="utf-8")
+         r = dispatch(
+-            classification_key="spec-generation",
++            classification_key="adversarial-review",
+             native_likely=False,
+             confidence_top2_delta=0.5,
+             cache_path=cache_path,
+@@ -105,7 +118,7 @@ class TestDispatchOutcomes:
+     def test_miss_budget_exceeded(self, cache_path: Path, tmp_path: Path):
+         _seed(cache_path, tmp_path / "src.md")
+         r = dispatch(
+-            classification_key="spec-generation",
++            classification_key="adversarial-review",
+             native_likely=False,
+             confidence_top2_delta=0.5,
+             cache_path=cache_path,
+@@ -125,7 +138,7 @@ class TestColdInsertWarmsToHit:
+         source_file.write_text("real candidate source\n", encoding="utf-8")
+         # Cold path returns a row WITHOUT source_hash (Haiku cannot hash).
+         row = {
+-            "key": "spec-generation",
++            "key": "adversarial-review",
+             "candidate": "/sc:spec-panel",
+             "flags": [],
+             "prompt_envelope_template": "Run: /sc:spec-panel @{inputs}",
+@@ -152,15 +165,256 @@ class TestColdInsertWarmsToHit:
+         from superclaude.cli.recommend.cache import compute_surface_hash
+ 
+         cache = LookupCache.load_or_create(cache_path, compute_surface_hash())
+-        committed = cache.get_row("spec-generation")
++        committed = cache.get_row("adversarial-review")
+         assert committed["source_hash"] == compute_source_hash(source_file.read_bytes())
+         assert len(committed["source_hash"]) == 64
+ 
+         # And the next dispatch warms to a HIT.
+         r = dispatch(
+-            classification_key="spec-generation",
++            classification_key="adversarial-review",
+             native_likely=False,
+             confidence_top2_delta=0.5,
+             cache_path=cache_path,
+         )
+         assert r.outcome == "hit"
++
++
++# Ordered as the case sub-lines appear in SKILL.md (verification, binding,
++# rejection), so the cross-case matrix below must be exactly the identity.
++_COLLISION_CASES = [
++    pytest.param(
++        "Review the spec using its changed backing references",
++        "adversarial-review",
++        "/sc:spec-panel",
++        "Run: /sc:spec-panel docs/previous.md",
++        "reference",
++        "Cached source hash",
++        "current changed delegated reference",
++        "reread",
++        "verification",
++        id="T56-reference-only-change",
++    ),
++    pytest.param(
++        "Critique docs/current.md without changes",
++        "adversarial-review",
++        "/sc:spec-panel",
++        "Run: /sc:spec-panel docs/previous.md",
++        "path",
++        "Cached same-key envelope path",
++        "current different path",
++        "rebind",
++        "binding",
++        id="T55-same-key-new-input-path",
++    ),
++    pytest.param(
++        "Audit completed work against its plan",
++        "adversarial-review",
++        "/sc:adversarial",
++        "Run: /sc:adversarial --compare docs/a.md,docs/b.md",
++        "objective",
++        "Cached comparison hint",
++        "current plan-adherence audit",
++        "reject",
++        "rejection",
++        id="T52-comparison-is-not-adherence-audit",
++    ),
++    pytest.param(
++        "Review PR 42 locally without posting",
++        "adversarial-review",
++        "/sc:adversarial",
++        "Run: /sc:adversarial --compare docs/a.md,docs/b.md",
++        "objective",
++        "Cached comparison hint",
++        "current local PR review with no posting",
++        "reject",
++        "rejection",
++        id="T52-comparison-is-not-local-PR-review",
++    ),
++    pytest.param(
++        "Create a Technical Design Document from docs/prd.md",
++        "spec-generation",
++        "/prd",
++        "Run: /prd docs/raw.md",
++        "objective",
++        "Cached PRD-authoring hint",
++        "current TDD request",
++        "reject",
++        "rejection",
++        id="T53-PRD-authoring-is-not-TDD",
++    ),
++    pytest.param(
++        "Critique the existing spec docs/specs/current-spec.md without rewriting it",
++        "spec-generation",
++        "/prd",
++        "Run: /prd docs/raw.md",
++        "objective",
++        "Cached PRD-authoring hint",
++        "current existing-spec critique",
++        "reject",
++        "rejection",
++        id="T53-PRD-authoring-is-not-existing-spec-critique",
++    ),
++    pytest.param(
++        "Create a Sprint bundle from docs/roadmap.md",
++        "task-file-generation",
++        "/task-builder",
++        'Run: /task-builder "Create an MDTM task from docs/spec.md"',
++        "objective",
++        "Cached MDTM or roadmap hint",
++        "current Sprint artifacts request",
++        "reject",
++        "rejection",
++        id="T54-MDTM-is-not-Sprint-artifacts",
++    ),
++    pytest.param(
++        "Assess effort without resurrecting a retired command",
++        "spec-generation",
++        "/sc:estimate",
++        "Run: /sc:estimate docs/spec.md",
++        "retired",
++        "Cached retired-target hint",
++        "with a valid source hash",
++        "reject",
++        "rejection",
++        id="T48-hash-valid-retired-candidate",
++    ),
++]
++
++_SOURCE_BODIES = {
++    "objective": "Usage: {candidate} <inputs>\n",
++    "path": "Usage: {candidate} <inputs>\n",
++    "reference": "Usage: {candidate} <inputs>\nRead backing-reference.md first.\n",
++    "retired": "---\ndeprecated: true\n---\nUsage: {candidate} <inputs>\n",
++}
++
++
++def _hot_sections() -> dict[str, str]:
++    policy = (
++        Path(__file__).resolve().parents[2]
++        / "src/superclaude/skills/sc-recommend/SKILL.md"
++    ).read_text(encoding="utf-8")
++    hot = policy.split("3. **Interpret the outcome; a hit is only a hint:**", 1)[1]
++    hot = hot.split("## Phase 0", 1)[0]
++    verification, tail = hot.split("- If compatible and eligible,", 1)
++    binding, rejection = tail.split("- If the hint is incompatible,", 1)
++    rejection = rejection.split('- `outcome: "native"`', 1)[0]
++    return {
++        "verification": verification,
++        "binding": binding,
++        "rejection": rejection,
++    }
++
++
++def _case_lines(text: str) -> list[str]:
++    return [line for line in text.splitlines() if "  - Cached " in line]
++
++
++def _names_case(line: str, cached_phrase: str, current_phrase: str) -> bool:
++    folded = line.casefold()
++    return cached_phrase.casefold() in folded and current_phrase.casefold() in folded
++
++
++@pytest.mark.parametrize(
++    "current_request,key,candidate,envelope,hazard,cached_phrase,current_phrase,verb,section",
++    _COLLISION_CASES,
++)
++def test_semantic_cache_collisions_require_consumer_guards(
++    cache_path: Path,
++    tmp_path: Path,
++    current_request: str,
++    key: str,
++    candidate: str,
++    envelope: str,
++    hazard: str,
++    cached_phrase: str,
++    current_phrase: str,
++    verb: str,
++    section: str,
++):
++    """Exercise raw valid-hash hints and pin their required static consumer guards.
++
++    No agent is run here. A transport hit is deliberately not a claim that the
++    current request has been understood, rebound or safely authorized. No model
++    and no specialist command runs here either; these are static transport and
++    policy-text checks, while actual generation evidence stays with plan Task 8.
++    """
++    source = tmp_path / "candidate.md"
++    reference = tmp_path / "backing-reference.md"
++    reference.write_text("previous contract\n", encoding="utf-8")
++    _seed(cache_path, source)
++    source.write_text(_SOURCE_BODIES[hazard].format(candidate=candidate), "utf-8")
++    from superclaude.cli.recommend.cache import compute_surface_hash
++
++    cache = LookupCache.load_or_create(cache_path, compute_surface_hash())
++    row = dict(cache.rows[0])
++    row.update(
++        key=key,
++        candidate=candidate,
++        flags=[],
++        prompt_envelope_template=envelope,
++        source_hash=compute_source_hash(source.read_bytes()),
++    )
++    cache.upsert_row(row)
++    cache.save()
++    if hazard == "reference":
++        # The hashed source names this file; changing it leaves the hash valid.
++        assert reference.name in source.read_text(encoding="utf-8")
++        reference.write_text("changed contract\n", encoding="utf-8")
++    assert compute_source_hash(source.read_bytes()) == row["source_hash"]
++    result = dispatch(
++        classification_key=key,
++        native_likely=False,
++        confidence_top2_delta=0.5,
++        cache_path=cache_path,
++    )
++    assert result.outcome == "hit"
++    assert result.recommendation == envelope
++    assert result.candidate == candidate
++
++    # The hazard is real in this fixture's data, and dispatch cannot see it.
++    if hazard == "objective":
++        tokens = {"--compare", "/prd", "/task-builder"} & set(envelope.split())
++        assert len(tokens) == 1, envelope
++        assert tokens.pop() not in current_request.split()
++    elif hazard == "path":
++        assert "docs/previous.md" in result.recommendation
++        assert "docs/previous.md" not in current_request
++    elif hazard == "retired":
++        assert "deprecated: true" in source.read_text(encoding="utf-8")
++
++    sections = _hot_sections()
++    for term in (
++        "retired",
++        "unavailable",
++        "contradictory",
++        "reject it and use live Phase 0-2 discovery",
++        "Do not log a hit for a rejected hint",
++    ):
++        assert term in sections["rejection"], current_request
++
++    owned = [
++        line
++        for line in sections[section].splitlines()
++        if _names_case(line, cached_phrase, current_phrase)
++    ]
++    assert len(owned) == 1, f"{current_request}: expected one case clause"
++    assert "  - Cached " in owned[0]
++    assert verb in owned[0]
++    if section != "rejection":
++        assert "reject" not in owned[0]
++    for other, text in sections.items():
++        if other != section:
++            assert not [line for line in _case_lines(text) if verb in line], other
++
++
++def test_collision_case_clauses_map_one_to_one():
++    """Every case clause belongs to exactly one fixture, and vice versa."""
++    sections = _hot_sections()
++    lines = _case_lines("".join(sections.values()))
++    cases = [case.values for case in _COLLISION_CASES]
++    matrix = [
++        [int(_names_case(line, case[5], case[6])) for line in lines] for case in cases
++    ]
++    size = len(cases)
++    assert size == 8
++    assert matrix == [[int(i == j) for j in range(size)] for i in range(size)]
+diff --git a/tests/skills/test_sc_recommend_routing_contract.py b/tests/skills/test_sc_recommend_routing_contract.py
+index 2988f01d..e3bcced9 100644
+--- a/tests/skills/test_sc_recommend_routing_contract.py
++++ b/tests/skills/test_sc_recommend_routing_contract.py
+@@ -12,6 +12,12 @@ from __future__ import annotations
+ 
+ from pathlib import Path
+ 
++from superclaude.cli.recommend.prompts import (
++    CLASSIFICATION_KEYS,
++    CLASSIFIER_PROMPT,
++    COLD_PATH_RUNBOOK,
++)
++
+ _REPO = Path(__file__).resolve().parents[2]
+ _SKILL = _REPO / "src/superclaude/skills/sc-recommend/SKILL.md"
+ _HELP = _REPO / "src/superclaude/commands/help.md"
+@@ -173,3 +179,105 @@ def test_live_and_no_guide_fallbacks_keep_workflow_first_policy():
+     assert "**No guide:** skip cache helpers" in phase1
+     assert "Reading many files" in phase1
+     assert "existing plan goes straight to its executor" in phase1
++
++
++def test_cache_hit_is_a_reverified_request_specific_hint():
++    hot = _section(_text(), "## Hot-Path Cache Lookup", "## Phase 0")
++    for rule in (
++        "a hit is only a hint",
++        "actual callable copy",
++        "lifecycle guidance",
++        "reconstruct the handoff",
++        "current request's verified paths/inputs/mode/output",
++        "Never emit a saved envelope verbatim",
++        "@{inputs}",
++        "miss_validation_stale",
++        "miss_budget_exceeded",
++        "no-guide, unavailable-helper and non-checkout handling remain live-only",
++    ):
++        assert rule in hot
++    assert "emit `recommendation` **verbatim**" not in hot
++    assert "hand-off envelope unchanged" not in hot
++    assert "- If the hint is incompatible," in hot
++    rejection = hot.split("- If the hint is incompatible,", 1)[1].split(
++        '- `outcome: "native"`', 1
++    )[0]
++    for rule in (
++        "retired",
++        "unavailable",
++        "contradictory",
++        "reject it and use live Phase 0-2 discovery",
++        "miss_validation_stale",
++        "Do not log a hit for a rejected hint",
++    ):
++        assert rule in rejection
++
++
++def test_cold_worker_preserves_verification_and_implementation_boundaries():
++    cold = " ".join(COLD_PATH_RUNBOOK.split()).casefold()
++    for rule in (
++        "whole requested outcome",
++        "authority ceiling",
++        "actual callable copy",
++        "skills prefer installed then project",
++        "formal usage",
++        "mode=update and mode=quick",
++        "skill invocation",
++        "deprecated: true",
++        "source absence alone does not reject",
++        "contract gap",
++        "decision-relevant dependencies",
++        "level 3",
++        "explicit mdtm intent",
++        "file count",
++        "structural migrations",
++        "current-request",
++        "cache_update=null",
++    ):
++        assert rule in cold
++    assert "larger, longer, or riskier" not in cold
++    assert "parent surfaces your output verbatim" not in cold
++
++
++def test_classifier_keys_do_not_force_ordinary_planning_into_mdtm():
++    assert CLASSIFICATION_KEYS == (
++        "spec-generation",
++        "codebase-research",
++        "task-file-generation",
++        "parallel-agent-fanout",
++        "roadmap-generation",
++        "adversarial-review",
++        "cleanup-audit",
++        "troubleshoot-debug",
++        "web-research",
++        "cli-portify",
++    )
++    classifier = " ".join(CLASSIFIER_PROMPT.split())
++    for rule in (
++        "explicit MDTM generation",
++        "exceptionally complex, long-running",
++        "ordinary twelve-file feature over several sessions -> unknown",
++        "existing workflow package -> unknown",
++        "artifact type is unclear, return unknown",
++        "populated-document derivation is different",
++    ):
++        assert rule in classifier
++    assert "turn a spec, report, or build request into a task file" not in classifier
++    assert "review-only /sc:spec-panel" not in classifier
++
++
++def test_optional_cache_insertion_never_bypasses_parent_validation():
++    cold = _section(_text(), "## Cold-Path Write-Back", "## Output Constraints")
++    for rule in (
++        "classifier's existing key",
++        "relevant lifecycle guidance",
++        "resolved reference paths",
++        "Parent validates an optional cache_update",
++        "no insertion or row evaluation",
++        "Only after successful row insertion",
++        "A hit, native result, null payload or failed cache write",
++        "Recheck the worker result",
++        "never surface worker text unconditionally verbatim",
++    ):
++        assert rule in cold
++    assert "Surface the recommendation verbatim" not in cold

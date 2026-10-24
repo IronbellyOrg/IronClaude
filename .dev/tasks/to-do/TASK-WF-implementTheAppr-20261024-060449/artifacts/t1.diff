@@ -1,0 +1,498 @@
+diff --git a/src/superclaude/core/CLAUDE.md b/src/superclaude/core/CLAUDE.md
+index 8a0bb672..5d4081e9 100644
+--- a/src/superclaude/core/CLAUDE.md
++++ b/src/superclaude/core/CLAUDE.md
+@@ -45,7 +45,7 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
+ 
+ ## How to choose a workflow
+ 
+-Decide how much process a job needs before you start. Use the first row that fits; if you are unsure between two rows, choose the heavier one.
++Match the requested outcome and any explicit command or existing plan first. Most planned implementation uses level 3; choose level 4 only for its stated explicit or exceptional machinery need. Research breadth and document output alone do not require an implementation plan.
+ 
+ <!-- level-table:v1 -->
+ 
+@@ -53,12 +53,16 @@ Decide how much process a job needs before you start. Use the first row that fit
+ |---|---|---|---|
+ | **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+ | **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
+-| **3. Follow a simple checked plan** | The change touches a few files, the requirements are clear, and it fits in one or two sessions. | `/sc:workflow "<what to change, why, which files>" --depth quick` writes a plan in which every step has acceptance criteria (a written definition of "done" for that step), then checks the plan against your request automatically. It prints the plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the plan folder's name, for example `TASK-WF-retry-limit-20261013-142530`; the plan file is `<id>.md` inside it. Copy the path `/sc:workflow` prints. Read the plan, then run `/sc:implement <that path>`. It builds one step at a time and has a reviewer check each step against its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus the code changes in your repository. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+-| **4. Build and run a task file** | The work touches many files, will take more than one session, or must not drift from what was agreed. | `/task-builder "<what to build, why, which code>"` researches the code and writes a task file: a checklist under `.dev/tasks/to-do/`. If you have a spec, PRD, or TDD, add `--spec <path to it>` so the task file is checked against it. Read the task file, then run `/task <path to task file>`. | `/task` works through the checklist item by item. The items are grouped into phases; after each phase except the first (setup) one, a panel of independent reviewer agents checks the work. At the end it runs the tests and an independent audit comparing what was built with the plan. It survives crashes. |
+-| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Then build the task file from it: `/task-builder "<what to build> as recommended in <path to the report>. Code: <folders>"` (level 4). | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan. |
+-| **6. Write a full specification** | You are building a new product, a new component, or a major feature that other people will build against. | `/prd`, then `/tdd`, then `/roadmap`. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | A product requirements document, a technical design document, a phased roadmap, and a task file for every phase. |
++| **3. Follow a checked implementation plan** | Ordinary implementation needs a written plan, including work across many files or several sessions, with or without an existing spec. | `/sc:workflow "<what to change, why, which files or spec>" --depth standard --handoff none` writes a plan with acceptance criteria (a written definition of "done" for each step) and runs an advisory check against your request. Standard is the default; use quick for smaller checked plans, not all ordinary work. It prints the actual plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the generated plan folder's name. Read the plan and check result, then, only when execution is requested, run `/sc:implement <that path>`. It implements each step and checks compliance with its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus code changes if execution was requested. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
++| **4. Explicit or exceptional task-file work** | You explicitly select MDTM (the task-file/checklist format), supply an existing MDTM task for execution, or have an exceptionally complex, long-running phased program with a stated need for its research, checklist and phase-reviewer machinery. | For creation, `/task-builder "<what to build, why, which code, why MDTM>"` researches the code and writes a task file under `.dev/tasks/to-do/`. Add `--spec <path>` when a spec, PRD or TDD exists. Read the task file and check result; only when execution is requested, run `/task <path to task file>`. An existing MDTM task goes directly to `/task`, without rebuilding it. | The requested task file, or its execution through the checklist and reviewer panels after each phase except setup, followed by tests and a final audit. Resume with the same executor. |
++| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Stop at the report for a research-only request. If you decide to build, use `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`, then read its plan and use `/sc:implement <printed plan path>` when execution is requested (level 3). Level 4 needs its own explicit or exceptional justification. | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan; implementation is a separate decision. |
++| **6. Write a full specification** | You need a PRD and TDD for a new product, component or major feature that others will build against. | `/prd`, then `/tdd`, with the requested reviews. Stop after the requested documents for document-only work. Ordinary subsequent implementation planning uses `/sc:workflow`, then `/sc:implement` when execution is requested. Offer `/roadmap` only for explicit composer selection or the exceptional level-4 machinery need; it internally uses `/task-builder` and `/task` and can create phase task files. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | The requested reviewed documents. Planning and execution are separate; expressly selected document skills and the roadmap composer keep their own internal machinery. |
+ 
+-**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards.
++**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits and requires a written plan. The one exception is contained `/sc:cleanup` and `/sc:improve` work on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards. This exception does not cover structural migrations. Direct command selection does not waive the written-plan requirement.
++
++File count, multiple sessions, an existing spec/PRD/TDD, risk, auditability, drift concerns or resume alone never select level 4. A twelve-file feature across several sessions still uses level 3 without a concrete MDTM machinery need. Inspection breadth is not mutation breadth: reading thirty files for an explanation or report does not require an implementation plan.
++
++When an adequate approved plan already exists, use its existing executor directly; do not rebuild it. Managed workflow packages use `/sc:implement`; existing MDTM execution uses `/task`. Explicit `/sc:implement` selection retains that executor's own semantics, not MDTM checklist/phase execution, even if the source resembles MDTM.
+ 
+ <!-- /level-table -->
+ 
+diff --git a/src/superclaude/core/HOW-WE-WORK.md b/src/superclaude/core/HOW-WE-WORK.md
+index 25efb554..23278bae 100644
+--- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -6,7 +6,7 @@ This guide tells you which IronClaude skills and commands to use for each kind o
+ 
+ ## 1. How much process does this job need?
+ 
+-Every job falls into one of six levels. Find the first row that describes your job. If you are unsure between two rows, choose the heavier one.
++Match the requested outcome and any explicit command or existing plan first. These levels choose implementation process, not how much research or how many output artifacts a report needs. Most planned implementation uses level 3; choose level 4 only for its stated explicit or exceptional machinery need.
+ 
+ <!-- level-table:v1 -->
+ 
+@@ -14,12 +14,16 @@ Every job falls into one of six levels. Find the first row that describes your j
+ |---|---|---|---|
+ | **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+ | **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
+-| **3. Follow a simple checked plan** | The change touches a few files, the requirements are clear, and it fits in one or two sessions. | `/sc:workflow "<what to change, why, which files>" --depth quick` writes a plan in which every step has acceptance criteria (a written definition of "done" for that step), then checks the plan against your request automatically. It prints the plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the plan folder's name, for example `TASK-WF-retry-limit-20261013-142530`; the plan file is `<id>.md` inside it. Copy the path `/sc:workflow` prints. Read the plan, then run `/sc:implement <that path>`. It builds one step at a time and has a reviewer check each step against its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus the code changes in your repository. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+-| **4. Build and run a task file** | The work touches many files, will take more than one session, or must not drift from what was agreed. | `/task-builder "<what to build, why, which code>"` researches the code and writes a task file: a checklist under `.dev/tasks/to-do/`. If you have a spec, PRD, or TDD, add `--spec <path to it>` so the task file is checked against it. Read the task file, then run `/task <path to task file>`. | `/task` works through the checklist item by item. The items are grouped into phases; after each phase except the first (setup) one, a panel of independent reviewer agents checks the work. At the end it runs the tests and an independent audit comparing what was built with the plan. It survives crashes. |
+-| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Then build the task file from it: `/task-builder "<what to build> as recommended in <path to the report>. Code: <folders>"` (level 4). | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan. |
+-| **6. Write a full specification** | You are building a new product, a new component, or a major feature that other people will build against. | `/prd`, then `/tdd`, then `/roadmap`. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | A product requirements document, a technical design document, a phased roadmap, and a task file for every phase. |
++| **3. Follow a checked implementation plan** | Ordinary implementation needs a written plan, including work across many files or several sessions, with or without an existing spec. | `/sc:workflow "<what to change, why, which files or spec>" --depth standard --handoff none` writes a plan with acceptance criteria (a written definition of "done" for each step) and runs an advisory check against your request. Standard is the default; use quick for smaller checked plans, not all ordinary work. It prints the actual plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the generated plan folder's name. Read the plan and check result, then, only when execution is requested, run `/sc:implement <that path>`. It implements each step and checks compliance with its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus code changes if execution was requested. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
++| **4. Explicit or exceptional task-file work** | You explicitly select MDTM (the task-file/checklist format), supply an existing MDTM task for execution, or have an exceptionally complex, long-running phased program with a stated need for its research, checklist and phase-reviewer machinery. | For creation, `/task-builder "<what to build, why, which code, why MDTM>"` researches the code and writes a task file under `.dev/tasks/to-do/`. Add `--spec <path>` when a spec, PRD or TDD exists. Read the task file and check result; only when execution is requested, run `/task <path to task file>`. An existing MDTM task goes directly to `/task`, without rebuilding it. | The requested task file, or its execution through the checklist and reviewer panels after each phase except setup, followed by tests and a final audit. Resume with the same executor. |
++| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Stop at the report for a research-only request. If you decide to build, use `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`, then read its plan and use `/sc:implement <printed plan path>` when execution is requested (level 3). Level 4 needs its own explicit or exceptional justification. | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan; implementation is a separate decision. |
++| **6. Write a full specification** | You need a PRD and TDD for a new product, component or major feature that others will build against. | `/prd`, then `/tdd`, with the requested reviews. Stop after the requested documents for document-only work. Ordinary subsequent implementation planning uses `/sc:workflow`, then `/sc:implement` when execution is requested. Offer `/roadmap` only for explicit composer selection or the exceptional level-4 machinery need; it internally uses `/task-builder` and `/task` and can create phase task files. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | The requested reviewed documents. Planning and execution are separate; expressly selected document skills and the roadmap composer keep their own internal machinery. |
+ 
+-**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards.
++**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits and requires a written plan. The one exception is contained `/sc:cleanup` and `/sc:improve` work on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards. This exception does not cover structural migrations. Direct command selection does not waive the written-plan requirement.
++
++File count, multiple sessions, an existing spec/PRD/TDD, risk, auditability, drift concerns or resume alone never select level 4. A twelve-file feature across several sessions still uses level 3 without a concrete MDTM machinery need. Inspection breadth is not mutation breadth: reading thirty files for an explanation or report does not require an implementation plan.
++
++When an adequate approved plan already exists, use its existing executor directly; do not rebuild it. Managed workflow packages use `/sc:implement`; existing MDTM execution uses `/task`. Explicit `/sc:implement` selection retains that executor's own semantics, not MDTM checklist/phase execution, even if the source resembles MDTM.
+ 
+ <!-- /level-table -->
+ 
+@@ -46,11 +50,11 @@ Every research, document, and task skill works from the same four things. If the
+ 
+ ### 3.1 Build a new product or major feature (full specification)
+ 
+-Use this when the work is big enough that people need to agree on *what* is being built and *how* before anyone writes code. The example builds usage-based billing.
++Use this when people need to agree on *what* is being built and *how* before anyone writes code. The example specifies usage-based billing. **For documents only, stop after the requested documents and reviews; do not append a roadmap, phase tasks, implementation or shipping.** PRD and TDD skills keep their own document-generation machinery, including any internal task-builder/task use. That does not choose the later product implementation process.
+ 
+ 1. **Shape the idea (only if it is still vague).**
+    `/sc:brainstorm "Usage-based billing for API customers: metering, monthly invoices, overage alerts" --depth standard`
+-   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If you will build it directly without a PRD, add `--handoff task`: it then builds a task file from the merged requirements (level 4).
++   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If no PRD is needed and implementation is requested, take those requirements into `/sc:workflow`, then `/sc:implement` after reading the plan. Do not add a task-file handoff merely because no PRD is needed.
+ 
+ 2. **Write the product requirements document (PRD).** The PRD defines *what* to build and *why*: users, problems, requirements, success measures, and scope.
+    `/prd "Create a PRD for usage-based billing. Purpose: align product and engineering on the first release. Start from .dev/brainstorms/<timestamp>-usage-billing/merged-requirements.md. Relevant code: src/billing/, src/api/metering/. Output to docs/billing/PRD_BILLING.md."`
+@@ -71,16 +75,17 @@ Use this when the work is big enough that people need to agree on *what* is bein
+    `/sc:release-split docs/billing/TDD_BILLING.md`
+    It writes its analysis to `docs/billing/release-split/`. "Do not split" is a normal answer. If it recommends a split, it writes a separate spec for each release: use the Release 1 spec in place of the TDD in step 7, and do not plan Release 2 until Release 1 is built and validated.
+ 
+-7. **Turn the PRD and TDD into a phased plan.**
+-   `/roadmap "Create a full roadmap from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Each phase must be independently deployable and keep the old invoice API working. Project name: billing-v2. Dry run first so I can review the phase plan."`
+-   The dry run shows the proposed phases and waits for your yes. The finished run prints the roadmap path (under `.dev/tasks/to-do/TASK-ROADMAP-billing-v2-<timestamp>/`) and the list of phase task files in run order. At its full setting it also checks the phase task files against the roadmap and your PRD and TDD; those check reports are in the roadmap folder's `qa/` subfolder. Read the roadmap before running anything.
+-   - If the summary lists build requests (`build-requests/BUILD_REQUEST-phase-NN-<name>.md`) but no task files, the run chose its middle setting, which stops at build requests. (A build request is the short input file `/task-builder` turns into a task file.) Create each phase's task file with `/task-builder <path to that build request> --spec docs/billing/TDD_BILLING.md`. Saying "full roadmap" or "comprehensive" in the request avoids this.
++7. **Plan only if implementation planning is requested.** Ordinary post-document planning uses workflow, not an automatic roadmap/task-builder chain:
++   `/sc:workflow "Plan usage-based billing from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Keep the old invoice API working. Code: src/billing/, src/api/metering/." --depth standard --handoff none`
++   Read the actual printed plan and advisory check result. Standard is the ordinary default; quick is appropriate for smaller checked plans. A new component or accepted PRD/TDD is not itself a reason to select MDTM.
++   - **Conditional roadmap alternative:** only when you explicitly select `/roadmap`, or have an exceptionally complex, long-running phased program with a stated need for MDTM research, checklists and phase-reviewer panels, use `/roadmap "Create a full roadmap from docs/billing/PRD_BILLING.md and docs/billing/TDD_BILLING.md. Each phase must be independently deployable and keep the old invoice API working. Project name: billing-v2. Dry run first so I can review the phase plan."`
++   - The expressly selected composer internally uses `/task-builder` and `/task` to generate the roadmap and can create downstream phase task files. This is its document machinery, not permission to implement product phases. Its dry run presents phases for approval; the full run prints the roadmap path under `.dev/tasks/to-do/TASK-ROADMAP-billing-v2-<timestamp>/`, phase task paths and checks under `qa/`. Read them before any product execution.
++   - If the summary lists only build requests (`build-requests/BUILD_REQUEST-phase-NN-<name>.md`), its middle setting stopped before phase task creation. Within this selected MDTM route, `/task-builder <path to that build request> --spec docs/billing/TDD_BILLING.md` creates each phase task. Asking for a full roadmap selects the full composer pipeline. Do not use this branch solely because a spec exists or work spans files or sessions.
+ 
+-8. **Build one phase at a time.**
+-   `/task <path to the phase 1 task file>`
+-   Let it run to the end. Each task file already contains everything that checks the work: reviewer panels after each group of items inside it (except the first, setup group), the tests, and, as its last steps, an independent audit (`/sc:reflect`) comparing what was built with the plan. Do not re-run the reviewer panels or the tests yourself. That final audit compares a commit range, and `/task` does not commit, so it does not see the phase's uncommitted work: always run the re-confirm audit in step 9.
++8. **Execute only when requested, using the selected plan's executor.** For the ordinary workflow plan, `/sc:implement <actual printed plan path>` implements and checks each step; read its ledger and final independent review. Do not rebuild an adequate approved plan.
++   For the conditional MDTM branch only, `/task <path to the phase 1 task file>` runs its checklist, phase-reviewer panels (except setup), tests and final audit. Do not repeat its own checks. The internal audit compares a commit range and can miss uncommitted work, so use the re-confirm audit in step 9.
+ 
+-9. **Confirm the phase passed, then start the next one.** Open the task file and read the `reflect_post` entry at the top: the audit's verdict and the path to its report. Any problems the audit could not fix are listed under the task file's Open Questions. Decide each one with your lead (or yourself, if you work alone), the same way as a `/task` stop (note below): fix the code, correct the spec, or accept it in writing. Then re-confirm with `/sc:reflect --mode post --tasklist <path to the task file> --spec docs/billing/TDD_BILLING.md --diff <commit before the work started> --no-promote` before starting the next phase. Give that one commit, not a `..HEAD` range: a single commit is compared with your working tree, so the audit also sees work you have not committed (`/task` does not commit). Run `git add -A` first so that new files are included. Commit each phase once it passes, so that commit is the one you made when the previous phase passed (for the first phase, the commit before the work started). It is `HEAD` if you have not committed since this phase started; otherwise find it with `git log --oneline`. The final audit runs before the task is marked done, so the folder stays in `.dev/tasks/to-do/`. Leave the folder where it is; nothing in this guide needs it moved.
++9. **Confirm the selected work passed.** For a workflow plan, consume its compliance results and final review before shipping. For MDTM phases, open the task file's `reflect_post` entry and report; resolve Open Questions with your lead (or yourself), then re-confirm with `/sc:reflect --mode post --tasklist <path to the task file> --spec docs/billing/TDD_BILLING.md --diff <commit before the work started> --no-promote` before the next phase. Give one commit, not a `..HEAD` range, so the working tree is included. Stage only intended new files before auditing; never stage generated `.claude/` mirrors. Commit a passing phase only when authorized; the next phase's baseline is the commit made when the previous phase passed (the first uses the commit before work started). Use `HEAD` only if no commit was made since this phase started; otherwise find the baseline with `git log --oneline`. The internal audit runs before the MDTM task is marked done, so leave its folder in `.dev/tasks/to-do/`.
+ 
+ 10. **Review and open a pull request.** Workflow 3.11.
+ 
+@@ -97,20 +102,20 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ 2. **Write and agree the spec.** Save a short spec file, for example `docs/specs/invoice-csv-export.md`, saying what changes, which files, and how you will know it works. If it includes a new interface or API, `/sc:design invoice-export-api --type api --format spec` drafts that part; paste its output into the spec file. Have your lead approve the spec.
+ 
+-3. **Build the task file, passing the spec.**
+-   `/task-builder "Implement monthly CSV export for the invoices list. Why: finance month-end. Code: src/invoices/, src/api/routes/invoices.py" --spec docs/specs/invoice-csv-export.md`
+-   Passing `--spec` makes task-builder check that every requirement in the spec has a task. The result is in the `reflect_pre` entry at the top of the task file. If the check fails (less than 90% of requirements covered), the missed requirements are added to the task file's Open Questions. Without `--spec` this check is skipped. Read the task file and its Open Questions before running it. To resolve an Open Question: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not tick checklist items.
++3. **Plan from the approved spec.**
++   `/sc:workflow docs/specs/invoice-csv-export.md --depth standard --handoff none`
++   Read the actual printed plan and its advisory check result before execution. Resolve gaps before the first step starts; do not repeat workflow's built-in pre-check. An existing spec, multiple files or several sessions do not by themselves select MDTM. If an adequate approved plan already exists, skip plan creation and use its executor directly.
+ 
+-4. **Run it.** `/task <path to task file>`. If it stops partway, see the note at the end of 3.1.
++4. **Run the approved plan only when execution is requested.** `/sc:implement <actual printed plan path>`. It checks compliance step by step and records the results. If it stops, follow 3.3; resume with the same command, not a replacement task file.
+ 
+-5. **Confirm and ship.** Read the task file's `reflect_post` verdict (as in 3.1 step 9), then workflow 3.11.
++5. **Confirm and ship only when requested.** Read the compliance results and final review, then follow workflow 3.11. Explicit MDTM creation/execution or exceptional complex long-running phase machinery remains level 4; use `/task-builder ... --spec <spec path>` and `/task <task file>` only for that justified branch (3.1).
+ 
+ ### 3.3 Make a small, well-defined change
+ 
+ 1. **One source file (plus its test), five edits or fewer:** use level 2 (section 1).
+ 
+-2. **A few files with clear scope:**
+-   `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick`
++2. **Beyond the direct-change limit:** normally use `/sc:workflow`, then `/sc:implement`. Standard is the ordinary planning default; for this smaller checked plan, quick is appropriate:
++   `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick --handoff none`
+    Read the plan at the path it prints (`.dev/tasks/to-do/<id>/<id>.md`; `<id>` is defined in section 1, level 3) and the check result printed with it, and check that each step's acceptance criteria clearly say what "done" means. Then:
+    `/sc:implement .dev/tasks/to-do/<id>/<id>.md`
+    It runs the tests itself as it goes.
+@@ -123,15 +128,15 @@ Use this when the requirements are already clear and the feature extends somethi
+ 1. **Diagnose it.** Describe what happens, what you expected, how to reproduce it, and paste the exact error.
+    `/sc:troubleshoot "Nightly invoice job fails with KeyError: 'tenant_id' in src/billing/invoice_job.py since yesterday's deploy. Expected: invoices for all tenants. Reproduce: python -m billing.invoice_job --date 2026-09-30" --type bug`
+    Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. It finds the root cause with file and line evidence and changes nothing. A simple bug takes 1-3 minutes. If it is not confident, or the problem is intermittent or spans several areas, it automatically brings in more agents, which can take another 4-15 minutes. `--depth quick` stops it after the first pass; `--depth deep` always brings in several agents testing competing explanations after that first pass.
+-   If you suspect the fix will be larger or riskier than a few files with clear scope, add `--fix` now. If the diagnosis succeeds, it then offers to build a task file for the fix, and changes nothing unless you accept.
++   For a remediation-planning offer, add `--fix` only if you want it: after a supported successful diagnosis and your acceptance, standard depth offers workflow planning. It does not authorize implementation. `--depth quick --fix` is invalid. Explicit `--depth deep --fix` currently selects MDTM remediation; depth is coupled to that route, not a file-count or risk rule. For deep diagnosis followed by ordinary planning, omit `--fix`, then plan separately from the supported report.
+ 
+ 2. **Read the report** at `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`. It says whether the fix belongs in the code, the test, or the documentation.
+ 
+ 3. **Fix it.**
+    - **Small fix (one source file plus its test, five edits or fewer):** first ask Claude to add a test that reproduces the bug (using the report's reproduction steps) and confirm the test fails. Then make the fix and run `/sc:test tests/billing/test_invoice_job.py --coverage` to confirm the new test and the existing ones pass.
+-   - **A few files with clear scope:** `/sc:workflow "<the fix described in REPORT.md, with a test that reproduces the bug>" --depth quick`, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (the plan path it prints; level 3).
+-   - **Larger or riskier fix:** accept the task-file offer from step 1. If you did not pass `--fix`, do not diagnose again; build the task file from the report you already have: `/task-builder "Fix the root cause described in .dev/troubleshoot/<name>-<timestamp>/REPORT.md, with a test that reproduces the bug. Code: <files the report cites>"`. Then `/task <path>`; if it stops partway, see the note at the end of 3.1. The task file runs its own reviews, tests, and final audit; read its `reflect_post` verdict when it finishes.
+-   - **If the report says the cause is not confirmed:** do not fix anything yet. Run the checks the report lists, then run `/sc:troubleshoot` again with what you learned added to the description, or with `--depth deep`.
++   - **Ordinary planned fix:** `/sc:workflow "<the supported fix described in REPORT.md, with a test that reproduces the bug>" --depth standard --handoff none`, then read the printed plan and use `/sc:implement <printed plan path>` only when execution is requested. If a planning offer already produced an adequate approved plan, use it directly. Do not diagnose again merely to obtain planning.
++   - **Explicit or exceptional MDTM fix:** use level 4 only for explicit MDTM selection or an exceptionally complex, long-running program needing its research/checklist/phase-panel machinery. If an explicitly requested deep-plus-fix offer is accepted, its current route creates an MDTM task for `/task`; read its checks and final audit. Ordinary deep diagnosis can instead feed the separate workflow plan above.
++   - **Unconfirmed, failed or blocked report:** do not plan or apply a speculative fix or bypass its blocker. Preserve the report's evidence, hardening blockers and authorization limits; follow only its supported conditional checks or next steps. A deeper investigation is not an unconditional rerun instruction.
+ 
+ 4. **Ship.** Workflow 3.11.
+ 
+@@ -148,7 +153,7 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ | Situation | Run |
+ |---|---|
+-| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. It ends with merged requirements you can take into `/prd` (3.1). Add `--handoff task` to go straight to a task file instead. |
++| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. Stop at merged requirements. If later requested, take them into `/prd` (3.1), or ordinary `/sc:workflow` planning followed by `/sc:implement`; no automatic task-file handoff. |
+ | You have two or more competing designs, plans, or drafts | `/sc:adversarial --compare docs/design-a.md,docs/design-b.md`. Agents debate them, score them, and merge the strongest parts into one document. |
+ | A spec, PRD, or TDD needs an outside expert critique | `/sc:spec-panel @docs/specs/invoice-csv-export.md --mode critique`. It only reports; you decide what to apply. |
+ | You want reviewers from other AI model families | `/sc:swarm-wizard`. It asks what you want reviewed, picks the settings, proves them with a safe dry run, and launches the real review only after you say go. Real runs need an OpenAI-compatible model proxy set in `~/.aienv`: one `export KEY=value` line each for `T2ProxyUrl` (proxy base URL), `T2ProxyKey` (API key), and `T2Model01` (model name), and make sure your shell sources the file (for example from your shell profile) before you start Claude; without it you get the dry run only. The full list of review styles by goal is in the IronClaude repository (not installed): https://github.com/IronbellyOrg/IronClaude/blob/master/docs/swarm/wizard-guide.md |
+@@ -165,12 +170,12 @@ Use this when the requirements are already clear and the feature extends somethi
+    `/sc:improve src/billing/ --type quality --safe --interactive` improves code quality.
+    `--interactive` asks before complex changes, but some changes are applied automatically even then: `/sc:cleanup` removes unused imports, code nothing references, empty blocks, and redundant type annotations; `/sc:improve` fixes formatting and naming, removes unused variables, reorders imports, and adds simple type annotations. Review `git diff` before keeping anything.
+ 
+-3. **Large refactors** (many files or a structural change): treat it as a feature. Write a spec and build a task file with `/task-builder ... --spec` (3.2), so every step is checked.
++3. **Structural refactors or work outside the contained-folder exception:** write down the intended change and acceptance criteria, then use `/sc:workflow <spec path>`, read its plan, and run `/sc:implement <printed plan path>` when execution is requested (3.2). Many files or risk alone do not select MDTM; level 4 needs explicit selection or a stated exceptional complex long-running machinery need. The cleanup exception does not cover an architectural migration.
+ 
+ ### 3.8 Run tests and check coverage
+ 
+ - `/sc:test tests/billing/ --coverage` runs the tests and reports coverage. Add `--type unit`, `integration`, or `e2e` to narrow it.
+-- `/sc:test` does not write new tests. To add tests, put them in the spec and the task file (3.2), or ask Claude to write them for a small change (3.4 step 3).
++- `/sc:test` does not write new tests. For ordinary planned test authoring, include tests in the spec and workflow plan (3.2); for a bounded direct change, ask Claude to write them (3.4 step 3). Existing approved plans keep their executor.
+ 
+ ### 3.9 Document existing work
+ 
+@@ -240,9 +245,9 @@ Where this guide says "your lead", read "yourself" if you work alone.
+ | These look alike | The difference |
+ |---|---|
+ | `/task` and `/sc:task` | `/task` runs a task file from disk, with reviewer panels after each group of items except the first (setup) one. `/sc:task` does one job directly, with no file. |
+-| `/sc:workflow` + `/sc:implement` and `/task-builder` + `/task` | The first pair writes a short plan, checks it against your request, has one reviewer check each step, then runs one final independent review of the whole plan. The second pair researches the code, writes a full task file, and has a panel of reviewers check each group of items after the setup group. Use the second pair for many files, multi-session work, or anything that must not drift. |
++| `/sc:workflow` + `/sc:implement` and `/task-builder` + `/task` | Workflow/implement is the ordinary planned-implementation default: a checked plan, step compliance checks, ledger and final independent managed-package review. Task-builder/task adds MDTM research, checklists and phase-reviewer panels. Choose it only explicitly or for an exceptionally complex, long-running phased program needing that machinery, not for file count, sessions, a spec, risk, auditability, drift or resume alone. |
+ | `/sc:design` and `/tdd` | `/sc:design` drafts one design (an API, a component, a schema) in a single pass. `/tdd` writes a full technical design document from the template, with research and independent reviewers. Use `/tdd` when other people will build against the design. |
+-| `/roadmap` and `/sc:roadmap` | `/roadmap` produces a roadmap plus task files you run with `/task`. `/sc:roadmap` belongs to a separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). Use `/roadmap` unless your lead says otherwise. |
++| `/roadmap` and `/sc:roadmap` | `/roadmap` is the expressly selected or exceptionally justified MDTM composer: it uses task-builder/task internally and can produce phase task files for later `/task` execution. It is not the ordinary post-PRD/TDD default; use workflow/implement for ordinary implementation. `/sc:roadmap` belongs to a separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`), not the MDTM composer. |
+ | `/tech-reference` and `/sc:document` | `/tech-reference` researches a whole feature and writes a reviewed architecture document. `/sc:document` writes reference text for specific code in one pass. |
+ | `/tech-research` and `/sc:research` | `/tech-research` investigates our codebase. `/sc:research` searches the web. |
+ | `/sc:cleanup-audit` and `/sc:cleanup` | The audit only reports. Cleanup changes files. |
+@@ -252,7 +257,8 @@ Where this guide says "your lead", read "yourself" if you work alone.
+ | `/sc:reflect --mode post` | When you run it yourself on finished work and the audit passes, it moves the work folder to a "done" location. (The audit inside a `/task` run leaves the folder in place: the final audit runs before the task is marked done, so the folder stays in `.dev/tasks/to-do/`.) | Add `--no-promote` when you want a report only. |
+ | `/sc:auggie-review <PR number>` | Posts its review publicly on the PR. | Add `--no-post-pr` to keep it local. |
+ | `/sc:pr-submit` | With no `--monitor` setting it uses `--monitor 3`: it fixes the confirmed review findings of Medium severity or higher and failing CI checks, pushes the fixes to your branch without asking, and replies to and resolves the review comments it fixed. | Always pass `--monitor 3`. Use `--monitor 0` when the Augment Code review app is not on the repository or you are not sure it is (3.11 step 6). |
+-| `/tech-research` and `/roadmap` | Run at their deepest setting, with many agents, unless the request is clearly small. | For `/tech-research`, ask a narrow, specific question if you want a smaller run. For `/roadmap`, keep the full setting if you want a task file for every phase (3.1 step 7). |
++| `/sc:workflow` | Standard depth and no executing handoff. | Use quick for smaller checked plans, preserve a supported requested depth, and read the actual printed plan before `/sc:implement`. Planning does not authorize execution. |
++| `/tech-research` and explicitly selected `/roadmap` | Run at their deepest setting unless the request is clearly small. | Keep research-only work at the report. Only select the roadmap composer under the explicit or exceptional boundary in 3.1 step 7; its full setting creates phase task files using its own MDTM machinery. |
+ | `/sc:implement` on a `/sc:workflow` plan | Moves the plan folder to `.dev/tasks/done/` when every step passes; on any system other than Linux (including macOS) it refuses on purpose and leaves the folder in `.dev/tasks/to-do/` | Nothing. Never move the folder by hand. |
+ 
+ ---
+@@ -279,7 +285,7 @@ These commands are installed but no workflow above routes to them.
+ | `/sc:post-release` | After tagging a release. |
+ | `/sc:review-translation` | Review translated text. |
+ | `/sc:save` | Save Serena project memory. Not a way to resume work (3.12). |
+-| `/sc:spawn` | Break a large job into parts. For work that changes code, prefer `/task-builder`. |
++| `/sc:spawn` | Break a large job into parts. Ordinary implementation planning uses `/sc:workflow` then `/sc:implement`; MDTM needs the level-4 justification. |
+ | `/sc:tdd` | Same as `/tdd` (it invokes the same skill). Not test-driven development. |
+ | `/sc:validate-roadmap` | Part of the separate `/sc:roadmap` release pipeline (section 5). |
+ | `/sc:validate-tests` | IronClaude contributors: test `/sc:task` tier rules. |
+@@ -302,20 +308,20 @@ This table is read by `/sc:recommend` and checked by tests. Each row is one kind
+ |---|---|---|---|---|---|---|---|
+ | ask | understand code; explain; how does something work; no changes wanted | 1 | 1. ask in plain English, or `/sc:explain <path>` | - | no | 1, 3.5 | - |
+ | small-change | one source file plus its test; five edits or fewer; exact change known | 2 | 1. `/sc:task "<change>"` or a plain edit<br>2. run the related test | - | yes | 1, 3.3 | `/sc:task` prints a `Tier:` line at the start; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped its own checks, so run the test yourself afterwards |
+-| simple-plan | a few files; clear scope; one or two sessions | 3 | 1. `/sc:workflow "<what to change, why, which files>"`<br>2. read the printed plan `.dev/tasks/to-do/<id>/<id>.md` and the check result printed with it<br>3. `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | 1: `--depth quick` | yes | 1, 3.3 | to resume, rerun step 3; on any system other than Linux (including macOS) the finished plan folder stays in `.dev/tasks/to-do/` and reports archive-blocked, which is expected |
+-| task-file | many files; more than one session; must not drift | 4 | 1. `/task-builder "<what to build, why, which code>"`<br>2. read the task file and its `reflect_pre` entry<br>3. `/task <task file>` | - | yes | 1, 3.2 | add `--spec <path>` to step 1 when a spec, PRD, or TDD exists |
+-| feature-existing | add a feature to an existing system; requirements clear; no PRD | 4 | 1. `/tech-research "<question, why, which code>"` (optional)<br>2. write and agree a spec file<br>3. `/task-builder "<what to build, why, which code>"`<br>4. `/task <task file>` | 3: `--spec <spec file>` | yes | 3.2 | `/sc:design <name> --type api --format spec` can draft an interface section for the spec |
+-| research-first | how does our system work; is it feasible; what would need to change | 5 | 1. `/tech-research "<question, why, which code>"`<br>2. only if you decide to build: `/task-builder "<what to build> as recommended in <report path>. Code: <folders>"`<br>3. only after step 2: `/task <task file>` | - | yes | 1, 3.5 | step 1 alone writes only a report; for a question you only want answered (is it feasible, how does it work), stop after step 1 |
+-| full-spec | new product; new component; major feature others build against | 6 | 1. `/sc:brainstorm "<idea>"` (only if the idea is vague)<br>2. `/prd "<request>"`<br>3. `/sc:spec-panel @<prd file>`<br>4. `/tdd "<request>"`<br>5. `/sc:spec-panel @<tdd file>`<br>6. `/sc:release-split <tdd file>` (optional)<br>7. `/roadmap "<request>"`<br>8. `/task <phase task file>` for each phase in order<br>9. read the task file's `reflect_post` entry, then follow review-pr | 3: `--mode critique --focus requirements`; 5: `--mode critique --focus architecture,testing` | yes | 3.1 | `/sc:brainstorm` uses `--depth standard` by default, so step 1 need not pass it; in step 7 ask for a full roadmap from the PRD and TDD and a dry run first; if anything changed to resolve step 9, re-confirm with `/sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote` (row confirm-built) before the next phase |
+-| shape-idea | idea or requirements still unclear | - | 1. `/sc:brainstorm "<the idea, who it is for, the main constraint>"` | - | no | 3.1, 3.6 | add `--handoff task` to go straight to a task file when no PRD is needed (level 4); `--depth standard` is the default, so it need not be passed |
+-| bug | bug; error; stack trace; failing test | - | 1. `/sc:troubleshoot "<what happens, what you expected, how to reproduce, exact error>"`<br>2. read `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`<br>3a. small fix (one source file plus its test, five edits or fewer): add a failing test, fix the code, then `/sc:test <test path>`<br>3b. a few files with clear scope: `/sc:workflow "<the fix from REPORT.md, with a test that reproduces the bug>"`, then step 4<br>3c. larger or riskier fix: accept the task-file offer, or `/task-builder "Fix the root cause described in <REPORT.md path>, with a test that reproduces the bug. Code: <folders>"` then `/task <task file>`<br>4. only after 3b: read the plan it prints, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` | 1: `--type <kind>`; 3a: `--coverage`; 3b: `--depth quick` | yes | 3.4 | kind is one of bug, test, build, performance, deployment, security; add `--fix` to step 1 only when the fix may be larger or riskier than a few files with clear scope; if the cause is not confirmed, rerun step 1 with `--depth deep` |
++| simple-plan | ordinary checked implementation planning; with or without a spec; across files or sessions | 3 | 1. `/sc:workflow "<what to change, why, which files or spec>"`<br>2. read the actual printed plan `.dev/tasks/to-do/<id>/<id>.md` and its advisory check result<br>3. only when execution is requested: `/sc:implement <actual printed plan path>` | - | yes | 1, 3.3 | standard depth and no executing handoff are the defaults; quick is conditional for smaller checked plans; an adequate approved plan goes directly to its executor, without rebuilding; resume with step 3, never task-builder; non-Linux managed archiving reports archive-blocked and keeps the folder in place |
++| task-file | explicit MDTM creation or existing MDTM execution; exceptionally complex long-running phased program with stated research/checklist/phase-panel machinery need | 4 | 1a. for creation: `/task-builder "<what to build, why, which code, why MDTM>"`<br>1b. for an existing MDTM task: keep that task file without rebuilding<br>2. read the task file and its check result<br>3. only when execution is requested: `/task <task file>` | - | yes | 1, 3.1 | add `--spec <path>` to task-builder when a spec, PRD or TDD exists; file count, sessions, a spec, risk, auditability, drift or resume alone do not select this row; explicit implement selection keeps implement semantics |
++| feature-existing | add a feature to an existing system; requirements clear; no PRD | 3 | 1. `/tech-research "<question, why, which code>"` (only if needed)<br>2. write and agree a spec file, unless an adequate approved plan exists<br>3. `/sc:workflow <spec file>` unless an adequate approved plan exists<br>4. read its actual printed plan and advisory check result<br>5. only when execution is requested: `/sc:implement <approved plan path>` | - | yes | 3.2 | existing approved plans keep their executor directly; `/sc:design <name> --type api --format spec` can draft an interface section; MDTM needs explicit selection or the exceptional level-4 machinery need, not just an existing spec |
++| research-first | how does our system work; is it feasible; what would need to change | 5 | 1. `/tech-research "<question, why, which code>"`<br>2. only if implementation planning is requested: `/sc:workflow "<what to build> as recommended in <report path>. Code: <folders>"`<br>3. read its actual printed plan and advisory check result<br>4. only when execution is requested: `/sc:implement <printed plan path>` | - | yes | 1, 3.5 | research-only requests stop after step 1; do not append implementation or shipping; inspection breadth is not mutation breadth; explicit or exceptional MDTM is a separate level-4 choice |
++| full-spec | reviewed PRD/TDD for new product or component; optional later implementation planning | 6 | 1. `/sc:brainstorm "<idea>"` (only if vague)<br>2. `/prd "<request>"`<br>3. `/sc:spec-panel @<prd file>`<br>4. `/tdd "<request>"`<br>5. `/sc:spec-panel @<tdd file>`<br>6. `/sc:release-split <tdd file>` (only if requested or needed)<br>7a. only for requested ordinary planning: `/sc:workflow "<plan from the accepted PRD/TDD paths and constraints>"`, then read its actual printed plan and check result<br>7b. only for explicit composer selection or exceptional level-4 machinery needs: `/roadmap "<request with supplied documents>"`, then read its outputs<br>8a. only for requested execution of 7a: `/sc:implement <printed plan path>`<br>8b. only for requested execution of phase tasks from 7b: `/task <phase task file>` in order<br>9. consume the chosen executor's checks; review-pr only when shipping is requested | 3: `--mode critique --focus requirements`; 5: `--mode critique --focus architecture,testing` | yes | 3.1 | documents-only requests stop after the requested documents and reviews, without a roadmap or phase tasks; new components and existing specs do not justify MDTM; PRD/TDD retain internal document machinery; the explicitly selected roadmap composer uses task-builder/task internally and its full setting creates phase task files; product phase execution is separate consent; ordinary planning defaults to standard depth |
++| shape-idea | idea or requirements still unclear | - | 1. `/sc:brainstorm "<the idea, who it is for, the main constraint>"` | - | no | 3.1, 3.6 | stop at merged requirements; only if later requested, take them to PRD creation or ordinary workflow/implement planning; no automatic task-file handoff just because no PRD is needed; standard depth is the default |
++| bug | bug; error; stack trace; failing test | - | 1. `/sc:troubleshoot "<what happens, what you expected, how to reproduce, exact error>"`<br>2. read `.dev/troubleshoot/<name>-<timestamp>/REPORT.md` and preserve its status and blockers<br>3a. supported small fix (one source file plus its test, five edits or fewer): add a failing test, fix the code, then `/sc:test <test path>`<br>3b. ordinary planned fix: `/sc:workflow "<supported fix from REPORT.md, with a reproducing test>"`, read the printed plan and advisory check result, then `/sc:implement <printed plan path>` only when execution is requested<br>3c. only explicit or exceptionally justified MDTM: `/task-builder "<supported fix and concrete MDTM need>"`, then read the task and use `/task <task file>` only when execution is requested | 1: `--type <kind>`; 3a: `--coverage` | yes | 3.4 | kind is bug, test, build, performance, deployment or security; diagnosis-only stops after step 2; no speculative fix for an unconfirmed, failed or blocked result; standard `/sc:troubleshoot --fix` offers workflow planning after supported diagnosis and acceptance; `/sc:troubleshoot --depth quick --fix` is invalid; explicit `/sc:troubleshoot --depth deep --fix` couples to MDTM, while deep diagnosis without fix can feed separate ordinary workflow planning; planning never authorizes execution |
+ | external-research | library; standard; best practice outside our code | - | 1. `/sc:research "<question>"` | 1: `--depth deep` | no | 3.5 | - |
+ | module-health | general health of a module | - | 1. `/sc:analyze <path>` | 1: `--focus <area>` | no | 3.5 | area is one of security, quality, performance, architecture |
+ | compare-options | two or more designs, plans, or drafts; pick or merge | - | 1. `/sc:adversarial --compare <file a>,<file b>` | - | no | 3.6 | writes one merged document as its own output |
+ | critique-spec | review a spec, PRD, or TDD | - | 1. `/sc:spec-panel @<file>` | 1: `--mode critique` | no | 3.6 | - |
+ | business-strategy | business strategy, not code | - | 1. `/sc:business-panel @<file>` | - | no | 3.6 | - |
+ | multi-model-review | reviewers from other AI model families | - | 1. `/sc:swarm-wizard` | - | no | 3.6 | real runs need an OpenAI-compatible model proxy set in `~/.aienv` (T2ProxyUrl, T2ProxyKey, T2Model01); without it you get the dry run only |
+-| cleanup | dead code; unused imports; tidy a folder | - | 1. `/sc:cleanup-audit <path>`<br>2. commit<br>3. `/sc:cleanup <path>`<br>4. `/sc:improve <path>`<br>5. review `git diff` | 1: `--pass all`; 3: `--type code --safe --interactive`; 4: `--type quality --safe --interactive` | yes | 3.7 | for a large or structural refactor use feature-existing instead |
++| cleanup | requested contained folder cleanup; dead code; unused imports | - | 1. `/sc:cleanup-audit <path>`<br>2. commit<br>3. `/sc:cleanup <path>`<br>4. `/sc:improve <path>`<br>5. review `git diff` | 1: `--pass all`; 3: `--type code --safe --interactive`; 4: `--type quality --safe --interactive` | yes | 3.7 | the contained-folder exception keeps checkpoint and diff safeguards; structural migrations are outside it and use ordinary workflow/implement planning through feature-existing; many files alone do not justify MDTM |
+ | tests | run tests; check coverage | - | 1. `/sc:test <path>` | 1: `--coverage` | no | 3.8 | add `--type unit`, `--type integration`, or `--type e2e` to narrow |
+ | document-built | technical reference; operational guide; README; API reference for existing code | - | 1. one of `/tech-reference "<request>"`, `/operational-guide "<request>"`, `/readme "<request>"`, `/sc:document <path>` | - | yes | 3.9 | for API reference use `/sc:document <path> --type api` |
+ | check-plan | check a plan or task file against a spec before running it | - | 1. `/sc:reflect --mode pre --spec <spec file> --tasklist <plan or task file>` | - | no | 3.10 | skip it when the task file's `reflect_pre` verdict is pass or fail; a `/sc:workflow` plan was already checked against its request when written |
+diff --git a/tests/core/test_claude_md_routing_block.py b/tests/core/test_claude_md_routing_block.py
+index ab0dfdfc..b1881fda 100644
+--- a/tests/core/test_claude_md_routing_block.py
++++ b/tests/core/test_claude_md_routing_block.py
+@@ -79,3 +79,22 @@ def test_removed_sections_stay_removed():
+ def test_mcp_flag_column_is_advisory():
+     text = _CLAUDE.read_text(encoding="utf-8")
+     assert "| Flag (advisory) |" in text
++
++
++def test_always_loaded_policy_keeps_workflow_default_and_mdtm_boundary():
++    """Pin the policy in the loaded copy as well as its byte-level parity."""
++    block = _block(_CLAUDE)
++    ordinary = next(line for line in block.splitlines() if line.startswith("| **3."))
++    assert "Ordinary implementation" in ordinary
++    assert "--depth standard --handoff none" in ordinary
++    assert ordinary.index("/sc:workflow") < ordinary.index("/sc:implement")
++    assert "few files" not in ordinary
++    assert "one or two sessions" not in ordinary
++    exceptional = next(line for line in block.splitlines() if line.startswith("| **4."))
++    assert "explicitly select MDTM" in exceptional
++    assert "exceptionally complex, long-running phased program" in exceptional
++    assert "research, checklist and phase-reviewer machinery" in exceptional
++    assert "alone never select level 4" in block
++    assert "normally level 3, not automatic level 4" in block
++    assert "Stop after the requested documents for document-only work" in block
++    assert "Managed workflow packages use `/sc:implement`" in block
+diff --git a/tests/core/test_how_we_work_routing_table.py b/tests/core/test_how_we_work_routing_table.py
+index 011dbdef..d0b743a0 100644
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -354,3 +354,224 @@ def test_named_mandatory_flags_are_on_their_steps(command, flag):
+                 f"{row['id']} step {label}: {flag} not mandatory"
+             )
+     assert checked, f"no review-pr or confirm-built step runs {command}"
++
++
++def test_direct_change_threshold_and_written_plan_requirement():
++    """T01/T02: static contract for a three-edit rename versus eight blocks."""
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    direct = _cells(_table_rows(block)[3])
++    assert "one source file (plus its test file)" in direct[1]
++    assert "five edits or fewer" in direct[1]
++    assert "already know exactly" in direct[1]
++    assert "/sc:task" in direct[2]
++    assert "more than 5 edits or touches more than one source file" in block
++    assert "one block of consecutive changed lines" in block
++    assert "8 places is 8 edits and requires a written plan" in block
++    assert "Direct command selection does not waive" in block
++
++
++@pytest.mark.parametrize(
++    "row_id", ["simple-plan", "feature-existing", "research-first"]
++)
++def test_ordinary_routes_plan_with_workflow_then_implement(row_id):
++    """T03/T06/T07: static route contract, not generated recommendations."""
++    row = next(r for r in _routing_rows() if r["id"] == row_id)
++    commands = _TOKEN_RE.findall(row["steps"])
++    assert commands.index("sc:workflow") < commands.index("sc:implement")
++    assert not {"task-builder", "task"} & set(commands)
++    assert "--depth quick" not in row["mandatory_flags"]
++    if row_id != "research-first":
++        assert row["level"] == "3"
++    else:
++        assert "research-only requests stop after step 1" in row["notes"]
++
++
++@pytest.mark.parametrize(
++    "reason",
++    [
++        "File count",
++        "multiple sessions",
++        "existing spec/PRD/TDD",
++        "risk",
++        "auditability",
++        "drift concerns",
++        "resume",
++    ],
++)
++def test_mdtm_cannot_be_selected_by_a_proxy_alone(reason):
++    """T03/T06/T07/T08: size, specs, sessions and assurance are not MDTM gates."""
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    exclusion = next(
++        line for line in block.splitlines() if line.startswith("File count")
++    )
++    assert reason in exclusion
++    assert "alone never select level 4" in exclusion
++    assert "twelve-file feature across several sessions still uses level 3" in exclusion
++    ordinary = _cells(_table_rows(block)[4])
++    assert "Ordinary implementation" in ordinary[1]
++    assert "many files or several sessions" in ordinary[1]
++    assert "with or without an existing spec" in ordinary[1]
++    assert "few files" not in ordinary[1]
++    assert "one or two sessions" not in ordinary[1]
++
++
++def test_explicit_mdtm_creation_or_existing_task_execution_is_preserved():
++    """T04: MDTM remains available for explicit or exceptional machinery needs."""
++    row = next(r for r in _routing_rows() if r["id"] == "task-file")
++    assert row["level"] == "4"
++    assert "explicit MDTM" in row["intent"]
++    assert "exceptionally complex long-running" in row["intent"]
++    assert "research/checklist/phase-panel machinery need" in row["intent"]
++    steps = _steps(row)
++    assert "task-builder" in _TOKEN_RE.findall(steps["1a"])
++    assert "existing MDTM task" in steps["1b"]
++    assert "without rebuilding" in steps["1b"]
++    assert _TOKEN_RE.findall(steps["3"]) == ["task"]
++    assert "only when execution is requested" in steps["3"]
++
++
++def test_existing_approved_plan_and_explicit_executor_keep_their_identity():
++    """T05/T10/T11: resume and explicit implement do not become MDTM execution."""
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    assert (
++        "adequate approved plan already exists, use its existing executor directly"
++        in block
++    )
++    assert "do not rebuild it" in block
++    assert "Managed workflow packages use `/sc:implement`" in block
++    assert "existing MDTM execution uses `/task`" in block
++    assert (
++        "Explicit `/sc:implement` selection retains that executor's own semantics"
++        in block
++    )
++    assert (
++        "not MDTM checklist/phase execution, even if the source resembles MDTM" in block
++    )
++    resume = next(r for r in _routing_rows() if r["id"] == "resume")
++    assert "rerun the same command" in resume["steps"]
++    assert "sc:implement" in _TOKEN_RE.findall(resume["steps"])
++    assert "task-builder" not in _TOKEN_RE.findall(resume["steps"])
++
++
++def test_inspection_breadth_does_not_require_an_implementation_plan():
++    """T12: reading thirty files for a report is not a thirty-file source edit."""
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    assert "Inspection breadth is not mutation breadth" in block
++    assert (
++        "reading thirty files for an explanation or report does not require an implementation plan"
++        in block
++    )
++    ask = next(r for r in _routing_rows() if r["id"] == "ask")
++    assert ask["changes_files"] == "no"
++    assert not {"sc:workflow", "task-builder"} & set(_TOKEN_RE.findall(ask["steps"]))
++
++
++def test_contained_cleanup_exception_retains_safeguards_not_structural_migration():
++    """T13: the folder exception preserves its checkpoint and diff boundary."""
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    assert "contained `/sc:cleanup` and `/sc:improve` work on a folder" in block
++    assert "commit first and review `git diff` afterwards" in block
++    assert "This exception does not cover structural migrations" in block
++    cleanup = _block(_text(), "### 3.7 ", "### 3.8 ")
++    assert "Commit first" in cleanup
++    assert "Review `git diff`" in cleanup
++    assert (
++        "Structural refactors or work outside the contained-folder exception" in cleanup
++    )
++    assert "`/sc:workflow <spec path>`" in cleanup
++    assert "`/sc:implement <printed plan path>`" in cleanup
++    assert "exception does not cover an architectural migration" in cleanup
++
++
++def test_full_spec_ordinary_post_document_planning_is_workflow_first():
++    """S18: static full-spec branch contract; no model-generation run implied."""
++    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
++    steps = _steps(row)
++    assert "only for requested ordinary planning" in steps["7a"]
++    assert _TOKEN_RE.findall(steps["7a"]) == ["sc:workflow"]
++    assert "accepted PRD/TDD paths and constraints" in steps["7a"]
++    assert _TOKEN_RE.findall(steps["8a"]) == ["sc:implement"]
++    assert "only for requested execution of 7a" in steps["8a"]
++    assert "new components and existing specs do not justify MDTM" in row["notes"]
++    section = _block(_text(), "### 3.1 ", "### 3.2 ")
++    assert "Ordinary post-document planning uses workflow" in section
++    assert "--depth standard --handoff none" in section
++
++
++def test_document_only_full_spec_stops_without_downstream_planning():
++    """T09/S19: static document-only stop, preserving document-owned machinery."""
++    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
++    assert (
++        "documents-only requests stop after the requested documents and reviews"
++        in row["notes"]
++    )
++    assert "without a roadmap or phase tasks" in row["notes"]
++    section = _block(_text(), "### 3.1 ", "### 3.2 ")
++    stop = section.index(
++        "For documents only, stop after the requested documents and reviews"
++    )
++    assert stop < section.index("1. **Shape the idea")
++    assert "do not append a roadmap, phase tasks, implementation or shipping" in section
++    assert "PRD and TDD skills keep their own document-generation machinery" in section
++
++
++def test_explicit_roadmap_preserves_its_composer_and_phase_task_outputs():
++    """S20: static explicit-roadmap branch, not a substitute for generation evals."""
++    row = next(r for r in _routing_rows() if r["id"] == "full-spec")
++    steps = _steps(row)
++    assert (
++        "only for explicit composer selection or exceptional level-4 machinery needs"
++        in steps["7b"]
++    )
++    assert _TOKEN_RE.findall(steps["7b"]) == ["roadmap"]
++    assert "supplied documents" in steps["7b"]
++    assert _TOKEN_RE.findall(steps["8b"]) == ["task"]
++    assert "only for requested execution" in steps["8b"]
++    assert "uses task-builder/task internally" in row["notes"]
++    assert "full setting creates phase task files" in row["notes"]
++    section = _block(_text(), "### 3.1 ", "### 3.2 ")
++    assert "exceptionally complex, long-running phased program" in section
++    assert "composer internally uses `/task-builder` and `/task`" in section
++    assert "not permission to implement product phases" in section
++
++
++def test_standard_planning_default_and_conditional_quick_are_consistent():
++    block = _block(_text(), _LEVEL_BEGIN, _LEVEL_END)
++    assert "--depth standard --handoff none" in block
++    assert "Standard is the default; use quick for smaller checked plans" in block
++    simple = next(r for r in _routing_rows() if r["id"] == "simple-plan")
++    assert simple["mandatory_flags"] == "-"
++    assert "quick is conditional for smaller checked plans" in simple["notes"]
++    section = _block(_text(), "### 3.3 ", "### 3.4 ")
++    assert "Standard is the ordinary planning default" in section
++    assert "for this smaller checked plan, quick is appropriate" in section
++
++
++def test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm():
++    bug = next(r for r in _routing_rows() if r["id"] == "bug")
++    steps = _steps(bug)
++    assert _TOKEN_RE.findall(steps["3b"]) == ["sc:workflow", "sc:implement"]
++    assert "only explicit or exceptionally justified MDTM" in steps["3c"]
++    assert "--depth quick" not in bug["mandatory_flags"]
++    assert (
++        "deep diagnosis without fix can feed separate ordinary workflow planning"
++        in bug["notes"]
++    )
++    shape = next(r for r in _routing_rows() if r["id"] == "shape-idea")
++    assert "stop at merged requirements" in shape["notes"]
++    assert "no automatic task-file handoff" in shape["notes"]
++    assert "--handoff task" not in _text()
++
++
++@pytest.mark.parametrize(
++    "stale_policy",
++    [
++        "fits in one or two sessions",
++        "level 4 for anything larger, longer, or riskier",
++        "Use the second pair for many files, multi-session work",
++        "Add `--handoff task` to go straight to a task file",
++        "For work that changes code, prefer `/task-builder`",
++    ],
++)
++def test_old_size_based_mdtm_policy_is_not_retained(stale_policy):
++    assert stale_policy not in _text()

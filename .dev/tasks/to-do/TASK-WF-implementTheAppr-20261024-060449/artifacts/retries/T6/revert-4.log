@@ -1,0 +1,8 @@
+SWEEP refs/superclaude/implement/TASK-WF-implementTheAppr-20261024-060449/retry/T6/sweep-4-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED tests/commands/test_routing_plugin_parity.py
+RESTORED tests/core/test_how_we_work_routing_table.py
+DELETED tests/recommend/fixtures/routing_refresh_cases.json
+DELETED tests/recommend/test_routing_refresh.py
+DONE
+rc=0

@@ -1,0 +1,99 @@
+# Research: /sc:review-translation recommendation refresh
+
+- **Topic type:** Command routing and capability preservation
+- **Scope:** Six-month command history, localization protocol, recommendation guide, cache prompts, hook and regression coverage
+- **Status:** Research complete; no implementation or runtime validation
+- **Date:** 2026-10-24
+- **Intended output:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/review-translation.md`
+
+## Evidence index
+
+All line references below use these absolute source paths:
+
+| ID | Source |
+|---|---|
+| C | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/review-translation.md` |
+| P | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-review-translation-protocol/SKILL.md` |
+| G | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md` |
+| R | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md` |
+| F | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py` |
+| H | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh` |
+| K | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py` |
+| T | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py` |
+| V | `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py` |
+| L | `/config/.claude/skills/sc-recommend-protocol/SKILL.md` |
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/review-translation.txt`, worker `a92a9e368dfed5f4d`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The exact command has two changes within the inventory window, 2026-04-24 through 2026-10-24. Commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, adds Markdown spacing around examples, lists and headings. Its protocol patch similarly normalizes formatting, including spacing in an example filename pattern. This is formatting-only, not a new localization capability. Evidence: inspected `git log` and both exact-path patches; current interfaces remain in C:22-39 and P:13-18.
+
+[CODE-VERIFIED] Commit `3ae238b178fb7c67ca02809d24745de620c2bd50`, dated 2026-09-30, removes `sequential` from this command's `mcp-servers` metadata. It does not remove this command or change its review phases. Recommendations must not carry forward a Sequential MCP prerequisite. Current metadata lists Tavily, Context7 and Serena (C:1-7).
+
+### Current command contract
+
+[CODE-VERIFIED] Inputs are a source file and translation files, with implicit file-based review also documented. The flags are `--strict`, `--depth quick|standard|deep` with standard default, `--tone-matrix`, `--platform steam|playstation|mobile|web|enterprise` with auto default, and `--export` (C:22-39). The protocol identifies an English JSON source or an explicitly specified source, checks JSON validity, key parity, encoding and placeholders (P:20-40).
+
+[CODE-VERIFIED] The command delegates to `Skill sc:review-translation-protocol`; that protocol explicitly directs users through the command rather than direct skill invocation (C:45-51; P:9-18). It requires context confirmation before review, then provides weighted quality assessment, parallel per-translation reviewers, contested-finding validation and evidence gathering (P:42-147). These are documented behavioral contracts, not runtime observations.
+
+[CODE-VERIFIED] Outputs include per-language reports, a cross-language release-readiness summary, proposed JSON fixes and an optional team handoff package. The command names `reports/localization/` as its report folder (C:106-113; P:149-173). Writing these reports is distinct from editing translation inputs.
+
+[CODE-VERIFIED] Source changes require explicit consent; protected placeholders and brand terms also have approval boundaries. After reporting, the protocol offers all critical/high fixes, a selected language, discussion, feedback, export or no implementation (C:83-100; P:174-198). Partial completion is documented as saved progress for resume, but no deterministic resume command or ledger format is specified (P:214-218).
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide currently reduces the command to “Review translated text” in Other commands, without a dedicated routing row (G:260-285, 301-325). By comparison, the command explicitly covers localization QA, platform rules, tone calibration, adversarial evidence, scoring and export (C:14-39, 85-113). The description is accurate but too thin to communicate when this specialized delegation earns its overhead.
+
+[CODE-VERIFIED] Other-command descriptions are considered only when no routing row matches. A matched row decides the route before semantic ranking and bypasses cache lookup (R:50-61). The current `task-file` row matches “many files,” “more than one session” or “must not drift,” while `bug` includes “error” (G:306, 311). These broad phrases overlap plausible localization requests involving many locale files or placeholder errors.
+
+[UNVERIFIED] A real invocation misrouting this command was not executed. Nevertheless, these textual overlaps create a regression risk: matching an implementation row prevents Other commands from supplying the specialized localization candidate. Reading many translation files is not itself authorization to modify them (R:54-60; C:96-100).
+
+[CODE-VERIFIED] The classifier has no localization-specific key; its broad `parallel-agent-fanout` and `adversarial-review` categories could encompass parts of this workflow (F:50-67). Hot hits emit cached recommendations verbatim, while cold discovery verifies candidate sources (R:83-88, 128-135). Source discovery already gives checkout source precedence; outside a checkout it prefers project copies, then installed copies, then plugins (R:100-116).
+
+[CODE-VERIFIED] Cache surface freshness hashes file paths plus routing-guide content, not all command and protocol contents (K:63-94). Therefore, updating the guide changes its fingerprint, and a matched localization row also bypasses the hot path entirely (R:60). Adding another keyword table or classifier category is unnecessary for this fix.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** In G's existing authoritative routing table, add a supporting-task row such as `localization-review`, level `-`, `changes_files=no`, for evaluating existing translations against source text, locale quality, platform compliance or localization release readiness. Its sole step should invoke `/sc:review-translation <source file> <translation files>`, with no mandatory optional flags. Explain that reports are written but translation inputs remain unchanged until separately authorized. This uses the existing guide mechanism, not a second fixed routing table (G:295-302; R:50-60; C:83-113).
+
+[UNVERIFIED] **MUST, proposed policy:** Clarify guide intent matching so “many files” describes implementation scope, not the number of review inputs. Preserve dedicated review routes before applying implementation-size rules. For later planned remediation, follow the user's requested default of workflow plus implement for most work; reserve MDTM for the most complex, long-running work or explicit MDTM execution. This is a desired policy change, not today's guide rule (G:17-22, 305-307; R:155-157).
+
+[UNVERIFIED] **SHOULD, proposed wording:** Expand the Other commands description to mention source-versus-locales assessment, scored reports, platform/tone options, team export, context confirmation and separately authorized fixes. If promoted to a routed command, reconcile the heading's “no workflow above routes to them” claim and update its membership test accordingly (G:262, 280; T:275-283).
+
+[CODE-VERIFIED] A grounded example for a user who supplied these filenames and requested Steam QA, tone calibration and team export is `/sc:review-translation source.json de_DE.json fr_FR.json --platform steam --depth deep --tone-matrix --export`. Every flag is documented; the recommendation should hand off rather than inline scoring formulas or agent instructions (C:24-39, 65-81; R:175-184).
+
+[CODE-VERIFIED] Guide and recommendation changes require corresponding plugin maintenance: V:27-36 checks that the plugin recommendation tree mirrors source and that its bundled guide matches G. No tracked localization command or protocol mirror was returned by exact-path `git ls-files`; do not assume plugin-only availability.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed acceptance cases grounded in C:14-39, 83-113 and R:50-60:
+
+1. “Review 30 locale JSON files against English; report only” selects localization review, not task-builder or generic fan-out.
+2. “Check placeholder errors and Steam formatting” retains localization QA rather than defaulting to code debugging.
+3. A request for tone calibration and team handoff preserves `--tone-matrix` and `--export`.
+4. Reports-only output neither edits inputs nor adds an automatic implementation step.
+5. A matched localization row bypasses a seeded broad fan-out cache entry.
+6. Missing command availability produces the documented unavailable-step handling, not invented installation coverage.
+7. Plain translation of a short sentence is not automatically promoted to the full localization review protocol.
+
+## Gaps
+
+[CODE-VERIFIED] Searches found the command reference in the guide and its plugin guide copy, but not command-specific recommendation examples in the recommendation skill, its refs, classifier or hook. The protocol directory contains only its main skill file; no additional refs were found.
+
+[CODE-VERIFIED] Exact tracked-path inspection found no source `sc-recommend-protocol` directory, while L:1-44 contains an installed legacy protocol with obsolete flags and keyword categories. Current activation selects `sc-recommend`, not that legacy protocol. Legacy installation cleanup is a shared recommendation-system follow-up, not a reason to recreate removed source.
+
+[CODE-CONTRADICTED] The recommendation command's claim that the Phase 0 gate cannot be silently skipped overstates enforcement: H:4-13 explicitly describes a fail-open reminder, not a blocking gate. Do not treat this hook as proof that localization discovery or authorization rules ran.
+
+[UNVERIFIED] `--strict` and depth levels lack detailed behavioral definitions beyond their advertised interface. No recommendation runtime or tests were executed. Existing routing tests establish table structure and command presence, not successful semantic selection.
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE. MUST:** Preserve localization review as a specialized, reports-first route and prevent implementation-size heuristics from capturing its review inputs.
+
+[UNVERIFIED] **CHANGE. SHOULD:** Improve capability descriptions, mirror the guide, and add the regression cases above.
+
+[CODE-VERIFIED] **NONE:** No localization command implementation change is supported by this review. Its historical semantic change was limited to removing obsolete Sequential metadata; its existing review, export and consent capabilities should be surfaced rather than rebuilt.

@@ -1,0 +1,67 @@
+# Research: /sc:save recommendation accuracy
+
+- **Topic type:** Command-routing research
+- **Scope:** Current save contract, six-month history, recommendation verification, guide and plugin consequences
+- **Status:** Complete; documentation contracts inspected, no runtime persistence test performed
+- **Date:** 2026-10-24
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/save.txt`, worker `a685401d8531a2f73`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The exact command has one reachable change in the requested 2026-04-24 through 2026-10-24 window: commit `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, “chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74).” Its actual save patch adds blank lines and a final newline only. No flag, trigger, persistence behavior, authorization boundary, or handoff changed. This is a formatting-only inclusion, not evidence of recently expanded capabilities. Evidence: read-only exact-path git log and patch for `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md`.
+
+### Current command contract
+
+[CODE-VERIFIED] Save is a self-contained command contract, not a dispatcher to a dedicated protocol skill. The complete file contains triggers, Usage, behavioral instructions, examples and boundaries, but no Activation section. Its job is preserving project context, discoveries and learning through Serena memory. It should not acquire an invented `sc-save-protocol` activation target. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:1-106`)
+
+[CODE-VERIFIED] No positional input is required. Documented syntax is `/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]`. Useful source-backed examples are `/sc:save --type learnings`, `/sc:save --summarize`, and `/sc:save --type all --checkpoint`. The file does not specify a default value for `--type`; recommending a particular default as implemented behavior would be unsupported. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:19-23,60-92`)
+
+[CODE-VERIFIED] The requested output is persisted session context or learning, optionally summarized or checkpointed. Serena integration and memory access are mandatory. The command requires validation and prohibits overriding existing session context without checkpoint preservation. These are memory mutations, not implementation planning, source editing, commits, or pushes. There is no explicit executor-return schema or documented task-ledger handoff. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:25-51,94-106`)
+
+[UNVERIFIED] Automatic checkpointing after 30 minutes and the sub-second performance numbers are prose claims, not measured or executed behavior in this investigation. Recommendations should not promise those timings or imply that issuing save mechanically checkpoints a running task executor. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:35-44,62-68`)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The governing guide already makes the important distinction correctly: save/load persist Serena project memory, while reopening a conversation or rerunning the owning executor resumes work. Save appears in “Other commands,” and the resume routing row explicitly excludes it as a resume method. There is therefore no basis for replacing the existing resume route with save. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:207-218,281,324`)
+
+[CODE-CONTRADICTED] Recommendation verification currently excludes save’s documented flag surface. Save declares flags in Usage and examples, without a flag table or `argument-hint`; recommendation Rule R1 permits flags **only** from a flag table or `argument-hint`. Strict compliance therefore suppresses legitimate save options despite their verified presence in source. This is a documentation-contract defect, not a demonstrated runtime classifier failure. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:19-23,70-92`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:335-337`)
+
+[CODE-VERIFIED] The same narrow extraction rule occurs in the verification reference and condensed cold-path runbook. Fixing only the main skill would leave cold-path recommendations inconsistent. The runbook already consumes matching “Other commands” descriptions, so save does not need a separate fixed keyword table. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:54-60`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:125-148,200-204`)
+
+[CODE-VERIFIED] Plugin save exposes the same Usage syntax and mandatory Serena dependency. The plugin routing-guide entry likewise says project memory, not executor resume. Existing parity tests require the plugin recommendation skill to mirror source and its bundled guide to match the governing guide. Recommendation changes therefore need corresponding plugin copies, not plugin-only routing behavior. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/save.md:19-44`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:281`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`)
+
+### Proposed recommendation changes
+
+[CODE-VERIFIED] **MUST: broaden source-backed flag verification consistently.** Update Rule R1 in the recommendation skill, Step C in its surface-enumeration reference, and cold-path verification/R1 in the prompt constants. Accept an explicit Usage syntax declaration when a command has no flag table or `argument-hint`. Preserve exact value enumeration and reject flags merely mentioned in unrelated prose. The concrete motivating case is save’s fully declared Usage line. This is a proposed contract change, not current behavior. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:335-337`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:58-60`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:145-146,200-202`)
+
+[CODE-VERIFIED] **SHOULD: expand the existing guide entry rather than add another routing table.** Suggested entry: “Preserve project discoveries, decisions, or session context in Serena memory; use learning-only, summary, or checkpoint options when requested. Requires Serena memory access. Does not restart an executor.” For “keep only today’s discoveries,” the paste-ready example is `/sc:save --type learnings`. For an explicitly requested comprehensive memory checkpoint, use `/sc:save --type all --checkpoint`. Both examples are already present in the command contract. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:281`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:70-92`)
+
+[CODE-VERIFIED] **NONE: no save-specific implementation-planning escalation.** Preserving learning is a supporting memory operation. Existing executor-resume instructions already distinguish workflow plans from MDTM task files. The requested broader preference for workflow/implement should not turn save requests into implementation plans or convert explicit MDTM resumes to another executor. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:213-218,281,324`)
+
+### Acceptance/regression scenarios
+
+[CODE-VERIFIED] Proposed regressions grounded in the current contracts:
+
+1. “Preserve only new discoveries in Serena” can recommend `/sc:save --type learnings`, citing Usage despite the absent flag table.
+2. “Create a session summary” can recommend `/sc:save --summarize`.
+3. “Checkpoint all Serena context” can recommend `/sc:save --type all --checkpoint`, without claiming guaranteed timing.
+4. “Resume my interrupted workflow plan” does not recommend save; it identifies the existing plan’s owning executor.
+5. “Resume this MDTM task file” preserves the `/task` route.
+6. Without Serena memory access, the answer states the prerequisite rather than promising successful persistence.
+7. Source and plugin recommendations retain equivalent flag verification and guide wording.
+
+These are proposed tests, not executed outcomes. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:19-23,70-106`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:213-218`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`)
+
+## Gaps
+
+[CODE-VERIFIED] Literal searches found no save-specific recommendation reference in the recommendation skill, its ordinary references, classifier/runbook constants, or recommendation tests. Its direct recommendation discovery description is the guide’s existing Other commands entry. Existing routing-table tests explicitly require save to remain represented there, but that does not test semantic selection or option preservation. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py:26-40`)
+
+[UNVERIFIED] No live recommendation evaluation, Serena write, checkpoint restoration, or timing benchmark ran. Save’s recovery language is broader than the guide’s executor-resume warning; interpret checkpoints as memory preservation, not proof of automatic execution continuation. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:25-38,53-58`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:218`)
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE:** repair generic flag verification so save’s established options remain recommendable. **SHOULD:** enrich the existing memory-persistence description and add save-versus-resume regressions. **NO CHANGE:** retain save as a self-contained Serena-memory command, not an implementation planner or executor-resume mechanism. The historical update itself was formatting-only; the actionable issue is the current recommendation contract’s narrower evidence rule. (`/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/save.md:19-23`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:335-337`; `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:218,281`)

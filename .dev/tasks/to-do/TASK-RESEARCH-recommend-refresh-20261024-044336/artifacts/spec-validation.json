@@ -1,0 +1,14 @@
+{
+  "check": "research-artifact-integrity",
+  "result": "PASS",
+  "historical_commands": 47,
+  "analyst_reports": 47,
+  "coverage_rows": 47,
+  "active_commands": 43,
+  "retired_commands": 4,
+  "contract_cases_defined": 76,
+  "behavioral_cases_defined": 29,
+  "implementation_files_changed": 0,
+  "spec_sha256": "43076245faf471fffde8475832065fd9997f0dce8d58fd3775097071157ac0b0",
+  "limitation": "Structural integrity only. Does not execute proposed recommendation cases or verify all semantic claims."
+}

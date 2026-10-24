@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# PreToolUse(Skill) — Phase 0 gate for sc:recommend.
+# PreToolUse(Skill) — advisory Phase 0 reminder for sc:recommend.
 #
-# When Claude invokes the `sc-recommend` skill, this hook injects a context block
-# reminding the model that Phase 0 (live surface enumeration + auggie sweep) is
-# mandatory before any recommendation is emitted. The hook does NOT block the
-# skill (it is fail-open / exit 0); its job is to make the Phase 0 requirement
-# unmissable at the moment of invocation, even under context pressure.
+# When Claude invokes the `sc-recommend` skill, this hook injects a short
+# reminder of the skill's routing and verification steps. It is advisory and
+# fail-open (always exit 0): it never blocks the skill, prints nothing when it
+# cannot parse the payload (e.g. jq missing), and proves nothing about which
+# steps ran. The skill's SKILL.md is the authority; keep this text in step with it.
 #
 # Hook contract:
 #   - stdin:  JSON { tool_name, tool_input, ... }
 #   - exit 0: pass-through; stdout (if non-empty) is injected as additional context
-#   - exit 2: block (NOT used here — Phase 0 enforcement is procedural, not blocking)
+#   - exit 2: block (NOT used here — the hook is a reminder, not enforcement)
 #
 # Match conditions:
 #   - tool_name == "Skill"
 #   - tool_input.skill in { "sc-recommend", "sc:recommend", "sc-recommend-protocol" }
-#     (the third covers any leftover invocation pointing at the old skill name
-#      during the transition window)
+#     (the third is recognized for compatibility with callers that still use the
+#      old skill name; it is not the current protocol name)
 
 set -u
 
@@ -36,8 +36,14 @@ case "$SKILL_NAME" in
 esac
 
 cat <<'EOF'
-<sc-recommend-phase0-gate source="pre-skill-hook">
-Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
+<sc-recommend-phase0-reminder source="pre-skill-hook">
+Advisory reminder from a fail-open hook. The sc-recommend skill file is the
+authority; this block summarizes it and does not prove any step ran.
+
+With --plugin: skip steps 0-4 below and run the skill's ecosystem search
+(Phase 3); local candidates never mix into plugin results.
+
+Local mode, before emitting any recommendation:
 
 0. Read the routing guide first: ~/.claude/HOW-WE-WORK.md, else the skill's
    refs/HOW-WE-WORK.md (plugin installs: ${CLAUDE_SKILL_DIR}/refs/ or
@@ -45,11 +51,24 @@ Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
    src/superclaude/core/HOW-WE-WORK.md under the repository root
    (`git rev-parse --show-toplevel`). Inside an IronClaude checkout
    (src/superclaude/commands/ exists under `git rev-parse --show-toplevel`)
-   read the src/ copy first. If a routing row matches (matched mode), its
-   steps decide the answer; still verify each step's command or skill below. If no guide is found, continue without it
-   (guide_status: absent). Skip this step with --plugin.
+   read the src/ copy first. Match the whole requested outcome (deliverable,
+   explicit command or artifact, compatible choices, authority ceiling) to
+   one routing row, not any single phrase.
+   - matched: no cache, no auggie query (auggie_status: skipped). Resolve the
+     row's conditions, keep only applicable steps and one alternative, stop at
+     the requested deliverable, and verify each selected step in step 4.
+   - no_match: continue with step 1.
+   - absent (no guide found): no cache helpers; go to step 2 and keep the
+     direct-change limit and workflow-first planning rules.
 
-1. Enumerate the live surface (installed, project, plugin, then checkout):
+1. Cache (no_match, inside an IronClaude checkout only): a hit is a hint,
+   not an answer. Verify its candidate in step 4 and rebuild the handoff from
+   this request's own inputs; never emit the cached text or its paths
+   verbatim. Reject an incompatible, retired or unavailable hint and continue
+   live. A supported miss runs the cold path; recheck its result before
+   emitting it. A budget-exceeded miss never reuses the cached row.
+
+2. Enumerate the live surface (installed, project, plugin, then checkout):
    - $HOME/.claude/commands/sc/*.md, $HOME/.claude/skills/*/SKILL.md,
      $HOME/.claude/agents/*.md, $HOME/.claude/templates/**/*.md
    - .claude/commands/**/*.md, .claude/skills/*/SKILL.md, .claude/agents/*.md
@@ -58,28 +77,27 @@ Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
      src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
      (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
 
-2. Issue ONE mcp__auggie__codebase-retrieval query that ranks the enumerated
-   surface against the user's verbatim request. Do not iterate file-by-file.
-   Exception: in matched mode (step 0 matched a routing row) skip this query
-   (auggie_status: skipped) and verify the matched row's steps in step 3.
+3. Unless matched, issue ONE mcp__auggie__codebase-retrieval query that ranks
+   the enumerated surface against the user's verbatim request. Do not iterate
+   file-by-file.
 
-3. For each ranked candidate (in matched mode, each step's command or skill in
-   the matched row), Read its source file before allowing it into the
-   recommendation. Ghost candidates (no source file resolves) are dropped silently,
-   except a matched row's step, which is kept and marked "not installed: <name>".
+4. Before any candidate enters the recommendation (each selected step when
+   matched, and every accepted cache hint), read the copy that would actually
+   run, its declared interface, its backing skill and the references relevant
+   to the advertised behavior, and current lifecycle guidance. A missing
+   matched step stays visible as "not installed: <name>"; other unresolved
+   candidates are dropped. A material disagreement between sources is a
+   contract gap, never a runnable command.
 
 If the auggie query fails (auggie unavailable; not matched mode, where the query is
 skipped and no notice is emitted), proceed with Glob+Read only AND emit this exact
 one-line notice as the first line of the output:
     "Auggie unavailable — ranking falls back to literal Glob+Read; usage nuance may be thin."
 
-Do NOT skip the gate silently. Do NOT use a hand-kept keyword → category mapping; the guide's routing table is the only fixed routing source —
+Do NOT use a hand-kept keyword → category mapping; the guide's routing table is the only fixed routing source —
 the previous version of this skill failed exactly that way (missed /sc:spec-panel
 because the mapping table was stale). Enumeration is dynamic, every invocation.
-
-This block was injected by the Phase-0 PreToolUse hook. It is part of the skill's
-contract, not optional guidance.
-</sc-recommend-phase0-gate>
+</sc-recommend-phase0-reminder>
 EOF
 
 exit 0

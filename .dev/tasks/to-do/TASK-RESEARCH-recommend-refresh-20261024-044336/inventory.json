@@ -1,0 +1,20 @@
+{
+  "purpose": "One command analyst per command changed in the six-month window, followed by a consolidated sc:recommend change specification. No implementation changes.",
+  "root": "/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate",
+  "head": "77288289",
+  "window_start": "2026-04-24T00:00:00Z",
+  "window_end": "2026-10-24T04:43:36Z",
+  "selection": "Unique Markdown command paths in git log within the inclusive window, reachable from HEAD. Include additions, formatting-only changes and removals. README.md is supporting documentation, not a command; __init__.py is not a command.",
+  "active_count": 43,
+  "retired_count": 4,
+  "commands": ["adversarial", "agent", "analyze", "auggie-review", "brainstorm", "build", "business-panel", "cleanup-audit", "cleanup", "cli-eval", "cli-portify", "design", "document", "estimate", "explain", "git", "help", "implement", "improve", "index-repo", "index", "init-lite", "load", "pm", "post-release", "pr-submit", "recommend", "reflect", "release-split", "research", "review-translation", "roadmap", "save", "sc", "select-tool", "spawn", "spec-panel", "swarm-wizard", "task-mcp", "task", "tasklist", "tdd", "test", "troubleshoot", "validate-roadmap", "validate-tests", "workflow"],
+  "retired_commands": ["estimate", "sc", "select-tool", "task-mcp"],
+  "supporting_document": "src/superclaude/commands/README.md",
+  "prior_research": ".dev/research/ironclaude-routing-consolidation-20261012/03-help-recommend.md",
+  "negative_evidence": ["Initial rg search of src/superclaude/skills/sc-recommend-protocol returned no such directory. An installed skill listing alone is not proof of a current tracked protocol. The recommend analyst must investigate current, installed and plugin surfaces before drawing a conclusion."],
+  "analyst_template": "src/superclaude/templates/modularization-template-review/codebase-research_template.md",
+  "spec_template": "src/superclaude/templates/documents/release-spec-template.md",
+  "review_template": "src/superclaude/templates/modularization-template-review/qa-lens_report_template.md",
+  "output_spec": "SPEC-sc-recommend-refresh.md",
+  "policy_direction": "sc:workflow plus sc:implement should cover most planned implementation work. Reserve task-builder plus task for the most complex and long-running workloads. Treat this as the user's desired new policy, distinguish it from current behavior, and ground the capability boundary in live sources. Do not convert every request into implementation planning or bypass explicit user command selection."
+}

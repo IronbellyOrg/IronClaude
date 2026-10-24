@@ -1,0 +1,9 @@
+SWEEP refs/superclaude/implement/TASK-WF-implementTheAppr-20261024-060449/retry/T4/sweep-3-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED src/superclaude/cli/recommend/prompts.py
+RESTORED src/superclaude/skills/sc-recommend/SKILL.md
+RESTORED tests/recommend/test_cache.py
+RESTORED tests/recommend/test_dispatch.py
+RESTORED tests/skills/test_sc_recommend_routing_contract.py
+DONE
+rc=0

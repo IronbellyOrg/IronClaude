@@ -1,0 +1,61 @@
+{
+  "verdict": "missing",
+  "ac": [
+    {
+      "id": "T5.AC1",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md:8",
+        "tests/commands/test_workflow_command.py:221"
+      ],
+      "reason": "Referral uses a positional roadmap only when one exists, rejects workflow-plan inputs, and preserves the prohibition on routing workflow packages to MDTM execution."
+    },
+    {
+      "id": "T5.AC2",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/skills/tdd/refs/build-request-template.md:158",
+        "tests/skills/test_sc_recommend_routing_contract.py:294"
+      ],
+      "reason": "Only the optional downstream referral changes: ordinary planning uses workflow/implement; task executes an existing MDTM file. The document-production machinery is unchanged."
+    },
+    {
+      "id": "T5.AC3",
+      "status": "unmet",
+      "evidence": [
+        "src/superclaude/commands/recommend.md:47",
+        "src/superclaude/commands/recommend.md:50"
+      ],
+      "reason": "Flags, star floor, opt-in evaluation, source verification and advisory cache wording are preserved, but the new local-planning rule in step 4 remains applicable to plugin search because its exception replaces only steps 1-3."
+    },
+    {
+      "id": "T5.AC4",
+      "status": "met",
+      "evidence": [
+        "src/superclaude/hooks/scripts/sc-recommend-phase0.sh:39",
+        ".dev/tasks/to-do/TASK-WF-implementTheAppr-20261024-060449/artifacts/t5.diff:10"
+      ],
+      "reason": "Hook wording explicitly denies enforcement/proof, distinguishes plugin and local branches, and leaves executable matching and exit behavior unchanged. README assigns guide/copy maintenance and separates static checks from generation evidence."
+    },
+    {
+      "id": "T5.AC5",
+      "status": "met",
+      "evidence": [
+        "tests/skills/test_sc_recommend_routing_contract.py:307",
+        "tests/skills/test_sc_recommend_routing_contract.py:336"
+      ],
+      "reason": "Changes stay within the seven approved paths, with narrow referral and public-contract checks rather than specialist-engine repairs. Mirror parity remains Task7's obligation, not waived."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [
+    {
+      "severity": "minor",
+      "path": "src/superclaude/commands/recommend.md:47",
+      "description": "The summary introduces unconditional local workflow/implement selection into step 4, but plugin mode bypasses only steps 1-3. A plugin-search request for implementation tooling therefore still inherits local routing, contradicting the instruction that local and ecosystem results must not mix.",
+      "correction": "Scope step 4's guide-level routing to local mode, or explicitly exclude it from plugin mode while retaining ecosystem filtering and evaluation controls."
+    }
+  ],
+  "self_audit": "Independently compared t5.diff with the live seven-file diff against Q0 ef62d539d70a7c910136d129814417e2ba44b87f, then checked live files against Task5 and FR04/05/11/C06/C08. Read no implementer reports, logs, retry or adviser folders. Ran no tests and made no changes."
+}

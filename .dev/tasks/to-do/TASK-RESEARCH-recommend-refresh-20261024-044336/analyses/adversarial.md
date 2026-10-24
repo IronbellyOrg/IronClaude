@@ -1,0 +1,113 @@
+# Research: /sc:adversarial recommendation refresh
+
+- **Topic type:** Command routing and delegated-protocol analysis
+- **Scope:** Changes from 2026-04-24 through 2026-10-24; current recommendation contracts
+- **Status:** Complete, source inspection only; no execution or files changed
+- **Date:** 2026-10-24
+
+## Evidence paths
+
+All citation labels below identify absolute paths.
+
+- **A:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/adversarial.md`
+- **B:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-adversarial-protocol/SKILL.md`
+- **C:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-adversarial-protocol/refs/debate-protocol.md`
+- **D:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **E:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **F:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **G:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py`
+- **H:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py`
+- **I:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py`
+- **J:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`
+- **K:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh`
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/adversarial.txt`, worker `ab4bcd02909847297`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The command qualifies for the requested window, but its two command-file changes must not be overstated. Commit `89df2c11`, dated 2026-05-22, adds Markdown spacing only. Commit `3ae238b1`, dated 2026-09-30, removes `sequential` from MCP metadata. Neither introduces the existing generation, pipeline, blind-comparison, or resume capabilities. Evidence: inspected patches for **A**; current interfaces at **A:13-72**.
+
+[CODE-VERIFIED] Delegated-protocol history contains more consequential changes:
+
+- `f79b1bd5`, 2026-05-13: refuses output beneath distributable component directories before writing (**B:35-43**).
+- `db824c4b`, 2026-05-17: adds the sufficiency challenge, requiring downstream-gate evidence when debating whether a proposed fix achieves its outcome (**B:1188-1199**).
+- `16f7631c`, 2026-05-27: strengthens concrete-anchor preservation, threshold accounting, requirement-level provenance, and dropped-anchor audits (**C:223-264,292-333**).
+- `5c6a7d91`, 2026-10-22: changes the supporting spawn-command reference from a checkout source path to its installed location (**B:1199**).
+
+These are verified documentation-contract changes, not proof of successful runtime enforcement.
+
+### Current command contract
+
+[CODE-VERIFIED] The command has three distinct input modes: compare 2-10 existing artifacts; generate competing artifacts from one source using 2-10 agent specifications; or run a multi-phase pipeline. The command delegates through `Skill sc:adversarial-protocol` (**A:13-52,143-149; B:55-78**).
+
+[CODE-VERIFIED] Useful defaults are `--depth standard`, convergence `0.80`, non-interactive operation, pipeline concurrency `3`, and error policy `halt`. Optional capabilities include `--focus`, `--blind`, `--interactive`, explicit output, plateau stopping, and `--pipeline-resume`. Resume applies to the adversarial pipeline, not general implementation execution (**A:54-72,130-140**).
+
+[CODE-VERIFIED] This is not a read-only comparison command. It writes intermediate artifacts and a unified merged output; default merge decisions are automatic, while interactive mode adds approval checkpoints. It does not execute the merged plan, manage Git, or guarantee domain-specific correctness. The return contract records success, partial completion, failure, unresolved conflicts, and artifact locations (**A:74-76,165-172; B:425-459; C:266-269**).
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The current guide correctly routes competing drafts to adversarial comparison. However, `compare-options` exposes only Mode A, although the command also supports generation and resumable pipelines. The guide therefore covers the basic use case but not the command’s full potential (**D:314; A:15-17,54-72**).
+
+[CODE-VERIFIED] Matched guide rows bypass both cache lookup and cold-path ranking. Consequently, changing only semantic discovery or classifier wording cannot improve the ordinary matched comparison route. The guide row itself must preserve the correct mode and relevant user-supplied options (**E:58-61; D:314**).
+
+[CODE-VERIFIED] Candidate verification requires reading the candidate’s source and extracting its activation handoff, but does not explicitly require resolving and reading the delegated protocol. This can miss the output guard and depth-dependent sufficiency checks, which are absent from the command’s flag summary (**E:128-135; B:35-43,1106-1113,1188-1199**).
+
+[CODE-VERIFIED] The classifier’s `adversarial-review` description combines adversarial debate, reflection, and code review. Those are not interchangeable deliverables: the guide separately identifies comparison, spec critique, and plan-compliance checks. Cache dispatch selects a row by classification key and validates its recorded source, without receiving the original request to check mode or deliverable compatibility (**F:55-67; D:314-315,321-322; H:74-83,103-124**).
+
+[CODE-VERIFIED] Cache freshness covers surface path membership and guide contents, plus the bytes of one recorded candidate source. Editing an adversarial protocol reference without changing the command file or path set is therefore not covered by that command-only row fingerprint (**G:63-103; H:116-124**).
+
+### Proposed recommendation changes
+
+[CODE-VERIFIED] **MUST, guide section 3.6 and existing `compare-options` row:** retain adversarial as a supporting artifact operation, and describe conditional selection among existing-file comparison, generation plus comparison, and explicitly requested pipeline resume. Do not add a separate keyword-routing table. Preserve user-supplied options after verification against **A:54-72**.
+
+Grounded handoff examples, using illustrative paths:
+
+```text
+/sc:adversarial --compare docs/design-a.md,docs/design-b.md --depth standard --interactive
+```
+
+```text
+/sc:adversarial --source docs/spec.md --generate design --agents opus:architect,sonnet:security --depth standard
+```
+
+```text
+/sc:adversarial --pipeline @pipeline-definition.yaml --pipeline-resume
+```
+
+[CODE-VERIFIED] **MUST, recommendation Phase 0 Step C and surface-enumeration reference:** verify that a command’s activation target resolves on the applicable installed/project surface. Read the protocol sections relevant to the requested guarantees. For adversarial, capture output restrictions, automatic merge behavior, and the fact that quick depth skips the invariant probe. Keep generated prompts as handoffs rather than copying debate machinery (**E:128-135; A:143-149; B:35-43,1106-1113**).
+
+[CODE-VERIFIED] **MUST, classifier and cache contracts:** prevent one broad review key from reusing an incompatible comparison, reflection, or code-review envelope. Validate requested deliverable and input mode before accepting a hit, or send incompatible cases through live discovery. Include relevant activation/protocol dependencies in freshness validation. These changes address demonstrated structural gaps, not observed production misroutes (**F:63; G:81-94; H:103-124**).
+
+[CODE-VERIFIED] **SHOULD, governing guide and plugin copy:** state that producing a merged implementation plan does not authorize execution. If implementation is subsequently requested, apply the user’s proposed workflow-first policy. Current source still routes many files or multi-session work to task-builder; that is existing policy, not the requested replacement (**D:305-308; A:167-169**).
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed acceptance cases, not executed:
+
+1. Two supplied designs produce a Mode A handoff, without task-builder or automatic implementation.
+2. One source plus requested competing variants produces complete Mode B arguments, not invented comparison files.
+3. A supplied pipeline resume request preserves `--pipeline-resume`; it does not become `/task`.
+4. A request requiring sufficiency checks does not silently select quick depth.
+5. A warm comparison cache cannot answer a reflection or code-review request using its previous envelope.
+6. Changing the relevant delegated protocol/reference invalidates an affected cached recommendation.
+7. Plugin-only installation without adversarial marks the matched step unavailable.
+8. Routine implementation following a merge defaults to workflow plus implement; explicit MDTM execution remains `/task`.
+
+Existing routing tests pin ordering, flag requirements, and cache availability text, rather than these adversarial behavioral distinctions (**I:35-80**).
+
+## Gaps
+
+[CODE-VERIFIED] The plugin guide contains `compare-options`, but direct filesystem inspection found neither the adversarial command nor its protocol under the plugin distribution. This is a genuine availability case, not permission to invent a runnable plugin target (**J:314; E:135,150**).
+
+[CODE-VERIFIED] The command’s inline pipeline example combines `--pipeline` with `--source`, contradicting its own mutual-exclusion rule. Recommendation examples should use the unambiguous YAML-only form until the command contract is reconciled (**A:49-52,123-127**).
+
+[CODE-VERIFIED] The recommendation hook is advisory and fail-open, despite the recommendation command’s stronger enforcement wording. It cannot mechanically ensure candidate verification (**K:4-13**).
+
+[UNVERIFIED] No runtime command, recommendation evaluation, or tests were executed. Protocol performance claims and actual enforcement remain unverified.
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE. MUST:** broaden the existing comparison route to preserve supported modes, verify delegated prerequisites, and prevent incompatible or stale cached handoffs. **SHOULD:** document merge side effects and propagate guide changes to the plugin copy. **NONE:** no new command, independent keyword table, automatic execution chain, or general promotion to MDTM is warranted. The command-file history itself contains formatting and MCP cleanup, while the delegated protocol supplies the meaningful recent safety and fidelity changes.

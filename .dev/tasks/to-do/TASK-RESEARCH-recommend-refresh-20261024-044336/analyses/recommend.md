@@ -1,0 +1,80 @@
+# Research: /sc:recommend
+
+- **Topic type:** Command and recommendation-system audit
+- **Scope:** Command history, active skill, references, routing guide, cache, hooks, plugin mirrors and tests
+- **Status:** Research complete; returned inline, not persisted
+- **Date:** 2026-10-24
+- **Intended output:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/.dev/tasks/to-do/TASK-RESEARCH-recommend-refresh-20261024-044336/analyses/recommend.md`
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/recommend.txt`, worker `aa265fcb5823f658f`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] Exact-command history contains four changes in the inventory window:
+
+- `89df2c11`, 2026-05-22: blank-line formatting only.
+- `238d6583`, 2026-06-03: replaced multilingual keyword matching and estimation with verified prompt handoffs, native fallback, ecosystem discovery and opt-in evaluation. Deleted the tracked legacy protocol and introduced `sc-recommend`.
+- `3dfac2c0`, 2026-06-20: added `--minstar`.
+- `051f39fe`, 2026-10-14: added guide-first ordered workflows and checkout-aware discovery.
+
+Subsequent primitive changes added installed/project fingerprint paths (`509e5044`), missing-guide cache bypass (`1367c8c6`), restored proactive activation (`7a24ab5f`), and applied the small-change limit to matched rows (`8694e3f1`). These distinctions were verified through exact-path `git log` and actual `git show` patches. Current interface evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:30-60`.
+
+### Current command contract
+
+[CODE-VERIFIED] Input is a goal. Only `--plugin`, `--eval none|quick|normal|deep`, and `--minstar N` are supported. Evaluation defaults off. Plugin discovery defaults to a 500-star floor, retains credible unranked candidates, and warns-and-ignores `--minstar` locally. Activation is `Skill sc-recommend`, not the retired protocol. Output is a handoff, native sequence, ordered workflow, or ecosystem result; it does not execute the recommended work. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:30-60,110-132`.
+
+[CODE-VERIFIED] Matched guide rows bypass classifier/cache/cold write-back and auggie ranking, while retaining enumeration and source verification. Missing guide bypasses cache. Outside an IronClaude checkout, project UV cache helpers must not run. Unmatched checkout requests may write cache and telemetry; opt-in evaluation creates additional artifacts. Plugin adoption requires user readiness for authenticated setup. These are contract-text findings, not executed behavior. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:39-88,285-329`.
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] Governing policy directly explains over-routing to MDTM. The guide treats many files, another session, or drift concerns as sufficient; clear existing-system features also route to task-builder. The skill makes matched routes binding, then repeats “larger, longer, or riskier” escalation in unmatched/no-guide paths. Evidence on both sides: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:305-308` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:148-157`.
+
+[CODE-VERIFIED] The condensed cold runbook repeats that escalation. The classifier describes generic spec/report task-file generation as task-builder plus task. Therefore changing the command summary alone leaves alternative execution paths inconsistent. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py:55-79,160-175` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:36-40`.
+
+[CODE-VERIFIED] Existing executor interfaces do not impose the guide’s file/session restrictions. Workflow accepts a file or inline prompt, with quick/standard/deep depth; implement accepts specs, PRDs, tasklists and informal sources, and supports implicit ledger resume. These documented capabilities support broadening the routing policy, but do not prove unlimited capacity. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md:18-42` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/implement.md:22-65`.
+
+[CODE-VERIFIED] Matching requires only one intent phrase and resolves numeric ties toward heavier process. The `unsure` row points back to recommend, without a self-route exclusion in matched handling. This creates a contract-level self-recommendation risk, not a reproduced runtime loop. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:325` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:58-60`.
+
+[CODE-VERIFIED] Discovery prefers checkout source; otherwise project precedes global/plugin. Verification reads the candidate and extracts its activation target, but does not explicitly require reading/resolving the delegated skill and relevant references. Hot hits bypass this gate. Surface hashing covers path sets and guide bytes; dispatch checks one candidate file’s bytes. Changes confined to delegated protocols or references therefore need not invalidate a command-backed row. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:100-135`, `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-94`, and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:103-136`.
+
+[CODE-CONTRADICTED] The skill calls a hot-hit envelope “filled” and orders verbatim emission, but dispatch accepts no current request parameters and returns the stored template unchanged, with the model hint separate. Existing testing explicitly expects an unresolved input placeholder. Source validity alone does not establish current-request fidelity. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:71-88`, `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/dispatch.py:74-83,130-136`, and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/recommend/test_dispatch.py:45-57`.
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed policy:** Make workflow plus implement the default for most planned implementation. Reserve new MDTM construction for explicitly requested MDTM artifacts or demonstrably exceptional complexity and long-running coordination needing its heavier research/panel machinery. File count, sessions, an existing spec, auditability, or resume alone must not trigger MDTM. Update the guide’s level table/hard limit, sections 3.2-3.4/3.7, mix-up table and routing rows; propagate to the copied core instructions, skill Phase 1, heuristic reference and cold/classifier prompts. Existing conflicting copies are evidenced at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md:17-22,100-104,133,168,243,305-311` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/CLAUDE.md:56-61`.
+
+[UNVERIFIED] **MUST, proposed selection rule:** Evaluate the whole requested outcome and supplied artifact before generic scale signals. Preserve explicit MDTM execution with `/task`; preserve workflow-package execution with `/sc:implement`; preserve dedicated report-only commands. Treat `unsure` as clarification/discovery, never a recommendation to invoke recommend again. Keep one authoritative guide, not another fixed keyword table. Current matching and handoff constraints are at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md:58-60,175-184,335-354`.
+
+[UNVERIFIED] **MUST, proposed verification/cache rule:** Follow activation dependencies and read relevant references before promising capabilities; distinguish checkout research authority from the copy actually activated. Cache validated routing information, not another request’s completed prompt. Bind current parameters before emission, invalidate decision-relevant protocol/reference/policy changes, and retain matched-row bypass. Existing verification and fingerprint boundaries are at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:54-67` and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/cache.py:63-94`.
+
+[CODE-VERIFIED] A supported example for the proposed normal route is `/sc:workflow "Plan the feature described above, preserving its constraints and acceptance criteria" --depth standard`, followed, after review, by `/sc:implement <printed-plan-path>`. The placeholder must be replaced with the actual returned path; do not invent a timestamped package. Quick and deep are valid alternatives based on planning depth, not invented capacity thresholds. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/workflow.md:33-42,65-80`.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed acceptance cases, extending the currently text-pinning tests at `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/skills/test_sc_recommend_routing_contract.py:35-80`:
+
+1. Multi-file, multi-session feature with an existing spec selects workflow/implement absent exceptional MDTM needs.
+2. Explicit MDTM creation retains task-builder; existing MDTM execution retains task.
+3. Workflow-package resume retains implement, without rebuilding the plan.
+4. Report-only analysis/research remains report-only despite broad scope.
+5. “Which tool should I use?” clarifies or selects a substantive target, never itself.
+6. Changed protocol/reference invalidates stale cache; same classification with different paths never reuses old inputs.
+7. Matched route bypasses cache; missing guide/outside-checkout fallback avoids UV helpers.
+8. Small known edit retains the existing native threshold; plugin search retains star filtering and opt-in evaluation.
+
+## Gaps
+
+[CODE-VERIFIED] Tracked legacy protocol searches returned no files; deletion is explicit in `238d6583`. Nevertheless `/config/.claude/skills/sc-recommend-protocol/SKILL.md:1-44` remains installed with old flags and keyword categories. Treat this as stale installation/discovery evidence, not a missing source directory to recreate.
+
+[CODE-CONTRADICTED] The command’s “cannot be silently skipped” hook claim exceeds the fail-open reminder implementation. Registration is project-local, not universal. Evidence: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md:60`, `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh:4-18`, and `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/install_hooks.py:69-78`.
+
+[UNVERIFIED] No skills, tests or runtime routing evaluations were executed. Actual misrouting frequency, model adherence, plugin-adoption cache reuse and performance savings remain unverified.
+
+## Key Takeaways
+
+[CODE-VERIFIED] **CHANGE.** Guide-first routing means governing guide changes are essential. Plugin routing repeats the same policy and must change together: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:305-311`. Existing parity requirements cover the skill and bundled guide: `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py:27-36`.
+
+[UNVERIFIED] **MUST:** align routing policy, whole-goal selection, dependency verification, cache fidelity and regression expectations. **SHOULD:** correct hook guarantees and document stale legacy installations. **NONE:** new keyword tables, resurrected protocol directories, unsupported flags, automatic recommendation execution, or claimed executor capacity limits.

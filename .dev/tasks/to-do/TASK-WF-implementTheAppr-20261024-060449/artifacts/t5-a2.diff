@@ -1,0 +1,369 @@
+diff --git a/src/superclaude/commands/README.md b/src/superclaude/commands/README.md
+index 1f4832f4..12e788d8 100644
+--- a/src/superclaude/commands/README.md
++++ b/src/superclaude/commands/README.md
+@@ -8,4 +8,5 @@ When you change a command:
+ 2. Run `make sync-dev`, then `make verify-sync`.
+ 3. If you changed `help.md`, `recommend.md`, `workflow.md` or `implement.md`, copy it byte-for-byte to `plugins/superclaude/commands/` (parity tests check these four).
+ 4. If you added a command, add its row to the routing table at the end of `src/superclaude/core/HOW-WE-WORK.md` (or to its "Other commands" table).
+-5. Inside a command, never point at another primitive with a `src/superclaude/...` path. The installed copy is what runs in other projects, so name `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md` (and accept the project `.claude/` copy where a lookup needs it). See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
++5. The routing guide's canonical copy is `src/superclaude/core/HOW-WE-WORK.md`. When you change it, recopy its level-table block into `src/superclaude/core/CLAUDE.md` and copy the whole file byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (tests check both). The routing and recommendation tests are static text and cache checks: they pin the written contract, not which route a model actually picks. When routing behavior changes, check it with a separate recorded model-generation evaluation and report those results apart from the static tests.
++6. Inside a command, never point at another primitive with a `src/superclaude/...` path. The installed copy is what runs in other projects, so name `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md` (and accept the project `.claude/` copy where a lookup needs it). See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
+diff --git a/src/superclaude/commands/recommend.md b/src/superclaude/commands/recommend.md
+index 68e82eb4..31db9f04 100644
+--- a/src/superclaude/commands/recommend.md
++++ b/src/superclaude/commands/recommend.md
+@@ -41,13 +41,13 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
+ 
+ `/sc:recommend` generates a **paste-ready prompt** that hands the user's goal off to the right delegation — or recommends native `Read`/`Edit`/`Glob`/`Grep`/`Bash` when no delegation adds net value. Every invocation:
+ 
+-1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first); when a routing row matches the goal, returns that row's steps in order with their mandatory flags. Then enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates). No hand-written keyword table.
+-2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
+-3. Reads each candidate's source file before it is allowed into the recommendation.
+-4. Evaluates whether the chosen delegation earns its overhead vs. native tooling, and falls back to native when it does not.
+-5. Emits a hand-off envelope — never restates the target's protocol logic inline.
++1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first). It matches the whole requested outcome (deliverable, explicitly named command or existing artifact, compatible mode/depth/output choices and how much it may change) to one routing row, not any single phrase. A matched row's applicable steps are returned in order, with exactly one selected alternative and their verified flags, and stop at the requested deliverable: a report-only or plan-only request gains no execution, commit or push step. If the objective stays ambiguous, it asks one question and stops. No hand-written keyword table.
++2. When no row matches, it enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates) and issues one `mcp__auggie__codebase-retrieval` query to rank candidates against the verbatim request. In an IronClaude checkout an optional local cache may suggest a candidate first; a cache hit is only a hint that is re-verified like any live candidate, and the handoff is rebuilt from the current request's own inputs, never emitted verbatim. Matched rows, a missing guide and runs outside a checkout do not use the cache.
++3. Verifies every candidate before it is emitted: the copy that would actually run, its declared interface (option tables, argument hints, Usage, documented positional or keyword syntax), its backing skill and the references relevant to the advertised behavior, and current lifecycle guidance (deprecated or retired targets are excluded). A missing command or skill is shown as `not installed: <name>`; a material disagreement between sources is reported as a contract gap, not a runnable command.
++4. Applies the guide's levels: a bounded direct edit may use native tooling; larger implementation goes to `/sc:workflow`, then `/sc:implement`; MDTM task files only on explicit request or an exceptional documented need. Otherwise it falls back to native tooling when delegation does not earn its overhead.
++5. Emits a hand-off envelope that states which files, reports, memory or external systems the selected steps change, and never restates the target's protocol logic inline or runs it.
+ 
+-With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`). Local skills and plugins do not bleed into each other's output.
++With `--plugin`, steps 1-4 are replaced by an ecosystem search (Claude plugin marketplaces + community skill repos like `anthropic/skills`) filtered by the `--minstar` floor, with optional `--eval`; no local routing row, guide level or `/sc:workflow` step is added to plugin results. Local skills and plugins do not bleed into each other's output.
+ 
+ ## Activation
+ 
+@@ -57,7 +57,7 @@ With `--plugin`, steps 1-3 are replaced by an ecosystem search (Claude plugin ma
+ 
+ Do NOT proceed using only this command file. The full behavioral specification — Phase 0 surface enumeration, Phase 1 net-value evaluation, Phase 2 refined-prompt construction, Phase 3 `--plugin` ecosystem search, anti-fabrication rules R1-R4 — is in the protocol skill.
+ 
+-A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate at the moment the Skill tool is invoked. Even under context pressure, the gate cannot be silently skipped.
++Where it is registered (this repository's project `.claude/settings.json`), a PreToolUse hook (`sc-recommend-phase0.sh`) adds a short reminder of these steps when the Skill tool loads `sc-recommend`. The hook is advisory and fail-open: it never blocks the skill, adds nothing if it cannot parse the call (for example when `jq` is missing), and does not prove any step ran. The skill is the authority.
+ 
+ ## Examples
+ 
+@@ -112,8 +112,8 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate
+ **Will:**
+ 
+ - Read the routing guide first, then enumerate the live surface on every invocation
+-- Use auggie to semantically rank candidates against the user's request
+-- Verify every candidate against its source file before emitting it
++- Use auggie to semantically rank candidates against the user's request when no routing row matched
++- Verify every candidate's callable copy, declared interface, relevant dependencies and lifecycle before emitting it
+ - Emit refined paste-ready prompts that invoke existing skills/commands/agents
+ - Recommend native tooling when delegation does not add net value
+ - Switch to ecosystem search when `--plugin` is set
+diff --git a/src/superclaude/hooks/scripts/sc-recommend-phase0.sh b/src/superclaude/hooks/scripts/sc-recommend-phase0.sh
+index 45f614ba..b486b2ec 100755
+--- a/src/superclaude/hooks/scripts/sc-recommend-phase0.sh
++++ b/src/superclaude/hooks/scripts/sc-recommend-phase0.sh
+@@ -1,22 +1,22 @@
+ #!/usr/bin/env bash
+-# PreToolUse(Skill) — Phase 0 gate for sc:recommend.
++# PreToolUse(Skill) — advisory Phase 0 reminder for sc:recommend.
+ #
+-# When Claude invokes the `sc-recommend` skill, this hook injects a context block
+-# reminding the model that Phase 0 (live surface enumeration + auggie sweep) is
+-# mandatory before any recommendation is emitted. The hook does NOT block the
+-# skill (it is fail-open / exit 0); its job is to make the Phase 0 requirement
+-# unmissable at the moment of invocation, even under context pressure.
++# When Claude invokes the `sc-recommend` skill, this hook injects a short
++# reminder of the skill's routing and verification steps. It is advisory and
++# fail-open (always exit 0): it never blocks the skill, prints nothing when it
++# cannot parse the payload (e.g. jq missing), and proves nothing about which
++# steps ran. The skill's SKILL.md is the authority; keep this text in step with it.
+ #
+ # Hook contract:
+ #   - stdin:  JSON { tool_name, tool_input, ... }
+ #   - exit 0: pass-through; stdout (if non-empty) is injected as additional context
+-#   - exit 2: block (NOT used here — Phase 0 enforcement is procedural, not blocking)
++#   - exit 2: block (NOT used here — the hook is a reminder, not enforcement)
+ #
+ # Match conditions:
+ #   - tool_name == "Skill"
+ #   - tool_input.skill in { "sc-recommend", "sc:recommend", "sc-recommend-protocol" }
+-#     (the third covers any leftover invocation pointing at the old skill name
+-#      during the transition window)
++#     (the third is recognized for compatibility with callers that still use the
++#      old skill name; it is not the current protocol name)
+ 
+ set -u
+ 
+@@ -36,8 +36,14 @@ case "$SKILL_NAME" in
+ esac
+ 
+ cat <<'EOF'
+-<sc-recommend-phase0-gate source="pre-skill-hook">
+-Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
++<sc-recommend-phase0-reminder source="pre-skill-hook">
++Advisory reminder from a fail-open hook. The sc-recommend skill file is the
++authority; this block summarizes it and does not prove any step ran.
++
++With --plugin: skip steps 0-4 below and run the skill's ecosystem search
++(Phase 3); local candidates never mix into plugin results.
++
++Local mode, before emitting any recommendation:
+ 
+ 0. Read the routing guide first: ~/.claude/HOW-WE-WORK.md, else the skill's
+    refs/HOW-WE-WORK.md (plugin installs: ${CLAUDE_SKILL_DIR}/refs/ or
+@@ -45,11 +51,24 @@ Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
+    src/superclaude/core/HOW-WE-WORK.md under the repository root
+    (`git rev-parse --show-toplevel`). Inside an IronClaude checkout
+    (src/superclaude/commands/ exists under `git rev-parse --show-toplevel`)
+-   read the src/ copy first. If a routing row matches (matched mode), its
+-   steps decide the answer; still verify each step's command or skill below. If no guide is found, continue without it
+-   (guide_status: absent). Skip this step with --plugin.
++   read the src/ copy first. Match the whole requested outcome (deliverable,
++   explicit command or artifact, compatible choices, authority ceiling) to
++   one routing row, not any single phrase.
++   - matched: no cache, no auggie query (auggie_status: skipped). Resolve the
++     row's conditions, keep only applicable steps and one alternative, stop at
++     the requested deliverable, and verify each selected step in step 4.
++   - no_match: continue with step 1.
++   - absent (no guide found): no cache helpers; go to step 2 and keep the
++     direct-change limit and workflow-first planning rules.
+ 
+-1. Enumerate the live surface (installed, project, plugin, then checkout):
++1. Cache (no_match, inside an IronClaude checkout only): a hit is a hint,
++   not an answer. Verify its candidate in step 4 and rebuild the handoff from
++   this request's own inputs; never emit the cached text or its paths
++   verbatim. Reject an incompatible, retired or unavailable hint and continue
++   live. A supported miss runs the cold path; recheck its result before
++   emitting it. A budget-exceeded miss never reuses the cached row.
++
++2. Enumerate the live surface (installed, project, plugin, then checkout):
+    - $HOME/.claude/commands/sc/*.md, $HOME/.claude/skills/*/SKILL.md,
+      $HOME/.claude/agents/*.md, $HOME/.claude/templates/**/*.md
+    - .claude/commands/**/*.md, .claude/skills/*/SKILL.md, .claude/agents/*.md
+@@ -58,28 +77,27 @@ Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
+      src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
+      (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
+ 
+-2. Issue ONE mcp__auggie__codebase-retrieval query that ranks the enumerated
+-   surface against the user's verbatim request. Do not iterate file-by-file.
+-   Exception: in matched mode (step 0 matched a routing row) skip this query
+-   (auggie_status: skipped) and verify the matched row's steps in step 3.
++3. Unless matched, issue ONE mcp__auggie__codebase-retrieval query that ranks
++   the enumerated surface against the user's verbatim request. Do not iterate
++   file-by-file.
+ 
+-3. For each ranked candidate (in matched mode, each step's command or skill in
+-   the matched row), Read its source file before allowing it into the
+-   recommendation. Ghost candidates (no source file resolves) are dropped silently,
+-   except a matched row's step, which is kept and marked "not installed: <name>".
++4. Before any candidate enters the recommendation (each selected step when
++   matched, and every accepted cache hint), read the copy that would actually
++   run, its declared interface, its backing skill and the references relevant
++   to the advertised behavior, and current lifecycle guidance. A missing
++   matched step stays visible as "not installed: <name>"; other unresolved
++   candidates are dropped. A material disagreement between sources is a
++   contract gap, never a runnable command.
+ 
+ If the auggie query fails (auggie unavailable; not matched mode, where the query is
+ skipped and no notice is emitted), proceed with Glob+Read only AND emit this exact
+ one-line notice as the first line of the output:
+     "Auggie unavailable — ranking falls back to literal Glob+Read; usage nuance may be thin."
+ 
+-Do NOT skip the gate silently. Do NOT use a hand-kept keyword → category mapping; the guide's routing table is the only fixed routing source —
++Do NOT use a hand-kept keyword → category mapping; the guide's routing table is the only fixed routing source —
+ the previous version of this skill failed exactly that way (missed /sc:spec-panel
+ because the mapping table was stale). Enumeration is dynamic, every invocation.
+-
+-This block was injected by the Phase-0 PreToolUse hook. It is part of the skill's
+-contract, not optional guidance.
+-</sc-recommend-phase0-gate>
++</sc-recommend-phase0-reminder>
+ EOF
+ 
+ exit 0
+diff --git a/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md b/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+index 84c6e198..592bf02d 100644
+--- a/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
++++ b/src/superclaude/skills/sc-workflow-protocol/refs/overlap-routing.md
+@@ -5,7 +5,7 @@
+ | Neighbor | Do | Do not |
+ |----------|----|--------|
+ | `/sc:implement` | `--handoff implement` → `Skill sc:implement-protocol` with `<pkg>/<id>.md`. Missing skill or implement STOP → contract `partial` (plan stays valid, handoff failed); never silently skip, never `failed` | write product code |
+-| `/sc:tasklist` | print `/sc:tasklist --source <roadmap>` | invoke on `<id>.md`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
++| `/sc:tasklist` | print `/sc:tasklist <roadmap-path>` (positional roadmap file; only when a roadmap exists) | pass `<id>.md` or any workflow plan as its input; print `--source`; emit `tasklist-index.md` / `phase-N-tasklist.md` |
+ | `/sc:roadmap` | INFO if source already looks like a roadmap | run `superclaude roadmap` |
+ | `/sc:design` | print `/sc:design @<pkg>/<id>.md` | invoke design |
+ | `/task` (MDTM) | nothing — a `TASK-WF-*` package is an implement package, not an MDTM task file | route a package to `/task` |
+diff --git a/src/superclaude/skills/tdd/refs/build-request-template.md b/src/superclaude/skills/tdd/refs/build-request-template.md
+index 14ca6d1e..6ac77341 100644
+--- a/src/superclaude/skills/tdd/refs/build-request-template.md
++++ b/src/superclaude/skills/tdd/refs/build-request-template.md
+@@ -155,7 +155,7 @@ Phase 7 — Present to User & Complete Task (ANTI-ORPHANING):
+ 
+ - Present summary to user (TDD location, line count, tier, sections populated vs skipped, research artifacts location, gaps)
+ - Ask about cleanup of consolidation sources (if applicable)
+-- Suggest downstream workflow: "This TDD can feed directly into implementation task files. Would you like me to create implementation tasks using the `/task` skill? The research files and design specifications are already in place." If yes, invoke the task skill with the TDD as context.
++- Suggest downstream workflow (optional): "This TDD can feed an implementation plan. To plan ordinary implementation, run `/sc:workflow docs/[domain]/TDD_[COMPONENT-NAME].md`, then `/sc:implement` on the plan path it prints. `/task` only executes an MDTM task file that already exists; use it only if one already exists for this work." Print these commands for the user to run; do not invoke `/task` to create tasks.
+ - Write task summary to Task Log / Notes section of the task file (completion date, total phases, key outputs, duration)
+ - Update task file frontmatter: status to "🟢 Done", set completion_date to today's date
+ 
+diff --git a/tests/commands/test_workflow_command.py b/tests/commands/test_workflow_command.py
+index 911038fd..b44a4484 100644
+--- a/tests/commands/test_workflow_command.py
++++ b/tests/commands/test_workflow_command.py
+@@ -218,6 +218,20 @@ def test_digit_prefix_precedes_final_subject_truncation():
+     assert "`1234567890123456` → `plan123456789012`" in parse
+ 
+ 
++def test_tasklist_referral_uses_positional_roadmap():
++    usage = (_REPO / "src/superclaude/commands/tasklist.md").read_text(encoding="utf-8")
++    assert "/sc:tasklist <roadmap-path>" in usage and "--source" not in usage
++    row = next(
++        line
++        for line in _ref("overlap-routing.md").splitlines()
++        if line.startswith("| `/sc:tasklist`")
++    )
++    do, do_not = row.split(" | ")[1:3]
++    assert "`/sc:tasklist <roadmap-path>`" in do
++    assert "--source" not in do and "<id>.md" not in do
++    assert "<id>.md" in do_not and "workflow plan" in do_not
++
++
+ def test_final_reflect_pre_precedes_contract_and_handoff():
+     skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
+     assert skill.index("## Wave 3 — Gate") < skill.index("## Wave 4 — Reflect")
+diff --git a/tests/skills/test_sc_recommend_routing_contract.py b/tests/skills/test_sc_recommend_routing_contract.py
+index e3bcced9..67a01ecb 100644
+--- a/tests/skills/test_sc_recommend_routing_contract.py
++++ b/tests/skills/test_sc_recommend_routing_contract.py
+@@ -10,8 +10,13 @@ silently.
+ 
+ from __future__ import annotations
+ 
++import json
++import shutil
++import subprocess
+ from pathlib import Path
+ 
++import pytest
++
+ from superclaude.cli.recommend.prompts import (
+     CLASSIFICATION_KEYS,
+     CLASSIFIER_PROMPT,
+@@ -21,6 +26,9 @@ from superclaude.cli.recommend.prompts import (
+ _REPO = Path(__file__).resolve().parents[2]
+ _SKILL = _REPO / "src/superclaude/skills/sc-recommend/SKILL.md"
+ _HELP = _REPO / "src/superclaude/commands/help.md"
++_COMMAND = _REPO / "src/superclaude/commands/recommend.md"
++_HOOK = _REPO / "src/superclaude/hooks/scripts/sc-recommend-phase0.sh"
++_TDD_TEMPLATE = _REPO / "src/superclaude/skills/tdd/refs/build-request-template.md"
+ 
+ _NOT_FOUND = (
+     "Routing guide not found. pipx/pip install: run superclaude update. "
+@@ -281,3 +289,111 @@ def test_optional_cache_insertion_never_bypasses_parent_validation():
+     ):
+         assert rule in cold
+     assert "Surface the recommendation verbatim" not in cold
++
++
++def test_tdd_followup_offers_workflow_and_task_only_for_existing_mdtm():
++    line = next(
++        line
++        for line in _TDD_TEMPLATE.read_text(encoding="utf-8").splitlines()
++        if "Suggest downstream workflow" in line
++    )
++    assert "/sc:workflow docs/[domain]/TDD_[COMPONENT-NAME].md" in line
++    assert "/sc:implement" in line
++    assert "only executes an MDTM task file that already exists" in line
++    assert "create implementation tasks using the `/task` skill" not in line
++    assert "invoke the task skill" not in line
++
++
++def test_recommend_command_summary_is_accurate_and_flags_unchanged():
++    text = _COMMAND.read_text(encoding="utf-8")
++    assert (
++        'argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"'
++        in text
++    )
++    assert "`--plugin`, `--eval`, and `--minstar` are the only flags." in text
++    assert "Default **500**" in text and "**Opt-in**" in text
++    summary = _section(text, "## Behavioral Summary", "## Activation")
++    for rule in (
++        "whole requested outcome",
++        "exactly one selected alternative",
++        "stop at the requested deliverable",
++        "a cache hit is only a hint",
++        "never emitted verbatim",
++        "copy that would actually run",
++        "backing skill",
++        "lifecycle guidance",
++        "not installed: <name>",
++        "contract gap",
++        "`/sc:workflow`, then `/sc:implement`",
++    ):
++        assert rule in summary
++    # Plugin mode replaces every local routing step, including guide levels.
++    assert "With `--plugin`, steps 1-4 are replaced" in summary
++    assert "no local routing row, guide level or `/sc:workflow` step" in summary
++    activation = _section(text, "## Activation", "## Examples")
++    assert "advisory and fail-open" in activation
++    assert "cannot be silently skipped" not in text
++    assert "defense-in-depths" not in text
++
++
++def test_hook_reminder_matches_branches_and_stays_advisory():
++    script = _HOOK.read_text(encoding="utf-8")
++    assert "sc-recommend|sc:recommend|sc-recommend-protocol) ;;" in script
++    exits = {
++        line.strip() for line in script.splitlines() if line.strip().startswith("exit ")
++    }
++    assert exits == {"exit 0"}
++    reminder = " ".join(
++        _section(script, "<sc-recommend-phase0-reminder", "</sc-recommend").split()
++    )
++    for rule in (
++        "Advisory reminder from a fail-open hook",
++        "With --plugin: skip steps 0-4",
++        "whole requested outcome",
++        "- matched: no cache, no auggie query",
++        "- no_match:",
++        "- absent (no guide found): no cache helpers",
++        "a hit is a hint",
++        "never emit the cached text or its paths",
++        "Unless matched, issue ONE",
++        "copy that would actually run",
++        "contract gap",
++        "Auggie unavailable — ranking falls back to literal Glob+Read",
++    ):
++        assert rule in reminder
++    assert "MANDATORY" not in reminder
++    assert "not optional guidance" not in reminder
++
++
++@pytest.mark.skipif(
++    not (shutil.which("bash") and shutil.which("jq")),
++    reason="hook behavior check needs bash and jq on PATH",
++)
++@pytest.mark.parametrize(
++    ("payload", "reminds"),
++    [
++        ({"tool_name": "Skill", "tool_input": {"skill": "sc-recommend"}}, True),
++        ({"tool_name": "Skill", "tool_input": {"skill": "sc:recommend"}}, True),
++        (
++            {"tool_name": "Skill", "tool_input": {"skill": "sc-recommend-protocol"}},
++            True,
++        ),
++        ({"tool_name": "Skill", "tool_input": {"skill": "sc-workflow"}}, False),
++        ({"tool_name": "Bash", "tool_input": {"command": "sc-recommend"}}, False),
++        ("not json sc-recommend", False),
++    ],
++)
++def test_hook_is_fail_open_and_matches_only_recommend(payload, reminds):
++    stdin = payload if isinstance(payload, str) else json.dumps(payload)
++    result = subprocess.run(
++        ["bash", str(_HOOK)],
++        input=stdin,
++        capture_output=True,
++        text=True,
++        timeout=10,
++        check=False,
++    )
++    assert result.returncode == 0
++    assert ("<sc-recommend-phase0-reminder" in result.stdout) is reminds
++    if not reminds:
++        assert result.stdout == ""

@@ -1,0 +1,91 @@
+# Research: /sc:load recommendation accuracy
+
+- **Topic type:** Command routing and capability comparison
+- **Scope:** Six-month command history, current contract, recommendation surfaces, plugin implications, regression requirements
+- **Status:** Research complete; no implementation changes or report file written
+- **Date:** 2026-10-24
+
+## Evidence paths
+
+Citation keys below identify these absolute paths:
+
+- **LOAD:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/load.md`
+- **GUIDE:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/core/HOW-WE-WORK.md`
+- **RECOMMEND:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/commands/recommend.md`
+- **SKILL:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/SKILL.md`
+- **SURFACE:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md`
+- **PROMPTS:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/cli/recommend/prompts.py`
+- **PLUGIN-LOAD:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/commands/load.md`
+- **PLUGIN-GUIDE:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`
+- **HOOK:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/src/superclaude/hooks/scripts/sc-recommend-phase0.sh`
+- **ROUTING-TEST:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/core/test_how_we_work_routing_table.py`
+- **PARITY-TEST:** `/config/workspace/IronClaude/.dev/worktrees/RecommendUpdate/tests/commands/test_routing_plugin_parity.py`
+
+- **Persistence provenance:** Mechanically transcribed by the parent from `../artifacts/worker-returns/load.txt`, worker `a6f6320eb59522d51`. The source journal is `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-RecommendUpdate/076ab338-03dd-4322-a0dc-a343e620c69e/subagents/workflows/wf_da8a02a1-53f/journal.jsonl`. Worker claims and proposed changes are not independent verification.
+- **Governing template:** `src/superclaude/templates/modularization-template-review/codebase-research_template.md` (Findings, Gaps, Key Takeaways scaffold).
+
+## Findings
+
+### Historical changes
+
+[CODE-VERIFIED] The exact command has one reachable commit in the requested window: `89df2c1105c01caff199288f949d5783f6594e70`, dated 2026-05-22, “chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74).” Its actual LOAD patch adds blank lines around headings/lists/code fences and a final newline. It changes no command inputs, behavior, integration requirements, examples, or boundaries. This command belongs in the inventory because formatting changes count, not because its capabilities recently expanded. Evidence: exact-path Git log and commit patch for LOAD.
+
+### Current command contract
+
+[CODE-VERIFIED] LOAD is a self-contained command document, not a dispatcher to a named protocol skill. Its usage accepts an optional target and documents `--type project|config|deps|checkpoint`, `--refresh`, and `--analyze`. Running without a target loads the current directory’s project context; this is demonstrated by its basic example, not stated as a comprehensive defaults specification. No default `--type` value is explicitly declared. (LOAD:19-31,60-76)
+
+[CODE-VERIFIED] Its documented purpose includes Serena project activation, memory retrieval, project structure/configuration discovery, context validation, and dependency context refresh. Serena integration is mandatory for this command. These are verified documentation contracts, not demonstrated runtime results. Its subsecond performance statements are targets or claims, not measurements established by this investigation. (LOAD:27-58,86-91)
+
+[CODE-VERIFIED] LOAD is not guaranteed read-only: tool coordination includes Write for session-context documentation and checkpoint creation. It expressly prohibits modifying project structure/configuration without explicit permission and replacing existing session context without checkpoint preservation. It provides no formal return schema, named report path, automatic implementation handoff, or task-progress ledger. (LOAD:46-58,94-106)
+
+[CODE-VERIFIED] Its checkpoint example introduces `--checkpoint session_123`, although `--checkpoint` does not occur in canonical Usage, a flag table, or argument-hint. The example also promises continuation with “full context preservation.” That example should not be promoted into a verified general-purpose resume interface. (LOAD:19-23,78-84)
+
+### Comparison with recommendation surfaces
+
+[CODE-VERIFIED] The guide currently gives LOAD only the narrow description “Load Serena project memory. Not a way to resume work.” Section 3.12 and the `resume` routing row correctly direct actual work resumption to the existing conversation or the original executor. However, the other-commands entry does not expose project activation, optional analysis, or dependency-context refresh. (GUIDE:207-218,264-277,324; LOAD:27-58,70-91)
+
+[CODE-CONTRADICTED] Treating LOAD’s checkpoint example as authoritative task resumption conflicts with the governing guide. The command says it continues a previous work session; the guide explicitly says LOAD is not a resume method and distinguishes workflow plans from MDTM execution. Recommendation must preserve the guide’s executor distinction rather than inherit the command’s broad restoration language. (LOAD:78-84; GUIDE:215-218,324)
+
+[CODE-VERIFIED] Existing recommendation discovery can already find LOAD without a new keyword table. Step 0 makes fitting entries from the guide’s other-commands block candidates when no routing row matches. The cold-path runbook repeats that mechanism, then enumerates and verifies candidates. Thus expanding the existing guide description reaches both normal discovery and condensed cold-path discovery. (SKILL:50-61; PROMPTS:125-148)
+
+[CODE-VERIFIED] The recommendation machinery contains a structural mismatch for this command. SKILL describes commands generically as thin skill dispatchers, while SURFACE’s verification record supports `self-contained`. LOAD has no Activation section. Candidate verification must treat an absent skill handoff as valid for self-contained commands, not fabricate a `sc-load-protocol` dependency. (SKILL:112-114; SURFACE:75-89; LOAD:1-106)
+
+[CODE-VERIFIED] Flag verification is another mismatch. Recommendation Rule R1 allows flags from a verified flag table or argument-hint, but LOAD documents its real interface in Usage and examples. Strictly applying that rule suppresses even canonical Usage flags. Supporting Usage as an explicit interface declaration would preserve anti-fabrication while permitting the command’s documented capabilities. Example-only `--checkpoint` remains a separate ambiguity. (SKILL:335-337; PROMPTS:200-202; LOAD:19-23,78-91)
+
+[CODE-VERIFIED] LOAD has no dedicated hot-path classification key. The classifier instructs unmatched requests to return `unknown`, allowing cold discovery rather than inventing a category. A pure Serena-context request should not be forced into `codebase-research` or `task-file-generation`; neither describes context activation. Matched resume routes already bypass cache lookup and cold write-back. (PROMPTS:28-39,50-67; SKILL:60-67)
+
+[CODE-VERIFIED] The plugin LOAD copy carries the same activation, dependency-refresh, and checkpoint prose. Its bundled guide repeats the narrower memory-only entry and resume exclusion. Plugin parity tests require the recommendation skill to mirror source and the bundled guide to match the canonical guide, so a source-guide clarification requires its existing plugin counterpart, not a separate plugin routing policy. (PLUGIN-LOAD:19-58,70-106; PLUGIN-GUIDE:207-218,277; PARITY-TEST:27-36)
+
+### Proposed recommendation changes
+
+[UNVERIFIED] **MUST, proposed requirement:** Expand GUIDE’s existing other-commands LOAD entry to cover “activate/load Serena project context and memories; optionally analyze project context or refresh dependency context; not an execution-resume method.” Keep this in the existing guide block. Do not add another fixed routing table. Grounding: LOAD:19-58,70-91; GUIDE:277.
+
+[UNVERIFIED] **MUST, proposed requirement:** Update candidate extraction and Rule R1 consistently across SKILL, SURFACE, and PROMPTS to recognize self-contained commands and flags declared explicitly in canonical Usage. Continue rejecting unsupported flags and treating example-only interface extensions as unresolved. Grounding: LOAD:19-23,81; SKILL:114,335-337; SURFACE:58-60,79.
+
+[UNVERIFIED] **SHOULD, proposed requirement:** Use `/sc:load` as the immediate paste-ready example for “load this project’s Serena context.” After the Usage-verification rule is aligned, the documented dependency-refresh example `/sc:load --type deps --refresh` is appropriate for that specific request. Neither example should promise task execution, checkpoint completeness, or measured latency. Grounding: LOAD:60-91.
+
+[UNVERIFIED] **MUST, proposed policy alignment:** Keep context loading separate from implementation planning. For subsequent planned implementation, apply the user’s requested workflow-first policy; resume alone must not trigger MDTM. Existing MDTM inputs still use their executor. This is a desired policy change, because current guide prose still treats multi-session work as a reason for task-builder. Grounding: GUIDE:215-218,243,305-306.
+
+### Acceptance/regression scenarios
+
+[UNVERIFIED] Proposed regression cases, grounded in the contracts above:
+
+1. “Load this project’s Serena memories” selects verified LOAD, without inventing a protocol skill.
+2. “Refresh dependency context” exposes the Usage-documented capability after R1 alignment.
+3. “Resume my workflow plan” selects its existing implementation executor, never LOAD or task-builder merely because work spans sessions.
+4. An explicit MDTM task resumes through its existing task executor.
+5. A request mentioning `session_123` does not cause recommendation to invent a verified `--checkpoint` contract.
+6. Missing Serena availability produces a prerequisite/degradation explanation, not a guarantee that native file reads reproduce persistent-memory loading.
+7. Source and plugin recommendations preserve the same context-loading versus execution-resume distinction.
+
+## Gaps
+
+[CODE-VERIFIED] Exact LOAD-reference searches found no dedicated mention in the recommendation skill, its non-guide refs, classifier/runbook, hooks, or command README. The positive recommendation reference is the guide’s other-commands entry. ROUTING-TEST checks that this entry exists and resolves; it does not assert its capability description or evaluate live routing outcomes. (ROUTING-TEST:275-283)
+
+[UNVERIFIED] No runtime checkpoint storage format, checkpoint identifier resolution, performance guarantee, or successful Serena restoration was established. The checkpoint example’s interface ambiguity remains a follow-up source-contract defect.
+
+[CODE-VERIFIED] HOOK injects a fail-open reminder, not blocking enforcement. It cannot prove LOAD candidate verification or prevent a bad recommendation. (HOOK:4-19,38-85)
+
+## Key Takeaways
+
+[UNVERIFIED] **CHANGE:** Preserve LOAD’s specialized context-loading capabilities while tightening its boundary against execution resumption. **MUST:** fuller existing-guide description, self-contained command recognition, coherent Usage-based flag verification, and resume regression cases. **SHOULD:** surface dependency refresh only when requested. **NONE:** new keyword tables, dedicated load cache categories, invented protocol skills, or semantic-change claims about the formatting-only commit.

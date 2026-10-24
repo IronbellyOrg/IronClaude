@@ -1,0 +1,98 @@
+{
+  "verdict": "compliant",
+  "ac": [
+    {
+      "id": "T2.AC1",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:241",
+        "src/superclaude/core/HOW-WE-WORK.md:373",
+        "src/superclaude/core/HOW-WE-WORK.md:389",
+        "tests/core/test_how_we_work_routing_table.py:786"
+      ],
+      "reason": "All seventeen FR-04 routes are present, with inputs, applicable controls and stopping boundaries. Roadmap, fidelity and portification disagreements are exposed rather than combined into invented interfaces. The guide does not duplicate internal reviewer rosters or algorithms."
+    },
+    {
+      "id": "T2.AC2",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:367",
+        "src/superclaude/core/HOW-WE-WORK.md:374",
+        "src/superclaude/core/HOW-WE-WORK.md:379",
+        "src/superclaude/core/HOW-WE-WORK.md:381",
+        "src/superclaude/core/HOW-WE-WORK.md:387",
+        "tests/core/test_how_we_work_routing_table.py:908"
+      ],
+      "reason": "Design, documentation, standalone auditing, localization, suite creation versus execution, release assessment, post-release operations, Sprint bundles, context auditing and tier validation retain distinct outcomes instead of acquiring generic implementation or testing chains."
+    },
+    {
+      "id": "T2.AC3",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:359",
+        "src/superclaude/core/HOW-WE-WORK.md:362",
+        "src/superclaude/core/HOW-WE-WORK.md:376",
+        "src/superclaude/core/HOW-WE-WORK.md:322",
+        "src/superclaude/core/HOW-WE-WORK.md:330",
+        "src/superclaude/core/HOW-WE-WORK.md:237",
+        "tests/core/test_how_we_work_routing_table.py:855",
+        "tests/core/test_how_we_work_routing_table.py:891",
+        "tests/core/test_how_we_work_routing_table.py:1062"
+      ],
+      "reason": "Report-only cleanup stops before cleanup, improvement or commits. Requested modes, depths and outputs take precedence over defaults. Broad analysis does not force focus, critique does not override Socratic intent, agent/PM remain explicit coordination choices, spawn stops at decomposition, and memory loading/saving is not executor recovery."
+    },
+    {
+      "id": "T2.AC4",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:358",
+        "src/superclaude/core/HOW-WE-WORK.md:198",
+        "src/superclaude/core/HOW-WE-WORK.md:202",
+        "src/superclaude/core/HOW-WE-WORK.md:208",
+        "src/superclaude/core/HOW-WE-WORK.md:378",
+        "tests/core/test_how_we_work_routing_table.py:946",
+        "tests/core/test_how_we_work_routing_table.py:986"
+      ],
+      "reason": "Troubleshoot preserves diagnosis-only behavior, invalid quick-plus-fix and accepted deep-MDTM coupling. Reflect retains optional inputs, no-promote, legacy aliases and tier-2 ordinary-planning alternatives. Auggie preserves local-review controls, reviewer/model distinctions, deep coupling and the undeclared design-destination limitation. No specialist engine was repaired."
+    },
+    {
+      "id": "T2.AC5",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:216",
+        "src/superclaude/core/HOW-WE-WORK.md:223",
+        "src/superclaude/core/HOW-WE-WORK.md:370",
+        "src/superclaude/core/HOW-WE-WORK.md:371",
+        "tests/core/test_how_we_work_routing_table.py:1008",
+        "tests/core/test_how_we_work_routing_table.py:1038",
+        "tests/core/test_how_we_work_routing_table.py:1144"
+      ],
+      "reason": "Monitor alternatives select exactly one ordinal, retain default 3 and its publication effects, and disclose stronger-policy conflicts without increasing authority. Existing attachment skips shipping prerequisites, supplied logs resume their monitor, local findings suppress posting, and recommendation performs no Git/GitHub action."
+    },
+    {
+      "id": "T2.AC6",
+      "status": "compliant",
+      "evidence": [
+        "src/superclaude/core/HOW-WE-WORK.md:16",
+        "src/superclaude/core/HOW-WE-WORK.md:267",
+        "src/superclaude/core/HOW-WE-WORK.md:270",
+        "src/superclaude/core/HOW-WE-WORK.md:344",
+        "src/superclaude/core/HOW-WE-WORK.md:348",
+        "tests/core/test_how_we_work_routing_table.py:183",
+        "tests/core/test_how_we_work_routing_table.py:786",
+        "tests/core/test_how_we_work_routing_table.py:1085",
+        "tests/core/test_how_we_work_routing_table.py:1168"
+      ],
+      "reason": "Markers, eight-column ASCII rows and existing schema protections remain intact. Other membership is updated consistently. Static assertions cover specialist inputs/stops, conditional controls, side effects, retired identities, missing dependencies and honest verification claims without claiming model-generation evidence. Canonical level 2 now correctly distinguishes manual verification, LIGHT sanity checks and observed tests. Distribution and core-copy parity remain mandatory Task7 work, not waived."
+    }
+  ],
+  "extra_scope": [],
+  "misunderstood": [],
+  "findings": [],
+  "self_audit": {
+    "method": "Compared the complete supplied diff with live touched files, Task2's six bullets, incorporated requirements and named limitations. Independently inspected relevant command interfaces and owned protocol safeguards, including conflicting roadmap interfaces, portification's no-direct-code boundary, cleanup exclusions, swarm fallback disagreement and PR ceilings.",
+    "negative_checks": "Confirmed the advertised tier-validation default directory is absent. An attempted task verification-reference lookup found no such file; verification was instead established from the actual task protocol's STANDARD and LIGHT execution sections.",
+    "limits": "Read-only review. No tests, recommended workflows, edits, staging, commits, agent spawning or retry/adviser reads. Assertions were reviewed as static contract checks, not treated as proof of generated recommendations or specialist execution.",
+    "scope": "Product changes since Q0 are confined to the two permitted files. No concrete unmet Task2 criterion, additional product behavior or misunderstood requirement was found."
+  }
+}
