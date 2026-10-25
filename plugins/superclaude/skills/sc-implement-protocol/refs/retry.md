@@ -75,7 +75,26 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
    - `differs-by:` the single decision that differs from every earlier approach.
    - Numbered steps, which become `T<id>_brief-<n>.md`. The adviser never copies or restates the AC; the parent adds the verbatim AC block (procedure step 6), and the reviewer always uses the original AC.
 
-4. **Parent check** (one Read per citation, no extra agent). An answer fails if any of these holds: the call errored or returned no exact `outcome: ready` or `outcome: dispute` line; a cited file or line does not exist; or, for `ready`, a `Ti.ACk` row is missing, duplicated, or names an id that does not exist (ids match exactly, so `T1.AC1` never satisfies `T1.AC10`), or `differs-by` is empty. A `dispute` is checked on its citations only.
+4. **Parent check** (one line count per cited file, no extra agent). An answer fails if any of these holds: the call errored or returned no exact `outcome: ready` or `outcome: dispute` line; a citation fails `sc_cite_check` (below); or, for `ready`, a `Ti.ACk` row is missing, duplicated, or names an id that does not exist (ids match exactly, so `T1.AC1` never satisfies `T1.AC10`), or `differs-by` is empty. A `dispute` is checked on its citations only.
+
+   Count the lines of a cited file with `N=$(awk 'END{print NR}' < <file>)` (the file is read through a redirect so that a name like `a=b` is never taken as an awk assignment): never `wc -l` (it reports N-1 for a file without a final newline) and never the total the Read tool prints (it shows one extra empty line after the last line of a file that ends in a newline, so it reports N+1). A citation `f:a-b` (`f:a` means `a-a`) passes only if 1 <= a <= b <= N; a missing file fails. One exception: when the file ends with a newline, b equals N+1 and a <= N, the range is clamped to a-N, the parent logs `citation clamped: f:a-b -> a-N (Read phantom line)` and the citation passes, because the phantom line is empty and carries no evidence. Every other overshoot (b above N+1, or a above N) fails. `sc_cite_check FILE A B` implements this and prints `OK FILE:A-B` or `CLAMPED FILE:A-B -> A-N` (exit 0), or `FAIL FILE:A-B (file has N lines)` or `FAIL FILE (missing)` (exit 1):
+
+   ```bash
+   sc_cite_check() {
+     local f=$1 a=$2 b=$3 n nl=0 r=
+     [ -f "$f" ] || { echo "FAIL $f (missing)"; return 1; }
+     n=$(awk 'END{print NR}' < "$f")
+     tail -c 1 < "$f" | od -An -tx1 | grep -q 0a && nl=1
+     if [[ $a =~ ^[0-9]+$ && $b =~ ^[0-9]+$ ]]; then
+       r=$(awk -v a="$a" -v b="$b" -v n="$n" -v nl="$nl" 'BEGIN{a+=0; b+=0
+         if (a >= 1 && a <= b && b <= n) print "ok"
+         else if (nl && a >= 1 && a <= n && b == n + 1) print "clamp"}')
+     fi
+     [ "$r" = ok ] && { echo "OK $f:$a-$b"; return 0; }
+     [ "$r" = clamp ] && { echo "CLAMPED $f:$a-$b -> $a-$n"; return 0; }
+     echo "FAIL $f:$a-$b (file has $n lines)"; return 1
+   }
+   ```
 
    A citation to any file other than the evidence files of this escalation fails unless `git -C "$top" diff --quiet "$start" <checkpoint tree> -- ':(literal)<path>'` exits 0, meaning the file is the same at Q0 and in the failed attempt, so the cited content survives the revert unchanged.
 
