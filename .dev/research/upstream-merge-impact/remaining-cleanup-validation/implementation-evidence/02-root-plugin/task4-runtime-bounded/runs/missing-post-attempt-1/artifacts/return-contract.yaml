@@ -1,0 +1,23 @@
+{
+  "contract_version": "1.8.0",
+  "status": "failed",
+  "stop_reason": "post-mode-missing-completed-work-input",
+  "stop_message": "--mode post requires --diff, --commit-range, or --task-log (post-execution reflection has no completed work to audit). A --spec alone does not satisfy a post audit.",
+  "mode": "post",
+  "tier_reached": null,
+  "audit_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project",
+  "selected_inputs": {"spec": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md", "tasklist": null, "diff": null, "commit_range": null, "task_log": null},
+  "input_sha256": {"tasklist": null, "spec": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548"},
+  "report_path": null,
+  "audit_log_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/missing-post-attempt-1/artifacts/audit.log",
+  "confidence_calibrated": null,
+  "escalation_rule_matched": null,
+  "deviation_count_by_class": {"authorized": 0, "necessary": 0, "drift": 0, "regression": 0},
+  "citations_total": 0, "citations_dropped": 0, "evidence_validator_ran": false,
+  "reviewer_cards": [], "adversarial_artifacts_dir": null, "merge_method": null, "adversarial_unavailable": false,
+  "remediation_offered": false, "remediation_accepted": false,
+  "remediation_task_path": null, "remediation_plan_path": null, "task_file_path": null, "handoff_memory_key": null,
+  "promotion_action": "skipped", "promotion_skip_reason": "user-flag", "promotion_gate_passed": null,
+  "agents_dispatched": [],
+  "note": "Stopped-precondition refusal at Wave 0. No calibration, reviewers, adversarial merge or evidence gate ran, so this is not an audit verdict."
+}

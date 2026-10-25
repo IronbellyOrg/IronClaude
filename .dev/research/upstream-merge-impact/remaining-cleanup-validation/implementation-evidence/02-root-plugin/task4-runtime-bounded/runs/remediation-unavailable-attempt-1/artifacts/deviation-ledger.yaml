@@ -1,0 +1,2 @@
+deviation_aggregation_mode: per-hunk
+deviations: []   # no hunk diverges from its task-log claim; NOTE no independent spec/tasklist was supplied to measure against

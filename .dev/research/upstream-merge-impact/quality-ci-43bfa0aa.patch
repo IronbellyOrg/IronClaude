@@ -1,0 +1,71 @@
+commit 43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Wed Nov 12 18:09:37 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Wed Nov 12 18:09:37 2025 +0100
+
+    fix: add --system flag to uv pip install in workflows
+    
+    Added --system flag to all uv pip install commands to fix
+    "No virtual environment found" error in GitHub Actions CI/CD.
+    
+    UV requires either a virtual environment or the --system flag
+    in CI/CD environments.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/.github/workflows/quick-check.yml b/.github/workflows/quick-check.yml
+index c0e98b19..2e8005a5 100644
+--- a/.github/workflows/quick-check.yml
++++ b/.github/workflows/quick-check.yml
+@@ -27,7 +27,7 @@ jobs:
+ 
+       - name: Install dependencies
+         run: |
+-          uv pip install -e ".[dev]"
++          uv pip install --system -e ".[dev]"
+ 
+       - name: Run unit tests only
+         run: |
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 09603d32..5b1e08a1 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -35,7 +35,7 @@ jobs:
+ 
+       - name: Install dependencies
+         run: |
+-          uv pip install -e ".[dev]"
++          uv pip install --system -e ".[dev]"
+ 
+       - name: Verify package installation
+         run: |
+@@ -79,7 +79,7 @@ jobs:
+ 
+       - name: Install dependencies
+         run: |
+-          uv pip install -e ".[dev]"
++          uv pip install --system -e ".[dev]"
+ 
+       - name: Run ruff linter
+         run: |
+@@ -109,7 +109,7 @@ jobs:
+ 
+       - name: Install dependencies
+         run: |
+-          uv pip install -e ".[dev]"
++          uv pip install --system -e ".[dev]"
+ 
+       - name: Verify pytest plugin loaded
+         run: |
+@@ -139,7 +139,7 @@ jobs:
+ 
+       - name: Install dependencies
+         run: |
+-          uv pip install -e ".[dev]"
++          uv pip install --system -e ".[dev]"
+ 
+       - name: Run doctor command
+         run: |

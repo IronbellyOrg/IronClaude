@@ -1,0 +1,23 @@
+{
+  "kind": "read-only-worker-return",
+  "worker": "validate-root-plugin",
+  "scope_verdict": "PASS",
+  "current_completion_or_thin_wrapper_verdict": "FAIL",
+  "files_changed": [],
+  "namespace_commands": ["sc-agent.md", "sc-analyze.md", "sc-brainstorm.md", "sc-build.md", "sc-business-panel.md", "sc-cleanup.md", "sc-design.md", "sc-document.md", "sc-explain.md", "sc-git.md", "sc-help.md", "sc-implement.md", "sc-improve.md", "sc-index.md", "sc-load.md", "sc-pm.md", "sc-recommend.md", "sc-reflect.md", "sc-research.md", "sc-save.md", "sc-spawn.md", "sc-spec-panel.md", "sc-task.md", "sc-test.md", "sc-troubleshoot.md", "sc-workflow.md"],
+  "namespace_agents": [],
+  "inventory": {"root_commands": 28, "root_agents": 21, "root_skill_directories": ["confidence-check"]},
+  "reflection_skill_candidate": ["SKILL.md", "refs/input-resolution.md", "refs/reflection-rubric.md", "refs/deviation-taxonomy.md", "refs/coverage-mapping.md", "refs/reviewer-spec.md", "refs/report-template.md", "refs/runtime-surface.md", "refs/ops-integration.md", "refs/promotion-adapters.md", "refs/remediation-handoff.md"],
+  "adversarial_skill_candidate": ["SKILL.md", "refs/agent-specs.md", "refs/artifact-templates.md", "refs/debate-protocol.md", "refs/scoring-protocol.md"],
+  "new_agent_candidates": ["confidence-calibrator.md", "evidence-validator.md", "reflect-reviewer.md", "reuse-auditor.md", "debate-orchestrator.md", "merge-executor.md"],
+  "reuse_root_agent_candidates": ["sc-root-cause-analyst", "sc-self-review", "sc-requirements-analyst", "sc-socratic-mentor"],
+  "optional_eval_or_caller_resources": ["refs/grader-extensions.md", "refs/cost-profile.yaml"],
+  "candidate_count": 22,
+  "fallback_passages_to_preserve": ["brainstorm", "cleanup", "explain", "implement", "improve", "index", "spec-panel", "task", "workflow"],
+  "retired_commands": ["sc-estimate.md", "sc-sc.md", "sc-select-tool.md"],
+  "overlap": "No dedicated active root-plugin/namespace/July-reflection repair found in bounded .dev/tasks/to-do and .dev/proposals searches; historical June Done task is provenance, CI plan excludes scope.",
+  "source_anchors": ["src/superclaude/commands/reflect.md:148-153", "src/superclaude/commands/help.md:25-28", "src/superclaude/skills/sc-reflect-protocol/SKILL.md:504-540", "src/superclaude/skills/sc-reflect-protocol/SKILL.md:649-728", "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1840-1856", "src/superclaude/skills/sc-adversarial-protocol/SKILL.md:462-484"],
+  "unverified": ["actual plugin loader names", "plugin-only runtime", "final minimum transitive resource count", "external installations", "effort"],
+  "process": "No implementation, files, tests, builds, installers, external calls or Git mutations performed.",
+  "self_audit": "Checked July Git objects, complete namespace match set, root resource absence, merge closure and bounded plan overlap. Did not equate fallback with full functionality."
+}

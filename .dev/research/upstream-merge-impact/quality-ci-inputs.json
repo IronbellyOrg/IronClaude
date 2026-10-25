@@ -1,0 +1,194 @@
+{
+  "id": "quality-ci",
+  "title": "CI, publication, lint and formatting changes",
+  "commits": [
+    {
+      "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+      "parents": [
+        "a3541f43c5e95cae669c0d666a6fc68808de8fde"
+      ],
+      "authored": "2025-11-12T17:59:29+01:00",
+      "committed": "2025-11-12T17:59:29+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: correct package paths in publish-pypi workflow",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/publish-pypi.yml",
+        ".github/workflows/readme-quality-check.yml"
+      ]
+    },
+    {
+      "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+      "parents": [
+        "16caa49442f477febd4b2a8e32dd1ded705d02d3"
+      ],
+      "authored": "2025-11-12T18:09:37+01:00",
+      "committed": "2025-11-12T18:09:37+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: add --system flag to uv pip install in workflows",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/quick-check.yml",
+        ".github/workflows/test.yml"
+      ]
+    },
+    {
+      "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+      "parents": [
+        "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a"
+      ],
+      "authored": "2025-11-12T18:12:57+01:00",
+      "committed": "2025-11-12T18:12:57+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: use direct commands instead of uv run with --system",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/quick-check.yml",
+        ".github/workflows/test.yml"
+      ]
+    },
+    {
+      "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+      "parents": [
+        "8da05a172063d16e062a0bfabf583debc9be385c"
+      ],
+      "authored": "2025-11-12T18:17:39+01:00",
+      "committed": "2025-11-12T18:17:39+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: resolve all ruff linting errors",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml",
+        "src/superclaude/__init__.py",
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_skill.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/execution/__init__.py",
+        "src/superclaude/execution/parallel.py",
+        "src/superclaude/execution/reflection.py",
+        "src/superclaude/execution/self_correction.py",
+        "src/superclaude/pm_agent/__init__.py",
+        "src/superclaude/pm_agent/confidence.py",
+        "src/superclaude/pm_agent/reflexion.py",
+        "src/superclaude/pm_agent/self_check.py",
+        "src/superclaude/pytest_plugin.py",
+        "tests/conftest.py",
+        "tests/integration/test_pytest_plugin.py",
+        "tests/unit/test_cli_install.py",
+        "tests/unit/test_confidence.py",
+        "tests/unit/test_reflexion.py",
+        "tests/unit/test_self_check.py",
+        "tests/unit/test_token_budget.py"
+      ]
+    },
+    {
+      "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+      "parents": [
+        "e2896335ba82f83a0b1a271cb872ff04b7ea884b"
+      ],
+      "authored": "2025-11-12T18:19:45+01:00",
+      "committed": "2025-11-12T18:19:45+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "style: apply ruff formatting to all files",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_skill.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/execution/__init__.py",
+        "src/superclaude/execution/parallel.py",
+        "src/superclaude/execution/reflection.py",
+        "src/superclaude/execution/self_correction.py",
+        "src/superclaude/pm_agent/confidence.py",
+        "src/superclaude/pm_agent/reflexion.py",
+        "src/superclaude/pytest_plugin.py",
+        "tests/conftest.py",
+        "tests/unit/test_cli_install.py",
+        "tests/unit/test_confidence.py"
+      ]
+    }
+  ],
+  "files": [
+    ".github/workflows/publish-pypi.yml",
+    ".github/workflows/quick-check.yml",
+    ".github/workflows/readme-quality-check.yml",
+    ".github/workflows/test.yml",
+    "pyproject.toml",
+    "src/superclaude/__init__.py",
+    "src/superclaude/cli/doctor.py",
+    "src/superclaude/cli/install_commands.py",
+    "src/superclaude/cli/install_skill.py",
+    "src/superclaude/cli/main.py",
+    "src/superclaude/execution/__init__.py",
+    "src/superclaude/execution/parallel.py",
+    "src/superclaude/execution/reflection.py",
+    "src/superclaude/execution/self_correction.py",
+    "src/superclaude/pm_agent/__init__.py",
+    "src/superclaude/pm_agent/confidence.py",
+    "src/superclaude/pm_agent/reflexion.py",
+    "src/superclaude/pm_agent/self_check.py",
+    "src/superclaude/pytest_plugin.py",
+    "tests/conftest.py",
+    "tests/integration/test_pytest_plugin.py",
+    "tests/unit/test_cli_install.py",
+    "tests/unit/test_confidence.py",
+    "tests/unit/test_reflexion.py",
+    "tests/unit/test_self_check.py",
+    "tests/unit/test_token_budget.py"
+  ],
+  "file_count": 26,
+  "reverse_checks": [
+    {
+      "unit": "quality-ci",
+      "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: .github/workflows/readme-quality-check.yml: No such file or directory\nerror: .github/workflows/publish-pypi.yml: No such file or directory\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "quality-ci",
+      "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: .github/workflows/test.yml:35\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "quality-ci",
+      "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: .github/workflows/test.yml:36\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "quality-ci",
+      "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: tests/unit/test_cli_install.py:4\nerror: tests/unit/test_cli_install.py: patch does not apply\nerror: patch failed: tests/conftest.py:5\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/pytest_plugin.py:9\nerror: src/superclaude/pytest_plugin.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/reflexion.py:23\nerror: src/superclaude/pm_agent/reflexion.py: patch does not apply\nerror: patch failed: src/superclaude/execution/self_correction.py:334\nerror: src/superclaude/execution/self_correction.py: patch does not apply\nerror: patch failed: src/superclaude/execution/parallel.py:106\nerror: src/superclaude/execution/parallel.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:4\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: patch failed: src/superclaude/cli/doctor.py:5\nerror: src/superclaude/cli/doctor.py: patch does not apply\nerror: patch failed: pyproject.toml:153\nerror: pyproject.toml: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "quality-ci",
+      "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: tests/conftest.py:5\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/execution/parallel.py:158\nerror: src/superclaude/execution/parallel.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:9\nerror: src/superclaude/cli/install_commands.py: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    }
+  ]
+}

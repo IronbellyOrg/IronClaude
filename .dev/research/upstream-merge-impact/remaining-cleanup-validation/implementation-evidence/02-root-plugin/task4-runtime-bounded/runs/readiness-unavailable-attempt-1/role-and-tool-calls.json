@@ -1,0 +1,44 @@
+[
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "B=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded; command -v superclaude || echo \"superclaude: ABSENT\"; git -C $B/fixtures/project rev-parse --show-toplevel; realpath -m $B/runs/readiness-unavailable-attempt-1/artifacts; ls -ld $B/runs/readiness-unavailable-attempt-1 $B/runs/readiness-unavailable-attempt-1/artifacts 2>&1; realpath $B/plugin $B/fixtures/project",
+      "description": "Check for superclaude executable, audit root, and output path"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Grep",
+    "input": {
+      "pattern": "contract-status|readiness",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol",
+      "output_mode": "content"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/SKILL.md",
+      "offset": 88,
+      "limit": 75
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Write",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/readiness-unavailable-attempt-1/artifacts/return-contract.yaml",
+      "content": "{\n  \"contract_kind\": \"detection-contract-readiness\",\n  \"request\": \"detection-contract readiness\",\n  \"repo\": \"synthetic/example\",\n  \"pr\": 1,\n  \"readiness_status\": \"UNAVAILABLE\",\n  \"status\": \"stopped-precondition\",\n  \"reason\": \"superclaude package executable not found on PATH (command -v superclaude returned nothing); the plugin does not bundle it\",\n  \"missing_prerequisite\": \"superclaude\",\n  \"routed_command\": \"superclaude reflect contract-status [--validate] --repo synthetic/example --pr 1\",\n  \"audit_performed\": false,\n  \"mode\": null,\n  \"tier\": null,\n  \"calibrated_confidence\": null,\n  \"merge_method\": null,\n  \"citations_dropped\": null,\n  \"audit_repo_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\",\n  \"output_dir\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/readiness-unavailable-attempt-1/artifacts\",\n  \"output_safety\": \"resolved realpath outside plugin skills/agents/commands/.claude-plugin and outside audit_repo_root; no .. or symlink escape\",\n  \"no_promote\": true,\n  \"promotion_performed\": false,\n  \"remediation_requested\": false,\n  \"package_code_imported\": false,\n  \"cli_invoked\": false,\n  \"installed_anything\": false,\n  \"agents_delegated\": [],\n  \"mutations\": [\"created this output directory with return-contract.yaml and REPORT.md only\"],\n  \"protocol_reference\": \"plugin/skills/sc-reflect-protocol/SKILL.md \u00a72.1 Detection-contract readiness bypass (lines 148-157) and lines 91-95\"\n}\n"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Write",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/readiness-unavailable-attempt-1/artifacts/REPORT.md",
+      "content": "# Detection-contract readiness: UNAVAILABLE\n\n- Request: detection-contract readiness for `synthetic/example` PR #1 (`--no-promote`)\n- Status: **UNAVAILABLE** (stopped on a precondition). No UC-1/UC-2 audit was run.\n- Reason: the `superclaude` package executable is not installed. `command -v superclaude` found nothing on PATH, and the plugin does not bundle it.\n- Protocol basis: `plugin/skills/sc-reflect-protocol/SKILL.md:91-95` and `:148-157` (readiness bypass)\n- Command to run once the package is installed: `superclaude reflect contract-status [--validate] --repo synthetic/example --pr 1`\n- Not done: no package code was imported, nothing was installed, the CLI was not impersonated, no agents were delegated, no promotion or moves happened, and the PR state was not touched.\n- Audit root recorded: `fixtures/project` (git init only, no commits). Nothing in it was read or modified for this request.\n"
+    }
+  }
+]

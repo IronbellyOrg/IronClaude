@@ -1,0 +1,51 @@
+{
+  "cwd": "/tmp/ironclaude-root-plugin-4u5emvq6",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-candidates/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-candidates/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-candidates/home/.config"
+  },
+  "inherited_provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "probes": {
+    "validate": {
+      "command": [
+        "/usr/bin/claude",
+        "plugin",
+        "validate",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-candidates/plugin"
+      ],
+      "returncode": 0
+    },
+    "session": {
+      "command": [
+        "/usr/bin/claude",
+        "--setting-sources",
+        "user",
+        "--strict-mcp-config",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+        "--plugin-dir",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-candidates/plugin",
+        "--print",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--tools",
+        "Agent,Skill,Read",
+        "--agent",
+        "sc:sc-root-cause-analyst",
+        "--no-session-persistence",
+        "Reply INVENTORY_ONLY. Do not invoke any skills or perform any actions."
+      ],
+      "returncode": 0
+    }
+  }
+}

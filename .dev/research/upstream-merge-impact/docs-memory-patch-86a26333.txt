@@ -1,0 +1,15 @@
+COMMAND git diff --no-ext-diff --find-renames 61591211ae99847130aed3e84737bfa63b3b6520 86a26333912b09a98fab1d9a81c0cd23e404f224 -- src/superclaude/__init__.py
+RETURN 0
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index a4090539..4b4bfbec 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -5,7 +5,7 @@ AI-enhanced development framework for Claude Code.
+ Provides pytest plugin for enhanced testing and optional skills system.
+ """
+ 
+-__version__ = "4.1.7"
++__version__ = "4.1.8"
+ __author__ = "NomenAK, Mithun Gowda B"
+ 
+ # Expose main components

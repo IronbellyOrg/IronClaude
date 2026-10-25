@@ -1,0 +1,28 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 2
+confidence_calibrated: 0.638
+S_scope: 3
+S_domains: 3
+S_dev_density: 0.1538
+coverage_pct: null
+coverage_pct_union: 0.8462
+coverage_undefined: false
+escalation_reason: Sparse unlabelled spec forces Tier 2; three domains independently fire rule 4 before low-confidence rule 6.
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_slots: [sonnet, haiku, opus]
+reviewer_aliases: ['claude-sonnet-5-5[1m]', 'grok-4.7[1m]', 'claude-opus-5-5[1m]']
+calibrator_slot: opus
+calibrator_diversity: degraded
+calibrator_degradation_reason: All three available classes are reviewers; fallback uses highest-capability slot as protocol permits, with collision explicitly logged.

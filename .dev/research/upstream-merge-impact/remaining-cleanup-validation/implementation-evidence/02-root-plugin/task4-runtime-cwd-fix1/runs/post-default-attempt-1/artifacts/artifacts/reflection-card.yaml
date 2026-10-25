@@ -1,0 +1,36 @@
+# Tier-1 reflection card. Author: sc:sc-root-cause-analyst (requested model slot: sonnet). Persisted verbatim-in-substance by orchestrator.
+# Citations are relative to audit_repo_root = .../fixtures/project unless prefixed <OUT>.
+reflection_card:
+  mode: post
+  tier: 1
+  requirement_verdicts:
+    - {id: R-001, task: T-101, verdict: satisfied, citations: ["spec.md:5-6", "src/greeting.py:4", "tests/test_greeting.py:4-5", "changes.patch:9", "completed.md:6"], note: "f-string yields exactly 'Hello, Ada!' for 'Ada' (static read; not executed)"}
+    - {id: R-002, task: T-102, verdict: satisfied, citations: ["spec.md:8-9", "src/greeting.py:2-3", "tests/test_greeting.py:8-13", "changes.patch:7-8", "completed.md:7"], note: "greet('') raises ValueError; `not name` also rejects None/0/[] - superset, no criterion contradicted"}
+    - {id: R-003, task: T-103, verdict: satisfied_on_disk_not_in_diff, citations: ["spec.md:11-12", "tests/test_greeting.py:4-5", "tests/test_greeting.py:8-13", "completed.md:8", "execution.log:4"], note: "both cases exist on disk; file absent from changes.patch (lines 1-9 cover only src/greeting.py), untracked, outside --scope; pass status unproven"}
+  task_verdicts:
+    - {task: T-101, status_claimed: done, verdict: verified_static, cite: "completed.md:6; src/greeting.py:1-4"}
+    - {task: T-102, status_claimed: done, verdict: verified_static, cite: "completed.md:7; src/greeting.py:2-3"}
+    - {task: T-103, status_claimed: done, verdict: verified_static_on_disk_only, cite: "completed.md:8; tests/test_greeting.py:1-13"}
+    - {frontmatter: "completed.md:2 status: done - not contradicted by static evidence"}
+  deviation_register: []
+  deviation_register_rationale: "Single hunk changes.patch:5-9 maps to T-101/T-102; src/greeting.py:1-4 equals the diff; no unmapped hunk (no Drift); no criterion contradicted spec.md:5-12 vs src/greeting.py:2-4 (no Regression); no rationale-bearing divergence (no Necessary); no scope expansion (no Authorized). Test file missing from diff is a diff-completeness flag, not a deviation."
+  regression_candidates:
+    - {candidate: "`if not name` truthiness (src/greeting.py:2)", assessed: not_a_regression, reasoning: "contradicts no criterion (spec.md:9); new file (changes.patch:2-3) so no previously-passing test"}
+    - {candidate: "test import `from src.greeting import greet` (tests/test_greeting.py:1)", assessed: possible_collection_failure_unproven, reasoning: "[INFERRED] no conftest/__init__/pyproject in fixture; bare `pytest` under prepend import mode may fail to import `src`; pytest exit 2 maps to Grounding Gap, not Regression"}
+  grounding_gaps:
+    - {ref: "src/greeting.py:1-4; tests/test_greeting.py:1-13", status: confirmed_and_refined, confirmation: "<OUT>/grounding-gaps.yaml:1-7 holds; execution.log:5 'No test execution is claimed'", refinement: "[INFERRED] verify with `python -m pytest` (rootdir on sys.path); plain pytest may hit collection error"}
+  risk_register:
+    - {id: RK-1, kind: untested_execution, detail: "tests never run (execution.log:5; <OUT>/grounding-gaps.yaml:2)"}
+    - {id: RK-2, kind: truthiness_semantics, detail: "`not name` (src/greeting.py:2) rejects falsy non-str with ValueError; truthy non-str accepted (greet(5) -> 'Hello, 5!'); untested (tests/test_greeting.py:4-13 covers only 'Ada' and '')"}
+    - {id: RK-3, kind: whitespace_names, detail: "greet('   ') returns 'Hello,    !'; whether whitespace counts as empty is ambiguous in spec.md:9; untested"}
+    - {id: RK-4, kind: diff_completeness, detail: "T-103 deliverable not in changes.patch:1-9; diff-only completion would be 0.667 vs disk-verified 1.0 (<OUT>/artifacts/coverage-matrix.yaml:14); no commits so provenance unprovable"}
+    - {id: RK-5, kind: test_weakness, detail: "test_empty (tests/test_greeting.py:8-13) does not assert the message"}
+    - {id: RK-6, kind: audit_tooling_degradation, detail: "auggie unavailable (<OUT>/artifacts/reuse-audit.yaml:6); verification triangle unavailable"}
+  recommendations:
+    - {id: R-1, priority: P1, file: tests/test_greeting.py, change: "run `python -m pytest tests/test_greeting.py -q -p no:cacheprovider` from fixture root", verifier: "exit 0 (1=failed test, 2=collection error)"}
+    - {id: R-2, priority: P2, file: changes.patch, change: "regenerate patch including tests/test_greeting.py (e.g. `git add -N tests && git diff`) or document tests as out of diff scope", verifier: "hunk for tests/test_greeting.py present and mapped to T-103"}
+    - {id: R-3, priority: P2, file: "tests/test_greeting.py (or conftest.py/pyproject.toml)", change: "make `src` import robust (conftest.py, pythonpath setting, or __init__.py)", verifier: "plain `pytest` collects without ModuleNotFoundError"}
+    - {id: R-4, priority: P3, file: spec.md, change: "state whether whitespace-only and non-str names must be rejected and with which exception", verifier: "spec updated; tests for '   ', None, 0 added"}
+    - {id: R-5, priority: P3, file: src/greeting.py, change: "after spec decision, tighten guard (e.g. isinstance(name, str) and name.strip())", verifier: "new RK-2/RK-3 tests pass"}
+  overall_assessment: "Static evidence meets R-001..R-003, empty deviation register, no confirmed regression; not a fully clean grounded pass - test execution unproven and T-103 deliverable absent from the diff."
+  self_reported_confidence: 0.72   # discarded; blind calibration authoritative

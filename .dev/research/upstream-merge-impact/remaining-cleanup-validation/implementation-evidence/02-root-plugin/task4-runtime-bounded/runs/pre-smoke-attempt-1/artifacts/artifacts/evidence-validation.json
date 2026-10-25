@@ -1,0 +1,34 @@
+{
+  "validator_agent": "sc:evidence-validator",
+  "requested_model_slot": "haiku",
+  "validator_model_self_reported": "grok-4.7",
+  "agent_id": "a442b9647de9456d2",
+  "draft": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/pre-smoke-attempt-1/artifacts/artifacts/REPORT.draft.md",
+  "citations_total": 15,
+  "citations_revalidated": 15,
+  "citations_dropped": 0,
+  "dropped_items": [],
+  "citations_inferred_counted": 3,
+  "kept": [
+    "spec.md:1-12",
+    "spec.md:3",
+    "spec.md:5",
+    "spec.md:6",
+    "spec.md:8",
+    "spec.md:9",
+    "spec.md:11",
+    "spec.md:12",
+    "proposed.md:1-10",
+    "proposed.md:3",
+    "proposed.md:4",
+    "proposed.md:6",
+    "proposed.md:7",
+    "proposed.md:9",
+    "proposed.md:10"
+  ],
+  "other_issues": [
+    "K-2 cites spec.md:12 (R-003 test obligation) alongside R-001/R-002 risk; kept, not a snippet mismatch",
+    "assertions_path not supplied; A1-A10 not evaluated"
+  ],
+  "zero_drop_flag": true
+}

@@ -1,0 +1,20 @@
+{
+  "path_count": 217,
+  "historical_snapshots_checked": 231,
+  "snapshot_mismatches": [],
+  "families": {
+    "packaging": 2,
+    "documentation": 61,
+    "documentation package marker": 1,
+    "agent": 34,
+    "command": 53,
+    "core": 12,
+    "core package marker": 2,
+    "example": 2,
+    "MCP descriptor": 16,
+    "MCP descriptor package marker": 2,
+    "MCP configuration": 16,
+    "mode": 14,
+    "mode package marker": 2
+  }
+}

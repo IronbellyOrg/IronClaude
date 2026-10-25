@@ -1,0 +1,57 @@
+{
+  "status": "failed",
+  "snapshot_kind": "native-selected-inputs",
+  "source_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+  "reviewer_grounding_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/missing/reviewer-snapshot/root",
+  "selection_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/missing-selection.json",
+  "selection_sha256": "dbf0b3f7478dd61c374e80b5d2433da1168f86e428caee1095ba763a69d617f0",
+  "coverage_basis": "negative missing input",
+  "enumeration_complete": true,
+  "output_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/missing",
+  "discovery_metadata": {
+    "version": 1,
+    "scopes": [
+      ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited"
+    ],
+    "gitignore_policy": "exclude-standard",
+    "verification_artifact_excludes": {
+      "directories": [
+        "__pycache__",
+        ".pytest_cache",
+        "htmlcov",
+        ".mypy_cache",
+        ".ruff_cache",
+        "target",
+        ".hypothesis"
+      ],
+      "suffixes": [
+        ".pyc",
+        ".pyo",
+        ".pyd",
+        ".egg-info"
+      ],
+      "names": [
+        ".coverage",
+        ".tsbuildinfo"
+      ],
+      "prefixes": [
+        ".coverage."
+      ],
+      "nested": [
+        "node_modules/.cache"
+      ]
+    }
+  },
+  "scoped_inventory_before": [
+    {
+      "path": ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-handler.py",
+      "kind": "regular"
+    },
+    {
+      "path": ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt",
+      "kind": "regular"
+    }
+  ],
+  "files": [],
+  "failure_reason": "[Errno 2] No such file or directory: '/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/absent.txt'"
+}

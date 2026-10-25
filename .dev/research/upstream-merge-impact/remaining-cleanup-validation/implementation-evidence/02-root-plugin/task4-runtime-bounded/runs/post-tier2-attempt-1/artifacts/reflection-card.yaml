@@ -1,0 +1,34 @@
+# Wave 1D blind calibration of t1-card.md — returned by sc:confidence-calibrator
+# requested slot: opus; agent-reported model: claude-opus-5-5[1m]; agentId a856cb482ec91ff93
+card_path: t1-card.md
+card_author: {agent: sc:sc-root-cause-analyst, requested_slot: sonnet, alias: "claude-sonnet-5-5[1m]"}
+calibrator: {agent: sc:confidence-calibrator, requested_slot: opus, reported_model: "claude-opus-5-5[1m]"}
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku-slot(grok-4.7)]
+calibrator_diversity: full
+calibration: independent   # not inline
+citation_spot_checks:
+  - {citation: "completed.md:2", result: verified}
+  - {citation: "completed.md:6-8", result: verified}
+  - {citation: "spec.md:5-6, 8-9, 11-12", result: verified}
+  - {citation: "src/greeting.py:4", result: verified}
+  - {citation: "src/greeting.py:2-3", result: verified}
+  - {citation: "src/greeting.py:1-4 == changes.patch:5-9", result: verified}
+  - {citation: "changes.patch:1-4", result: verified}
+  - {citation: "changes.patch:7-9", result: verified}
+  - {citation: "tests/test_greeting.py:1", result: verified}
+  - {citation: "tests/test_greeting.py:4-5", result: verified}
+  - {citation: "tests/test_greeting.py:8-13", result: verified}
+  - {citation: "artifacts/artifacts/task-to-diff-map.md", result: verified}
+  - {citation: "absence of src/__init__.py, tests/__init__.py, conftest.py, pyproject.toml in fixture root", result: verified (specific-path Reads only)}
+mismatches: 0
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.90
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.88
+  recommendation_actionability: 0.90
+arithmetic: "(0.92 + 0.90 + 0.90 + 0.88 + 0.90) / 5 = 4.50 / 5 = 0.90"
+confidence_calibrated: 0.90
+self_reported_confidence: 0.72
+calibration_delta: 0.18

@@ -1,0 +1,14 @@
+{
+  "skill": "sc:confidence-check",
+  "form": "5-check + lightweight token verification",
+  "checks": {
+    "no_duplicates": "pass",
+    "architecture": "pass (uv/pytest; audited repo has no CLAUDE.md - absence recorded, not filled)",
+    "official_docs": "partial: uv run --with/--no-project verified via uv run --help (uv 0.11.8); pytest pythonpath ini option UNVERIFIED (--no-mcp)",
+    "oss_reference": "fail (not consulted)",
+    "root_cause": "pass"
+  },
+  "score": 0.75,
+  "band": "0.70-0.89 present alternatives; advisory only",
+  "blocked_by_low_confidence": false
+}

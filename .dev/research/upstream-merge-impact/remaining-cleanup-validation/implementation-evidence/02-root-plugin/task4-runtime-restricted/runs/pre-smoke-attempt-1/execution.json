@@ -1,0 +1,203 @@
+{
+  "case": "pre-smoke",
+  "attempt": "1",
+  "state": "exited",
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/plugin",
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--model",
+    "opus",
+    "--restricted",
+    "--add-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/fixtures/project",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/plugin",
+    "--permission-mode",
+    "acceptEdits",
+    "--permission-prompts",
+    "none",
+    "--allowed-tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--append-system-prompt",
+    "This is an authorized isolated plugin-only audit. The synthetic audited repository is /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/fixtures/project, not your empty launch cwd. Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. Write only under the requested safe output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/artifacts; when the actual --output is forbidden, refuse without creating it. Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. Every delegated Agent brief must explicitly bind audit_repo_root=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/fixtures/project, allowed evidence roots to that project or the actual frozen snapshot, allowed output to /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/artifacts, and plugin resources to /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/plugin. Propagate this to all debate/fault-finder/scoring/merge workers; never read the ancestor checkout's pyproject.toml, CLAUDE.md, package or project mirrors. Keep shell cwd out of the plugin directory. Use the available uv for every Python subprocess. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources. Never print provider credentials or credential environment values.",
+    "--no-session-persistence",
+    "/sc:sc-reflect --mode pre --spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/fixtures/project/spec.md --tasklist /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/fixtures/project/proposed.md --tier 1 --no-mcp --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/artifacts"
+  ],
+  "cwd": "/tmp/ironclaude-reflect-runtime-tzon_lmh",
+  "environment": {
+    "PATH": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runtime-bin:/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runs/pre-smoke-attempt-1/home/.config"
+  },
+  "provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "framework_executable_absent": true,
+  "runtime_tools_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-restricted/runtime-bin/uv\n/usr/bin/git\n",
+  "timeout_seconds": 1800,
+  "started_monotonic": 2167402.779456136,
+  "returncode": 0,
+  "duration_seconds": 421.1498648072593,
+  "changed_plugin_files": [],
+  "added_plugin_files": [],
+  "fixture_staged_files": [],
+  "fixture_head_created": false,
+  "changed_audit_inputs": [],
+  "native_result": {
+    "duration_api_ms": 419580,
+    "stop_reason": "end_turn",
+    "session_id": "582a6161-2a52-41ec-bb8c-d8b5c195a260",
+    "total_cost_usd": 3.2604311999999993,
+    "usage": {
+      "input_tokens": 36,
+      "cache_creation_input_tokens": 196456,
+      "cache_read_input_tokens": 2645415,
+      "output_tokens": 35960,
+      "output_tokens_details": {
+        "thinking_tokens": 6213
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 196456,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1445,
+          "cache_read_input_tokens": 192544,
+          "cache_creation_input_tokens": 3912,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3912
+          },
+          "type": "message",
+          "model": null
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5-5[1m]": {
+        "inputTokens": 44,
+        "outputTokens": 42505,
+        "cacheReadInputTokens": 2659784,
+        "cacheCreationInputTokens": 222237,
+        "webSearchRequests": 0,
+        "costUSD": 3.082785799999999,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 7689,
+        "canonicalModel": "claude-opus-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "claude-sonnet-5-5[1m]": {
+        "inputTokens": 8,
+        "outputTokens": 7255,
+        "cacheReadInputTokens": 25222,
+        "cacheCreationInputTokens": 40014,
+        "webSearchRequests": 0,
+        "costUSD": 0.1776454,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 1807,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 4,
+      "requested": {
+        "background": 0,
+        "foreground": 4,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 1,
+      "spawned_by_subagents": 0,
+      "completed": 4,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {
+        "sc:sc-requirements-analyst": 1,
+        "sc:sc-self-review": 1,
+        "sc:confidence-calibrator": 1,
+        "sc:evidence-validator": 1
+      }
+    },
+    "is_error": false,
+    "num_turns": 28,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "The pre-execution audit finished with `status: success` at Tier 1. The plan covers the spec fully, but I'd treat its recommendations as advisory: both the confidence checks came in low.\n\n**Result**\n- **Mode:** pre (UC-1), set explicitly with `--mode pre`. Audit root is `fixtures/project`, a Git repo with no commits.\n- **Tier:** 1, pinned by `--tier 1`. Calibrated confidence was **0.78**, below the 0.85 floor. Without the pin, the protocol would have escalated to Tier 2 (rubric rule 6).\n- **Calibration:** done blind by `sc:confidence-calibrator` on the opus slot, scoring a card written on the sonnet slot. The scores were citations 0.88, coverage 1.00, classification 0.30, risk 0.80, actionability 0.90. The low classification score comes from the 4-category deviation taxonomy, which doesn't really apply to a plan review.\n- **Coverage:** R-001, R-002 and R-003 each map exactly to one task (T-101, T-102, T-103). Coverage is 1.0, nothing is unmapped, Pass 2 inference added no rows, and there is no scope expansion.\n- **Evidence gate:** `sc:evidence-validator` re-read all 22 citations and dropped none. The protocol treats a zero-drop pass as suspect, so it's flagged in the audit log. Inputs were unchanged at the end of the run.\n\n**Plan gaps (best-practice grade 3/5)**\n- **G-1 (P1):** T-101 doesn't state the required exact string \"Hello, Ada!\" (`spec.md:6` vs `proposed.md:4`).\n- **G-2 (P2):** T-103 names both test cases but not what they should assert.\n- **G-3 (P2):** the plan has no ordering and no step to run the tests.\n- **G-4:** T-102 matches the spec.\n\n**Recommendations**\n- **Confidence check:** `sc:confidence-check` scored **0.15** (it needs 0.70), so I set `blocked_by_low_confidence: true`. I first reported 0.40; the 0.15 figure is the final strict score.\n- **Low on purpose:** the checks for official docs and reference implementations couldn't run under `--no-mcp`, and I didn't excuse them as not applicable.\n- **Possible duplicate:** `greet` already exists in the fixture at `src/greeting.py:1`, outside the audited inputs. T-101's \"Implement greet\" may duplicate it.\n- **Rewording:** the fixture tests use `except ValueError` rather than `pytest.raises`, so I took that out of R-2.\n- **Before amending `proposed.md`:** confirm whether that code is the intended starting point. If it is, a `--mode post` audit of the existing work is the right check instead.\n\n**Other limits on this run**\n- **Recorded models:** the Agent tool didn't report which model each subagent actually ran on, so only the requested slots are recorded.\n- **`--no-mcp`:** Serena, auggie, memory and checkpoint steps were skipped and marked as degraded. `tech-research` isn't bundled, so there was no external best-practice lookup.\n- **Erratum:** the run's own coverage matrix gave R-003's span as lines 11-13, but `spec.md` has 12 lines. The fix is recorded in an erratum file; no result changes.\n- **Not run:** promotion (`--no-promote`), remediation (not requested), and the Tier 2 snapshot, reviewers and adversarial merge (`merge_method` is null).\n- **Not written:** the global `runs.jsonl`, because all writes were limited to the output folder.\n- **No mutation:** the audited project still shows the same 7 untracked files. Nothing was staged, committed, edited, moved or installed.\n\nFiles are in `runs/pre-smoke-attempt-1/artifacts/`:\n- REPORT.md\n- return-contract.yaml\n- audit.log\n- reflection-card.yaml\n- metrics.json\n- REPORT.draft.md\n\nThe coverage matrix, erratum, calibration, tier decision, evidence validation, confidence check and input snapshot are in its `artifacts/` subfolder.",
+    "ttft_ms": 1692,
+    "type": "result",
+    "duration_ms": 420616,
+    "uuid": "e8f28b75-f40c-4eef-8116-3e8d5342e13b",
+    "ttft_stream_ms": 1384,
+    "time_to_request_ms": 82,
+    "first_content_frame_ms": 1384,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "artifact_files": [
+    "execution.json",
+    "stderr.txt",
+    "role-and-tool-calls.json",
+    "native-init.json",
+    "stdout.jsonl",
+    "artifacts/REPORT.md",
+    "artifacts/REPORT.draft.md",
+    "artifacts/metrics.json",
+    "artifacts/reflection-card.yaml",
+    "artifacts/audit.log",
+    "artifacts/return-contract.yaml",
+    "artifacts/artifacts/tier_decision.yaml",
+    "artifacts/artifacts/coverage-matrix-errata.yaml",
+    "artifacts/artifacts/coverage-matrix.yaml",
+    "artifacts/artifacts/calibration.yaml",
+    "artifacts/artifacts/confidence-check.yaml",
+    "artifacts/artifacts/evidence-validation.yaml",
+    "artifacts/artifacts/input-snapshot.yaml"
+  ]
+}

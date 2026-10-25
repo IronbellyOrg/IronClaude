@@ -1,0 +1,22 @@
+# Wave 5 final gate — returned by sc:evidence-validator (requested slot sonnet; agentId aa315d0ed235b7f21); persisted by orchestrator.
+validator: {agent: sc:evidence-validator, requested_slot: sonnet, ran: true, partial: false}
+draft: REPORT.draft.md
+citation_budget_policy: full_reread
+citations_total: 25          # 18 E-rows + 7 body file:line refs (3 gap hunk_refs, 3 per-task anchors, 1 spec range)
+citations_revalidated: 25
+citations_dropped: 1
+dropped:
+  - id: E-13
+    citation: "reviewer-snapshot/provenance-manifest.json:8-13"
+    reason: "off-by-one: `src` scope value is at line 14 not 13; the 'src contains only greeting.py' claim lives at lines 45-50, outside the cited range"
+citations_inferred: 2        # draft header said 3; corrected (only 2 [INFERRED] tags in body)
+zero_drop_flag: false
+wording_corrections_applied:
+  - "Unified gap labels to GG-1..GG-3"
+  - "'No task log' -> 'no --task-log supplied; execution.log exists in audit root but was not a supplied input'"
+  - "per-task validation strengths and tasklist_completion_pct marked orchestrator-derived (uncalibrated)"
+  - "citations_inferred 3 -> 2"
+post_drop_recitation:
+  - id: E-13a
+    citation: "reviewer-snapshot/provenance-manifest.json:8-9, 13-14, 45-50"
+    basis: "line locations stated by the validator in its drop reason and re-Read by the orchestrator before finalization; not a separate validator pass"

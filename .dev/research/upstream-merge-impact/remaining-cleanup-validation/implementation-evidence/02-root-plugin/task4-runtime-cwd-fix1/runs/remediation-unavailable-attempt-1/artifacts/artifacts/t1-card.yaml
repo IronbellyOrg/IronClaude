@@ -1,0 +1,66 @@
+# Wave 1C Tier-1 card. Returned verbatim by Agent sc:sc-root-cause-analyst (requested slot: sonnet; agentId a12bd678a37987fc2).
+# Persisted by the orchestrator. The agent wrote nothing.
+# Actual provider model: the Agent tool does not report it. Requested slot sonnet -> ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-5-5[1m] (resolved alias, not a returned value).
+# ORCHESTRATOR ANNOTATION (not part of the card): GG-3 says other files under src/ were not enumerated. At Wave 0 the
+# orchestrator enumerated src/ with `find` and it contains exactly one file, src/greeting.py. The diff-baseline part of GG-3 still stands.
+card_author: sc:sc-root-cause-analyst
+hypothesis_source: agent
+mapping:
+  - task_id: T-101
+    log_ref: "execution.log:2"
+    claimed_work: "R-001: created src/greeting.py"
+    observed_evidence: "src/greeting.py:1 'def greet(name):' and src/greeting.py:4 'return f\"Hello, {name}!\"'"
+    mapped: true
+    note: "File exists (Grounded). Created vs modified cannot be confirmed without a baseline [INFERRED]."
+  - task_id: T-102
+    log_ref: "execution.log:3"
+    claimed_work: "R-002: empty names raise ValueError"
+    observed_evidence: "src/greeting.py:2-3 'if not name:' / 'raise ValueError(\"name required\")'"
+    mapped: true
+  - task_id: T-103
+    log_ref: "execution.log:4"
+    claimed_work: "R-003: created tests/test_greeting.py with ordinary and empty-name cases"
+    observed_evidence: "tests/test_greeting.py:4-5 test_ordinary asserts greet(\"Ada\") == \"Hello, Ada!\"; tests/test_greeting.py:8-13 test_empty expects ValueError for greet(\"\")"
+    mapped: true
+deviations: []
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: "src/greeting.py:2"
+    evidence_missing: "R-002 spec text defining 'empty' (None, whitespace-only, other falsy values)"
+    why_not_classifiable: "'not name' rejects all falsy values, and whitespace-only names pass the guard. Authorized vs drift depends on the absent spec."
+    next_evidence_needed: "R-002 requirement text or a user statement of the intended input domain"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "execution.log:2-4"
+    evidence_missing: "Driving spec/tasklist containing R-001..R-003"
+    why_not_classifiable: "Gold standard absent; the requirement IDs are executor-side claims"
+    next_evidence_needed: "--spec and/or --tasklist input"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-3
+    hunk_ref: "src/greeting.py:1-4, tests/test_greeting.py:1-13"
+    evidence_missing: "Diff baseline (repo has zero commits)"
+    why_not_classifiable: "Created vs modified, and unlogged scope changes, cannot be verified"
+    next_evidence_needed: "Baseline commit or --diff/--commit-range"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-4
+    hunk_ref: "tests/test_greeting.py:1"
+    evidence_missing: "Test execution result; import/package configuration"
+    why_not_classifiable: "Verification triangle unavailable (--no-mcp) and the log claims no execution (execution.log:5)"
+    next_evidence_needed: "A test run from audit_repo_root in an execution-capable run"
+    owner: user
+    decision_needed_by_user: true
+risks:
+  - {risk: "'not name' guard broader than 'empty' (None/falsy -> ValueError)", citation: "src/greeting.py:2", tag: "code Grounded; spec mismatch [INFERRED]"}
+  - {risk: "Whitespace-only names accepted -> 'Hello,  !'", citation: "src/greeting.py:2-4", tag: "path Grounded; impact [INFERRED]"}
+  - {risk: "Thin negative tests (only '' covered)", citation: "tests/test_greeting.py:8-13", tag: Grounded}
+  - {risk: "'from src.greeting import greet' may not resolve", citation: "tests/test_greeting.py:1", tag: "line Grounded; failure [INFERRED]"}
+  - {risk: "No test execution claimed", citation: "execution.log:5", tag: Grounded}
+recommendations:
+  - {id: REC-1, file: src/greeting.py, change: "After R-002 is clarified, tighten or document the input contract (None / whitespace-only)", verifier: "R-002 text plus unit tests for None, ' ', 0", priority: medium}
+  - {id: REC-2, file: tests/test_greeting.py, change: "Add edge-case tests for the clarified contract and confirm the import path resolves", verifier: "Run the tests from audit_repo_root in an execution-capable run", priority: medium}
+  - {id: REC-3, file: execution.log, change: "Re-audit with --spec/--tasklist and a diff baseline", verifier: "UC-2 audit with --spec/--tasklist and --diff or --commit-range", priority: high}
+regression_candidates: 0
+self_reported_confidence: 0.6   # self-report only; not used for routing

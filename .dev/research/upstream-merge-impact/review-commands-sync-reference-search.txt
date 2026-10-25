@@ -1,0 +1,18 @@
+Command: ['git', 'grep', '-n', '-e', 'sync_from_framework', '-e', 'FrameworkSyncer', '-e', 'ProtectionViolationError', '-e', '.framework-sync-commit', '-e', 'pull-sync-framework', 'HEAD', '--', ':!.dev']
+Return code: 0
+HEAD:.github/workflows/README.md:41:### 4. **pull-sync-framework.yml** - Framework Sync
+HEAD:.github/workflows/pull-sync-framework.yml:29:          if [ -f "plugin-repo/docs/.framework-sync-commit" ]; then
+HEAD:.github/workflows/pull-sync-framework.yml:30:            LAST_SYNCED=$(cat plugin-repo/docs/.framework-sync-commit)
+HEAD:.github/workflows/pull-sync-framework.yml:54:          python3 scripts/sync_from_framework.py
+HEAD:.github/workflows/pull-sync-framework.yml:75:            echo "Fix: check SYNC_MAPPINGS in scripts/sync_from_framework.py"
+HEAD:.github/workflows/pull-sync-framework.yml:83:          echo "${{ steps.check-updates.outputs.framework-head }}" > plugin-repo/docs/.framework-sync-commit
+HEAD:.github/workflows/pull-sync-framework.yml:106:          if [ -f "docs/.framework-sync-commit" ]; then
+HEAD:.github/workflows/pull-sync-framework.yml:107:            git add -f docs/.framework-sync-commit
+HEAD:scripts/sync_from_framework.py:11:    python scripts/sync_from_framework.py [OPTIONS]
+HEAD:scripts/sync_from_framework.py:41:class ProtectionViolationError(RuntimeError):
+HEAD:scripts/sync_from_framework.py:436:class FrameworkSyncer:
+HEAD:scripts/sync_from_framework.py:454:    # and raise ProtectionViolationError if anything changed.
+HEAD:scripts/sync_from_framework.py:540:        except ProtectionViolationError as e:
+HEAD:scripts/sync_from_framework.py:616:            ProtectionViolationError: if any protected file was modified or deleted.
+HEAD:scripts/sync_from_framework.py:635:            raise ProtectionViolationError(msg)
+HEAD:scripts/sync_from_framework.py:886:    syncer = FrameworkSyncer(

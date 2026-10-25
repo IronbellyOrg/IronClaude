@@ -1,0 +1,27 @@
+# sc:sc-adversarial-protocol return contract (Mode A). Compiled by the protocol driver from the on-disk
+# artifacts and the sc:debate-orchestrator / sc:merge-executor reported results (no separate orchestrator
+# compile call was made for this file; values are copied, not re-judged).
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/adversarial/merged-reviewer-card.md"
+  merged_output_sha256: "53bb59a08b8b0acee916a92b5c54a7f42d5c55e3bcd514aef762ee4bd7b84b8c"
+  convergence_score: 0.947            # 18/19 per debate-transcript.md (promoted A-points only in denominator)
+  convergence_status: BLOCKED_BY_INVARIANTS
+  artifacts_dir: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial"
+  status: partial                     # not converged: HIGH UNADDRESSED invariant INV-004 blocks the convergence gate
+  base_variant: "grok-4.7[1m]:qa"     # Variant 2 (haiku slot); selected via tiebreaker L1 (debate points 9 vs 3); combined 0.9190 vs 0.9013
+  unresolved_conflicts: 1             # C-001 (gap partition) — resolved by documented orchestrator decision in refactor-plan.md Change 5, not by debate
+  unresolved_conflict_ids: [C-001]
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-004, category: "collection_boundaries / sufficiency_challenge", assumption: "T-103 provenance and A-001 scope gaps close by widening --scope / regenerating a diff", severity: HIGH}
+  medium_invariant_warnings: [INV-001, INV-006, INV-008, INV-009, INV-010, INV-011]
+  rounds: {round_1: parallel, round_2: sequential, round_2_5: invariant-probe, round_3: "skipped (depth=standard)"}
+  advocates: [{variant: 1, model: opus}, {variant: 2, model: opus}]
+  judge_debater_same_class: true      # Mode A default advocate model = current model (opus); orchestrator/scorers also opus
+  scoring: {position_bias_passes: 2, disagreements: 1, disagreement: "V1 Risk-3 -> NOT MET on re-evaluation"}
+  merge: {planned_changes: 15, applied: 15, failed: 0, skipped: 0, not_made: 14, post_merge_validation: pass}
+  process_deviations:
+    - "Round-2 V2 advocate self-reported one read-only in-scope Bash cat (brief said no shell)"
+    - "sc:merge-executor self-reported read-only ls/find/cat/sed within allowed paths (brief said no shell); no writes outside its two files"

@@ -1,0 +1,14 @@
+- id: G-1
+  hunk_ref: "completed.md:8 (T-103) / spec.md:11-12 (R-003); no hunk in changes.patch:1-9"
+  evidence_missing: "Test code in the supplied diff or in --scope src. tests/test_greeting.py exists untracked but is not in changes.patch and is outside --scope; zero commits so no timeline."
+  why_not_classifiable: "A claimed deliverable has no hunk in the audited evidence, so no 4-class signal applies; no test run occurred (not a pytest exit 5)."
+  next_evidence_needed: "Regenerate the diff to include tests/test_greeting.py and widen --scope (or supply it as an explicit input), then execute the tests in a verification-capable run."
+  owner: user
+  decision_needed_by_user: true
+- id: G-2
+  hunk_ref: "src/greeting.py:1-4 (changes.patch:5-9)"
+  evidence_missing: "Any verification exit code: execute_shell_command unavailable (verification_skip_reason: tool-unavailable); no task log supplied; zero commits so no pre-diff baseline."
+  why_not_classifiable: "Regression detection requires a verified test result or a task-log claim; neither exists in the selected inputs."
+  next_evidence_needed: "pytest exit code from a verification-capable run executed at the project root."
+  owner: reviewer
+  decision_needed_by_user: false

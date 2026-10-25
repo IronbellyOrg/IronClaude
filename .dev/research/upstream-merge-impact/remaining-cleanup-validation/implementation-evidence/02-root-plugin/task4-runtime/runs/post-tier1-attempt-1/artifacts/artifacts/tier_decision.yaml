@@ -1,0 +1,26 @@
+{
+  "selected_tier": 1,
+  "fired_rule_number": null,
+  "hard_override": "--tier 1 (\u00a75.1)",
+  "rubric_shadow_evaluation": {
+    "C": 0.91,
+    "S_scope": 1,
+    "S_domains": 1,
+    "S_dev_density": 0.0,
+    "coverage_pct": null,
+    "note": "rule 1 conjuncts otherwise met except coverage_pct is a UC-1 field (null in post); regression candidates 0; no pre-filter flags set"
+  },
+  "coverage_degraded": null,
+  "surface_unreached": null,
+  "composite_score": 1.0,
+  "per_signal_breakdown": {
+    "scope_size": 0,
+    "task_count": 0,
+    "blast_radius": 0,
+    "spec_density": 0,
+    "ambiguity_signals": 1
+  },
+  "escalation_reason": "explicit --tier 1 pin; Waves 3-4 skipped",
+  "t2_model_class_diversity": "full",
+  "t2_vendor_diversity": "single"
+}

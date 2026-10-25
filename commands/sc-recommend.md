@@ -11,7 +11,7 @@ category: utility
 ## Command Definition
 
 ```bash
-/sc:sc:recommend [user request] --options [flags]
+/sc:sc-recommend [user request] --options [flags]
 ```
 
 ## Multi-language Support
@@ -71,19 +71,19 @@ def detect_language_and_translate(input_text):
 
 ```bash
 # Turkish examples
-/sc:sc:recommend "makine öğrenmesi algoritması başlat"
-/sc:sc:recommend "sitem yavaş açılıyor, ne yapayım?"
-/sc:sc:recommend "yeni bir özellik eklemeliyim"
-/sc:sc:recommend "hata alıyorum, çözüm bul"
+/sc:sc-recommend "makine öğrenmesi algoritması başlat"
+/sc:sc-recommend "sitem yavaş açılıyor, ne yapayım?"
+/sc:sc-recommend "yeni bir özellik eklemeliyim"
+/sc:sc-recommend "hata alıyorum, çözüm bul"
 
 # English examples
-/sc:sc:recommend "I want to build ML algorithm"
-/sc:sc:recommend "my website is slow, help me optimize"
-/sc:sc:recommend "I need to add a new feature"
-/sc:sc:recommend "getting errors, need debugging"
+/sc:sc-recommend "I want to build ML algorithm"
+/sc:sc-recommend "my website is slow, help me optimize"
+/sc:sc-recommend "I need to add a new feature"
+/sc:sc-recommend "getting errors, need debugging"
 
 # Mixed language
-/sc:sc:recommend "makine learning projesi yapmak istiyorum"
+/sc:sc-recommend "makine learning projesi yapmak istiyorum"
 ```
 
 ## SuperClaude Integrated Recommendation Engine
@@ -127,69 +127,69 @@ keyword_extraction:
 ```yaml
 category_mapping:
   ml_category:
-    primary_commands: ["/sc:sc:analyze --c7", "/sc:sc:design --ultrathink"]
-    secondary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:improve --performance"]
+    primary_commands: ["/sc:sc-analyze --c7", "/sc:sc-design --ultrathink"]
+    secondary_commands: ["/sc:sc-build --feature --tdd", "/sc:sc-improve --performance"]
     mcp_servers: ["--c7"]
     personas: ["--persona-analyzer", "--persona-architect"]
     flags: ["--think-hard", "--evidence", "--profile"]
 
   web_category:
-    primary_commands: ["/sc:sc:build --feature --magic", "/sc:sc:design --api"]
-    secondary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:analyze --code"]
+    primary_commands: ["/sc:sc-build --feature --magic", "/sc:sc-design --api"]
+    secondary_commands: ["/sc:sc-test --coverage --e2e --pup", "/sc:sc-analyze --code"]
     mcp_servers: ["--magic", "--c7", "--pup"]
     personas: ["--persona-frontend", "--persona-qa"]
     flags: ["--react", "--tdd", "--validate"]
 
   api_category:
-    primary_commands: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
-    secondary_commands: ["/sc:sc:scan --security --owasp", "/sc:sc:analyze --performance --pup"]
+    primary_commands: ["/sc:sc-design --api --ddd", "/sc:sc-build --feature --tdd"]
+    secondary_commands: ["UNAVAILABLE(scan) --security --owasp", "/sc:sc-analyze --performance --pup"]
     mcp_servers: ["--c7", "--pup"]
     personas: ["--persona-backend", "--persona-security"]
     flags: ["--microservices", "--ultrathink", "--security"]
 
   debug_category:
-    primary_commands: ["/sc:sc:troubleshoot --investigate", "/sc:sc:analyze --code"]
-    secondary_commands: ["/sc:sc:scan --security", "/sc:sc:improve --quality"]
+    primary_commands: ["/sc:sc-troubleshoot --investigate", "/sc:sc-analyze --code"]
+    secondary_commands: ["UNAVAILABLE(scan) --security", "/sc:sc-improve --quality"]
     mcp_servers: ["--all-mcp"]
     personas: ["--persona-analyzer", "--persona-security"]
     flags: ["--evidence", "--think-hard", "--profile"]
 
   performance_category:
-    primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
-    secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:build --optimize"]
+    primary_commands: ["/sc:sc-analyze --performance --pup --profile", "/sc:sc-troubleshoot"]
+    secondary_commands: ["/sc:sc-improve --performance --iterate", "/sc:sc-build --optimize"]
     mcp_servers: ["--pup"]
     personas: ["--persona-performance", "--persona-analyzer"]
     flags: ["--profile", "--monitoring", "--benchmark"]
 
   security_category:
-    primary_commands: ["/sc:sc:scan --security --owasp --deps", "/sc:sc:analyze --security"]
-    secondary_commands: ["/sc:sc:improve --security --harden", "/sc:sc:troubleshoot --investigate"]
+    primary_commands: ["UNAVAILABLE(scan) --security --owasp --deps", "/sc:sc-analyze --security"]
+    secondary_commands: ["/sc:sc-improve --security --harden", "/sc:sc-troubleshoot --investigate"]
     personas: ["--persona-security", "--persona-analyzer"]
     flags: ["--strict", "--validate", "--owasp"]
 
   create_category:
-    primary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:design --ultrathink"]
-    secondary_commands: ["/sc:sc:analyze --code --c7", "/sc:sc:test --coverage --e2e"]
+    primary_commands: ["/sc:sc-build --feature --tdd", "/sc:sc-design --ultrathink"]
+    secondary_commands: ["/sc:sc-analyze --code --c7", "/sc:sc-test --coverage --e2e"]
     mcp_servers: ["--magic", "--c7", "--pup"]
     personas: ["--persona-frontend", "--persona-backend", "--persona-architect"]
     flags: ["--interactive", "--plan", "--think"]
 
   test_category:
-    primary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:scan --validate"]
-    secondary_commands: ["/sc:sc:improve --quality", "/sc:sc:troubleshoot --investigate"]
+    primary_commands: ["/sc:sc-test --coverage --e2e --pup", "UNAVAILABLE(scan) --validate"]
+    secondary_commands: ["/sc:sc-improve --quality", "/sc:sc-troubleshoot --investigate"]
     mcp_servers: ["--pup"]
     personas: ["--persona-qa", "--persona-performance"]
     flags: ["--validate", "--coverage", "--monitoring"]
 
   improve_category:
-    primary_commands: ["/sc:sc:improve --quality --iterate", "/sc:sc:cleanup --code --all"]
-    secondary_commands: ["/sc:sc:analyze --code", "/sc:sc:refactor --quality"]
+    primary_commands: ["/sc:sc-improve --quality --iterate", "/sc:sc-cleanup --code --all"]
+    secondary_commands: ["/sc:sc-analyze --code", "UNAVAILABLE(refactor) --quality"]
     personas: ["--persona-refactorer", "--persona-mentor"]
     flags: ["--threshold", "--iterate", "--profile"]
 
   learning_category:
-    primary_commands: ["/sc:sc:document --user --examples", "/sc:sc:analyze --code --c7"]
-    secondary_commands: ["/sc:sc:brainstorm --interactive", "/sc:sc:help --specific"]
+    primary_commands: ["/sc:sc-document --user --examples", "/sc:sc-analyze --code --c7"]
+    secondary_commands: ["/sc:sc-brainstorm --interactive", "/sc:sc-help --specific"]
     mcp_servers: ["--c7"]
     personas: ["--persona-mentor", "--persona-analyzer"]
     flags: ["--examples", "--visual", "--interactive"]
@@ -200,18 +200,18 @@ category_mapping:
 expertise_levels:
   beginner:
     style: "detailed, step-by-step, explanatory"
-    recommended_commands: ["/sc:sc:brainstorm --educational", "/sc:sc:help --interactive"]
+    recommended_commands: ["/sc:sc-brainstorm --educational", "/sc:sc-help --interactive"]
     extra_explanations: true
     step_by_step: true
 
   intermediate:
     style: "balanced, technical but understandable"
-    recommended_commands: ["/sc:sc:implement --guided", "/sc:sc:design --template"]
+    recommended_commands: ["/sc:sc-implement --guided", "/sc:sc-design --template"]
     some_explanations: true
 
   expert:
     style: "fast, technical, direct"
-    recommended_commands: ["/sc:sc:implement --advanced", "/sc:sc:analyze --deep"]
+    recommended_commands: ["/sc:sc-implement --advanced", "/sc:sc-analyze --deep"]
     minimal_explanations: true
 ```
 
@@ -219,7 +219,7 @@ expertise_levels:
 
 ### Example 1: Beginner Level ML Project
 ```bash
-User: /sc:sc:recommend "I'm new, I want to do machine learning"
+User: /sc:sc-recommend "I'm new, I want to do machine learning"
 
 🎯 Project Analysis: Machine learning - Beginner level
 🌍 Language: Turkish detected
@@ -227,31 +227,31 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
 🎭 Persona: --persona-mentor + --persona-analyzer
 
 ✅ SuperClaude Recommended Flow:
-1. /sc:sc:analyze --c7 --persona-mentor
+1. /sc:sc-analyze --c7 --persona-mentor
    "Research ML goals, data types, and suitable libraries"
 
-2. /sc:sc:design --ultrathink --persona-architect
+2. /sc:sc-design --ultrathink --persona-architect
    "Design simple but scalable ML architecture"
 
-3. /sc:sc:build --feature --tdd --persona-frontend
+3. /sc:sc-build --feature --tdd --persona-frontend
    "Create ML pipeline with TDD"
 
-4. /sc:sc:test --coverage --e2e --pup --persona-qa
+4. /sc:sc-test --coverage --e2e --pup --persona-qa
    "Create comprehensive test scenarios"
 
 🔧 Recommended MCP Servers: --c7
 💡 Additional Recommendations:
-- Learning mode: /sc:sc:document --user --examples --persona-mentor
-- Security: /sc:sc:scan --security --owasp (next phase)
-- Performance: /sc:sc:analyze --performance --pup (after model training)
+- Learning mode: /sc:sc-document --user --examples --persona-mentor
+- Security: UNAVAILABLE(scan) --security --owasp (next phase)
+- Performance: /sc:sc-analyze --performance --pup (after model training)
 
 🚀 Quick Start (optional):
-/sc:sc:build --feature --magic --react --persona-frontend
+/sc:sc-build --feature --magic --react --persona-frontend
 ```
 
 ### Example 2: Web Performance Optimization
 ```bash
-User: /sc:sc:recommend "my site is very slow, what should I do?"
+User: /sc:sc-recommend "my site is very slow, what should I do?"
 
 🎯 Project Analysis: Web performance optimization - Urgent
 🌍 Language: Turkish
@@ -259,16 +259,16 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
 🎭 Persona: --persona-performance + --persona-analyzer
 
 ✅ SuperClaude Recommended Flow:
-1. /sc:sc:analyze --performance --pup --profile --persona-performance
+1. /sc:sc-analyze --performance --pup --profile --persona-performance
    "Detailed performance analysis and bottleneck detection"
 
-2. /sc:sc:troubleshoot --investigate --persona-analyzer
+2. /sc:sc-troubleshoot --investigate --persona-analyzer
    "Investigate issue with root cause analysis"
 
-3. /sc:sc:improve --performance --iterate --persona-performance
+3. /sc:sc-improve --performance --iterate --persona-performance
    "Data-driven performance improvements"
 
-4. /sc:sc:test --coverage --e2e --pup --persona-qa
+4. /sc:sc-test --coverage --e2e --pup --persona-qa
    "Tests validating improvements"
 
 🔧 Recommended MCP Servers: --pup
@@ -283,7 +283,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
 
 ### Example 3: Advanced API Security (English)
 ```bash
-User: /sc:sc:recommend "Need to secure API with authentication and authorization"
+User: /sc:sc-recommend "Need to secure API with authentication and authorization"
 
 🎯 Project Analysis: API security - Advanced level
 🌍 Language: English detected
@@ -291,19 +291,19 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
 🎭 Persona: --persona-security + --persona-backend
 
 ✅ SuperClaude Recommended Flow:
-1. /sc:sc:analyze --security --persona-security
+1. /sc:sc-analyze --security --persona-security
    "Comprehensive security analysis and threat modeling"
 
-2. /sc:sc:scan --security --owasp --deps --strict --persona-security
+2. UNAVAILABLE(scan) --security --owasp --deps --strict --persona-security
    "OWASP Top 10 vulnerability scan and dependency check"
 
-3. /sc:sc:design --api --ddd --ultrathink --persona-architect
+3. /sc:sc-design --api --ddd --ultrathink --persona-architect
    "Secure API architecture with proper authentication patterns"
 
-4. /sc:sc:build --feature --tdd --persona-backend
+4. /sc:sc-build --feature --tdd --persona-backend
    "Implement security features with test-driven development"
 
-5. /sc:sc:improve --security --harden --persona-security
+5. /sc:sc-improve --security --harden --persona-security
    "Security hardening and production-ready configurations"
 
 💡 Advanced Security Options:
@@ -316,7 +316,7 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
 
 ### Example 4: React Component Development
 ```bash
-User: /sc:sc:recommend "I'm going to create a new user profile component"
+User: /sc:sc-recommend "I'm going to create a new user profile component"
 
 🎯 Project Analysis: React UI component development
 🌍 Language: Turkish
@@ -324,16 +324,16 @@ User: /sc:sc:recommend "I'm going to create a new user profile component"
 🎭 Persona: --persona-frontend + --persona-qa
 
 ✅ SuperClaude Recommended Flow:
-1. /sc:sc:design --api --persona-architect
+1. /sc:sc-design --api --persona-architect
    "Component interface and props design"
 
-2. /sc:sc:build --feature --magic --react --persona-frontend
+2. /sc:sc-build --feature --magic --react --persona-frontend
    "Create accessible React component with Magic"
 
-3. /sc:sc:test --coverage --e2e --pup --persona-qa
+3. /sc:sc-test --coverage --e2e --pup --persona-qa
    "E2E tests and accessibility validation"
 
-4. /sc:sc:analyze --code --c7 --persona-frontend
+4. /sc:sc-analyze --code --c7 --persona-frontend
    "React best practices and optimization"
 
 🔧 Recommended MCP Servers: --magic --c7 --pup
@@ -376,34 +376,34 @@ project_detection:
     react_project:
       indicators: ["package.json with react", "src/App.jsx", "public/", "node_modules/react"]
       detection_commands:
-        primary: ["/sc:sc:build --feature --magic --react", "/sc:sc:test --coverage --e2e --pup"]
+        primary: ["/sc:sc-build --feature --magic --react", "/sc:sc-test --coverage --e2e --pup"]
         personas: ["--persona-frontend", "--persona-qa"]
         mcp: ["--magic", "--c7", "--pup"]
 
     vue_project:
       indicators: ["package.json with vue", "src/App.vue", "vue.config.js"]
       detection_commands:
-        primary: ["/sc:sc:build --feature --magic", "/sc:sc:analyze --code --c7"]
+        primary: ["/sc:sc-build --feature --magic", "/sc:sc-analyze --code --c7"]
         personas: ["--persona-frontend"]
         mcp: ["--magic", "--c7"]
 
     node_api_project:
       indicators: ["package.json with express", "server.js", "routes/", "controllers/"]
       detection_commands:
-        primary: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
+        primary: ["/sc:sc-design --api --ddd", "/sc:sc-build --feature --tdd"]
         personas: ["--persona-backend", "--persona-security"]
         mcp: ["--c7"]
 
     python_project:
       indicators: ["requirements.txt", "setup.py", "src/", "main.py", "Dockerfile"]
       detection_commands:
-        primary: ["/sc:sc:analyze --code", "/sc:sc:design --ultrathink"]
+        primary: ["/sc:sc-analyze --code", "/sc:sc-design --ultrathink"]
         personas: ["--persona-analyzer", "--persona-architect"]
 
     database_project:
       indicators: ["schema.sql", "migrations/", "models/", "prisma.schema"]
       detection_commands:
-        primary: ["/sc:sc:migrate --database --validate", "/sc:sc:analyze --security"]
+        primary: ["UNAVAILABLE(migrate) --database --validate", "/sc:sc-analyze --security"]
         personas: ["--persona-backend", "--persona-security"]
 
   project_size_estimation:
@@ -426,20 +426,20 @@ project_detection:
 ### Context-Aware Examples
 
 ```bash
-/sc:sc:recommend "I need to add a new feature"
+/sc:sc-recommend "I need to add a new feature"
 
 🎯 Project Analysis: React project - Feature development
 📁 Project Context: React application detected (15+ components)
 🎭 Persona: --persona-frontend + --persona-qa
 
 ✅ Context-Aware Recommendations:
-1. /sc:sc:build --feature --magic --react --persona-frontend
+1. /sc:sc-build --feature --magic --react --persona-frontend
    "New component compatible with existing design system"
 
-2. /sc:sc:test --coverage --e2e --pup --persona-qa
+2. /sc:sc-test --coverage --e2e --pup --persona-qa
    "Create tests for new feature"
 
-3. /sc:sc:analyze --code --c7 --persona-frontend
+3. /sc:sc-analyze --code --c7 --persona-frontend
    "React best practices check"
 
 💡 Project-Specific Flags:
@@ -449,20 +449,20 @@ project_detection:
 ```
 
 ```bash
-/sc:sc:recommend "I need to do a security audit"
+/sc:sc-recommend "I need to do a security audit"
 
 🎯 Project Analysis: Node.js API - Security audit
 📁 Project Context: Express API detected (JWT auth exists)
 🎭 Persona: --persona-security + --persona-backend
 
 ✅ Context-Aware Recommendations:
-1. /sc:sc:scan --security --owasp --deps --strict --persona-security
+1. UNAVAILABLE(scan) --security --owasp --deps --strict --persona-security
    "OWASP Top 10 and dependency security scan"
 
-2. /sc:sc:analyze --security --persona-security
+2. /sc:sc-analyze --security --persona-security
    "JWT and authentication pattern analysis"
 
-3. /sc:sc:improve --security --harden --persona-backend
+3. /sc:sc-improve --security --harden --persona-backend
    "Security hardening and production configs"
 
 💡 Project-Specific Flags:
@@ -478,43 +478,43 @@ project_detection:
 ```yaml
 streaming_mode:
   activation:
-    command: "/sc:sc:recommend --stream [project description]"
+    command: "/sc:sc-recommend --stream [project description]"
     purpose: "Continuous recommendation throughout project"
 
   flow_tracking:
     phase_1: Analysis & Planning
-      commands: ["/sc:sc:analyze", "/sc:sc:design"]
+      commands: ["/sc:sc-analyze", "/sc:sc-design"]
       next_phase_trigger: "analysis_complete"
 
     phase_2: Implementation
-      commands: ["/sc:sc:build", "/sc:sc:implement"]
+      commands: ["/sc:sc-build", "/sc:sc-implement"]
       next_phase_trigger: "implementation_complete"
 
     phase_3: Testing & Validation
-      commands: ["/sc:sc:test", "/sc:sc:scan"]
+      commands: ["/sc:sc-test", "UNAVAILABLE(scan)"]
       next_phase_trigger: "testing_complete"
 
     phase_4: Deployment & Monitoring
-      commands: ["/sc:sc:deploy", "/sc:sc:improve"]
+      commands: ["UNAVAILABLE(deploy)", "/sc:sc-improve"]
       project_complete: true
 ```
 
 ### Streaming Example
 
 ```bash
-/sc:sc:recommend --stream "I'm building a new e-commerce site"
+/sc:sc-recommend --stream "I'm building a new e-commerce site"
 
 🚀 STREAMING MODE ACTIVE
 📊 Project: E-commerce website
 ⏱️ Estimated Time: 3-6 weeks
 
 --- PHASE 1: ANALYSIS & PLANNING ---
-✅ Current: /sc:sc:analyze --c7 --persona-architect
+✅ Current: /sc:sc-analyze --c7 --persona-architect
    "E-commerce architecture and technology selection"
 
 🔄 Next Steps (when completed):
-1. /sc:sc:design --api --ddd --ultrathink --persona-architect
-2. /sc:sc:build --feature --magic --react --persona-frontend
+1. /sc:sc-design --api --ddd --ultrathink --persona-architect
+2. /sc:sc-build --feature --magic --react --persona-frontend
 
 --- STREAM CONTINUING ---
 ```
@@ -546,26 +546,26 @@ alternative_engine:
 ### Alternative Example
 
 ```bash
-/sc:sc:recommend --alternatives "new blog site"
+/sc:sc-recommend --alternatives "new blog site"
 
 🎯 PROJECT ANALYSIS: Blog site development
 
 ⭐ BEST RECOMMENDATION:
-/sc:sc:build --feature --magic --nextjs --persona-frontend
+/sc:sc-build --feature --magic --nextjs --persona-frontend
    "Modern, SEO-friendly blog with Next.js"
 
 🔧 ALTERNATIVES:
-1. /sc:sc:build --feature --react --static --persona-frontend
+1. /sc:sc-build --feature --react --static --persona-frontend
    ✅ Advantage: Simpler learning curve
    ❌ Disadvantage: Less SEO optimization
    👥 Users: 35% prefer this
 
-2. /sc:sc:build --feature --vue --nuxt --persona-frontend
+2. /sc:sc-build --feature --vue --nuxt --persona-frontend
    ✅ Advantage: Great developer experience
    ❌ Disadvantage: Smaller community
    👥 Users: 20% prefer this
 
-3. /sc:sc:build --feature --gatsby --static --persona-frontend
+3. /sc:sc-build --feature --gatsby --static --persona-frontend
    ✅ Advantage: Excellent performance and SEO
    ❌ Disadvantage: More complex configuration
    👥 Users: 15% prefer this
@@ -626,7 +626,7 @@ estimation_engine:
 ### Estimation Examples
 
 ```bash
-/sc:sc:recommend "I'm developing a classification model" --estimate
+/sc:sc-recommend "I'm developing a classification model" --estimate
 
 🎯 PROJECT ANALYSIS: Classification model development
 📊 Estimation Mode: Active
@@ -659,7 +659,7 @@ estimation_engine:
 ```
 
 ```bash
-/sc:sc:recommend "corporate website" --estimate
+/sc:sc-recommend "corporate website" --estimate
 
 🎯 PROJECT ANALYSIS: Corporate website
 📊 Estimation Mode: Active
@@ -738,7 +738,7 @@ smart_flag_engine:
 ### Smart Flag Examples
 
 ```bash
-/sc:sc:recommend "performance improvement"
+/sc:sc-recommend "performance improvement"
 
 🎯 PROJECT ANALYSIS: Performance optimization
 🧠 SMART FLAG RECOMMENDATIONS:
@@ -754,7 +754,7 @@ smart_flag_engine:
 - High traffic: --benchmark --profile
 
 💡 RECOMMENDED COMMAND:
-/sc:sc:improve --performance --optimize --profile --monitoring --validate
+/sc:sc-improve --performance --optimize --profile --monitoring --validate
 
 🔧 ADDITIONAL FLAG OPTIONS:
 --memory-optimization (if RAM usage is high)
@@ -763,7 +763,7 @@ smart_flag_engine:
 ```
 
 ```bash
-/sc:sc:recommend "my first React component"
+/sc:sc-recommend "my first React component"
 
 🎯 PROJECT ANALYSIS: React component development - Beginner
 🧠 SMART FLAG RECOMMENDATIONS:
@@ -777,7 +777,7 @@ smart_flag_engine:
 - Accessibility required: --a11y --wcag
 
 💡 RECOMMENDED COMMAND:
-/sc:sc:build --feature --magic --react --tutorial --examples --persona-frontend
+/sc:sc-build --feature --magic --react --tutorial --examples --persona-frontend
 
 🔧 ADDITIONAL LEARNING FLAGS:
 --guided-development (step-by-step guidance)
@@ -794,33 +794,33 @@ community_patterns:
   successful_workflows:
     web_development:
       most_successful_flow:
-        - "/sc:sc:analyze --code --c7"
-        - "/sc:sc:design --api"
-        - "/sc:sc:build --feature --magic --tdd"
-        - "/sc:sc:test --coverage --e2e --pup"
+        - "/sc:sc-analyze --code --c7"
+        - "/sc:sc-design --api"
+        - "/sc:sc-build --feature --magic --tdd"
+        - "/sc:sc-test --coverage --e2e --pup"
       success_rate: "87%"
       user_feedback: "Highly recommended for React projects"
 
     ml_development:
       most_successful_flow:
-        - "/sc:sc:analyze --c7 --persona-mentor"
-        - "/sc:sc:design --ultrathink --persona-architect"
-        - "/sc:sc:build --feature --tdd --persona-frontend"
-        - "/sc:sc:improve --performance --iterate"
+        - "/sc:sc-analyze --c7 --persona-mentor"
+        - "/sc:sc-design --ultrathink --persona-architect"
+        - "/sc:sc-build --feature --tdd --persona-frontend"
+        - "/sc:sc-improve --performance --iterate"
       success_rate: "82%"
       user_feedback: "Great for ML beginners"
 
   popular_command_combinations:
     security_focused:
-      - "/sc:sc:scan --security --owasp"
-      - "/sc:sc:analyze --security"
-      - "/sc:sc:improve --security --harden"
+      - "UNAVAILABLE(scan) --security --owasp"
+      - "/sc:sc-analyze --security"
+      - "/sc:sc-improve --security --harden"
       usage_frequency: "45% of production projects"
 
     performance_optimization:
-      - "/sc:sc:analyze --performance --pup --profile"
-      - "/sc:sc:improve --performance --iterate"
-      - "/sc:sc:test --coverage --benchmark"
+      - "/sc:sc-analyze --performance --pup --profile"
+      - "/sc:sc-improve --performance --iterate"
+      - "/sc:sc-test --coverage --benchmark"
       usage_frequency: "38% of optimization projects"
 
   user_preferences:
@@ -840,7 +840,7 @@ community_patterns:
 
 ```yaml
 recommend_command_implementation:
-  command_structure: "/sc:sc:recommend [query] --options [flags]"
+  command_structure: "/sc:sc-recommend [query] --options [flags]"
 
   available_options:
     --estimate: "Includes time and budget estimation"
@@ -874,7 +874,7 @@ recommend_command_implementation:
 ### Comprehensive Final Example
 
 ```bash
-/sc:sc:recommend "I'm building an e-commerce site" --estimate --alternatives --community
+/sc:sc-recommend "I'm building an e-commerce site" --estimate --alternatives --community
 
 🎯 COMPREHENSIVE ANALYSIS
 ==========================
@@ -889,15 +889,15 @@ recommend_command_implementation:
 =================
 
 1. 🏗️ PLANNING AND DESIGN
-   /sc:sc:design --api --ddd --ultrathink --persona-architect
+   /sc:sc-design --api --ddd --ultrathink --persona-architect
    "E-commerce domain architecture and system design"
 
 2. 🎨 FRONTEND DEVELOPMENT
-   /sc:sc:build --feature --magic --nextjs --persona-frontend
+   /sc:sc-build --feature --magic --nextjs --persona-frontend
    "Modern, SEO-friendly e-commerce frontend"
 
 3. 🔒 SECURITY AND BACKEND
-   /sc:sc:build --feature --tdd --persona-security
+   /sc:sc-build --feature --tdd --persona-security
    "Secure payment system and user management"
 
 🔧 SMART FLAG RECOMMENDATIONS
@@ -942,7 +942,7 @@ recommend_command_implementation:
 ==================
 
 🏆 Most Successful Flow:
-/sc:sc:analyze → /sc:sc:design → /sc:sc:build → /sc:sc:test → /sc:sc:deploy
+/sc:sc-analyze → /sc:sc-design → /sc:sc-build → /sc:sc-test → UNAVAILABLE(deploy)
 Success Rate: 87% (from 2,847 projects)
 
 📈 Popular Features:
@@ -981,7 +981,7 @@ Success Rate: 87% (from 2,847 projects)
 ===================================
 
 To receive continuous recommendations throughout the project:
-/sc:sc:recommend --stream "track my e-commerce project"
+/sc:sc-recommend --stream "track my e-commerce project"
 
 You'll receive automatic recommendations at each stage! 🚀
 ```
@@ -1001,11 +1001,11 @@ You'll receive automatic recommendations at each stage! 🚀
 ## 🚀 HOW TO USE?
 
 ```bash
-/sc:sc:recommend "I want to do something"
-/sc:sc:recommend "new React project" --estimate --alternatives
-/sc:sc:recommend --stream "I'm developing my e-commerce site"
-/sc:sc:recommend "I want to learn React" --expertise beginner
-/sc:sc:recommend "blog site" --community
+/sc:sc-recommend "I want to do something"
+/sc:sc-recommend "new React project" --estimate --alternatives
+/sc:sc-recommend --stream "I'm developing my e-commerce site"
+/sc:sc-recommend "I want to learn React" --expertise beginner
+/sc:sc-recommend "blog site" --community
 ```
 
 **Ultra-intelligent command recommender ready! 🎉**

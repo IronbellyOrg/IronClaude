@@ -1,0 +1,27 @@
+# Wave 1D blind calibration. Agent: sc:confidence-calibrator (requested slot: opus; agentId a92d6d903927c63b9;
+# provider model not reported by the Agent tool). Inputs supplied: card + rubric only; calibrator independently
+# Read cited artifacts. Persisted by orchestrator from returned text.
+calibrator_agent: sc:confidence-calibrator
+calibrator_requested_model_slot: opus
+card_author_requested_model_slot: sonnet
+reviewer_model_classes: [sonnet]        # Tier-1 card author only
+calibrator_model_class: opus
+calibrator_diversity: full              # opus not in {sonnet}
+calibration: independent                # not inline-fallback
+citation_spot_checks: {checked: 26, verified: 26, mismatch: 0, missing: 0}
+recommendation_targets: {REC-1: exists, REC-2: exists, REC-3: exists, REC-4: "exists (path base relative to run dir; ambiguous)"}
+scores:
+  citation_grounding: 0.95
+  coverage_completeness: 1.00
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.92
+  recommendation_actionability: 0.92
+arithmetic: "(0.95+1.00+0.90+0.92+0.92)/5 = 4.69/5 = 0.938 -> 0.94"
+calibrated_confidence: 0.94
+self_reported_confidence_ignored: 0.85
+calibrator_concerns:
+  - "REC-4 path base ambiguous (artifacts/artifacts relative to run dir)."
+  - "Card file appended with an orchestrator note and REC-4 applied to the matrix before calibration (provenance recorded)."
+  - "S_domains: rubric counts code and tests separately -> use 2 for strict rule 1."
+  - "Specificity-loss findings carry no post-execution class mapping (acceptable for UC-1)."
+  - "src/ and tests/ existence not verifiable by calibrator (Read only); no card claim depends on them."

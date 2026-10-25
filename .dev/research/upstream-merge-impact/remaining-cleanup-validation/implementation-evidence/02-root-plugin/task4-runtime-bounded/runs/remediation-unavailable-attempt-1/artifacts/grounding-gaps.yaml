@@ -1,0 +1,18 @@
+- hunk_ref: "tests/test_greeting.py:1-13"
+  evidence_missing: "No verification run (--no-mcp: execute_shell_command unavailable, verification triangle skipped) and the task log explicitly claims no test execution (execution.log:5)."
+  why_not_classifiable: "Regression detection degrades to the task-log claim, and the log makes no pass/fail claim, so whether the tests pass (including whether 'from src.greeting import greet' resolves) cannot be decided."
+  next_evidence_needed: "Run the tests from the project root (e.g. 'uv run --no-project --with pytest python -m pytest tests -q' in a disposable copy) and record the exit code."
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: "src/greeting.py:1-4"
+  evidence_missing: "No driving spec or tasklist supplied; requirement IDs R-001..R-003 in execution.log:2-4 have no requirement text to trace to."
+  why_not_classifiable: "Without an independent gold standard, conformance of the falsy/whitespace guard semantics to intended requirements cannot be classified."
+  next_evidence_needed: "Supply --spec/--tasklist defining R-001..R-003 acceptance criteria and re-run."
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: "repo state (src/greeting.py, tests/test_greeting.py)"
+  evidence_missing: "Repository has no commits; no diff baseline or provenance for the untracked files."
+  why_not_classifiable: "Whether the files changed after the log was written, or predate it, cannot be established."
+  next_evidence_needed: "A baseline commit or pre-execution snapshot."
+  owner: user
+  decision_needed_by_user: true

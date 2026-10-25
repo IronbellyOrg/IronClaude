@@ -1,0 +1,27 @@
+# Persisted by orchestrator from sc:reuse-auditor (model slot: haiku) returned findings, verbatim.
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded:
+  - neighbour-search:auggie_unavailable
+neighbour_search_degraded: true
+sampled: false
+findings:
+  - candidate: greet
+    location: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/src/greeting.py:1-4
+    capability_tag: reject an empty name, then return a formatted hello string
+    neighbours: []
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    confidence: 0.62
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation:
+      N: 1
+      recommend_centralize: false
+      centralize_target: null
+    evidence_grounded: true

@@ -1,0 +1,38 @@
+# Wave 1B UC-2 tasklist-vs-diff map (inline; native Read/Grep fallback — Serena/Auggie not exposed)
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+diff_source: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/changes.patch
+diff_files: [src/greeting.py]
+diff_hunks:
+  - id: H1
+    ref: changes.patch:5-9  # @@ -0,0 +1,4 @@ new file src/greeting.py
+    working_tree_ref: src/greeting.py:1-4
+    working_tree_matches_diff: true
+tasks:
+  - task_id: T-101
+    tasklist_ref: completed.md:6
+    spec_ref: spec.md:5-6
+    mapped_hunks: [H1]
+    evidence: "src/greeting.py:4 returns f\"Hello, {name}!\" -> greet('Ada') yields 'Hello, Ada!' (static reading)"
+    status: verified-static
+  - task_id: T-102
+    tasklist_ref: completed.md:7
+    spec_ref: spec.md:8-9
+    mapped_hunks: [H1]
+    evidence: "src/greeting.py:2-3 'if not name: raise ValueError(\"name required\")' rejects '' (static reading)"
+    status: verified-static
+  - task_id: T-103
+    tasklist_ref: completed.md:8
+    spec_ref: spec.md:11-12
+    mapped_hunks: []
+    evidence: "No hunk in changes.patch. tests/test_greeting.py:4-13 exists in the working tree (untracked, outside --scope src/) with test_ordinary and test_empty; execution.log:4-5 claims creation and explicitly disclaims test execution"
+    status: unverified-in-diff (on-disk file present outside supplied diff/scope; not executed)
+unmapped_hunks: []
+structural_signals:
+  S_scope: 1
+  S_domains: 1   # code only within the diff (tests absent from diff)
+  S_dev_density: 0.0  # 0 unmapped hunks / 1 hunk
+tasklist_completion_pct_static: 0.667  # 2/3 tasks backed by the supplied diff
+frontmatter: {present: true, status: done, ref: "completed.md:1-3"}
+runtime_surface: "greet is a plain module function; no entrypoint/route/CLI/registry decorator -> runtime_surface_requirements [], sweep not run"
+reachability: "no side-effect-bearing requirement and no durable_sink/@sink annotation -> skip no-side-effect-requirements"
+verification: "execute_shell_command unavailable (Serena not exposed) -> verification_ran false, skip tool-unavailable; Regression detection degrades to task-log claim + Grounding Gap"

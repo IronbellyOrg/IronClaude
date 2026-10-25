@@ -1,0 +1,23 @@
+# Returned by sc:confidence-calibrator (requested model slot: opus -> claude-opus-5-5[1m]); persisted by orchestrator
+card: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-default-attempt-1/artifacts/artifacts/reflection-card.yaml
+formation_context_supplied: false
+citation_spot_checks: {total: 26, verified: 25, verified_by_absence: 1, mismatch: 0, missing_unreadable: 0}
+dimension_scores:
+  citation_grounding: 0.90
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.93
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.92
+calculation: "(0.90+0.95+0.93+0.90+0.92)/5 = 4.60/5 = 0.92"
+calibrated_confidence: 0.92
+self_reported_confidence_discarded: 0.72
+calibrator_model_class: opus
+card_author_model_class: sonnet
+reviewer_model_classes: []
+calibrator_diversity: full
+ungrounded_claims_flagged:
+  - "'untracked'/'outside --scope' rests on Wave-1B matrix, not primary evidence (orchestrator holds primary evidence: git status --porcelain shows '?? tests/test_greeting.py'; --scope=src)"
+  - "RK-4 'no commits so provenance unprovable' uncited (orchestrator evidence: git log -> 'current branch master does not have any commits yet')"
+  - "pytest exit 2 -> Grounding Gap is a protocol rule (refs/deviation-taxonomy.md:108)"
+  - "RK-6 verification-triangle claim should cite grounding-gaps.yaml:2"
+  - "collection-failure risk remains [INFERRED]"

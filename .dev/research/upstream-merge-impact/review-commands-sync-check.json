@@ -1,0 +1,864 @@
+{
+  "units": [
+    {
+      "unit": "commands-framework",
+      "exact_endpoint_match": true,
+      "endpoint_count": 217,
+      "currently_present": 139,
+      "currently_absent": 78,
+      "all_commits_named": true,
+      "has_placeholder": false,
+      "details": [
+        {
+          "sha": "0ef8ea8139202acb17c5ffc938619f331c7184ab",
+          "parents": [
+            "10844490e2609a61ec201e073872428bac9f9470"
+          ],
+          "path_count": 1,
+          "strict_check_rc": 1
+        },
+        {
+          "sha": "ab8904bc8cc2291b347a8641b913099f699f0c91",
+          "parents": [
+            "42946f8445f13f4444aa67ecb1f503ed6d91eb79"
+          ],
+          "path_count": 57,
+          "strict_check_rc": 1
+        },
+        {
+          "sha": "3762d6ab24508107dc794811d9b6b0c9def84707",
+          "parents": [
+            "ab8904bc8cc2291b347a8641b913099f699f0c91"
+          ],
+          "path_count": 158,
+          "strict_check_rc": 1
+        },
+        {
+          "sha": "e61aaba771055f65dd7c4f5de4d0e3e91ac928ec",
+          "parents": [
+            "208c66e1a781376a85132087b5a99767a9f13e31"
+          ],
+          "path_count": 15,
+          "strict_check_rc": 1
+        }
+      ]
+    },
+    {
+      "unit": "sync-protection",
+      "exact_endpoint_match": true,
+      "endpoint_count": 2,
+      "currently_present": 2,
+      "currently_absent": 0,
+      "all_commits_named": true,
+      "has_placeholder": false,
+      "details": [
+        {
+          "sha": "b061b2f7b00ca33d66c10b666c15016873b2e094",
+          "parents": [
+            "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+          ],
+          "path_count": 2,
+          "strict_check_rc": 1
+        },
+        {
+          "sha": "1e8c6e1622e157f36f44792e41f667399edb2a79",
+          "parents": [
+            "e60e844ed733069398516d00f4b0af5597fbf9ce",
+            "b061b2f7b00ca33d66c10b666c15016873b2e094"
+          ],
+          "path_count": 2,
+          "strict_check_rc": 1
+        }
+      ]
+    }
+  ],
+  "source_citations": [
+    {
+      "report": "commands-framework",
+      "report_line": 26,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "start": 1,
+      "end": 15,
+      "source_lines": 138,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 26,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "start": 40,
+      "end": 60,
+      "source_lines": 138,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 26,
+      "path": "src/superclaude/commands/recommend.md",
+      "start": 40,
+      "end": 60,
+      "source_lines": 138,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 27,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 25,
+      "end": 44,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_agents.py",
+      "start": 26,
+      "end": 57,
+      "source_lines": 142,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_core.py",
+      "start": 12,
+      "end": 23,
+      "source_lines": 152,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 28,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "start": 345,
+      "end": 360,
+      "source_lines": 686,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 28,
+      "path": "tests/commands/test_research_command.py",
+      "start": 11,
+      "end": 15,
+      "source_lines": 57,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 28,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 123,
+      "end": 161,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 29,
+      "path": "src/superclaude/commands/cleanup.md",
+      "start": 107,
+      "end": 127,
+      "source_lines": 127,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 29,
+      "path": "src/superclaude/commands/research.md",
+      "start": 122,
+      "end": 142,
+      "source_lines": 142,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 29,
+      "path": "src/superclaude/commands/workflow.md",
+      "start": 48,
+      "end": 80,
+      "source_lines": 80,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 29,
+      "path": "src/superclaude/commands/implement.md",
+      "start": 63,
+      "end": 83,
+      "source_lines": 146,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 37,
+      "path": "src/superclaude/cli/main.py",
+      "start": 189,
+      "end": 219,
+      "source_lines": 567,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 29,
+      "end": 44,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 50,
+      "end": 64,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_agents.py",
+      "start": 47,
+      "end": 59,
+      "source_lines": 142,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 38,
+      "path": "src/superclaude/skills/sc-task-protocol/SKILL.md",
+      "start": 311,
+      "end": 315,
+      "source_lines": 405,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 38,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "start": 345,
+      "end": 360,
+      "source_lines": 686,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 38,
+      "path": "src/superclaude/agents/backend-architect.md",
+      "start": 1,
+      "end": 56,
+      "source_lines": 56,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 39,
+      "path": "src/superclaude/commands/research.md",
+      "start": 86,
+      "end": 100,
+      "source_lines": 142,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 39,
+      "path": "tests/commands/test_research_command.py",
+      "start": 11,
+      "end": 15,
+      "source_lines": 57,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 129,
+      "end": 133,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 40,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 53,
+      "end": 68,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 41,
+      "path": "pyproject.toml",
+      "start": 78,
+      "end": 97,
+      "source_lines": 216,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 41,
+      "path": "Makefile",
+      "start": 126,
+      "end": 136,
+      "source_lines": 567,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 41,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 18,
+      "source_lines": 101,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 47,
+      "path": "src/superclaude/cli/install_core.py",
+      "start": 46,
+      "end": 71,
+      "source_lines": 152,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 48,
+      "path": "src/superclaude/commands/task.md",
+      "start": 95,
+      "end": 102,
+      "source_lines": 186,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 49,
+      "path": "src/superclaude/commands/recommend.md",
+      "start": 30,
+      "end": 60,
+      "source_lines": 138,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 49,
+      "path": "src/superclaude/skills/sc-recommend/SKILL.md",
+      "start": 148,
+      "end": 171,
+      "source_lines": 398,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 50,
+      "path": "src/superclaude/commands/implement.md",
+      "start": 63,
+      "end": 83,
+      "source_lines": 146,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 50,
+      "path": "src/superclaude/commands/workflow.md",
+      "start": 44,
+      "end": 80,
+      "source_lines": 80,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 74,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "start": 40,
+      "end": 60,
+      "source_lines": 138,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 74,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 393,
+      "end": 399,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 74,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 107,
+      "end": 126,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 75,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 38,
+      "end": 62,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 75,
+      "path": "src/superclaude/commands/implement.md",
+      "start": 67,
+      "end": 83,
+      "source_lines": 146,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 75,
+      "path": "src/superclaude/commands/workflow.md",
+      "start": 44,
+      "end": 54,
+      "source_lines": 80,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 75,
+      "path": "src/superclaude/commands/task.md",
+      "start": 95,
+      "end": 102,
+      "source_lines": 186,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 75,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 111,
+      "end": 120,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 76,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "start": 351,
+      "end": 360,
+      "source_lines": 686,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 76,
+      "path": "src/superclaude/skills/sc-task-protocol/SKILL.md",
+      "start": 311,
+      "end": 315,
+      "source_lines": 405,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 76,
+      "path": "tests/commands/test_research_command.py",
+      "start": 11,
+      "end": 15,
+      "source_lines": 57,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 76,
+      "path": "src/superclaude/cli/install_core.py",
+      "start": 46,
+      "end": 71,
+      "source_lines": 152,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 76,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 123,
+      "end": 161,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 77,
+      "path": "src/superclaude/commands/research.md",
+      "start": 122,
+      "end": 142,
+      "source_lines": 142,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 77,
+      "path": "src/superclaude/commands/business-panel.md",
+      "start": 112,
+      "end": 129,
+      "source_lines": 129,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 77,
+      "path": "src/superclaude/commands/cleanup.md",
+      "start": 107,
+      "end": 127,
+      "source_lines": 127,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 77,
+      "path": "src/superclaude/commands/troubleshoot.md",
+      "start": 181,
+      "end": 196,
+      "source_lines": 214,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 105,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 29,
+      "end": 62,
+      "source_lines": 166,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 105,
+      "path": "src/superclaude/cli/install_core.py",
+      "start": 46,
+      "end": 71,
+      "source_lines": 152,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 105,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "start": 351,
+      "end": 360,
+      "source_lines": 686,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 105,
+      "path": "tests/commands/test_research_command.py",
+      "start": 34,
+      "end": 51,
+      "source_lines": 57,
+      "range_valid": true
+    },
+    {
+      "report": "commands-framework",
+      "report_line": 105,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 959,
+      "end": 982,
+      "source_lines": 1100,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 31,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 3,
+      "end": 6,
+      "source_lines": 121,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "start": 67,
+      "end": 147,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "start": 150,
+      "end": 300,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "start": 303,
+      "end": 433,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "start": 436,
+      "end": 639,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "start": 643,
+      "end": 848,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 34,
+      "path": "scripts/sync_from_framework.py",
+      "start": 443,
+      "end": 480,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 34,
+      "path": "scripts/sync_from_framework.py",
+      "start": 719,
+      "end": 766,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 36,
+      "path": "scripts/sync_from_framework.py",
+      "start": 503,
+      "end": 522,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 36,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 56,
+      "end": 78,
+      "source_lines": 121,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 38,
+      "path": "scripts/sync_from_framework.py",
+      "start": 70,
+      "end": 102,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 38,
+      "path": "commands/sc-analyze.md",
+      "start": 10,
+      "end": 10,
+      "source_lines": 98,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 40,
+      "path": "scripts/sync_from_framework.py",
+      "start": 822,
+      "end": 843,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 44,
+      "path": ".github/workflows/README.md",
+      "start": 41,
+      "end": 43,
+      "source_lines": 159,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 46,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 18,
+      "source_lines": 101,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 46,
+      "path": "Makefile",
+      "start": 65,
+      "end": 86,
+      "source_lines": 567,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 56,
+      "path": ".github/workflows/boundary-guard.yml",
+      "start": 13,
+      "end": 33,
+      "source_lines": 98,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 64,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 50,
+      "end": 117,
+      "source_lines": 121,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 66,
+      "path": "pyproject.toml",
+      "start": 69,
+      "end": 96,
+      "source_lines": 216,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 68,
+      "path": ".github/workflows/README.md",
+      "start": 41,
+      "end": 43,
+      "source_lines": 159,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 68,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 80,
+      "end": 84,
+      "source_lines": 121,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 78,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 3,
+      "end": 6,
+      "source_lines": 121,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 78,
+      "path": "scripts/sync_from_framework.py",
+      "start": 199,
+      "end": 246,
+      "source_lines": 928,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 81,
+      "path": ".github/workflows/boundary-guard.yml",
+      "start": 25,
+      "end": 33,
+      "source_lines": 98,
+      "range_valid": true
+    },
+    {
+      "report": "sync-protection",
+      "report_line": 88,
+      "path": "scripts/sync_from_framework.py",
+      "start": 490,
+      "end": 519,
+      "source_lines": 928,
+      "range_valid": true
+    }
+  ],
+  "source_citation_issues": [],
+  "git_records": [
+    {
+      "commit": "de177847a83acbd5a1633684cf1f34861fc8305d 430948a6f3cb5b16adc25b33442ed6d36523d700 RyanW <ryan@ironbelly.com> feat(v1.05): add core framework file installation to superclaude install",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "de04670a89479084028a41e5cdcc1e18afc3dd93 08addac8c7327ca7d1288a0bfd928f48495e2589 Alireza <ali.fz@ironbelly.com> refactor(commands,skills): Naming consolidation \u2014 /sc:task canonical (v3.7)",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "238d6583dc508f2dacff6cc978507c929609a2bb a8289c72ad499d41bfd2fba429d3ed3006750705 Ironbelly <ryan@ironbelly.com> feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "3dfac2c06f2d2dd8682e394182b64dda6d1a01d8 a97dfb29451464b13bcff1c0f54568893937c629 Ironbelly <ryan@ironbelly.com> feat(recommend): add --minstar popularity floor to /sc:recommend --plugin (#195)",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "051f39feaf2796e6f2bec1313dcfa9ce713055b6 ee1c1787d6b54a635911ffe62b35b950d88c75e5 clayphi <clay@ironbelly.com> feat(routing): one HOW-WE-WORK guide for which tool to use when",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "246acd7b2cea0d1fa548db25acdd855dfb9c445a dfd2599ad112e2fdb2b3e99ebf58577dee34ac20 Ryan wiancko <ryan@ironbelly.com> feat(implement): middleweight spec executor with per-task spec QA",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "b31111a90ddf00acc77c8ec5f4ea4fb0ec5aaae1 bc2ea87c3680c7c3670965b70152c7dfd41b1f96 Ryan wiancko <ryan@ironbelly.com> feat(workflow): split /sc:workflow into command + skill + refs",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "6dc56b1a811a03da1a4d0b83708dbf9caec580c8 2728768140a524b968a705ac5f7a47202502fd9c Ryan wiancko <ryan@ironbelly.com> feat(workflow): manage portable task packages and verified archiving",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "3ad7e2071e28b4582775b4ae5039cc9cb6d72846 c9250c89ffaa9a04536963c3a235da5f509eb17f Ryan wiancko <ryan@ironbelly.com> feat(implement): add escalating QA retry ladder and safe artifact recovery",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "3ae238b178fb7c67ca02809d24745de620c2bd50 bc2ea87c3680c7c3670965b70152c7dfd41b1f96 Ryan wiancko <ryan@ironbelly.com> chore: drop unused commands and sequential/magic/chrome-devtools MCPs",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4 5887df3345fff8215ff176324170373bd4bcd72a Ironbelly <ryan@ironbelly.com> docs(ci): add CONTRIBUTING.md CI Hygiene + fix pull-sync push target (#41)",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 271d9f1bbbed68307bea941b4cfe2b43704ce2c8 Ryan wiancko <ryan@ironbelly.com> ci: simplify GitHub Actions workflows",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "053b75664c8979bf223b8040f68310dce882d05b a88f100b38ed514b926d31f17534f49f6170f33b Ryan wiancko <ryan@ironbelly.com> ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "f7ea213a8f43e6c1b7b34352920ab632e6bc1e68 6c84826498b736df6615fa5ef51fce521dfc8dcc RyanW <ryan@ironbelly.com> Roadmap gaps",
+      "ancestor_of_HEAD": true
+    },
+    {
+      "commit": "38ca920d4c820d62bdc2854414aedf29d65300f5 f8fce9c7149f78c942587d33df37fde300cca092 Ironbelly <ryan@ironbelly.com> fix(lint): resolve Issue #60 \u2014 eliminate pre-existing ruff debt (441 \u2192 0) (#83)",
+      "ancestor_of_HEAD": true
+    }
+  ],
+  "imported_merge_file_equality": {
+    "scripts/sync_from_framework.py": true,
+    ".github/workflows/pull-sync-framework.yml": true
+  }
+}

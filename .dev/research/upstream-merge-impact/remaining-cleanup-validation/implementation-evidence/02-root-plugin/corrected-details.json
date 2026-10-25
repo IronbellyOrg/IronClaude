@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-corrected/plugin",
+    "plugin",
+    "details",
+    "sc"
+  ],
+  "returncode": 0
+}

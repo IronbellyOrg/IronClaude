@@ -7,7 +7,7 @@ mcp-servers: [context7]
 personas: [educator, architect, security]
 ---
 
-# /sc:sc:sc:explain - Code and Concept Explanation
+# /sc:sc-explain - Code and Concept Explanation
 
 ## Triggers
 - Code understanding and documentation requests for complex functionality
@@ -17,7 +17,7 @@ personas: [educator, architect, security]
 
 ## Usage
 ```
-/sc:sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
+/sc:sc-explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
 ```
 
 ## Behavioral Flow
@@ -52,27 +52,27 @@ Key behaviors:
 
 ### Basic Code Explanation
 ```
-/sc:sc:explain authentication.js --level basic
+/sc:sc-explain authentication.js --level basic
 # Clear explanation with practical examples for beginners
 # Educator persona provides learning-optimized structure
 ```
 
 ### Framework Concept Explanation
 ```
-/sc:sc:explain react-hooks --level intermediate --context react
+/sc:sc-explain react-hooks --level intermediate --context react
 # Context7 integration for official React documentation patterns
 # Structured explanation with progressive complexity
 ```
 
 ### System Architecture Explanation
 ```
-/sc:sc:explain microservices-system --level advanced --format interactive
+/sc:sc-explain microservices-system --level advanced --format interactive
 # Architect persona explains system design and patterns
 ```
 
 ### Security Concept Explanation
 ```
-/sc:sc:explain jwt-authentication --context security --level basic
+/sc:sc-explain jwt-authentication --context security --level basic
 # Security persona explains authentication concepts and best practices
 # Framework-agnostic security principles with practical examples
 ```

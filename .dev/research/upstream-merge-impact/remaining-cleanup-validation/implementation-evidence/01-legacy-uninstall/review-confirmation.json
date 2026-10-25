@@ -1,0 +1,10 @@
+{
+  "confirmed": true,
+  "verdict": "compliant",
+  "acceptance_criteria_met": 6,
+  "reviewed_report_sha256": "c2bef96c30a318c1a51261b63e761a06e1a7abd1b9aa172c047c17002491eb42",
+  "final_report_sha256": "17dc8985663664a972a4b7822fceec8fc555bef8ee69d70575cd3d065ad38f38",
+  "post_confirmation_changes": "Only three confirmation-status paragraphs updated; acceptance findings, citations and verdict unchanged.",
+  "source_transcript": "/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-ci-followup/a967615d-4796-436e-97ab-5f9a55dfe102/subagents/agent-alegacy-uninstall-review-1c15c9d9a31573ca.jsonl",
+  "reviewer_confirmation": "Confirmed: `/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/qa-review.md` faithfully records my **PASS / `compliant`** verdict and all six acceptance findings. Refreshed execution citations are correct.\n\n**SHA-256:** `c2bef96c30a318c1a51261b63e761a06e1a7abd1b9aa172c047c17002491eb42`\n\nNo substantive corrections required. Only the confirmation-pending language needs updating; that update will change the hash."
+}

@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-24",
+  "user_question": "May I revise .dev/research/upstream-merge-impact/remaining-cleanup-validation/plans/02-root-plugin.md to permit removing the empty homepage field from .claude-plugin/plugin.json, then repeat the compatibility check and continue only if it passes?",
+  "user_answer": "Allow narrow fix (Recommended)",
+  "authorized_product_diff": {"path": ".claude-plugin/plugin.json", "delete_exact_line": "  \"homepage\": \"\",\n"},
+  "preserve": "All remaining manifest bytes and all other plan boundaries",
+  "gate_waiver": false,
+  "prior_failed_review": "task1-review-a1.md",
+  "prior_evidence_retained": true
+}

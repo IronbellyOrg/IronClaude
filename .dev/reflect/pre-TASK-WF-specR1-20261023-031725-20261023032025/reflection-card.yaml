@@ -1,0 +1,16 @@
+```yaml
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.55, recommendation_actionability: 0.50}
+C: 0.67
+citation_spot_checks:
+  - {claim: INF-001..INF-062 source line cites, cited: "source.md:3,7,24,38,39,40,47,57,69,76", holds: true, note: "All 10 source lines match the claimed requirement text."}
+  - {claim: C1, cited: "source.md:39, source.md:70", holds: true, note: "source:39 sets the scope rule. source:70 asks for the disclosed .dev/ exclusion, which tasklist Constraints line 25 and Task 9 line 184 implement."}
+  - {claim: C2, cited: "tasklist:37, tasklist:178", holds: true, note: "The rename gap is real, but source:70 explicitly asks for renamed paths to be recorded and the plan only handles deleted (MISSING) paths. That makes this an unapplied review item, so 'low' understates it."}
+  - {claim: C3, cited: "tasklist:84 vs tasklist:96", holds: true, note: "The instruction says only 'advisory wording', while acceptance requires the literal word advisory, which source:55 also requires."}
+  - {claim: C4, cited: "tasklist:128; .github/workflows/pull-sync-framework.yml", holds: true, note: "The base workflow contains no '<' character, so the stricter reading is checkable."}
+  - {claim: C5, cited: "tasklist:117", holds: true, note: "The push runs before the gh pr list assignment. Fail-closed per source:65 still holds."}
+  - {claim: C6, cited: "tasklist:46,56,69,79,112,138,153,172", holds: true, note: "The Depends on lines match the card and satisfy source:82. The card leaves this as 'check' instead of giving a verdict."}
+  - {claim: C7, cited: "prior REPORT.md", holds: false, note: "The prior report uses D-001..D-014 IDs. The card's M-01..M-18 mapping was not verified against merged-verdict.yaml, and the card does not report whether each finding is fixed, which its own author note required."}
+escalation_recommendation: escalate_t2
+notes: Coverage citations are accurate, but the plan-logic claims are all rated 'low' without separating them, C5 to C7 end in 'check' with no verdict, and the 18 prior findings were never actually verified as fixed. The risk section has only two items and misses the rename-recording requirement in source:70.
+```

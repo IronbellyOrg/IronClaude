@@ -1,0 +1,23 @@
+{
+  "skill": "sc:confidence-check",
+  "form": "lightweight (advisory recommendations, no implementation)",
+  "token_checks": [
+    {
+      "token": "proposed.md:4/7/10, spec.md:9 anchors",
+      "verified": true,
+      "by": "sc:evidence-validator re-Read"
+    },
+    {
+      "token": "proposed.md:11",
+      "verified": false,
+      "action": "anchor dropped; R-4 re-expressed as append-at-EOF"
+    },
+    {
+      "token": "pytest.raises(ValueError)",
+      "verified": false,
+      "action": "marked [UNVERIFIED]: audited repo declares no test runner/config (Glob found no *.toml/*.cfg/*.ini/*.txt); ancestor config deliberately not read"
+    }
+  ],
+  "full_5_check_not_scored": "duplicate/architecture/docs/OSS checks target implementation; Context7/Tavily unavailable \u2014 not claimed",
+  "blocked_by_low_confidence": false
+}

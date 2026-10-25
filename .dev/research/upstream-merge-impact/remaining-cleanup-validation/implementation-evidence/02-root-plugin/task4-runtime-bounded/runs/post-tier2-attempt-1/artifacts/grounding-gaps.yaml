@@ -1,0 +1,24 @@
+# §10.6 Grounding Gaps — rows taken from adversarial/merged-reviewer-card.md (GG-1..GG-3); citation paths are
+# audit-root relative (fixtures/project) except where an absolute run-artifact path is given.
+findings:
+  # GG-1 — T-103 provenance (no diff hunk)
+  - hunk_ref: completed.md:8
+    evidence_missing: T-103 is marked [x] but changes.patch:1-9 has no hunk for tests/test_greeting.py; the repo has zero commits and every file is untracked and the diff was supplied explicitly (reviewer-snapshot/provenance-manifest.json:8); no task log supplied.
+    why_not_classifiable: A completion claim with no hunk is missing provenance, not an unmapped hunk, so it is neither Drift nor a contradiction, and nothing shows whether the test file belongs to the audited change.
+    next_evidence_needed: A user attestation or task-log entry stating whether tests/test_greeting.py was written as part of the audited change; a regenerated or widened diff is NOT acceptable provenance (INV-004).
+    owner: user
+    decision_needed_by_user: true
+  # GG-2 — R-003 execution / regression detection unavailable
+  - hunk_ref: tests/test_greeting.py:1-13
+    evidence_missing: "No pytest exit code (verification triangle not run, verification_skip_reason: tool-unavailable); no task log, so regression detection has no test-state claim to degrade to; no baseline run exists (zero commits)."
+    why_not_classifiable: R-003 requires the two cases to be exercised (spec.md:12) and presence in source does not show execution, so no exit-code class can be applied.
+    next_evidence_needed: Both `python -m pytest tests/test_greeting.py` and plain `pytest tests/test_greeting.py` from the project root with exit codes and per-test outcomes; closes only on exit 0 with test_ordinary and test_empty passed and 0 skipped/xfailed/deselected for each invocation.
+    owner: user
+    decision_needed_by_user: false
+  # GG-3 — scope boundary (--scope src)
+  - hunk_ref: changes.patch:1-9
+    evidence_missing: The audit enumerated only --scope src (provenance-manifest.json discovery scopes ["src"]); no inventory exists for root-level or tests/ files, and with zero commits there is no history of which files the audited work changed.
+    why_not_classifiable: An out-of-scope change would be an unmapped hunk (Drift signal), but no such hunk can be cited or excluded, so zero-Drift holds only within changes.patch:1-9.
+    next_evidence_needed: A user attestation or task-log entry listing every file the audited work created or modified; a widened or regenerated diff of an all-untracked tree is not acceptable (INV-004).
+    owner: user
+    decision_needed_by_user: true

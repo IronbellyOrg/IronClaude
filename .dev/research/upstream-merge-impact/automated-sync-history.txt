@@ -1,0 +1,9 @@
+046a03ab 2026-10-03T02:33:07+00:00 Ryan wiancko chore: drop removed Sequential MCP references
+3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+f14f0cca 2026-09-27T16:29:46+00:00 github-actions[bot] chore: automated sync and namespace isolation from framework [2026-09-27 16:29]
+66d54204 2026-09-15T03:37:59+00:00 github-actions[bot] chore: automated sync and namespace isolation from framework [2026-09-15 03:37]
+ec9f066f 2026-08-21T06:44:16+00:00 github-actions[bot] chore: automated sync and namespace isolation from framework [2026-08-21 06:44]
+ff5f73ad 2026-07-22T08:28:18+00:00 github-actions[bot] chore: automated sync and namespace isolation from framework [2026-07-22 08:28]
+80fd3520 2026-06-04T00:51:14-04:00 Ironbelly docs(sc-reflect): remediate PR #133 critiques — tasklist wording, --task-log row, headlined flags, duplicate-copy sync (#135)
+89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)
+465797ad 2026-05-17T08:21:23+00:00 github-actions[bot] chore: automated sync and namespace isolation from framework [2026-05-17 08:21]

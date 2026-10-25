@@ -1,0 +1,731 @@
+{
+  "head": "053b75664c8979bf223b8040f68310dce882d05b",
+  "units": [
+    {
+      "unit": "foundation-migration",
+      "records": [
+        {
+          "sha": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+          "path_count": 224,
+          "paths": [
+            ".claude/settings.json",
+            ".claude/skills/confidence-check/SKILL.md",
+            ".claude/skills/confidence-check/confidence.ts",
+            ".gitignore",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "DELETION_RATIONALE.md",
+            "MANIFEST.in",
+            "Makefile",
+            "PARALLEL_INDEXING_PLAN.md",
+            "PLUGIN_INSTALL.md",
+            "PROJECT_INDEX.json",
+            "PROJECT_INDEX.md",
+            "PR_DOCUMENTATION.md",
+            "QUALITY_COMPARISON.md",
+            "README.md",
+            "TEST_PLUGIN.md",
+            "bin/check_env.js",
+            "bin/check_update.js",
+            "bin/cli.js",
+            "bin/install.js",
+            "bin/update.js",
+            "docs/Development/ARCHITECTURE.md",
+            "docs/Development/PROJECT_STATUS.md",
+            "docs/Development/ROADMAP.md",
+            "docs/Development/TASKS.md",
+            "docs/Development/architecture-overview.md",
+            "docs/Development/cli-install-improvements.md",
+            "docs/Development/code-style.md",
+            "docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md",
+            "docs/Development/install-process-analysis.md",
+            "docs/Development/installation-flow-understanding.md",
+            "docs/Development/pm-agent-ideal-workflow.md",
+            "docs/Development/pm-agent-improvements.md",
+            "docs/Development/pm-agent-integration.md",
+            "docs/Development/pm-agent-parallel-architecture.md",
+            "docs/Development/pm-agent-parallel-execution-complete.md",
+            "docs/Development/project-overview.md",
+            "docs/Development/project-structure-understanding.md",
+            "docs/Development/tasks/current-tasks.md",
+            "docs/PM_AGENT.md",
+            "docs/PR_STRATEGY.md",
+            "docs/architecture/CONTEXT_WINDOW_ANALYSIS.md",
+            "docs/architecture/MIGRATION_TO_CLEAN_ARCHITECTURE.md",
+            "docs/architecture/PHASE_1_COMPLETE.md",
+            "docs/architecture/PHASE_2_COMPLETE.md",
+            "docs/architecture/PHASE_3_COMPLETE.md",
+            "docs/architecture/PM_AGENT_COMPARISON.md",
+            "docs/architecture/SKILLS_CLEANUP.md",
+            "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+            "docs/memory/pm_context.md",
+            "docs/memory/token_efficiency_validation.md",
+            "docs/next-refactor-plan.md",
+            "docs/plugin-reorg.md",
+            "docs/pm-agent-implementation-status.md",
+            "docs/reference/pm-agent-autonomous-reflection.md",
+            "docs/research/complete-python-skills-migration.md",
+            "docs/research/intelligent-execution-architecture.md",
+            "docs/research/markdown-to-python-migration-plan.md",
+            "docs/research/parallel-execution-complete-findings.md",
+            "docs/research/parallel-execution-findings.md",
+            "docs/research/phase1-implementation-strategy.md",
+            "docs/research/pm-mode-validation-methodology.md",
+            "docs/research/pm-skills-migration-results.md",
+            "docs/research/pm_agent_roi_analysis_2025-10-21.md",
+            "docs/research/python_src_layout_research_20251021.md",
+            "docs/research/repository-understanding-proposal.md",
+            "docs/research/research_serena_mcp_2025-01-16.md",
+            "docs/research/skills-migration-test.md",
+            "docs/research/task-tool-parallel-execution-results.md",
+            "docs/sessions/2025-10-14-summary.md",
+            "docs/templates/__init__.py",
+            "plugins/superclaude/agents/deep-research.md",
+            "plugins/superclaude/agents/repo-index.md",
+            "plugins/superclaude/agents/self-review.md",
+            "plugins/superclaude/commands/agent.md",
+            "plugins/superclaude/commands/index-repo.md",
+            "plugins/superclaude/commands/research.md",
+            "plugins/superclaude/hooks/hooks.json",
+            "plugins/superclaude/scripts/clean_command_names.py",
+            "plugins/superclaude/scripts/session-init.sh",
+            "plugins/superclaude/skills/confidence-check/SKILL.md",
+            "plugins/superclaude/skills/confidence-check/confidence.ts",
+            "pyproject.toml",
+            "scripts/build_and_upload.py",
+            "scripts/build_superclaude_plugin.py",
+            "scripts/validate_pypi_ready.py",
+            "scripts/verify_research_integration.sh",
+            "setup/__init__.py",
+            "setup/cli/__init__.py",
+            "setup/cli/base.py",
+            "setup/cli/commands/__init__.py",
+            "setup/cli/commands/backup.py",
+            "setup/cli/commands/install.py",
+            "setup/cli/commands/uninstall.py",
+            "setup/cli/commands/update.py",
+            "setup/components/__init__.py",
+            "setup/components/agents.py",
+            "setup/components/commands.py",
+            "setup/components/framework_docs.py",
+            "setup/components/mcp.py",
+            "setup/components/modes.py",
+            "setup/core/__init__.py",
+            "setup/core/base.py",
+            "setup/core/installer.py",
+            "setup/core/registry.py",
+            "setup/core/validator.py",
+            "setup/data/__init__.py",
+            "setup/data/features.json",
+            "setup/data/requirements.json",
+            "setup/services/__init__.py",
+            "setup/services/claude_md.py",
+            "setup/services/config.py",
+            "setup/services/files.py",
+            "setup/services/settings.py",
+            "setup/utils/__init__.py",
+            "setup/utils/environment.py",
+            "setup/utils/logger.py",
+            "setup/utils/paths.py",
+            "setup/utils/security.py",
+            "setup/utils/symbols.py",
+            "setup/utils/ui.py",
+            "setup/utils/updater.py",
+            "skills/confidence-check/SKILL.md",
+            "skills/confidence-check/confidence.ts",
+            "src/superclaude/__init__.py",
+            "src/superclaude/__version__.py",
+            "src/superclaude/cli/__init__.py",
+            "src/superclaude/cli/doctor.py",
+            "src/superclaude/cli/install_skill.py",
+            "src/superclaude/cli/main.py",
+            "src/superclaude/execution/__init__.py",
+            "src/superclaude/execution/parallel.py",
+            "src/superclaude/execution/reflection.py",
+            "src/superclaude/execution/self_correction.py",
+            "src/superclaude/pm_agent/__init__.py",
+            "src/superclaude/pm_agent/confidence.py",
+            "src/superclaude/pm_agent/reflexion.py",
+            "src/superclaude/pm_agent/self_check.py",
+            "src/superclaude/pm_agent/token_budget.py",
+            "src/superclaude/pytest_plugin.py",
+            "src/superclaude/skills/confidence-check/SKILL.md",
+            "src/superclaude/skills/confidence-check/confidence.ts",
+            "superclaude/__init__.py",
+            "superclaude/__main__.py",
+            "superclaude/agents/__init__.py",
+            "superclaude/agents/backend-architect.md",
+            "superclaude/agents/business-panel-experts.md",
+            "superclaude/agents/deep-research-agent.md",
+            "superclaude/agents/devops-architect.md",
+            "superclaude/agents/frontend-architect.md",
+            "superclaude/agents/learning-guide.md",
+            "superclaude/agents/performance-engineer.md",
+            "superclaude/agents/pm-agent.md",
+            "superclaude/agents/python-expert.md",
+            "superclaude/agents/quality-engineer.md",
+            "superclaude/agents/refactoring-expert.md",
+            "superclaude/agents/requirements-analyst.md",
+            "superclaude/agents/root-cause-analyst.md",
+            "superclaude/agents/security-engineer.md",
+            "superclaude/agents/socratic-mentor.md",
+            "superclaude/agents/system-architect.md",
+            "superclaude/agents/technical-writer.md",
+            "superclaude/cli/__init__.py",
+            "superclaude/cli/_console.py",
+            "superclaude/cli/app.py",
+            "superclaude/cli/commands/__init__.py",
+            "superclaude/cli/commands/config.py",
+            "superclaude/cli/commands/doctor.py",
+            "superclaude/cli/commands/install.py",
+            "superclaude/commands/__init__.py",
+            "superclaude/commands/analyze.md",
+            "superclaude/commands/brainstorm.md",
+            "superclaude/commands/build.md",
+            "superclaude/commands/business-panel.md",
+            "superclaude/commands/cleanup.md",
+            "superclaude/commands/design.md",
+            "superclaude/commands/document.md",
+            "superclaude/commands/estimate.md",
+            "superclaude/commands/explain.md",
+            "superclaude/commands/git.md",
+            "superclaude/commands/help.md",
+            "superclaude/commands/implement.md",
+            "superclaude/commands/improve.md",
+            "superclaude/commands/index.md",
+            "superclaude/commands/load.md",
+            "superclaude/commands/pm.md",
+            "superclaude/commands/reflect.md",
+            "superclaude/commands/research.md",
+            "superclaude/commands/save.md",
+            "superclaude/commands/select-tool.md",
+            "superclaude/commands/spawn.md",
+            "superclaude/commands/spec-panel.md",
+            "superclaude/commands/task.md",
+            "superclaude/commands/test.md",
+            "superclaude/commands/troubleshoot.md",
+            "superclaude/commands/workflow.md",
+            "superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+            "superclaude/core/BUSINESS_SYMBOLS.md",
+            "superclaude/core/FLAGS.md",
+            "superclaude/core/PRINCIPLES.md",
+            "superclaude/core/RESEARCH_CONFIG.md",
+            "superclaude/core/RULES.md",
+            "superclaude/core/__init__.py",
+            "superclaude/core/pm_init/__init__.py",
+            "superclaude/core/pm_init/context_contract.py",
+            "superclaude/core/pm_init/init_hook.py",
+            "superclaude/core/pm_init/reflexion_memory.py",
+            "superclaude/examples/deep_research_workflows.md",
+            "superclaude/modes/MODE_Brainstorming.md",
+            "superclaude/modes/MODE_Business_Panel.md",
+            "superclaude/modes/MODE_DeepResearch.md",
+            "superclaude/modes/MODE_Introspection.md",
+            "superclaude/modes/MODE_Orchestration.md",
+            "superclaude/modes/MODE_Task_Management.md",
+            "superclaude/modes/MODE_Token_Efficiency.md",
+            "superclaude/modes/__init__.py",
+            "tests/test_cli_smoke.py",
+            "tests/test_get_components.py",
+            "tests/test_install_command.py",
+            "tests/test_installer.py",
+            "tests/test_mcp_component.py",
+            "tests/test_mcp_docs_component.py",
+            "tests/test_ui.py"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "1\t0\t.claude/settings.json\n125\t0\t.claude/skills/confidence-check/SKILL.md\n171\t0\t.claude/skills/confidence-check/confidence.ts\n4\t1\t.gitignore\n38\t0\tAGENTS.md\n305\t0\tCLAUDE.md\n400\t0\tDELETION_RATIONALE.md\n3\t8\tMANIFEST.in\n130\t0\tMakefile\n190\t0\tPARALLEL_INDEXING_PLAN.md\n161\t0\tPLUGIN_INSTALL.md\n245\t0\tPROJECT_INDEX.json\n324\t0\tPROJECT_INDEX.md\n320\t0\tPR_DOCUMENTATION.md\n222\t0\tQUALITY_COMPARISON.md\n110\t61\tREADME.md\n47\t0\tTEST_PLUGIN.md\n0\t60\tbin/check_env.js\n0\t276\tbin/check_update.js\n0\t44\tbin/cli.js\n0\t114\tbin/install.js\n0\t71\tbin/update.js\n0\t529\tdocs/Development/ARCHITECTURE.md\n0\t172\tdocs/Development/PROJECT_STATUS.md\n0\t349\tdocs/Development/ROADMAP.md\n0\t151\tdocs/Development/TASKS.md\n0\t103\tdocs/Development/architecture-overview.md\n0\t658\tdocs/Development/cli-install-improvements.md\n0\t50\tdocs/Development/code-style.md\n0\t390\tdocs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md\n0\t489\tdocs/Development/install-process-analysis.md\n0\t378\tdocs/Development/installation-flow-understanding.md\n0\t341\tdocs/Development/pm-agent-ideal-workflow.md\n0\t149\tdocs/Development/pm-agent-improvements.md\n0\t477\tdocs/Development/pm-agent-integration.md\n0\t716\tdocs/Development/pm-agent-parallel-architecture.md\n0\t235\tdocs/Development/pm-agent-parallel-execution-complete.md\n0\t24\tdocs/Development/project-overview.md\n0\t368\tdocs/Development/project-structure-understanding.md\n0\t163\tdocs/Development/tasks/current-tasks.md\n0\t332\tdocs/PM_AGENT.md\n386\t0\tdocs/PR_STRATEGY.md\n348\t0\tdocs/architecture/CONTEXT_WINDOW_ANALYSIS.md\n692\t0\tdocs/architecture/MIGRATION_TO_CLEAN_ARCHITECTURE.md\n235\t0\tdocs/architecture/PHASE_1_COMPLETE.md\n300\t0\tdocs/architecture/PHASE_2_COMPLETE.md\n544\t0\tdocs/architecture/PHASE_3_COMPLETE.md\n529\t0\tdocs/architecture/PM_AGENT_COMPARISON.md\n240\t0\tdocs/architecture/SKILLS_CLEANUP.md\n1\t1\tdocs/memory/WORKFLOW_METRICS_SCHEMA.md\n2\t2\tdocs/memory/pm_context.md\n3\t3\tdocs/memory/token_efficiency_validation.md\n115\t0\tdocs/next-refactor-plan.md\n53\t0\tdocs/plugin-reorg.md\n0\t332\tdocs/pm-agent-implementation-status.md\n3\t3\tdocs/reference/pm-agent-autonomous-reflection.md\n961\t0\tdocs/research/complete-python-skills-migration.md\n524\t0\tdocs/research/intelligent-execution-architecture.md\n431\t0\tdocs/research/markdown-to-python-migration-plan.md\n561\t0\tdocs/research/parallel-execution-complete-findings.md\n418\t0\tdocs/research/parallel-execution-findings.md\n331\t0\tdocs/research/phase1-implementation-strategy.md\n371\t0\tdocs/research/pm-mode-validation-methodology.md\n218\t0\tdocs/research/pm-skills-migration-results.md\n255\t0\tdocs/research/pm_agent_roi_analysis_2025-10-21.md\n236\t0\tdocs/research/python_src_layout_research_20251021.md\n483\t0\tdocs/research/repository-understanding-proposal.md\n2\t2\tdocs/research/research_serena_mcp_2025-01-16.md\n120\t0\tdocs/research/skills-migration-test.md\n421\t0\tdocs/research/task-tool-parallel-execution-results.md\n2\t2\tdocs/sessions/2025-10-14-summary.md\n0\t0\tdocs/templates/__init__.py\n31\t0\tplugins/superclaude/agents/deep-research.md\n30\t0\tplugins/superclaude/agents/repo-index.md\n33\t0\tplugins/superclaude/agents/self-review.md\n71\t0\tplugins/superclaude/commands/agent.md\n165\t0\tplugins/superclaude/commands/index-repo.md\n122\t0\tplugins/superclaude/commands/research.md\n15\t0\tplugins/superclaude/hooks/hooks.json\n168\t0\tplugins/superclaude/scripts/clean_command_names.py\n30\t0\tplugins/superclaude/scripts/session-init.sh\n124\t0\tplugins/superclaude/skills/confidence-check/SKILL.md\n332\t0\tplugins/superclaude/skills/confidence-check/confidence.ts\n106\t83\tpyproject.toml\n0\t282\tscripts/build_and_upload.py\n98\t0\tscripts/build_superclaude_plugin.py\n0\t231\tscripts/validate_pypi_ready.py\n0\t168\tscripts/verify_research_integration.sh\n0\t24\tsetup/__init__.py\n0\t11\tsetup/cli/__init__.py\n0\t83\tsetup/cli/base.py\n0\t18\tsetup/cli/commands/__init__.py\n0\t609\tsetup/cli/commands/backup.py\n0\t765\tsetup/cli/commands/install.py\n0\t983\tsetup/cli/commands/uninstall.py\n0\t512\tsetup/cli/commands/update.py\n0\t15\tsetup/components/__init__.py\n0\t261\tsetup/components/agents.py\n0\t388\tsetup/components/commands.py\n0\t286\tsetup/components/framework_docs.py\n0\t1268\tsetup/components/mcp.py\n0\t241\tsetup/components/modes.py\n0\t6\tsetup/core/__init__.py\n0\t467\tsetup/core/base.py\n0\t304\tsetup/core/installer.py\n0\t414\tsetup/core/registry.py\n0\t723\tsetup/core/validator.py\n0\t4\tsetup/data/__init__.py\n0\t49\tsetup/data/features.json\n0\t54\tsetup/data/requirements.json\n0\t11\tsetup/services/__init__.py\n0\t334\tsetup/services/claude_md.py\n0\t365\tsetup/services/config.py\n0\t442\tsetup/services/files.py\n0\t533\tsetup/services/settings.py\n0\t10\tsetup/utils/__init__.py\n0\t535\tsetup/utils/environment.py\n0\t335\tsetup/utils/logger.py\n0\t54\tsetup/utils/paths.py\n0\t943\tsetup/utils/security.py\n0\t198\tsetup/utils/symbols.py\n0\t203\tsetup/utils/ui.py\n0\t329\tsetup/utils/updater.py\n124\t0\tskills/confidence-check/SKILL.md\n332\t0\tskills/confidence-check/confidence.ts\n21\t0\tsrc/superclaude/__init__.py\n3\t0\tsrc/superclaude/__version__.py\n12\t0\tsrc/superclaude/cli/__init__.py\n148\t0\tsrc/superclaude/cli/doctor.py\n149\t0\tsrc/superclaude/cli/install_skill.py\n118\t0\tsrc/superclaude/cli/main.py\n225\t0\tsrc/superclaude/execution/__init__.py\n335\t0\tsrc/superclaude/execution/parallel.py\n383\t0\tsrc/superclaude/execution/reflection.py\n426\t0\tsrc/superclaude/execution/self_correction.py\n19\t0\tsrc/superclaude/pm_agent/__init__.py\n268\t0\tsrc/superclaude/pm_agent/confidence.py\n343\t0\tsrc/superclaude/pm_agent/reflexion.py\n249\t0\tsrc/superclaude/pm_agent/self_check.py\n81\t0\tsrc/superclaude/pm_agent/token_budget.py\n222\t0\tsrc/superclaude/pytest_plugin.py\n124\t0\tsrc/superclaude/skills/confidence-check/SKILL.md\n305\t0\tsrc/superclaude/skills/confidence-check/confidence.ts\n0\t24\tsuperclaude/__init__.py\n0\t13\tsuperclaude/__main__.py\n0\t0\tsuperclaude/agents/__init__.py\n0\t48\tsuperclaude/agents/backend-architect.md\n0\t247\tsuperclaude/agents/business-panel-experts.md\n0\t185\tsuperclaude/agents/deep-research-agent.md\n0\t48\tsuperclaude/agents/devops-architect.md\n0\t48\tsuperclaude/agents/frontend-architect.md\n0\t48\tsuperclaude/agents/learning-guide.md\n0\t48\tsuperclaude/agents/performance-engineer.md\n0\t523\tsuperclaude/agents/pm-agent.md\n0\t48\tsuperclaude/agents/python-expert.md\n0\t48\tsuperclaude/agents/quality-engineer.md\n0\t48\tsuperclaude/agents/refactoring-expert.md\n0\t48\tsuperclaude/agents/requirements-analyst.md\n0\t48\tsuperclaude/agents/root-cause-analyst.md\n0\t50\tsuperclaude/agents/security-engineer.md\n0\t291\tsuperclaude/agents/socratic-mentor.md\n0\t48\tsuperclaude/agents/system-architect.md\n0\t48\tsuperclaude/agents/technical-writer.md\n0\t5\tsuperclaude/cli/__init__.py\n0\t8\tsuperclaude/cli/_console.py\n0\t70\tsuperclaude/cli/app.py\n0\t5\tsuperclaude/cli/commands/__init__.py\n0\t268\tsuperclaude/cli/commands/config.py\n0\t206\tsuperclaude/cli/commands/doctor.py\n0\t261\tsuperclaude/cli/commands/install.py\n0\t0\tsuperclaude/commands/__init__.py\n0\t89\tsuperclaude/commands/analyze.md\n0\t100\tsuperclaude/commands/brainstorm.md\n0\t94\tsuperclaude/commands/build.md\n0\t81\tsuperclaude/commands/business-panel.md\n0\t93\tsuperclaude/commands/cleanup.md\n0\t88\tsuperclaude/commands/design.md\n0\t88\tsuperclaude/commands/document.md\n0\t87\tsuperclaude/commands/estimate.md\n0\t92\tsuperclaude/commands/explain.md\n0\t80\tsuperclaude/commands/git.md\n0\t148\tsuperclaude/commands/help.md\n0\t97\tsuperclaude/commands/implement.md\n0\t94\tsuperclaude/commands/improve.md\n0\t86\tsuperclaude/commands/index.md\n0\t93\tsuperclaude/commands/load.md\n0\t46\tsuperclaude/commands/pm.md\n0\t88\tsuperclaude/commands/reflect.md\n0\t103\tsuperclaude/commands/research.md\n0\t93\tsuperclaude/commands/save.md\n0\t87\tsuperclaude/commands/select-tool.md\n0\t85\tsuperclaude/commands/spawn.md\n0\t428\tsuperclaude/commands/spec-panel.md\n0\t89\tsuperclaude/commands/task.md\n0\t93\tsuperclaude/commands/test.md\n0\t88\tsuperclaude/commands/troubleshoot.md\n0\t97\tsuperclaude/commands/workflow.md\n0\t279\tsuperclaude/core/BUSINESS_PANEL_EXAMPLES.md\n0\t212\tsuperclaude/core/BUSINESS_SYMBOLS.md\n0\t133\tsuperclaude/core/FLAGS.md\n0\t60\tsuperclaude/core/PRINCIPLES.md\n0\t446\tsuperclaude/core/RESEARCH_CONFIG.md\n0\t287\tsuperclaude/core/RULES.md\n0\t0\tsuperclaude/core/__init__.py\n0\t13\tsuperclaude/core/pm_init/__init__.py\n0\t139\tsuperclaude/core/pm_init/context_contract.py\n0\t134\tsuperclaude/core/pm_init/init_hook.py\n0\t151\tsuperclaude/core/pm_init/reflexion_memory.py\n0\t495\tsuperclaude/examples/deep_research_workflows.md\n0\t44\tsuperclaude/modes/MODE_Brainstorming.md\n0\t335\tsuperclaude/modes/MODE_Business_Panel.md\n0\t58\tsuperclaude/modes/MODE_DeepResearch.md\n0\t39\tsuperclaude/modes/MODE_Introspection.md\n0\t67\tsuperclaude/modes/MODE_Orchestration.md\n0\t103\tsuperclaude/modes/MODE_Task_Management.md\n0\t75\tsuperclaude/modes/MODE_Token_Efficiency.md\n0\t0\tsuperclaude/modes/__init__.py\n0\t126\ttests/test_cli_smoke.py\n0\t28\ttests/test_get_components.py\n0\t67\ttests/test_install_command.py\n0\t96\ttests/test_installer.py\n0\t87\ttests/test_mcp_component.py\n0\t41\ttests/test_mcp_docs_component.py\n0\t52\ttests/test_ui.py\n"
+        },
+        {
+          "sha": "10844490e2609a61ec201e073872428bac9f9470",
+          "path_count": 2,
+          "paths": [
+            "Makefile",
+            "scripts/uninstall_legacy.sh"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "9\t1\tMakefile\n118\t0\tscripts/uninstall_legacy.sh\n"
+        },
+        {
+          "sha": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+          "path_count": 44,
+          "paths": [
+            "docs/Developer-Guide/README.md",
+            "docs/Developer-Guide/contributing-code.md",
+            "docs/Developer-Guide/documentation-index.md",
+            "docs/Developer-Guide/technical-architecture.md",
+            "docs/Developer-Guide/testing-debugging.md",
+            "docs/Getting-Started/installation.md",
+            "docs/Getting-Started/quick-start.md",
+            "docs/Reference/README.md",
+            "docs/Reference/advanced-patterns.md",
+            "docs/Reference/advanced-workflows.md",
+            "docs/Reference/basic-examples.md",
+            "docs/Reference/claude-code-history-management.md",
+            "docs/Reference/common-issues.md",
+            "docs/Reference/diagnostic-reference.md",
+            "docs/Reference/examples-cookbook.md",
+            "docs/Reference/integration-patterns.md",
+            "docs/Reference/mcp-server-guide.md",
+            "docs/Reference/troubleshooting.md",
+            "docs/User-Guide-jp/agents.md",
+            "docs/User-Guide-jp/commands.md",
+            "docs/User-Guide-jp/flags.md",
+            "docs/User-Guide-jp/mcp-servers.md",
+            "docs/User-Guide-jp/modes.md",
+            "docs/User-Guide-jp/session-management.md",
+            "docs/User-Guide-kr/agents.md",
+            "docs/User-Guide-kr/commands.md",
+            "docs/User-Guide-kr/flags.md",
+            "docs/User-Guide-kr/mcp-servers.md",
+            "docs/User-Guide-kr/modes.md",
+            "docs/User-Guide-kr/session-management.md",
+            "docs/User-Guide-zh/agents.md",
+            "docs/User-Guide-zh/commands.md",
+            "docs/User-Guide-zh/flags.md",
+            "docs/User-Guide-zh/mcp-servers.md",
+            "docs/User-Guide-zh/modes.md",
+            "docs/User-Guide-zh/session-management.md",
+            "docs/User-Guide/agents.md",
+            "docs/User-Guide/commands.md",
+            "docs/User-Guide/flags.md",
+            "docs/User-Guide/mcp-installation.md",
+            "docs/User-Guide/mcp-servers.md",
+            "docs/User-Guide/modes.md",
+            "docs/User-Guide/session-management.md",
+            "docs/user-guide/mcp-installation.md"
+          ],
+          "strict_reverse_rc": 0,
+          "stored_check_agrees": true,
+          "numstat": "0\t172\tdocs/Developer-Guide/README.md\n0\t401\tdocs/Developer-Guide/contributing-code.md\n0\t227\tdocs/Developer-Guide/documentation-index.md\n0\t356\tdocs/Developer-Guide/technical-architecture.md\n0\t324\tdocs/Developer-Guide/testing-debugging.md\n0\t514\tdocs/Getting-Started/installation.md\n0\t492\tdocs/Getting-Started/quick-start.md\n0\t249\tdocs/Reference/README.md\n0\t323\tdocs/Reference/advanced-patterns.md\n0\t309\tdocs/Reference/advanced-workflows.md\n0\t553\tdocs/Reference/basic-examples.md\n0\t556\tdocs/Reference/claude-code-history-management.md\n0\t79\tdocs/Reference/common-issues.md\n0\t338\tdocs/Reference/diagnostic-reference.md\n0\t172\tdocs/Reference/examples-cookbook.md\n0\t319\tdocs/Reference/integration-patterns.md\n0\t755\tdocs/Reference/mcp-server-guide.md\n0\t124\tdocs/Reference/troubleshooting.md\n0\t1029\tdocs/User-Guide-jp/agents.md\n0\t415\tdocs/User-Guide-jp/commands.md\n0\t388\tdocs/User-Guide-jp/flags.md\n0\t319\tdocs/User-Guide-jp/mcp-servers.md\n0\t726\tdocs/User-Guide-jp/modes.md\n0\t414\tdocs/User-Guide-jp/session-management.md\n0\t865\tdocs/User-Guide-kr/agents.md\n0\t367\tdocs/User-Guide-kr/commands.md\n0\t271\tdocs/User-Guide-kr/flags.md\n0\t340\tdocs/User-Guide-kr/mcp-servers.md\n0\t658\tdocs/User-Guide-kr/modes.md\n0\t311\tdocs/User-Guide-kr/session-management.md\n0\t819\tdocs/User-Guide-zh/agents.md\n0\t305\tdocs/User-Guide-zh/commands.md\n0\t270\tdocs/User-Guide-zh/flags.md\n0\t272\tdocs/User-Guide-zh/mcp-servers.md\n0\t603\tdocs/User-Guide-zh/modes.md\n0\t310\tdocs/User-Guide-zh/session-management.md\n0\t936\tdocs/User-Guide/agents.md\n0\t367\tdocs/User-Guide/commands.md\n0\t273\tdocs/User-Guide/flags.md\n0\t339\tdocs/User-Guide/mcp-servers.md\n0\t659\tdocs/User-Guide/modes.md\n0\t310\tdocs/User-Guide/session-management.md\n0\t0\tdocs/{User-Guide => user-guide}/mcp-installation.md\n"
+        }
+      ],
+      "endpoint_count": 269,
+      "endpoints_match": true,
+      "all_hashes_in_report": true,
+      "placeholders": false
+    },
+    {
+      "unit": "docs-memory-releases",
+      "records": [
+        {
+          "sha": "bea4bfe289f298e790da4746212474d3ed2b0ed8",
+          "path_count": 11,
+          "paths": [
+            "README.md",
+            "docs/mcp/mcp-integration-policy.md",
+            "docs/memory/README.md",
+            "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+            "docs/memory/pm_context.md",
+            "docs/memory/reflexion.jsonl.example",
+            "docs/memory/token_efficiency_validation.md",
+            "docs/reference/pm-agent-autonomous-reflection.md",
+            "docs/research/llm-agent-token-efficiency-2025.md",
+            "docs/research/reflexion-integration-2025.md",
+            "docs/user-guide/memory-system.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "7\t4\tREADME.md\n50\t24\tdocs/mcp/mcp-integration-policy.md\n277\t0\tdocs/memory/README.md\n1\t1\tdocs/memory/WORKFLOW_METRICS_SCHEMA.md\n6\t5\tdocs/memory/pm_context.md\n15\t0\tdocs/memory/reflexion.jsonl.example\n12\t11\tdocs/memory/token_efficiency_validation.md\n14\t18\tdocs/reference/pm-agent-autonomous-reflection.md\n1\t1\tdocs/research/llm-agent-token-efficiency-2025.md\n13\t17\tdocs/research/reflexion-integration-2025.md\n283\t0\tdocs/user-guide/memory-system.md\n"
+        },
+        {
+          "sha": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+          "path_count": 5,
+          "paths": [
+            "CLAUDE.md",
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md",
+            "README.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "66\t60\tCLAUDE.md\n1\t1\tREADME-ja.md\n1\t1\tREADME-kr.md\n1\t1\tREADME-zh.md\n52\t98\tREADME.md\n"
+        },
+        {
+          "sha": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+          "path_count": 13,
+          "paths": [
+            "CLAUDE.md",
+            "KNOWLEDGE.md",
+            "PLANNING.md",
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md",
+            "README.md",
+            "TASK.md",
+            "VERSION",
+            "docs/research/task-tool-parallel-execution-results.md",
+            "package.json",
+            "plugins/superclaude/commands/sc.md",
+            "pyproject.toml"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "7\t7\tCLAUDE.md\n4\t4\tKNOWLEDGE.md\n4\t4\tPLANNING.md\n1\t1\tREADME-ja.md\n1\t1\tREADME-kr.md\n1\t1\tREADME-zh.md\n2\t2\tREADME.md\n1\t1\tTASK.md\n1\t1\tVERSION\n2\t2\tdocs/research/task-tool-parallel-execution-results.md\n1\t1\tpackage.json\n1\t1\tplugins/superclaude/commands/sc.md\n1\t1\tpyproject.toml\n"
+        },
+        {
+          "sha": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+          "path_count": 1,
+          "paths": [
+            "src/superclaude/__init__.py"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "2\t2\tsrc/superclaude/__init__.py\n"
+        },
+        {
+          "sha": "58008c94446386718f036cc402f2dc4e99b3f007",
+          "path_count": 3,
+          "paths": [
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "1\t1\tREADME-ja.md\n1\t1\tREADME-kr.md\n1\t1\tREADME-zh.md\n"
+        },
+        {
+          "sha": "61591211ae99847130aed3e84737bfa63b3b6520",
+          "path_count": 8,
+          "paths": [
+            "CLAUDE.md",
+            "KNOWLEDGE.md",
+            "PLANNING.md",
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md",
+            "README.md",
+            "pyproject.toml"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "7\t7\tCLAUDE.md\n4\t4\tKNOWLEDGE.md\n4\t4\tPLANNING.md\n1\t1\tREADME-ja.md\n1\t1\tREADME-kr.md\n1\t1\tREADME-zh.md\n2\t2\tREADME.md\n1\t1\tpyproject.toml\n"
+        },
+        {
+          "sha": "86a26333912b09a98fab1d9a81c0cd23e404f224",
+          "path_count": 1,
+          "paths": [
+            "src/superclaude/__init__.py"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "1\t1\tsrc/superclaude/__init__.py\n"
+        },
+        {
+          "sha": "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d",
+          "path_count": 1,
+          "paths": [
+            "VERSION"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "1\t1\tVERSION\n"
+        },
+        {
+          "sha": "d11abead403e4de8438f008a468f98ca10e5472e",
+          "path_count": 3,
+          "paths": [
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "217\t76\tREADME-ja.md\n218\t77\tREADME-kr.md\n225\t84\tREADME-zh.md\n"
+        },
+        {
+          "sha": "43ca81d1693b1ecfc6648531798e29224cb305c3",
+          "path_count": 4,
+          "paths": [
+            "docs/memory/solutions_learned.jsonl",
+            "docs/mistakes/test_database_connection-2025-11-14.md",
+            "docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md",
+            "docs/mistakes/unknown-2025-11-14.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "8\t0\tdocs/memory/solutions_learned.jsonl\n44\t0\tdocs/mistakes/test_database_connection-2025-11-14.md\n44\t0\tdocs/mistakes/test_reflexion_with_real_exception-2025-11-14.md\n44\t0\tdocs/mistakes/unknown-2025-11-14.md\n"
+        },
+        {
+          "sha": "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6",
+          "path_count": 1,
+          "paths": [
+            "README.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "3\t0\tREADME.md\n"
+        },
+        {
+          "sha": "208c66e1a781376a85132087b5a99767a9f13e31",
+          "path_count": 2,
+          "paths": [
+            "README.md",
+            "docs/user-guide/commands.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "3\t0\tREADME.md\n1451\t281\tdocs/user-guide/commands.md\n"
+        },
+        {
+          "sha": "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5",
+          "path_count": 3,
+          "paths": [
+            "VERSION",
+            "pyproject.toml",
+            "src/superclaude/__init__.py"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "1\t1\tVERSION\n1\t1\tpyproject.toml\n1\t1\tsrc/superclaude/__init__.py\n"
+        },
+        {
+          "sha": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+          "path_count": 7,
+          "paths": [
+            "CHANGELOG.md",
+            "CLAUDE.md",
+            "PLANNING.md",
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md",
+            "README.md"
+          ],
+          "strict_reverse_rc": 1,
+          "stored_check_agrees": true,
+          "numstat": "31\t26\tCHANGELOG.md\n5\t5\tCLAUDE.md\n10\t8\tPLANNING.md\n2\t2\tREADME-ja.md\n2\t2\tREADME-kr.md\n2\t2\tREADME-zh.md\n2\t2\tREADME.md\n"
+        }
+      ],
+      "endpoint_count": 30,
+      "endpoints_match": true,
+      "all_hashes_in_report": true,
+      "placeholders": false
+    }
+  ],
+  "case_deleted_count": 43,
+  "case_identical": 18,
+  "case_different": 25,
+  "case": [
+    {
+      "path": "docs/Developer-Guide/README.md",
+      "counterpart": "docs/developer-guide/README.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Developer-Guide/contributing-code.md",
+      "counterpart": "docs/developer-guide/contributing-code.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Developer-Guide/documentation-index.md",
+      "counterpart": "docs/developer-guide/documentation-index.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Developer-Guide/technical-architecture.md",
+      "counterpart": "docs/developer-guide/technical-architecture.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Developer-Guide/testing-debugging.md",
+      "counterpart": "docs/developer-guide/testing-debugging.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Getting-Started/installation.md",
+      "counterpart": "docs/getting-started/installation.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Getting-Started/quick-start.md",
+      "counterpart": "docs/getting-started/quick-start.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Reference/README.md",
+      "counterpart": "docs/reference/README.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Reference/advanced-patterns.md",
+      "counterpart": "docs/reference/advanced-patterns.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/advanced-workflows.md",
+      "counterpart": "docs/reference/advanced-workflows.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/basic-examples.md",
+      "counterpart": "docs/reference/basic-examples.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/claude-code-history-management.md",
+      "counterpart": "docs/reference/claude-code-history-management.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/common-issues.md",
+      "counterpart": "docs/reference/common-issues.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/diagnostic-reference.md",
+      "counterpart": "docs/reference/diagnostic-reference.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/examples-cookbook.md",
+      "counterpart": "docs/reference/examples-cookbook.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Reference/integration-patterns.md",
+      "counterpart": "docs/reference/integration-patterns.md",
+      "equal": true
+    },
+    {
+      "path": "docs/Reference/mcp-server-guide.md",
+      "counterpart": "docs/reference/mcp-server-guide.md",
+      "equal": false
+    },
+    {
+      "path": "docs/Reference/troubleshooting.md",
+      "counterpart": "docs/reference/troubleshooting.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/agents.md",
+      "counterpart": "docs/user-guide-jp/agents.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/commands.md",
+      "counterpart": "docs/user-guide-jp/commands.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/flags.md",
+      "counterpart": "docs/user-guide-jp/flags.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/mcp-servers.md",
+      "counterpart": "docs/user-guide-jp/mcp-servers.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/modes.md",
+      "counterpart": "docs/user-guide-jp/modes.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-jp/session-management.md",
+      "counterpart": "docs/user-guide-jp/session-management.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-kr/agents.md",
+      "counterpart": "docs/user-guide-kr/agents.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-kr/commands.md",
+      "counterpart": "docs/user-guide-kr/commands.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-kr/flags.md",
+      "counterpart": "docs/user-guide-kr/flags.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide-kr/mcp-servers.md",
+      "counterpart": "docs/user-guide-kr/mcp-servers.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-kr/modes.md",
+      "counterpart": "docs/user-guide-kr/modes.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-kr/session-management.md",
+      "counterpart": "docs/user-guide-kr/session-management.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide-zh/agents.md",
+      "counterpart": "docs/user-guide-zh/agents.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-zh/commands.md",
+      "counterpart": "docs/user-guide-zh/commands.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-zh/flags.md",
+      "counterpart": "docs/user-guide-zh/flags.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide-zh/mcp-servers.md",
+      "counterpart": "docs/user-guide-zh/mcp-servers.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-zh/modes.md",
+      "counterpart": "docs/user-guide-zh/modes.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide-zh/session-management.md",
+      "counterpart": "docs/user-guide-zh/session-management.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide/agents.md",
+      "counterpart": "docs/user-guide/agents.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide/commands.md",
+      "counterpart": "docs/user-guide/commands.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide/flags.md",
+      "counterpart": "docs/user-guide/flags.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide/mcp-installation.md",
+      "counterpart": "docs/user-guide/mcp-installation.md",
+      "equal": true
+    },
+    {
+      "path": "docs/User-Guide/mcp-servers.md",
+      "counterpart": "docs/user-guide/mcp-servers.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide/modes.md",
+      "counterpart": "docs/user-guide/modes.md",
+      "equal": false
+    },
+    {
+      "path": "docs/User-Guide/session-management.md",
+      "counterpart": "docs/user-guide/session-management.md",
+      "equal": true
+    }
+  ],
+  "legacy_callers": "HEAD:Makefile:1:.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill reflect-eval reflect-eval-quick sync-cost-profile uninstall-legacy help\nHEAD:Makefile:560:\t@echo \"  make uninstall-legacy - Remove old SuperClaude files from ~/.claude\"\nHEAD:Makefile:564:uninstall-legacy:\nHEAD:Makefile:566:\t@bash scripts/uninstall_legacy.sh\nHEAD:docs/getting-started/installation.md:347:make uninstall-legacy\nHEAD:docs/getting-started/installation.md:366:`make uninstall-legacy` (run from a repository checkout) runs `scripts/uninstall_legacy.sh`. It removes only the old Claude Code plugin install: `~/.claude/plugins/superclaude@superclaude`, `~/.claude/superclaude.json`, `~/.claude/superclaude_config.json`, and the `superclaude@superclaude` entry in `enabledPlugins` in `~/.claude/settings.json`. It backs these up to `~/.claude-superclaude-backup-<timestamp>` first. It does not remove anything `superclaude install` put in `~/.claude/`.\n",
+  "metadata": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8 1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5 2026-01-18T15:20:16+01:00 2026-01-18T19:50:16+05:30 Sergei Frolov <135062497+mrsergeifrolov@users.noreply.github.com> docs: update version references and fix CHANGELOG for v4.2.0 (#515)\n1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5 e61aaba771055f65dd7c4f5de4d0e3e91ac928ec 2026-01-18T14:09:18+01:00 2026-01-18T18:39:18+05:30 Sergei Frolov <135062497+mrsergeifrolov@users.noreply.github.com> chore: bump version to 4.2.0 (#514)\n208c66e1a781376a85132087b5a99767a9f13e31 3294a0ad941f299e8c997bbe88a718694e173a8f 2026-01-18T04:37:51+01:00 2026-01-18T09:07:51+05:30 Sergei Frolov <135062497+mrsergeifrolov@users.noreply.github.com> docs: update commands.md - complete command reference (#512)\nab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211 310136c16b95c9dd5c412c5e7b5d4ae76362dbf6 2025-12-12T22:09:50+07:00 2025-12-12T22:09:50+07:00 kazuki <kazuki@kazukinoMacBook-Air.local> fix: remove duplicate uppercase docs paths for macOS compatibility\n310136c16b95c9dd5c412c5e7b5d4ae76362dbf6 43ca81d1693b1ecfc6648531798e29224cb305c3 2025-12-02T16:57:20-08:00 2025-12-03T06:27:20+05:30 Gurdas Nijor <gurdas@smithery.ai> Add \"Run in Smithery\" badge (#490)\n43ca81d1693b1ecfc6648531798e29224cb305c3 323137a9df985c17f221f559ccede9860d40cb23 2025-11-14T14:45:58+01:00 2025-11-14T14:45:58+01:00 mithun50 <mithungowda.b7411@gmail.com> docs: update test solutions and mistake logs\nd11abead403e4de8438f008a468f98ca10e5472e d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d 2025-11-13T14:24:00+01:00 2025-11-13T14:24:00+01:00 mithun50 <mithungowda.b7411@gmail.com> docs: sync translated READMEs with main README structure\nd2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d 86a26333912b09a98fab1d9a81c0cd23e404f224 2025-11-13T12:46:52+01:00 2025-11-13T12:46:52+01:00 mithun50 <mithungowda.b7411@gmail.com> chore: update VERSION file to 4.1.8\n86a26333912b09a98fab1d9a81c0cd23e404f224 61591211ae99847130aed3e84737bfa63b3b6520 2025-11-13T12:45:17+01:00 2025-11-13T12:45:17+01:00 mithun50 <mithungowda.b7411@gmail.com> fix: update __version__ in __init__.py to 4.1.8\n61591211ae99847130aed3e84737bfa63b3b6520 25785363af21849898ca77624aac0b05fc780b94 2025-11-13T12:36:38+01:00 2025-11-13T12:36:38+01:00 mithun50 <mithungowda.b7411@gmail.com> chore: bump version to 4.1.8\n58008c94446386718f036cc402f2dc4e99b3f007 b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:25:34+01:00 2025-11-12T18:25:34+01:00 mithun50 <mithungowda.b7411@gmail.com> docs: fix broken links in translated READMEs\n16caa49442f477febd4b2a8e32dd1ded705d02d3 32c0086d0f916362fd4899212e8e714511ca4524 2025-11-12T18:04:34+01:00 2025-11-12T18:04:34+01:00 mithun50 <mithungowda.b7411@gmail.com> fix: update package version and authors\na3541f43c5e95cae669c0d666a6fc68808de8fde ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0 2025-11-12T17:37:27+01:00 2025-11-12T17:37:27+01:00 mithun50 <mithungowda.b7411@gmail.com> feat: bump version to 4.1.7 across all files\nbec0b0c3e393cb5bc244e83b95fb2b006745eeb5 0ef8ea8139202acb17c5ffc938619f331c7184ab 2025-11-12T01:30:49+09:00 2025-11-11T22:00:49+05:30 Utakata <syouryuu1111@gmail.com> Claude/fix readme plugin docs 011 cv2 lk n gko6wzm tfn dmnrm (#478)\n10844490e2609a61ec201e073872428bac9f9470 bea4bfe289f298e790da4746212474d3ed2b0ed8 2025-11-09T14:41:29+09:00 2025-11-09T14:41:29+09:00 kazuki <kazuki@kazukinoMacBook-Air.local> Update Makefile and add uninstall script\nbea4bfe289f298e790da4746212474d3ed2b0ed8 c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-30T22:14:35-05:00 2025-10-31T08:44:35+05:30 Cedric Hurst <cedric@spantree.net> docs: Replace Mindbase References with ReflexionMemory (#464)\nc733413d3c5dc0ea93822e93afbe3eae9a7f6fec 67449770c0157372f276c16f99f0a935de1b1125 2025-10-29T13:45:15+09:00 2025-10-29T10:15:15+05:30 kazuki nakai <48890992+kazukinakai@users.noreply.github.com> Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\n"
+}

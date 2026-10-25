@@ -1,0 +1,16 @@
+# Persisted by orchestrator from Task(sc:evidence-validator) return (agentId acca81b118b9a00ee)
+validator: sc:evidence-validator
+requested_model_slot: haiku
+model_reported: grok-4.7
+draft: REPORT.draft.md
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+dropped_ids: []
+citations_inferred_counted: 3
+results: {C-01: verified, C-02: verified, C-03: verified, C-04: verified, C-05: verified, C-06: verified, C-07: verified, C-08: verified, C-09: verified, C-10: verified, C-11: verified, C-12: verified, C-13: verified, C-14: verified, C-15: verified, C-16: verified, C-17: verified, C-18: verified}
+body_ref_checks: {"completed.md:8": verified, "changes.patch:1-9": verified, "changes.patch:5-9": verified, "src/greeting.py:1-4": verified, "src/greeting.py:2-3": verified, "src/greeting.py:4": verified, "tests/test_greeting.py:4-13": verified}
+production_referrer_check: {verdict: verified, production_referrers: []}
+validator_notes:
+  - "C-17 table has no exit-0 row; R-002 verifier '0 is clean' was not supported by C-17 -> orchestrator reworded R-002 so the claim is not attributed to C-17"
+zero_drop_flag: true

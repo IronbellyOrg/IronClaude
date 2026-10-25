@@ -1,0 +1,434 @@
+parsed_count: 0
+inferred_count: 45
+quote_mismatches: []
+items_scanned:
+- Task 1
+- Task 2
+- Task 3
+- Task 4
+- Task 5
+- Task 6
+- Task 7
+- Task 8
+- Task 9
+- CON-1
+- CON-2
+- CON-3
+- CON-4
+- CON-5
+- CON-6
+- CON-7
+- CON-8
+- CON-9
+- CON-10
+- Goal
+coverage_pct: null
+coverage_pct_union: 0.8444
+unmapped_requirements_union:
+- INF-001
+- INF-003
+- INF-037
+- INF-040
+- INF-041
+- INF-042
+- INF-045
+S_dev_density: 0.1556
+rows:
+- requirement_id: INF-001
+  source: inferred
+  quote: the sync job stops pushing unreviewed upstream content to master
+  citation: source.md:3
+  matched_task_ids: []
+  containment: 0.5
+  best_item: Task 8
+  match_method: none
+- requirement_id: INF-002
+  source: inferred
+  quote: Nothing under src/, tests/, Makefile, pyproject.toml or .claude/ changes.
+  citation: source.md:6
+  matched_task_ids:
+  - Task 9
+  containment: 1.0
+  best_item: Task 9
+  match_method: containment
+- requirement_id: INF-003
+  source: inferred
+  quote: Evidence files go under ./artifacts/ in the plan package.
+  citation: source.md:7
+  matched_task_ids: []
+  containment: 0.571
+  best_item: Task 9
+  match_method: none
+- requirement_id: INF-004
+  source: inferred
+  quote: replace `git push origin HEAD:master` with a force-push of the commit to the branch `sync/framework`
+  citation: source.md:10
+  matched_task_ids:
+  - Task 6
+  containment: 1.0
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-005
+  source: inferred
+  quote: open a pull request into master only if none is open from that branch
+  citation: source.md:10
+  matched_task_ids:
+  - Task 6
+  containment: 0.833
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-006
+  source: inferred
+  quote: Every `gh pr` command passes `--repo "$GITHUB_REPOSITORY"`
+  citation: source.md:11
+  matched_task_ids:
+  - Task 6
+  containment: 0.833
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-007
+  source: inferred
+  quote: 'the step sets `GH_TOKEN: ${{ github.token }}`'
+  citation: source.md:11
+  matched_task_ids:
+  - Task 6
+  containment: 0.8
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-008
+  source: inferred
+  quote: 'Job permissions become `contents: write` and `pull-requests: write`, and nothing more.'
+  citation: source.md:12
+  matched_task_ids:
+  - Task 6
+  containment: 0.889
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-009
+  source: inferred
+  quote: The "no changes" path (no commit, no branch, no pull request), the protected-file check and the state-file handling stay unchanged.
+  citation: source.md:13
+  matched_task_ids:
+  - Task 6
+  containment: 0.923
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-010
+  source: inferred
+  quote: every 6-hourly run re-syncs and force-replaces the branch
+  citation: source.md:14
+  matched_task_ids:
+  - CON-9
+  containment: 1.0
+  best_item: CON-9
+  match_method: containment
+- requirement_id: INF-011
+  source: inferred
+  quote: commits pushed to `sync/framework` by hand are lost at the next run
+  citation: source.md:14
+  matched_task_ids:
+  - CON-9
+  containment: 1.0
+  best_item: CON-9
+  match_method: containment
+- requirement_id: INF-012
+  source: inferred
+  quote: re-check with `gh api repos/IronbellyOrg/IronClaude/actions/permissions/workflow`
+  citation: source.md:15
+  matched_task_ids:
+  - Task 3
+  containment: 1.0
+  best_item: Task 3
+  match_method: containment
+- requirement_id: INF-013
+  source: inferred
+  quote: check it against current GitHub docs and note it as a known limitation, do not change the token
+  citation: source.md:15
+  matched_task_ids:
+  - Task 3
+  containment: 0.7
+  best_item: Task 3
+  match_method: containment
+- requirement_id: INF-014
+  source: inferred
+  quote: Report it as unverified until a `workflow_dispatch` run after merge; name that run as a user step and say where the result is recorded.
+  citation: source.md:16
+  matched_task_ids:
+  - Task 6
+  containment: 0.786
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-015
+  source: inferred
+  quote: Reword, as advisory, the header comment about gating (lines 19-20), the job name, the `::warning` text
+  citation: source.md:19
+  matched_task_ids:
+  - Task 5
+  containment: 0.846
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-016
+  source: inferred
+  quote: The job name must keep the word "boundary"
+  citation: source.md:20
+  matched_task_ids:
+  - Task 5
+  containment: 1.0
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-017
+  source: inferred
+  quote: Re-read ci.py on the new base before choosing the name.
+  citation: source.md:20
+  matched_task_ids:
+  - Task 5
+  containment: 0.889
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-018
+  source: inferred
+  quote: Change the diff to the three-dot form `"$BASE_SHA...$HEAD_SHA"` with the same pathspec after `--`.
+  citation: source.md:21
+  matched_task_ids:
+  - Task 5
+  containment: 0.9
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-019
+  source: inferred
+  quote: The file name, the whole `on:` block and the five `paths:` entries stay byte-identical
+  citation: source.md:22
+  matched_task_ids:
+  - Task 5
+  containment: 0.9
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-020
+  source: inferred
+  quote: run it with `uv run pytest tests/swarm/test_merge_boundary_guards.py -v`
+  citation: source.md:22
+  matched_task_ids:
+  - Task 5
+  containment: 1.0
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-021
+  source: inferred
+  quote: Keep the "Required reviewer checks" checklist heading and items
+  citation: source.md:23
+  matched_task_ids:
+  - Task 5
+  containment: 1.0
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-022
+  source: inferred
+  quote: Render the merged step locally (script body with GITHUB_STEP_SUMMARY pointing at a temp file) before and after, and save both renders and their comparison
+  citation: source.md:24
+  matched_task_ids:
+  - Task 5
+  containment: 0.647
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-023
+  source: inferred
+  quote: no backslash may appear before a backtick
+  citation: source.md:24
+  matched_task_ids:
+  - Task 5
+  containment: 0.6
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-024
+  source: inferred
+  quote: Prove the three-dot change in a throwaway git repository created outside this repo
+  citation: source.md:25
+  matched_task_ids:
+  - Task 4
+  containment: 1.0
+  best_item: Task 4
+  match_method: containment
+- requirement_id: INF-025
+  source: inferred
+  quote: the old command lists it, the new one does not. Save the exact commands and output.
+  citation: source.md:25
+  matched_task_ids:
+  - Task 9
+  containment: 0.778
+  best_item: Task 9
+  match_method: containment
+- requirement_id: INF-026
+  source: inferred
+  quote: 'Not included: turning the job into a real gate (a required label or CODEOWNERS)'
+  citation: source.md:26
+  matched_task_ids:
+  - CON-6
+  containment: 0.75
+  best_item: CON-6
+  match_method: containment
+- requirement_id: INF-027
+  source: inferred
+  quote: record in ./artifacts/ whether the `file` input is deprecated in favor of `files` and whether a token is required for uploads from a push to master
+  citation: source.md:29
+  matched_task_ids:
+  - Task 2
+  containment: 1.0
+  best_item: Task 2
+  match_method: containment
+- requirement_id: INF-028
+  source: inferred
+  quote: 'pass `token: ${{ secrets.CODECOV_TOKEN }}` and the correct file input name, and keep `fail_ci_if_error: false`'
+  citation: source.md:30
+  matched_task_ids:
+  - Task 7
+  containment: 0.818
+  best_item: Task 7
+  match_method: containment
+- requirement_id: INF-029
+  source: inferred
+  quote: Add no coverage threshold.
+  citation: source.md:30
+  matched_task_ids:
+  - Task 7
+  containment: 1.0
+  best_item: Task 7
+  match_method: containment
+- requirement_id: INF-030
+  source: inferred
+  quote: 'Prerequisite the plan cannot create: a `CODECOV_TOKEN` repository secret.'
+  citation: source.md:31
+  matched_task_ids:
+  - CON-10
+  containment: 0.857
+  best_item: CON-10
+  match_method: containment
+- requirement_id: INF-031
+  source: inferred
+  quote: the status badge URLs point at IronbellyOrg/IronClaude (line 30)
+  citation: source.md:34
+  matched_task_ids:
+  - Task 8
+  containment: 1.0
+  best_item: Task 8
+  match_method: containment
+- requirement_id: INF-032
+  source: inferred
+  quote: the Codecov troubleshooting bullet (line 124) matches Fix 3
+  citation: source.md:34
+  matched_task_ids:
+  - Task 8
+  containment: 0.75
+  best_item: Task 8
+  match_method: containment
+- requirement_id: INF-033
+  source: inferred
+  quote: the boundary-guard entry says the job is advisory
+  citation: source.md:34
+  matched_task_ids:
+  - Task 5
+  containment: 1.0
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-034
+  source: inferred
+  quote: the pull-sync-framework entry says it opens a pull request from `sync/framework`
+  citation: source.md:34
+  matched_task_ids:
+  - Task 8
+  containment: 1.0
+  best_item: Task 8
+  match_method: containment
+- requirement_id: INF-035
+  source: inferred
+  quote: replace it with accurate text (the workflow no longer exists; the fork installs from git as CLAUDE.md states)
+  citation: source.md:35
+  matched_task_ids:
+  - Task 9
+  containment: 0.833
+  best_item: Task 9
+  match_method: containment
+- requirement_id: INF-036
+  source: inferred
+  quote: Change nothing else in that file.
+  citation: source.md:35
+  matched_task_ids:
+  - Task 6
+  containment: 1.0
+  best_item: Task 6
+  match_method: containment
+- requirement_id: INF-037
+  source: inferred
+  quote: Every acceptance bullet must fail on a wrong edit, not only pass on a right one.
+  citation: source.md:38
+  matched_task_ids: []
+  containment: 0.333
+  best_item: Task 5
+  match_method: none
+- requirement_id: INF-038
+  source: inferred
+  quote: Proof logs must contain the exact commands run and their output.
+  citation: source.md:38
+  matched_task_ids:
+  - CON-2
+  containment: 0.889
+  best_item: CON-2
+  match_method: containment
+- requirement_id: INF-039
+  source: inferred
+  quote: Before the first task, save `git status --porcelain -uall` and a content hash of every changed file outside the allowed paths
+  citation: source.md:39
+  matched_task_ids:
+  - Task 1
+  containment: 0.733
+  best_item: Task 1
+  match_method: containment
+- requirement_id: INF-040
+  source: inferred
+  quote: also require positive greps showing the expected edits happened
+  citation: source.md:39
+  matched_task_ids: []
+  containment: 0.25
+  best_item: Task 5
+  match_method: none
+- requirement_id: INF-041
+  source: inferred
+  quote: '`Depends on:` lines name one task each; make real chains where order matters.'
+  citation: source.md:40
+  matched_task_ids: []
+  containment: 0.545
+  best_item: Task 5
+  match_method: none
+- requirement_id: INF-042
+  source: inferred
+  quote: No numbered or checkbox lines in the tasklist.
+  citation: source.md:40
+  matched_task_ids: []
+  containment: 0.25
+  best_item: Task 1
+  match_method: none
+- requirement_id: INF-043
+  source: inferred
+  quote: check the header comment, the job `name:` line, the `::warning` line and summary item 3 separately
+  citation: source.md:41
+  matched_task_ids:
+  - Task 5
+  containment: 0.909
+  best_item: Task 5
+  match_method: containment
+- requirement_id: INF-044
+  source: inferred
+  quote: list it as an accepted leftover
+  citation: source.md:44
+  matched_task_ids:
+  - Task 9
+  containment: 1.0
+  best_item: Task 9
+  match_method: containment
+- requirement_id: INF-045
+  source: inferred
+  quote: Do not add a task; raise it to me as a question after verifying against current GitHub docs.
+  citation: source.md:47
+  matched_task_ids: []
+  containment: 0.364
+  best_item: Task 9
+  match_method: none

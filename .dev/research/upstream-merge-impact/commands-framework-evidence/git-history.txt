@@ -1,0 +1,1461 @@
+# Commands/framework Git evidence
+
+## Exact historical changes
+
+commit 0ef8ea8139202acb17c5ffc938619f331c7184ab
+Author:     Baran Acar <baranacr98@outlook.com>
+AuthorDate: Sun Nov 9 16:37:20 2025 +0300
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Nov 9 19:07:20 2025 +0530
+
+    feat: new command sc:recommend add. (#477)
+1 file changed, 1005 insertions(+)
+A	plugins/superclaude/commands/recommend.md
+
+commit ab8904bc8cc2291b347a8641b913099f699f0c91
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Thu Nov 13 15:54:16 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Thu Nov 13 16:08:56 2025 +0100
+
+    feat: restore all 30 slash commands with comprehensive documentation
+    
+    Restored 26 additional commands from commit d4a17fc, bringing total from 5 to 30 commands.
+    
+    ## New Commands Added (26):
+    - /analyze - Code and architecture analysis
+    - /brainstorm - Structured brainstorming sessions
+    - /build - Build and compilation workflows
+    - /business-panel - Multi-expert business analysis
+    - /cleanup - Code cleanup and refactoring
+    - /design - System design and architecture
+    - /document - Documentation generation
+    - /estimate - Effort and time estimation
+    - /explain - Code explanation
+    - /git - Git operations and workflows
+    - /help - Command help and usage
+    - /implement - Implementation workflows
+    - /improve - Code improvement suggestions
+    - /index - Project indexing (alias for index-repo)
+    - /load - Load saved sessions
+    - /pm - Project management workflows
+    - /reflect - Reflection and retrospectives
+    - /save - Save current session
+    - /select-tool - Tool selection guidance
+    - /spawn - Spawn parallel tasks
+    - /spec-panel - Multi-expert specification analysis
+    - /task - Task management
+    - /test - Testing workflows
+    - /troubleshoot - Debugging and troubleshooting
+    - /workflow - Custom workflow automation
+    
+    ## Documentation Updates:
+    - Created docs/reference/commands-list.md with categorized command reference
+    - Updated README.md with expandable 30-command list
+    - Updated README-zh.md with Chinese translations
+    - Updated README-ja.md with Japanese translations
+    - Updated README-kr.md with Korean translations
+    - Changed statistics: "3 plugins" → "30 commands"
+    - Added command categories: Planning & Design, Development, Testing & Quality,
+      Documentation, Version Control, Project Management, Research & Analysis, Utilities
+    
+    ## Files Changed:
+    - 60 files changed, 7930 insertions(+), 267 deletions(-)
+    - Added 26 commands to plugins/superclaude/commands/
+    - Added 26 commands to src/superclaude/commands/
+    - Created comprehensive command documentation
+    
+    Commands restored from: d4a17fc (superclaude/commands/)
+    Total: 30 commands now available
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+57 files changed, 6805 insertions(+), 234 deletions(-)
+M	README-ja.md
+M	README-kr.md
+M	README-zh.md
+M	README.md
+A	docs/reference/commands-list.md
+A	plugins/superclaude/commands/analyze.md
+A	plugins/superclaude/commands/brainstorm.md
+A	plugins/superclaude/commands/build.md
+A	plugins/superclaude/commands/business-panel.md
+A	plugins/superclaude/commands/cleanup.md
+A	plugins/superclaude/commands/design.md
+A	plugins/superclaude/commands/document.md
+A	plugins/superclaude/commands/estimate.md
+A	plugins/superclaude/commands/explain.md
+A	plugins/superclaude/commands/git.md
+A	plugins/superclaude/commands/help.md
+A	plugins/superclaude/commands/implement.md
+A	plugins/superclaude/commands/improve.md
+A	plugins/superclaude/commands/index.md
+A	plugins/superclaude/commands/load.md
+A	plugins/superclaude/commands/pm.md
+A	plugins/superclaude/commands/reflect.md
+M	plugins/superclaude/commands/research.md
+A	plugins/superclaude/commands/save.md
+A	plugins/superclaude/commands/select-tool.md
+A	plugins/superclaude/commands/spawn.md
+A	plugins/superclaude/commands/spec-panel.md
+A	plugins/superclaude/commands/task.md
+A	plugins/superclaude/commands/test.md
+A	plugins/superclaude/commands/troubleshoot.md
+A	plugins/superclaude/commands/workflow.md
+A	src/superclaude/commands/analyze.md
+A	src/superclaude/commands/brainstorm.md
+A	src/superclaude/commands/build.md
+A	src/superclaude/commands/business-panel.md
+A	src/superclaude/commands/cleanup.md
+A	src/superclaude/commands/design.md
+A	src/superclaude/commands/document.md
+A	src/superclaude/commands/estimate.md
+A	src/superclaude/commands/explain.md
+A	src/superclaude/commands/git.md
+A	src/superclaude/commands/help.md
+A	src/superclaude/commands/implement.md
+A	src/superclaude/commands/improve.md
+A	src/superclaude/commands/index.md
+A	src/superclaude/commands/load.md
+A	src/superclaude/commands/pm.md
+A	src/superclaude/commands/reflect.md
+M	src/superclaude/commands/research.md
+A	src/superclaude/commands/save.md
+A	src/superclaude/commands/select-tool.md
+A	src/superclaude/commands/spawn.md
+A	src/superclaude/commands/spec-panel.md
+A	src/superclaude/commands/task.md
+A	src/superclaude/commands/test.md
+A	src/superclaude/commands/troubleshoot.md
+A	src/superclaude/commands/workflow.md
+
+commit 3762d6ab24508107dc794811d9b6b0c9def84707
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Thu Nov 13 16:16:05 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Thu Nov 13 16:16:05 2025 +0100
+
+    feat: restore complete SuperClaude framework from commit d4a17fc
+    
+    Comprehensive restoration of all agents, modes, MCP integrations, and documentation.
+    
+    ## 🤖 Agents Restored (20 total)
+    Added 17 new agent definitions to existing 3:
+    - backend-architect, business-panel-experts, deep-research-agent
+    - devops-architect, frontend-architect, learning-guide
+    - performance-engineer, pm-agent, python-expert
+    - quality-engineer, refactoring-expert, requirements-analyst
+    - root-cause-analyst, security-engineer, socratic-mentor
+    - system-architect, technical-writer
+    
+    ## 🎨 Behavioral Modes (7)
+    - MODE_Brainstorming - Multi-perspective ideation
+    - MODE_Business_Panel - Executive strategic analysis
+    - MODE_DeepResearch - Autonomous research
+    - MODE_Introspection - Meta-cognitive analysis
+    - MODE_Orchestration - Tool coordination
+    - MODE_Task_Management - Systematic organization
+    - MODE_Token_Efficiency - Context optimization
+    
+    ## 🔌 MCP Server Integration (8)
+    Documentation and configs for:
+    - Tavily (web search)
+    - Serena (session persistence)
+    - Sequential (token-efficient reasoning)
+    - Context7 (documentation lookup)
+    - Playwright (browser automation)
+    - Magic (UI components)
+    - Morphllm (model transformation)
+    - Chrome DevTools (performance)
+    
+    ## 📚 Core Documentation (6)
+    - PRINCIPLES.md, RULES.md, FLAGS.md
+    - RESEARCH_CONFIG.md
+    - BUSINESS_PANEL_EXAMPLES.md, BUSINESS_SYMBOLS.md
+    
+    ## 📖 Documentation Restored (152 files)
+    - User-Guide (en, jp, kr, zh) - 24 files
+    - Developer-Guide - 5 files
+    - Development docs - 10 files
+    - Reference docs - 10 files
+    - Getting-Started - 2 files
+    - Plus examples and templates
+    
+    ## 📦 Package Configuration
+    Updated pyproject.toml and MANIFEST.in to include:
+    - modes/**/*.md
+    - mcp/**/*.md, **/*.json
+    - core/**/*.md
+    - examples/**/*.md
+    - Comprehensive docs in distribution
+    
+    ## 📁 Directory Structure
+    plugins/superclaude/ and src/superclaude/:
+    - agents/ (20 files)
+    - modes/ (7 files)
+    - mcp/ (8 docs + 8 configs)
+    - core/ (6 files)
+    - examples/ (workflow examples)
+    
+    docs/:
+    - 152 markdown files
+    - Multi-language support (en, jp, kr, zh)
+    - Comprehensive guides and references
+    
+    ## 📊 Statistics
+    - Commands: 30
+    - Agents: 20
+    - Modes: 7
+    - MCP Servers: 8
+    - Documentation Files: 152
+    - Total Resource Files: 200+
+    
+    Created docs/reference/comprehensive-features.md with complete inventory.
+    
+    Source: commit d4a17fc
+    Total changes: 150+ files added/modified
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+158 files changed, 32205 insertions(+), 19 deletions(-)
+M	MANIFEST.in
+A	docs/Developer-Guide/README.md
+A	docs/Developer-Guide/contributing-code.md
+A	docs/Developer-Guide/documentation-index.md
+A	docs/Developer-Guide/technical-architecture.md
+A	docs/Developer-Guide/testing-debugging.md
+A	docs/Development/ARCHITECTURE.md
+A	docs/Development/PROJECT_STATUS.md
+A	docs/Development/ROADMAP.md
+A	docs/Development/TASKS.md
+A	docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md
+A	docs/Development/installation-flow-understanding.md
+A	docs/Development/pm-agent-ideal-workflow.md
+A	docs/Development/pm-agent-integration.md
+A	docs/Development/project-structure-understanding.md
+A	docs/Development/tasks/current-tasks.md
+A	docs/Getting-Started/installation.md
+A	docs/Getting-Started/quick-start.md
+M	docs/README.md
+A	docs/Reference/README.md
+A	docs/Reference/advanced-patterns.md
+A	docs/Reference/advanced-workflows.md
+A	docs/Reference/basic-examples.md
+A	docs/Reference/claude-code-history-management.md
+A	docs/Reference/common-issues.md
+A	docs/Reference/diagnostic-reference.md
+A	docs/Reference/examples-cookbook.md
+A	docs/Reference/integration-patterns.md
+A	docs/Reference/mcp-server-guide.md
+A	docs/Reference/troubleshooting.md
+A	docs/Templates/__init__.py
+A	docs/User-Guide-jp/agents.md
+A	docs/User-Guide-jp/commands.md
+A	docs/User-Guide-jp/flags.md
+A	docs/User-Guide-jp/mcp-servers.md
+A	docs/User-Guide-jp/modes.md
+A	docs/User-Guide-jp/session-management.md
+A	docs/User-Guide-kr/agents.md
+A	docs/User-Guide-kr/commands.md
+A	docs/User-Guide-kr/flags.md
+A	docs/User-Guide-kr/mcp-servers.md
+A	docs/User-Guide-kr/modes.md
+A	docs/User-Guide-kr/session-management.md
+A	docs/User-Guide-zh/agents.md
+A	docs/User-Guide-zh/commands.md
+A	docs/User-Guide-zh/flags.md
+A	docs/User-Guide-zh/mcp-servers.md
+A	docs/User-Guide-zh/modes.md
+A	docs/User-Guide-zh/session-management.md
+A	docs/User-Guide/agents.md
+A	docs/User-Guide/commands.md
+A	docs/User-Guide/flags.md
+A	docs/User-Guide/mcp-servers.md
+A	docs/User-Guide/modes.md
+A	docs/User-Guide/session-management.md
+A	docs/pm-agent-implementation-status.md
+A	docs/reference/comprehensive-features.md
+A	plugins/superclaude/agents/backend-architect.md
+A	plugins/superclaude/agents/business-panel-experts.md
+A	plugins/superclaude/agents/deep-research-agent.md
+A	plugins/superclaude/agents/devops-architect.md
+A	plugins/superclaude/agents/frontend-architect.md
+A	plugins/superclaude/agents/learning-guide.md
+A	plugins/superclaude/agents/performance-engineer.md
+A	plugins/superclaude/agents/pm-agent.md
+A	plugins/superclaude/agents/python-expert.md
+A	plugins/superclaude/agents/quality-engineer.md
+A	plugins/superclaude/agents/refactoring-expert.md
+A	plugins/superclaude/agents/requirements-analyst.md
+A	plugins/superclaude/agents/root-cause-analyst.md
+A	plugins/superclaude/agents/security-engineer.md
+A	plugins/superclaude/agents/socratic-mentor.md
+A	plugins/superclaude/agents/system-architect.md
+A	plugins/superclaude/agents/technical-writer.md
+A	plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md
+A	plugins/superclaude/core/BUSINESS_SYMBOLS.md
+A	plugins/superclaude/core/FLAGS.md
+A	plugins/superclaude/core/PRINCIPLES.md
+A	plugins/superclaude/core/RESEARCH_CONFIG.md
+A	plugins/superclaude/core/RULES.md
+A	plugins/superclaude/core/__init__.py
+A	plugins/superclaude/examples/deep_research_workflows.md
+A	plugins/superclaude/mcp/MCP_Chrome-DevTools.md
+A	plugins/superclaude/mcp/MCP_Context7.md
+A	plugins/superclaude/mcp/MCP_Magic.md
+A	plugins/superclaude/mcp/MCP_Morphllm.md
+A	plugins/superclaude/mcp/MCP_Playwright.md
+A	plugins/superclaude/mcp/MCP_Sequential.md
+A	plugins/superclaude/mcp/MCP_Serena.md
+A	plugins/superclaude/mcp/MCP_Tavily.md
+A	plugins/superclaude/mcp/__init__.py
+A	plugins/superclaude/mcp/configs/context7.json
+A	plugins/superclaude/mcp/configs/magic.json
+A	plugins/superclaude/mcp/configs/morphllm.json
+A	plugins/superclaude/mcp/configs/playwright.json
+A	plugins/superclaude/mcp/configs/sequential.json
+A	plugins/superclaude/mcp/configs/serena-docker.json
+A	plugins/superclaude/mcp/configs/serena.json
+A	plugins/superclaude/mcp/configs/tavily.json
+A	plugins/superclaude/modes/MODE_Brainstorming.md
+A	plugins/superclaude/modes/MODE_Business_Panel.md
+A	plugins/superclaude/modes/MODE_DeepResearch.md
+A	plugins/superclaude/modes/MODE_Introspection.md
+A	plugins/superclaude/modes/MODE_Orchestration.md
+A	plugins/superclaude/modes/MODE_Task_Management.md
+A	plugins/superclaude/modes/MODE_Token_Efficiency.md
+A	plugins/superclaude/modes/__init__.py
+M	pyproject.toml
+A	src/superclaude/agents/backend-architect.md
+A	src/superclaude/agents/business-panel-experts.md
+A	src/superclaude/agents/deep-research-agent.md
+A	src/superclaude/agents/devops-architect.md
+A	src/superclaude/agents/frontend-architect.md
+A	src/superclaude/agents/learning-guide.md
+A	src/superclaude/agents/performance-engineer.md
+A	src/superclaude/agents/pm-agent.md
+A	src/superclaude/agents/python-expert.md
+A	src/superclaude/agents/quality-engineer.md
+A	src/superclaude/agents/refactoring-expert.md
+A	src/superclaude/agents/requirements-analyst.md
+A	src/superclaude/agents/root-cause-analyst.md
+A	src/superclaude/agents/security-engineer.md
+A	src/superclaude/agents/socratic-mentor.md
+A	src/superclaude/agents/system-architect.md
+A	src/superclaude/agents/technical-writer.md
+A	src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md
+A	src/superclaude/core/BUSINESS_SYMBOLS.md
+A	src/superclaude/core/FLAGS.md
+A	src/superclaude/core/PRINCIPLES.md
+A	src/superclaude/core/RESEARCH_CONFIG.md
+A	src/superclaude/core/RULES.md
+A	src/superclaude/core/__init__.py
+A	src/superclaude/examples/deep_research_workflows.md
+A	src/superclaude/mcp/MCP_Chrome-DevTools.md
+A	src/superclaude/mcp/MCP_Context7.md
+A	src/superclaude/mcp/MCP_Magic.md
+A	src/superclaude/mcp/MCP_Morphllm.md
+A	src/superclaude/mcp/MCP_Playwright.md
+A	src/superclaude/mcp/MCP_Sequential.md
+A	src/superclaude/mcp/MCP_Serena.md
+A	src/superclaude/mcp/MCP_Tavily.md
+A	src/superclaude/mcp/__init__.py
+A	src/superclaude/mcp/configs/context7.json
+A	src/superclaude/mcp/configs/magic.json
+A	src/superclaude/mcp/configs/morphllm.json
+A	src/superclaude/mcp/configs/playwright.json
+A	src/superclaude/mcp/configs/sequential.json
+A	src/superclaude/mcp/configs/serena-docker.json
+A	src/superclaude/mcp/configs/serena.json
+A	src/superclaude/mcp/configs/tavily.json
+A	src/superclaude/modes/MODE_Brainstorming.md
+A	src/superclaude/modes/MODE_Business_Panel.md
+A	src/superclaude/modes/MODE_DeepResearch.md
+A	src/superclaude/modes/MODE_Introspection.md
+A	src/superclaude/modes/MODE_Orchestration.md
+A	src/superclaude/modes/MODE_Task_Management.md
+A	src/superclaude/modes/MODE_Token_Efficiency.md
+A	src/superclaude/modes/__init__.py
+
+commit e61aaba771055f65dd7c4f5de4d0e3e91ac928ec
+Author:     Sergei Frolov <135062497+mrsergeifrolov@users.noreply.github.com>
+AuthorDate: Sun Jan 18 13:53:50 2026 +0100
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Jan 18 18:23:50 2026 +0530
+
+    feat(commands): add explicit boundaries and handoff instructions (#513)
+    
+    Add CRITICAL BOUNDARIES sections to 14 command files to clearly separate
+    document-only commands from execution commands. This prevents commands
+    from overstepping their intended scope.
+    
+    Document-Only Commands (now explicitly STOP after output):
+    - brainstorm: requirements discovery only, no architecture
+    - workflow: implementation plan only, no code execution
+    - spawn: task decomposition only, delegates to other commands
+    - research: research report only, no implementation
+    - estimate: estimation report only, no execution
+    - troubleshoot: diagnosis by default, --fix flag required for fixes
+    - business-panel: expert analysis only, no implementation
+    - task: discrete execution, stops when complete
+    
+    Execution Commands (now have clear completion criteria):
+    - implement: added completion checklist + handoff to /sc:test
+    - improve: added auto-fix vs approval-required thresholds
+    - cleanup: added safety thresholds for code removal
+    
+    Handoff Additions (already correct, added Next Step):
+    - design: handoff to /sc:implement
+    - analyze: handoff to /sc:improve or /sc:cleanup
+    - spec-panel: handoff to /sc:design or /sc:implement
+    
+    Documentation:
+    - commands.md: added "Command Output Categories" section
+    
+    Co-authored-by: Claude Opus 4.5 <noreply@anthropic.com>
+15 files changed, 316 insertions(+), 12 deletions(-)
+M	docs/user-guide/commands.md
+M	src/superclaude/commands/analyze.md
+M	src/superclaude/commands/brainstorm.md
+M	src/superclaude/commands/business-panel.md
+M	src/superclaude/commands/cleanup.md
+M	src/superclaude/commands/design.md
+M	src/superclaude/commands/estimate.md
+M	src/superclaude/commands/implement.md
+M	src/superclaude/commands/improve.md
+M	src/superclaude/commands/research.md
+M	src/superclaude/commands/spawn.md
+M	src/superclaude/commands/spec-panel.md
+M	src/superclaude/commands/task.md
+M	src/superclaude/commands/troubleshoot.md
+M	src/superclaude/commands/workflow.md
+
+## Strict reverse checks
+
+0ef8ea8139202acb17c5ffc938619f331c7184ab returncode=1
+git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -
+error: patch failed: plugins/superclaude/commands/recommend.md:1
+error: plugins/superclaude/commands/recommend.md: patch does not apply
+
+ab8904bc8cc2291b347a8641b913099f699f0c91 returncode=1
+git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -
+error: patch failed: src/superclaude/commands/workflow.md:1
+error: src/superclaude/commands/workflow.md: patch does not apply
+error: patch failed: src/superclaude/commands/troubleshoot.md:1
+error: src/superclaude/commands/troubleshoot.md: patch does not apply
+error: patch failed: src/superclaude/commands/test.md:1
+error: src/superclaude/commands/test.md: patch does not apply
+error: patch failed: src/superclaude/commands/task.md:1
+error: src/superclaude/commands/task.md: patch does not apply
+error: patch failed: src/superclaude/commands/spec-panel.md:1
+error: src/superclaude/commands/spec-panel.md: patch does not apply
+error: patch failed: src/superclaude/commands/spawn.md:1
+error: src/superclaude/commands/spawn.md: patch does not apply
+error: src/superclaude/commands/select-tool.md: No such file or directory
+error: patch failed: src/superclaude/commands/save.md:1
+error: src/superclaude/commands/save.md: patch does not apply
+error: patch failed: src/superclaude/commands/research.md:1
+error: src/superclaude/commands/research.md: patch does not apply
+error: patch failed: src/superclaude/commands/reflect.md:1
+error: src/superclaude/commands/reflect.md: patch does not apply
+error: patch failed: src/superclaude/commands/pm.md:1
+error: src/superclaude/commands/pm.md: patch does not apply
+error: patch failed: src/superclaude/commands/load.md:1
+error: src/superclaude/commands/load.md: patch does not apply
+error: patch failed: src/superclaude/commands/index.md:1
+error: src/superclaude/commands/index.md: patch does not apply
+error: patch failed: src/superclaude/commands/improve.md:1
+error: src/superclaude/commands/improve.md: patch does not apply
+error: patch failed: src/superclaude/commands/implement.md:1
+error: src/superclaude/commands/implement.md: patch does not apply
+error: patch failed: src/superclaude/commands/help.md:1
+error: src/superclaude/commands/help.md: patch does not apply
+error: patch failed: src/superclaude/commands/git.md:1
+error: src/superclaude/commands/git.md: patch does not apply
+error: patch failed: src/superclaude/commands/explain.md:1
+error: src/superclaude/commands/explain.md: patch does not apply
+error: src/superclaude/commands/estimate.md: No such file or directory
+error: patch failed: src/superclaude/commands/document.md:1
+error: src/superclaude/commands/document.md: patch does not apply
+error: patch failed: src/superclaude/commands/design.md:1
+error: src/superclaude/commands/design.md: patch does not apply
+error: patch failed: src/superclaude/commands/cleanup.md:1
+error: src/superclaude/commands/cleanup.md: patch does not apply
+error: patch failed: src/superclaude/commands/business-panel.md:1
+error: src/superclaude/commands/business-panel.md: patch does not apply
+error: patch failed: src/superclaude/commands/build.md:1
+error: src/superclaude/commands/build.md: patch does not apply
+error: patch failed: src/superclaude/commands/brainstorm.md:1
+error: src/superclaude/commands/brainstorm.md: patch does not apply
+error: patch failed: src/superclaude/commands/analyze.md:1
+error: src/superclaude/commands/analyze.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/workflow.md:1
+error: plugins/superclaude/commands/workflow.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/troubleshoot.md:1
+error: plugins/superclaude/commands/troubleshoot.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/test.md:1
+error: plugins/superclaude/commands/test.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/task.md:1
+error: plugins/superclaude/commands/task.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/spec-panel.md:1
+error: plugins/superclaude/commands/spec-panel.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/spawn.md:1
+error: plugins/superclaude/commands/spawn.md: patch does not apply
+error: plugins/superclaude/commands/select-tool.md: No such file or directory
+error: patch failed: plugins/superclaude/commands/save.md:1
+error: plugins/superclaude/commands/save.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/research.md:1
+error: plugins/superclaude/commands/research.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/reflect.md:1
+error: plugins/superclaude/commands/reflect.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/pm.md:1
+error: plugins/superclaude/commands/pm.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/load.md:1
+error: plugins/superclaude/commands/load.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/index.md:1
+error: plugins/superclaude/commands/index.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/improve.md:1
+error: plugins/superclaude/commands/improve.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/implement.md:1
+error: plugins/superclaude/commands/implement.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/help.md:1
+error: plugins/superclaude/commands/help.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/git.md:1
+error: plugins/superclaude/commands/git.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/explain.md:1
+error: plugins/superclaude/commands/explain.md: patch does not apply
+error: plugins/superclaude/commands/estimate.md: No such file or directory
+error: patch failed: plugins/superclaude/commands/document.md:1
+error: plugins/superclaude/commands/document.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/design.md:1
+error: plugins/superclaude/commands/design.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/cleanup.md:1
+error: plugins/superclaude/commands/cleanup.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/business-panel.md:1
+error: plugins/superclaude/commands/business-panel.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/build.md:1
+error: plugins/superclaude/commands/build.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/brainstorm.md:1
+error: plugins/superclaude/commands/brainstorm.md: patch does not apply
+error: patch failed: plugins/superclaude/commands/analyze.md:1
+error: plugins/superclaude/commands/analyze.md: patch does not apply
+error: docs/reference/commands-list.md: No such file or directory
+error: patch failed: README.md:65
+error: README.md: patch does not apply
+error: README-zh.md: No such file or directory
+error: README-kr.md: No such file or directory
+error: README-ja.md: No such file or directory
+
+3762d6ab24508107dc794811d9b6b0c9def84707 returncode=1
+git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -
+error: patch failed: src/superclaude/modes/MODE_Token_Efficiency.md:1
+error: src/superclaude/modes/MODE_Token_Efficiency.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_Task_Management.md:1
+error: src/superclaude/modes/MODE_Task_Management.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_Orchestration.md:1
+error: src/superclaude/modes/MODE_Orchestration.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_Introspection.md:1
+error: src/superclaude/modes/MODE_Introspection.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_DeepResearch.md:1
+error: src/superclaude/modes/MODE_DeepResearch.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_Business_Panel.md:1
+error: src/superclaude/modes/MODE_Business_Panel.md: patch does not apply
+error: patch failed: src/superclaude/modes/MODE_Brainstorming.md:1
+error: src/superclaude/modes/MODE_Brainstorming.md: patch does not apply
+error: src/superclaude/mcp/configs/tavily.json: No such file or directory
+error: patch failed: src/superclaude/mcp/configs/serena.json:1
+error: src/superclaude/mcp/configs/serena.json: patch does not apply
+error: src/superclaude/mcp/configs/sequential.json: No such file or directory
+error: patch failed: src/superclaude/mcp/configs/morphllm.json:1
+error: src/superclaude/mcp/configs/morphllm.json: patch does not apply
+error: src/superclaude/mcp/configs/magic.json: No such file or directory
+error: patch failed: src/superclaude/mcp/MCP_Tavily.md:1
+error: src/superclaude/mcp/MCP_Tavily.md: patch does not apply
+error: patch failed: src/superclaude/mcp/MCP_Serena.md:1
+error: src/superclaude/mcp/MCP_Serena.md: patch does not apply
+error: src/superclaude/mcp/MCP_Sequential.md: No such file or directory
+error: patch failed: src/superclaude/mcp/MCP_Playwright.md:1
+error: src/superclaude/mcp/MCP_Playwright.md: patch does not apply
+error: patch failed: src/superclaude/mcp/MCP_Morphllm.md:1
+error: src/superclaude/mcp/MCP_Morphllm.md: patch does not apply
+error: src/superclaude/mcp/MCP_Magic.md: No such file or directory
+error: patch failed: src/superclaude/mcp/MCP_Context7.md:1
+error: src/superclaude/mcp/MCP_Context7.md: patch does not apply
+error: src/superclaude/mcp/MCP_Chrome-DevTools.md: No such file or directory
+error: patch failed: src/superclaude/examples/deep_research_workflows.md:1
+error: src/superclaude/examples/deep_research_workflows.md: patch does not apply
+error: patch failed: src/superclaude/core/RULES.md:1
+error: src/superclaude/core/RULES.md: patch does not apply
+error: patch failed: src/superclaude/core/RESEARCH_CONFIG.md:1
+error: src/superclaude/core/RESEARCH_CONFIG.md: patch does not apply
+error: patch failed: src/superclaude/core/PRINCIPLES.md:1
+error: src/superclaude/core/PRINCIPLES.md: patch does not apply
+error: src/superclaude/core/FLAGS.md: No such file or directory
+error: patch failed: src/superclaude/core/BUSINESS_SYMBOLS.md:1
+error: src/superclaude/core/BUSINESS_SYMBOLS.md: patch does not apply
+error: patch failed: src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md:1
+error: src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md: patch does not apply
+error: patch failed: src/superclaude/agents/technical-writer.md:1
+error: src/superclaude/agents/technical-writer.md: patch does not apply
+error: patch failed: src/superclaude/agents/system-architect.md:1
+error: src/superclaude/agents/system-architect.md: patch does not apply
+error: patch failed: src/superclaude/agents/socratic-mentor.md:1
+error: src/superclaude/agents/socratic-mentor.md: patch does not apply
+error: patch failed: src/superclaude/agents/security-engineer.md:1
+error: src/superclaude/agents/security-engineer.md: patch does not apply
+error: patch failed: src/superclaude/agents/root-cause-analyst.md:1
+error: src/superclaude/agents/root-cause-analyst.md: patch does not apply
+error: patch failed: src/superclaude/agents/requirements-analyst.md:1
+error: src/superclaude/agents/requirements-analyst.md: patch does not apply
+error: patch failed: src/superclaude/agents/refactoring-expert.md:1
+error: src/superclaude/agents/refactoring-expert.md: patch does not apply
+error: patch failed: src/superclaude/agents/quality-engineer.md:1
+error: src/superclaude/agents/quality-engineer.md: patch does not apply
+error: patch failed: src/superclaude/agents/python-expert.md:1
+error: src/superclaude/agents/python-expert.md: patch does not apply
+error: patch failed: src/superclaude/agents/pm-agent.md:1
+error: src/superclaude/agents/pm-agent.md: patch does not apply
+error: patch failed: src/superclaude/agents/performance-engineer.md:1
+error: src/superclaude/agents/performance-engineer.md: patch does not apply
+error: patch failed: src/superclaude/agents/learning-guide.md:1
+error: src/superclaude/agents/learning-guide.md: patch does not apply
+error: patch failed: src/superclaude/agents/frontend-architect.md:1
+error: src/superclaude/agents/frontend-architect.md: patch does not apply
+error: patch failed: src/superclaude/agents/devops-architect.md:1
+error: src/superclaude/agents/devops-architect.md: patch does not apply
+error: patch failed: src/superclaude/agents/deep-research-agent.md:1
+error: src/superclaude/agents/deep-research-agent.md: patch does not apply
+error: patch failed: src/superclaude/agents/business-panel-experts.md:1
+error: src/superclaude/agents/business-panel-experts.md: patch does not apply
+error: patch failed: src/superclaude/agents/backend-architect.md:1
+error: src/superclaude/agents/backend-architect.md: patch does not apply
+error: patch failed: pyproject.toml:74
+error: pyproject.toml: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Token_Efficiency.md:1
+error: plugins/superclaude/modes/MODE_Token_Efficiency.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Task_Management.md:1
+error: plugins/superclaude/modes/MODE_Task_Management.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Orchestration.md:1
+error: plugins/superclaude/modes/MODE_Orchestration.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Introspection.md:1
+error: plugins/superclaude/modes/MODE_Introspection.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_DeepResearch.md:1
+error: plugins/superclaude/modes/MODE_DeepResearch.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Business_Panel.md:1
+error: plugins/superclaude/modes/MODE_Business_Panel.md: patch does not apply
+error: patch failed: plugins/superclaude/modes/MODE_Brainstorming.md:1
+error: plugins/superclaude/modes/MODE_Brainstorming.md: patch does not apply
+error: plugins/superclaude/mcp/configs/tavily.json: No such file or directory
+error: patch failed: plugins/superclaude/mcp/configs/serena.json:1
+error: plugins/superclaude/mcp/configs/serena.json: patch does not apply
+error: plugins/superclaude/mcp/configs/sequential.json: No such file or directory
+error: patch failed: plugins/superclaude/mcp/configs/morphllm.json:1
+error: plugins/superclaude/mcp/configs/morphllm.json: patch does not apply
+error: plugins/superclaude/mcp/configs/magic.json: No such file or directory
+error: patch failed: plugins/superclaude/mcp/MCP_Tavily.md:1
+error: plugins/superclaude/mcp/MCP_Tavily.md: patch does not apply
+error: patch failed: plugins/superclaude/mcp/MCP_Serena.md:1
+error: plugins/superclaude/mcp/MCP_Serena.md: patch does not apply
+error: plugins/superclaude/mcp/MCP_Sequential.md: No such file or directory
+error: patch failed: plugins/superclaude/mcp/MCP_Playwright.md:1
+error: plugins/superclaude/mcp/MCP_Playwright.md: patch does not apply
+error: patch failed: plugins/superclaude/mcp/MCP_Morphllm.md:1
+error: plugins/superclaude/mcp/MCP_Morphllm.md: patch does not apply
+error: plugins/superclaude/mcp/MCP_Magic.md: No such file or directory
+error: patch failed: plugins/superclaude/mcp/MCP_Context7.md:1
+error: plugins/superclaude/mcp/MCP_Context7.md: patch does not apply
+error: plugins/superclaude/mcp/MCP_Chrome-DevTools.md: No such file or directory
+error: patch failed: plugins/superclaude/examples/deep_research_workflows.md:1
+error: plugins/superclaude/examples/deep_research_workflows.md: patch does not apply
+error: patch failed: plugins/superclaude/core/RULES.md:1
+error: plugins/superclaude/core/RULES.md: patch does not apply
+error: patch failed: plugins/superclaude/core/RESEARCH_CONFIG.md:1
+error: plugins/superclaude/core/RESEARCH_CONFIG.md: patch does not apply
+error: patch failed: plugins/superclaude/core/PRINCIPLES.md:1
+error: plugins/superclaude/core/PRINCIPLES.md: patch does not apply
+error: plugins/superclaude/core/FLAGS.md: No such file or directory
+error: patch failed: plugins/superclaude/core/BUSINESS_SYMBOLS.md:1
+error: plugins/superclaude/core/BUSINESS_SYMBOLS.md: patch does not apply
+error: patch failed: plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md:1
+error: plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/technical-writer.md:1
+error: plugins/superclaude/agents/technical-writer.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/system-architect.md:1
+error: plugins/superclaude/agents/system-architect.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/socratic-mentor.md:1
+error: plugins/superclaude/agents/socratic-mentor.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/security-engineer.md:1
+error: plugins/superclaude/agents/security-engineer.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/root-cause-analyst.md:1
+error: plugins/superclaude/agents/root-cause-analyst.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/requirements-analyst.md:1
+error: plugins/superclaude/agents/requirements-analyst.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/refactoring-expert.md:1
+error: plugins/superclaude/agents/refactoring-expert.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/quality-engineer.md:1
+error: plugins/superclaude/agents/quality-engineer.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/python-expert.md:1
+error: plugins/superclaude/agents/python-expert.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/pm-agent.md:1
+error: plugins/superclaude/agents/pm-agent.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/performance-engineer.md:1
+error: plugins/superclaude/agents/performance-engineer.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/learning-guide.md:1
+error: plugins/superclaude/agents/learning-guide.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/frontend-architect.md:1
+error: plugins/superclaude/agents/frontend-architect.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/devops-architect.md:1
+error: plugins/superclaude/agents/devops-architect.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/deep-research-agent.md:1
+error: plugins/superclaude/agents/deep-research-agent.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/business-panel-experts.md:1
+error: plugins/superclaude/agents/business-panel-experts.md: patch does not apply
+error: patch failed: plugins/superclaude/agents/backend-architect.md:1
+error: plugins/superclaude/agents/backend-architect.md: patch does not apply
+error: docs/reference/comprehensive-features.md: No such file or directory
+error: docs/pm-agent-implementation-status.md: No such file or directory
+error: docs/User-Guide/session-management.md: No such file or directory
+error: docs/User-Guide/modes.md: No such file or directory
+error: docs/User-Guide/mcp-servers.md: No such file or directory
+error: docs/User-Guide/flags.md: No such file or directory
+error: docs/User-Guide/commands.md: No such file or directory
+error: docs/User-Guide/agents.md: No such file or directory
+error: docs/User-Guide-zh/session-management.md: No such file or directory
+error: docs/User-Guide-zh/modes.md: No such file or directory
+error: docs/User-Guide-zh/mcp-servers.md: No such file or directory
+error: docs/User-Guide-zh/flags.md: No such file or directory
+error: docs/User-Guide-zh/commands.md: No such file or directory
+error: docs/User-Guide-zh/agents.md: No such file or directory
+error: docs/User-Guide-kr/session-management.md: No such file or directory
+error: docs/User-Guide-kr/modes.md: No such file or directory
+error: docs/User-Guide-kr/mcp-servers.md: No such file or directory
+error: docs/User-Guide-kr/flags.md: No such file or directory
+error: docs/User-Guide-kr/commands.md: No such file or directory
+error: docs/User-Guide-kr/agents.md: No such file or directory
+error: docs/User-Guide-jp/session-management.md: No such file or directory
+error: docs/User-Guide-jp/modes.md: No such file or directory
+error: docs/User-Guide-jp/mcp-servers.md: No such file or directory
+error: docs/User-Guide-jp/flags.md: No such file or directory
+error: docs/User-Guide-jp/commands.md: No such file or directory
+error: docs/User-Guide-jp/agents.md: No such file or directory
+error: docs/Reference/troubleshooting.md: No such file or directory
+error: docs/Reference/mcp-server-guide.md: No such file or directory
+error: docs/Reference/integration-patterns.md: No such file or directory
+error: docs/Reference/examples-cookbook.md: No such file or directory
+error: docs/Reference/diagnostic-reference.md: No such file or directory
+error: docs/Reference/common-issues.md: No such file or directory
+error: docs/Reference/claude-code-history-management.md: No such file or directory
+error: docs/Reference/basic-examples.md: No such file or directory
+error: docs/Reference/advanced-workflows.md: No such file or directory
+error: docs/Reference/advanced-patterns.md: No such file or directory
+error: docs/Reference/README.md: No such file or directory
+error: docs/README.md: No such file or directory
+error: docs/Getting-Started/quick-start.md: No such file or directory
+error: docs/Getting-Started/installation.md: No such file or directory
+error: docs/Development/tasks/current-tasks.md: No such file or directory
+error: docs/Development/project-structure-understanding.md: No such file or directory
+error: docs/Development/pm-agent-integration.md: No such file or directory
+error: docs/Development/pm-agent-ideal-workflow.md: No such file or directory
+error: docs/Development/installation-flow-understanding.md: No such file or directory
+error: docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md: No such file or directory
+error: docs/Development/TASKS.md: No such file or directory
+error: docs/Development/ROADMAP.md: No such file or directory
+error: docs/Development/PROJECT_STATUS.md: No such file or directory
+error: docs/Development/ARCHITECTURE.md: No such file or directory
+error: docs/Developer-Guide/testing-debugging.md: No such file or directory
+error: docs/Developer-Guide/technical-architecture.md: No such file or directory
+error: docs/Developer-Guide/documentation-index.md: No such file or directory
+error: docs/Developer-Guide/contributing-code.md: No such file or directory
+error: docs/Developer-Guide/README.md: No such file or directory
+error: MANIFEST.in: No such file or directory
+
+e61aaba771055f65dd7c4f5de4d0e3e91ac928ec returncode=1
+git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -
+error: patch failed: src/superclaude/commands/workflow.md:94
+error: src/superclaude/commands/workflow.md: patch does not apply
+error: patch failed: src/superclaude/commands/troubleshoot.md:85
+error: src/superclaude/commands/troubleshoot.md: patch does not apply
+error: patch failed: src/superclaude/commands/task.md:86
+error: src/superclaude/commands/task.md: patch does not apply
+error: patch failed: src/superclaude/commands/spec-panel.md:425
+error: src/superclaude/commands/spec-panel.md: patch does not apply
+error: patch failed: src/superclaude/commands/spawn.md:82
+error: src/superclaude/commands/spawn.md: patch does not apply
+error: patch failed: src/superclaude/commands/research.md:100
+error: src/superclaude/commands/research.md: patch does not apply
+error: patch failed: src/superclaude/commands/improve.md:92
+error: src/superclaude/commands/improve.md: patch does not apply
+error: patch failed: src/superclaude/commands/implement.md:94
+error: src/superclaude/commands/implement.md: patch does not apply
+error: src/superclaude/commands/estimate.md: No such file or directory
+error: patch failed: src/superclaude/commands/design.md:85
+error: src/superclaude/commands/design.md: patch does not apply
+error: patch failed: src/superclaude/commands/cleanup.md:90
+error: src/superclaude/commands/cleanup.md: patch does not apply
+error: patch failed: src/superclaude/commands/business-panel.md:78
+error: src/superclaude/commands/business-panel.md: patch does not apply
+error: patch failed: src/superclaude/commands/brainstorm.md:97
+error: src/superclaude/commands/brainstorm.md: patch does not apply
+error: patch failed: src/superclaude/commands/analyze.md:86
+error: src/superclaude/commands/analyze.md: patch does not apply
+error: patch failed: docs/user-guide/commands.md:205
+error: docs/user-guide/commands.md: patch does not apply
+
+## Fork-authored later changes on command/core/agent surfaces
+
+4ed8d70f 4ed8d70f264d5db9a0910e1270e2825cd51bb8e0 2026-02-01T05:15:15+00:00 RyanW <ryan@ironbelly.com> feat(commands): enhance review-translation with TQAS improvements
+155f0771 155f0771cf432693dfc8276e2ddd46baa15be21d 2026-02-13T20:26:23+00:00 RyanW <ryan@ironbelly.com> feat(v1.05): M3 on-demand loading + YAML compression applied to src
+ba7bb32c ba7bb32c7eae93e3c93c31edaa6f18f5638251ed 2026-02-13T20:28:52+00:00 RyanW <ryan@ironbelly.com> feat(v1.05): M4 cross-file consolidation
+de177847 de177847a83acbd5a1633684cf1f34861fc8305d 2026-02-13T20:50:26+00:00 RyanW <ryan@ironbelly.com> feat(v1.05): add core framework file installation to superclaude install
+8cc65e93 8cc65e931e0d712c029fd8a7c524fbc65a8e5edc 2026-02-19T15:01:57+00:00 RyanW <ryan@ironbelly.com>   ---   feat(v1.06): implement /sc:cleanup-audit skill — multi-pass repository audit
+1f21b5f4 1f21b5f410410a554f49aecdffdb85e292fc4b6e 2026-02-19T19:52:07+00:00 RyanW <ryan@ironbelly.com>   Summary
+91042abb 91042abb31d4d35aac92e859a855571c04e891be 2026-02-20T20:24:32+00:00 RyanW <ryan@ironbelly.com> Cleanup of misnamed commands cleanup of .dev Final updates to roadmap CC
+ebdcc708 ebdcc7086c3ecb4743b6b4c28c96fcb575951f5d 2026-02-22T03:40:36+00:00 RyanW <ryan@ironbelly.com> First phase complete
+9060a659 9060a659df549d1bebdf256f113810779c36d7b9 2026-02-23T19:59:56+00:00 RyanW <ryan@ironbelly.com>  feat: archive v2.0-roadmap-v2 release, rewrite sc:roadmap command, add v2.01 tasklist
+99f68fdf 99f68fdfd80fc38c4010227f8ff907efb59803ef 2026-02-24T12:50:13+00:00 RyanW <ryan@ironbelly.com> P2 done
+371353f9 371353f95d0259be82eea6ffb506ac94e4bdd6c4 2026-02-24T14:47:18+00:00 RyanW <ryan@ironbelly.com> P03
+4547b76b 4547b76b3ebff5160e7b25e55e9aae0d1a868bf2 2026-02-25T07:44:12+00:00 RyanW <ryan@ironbelly.com> uv run python tests/v2.01-release-validation/orchestrator.py --runs 1   --models haiku --concurrency 1FEature complete an
+59fe1a99 59fe1a9902ae221025f723cdcb2bf89ee7ab167f 2026-02-25T08:00:33+00:00 RyanW <ryan@ironbelly.com> 8/8 passed. 100% pass rate across both models.
+8e23032e 8e23032ee8a0d9d09879f873bfa77056fc018ce2 2026-03-02T15:10:49+00:00 RyanW <ryan@ironbelly.com> update
+6548f174 6548f174c918efcc825f62595911edca6af93e3c 2026-03-05T16:28:01+00:00 RyanW <ryan@ironbelly.com>   Branch: feature/v2.05-v2.08   Stats: 106 files changed, +895 insertions, -21,209 deletions
+06a67092 06a6709252a559b853517b285ed02add8aa22c91 2026-03-06T15:05:58+00:00 RyanW <ryan@ironbelly.com> docs(skills): sync adversarial and spec-panel protocol updates
+40b6ab63 40b6ab63dbf89248d8f2573cb8c4a6dc846e2d32 2026-03-06T21:55:36+00:00 RyanW <ryan@ironbelly.com> Planning and completion workf or cli-portify and future releases
+38a44d3d 38a44d3d4f5e3f570c5c623172e8a02ce629d6bd 2026-03-08T15:48:33+00:00 RyanW <ryan@ironbelly.com> update
+2a6ff8dc 2a6ff8dc0d0855e79e5cdc531cb8a594ac5fa1ff 2026-03-08T19:01:25+00:00 RyanW <ryan@ironbelly.com> v2.19 Roadmap Validate Pipeline (NEW)
+9e63d47c 9e63d47c57d84dae559792fa4e96dfbeb6d857f7 2026-03-09T18:56:25+00:00 RyanW <ryan@ironbelly.com> feat(tasklist-protocol): add mandatory post-generation roadmap validation (stages 7-10)
+fa4016aa fa4016aa386e79660ccd3e929f57988139cc596a 2026-03-09T18:58:24+00:00 RyanW <ryan@ironbelly.com> feat(brainstorm): integrate Auggie MCP for automatic codebase awareness
+e2710cb1 e2710cb1f74f62c05fe9fd61e363e44641f6b1fa 2026-03-10T15:01:27+00:00 RyanW <ryan@ironbelly.com> feat(roadmap): add remediation and certify gates for release pipeline
+4b19eb08 4b19eb08ae2e0c3800b40a704b384130003de699 2026-03-16T10:33:45+00:00 RyanW <ryan@ironbelly.com> Tasklist Generation Clearnup Rigorflow comp done and backlog release planning org
+6c848264 6c84826498b736df6615fa5ef51fce521dfc8dcc 2026-03-18T02:39:31+00:00 RyanW <ryan@ironbelly.com> Prepro to Framework Wide refactor - Release split skill built to split up releases into smaller chunks if value is deemed - Roadmap protocol to CLI gaps identified and ready to be fixed - Organized all 3.x sprints for execution, specs created.
+f7ea213a f7ea213a8f43e6c1b7b34352920ab632e6bc1e68 2026-03-18T03:05:10+00:00 RyanW <ryan@ironbelly.com> Roadmap gaps
+f4d9035f f4d9035fb0516725e915f48b037c3fcf5ad34c45 2026-03-19T19:45:06+00:00 RyanW <ryan@ironbelly.com>  feat(v3.0): unified audit gating — wiring integrity, convergence engine, eval suite
+6a25e195 6a25e1954f870ba36b47cb4b45785854b6889313 2026-03-21T00:45:29+00:00 RyanW <ryan@ironbelly.com> feat(roadmap): unify v3.05, v3.1, and v3.2 fidelity gate   releases
+e30a6caa e30a6caa606aedbe2292235182f6a2f41209aaa5 2026-03-23T14:11:37+00:00 RyanW <ryan@ironbelly.com> Final 3.0 - 3.2 remediation work Planning work for:  - RoadmapRemediationV2  - SpawnV2 - V3.3 TurnLedger Validation  -
+2f9b7210 2f9b721090829b7429598cc670d7e7b40a0ab2c6 2026-03-23T18:46:40+00:00 RyanW <ryan@ironbelly.com> feat(fix) - cli portify fixed planning for other v3.3 work in progress
+a9cf7ee3 a9cf7ee3e534148a7af597bec737caf006575d84 2026-04-02T09:42:02-05:00 clayphi <clay@ironbelly.com> feat: add --prd-file supplementary input to roadmap and tasklist pipelines
+763e0c58 763e0c58c31570f30010e2938f96f3d1d0cec5cf 2026-04-05T14:43:12+00:00 RyanW <ryan@ironbelly.com> refactor(tdd): create command layer and migrate interface content from SKILL.md
+df14beeb df14beebc429b34c9542454826165f249ec1d400 2026-04-15T22:58:17+00:00 RyanW <ryan@ironbelly.com> Compression stuff and recommended update
+3ac7bb6d 3ac7bb6d316d5330e80e9832c35b26db4be17395 2026-04-21T12:35:25-04:00 Alireza Fathalizadeh <ali.fz@ironbelly.com> Merge branch 'feat/tdd-spec-merge' of github.com:IronbellyOrg/IronClaude into feat/v3.67-prd-skill-portify
+de04670a de04670a89479084028a41e5cdcc1e18afc3dd93 2026-04-23T14:48:11+00:00 Alireza <ali.fz@ironbelly.com> refactor(commands,skills): Naming consolidation — /sc:task canonical (v3.7)
+fd41178b fd41178ba6fa720f465a8ebaf3e21f157c828cd2 2026-05-08T01:32:30+00:00 RyanW <ryan@ironbelly.com> feat(reflect): add Re-scrutiny phase 4 + promote rf agents/skills to src/
+86d27496 86d27496456d6b82ff38af6ebc364ec9d5d7c9b4 2026-05-12T19:20:36+00:00 RyanW <ryan@ironbelly.com> chore: relocate eval workspace, archive shipped releases, add RCA bundle
+6ceeea54 6ceeea54a52e1d86e2f6b8c2931b3f7f3e099059 2026-05-12T19:32:13+00:00 RyanW <ryan@ironbelly.com> Merge remote-tracking branch 'origin/feat/tdd-spec-merge' into feat/sc-reflect-rescrutiny-phase
+d90bed68 d90bed680887223deceabd682966f92e15cb5eca 2026-05-13T03:04:01+00:00 RyanW <ryan@ironbelly.com> feat(freshness-system): ship v1 context freshness hooks
+f79b1bd5 f79b1bd54f65cf41a868a495a7c20820e078e2c3 2026-05-13T05:34:08+00:00 RyanW <ryan@ironbelly.com> feat(workspace-rca): layered remediation for skill-creator workspace misplacement
+9d1e51bb 9d1e51bb55f3e713b57ae8455a9ea3151e31310e 2026-05-15T19:46:51+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-06 structural gate additions (TB-Add-1 through TB-Add-7)
+f7127c9e f7127c9ef7da9dad6faa813dd4ff8244b7843a96 2026-05-15T19:49:39+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-01 execution context header (revise-then-adopt)
+3a57a0df 3a57a0df3085c4f9d5d37b407d5e734db158de67 2026-05-15T19:51:20+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-04 gate-results passthrough (inherited structural verdict)
+0abf897e 0abf897eb956aeef9116685d74353956391f9be3 2026-05-15T19:52:49+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-07 adversarial category naming (5-axis overlay)
+eed1851d eed1851d6d54713d9a2384c550b98136982a0a3b 2026-05-15T19:54:42+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-02 retry monotonicity guards (anti-oscillation)
+dfae6cf0 dfae6cf05bfcd818c4759142bf6146cfb4b12d98 2026-05-15T19:56:53+00:00 RyanW <ryan@ironbelly.com> feat(task-builder): PR-03 DNSP synthetic finding (paradigm-neutral, BASE)
+db824c4b db824c4be3213cc76b605a1c4695f472563bd470 2026-05-17T13:51:43-04:00 Ironbelly <ryan@ironbelly.com> feat(spawn,adversarial): branch-trace + sufficiency-challenge mitigations (#45)
+ff99449f ff99449fefb268d61cc6a0e5f7650240464ec0e5 2026-05-18T07:43:54-04:00 Ironbelly <ryan@ironbelly.com> feat(hooks): widen auggie-flag-clear matcher and add verify-sync hook coverage (#49)
+2219545c 2219545cc6cb5d3cfbd9e8f1d1c078b74adaa3a3 2026-05-20T13:17:19-04:00 Ironbelly <ryan@ironbelly.com> fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)
+ffa35fc5 ffa35fc57986f840a27d1490863b5af2fbc2ff44 2026-05-20T23:09:43-04:00 Ironbelly <ryan@ironbelly.com> feat(skills): add sc-auggie-review-protocol — Auggie-powered code review (#64)
+6633c54f 6633c54fe2348706908cb9cd589f75283da51cc1 2026-05-21T08:08:18-04:00 Ironbelly <ryan@ironbelly.com> feat: sc:troubleshoot v2 — tiered protocol + 2 custom agents + dispatch wiring (#70)
+73d49c00 73d49c00b4875e25feb417709228ae695510abab 2026-05-22T15:45:42-04:00 Ironbelly <ryan@ironbelly.com> feat(sc:troubleshoot): add Wave 1.5 documentation grounding (#73)
+89df2c11 89df2c1105c01caff199288f949d5783f6594e70 2026-05-22T15:47:02-04:00 Ironbelly <ryan@ironbelly.com> chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)
+5023a0d4 5023a0d42e684b41d8305636b7346019f7ff09e9 2026-05-22T17:18:27-04:00 Ironbelly <ryan@ironbelly.com> feat(confidence-check): codify verify-before-recommend trigger surface (#78)
+e45cc919 e45cc919bac2bfceccdb3ced5bbe6747ff51d650 2026-05-22T17:18:51-04:00 Ironbelly <ryan@ironbelly.com> Feat/hook sync and matcher fix (#77)
+f338ae58 f338ae58c3fc3896cd5d462e91f3162f23476543 2026-05-25T13:28:02-04:00 Ironbelly <ryan@ironbelly.com> fix(rf-team-lead): Tavily-first refactor + snapshot-fixture audit-pin (OQ3 Path C) (#84)
+f8fce9c7 f8fce9c7149f78c942587d33df37fde300cca092 2026-05-25T15:45:46-04:00 Ironbelly <ryan@ironbelly.com> feat(agents): Tavily-first web search precedence across 9 RF agents + legacy .claude/ untrack (#82)
+02105108 02105108121f3140a04f6c876b2efb338326ede2 2026-05-25T15:46:32-04:00 Ironbelly <ryan@ironbelly.com> feat(brainstorm): add multi-agent adversarial workflow (#85)
+d9901d87 d9901d870b779ab10fa9ecee4f79a35f6cd58a60 2026-05-26T14:54:06-04:00 Ironbelly <ryan@ironbelly.com> fix(roadmap): mechanism-signature refactor for anti-instinct integration_contracts (#86)
+48c72cad 48c72cade075427960205c22dba18007aa9aca3a 2026-05-26T15:06:29-04:00 Ironbelly <ryan@ironbelly.com> chore(repo): consolidate post-merge cleanup — release graduations + carryover (#87)
+25c4c1b8 25c4c1b873bd76ca8689a9b2d46417d1ff802fe3 2026-05-27T03:05:08-04:00 Ironbelly <ryan@ironbelly.com> feat(troubleshoot): wire claim_class/evidence_class/verdict_direction scoring into confidence-calibrator (Change C) (#93)
+021f715c 021f715cda6d71faf1fc241be73bf6b34069f2cc 2026-05-27T11:31:48-04:00 Ironbelly <ryan@ironbelly.com> feat(sc-reflect): rebuild /sc:reflect on tiered protocol skill (#95)
+70ef6486 70ef6486ef878975fc61569292c340c6a79fccd9 2026-05-30T00:46:19-04:00 Ironbelly <ryan@ironbelly.com> chore(dev): archive accumulated .dev/ workspace artifacts and planning doc, refactor: replace haiku defaults with sonnet across codebase (#106)
+89933922 89933922312cefc6b43109203a4f91fc68948ba0 2026-05-30T01:35:08-04:00 Ironbelly <ryan@ironbelly.com> feat(sc:cleanup-audit): bake hidden + BMAD scope exclusions into defaults (#109)
+238d6583 238d6583dc508f2dacff6cc978507c929609a2bb 2026-06-03T19:47:58-04:00 Ironbelly <ryan@ironbelly.com> feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)
+b9724e49 b9724e496c9b61ef791a73962a9fc9dabafba63e 2026-06-04T00:01:14-04:00 Ironbelly <ryan@ironbelly.com> docs(sc-reflect): align command + user-guide docs with v2.0.0 tiered protocol surface (#133)
+681a347f 681a347fe417f8f924b8ed62ca5f047fc48e0b3c 2026-06-04T00:03:39-04:00 Ironbelly <ryan@ironbelly.com> feat(cli): add superclaude init-lite --context-optimized (#128)
+80fd3520 80fd352024786dc129671811684c2ca38b1a133b 2026-06-04T00:51:14-04:00 Ironbelly <ryan@ironbelly.com> docs(sc-reflect): remediate PR #133 critiques — tasklist wording, --task-log row, headlined flags, duplicate-copy sync (#135)
+7dd3f9bd 7dd3f9bd387bcff7827e1453296efaab469d70fe 2026-06-04T16:50:01-04:00 Ironbelly <ryan@ironbelly.com> feat(reflect): wire /sc:reflect PRE+POST gates into task-builder and sc:tasklist pipelines (#138)
+5495ba28 5495ba2863e03d1b7ba37fe792b9a1b2989c1ca3 2026-06-07T20:46:50-04:00 Ironbelly <ryan@ironbelly.com> feat(reuse-audit): reuse-auditor agent + sc-reflect/tdd integration (#146)
+b0de1479 b0de1479267353fa77d56cf9d1b59ee57b27138d 2026-06-08T14:51:36-04:00 Ironbelly <ryan@ironbelly.com> feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+ac80f176 ac80f176389572eaa8c902764dc91cb2a3fac2a1 2026-06-08T15:22:16-04:00 clayphi <clay@ironbelly.com> feat(task-builder): converge rigorflow task-builder, rf agents, and MDTM templates (incl. #138 sc:reflect) (#144)
+2c5357c8 2c5357c8531869fde21535887d194033566cc7ca 2026-06-12T17:32:43-04:00 Ironbelly <ryan@ironbelly.com> feat(sc:pr-submit): PR review auto-remediation monitor (V1.0) (#162)
+0f6862b3 0f6862b3770b3df37993e16aed78ecd02f39c8ae 2026-06-12T17:51:11-04:00 Ironbelly <ryan@ironbelly.com> feat: /sc:cli-eval suite-lifecycle skill + troubleshoot E1-E5 backtest harness (#168)
+71f16e13 71f16e130d15c33670eabb1917a746848cd41ef5 2026-06-12T19:01:24-04:00 Ironbelly <ryan@ironbelly.com> feat(troubleshoot): Pipeline Hardening Closure mode (H0-H5 + waiver latch) (#173)
+0f9c8d36 0f9c8d366daa9c234624ab8e93f25f39b59566bf 2026-06-16T01:26:35-04:00 Ironbelly <ryan@ironbelly.com> fix(pr-submit): de-hardcode to run on any repo + post-reflect hardening (#176)
+d12cad1d d12cad1d126b43c5f58199f600b36a276b3ed2e6 2026-06-17T01:44:47-04:00 Ironbelly <ryan@ironbelly.com> feat(pr-submit): default monitor to L1 (#177)
+300c06a6 300c06a6d53287893a446db8e859f5f1bc5434d8 2026-06-17T12:54:31-04:00 Ironbelly <ryan@ironbelly.com> feat(tfep): migrate Test Failure Escalation Protocol off /sc:forensic onto /sc:troubleshoot (#180)
+cceb392c cceb392c87152d4d3384ca8e41c7f8083aebd535 2026-06-19T10:49:43-04:00 Ironbelly <ryan@ironbelly.com> fix(auggie-review): default model to prism-b (#189)
+6c04cca1 6c04cca19aaefe8a31065c282b3267fcd82ecfd5 2026-06-19T10:50:11-04:00 Ironbelly <ryan@ironbelly.com> feat(swarm): add /sc:swarm-wizard guided command + skill + user guide (#191)
+ef30032d ef30032dde8ca52f0e37d397685046d920d80e8e 2026-06-19T10:50:18-04:00 Ironbelly <ryan@ironbelly.com> fix(pr-submit): default monitor to local remediation (#192)
+a97dfb29 a97dfb29451464b13bcff1c0f54568893937c629 2026-06-20T03:27:13-04:00 Ironbelly <ryan@ironbelly.com> chore(tasks): archive MULTIMODELSWARM audit-remediation task to done/ (#194)
+3dfac2c0 3dfac2c06f2d2dd8682e394182b64dda6d1a01d8 2026-06-20T18:43:21-04:00 Ironbelly <ryan@ironbelly.com> feat(recommend): add --minstar popularity floor to /sc:recommend --plugin (#195)
+b3ebeab0 b3ebeab0de6994e489c86ce02f5908451cd9baf5 2026-06-25T12:24:17-04:00 Ironbelly <ryan@ironbelly.com> feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters (#202)
+08b1a5f8 08b1a5f880437b43838f3b0627b77795933ead61 2026-06-25T12:46:09-04:00 Ironbelly <ryan@ironbelly.com> feat(reflect): harden reviewer isolation (#203)
+3f301ba5 3f301ba50aa780cdea48a4e4a0092e581f42adb9 2026-06-26T11:27:45-04:00 Ironbelly <ryan@ironbelly.com> feat(reflect): land FR-RH1 contracted-sink reachability gate as additive contract 1.7.0 (#205)
+156f2829 156f28292b4ddba09cefb89e5f160cbd2475e875 2026-07-01T12:45:13-04:00 Ironbelly <ryan@ironbelly.com> fix: normalize Tavily MCP tool names (#208)
+d2cb8377 d2cb8377022ff40aa5c233e575e30a3f3c656ed8 2026-07-05T21:19:59-04:00 Ironbelly <ryan@ironbelly.com> feat(pr-submit): locked detection-contract setup flow + reflect contract-status readiness surface (#209)
+002eaa8b 002eaa8b7428ada2c943bda83605478de0e7695f 2026-07-06T00:10:49-04:00 Ironbelly <ryan@ironbelly.com> feat(qa-reflect): additively harden RF QA + /sc:reflect vs the PR #209 correctness-bug class (FX1/FX2/FX3/FX5/FX7) (#214)
+2323f7cb 2323f7cbbe6a9fbdbb66e3a9b57473d5b01c60fe 2026-07-06T00:40:07-04:00 Ironbelly <ryan@ironbelly.com> feat(reflect): behavioral-reachability controls C2/C7/C8 (#217)
+0d3b99c8 0d3b99c84fbfc3efa4757343ebd9d4cf37228ab1 2026-07-06T10:27:37-04:00 Ironbelly <ryan@ironbelly.com> feat(post-release): /sc:post-release command-backed refactor + sc-post-release-protocol skill (#218)
+a5e9df4b a5e9df4bc729a3602e55092aacb41e9a5d5f4743 2026-09-18T09:02:56-04:00 RyanW <ryan@ironbelly.com> feat: install global bash batching policy
+17d7cd77 17d7cd7729f70e428de23e94874c3a06ac47efdd 2026-09-20T01:36:57+00:00 Ryan wiancko <ryan@ironbelly.com> feat(troubleshoot): generalize /sc:troubleshoot per sysbox retrospective §(d) R-01..R-19
+4beaa7f1 4beaa7f15d4e29bb519f7cc1af6f5ca43426493c 2026-09-20T18:45:49+00:00 Ryan wiancko <ryan@ironbelly.com> fix(pr-submit): drop detection-contract lock gate so any project can arm
+637ff706 637ff706273b5d8d255c259b9dbb85d0ac2b0c2c 2026-09-21T08:56:28-04:00 Ironbelly <ryan@ironbelly.com> Merge pull request #232 from IronbellyOrg/fix/pr-submit-lock-off
+7b2fd195 7b2fd19589d0a20a1ce6543ca70ef457bf75e115 2026-09-24T19:28:38+00:00 Ryan wiancko <ryan@ironbelly.com> feat(pr-submit): wait on CI checks after Augment clean
+246acd7b 246acd7b2cea0d1fa548db25acdd855dfb9c445a 2026-09-24T20:13:39+00:00 Ryan wiancko <ryan@ironbelly.com> feat(implement): middleweight spec executor with per-task spec QA
+325c40bb 325c40bb912aaaf1b6ce4371c7ed686ad607292a 2026-09-24T20:43:54+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): keep prompt slugs, snapshot worktree, run pending FINAL
+48258e0a 48258e0a465d10e3e49951685fb1b8a0bf30f75f 2026-09-24T21:41:35+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): unique ledger slugs, T-ids, untracked QA
+7ba13e92 7ba13e92ca1e8c095ab17f9955906ac9af13aea0 2026-09-24T22:06:37+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): capture untracked Q0, reuse start sha, tighten QA
+76d9d396 76d9d39646c3a139a909d2450d34173c03adeedd 2026-09-24T22:16:58+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): option-vs-prose flags, pin Q0 trees, spaced evidence
+53cf43e9 53cf43e9170f59a617d564fb9b483ea51f67b9e2 2026-09-24T22:04:00-04:00 Ironbelly <ryan@ironbelly.com> Merge pull request #237 from IronbellyOrg/feature/pr-submit-ci-monitor
+d5200729 d5200729eefd055467750dfa4a41b8c7a5aa09d1 2026-09-25T14:08:59+00:00 Ryan wiancko <ryan@ironbelly.com> pr submit updates
+cd031eda cd031eda272681c40f34db268dc93b5dd3b09a4b 2026-09-25T14:25:06+00:00 Ryan wiancko <ryan@ironbelly.com> docs(pr-submit): surface CI-wait preflight STOP in command file
+1d2223ad 1d2223adb274cbd08763d15a21d709ab950942c3 2026-09-25T18:38:15+00:00 Ryan wiancko <ryan@ironbelly.com> feat(pr-submit): treat silent Augment as a distinct terminal
+c13a3dde c13a3dde7040336087fea5ada7e79dd4599d024f 2026-09-26T18:16:56-04:00 Ironbelly <ryan@ironbelly.com> Merge pull request #242 from IronbellyOrg/docs/pr-submit-command-ci-preflight
+b31111a9 b31111a90ddf00acc77c8ec5f4ea4fb0ec5aaae1 2026-09-30T18:30:45+00:00 Ryan wiancko <ryan@ironbelly.com> feat(workflow): split /sc:workflow into command + skill + refs
+ec8ed26d ec8ed26d595ae47b16decc2aa284bc9ba39a79ea 2026-09-30T18:36:11+00:00 Ryan wiancko <ryan@ironbelly.com> fix(workflow): align plan headings and Wave 0 STOP contract
+3ae238b1 3ae238b178fb7c67ca02809d24745de620c2bd50 2026-09-30T18:36:39+00:00 Ryan wiancko <ryan@ironbelly.com> chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+edb7bc18 edb7bc181d3d725dc4cc31e12809794c302c3d8b 2026-09-30T14:58:19-04:00 Ironbelly <ryan@ironbelly.com> Merge branch 'master' into feat/ccsession-local-profiles
+79a90cd6 79a90cd697741f51e5296c167410c1810a172367 2026-09-30T19:15:17+00:00 Ryan wiancko <ryan@ironbelly.com> fix(workflow): use PR 247 versions of workflow command and flags
+bb4f0212 bb4f0212cec793c042ec915eb3afdd86f0399164 2026-09-30T19:41:47+00:00 Ryan wiancko <ryan@ironbelly.com> feat(workflow): render plans from template 00 with version/priority/created_date
+3f7c6553 3f7c655339a6862796c333586bafb7447c73392e 2026-09-30T19:57:52+00:00 Ryan wiancko <ryan@ironbelly.com> fix(workflow): map phase Outputs into tasks; mirror test checks both trees
+782621f4 782621f480229748caf05d6c249087ee095811e3 2026-10-01T05:20:01+00:00 Ryan wiancko <ryan@ironbelly.com> fix: remove remaining Sequential MCP references
+6dc56b1a 6dc56b1a811a03da1a4d0b83708dbf9caec580c8 2026-10-03T00:36:23+00:00 Ryan wiancko <ryan@ironbelly.com> feat(workflow): manage portable task packages and verified archiving
+487e8b7b 487e8b7b38e595dcc321febc7986155e6d1233f6 2026-10-03T01:13:55+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): harden archive recovery and freshness checks
+b26012e0 b26012e0414617ba64925d19b84fec0daa864458 2026-10-03T01:38:10+00:00 Ryan wiancko <ryan@ironbelly.com> fix(workflow): close plugin and final-state validation gaps
+ba20a7f5 ba20a7f5b781303706a48e3a2218e204c418184d 2026-10-03T02:31:58+00:00 Ryan wiancko <ryan@ironbelly.com> fix(reflect): isolate current review output from input drift snapshots
+046a03ab 046a03ab41ac98c39a11d940794c6e96cfab6ceb 2026-10-03T02:33:07+00:00 Ryan wiancko <ryan@ironbelly.com> chore: drop removed Sequential MCP references
+3c3027cd 3c3027cd61db022604e91240ee35cadef0c1f9a4 2026-10-02T22:38:07-04:00 Ironbelly <ryan@ironbelly.com> Merge pull request #257 from IronbellyOrg/chore/remove-sequential-mcp
+709a7ff1 709a7ff1331e28107c2a7bd59b44f90749cda44c 2026-10-04T09:07:57-05:00 clayphi <clay@ironbelly.com> fix(docs): restore eval policy docs removed in #257; point refs to moved suites guide
+7c0eb528 7c0eb5283e23da76b36e4385eaab652a0ff83ac9 2026-10-09T15:00:50+00:00 Ryan wiancko <ryan@ironbelly.com> feat(workflow): run sc:reflect --mode pre as final step after plan generation
+051f39fe 051f39feaf2796e6f2bec1313dcfa9ce713055b6 2026-10-14T08:07:04-05:00 clayphi <clay@ironbelly.com> feat(routing): one HOW-WE-WORK guide for which tool to use when
+8278a84b 8278a84bce18bec22e8191aad0de61ddaa81a8a9 2026-10-14T10:52:11-05:00 clayphi <clay@ironbelly.com> fix(routing): apply POST reflect remediations
+509e5044 509e50446f16a7606f6f2e570cc97dd56b549571 2026-10-14T11:42:34-05:00 clayphi <clay@ironbelly.com> fix(routing): conform resume, RULES.md and cache fingerprint to the spec
+1367c8c6 1367c8c6d5c6071b99c65aedfb2bfb47523019a4 2026-10-14T12:54:28-05:00 clayphi <clay@ironbelly.com> fix(routing): conform RULES.md and the resume list to the spec; apply audit drift fixes
+7a24ab5f 7a24ab5fa82b06494ef6af2658b0c8a2c9ab4ff2 2026-10-15T18:59:41-05:00 clayphi <clay@ironbelly.com> fix(sc-recommend): restore the original skill description
+8694e3f1 8694e3f19ed6a3454dfb4db662187113938841a1 2026-10-15T22:14:47-05:00 clayphi <clay@ironbelly.com> fix(routing): address Augment review on PR #265
+f9a0ed54 f9a0ed547955233544ce1e94c30d314d678e11eb 2026-10-16T21:11:49+00:00 Ryan wiancko <ryan@ironbelly.com> feat(troubleshoot): route --fix to sc:workflow/sc:implement; task-builder//task only with --fix --depth deep
+d136e3b2 d136e3b29468b2de638c72b1cb52dc277fdded8d 2026-10-16T21:11:49+00:00 Ryan wiancko <ryan@ironbelly.com> feat(auggie-review,troubleshoot): default remediation via sc:workflow/sc:implement; diagnosability-handoff uses sc:workflow
+3c22b6b4 3c22b6b485b21fce97d0960c01a28f4fff91473c 2026-10-16T21:11:57+00:00 Ryan wiancko <ryan@ironbelly.com> feat(reflect): default --remediate to sc:workflow/sc:implement; wrapper applies /sc:implement on plan route
+dc9e5609 dc9e5609d28083201a6d4b668de0fed95fe9ba93 2026-10-16T21:16:24+00:00 Ryan wiancko <ryan@ironbelly.com> fix(remediation): align plan route with managed sc:workflow packages and its built-in reflect pre-review
+9207838c 9207838c79ec1748857849798e6df9bdeb584939 2026-10-17T03:46:43-04:00 RyanW <ryan@ironbelly.com> fix(workflow): bundle task template with protocol skill
+417d1ca2 417d1ca21869464a6de9ddf8bc63fa5786caa9fb 2026-10-20T06:22:25+00:00 Ryan wiancko <ryan@ironbelly.com> feat(auggie-review): add --revagent to select the internal reviewer-agent model
+1edc7591 1edc7591280eb9976ee531fdfc646d68961add10 2026-10-22T11:28:20+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): record scoped session acceptance automatically
+3ad7e207 3ad7e2071e28b4582775b4ae5039cc9cb6d72846 2026-10-22T15:27:44+00:00 Ryan wiancko <ryan@ironbelly.com> feat(implement): add escalating QA retry ladder and safe artifact recovery
+5c6a7d91 5c6a7d919ee1381f3c825f793161b45256131b74 2026-10-22T16:05:03+00:00 Ryan wiancko <ryan@ironbelly.com> fix(primitives): use global ~/.claude paths for installed-primitive reads
+2d5f2d9c 2d5f2d9c782a42d15f894432f1f925c22503863e 2026-10-22T16:45:38+00:00 Ryan wiancko <ryan@ironbelly.com> docs: forbid hardcoded src/superclaude paths in installed primitives
+4865e94c 4865e94ca9d5fa508fa63187c0ce0f44f40f4559 2026-10-22T16:56:16+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): contain revert deletes, reject symlinked brief folders, bundle plugin adviser
+7c09c996 7c09c996c5ccec435290cf3b4f71a286478c6f29 2026-10-22T18:43:54+00:00 Ryan wiancko <ryan@ironbelly.com> Merge remote-tracking branch 'origin/master' into GlobalSrc-Home
+00448800 004488002f515804c6c1fdd30d92f3c3364480a5 2026-10-22T18:57:46+00:00 Ryan wiancko <ryan@ironbelly.com> Merge origin/master into feature/implement-retry-ladder
+0acc1c57 0acc1c57694c41ca8bac46757c009fe58b12c121 2026-10-22T18:59:45+00:00 Ryan wiancko <ryan@ironbelly.com> Merge origin/master (#275, #278) into feature/implement-retry-ladder
+b542a9ff b542a9ff71cd4a73dfbd62aae6d4098aefe58db0 2026-10-22T19:19:58+00:00 Ryan wiancko <ryan@ironbelly.com> fix(implement): harden the retry ladder after independent review of the PR fixes
+2165ae25 2165ae259ee7b1afc3d86b21785814f850a21e78 2026-10-22T20:29:01+00:00 Ryan wiancko <ryan@ironbelly.com> Default monitor changed from 2 to 3
+f76db275 f76db2756f9ad591d157fecd0c505234701cd91e 2026-10-22T20:33:47+00:00 Ryan wiancko <ryan@ironbelly.com> docs(implement): make the retry adviser effort note version-neutral
+
+## Focused fork commit changes
+
+de177847 de177847a83acbd5a1633684cf1f34861fc8305d RyanW <ryan@ironbelly.com> feat(v1.05): add core framework file installation to superclaude install
+
+ install.sh                           |  15 +-
+ src/superclaude/cli/install_core.py  | 154 +++++++++++++++
+ src/superclaude/cli/main.py          |  75 ++++++--
+ src/superclaude/core/CLAUDE.md       |  18 ++
+ src/superclaude/core/COMMANDS.md     | 166 ++++++++++++++++
+ src/superclaude/core/MCP.md          | 237 +++++++++++++++++++++++
+ src/superclaude/core/MODES.md        | 281 +++++++++++++++++++++++++++
+ src/superclaude/core/ORCHESTRATOR.md | 354 +++++++++++++++++++++++++++++++++++
+ src/superclaude/core/PERSONAS.md     | 195 +++++++++++++++++++
+ 9 files changed, 1468 insertions(+), 27 deletions(-)
+
+de04670a de04670a89479084028a41e5cdcc1e18afc3dd93 Alireza <ali.fz@ironbelly.com> refactor(commands,skills): Naming consolidation — /sc:task canonical (v3.7)
+
+ .claude/commands/sc/task-mcp.md                    |   2 +-
+ .claude/commands/sc/task-unified.md                | 170 ----------
+ .claude/commands/sc/task.md                        | 126 -------
+ .claude/commands/sc/validate-tests.md              |   6 +-
+ .../sc-cli-portify-protocol/refs/code-templates.md |   2 +-
+ .claude/skills/sc-roadmap-protocol/SKILL.md        |   2 +-
+ .claude/skills/sc-task-unified-protocol/SKILL.md   | 365 ---------------------
+ .claude/skills/sc-tasklist-protocol/SKILL.md       | 179 ++++++++--
+ .claude/skills/sc-validate-tests-protocol/SKILL.md |  14 +-
+ .../checkpoints/CP-NAMING-END.md                   | 149 +++++++++
+ src/superclaude/cli/cleanup_audit/prompts.py       |  10 +-
+ src/superclaude/cli/sprint/process.py              |   4 +-
+ src/superclaude/commands/task-mcp.md               |   2 +-
+ src/superclaude/commands/task-unified.md           | 170 ----------
+ src/superclaude/commands/task.md                   | 242 ++++++++------
+ src/superclaude/commands/validate-tests.md         |   6 +-
+ .../sc-cli-portify-protocol/refs/code-templates.md |   2 +-
+ .../skills/sc-roadmap-protocol/SKILL.md            |   2 +-
+ .../SKILL.md                                       |   4 +-
+ .../skills/sc-task-protocol/__init__.py            |   1 +
+ .../skills/sc-task-unified-protocol/__init__.py    |   1 -
+ .../skills/sc-tasklist-protocol/SKILL.md           |  24 +-
+ .../skills/sc-validate-tests-protocol/SKILL.md     |  14 +-
+ tests/sprint/test_process.py                       |  10 +-
+ 24 files changed, 496 insertions(+), 1011 deletions(-)
+
+238d6583 238d6583dc508f2dacff6cc978507c929609a2bb Ironbelly <ryan@ironbelly.com> feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)
+
+ .claude/cache/sc-recommend-lookup.yaml             |   91 +
+ .claude/settings.json                              |   11 +
+ .../adversarial/base-selection.md                  |   66 +
+ .../adversarial/debate-transcript.md               |  155 ++
+ .../adversarial/diff-analysis.md                   |   70 +
+ .../adversarial/merge-log.md                       |   45 +
+ .../adversarial/refactor-plan.md                   |   42 +
+ .../adversarial/variant-1-opus-architect.md        |  181 ++
+ .../adversarial/variant-2-sonnet-performance.md    |  170 ++
+ .../adversarial/variant-3-haiku-analyzer.md        |  158 ++
+ .../merged-requirements.md                         |  439 ++++
+ .../sc-recommend-lookup-cache/return-contract.yaml |  186 ++
+ .../round-4-synthetic-eval-cases.md                |  365 +++
+ .../sc-recommend-lookup-cache/seed-brief.md        |  110 +
+ .dev/eval-workspaces/sc-recommend/README.md        |   29 +
+ .dev/eval-workspaces/sc-recommend/evals.json       |   93 +
+ .dev/eval-workspaces/sc-recommend/grader.py        |   68 +
+ .../sc-recommend/iteration-1/benchmark.json        |  530 ++++
+ .../sc-recommend/iteration-1/benchmark.md          |   13 +
+ .../sc-recommend/iteration-1/build_benchmark.py    |  102 +
+ .../eval-1/with_skill/eval_metadata.json           |   12 +
+ .../iteration-1/eval-1/with_skill/grading.json     |   30 +
+ .../eval-1/with_skill/outputs/recommendation.md    |   66 +
+ .../iteration-1/eval-1/with_skill/timing.json      |    7 +
+ .../eval-1/without_skill/eval_metadata.json        |   12 +
+ .../iteration-1/eval-1/without_skill/grading.json  |   30 +
+ .../eval-1/without_skill/outputs/recommendation.md |   58 +
+ .../iteration-1/eval-1/without_skill/timing.json   |    7 +
+ .../eval-2/with_skill/eval_metadata.json           |   11 +
+ .../iteration-1/eval-2/with_skill/grading.json     |   25 +
+ .../eval-2/with_skill/outputs/recommendation.md    |   43 +
+ .../iteration-1/eval-2/with_skill/timing.json      |    7 +
+ .../eval-2/without_skill/eval_metadata.json        |   11 +
+ .../iteration-1/eval-2/without_skill/grading.json  |   25 +
+ .../eval-2/without_skill/outputs/recommendation.md |   40 +
+ .../iteration-1/eval-2/without_skill/timing.json   |    7 +
+ .../eval-3/with_skill/eval_metadata.json           |   11 +
+ .../iteration-1/eval-3/with_skill/grading.json     |   25 +
+ .../eval-3/with_skill/outputs/recommendation.md    |   46 +
+ .../iteration-1/eval-3/with_skill/timing.json      |    7 +
+ .../eval-3/without_skill/eval_metadata.json        |   11 +
+ .../iteration-1/eval-3/without_skill/grading.json  |   25 +
+ .../eval-3/without_skill/outputs/recommendation.md |   59 +
+ .../iteration-1/eval-3/without_skill/timing.json   |    7 +
+ .../eval-4/with_skill/eval_metadata.json           |   12 +
+ .../iteration-1/eval-4/with_skill/grading.json     |   30 +
+ .../eval-4/with_skill/outputs/recommendation.md    |   40 +
+ .../iteration-1/eval-4/with_skill/timing.json      |    7 +
+ .../eval-4/without_skill/eval_metadata.json        |   12 +
+ .../iteration-1/eval-4/without_skill/grading.json  |   30 +
+ .../eval-4/without_skill/outputs/recommendation.md |    9 +
+ .../iteration-1/eval-4/without_skill/timing.json   |    7 +
+ .../eval-5/with_skill/eval_metadata.json           |   12 +
+ .../iteration-1/eval-5/with_skill/grading.json     |   30 +
+ .../eval-5/with_skill/outputs/recommendation.md    |   98 +
+ .../iteration-1/eval-5/with_skill/timing.json      |    7 +
+ .../eval-5/without_skill/eval_metadata.json        |   12 +
+ .../iteration-1/eval-5/without_skill/grading.json  |   30 +
+ .../eval-5/without_skill/outputs/recommendation.md |   72 +
+ .../iteration-1/eval-5/without_skill/timing.json   |    7 +
+ .../eval-6/with_skill/eval_metadata.json           |   11 +
+ .../iteration-1/eval-6/with_skill/grading.json     |   25 +
+ .../eval-6/with_skill/outputs/recommendation.md    |   32 +
+ .../iteration-1/eval-6/with_skill/timing.json      |    7 +
+ .../eval-6/without_skill/eval_metadata.json        |   11 +
+ .../iteration-1/eval-6/without_skill/grading.json  |   25 +
+ .../eval-6/without_skill/outputs/recommendation.md |   12 +
+ .../iteration-1/eval-6/without_skill/timing.json   |    7 +
+ .../sc-recommend/iteration-1/eval-viewer.html      | 1325 ++++++++++
+ .../post-remediation-20260603230600/REPORT.md      |   33 +
+ .../promotion-log.yaml                             |   21 +
+ .../return-contract.yaml                           |   26 +
+ .../BUILD_REQUEST.md                               |   44 +
+ .../REPORT.md                                      |   46 +
+ .../return-contract.yaml                           |   66 +
+ .../reviewer-cards/card-A-analyzer.md              |   59 +
+ .../reviewer-cards/card-B-qa.md                    |   61 +
+ .../TASK-RF-20260603-032936.md                     |  566 +++++
+ .../phase-outputs/discovery/seed_cache.py          |  123 +
+ .../plans/boundary-decision-PENDING.md             |  121 +
+ .../phase-outputs/plans/boundary-resolved.md       |   60 +
+ .../phase-outputs/plans/final-verdict.md           |   15 +
+ .../phase-outputs/plans/phase-gate-1-verdict.md    |   20 +
+ .../phase-outputs/plans/phase-gate-3-verdict.md    |   26 +
+ .../phase-outputs/plans/phase-gate-4-verdict.md    |   26 +
+ .../phase-outputs/plans/phase-gate-5-verdict.md    |   19 +
+ .../phase-outputs/plans/staging-guard-verdict.md   |   67 +
+ .../phase-outputs/plans/verify-sync-verdict.md     |   16 +
+ .../reports/final-validation-report.md             |   48 +
+ .../reports/phase1-foundation-inventory.md         |   36 +
+ .../phase-outputs/reports/phase2-3-inventory.md    |   51 +
+ .../reports/phase4-dispatch-inventory.md           |   36 +
+ .../phase-outputs/reports/phase5-eval-inventory.md |   43 +
+ .../reviews/final-report-validation-qa.md          |   66 +
+ .../phase-outputs/reviews/phase-gate-1-qa.md       |   52 +
+ .../phase-outputs/reviews/phase-gate-3-qa.md       |   74 +
+ .../reviews/phase-gate-4-qualitative-qa.md         |  111 +
+ .../reviews/phase-gate-4-structural-qa.md          |   97 +
+ .../phase-outputs/reviews/phase-gate-5-qa.md       |   59 +
+ .../phase-outputs/reviews/qa-qualitative-review.md |   78 +
+ .../test-results/baseline-verify-sync.txt          |  153 ++
+ .../test-results/phase1-lint-import-summary.md     |   17 +
+ .../test-results/phase1-lint-import.txt            |    8 +
+ .../test-results/phase3-pytest-summary.md          |   34 +
+ .../phase-outputs/test-results/phase3-pytest.txt   |   28 +
+ .../test-results/phase5-pytest-summary.md          |   34 +
+ .../phase-outputs/test-results/phase5-pytest.txt   |   48 +
+ .../test-results/phase6-git-status.txt             |   10 +
+ .../phase-outputs/test-results/phase6-lint.txt     |    5 +
+ .../test-results/phase6-pytest-full-summary.md     |   46 +
+ .../test-results/phase6-pytest-full.txt            | 2637 ++++++++++++++++++++
+ .../phase-outputs/test-results/phase6-sync-dev.txt |    8 +
+ .../test-results/phase6-verify-sync.txt            |  149 ++
+ .../qa/analyst-completeness-report.md              |  147 ++
+ .../qa/qa-qualitative-review.md                    |  115 +
+ .../qa/qa-research-gate-report.md                  |  103 +
+ .../qa/qa-task-validation-report.md                |   92 +
+ .../done/TASK-RF-20260603-032936/research-notes.md |   99 +
+ .../research/01-file-inventory.md                  |  206 ++
+ .../research/02-pattern-templates.md               |  642 +++++
+ .../research/03-eval-harness-reuse.md              |  373 +++
+ .../research/04-classifier-and-dispatch.md         |  326 +++
+ .../research/05-template-and-examples.md           |  226 ++
+ .../research/06-tests-sync-registration.md         |  237 ++
+ .../research/07-gap-fill-decisions.md              |   54 +
+ .../TASK-RF-20260603-204500.md                     |  350 +++
+ .../phase-outputs/discovery/eval-fanout-layout.md  |   35 +
+ .../phase-outputs/discovery/plugin-eval-surface.md |   49 +
+ .../plans/f4-wire-or-descope-decision.md           |   28 +
+ .../phase-outputs/reports/remediation-report.md    |   41 +
+ .../phase-outputs/reviews/final-qa-report.md       |   75 +
+ .../phase-outputs/reviews/phase2-qa-report.md      |   16 +
+ .../phase-outputs/reviews/phase3-qa-report.md      |   53 +
+ .../phase-outputs/reviews/phase4-qa-report.md      |   89 +
+ .../test-results/phase2-plugin-eval-tests.txt      |   28 +
+ .../test-results/phase2-test-summary.md            |   20 +
+ .../test-results/phase3-sync-summary.md            |    7 +
+ .../test-results/phase3-verify-sync.txt            |  149 ++
+ .../test-results/phase4-checkignore-summary.md     |   15 +
+ .../test-results/phase4-git-check-ignore.txt       |   12 +
+ .../test-results/phase5-checkignore.txt            |    4 +
+ .../test-results/phase5-format-check.txt           |    3 +
+ .../phase-outputs/test-results/phase5-lint.txt     |    5 +
+ .../phase-outputs/test-results/phase5-pytest.txt   |   60 +
+ .../test-results/phase5-test-summary.md            |   18 +
+ .../test-results/phase5-verify-sync.txt            |  148 ++
+ .../research/01-reflect-findings.md                |   46 +
+ .../research/02-reviewer-A-analyzer.md             |   59 +
+ .../research/03-build-request.md                   |   44 +
+ .gitignore                                         |   11 +-
+ src/superclaude/cli/install_hooks.py               |   10 +
+ src/superclaude/cli/main.py                        |    4 +
+ src/superclaude/cli/recommend/__init__.py          |   20 +
+ src/superclaude/cli/recommend/best_model.py        |  134 +
+ src/superclaude/cli/recommend/cache.py             |  165 ++
+ src/superclaude/cli/recommend/commands.py          |  461 ++++
+ src/superclaude/cli/recommend/dispatch.py          |  137 +
+ src/superclaude/cli/recommend/eval_aggregate.py    |   90 +
+ src/superclaude/cli/recommend/eval_grader.py       |   93 +
+ src/superclaude/cli/recommend/eval_pipeline.py     |  144 ++
+ src/superclaude/cli/recommend/models.py            |   40 +
+ src/superclaude/cli/recommend/plugin_eval.py       |  149 ++
+ src/superclaude/cli/recommend/prompts.py           |  192 ++
+ src/superclaude/cli/recommend/telemetry.py         |   62 +
+ src/superclaude/commands/recommend.md              |  117 +-
+ .../hooks/scripts/sc-recommend-phase0.sh           |   67 +
+ .../skills/sc-recommend-protocol/SKILL.md          |  323 ---
+ src/superclaude/skills/sc-recommend/SKILL.md       |  289 +++
+ .../refs/delegation-vs-native-heuristics.md        |   97 +
+ .../sc-recommend/refs/plugin-ecosystem-sources.md  |  102 +
+ .../sc-recommend/refs/surface-enumeration.md       |  107 +
+ tests/cli/test_cli_registration.py                 |    1 +
+ tests/recommend/__init__.py                        |    0
+ tests/recommend/conftest.py                        |   24 +
+ tests/recommend/test_best_model.py                 |   99 +
+ tests/recommend/test_cache.py                      |  137 +
+ tests/recommend/test_cli_registration.py           |   39 +
+ tests/recommend/test_dispatch.py                   |  166 ++
+ tests/recommend/test_eval_pipeline.py              |  132 +
+ tests/recommend/test_plugin_eval.py                |  106 +
+ tests/recommend/test_telemetry.py                  |  100 +
+ 181 files changed, 17936 insertions(+), 375 deletions(-)
+
+246acd7b 246acd7b2cea0d1fa548db25acdd855dfb9c445a Ryan wiancko <ryan@ironbelly.com> feat(implement): middleweight spec executor with per-task spec QA
+
+ src/superclaude/commands/implement.md              | 164 +++++++++++----------
+ .../skills/sc-implement-protocol/SKILL.md          | 150 +++++++++++++++++++
+ .../skills/sc-implement-protocol/refs/ledger.md    | 132 +++++++++++++++++
+ .../skills/sc-implement-protocol/refs/qa.md        |  79 ++++++++++
+ 4 files changed, 449 insertions(+), 76 deletions(-)
+
+b31111a9 b31111a90ddf00acc77c8ec5f4ea4fb0ec5aaae1 Ryan wiancko <ryan@ironbelly.com> feat(workflow): split /sc:workflow into command + skill + refs
+
+ src/superclaude/commands/workflow.md               | 149 +++++++--------------
+ .../skills/sc-workflow-protocol/SKILL.md           |  62 +++++++++
+ .../sc-workflow-protocol/refs/input-parse.md       |  30 +++++
+ .../sc-workflow-protocol/refs/overlap-routing.md   |  10 ++
+ .../sc-workflow-protocol/refs/phase-templates.md   |  13 ++
+ .../sc-workflow-protocol/refs/quality-gates.md     |  30 +++++
+ .../sc-workflow-protocol/refs/return-contract.md   |  19 +++
+ tests/commands/test_workflow_command.py            |  38 ++++++
+ 8 files changed, 251 insertions(+), 100 deletions(-)
+
+3ae238b1 3ae238b178fb7c67ca02809d24745de620c2bd50 Ryan wiancko <ryan@ironbelly.com> chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+
+ CLAUDE.md                                          |    3 +-
+ commands/sc-README.md                              |    1 -
+ commands/sc-estimate.md                            |  108 --
+ commands/sc-sc.md                                  |  130 ---
+ commands/sc-select-tool.md                         |   87 --
+ ...laude-Developer-Guide-Commands-Skills-Agents.md |   70 +-
+ docs/developer-guide/technical-architecture.md     |    8 -
+ ...laude-Developer-Guide-Commands-Skills-Agents.md |   70 +-
+ docs/mcp/mcp-integration-policy.md                 |   46 +-
+ docs/reference/README.md                           |   12 +-
+ docs/reference/advanced-patterns.md                |    8 +-
+ docs/reference/basic-examples.md                   |    2 +-
+ docs/reference/comprehensive-features.md           |   26 +-
+ docs/reference/integration-patterns.md             |   13 +-
+ docs/reference/mcp-server-guide.md                 |  179 +---
+ docs/user-guide/commands.md                        |   37 +-
+ docs/user-guide/flags.md                           |   32 +-
+ docs/user-guide/mcp-installation.md                |   14 +-
+ docs/user-guide/mcp-servers.md                     |  117 +--
+ plugins/superclaude/commands/brainstorm.md         |  221 +++--
+ plugins/superclaude/commands/cleanup.md            |   28 +-
+ plugins/superclaude/commands/estimate.md           |   98 --
+ plugins/superclaude/commands/explain.md            |    6 +-
+ plugins/superclaude/commands/help.md               |    8 +-
+ plugins/superclaude/commands/implement.md          |  156 +--
+ plugins/superclaude/commands/improve.md            |   29 +-
+ plugins/superclaude/commands/index.md              |    6 +-
+ plugins/superclaude/commands/pm.md                 |  560 +----------
+ plugins/superclaude/commands/recommend.md          | 1044 ++------------------
+ plugins/superclaude/commands/reflect.md            |  295 ++++--
+ plugins/superclaude/commands/research.md           |   32 +-
+ plugins/superclaude/commands/sc.md                 |  144 ---
+ plugins/superclaude/commands/select-tool.md        |   98 --
+ plugins/superclaude/commands/spec-panel.md         |  512 +++++-----
+ plugins/superclaude/commands/task.md               |  211 ++--
+ plugins/superclaude/commands/workflow.md           |   25 +-
+ plugins/superclaude/core/FLAGS.md                  |   21 +-
+ plugins/superclaude/core/RULES.md                  |   84 +-
+ plugins/superclaude/mcp/MCP_Chrome-DevTools.md     |   36 -
+ plugins/superclaude/mcp/MCP_Magic.md               |   35 -
+ plugins/superclaude/mcp/MCP_Sequential.md          |   37 -
+ plugins/superclaude/mcp/configs/magic.json         |   12 -
+ plugins/superclaude/mcp/configs/sequential.json    |    9 -
+ src/superclaude/agents/deep-research-agent.md      |    1 -
+ src/superclaude/agents/deep-research.md            |    3 +-
+ src/superclaude/agents/socratic-mentor.md          |    4 +-
+ .../eval/suites/post_release_command_contract.yaml |   60 +-
+ src/superclaude/cli/install_mcp.py                 |   23 -
+ src/superclaude/commands/README.md                 |    1 -
+ src/superclaude/commands/adversarial.md            |    2 +-
+ src/superclaude/commands/auggie-review.md          |    2 +-
+ src/superclaude/commands/brainstorm.md             |    2 +-
+ src/superclaude/commands/cleanup-audit.md          |    2 +-
+ src/superclaude/commands/cleanup.md                |    6 +-
+ src/superclaude/commands/cli-eval.md               |    2 +-
+ src/superclaude/commands/cli-portify.md            |    2 +-
+ src/superclaude/commands/estimate.md               |  121 ---
+ src/superclaude/commands/explain.md                |    6 +-
+ src/superclaude/commands/help.md                   |    8 +-
+ src/superclaude/commands/improve.md                |    6 +-
+ src/superclaude/commands/index.md                  |    6 +-
+ src/superclaude/commands/pm.md                     |    2 +-
+ src/superclaude/commands/post-release.md           |    4 +-
+ src/superclaude/commands/pr-submit.md              |    2 +-
+ src/superclaude/commands/reflect.md                |    2 +-
+ src/superclaude/commands/release-split.md          |    2 +-
+ src/superclaude/commands/research.md               |    2 +-
+ src/superclaude/commands/review-translation.md     |    2 +-
+ src/superclaude/commands/sc.md                     |  144 ---
+ src/superclaude/commands/select-tool.md            |   98 --
+ src/superclaude/commands/spec-panel.md             |    4 +-
+ src/superclaude/commands/swarm-wizard.md           |    1 -
+ src/superclaude/commands/task.md                   |    2 +-
+ src/superclaude/commands/tasklist.md               |    2 +-
+ src/superclaude/commands/tdd.md                    |    2 +-
+ src/superclaude/commands/troubleshoot.md           |    2 +-
+ src/superclaude/commands/validate-roadmap.md       |    2 +-
+ src/superclaude/commands/validate-tests.md         |    1 -
+ src/superclaude/commands/workflow.md               |    2 +-
+ src/superclaude/core/CLAUDE.md                     |   20 +-
+ src/superclaude/core/FLAGS.md                      |   21 +-
+ src/superclaude/core/MCP.md                        |  101 +-
+ src/superclaude/core/ORCHESTRATOR.md               |   22 +-
+ src/superclaude/core/RULES.md                      |    2 +-
+ src/superclaude/mcp/MCP_Chrome-DevTools.md         |   36 -
+ src/superclaude/mcp/MCP_Magic.md                   |   35 -
+ src/superclaude/mcp/MCP_Sequential.md              |   37 -
+ src/superclaude/mcp/configs/magic.json             |   12 -
+ src/superclaude/mcp/configs/sequential.json        |    9 -
+ .../skills/post-release-update/SKILL.md            |   22 -
+ .../skills/sc-adversarial-protocol/SKILL.md        |   22 +-
+ .../skills/sc-auggie-review-protocol/SKILL.md      |    2 +-
+ .../skills/sc-brainstorm-protocol/SKILL.md         |    2 +-
+ .../skills/sc-cleanup-audit-protocol/SKILL.md      |    4 +-
+ .../skills/sc-cli-eval-protocol/SKILL.md           |    2 +-
+ .../skills/sc-cli-portify-protocol/SKILL.md        |    2 +-
+ .../skills/sc-post-release-protocol/SKILL.md       |    2 +-
+ .../skills/sc-pr-submit-protocol/SKILL.md          |    2 +-
+ .../skills/sc-reflect-protocol/SKILL.md            |    4 +-
+ .../skills/sc-release-split-protocol/SKILL.md      |    2 +-
+ .../skills/sc-roadmap-protocol/SKILL.md            |    2 +-
+ .../skills/sc-swarm-wizard-protocol/SKILL.md       |    1 -
+ .../skills/sc-tasklist-protocol/SKILL.md           |    4 +-
+ .../skills/sc-troubleshoot-protocol/SKILL.md       |    7 +-
+ .../skills/sc-validate-roadmap-protocol/SKILL.md   |    2 +-
+ tests/cli/test_install_mcp_registry.py             |   10 +-
+ tests/docs/test_chrome_devtools_mcp_removed.py     |   22 +
+ .../compliance/test_mcp_circuit_breakers.py        |    7 +-
+ tests/unit/test_cli_install.py                     |   48 +-
+ 109 files changed, 1392 insertions(+), 4275 deletions(-)
+
+051f39fe 051f39feaf2796e6f2bec1313dcfa9ce713055b6 clayphi <clay@ironbelly.com> feat(routing): one HOW-WE-WORK guide for which tool to use when
+
+ .claude/cache/sc-recommend-lookup.yaml             |   88 +-
+ .../01-agent-facing-core.md                        |  462 +++++
+ .../02-human-docs.md                               |  566 ++++++
+ .../03-help-recommend.md                           |  320 +++
+ .../04-machinery-and-references.md                 |  328 +++
+ .../05-CONSOLIDATION-PLAN.md                       |  193 ++
+ .../06-plan-qa.md                                  |  151 ++
+ .../01-command-inventory.md                        |  374 ++++
+ .../02-planning-depth-ladder.md                    |  305 +++
+ .../03-quality-debug-review.md                     |  229 +++
+ .../04-work-patterns.md                            |  179 ++
+ .../05-debate-A-lean.md                            |   71 +
+ .../06-debate-B-rigor.md                           |   71 +
+ .../ironclaude-user-guide-20261001/07-qa-review.md |  184 ++
+ .../08-qa-fix-cycle.md                             |  117 ++
+ .../09-qa-fix-cycle-2.md                           |   97 +
+ .../10-qa-fix-cycle-3.md                           |   78 +
+ .../11-review-redundancy.md                        |  163 ++
+ .../12-review-accuracy.md                          |  171 ++
+ .../13-review-workflows.md                         |  297 +++
+ .../14-rereview-redundancy.md                      |  140 ++
+ .../15-rereview-accuracy.md                        |   65 +
+ .../16-rereview-workflows.md                       |  189 ++
+ .../17-final-qa-part1.md                           |  123 ++
+ .../18-final-qa-part2.md                           |  122 ++
+ .../19-final-recheck.md                            |   57 +
+ .../IRONCLAUDE-NEW-USER-GUIDE.md                   |  242 +++
+ .../IRONCLAUDE-QUICK-GUIDE.md                      |  116 ++
+ AGENTS.md                                          |   45 +-
+ CHANGELOG.md                                       |   22 +
+ CLAUDE.md                                          |   68 +-
+ PROJECT_INDEX.json                                 |  313 +--
+ PROJECT_INDEX.md                                   |  349 +---
+ README.md                                          |   28 +-
+ ...laude-Developer-Guide-Commands-Skills-Agents.md |   77 +-
+ docs/developer-guide/contributing-code.md          |   54 +-
+ docs/developer-guide/technical-architecture.md     |   91 +-
+ docs/developer-guide/testing-debugging.md          |   77 +-
+ .../commands-skills-cross-reference.md             |  292 ---
+ .../visual-architecture-summary.md                 |   51 +-
+ docs/getting-started/installation.md               |  201 +-
+ docs/getting-started/quick-start.md                |  508 +----
+ ...laude-Developer-Guide-Commands-Skills-Agents.md | 2126 --------------------
+ docs/guides/prd-skill-release-guide.md             |   65 +-
+ docs/guides/roadmap-cli-tools-release-guide.md     |   18 +-
+ docs/guides/tdd-skill-release-guide.md             |   65 +-
+ docs/reference/README.md                           |  277 +--
+ docs/reference/advanced-patterns.md                |  329 ---
+ docs/reference/advanced-workflows.md               |  310 ---
+ docs/reference/basic-examples.md                   |  613 ------
+ docs/reference/commands-list.md                    |   88 -
+ docs/reference/comprehensive-features.md           |  192 --
+ docs/reference/diagnostic-reference.md             |   46 +-
+ docs/reference/examples-cookbook.md                |  199 --
+ docs/reference/integration-patterns.md             |  316 ---
+ docs/reference/suggested-commands.md               |  158 --
+ docs/swarm/wizard-guide.md                         |    4 +-
+ docs/user-guide/agents.md                          |   75 +-
+ docs/user-guide/brainstorm.md                      |   10 +-
+ docs/user-guide/commands.md                        | 1309 +++++-------
+ docs/user-guide/flags.md                           |   88 +-
+ docs/user-guide/how-we-work.md                     |    3 +
+ docs/user-guide/mcp-servers.md                     |    4 +-
+ docs/user-guide/modes.md                           |   75 +-
+ docs/user-guide/session-management.md              |  143 +-
+ plugins/superclaude/commands/brainstorm.md         |    6 +-
+ plugins/superclaude/commands/help.md               |  228 +--
+ plugins/superclaude/commands/recommend.md          |   34 +-
+ plugins/superclaude/core/FLAGS.md                  |  146 --
+ plugins/superclaude/core/RULES.md                  |   35 +-
+ plugins/superclaude/skills/sc-recommend/SKILL.md   |  398 ++++
+ .../skills/sc-recommend/refs/HOW-WE-WORK.md        |  331 +++
+ .../refs/delegation-vs-native-heuristics.md        |   97 +
+ .../sc-recommend/refs/plugin-ecosystem-sources.md  |  142 ++
+ .../sc-recommend/refs/surface-enumeration.md       |  111 +
+ src/superclaude/cli/install_commands.py            |   10 +-
+ src/superclaude/cli/install_core.py                |   33 +-
+ src/superclaude/cli/recommend/cache.py             |   21 +-
+ src/superclaude/cli/recommend/dispatch.py          |    4 +-
+ src/superclaude/cli/recommend/prompts.py           |   89 +-
+ src/superclaude/commands/README.md                 |   24 +-
+ src/superclaude/commands/brainstorm.md             |    6 +-
+ src/superclaude/commands/help.md                   |  228 +--
+ src/superclaude/commands/recommend.md              |   34 +-
+ src/superclaude/core/CLAUDE.md                     |   99 +-
+ src/superclaude/core/COMMANDS.md                   |  195 --
+ src/superclaude/core/FLAGS.md                      |  146 --
+ src/superclaude/core/HOW-WE-WORK.md                |  331 +++
+ src/superclaude/core/MCP.md                        |  213 --
+ src/superclaude/core/MODES.md                      |  307 ---
+ src/superclaude/core/ORCHESTRATOR.md               |  389 ----
+ src/superclaude/core/PERSONAS.md                   |  214 --
+ src/superclaude/core/RESEARCH_CONFIG.md            |    4 +-
+ src/superclaude/core/RULES.md                      |   35 +-
+ .../hooks/scripts/sc-recommend-phase0.sh           |   38 +-
+ .../skills/sc-brainstorm-protocol/SKILL.md         |    2 +-
+ src/superclaude/skills/sc-recommend/SKILL.md       |  176 +-
+ .../refs/delegation-vs-native-heuristics.md        |   22 +-
+ .../sc-recommend/refs/plugin-ecosystem-sources.md  |    8 +-
+ .../sc-recommend/refs/surface-enumeration.md       |   58 +-
+ src/superclaude/skills/sc-task-protocol/SKILL.md   |    7 +-
+ tests/cli/test_how_we_work_install.py              |   98 +
+ tests/commands/test_help_command.py                |   62 +
+ tests/commands/test_routing_plugin_parity.py       |   36 +
+ tests/core/test_claude_md_routing_block.py         |   81 +
+ tests/core/test_how_we_work_routing_table.py       |  330 +++
+ tests/docs/test_retired_docs_absent.py             |   49 +
+ tests/recommend/test_cache.py                      |   39 +-
+ tests/recommend/test_telemetry.py                  |    2 +-
+ .../compliance/test_critical_corrections.py        |    4 +-
+ tests/skills/test_sc_recommend_routing_contract.py |   80 +
+ tests/skills/test_task_workspace_smoke.py          |    2 +-
+ tests/unit/test_cli_install.py                     |    8 +
+ 113 files changed, 9572 insertions(+), 9627 deletions(-)
+
+5c6a7d91 5c6a7d919ee1381f3c825f793161b45256131b74 Ryan wiancko <ryan@ironbelly.com> fix(primitives): use global ~/.claude paths for installed-primitive reads
+
+ plugins/superclaude/commands/brainstorm.md                            | 2 +-
+ plugins/superclaude/commands/implement.md                             | 2 +-
+ plugins/superclaude/commands/reflect.md                               | 2 +-
+ plugins/superclaude/commands/task.md                                  | 2 +-
+ plugins/superclaude/commands/workflow.md                              | 2 +-
+ src/superclaude/agents/rf-analyst.md                                  | 2 +-
+ src/superclaude/agents/rf-qa-qualitative.md                           | 2 +-
+ src/superclaude/agents/rf-qa.md                                       | 2 +-
+ src/superclaude/commands/brainstorm.md                                | 2 +-
+ src/superclaude/commands/implement.md                                 | 2 +-
+ src/superclaude/commands/reflect.md                                   | 2 +-
+ src/superclaude/commands/task.md                                      | 2 +-
+ src/superclaude/commands/workflow.md                                  | 2 +-
+ src/superclaude/skills/confidence-check/SKILL.md                      | 2 +-
+ src/superclaude/skills/sc-adversarial-protocol/SKILL.md               | 2 +-
+ src/superclaude/skills/sc-brainstorm-protocol/SKILL.md                | 2 +-
+ .../skills/sc-brainstorm-protocol/refs/agent-spec-builder.md          | 2 +-
+ src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md   | 2 +-
+ src/superclaude/skills/sc-reflect-protocol/SKILL.md                   | 4 ++--
+ src/superclaude/skills/sc-release-split-protocol/SKILL.md             | 2 +-
+ src/superclaude/skills/sc-roadmap-protocol/SKILL.md                   | 2 +-
+ .../skills/sc-roadmap-protocol/refs/adversarial-integration.md        | 4 ++--
+ src/superclaude/skills/task-builder/SKILL.md                          | 2 +-
+ 23 files changed, 25 insertions(+), 25 deletions(-)
+
+## Plugin-build manifest source presence
+
+False
+This is a static source dependency analysis, not an executed plugin-build success claim.

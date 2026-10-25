@@ -1,0 +1,31 @@
+{
+  "validator_agent": "sc:evidence-validator",
+  "model_class": "opus",
+  "report_validated": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/artifacts/REPORT.draft.md",
+  "citations_total": 24,
+  "citations_revalidated": 24,
+  "citations_dropped": 0,
+  "dropped": [],
+  "absence_claims_checked": 1,
+  "citations_inferred_reported_by_validator": 1,
+  "weak_claims_and_disposition": [
+    {
+      "claim": "no --task-log supplied (GG-2)",
+      "disposition": "clarified: execution.log not passed as --task-log, so not used as evidence"
+    },
+    {
+      "claim": "R-003 verifier (remove guard)",
+      "disposition": "replaced: verifier now checks the error message via match="
+    },
+    {
+      "claim": "file is untracked",
+      "disposition": "tagged [INFERRED]"
+    },
+    {
+      "claim": "reuse distinct/0 neighbours",
+      "disposition": "tagged [INFERRED]; artifact referenced"
+    }
+  ],
+  "zero_drop_flag": true,
+  "final_citations_inferred": 3
+}

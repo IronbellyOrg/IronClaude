@@ -1,0 +1,29 @@
+findings:
+  - id: G-1
+    hunk_ref: "src/greeting.py:2-3 vs execution.log:3"
+    evidence_missing: "Definition of 'empty' for R-002; no --spec or --tasklist supplied."
+    why_not_classifiable: "Truthiness guard also rejects None/0/[]/False and admits whitespace-only names; intended semantics cannot be judged without a requirement text."
+    next_evidence_needed: "R-002 requirement text or acceptance criterion."
+    owner: user
+    decision_needed_by_user: true
+  - id: G-2
+    hunk_ref: "tests/test_greeting.py:1-13"
+    evidence_missing: "Test execution result; verification triangle unavailable (--no-mcp → execute_shell_command unavailable; verification_skip_reason: tool-unavailable). Regression detection degraded to the task-log claim, and execution.log:5 claims no execution."
+    why_not_classifiable: "Cannot confirm tests pass or that 'from src.greeting import greet' resolves (no __init__.py/conftest/pytest config observed)."
+    next_evidence_needed: "pytest run from the project root, or pytest pythonpath configuration."
+    owner: user
+    decision_needed_by_user: true
+  - id: G-3
+    hunk_ref: "execution.log:2-4 (R-001, R-002, R-003)"
+    evidence_missing: "Driving spec or tasklist mapping R-/T- IDs to requirements."
+    why_not_classifiable: "IDs are executor narrative only; requirement coverage and missing requirements cannot be independently checked."
+    next_evidence_needed: "Supply --spec and/or --tasklist."
+    owner: user
+    decision_needed_by_user: true
+  - id: G-4
+    hunk_ref: "execution.log:2 ('created src/greeting.py')"
+    evidence_missing: "Git baseline; the repository has no commits."
+    why_not_classifiable: "Create vs. modify (and any pre-existing content) cannot be distinguished."
+    next_evidence_needed: "A baseline commit or snapshot, or --diff/--commit-range."
+    owner: user
+    decision_needed_by_user: true

@@ -1,0 +1,10 @@
+$ git show HEAD:docs/user-guide/memory-system.md | grep -n "75-95\|<30 seconds\|<10%\|500 tokens"
+58:  ✅ <10% error recurrence rate
+167:- **With ReflexionMemory**: 500 tokens (direct solution lookup)
+169:- **Savings**: 75-95% token reduction on known errors
+173:- **Known errors**: <30 seconds (instant solution)
+175:- **Recurrence rate**: <10% (learns from mistakes)
+$ git show HEAD:docs/memory/README.md | grep -n "<10ms\|<50ms\|<200ms"
+233:- **<10ms** for files under 1MB
+234:- **<50ms** for files under 10MB
+235:- **<200ms** for files under 100MB

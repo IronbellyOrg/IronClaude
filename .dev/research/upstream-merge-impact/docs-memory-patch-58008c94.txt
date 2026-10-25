@@ -1,0 +1,41 @@
+COMMAND git diff --no-ext-diff --find-renames b00547ad535ee638952c5e38b2a139888e50f496 58008c94446386718f036cc402f2dc4e99b3f007 -- README-ja.md README-kr.md README-zh.md
+RETURN 0
+diff --git a/README-ja.md b/README-ja.md
+index 16c6ae01..622f6849 100644
+--- a/README-ja.md
++++ b/README-ja.md
+@@ -317,7 +317,7 @@ pip install --break-system-packages SuperClaude
+ </td>
+ <td valign="top">
+ 
+-- ✨ [**ベストプラクティス**](docs/reference/quick-start-practices.md)  
++- ✨ [**ベストプラクティス**](docs/reference/basic-examples.md)
+   *プロのコツとパターン*
+ 
+ - 📓 [**サンプル集**](docs/reference/examples-cookbook.md)  
+diff --git a/README-kr.md b/README-kr.md
+index b2a0d881..128bcf2f 100644
+--- a/README-kr.md
++++ b/README-kr.md
+@@ -320,7 +320,7 @@ pip install --break-system-packages SuperClaude
+ </td>
+ <td valign="top">
+ 
+-- ✨ [**모범 사례**](docs/reference/quick-start-practices.md)  
++- ✨ [**모범 사례**](docs/reference/basic-examples.md)
+   *전문가 팁과 패턴*
+ 
+ - 📓 [**예제 모음**](docs/reference/examples-cookbook.md)  
+diff --git a/README-zh.md b/README-zh.md
+index 4fdd7650..cac1d1a4 100644
+--- a/README-zh.md
++++ b/README-zh.md
+@@ -317,7 +317,7 @@ pip install --break-system-packages SuperClaude
+ </td>
+ <td valign="top">
+ 
+-- ✨ [**最佳实践**](docs/reference/quick-start-practices.md)  
++- ✨ [**最佳实践**](docs/reference/basic-examples.md)
+   *专业技巧和模式*
+ 
+ - 📓 [**示例手册**](docs/reference/examples-cookbook.md)  

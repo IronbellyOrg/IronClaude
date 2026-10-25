@@ -1,0 +1,121 @@
+# Tier-1 reflection card (Wave 1C) — persisted verbatim by the orchestrator from agent return.
+# author_agent: sc:sc-root-cause-analyst (agentId a021a6f00575c033a)
+# requested_model_slot: sonnet  (env alias ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-5-5[1m])
+# returned_provider_model: not surfaced by the Agent result (recorded honestly as unreported)
+# All paths relative to audit_repo_root:
+#   /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project
+card_author_role: "Wave 1C Tier-1 card author — UC-2 post-execution audit (read-only, single-agent grounded pass; no spec, no verification, no git history)"
+inputs_read:
+  - execution.log:1-5
+  - src/greeting.py:1-4
+  - tests/test_greeting.py:1-13
+  - "Glob src/** -> only src/greeting.py (no __init__.py under src)"
+wave_1b_map_verification:
+  T-101: "confirmed — src/greeting.py:1-4"
+  T-102: "confirmed — src/greeting.py:2-3"
+  T-103: "confirmed — tests/test_greeting.py:4-5 (ordinary), 8-13 (empty)"
+deviation_candidates:
+  - id: DC-1
+    hunk_ref: src/greeting.py:2
+    observation: "Guard is `if not name`; log claim is 'empty names raise ValueError'. `not name` also rejects None, 0, False, [] and other falsy non-str values; whitespace-only strings (' ') are truthy and NOT rejected; truthy non-str (e.g. 5) passes through and is formatted."
+    classification: "none_assigned (see GG-1)"
+    note: "[INFERRED] Behavior is a superset of 'empty string'; whether this is Drift or Authorized expansion requires a requirement definition of 'empty', which was not supplied."
+  - id: DC-2
+    hunk_ref: tests/test_greeting.py:1
+    observation: "`from src.greeting import greet` depends on repo root being on sys.path; no __init__.py found under src (Glob); no pytest/conftest/pyproject config inspected (not in allowed inputs)."
+    classification: "none_assigned (see GG-3)"
+    note: "[INFERRED] Likely works as namespace package under `python -m pytest` from root; may fail with ModuleNotFoundError under bare `pytest` with default rootdir/prepend import mode. Not verified."
+per_task:
+  - task_id: T-101
+    claim: "R-001: created src/greeting.py"
+    on_disk_evidence: ["src/greeting.py:1-4", "execution.log:2"]
+    verdict: match
+    deviation_class: none
+    caveat: "File exists and defines greet(name). 'Created' (vs. modified) cannot be confirmed: repo is git init only, no commits, no baseline. Match is on existence/content only."
+  - task_id: T-102
+    claim: "R-002: empty names raise ValueError"
+    on_disk_evidence: ["src/greeting.py:2-3", "execution.log:3"]
+    verdict: match
+    deviation_class: none
+    caveat: "Empty string '' does raise ValueError('name required') (src/greeting.py:2-3). Guard is broader than the claim (DC-1/GG-1); not classified because no spec defines the intended scope of 'empty'. Verdict is match for the literal claim; extra scope carried as a gap, not a deviation."
+  - task_id: T-103
+    claim: "R-003: created tests/test_greeting.py with ordinary and empty-name cases"
+    on_disk_evidence:
+      - "tests/test_greeting.py:4-5 (test_ordinary asserts greet('Ada') == 'Hello, Ada!')"
+      - "tests/test_greeting.py:8-13 (test_empty expects ValueError for greet(''))"
+      - "src/greeting.py:4 (output format matches the ordinary-case assertion)"
+      - "execution.log:4"
+    verdict: match
+    deviation_class: none
+    caveat: "Both cases present and consistent with the implementation by static read. Not executed. Runnability of the import is unverified (DC-2/GG-3). 'Created' unconfirmable without history."
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: src/greeting.py:2
+    evidence_missing: "Driving spec / requirement text defining 'empty name' (str-only? None? whitespace?)"
+    why_not_classifiable: "Without a spec, `if not name` cannot be judged Drift vs Authorized expansion vs Necessary vs Regression; inventing requirement text is prohibited."
+    next_evidence_needed: "Spec or tasklist entry for R-002, or explicit user statement of intended input domain"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "execution.log:2-4 (whole log)"
+    evidence_missing: "Driving spec, tasklist, diff or commit range (none selected as inputs)"
+    why_not_classifiable: "Adherence can only be checked against the log's own three one-line claims; coverage completeness (requirements beyond R-001..R-003) and 100% adherence to an external requirement set are unassessable."
+    next_evidence_needed: "--spec and/or --tasklist input; optionally --diff"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-3
+    hunk_ref: tests/test_greeting.py:1
+    evidence_missing: "Package/test-runner configuration (pytest config, conftest, __init__.py, PYTHONPATH) and any test execution result"
+    why_not_classifiable: "Whether the import resolves depends on invocation; execution unavailable (--no-mcp) and the log claims no run."
+    next_evidence_needed: "Test run output from project root (python -m pytest) or the project's test config"
+    owner: user
+    decision_needed_by_user: false
+  - id: GG-4
+    hunk_ref: "repo-wide (git init, no commits, no index)"
+    evidence_missing: "Baseline/history to confirm 'created' and to detect regressions or unlogged changes"
+    why_not_classifiable: "Regression requires a before state; all files untracked, so no before/after comparison. Unlogged additions/removals elsewhere cannot be ruled out (only src/ scope + two linked files examined)."
+    next_evidence_needed: "A baseline commit/snapshot or --diff/--commit-range"
+    owner: user
+    decision_needed_by_user: false
+  - id: GG-5
+    hunk_ref: tests/test_greeting.py:4-13
+    evidence_missing: "Test coverage requirement"
+    why_not_classifiable: "Tests cover only '' and 'Ada'; None, whitespace and non-str untested. Whether that is a shortfall depends on GG-1. [INFERRED] consistent with the log claim 'ordinary and empty-name cases'."
+    next_evidence_needed: "Spec for R-003 coverage expectations"
+    owner: user
+    decision_needed_by_user: false
+regression_candidate: false
+regression_candidate_rationale: "No baseline exists (GG-4), so no regression can be asserted; nothing on disk contradicts a log claim."
+risks:
+  - "[INFERRED] `not name` guard may be overly broad or silently permissive for whitespace/truthy non-str values, depending on unstated intent (GG-1)."
+  - "[INFERRED] Test import may fail under bare pytest because src has no __init__.py and no config was seen (GG-3); green status must not be assumed."
+  - "Audit is limited to the log's self-claims; 'match' means log-consistent-with-disk, not requirement-satisfied (GG-2)."
+  - "'Created' is unverifiable without history (GG-4)."
+  - "test_empty is hand-rolled try/except/return; functional but non-idiomatic vs pytest.raises — weaker failure message. Style, not a deviation."
+recommendations:
+  - file: src/greeting.py
+    change: "After the user settles the intended input domain (GG-1), make the guard explicit (e.g. `if not isinstance(name, str) or not name.strip(): raise ValueError(...)`) or document that falsy values are intentionally rejected."
+    verifier: "Added tests for None, '   ' and non-str inputs run with python -m pytest from project root."
+  - file: tests/test_greeting.py
+    change: "Add cases for None and whitespace-only names; consider pytest.raises(ValueError) for the empty case."
+    verifier: "python -m pytest tests/test_greeting.py passes from repo root."
+  - file: "project root (pytest config or src/__init__.py)"
+    change: "Confirm the import path: add src/__init__.py or a pytest `pythonpath` setting if bare `pytest` invocation fails."
+    verifier: "`pytest` and `python -m pytest` both collect and pass tests/test_greeting.py."
+  - file: "audit inputs"
+    change: "Re-run UC-2 with --spec/--tasklist and a baseline commit or --diff to enable real classification and regression detection."
+    verifier: "New card has no GG-1/GG-2/GG-4 entries or resolves each to a class."
+self_reported_confidence: 0.8
+confidence_note: "High on the three match verdicts (static read of 3 short, fully-read files); reduced for absence of spec, history and execution, and for the inferred import-runnability point."
+citations:
+  - execution.log:1-5
+  - execution.log:2
+  - execution.log:3
+  - execution.log:4
+  - execution.log:5
+  - src/greeting.py:1-4
+  - src/greeting.py:2-3
+  - src/greeting.py:4
+  - tests/test_greeting.py:1
+  - tests/test_greeting.py:4-5
+  - tests/test_greeting.py:8-13

@@ -1,0 +1,519 @@
+{
+  "head": {
+    "returncode": 0,
+    "stdout": "053b75664c8979bf223b8040f68310dce882d05b\n",
+    "stderr": ""
+  },
+  "commits": {
+    "32c0086d0f916362fd4899212e8e714511ca4524": {
+      "metadata": {
+        "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+        "parents": [
+          "a3541f43c5e95cae669c0d666a6fc68808de8fde"
+        ],
+        "authored": "2025-11-12T17:59:29+01:00",
+        "committed": "2025-11-12T17:59:29+01:00",
+        "author": "mithun50",
+        "email": "mithungowda.b7411@gmail.com",
+        "subject": "fix: correct package paths in publish-pypi workflow",
+        "provenance": "upstream-parent-ancestry",
+        "files": [
+          ".github/workflows/publish-pypi.yml",
+          ".github/workflows/readme-quality-check.yml"
+        ]
+      },
+      "patch_result": 0,
+      "ancestry_to_head": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "ast_comparison": {}
+    },
+    "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a": {
+      "metadata": {
+        "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+        "parents": [
+          "16caa49442f477febd4b2a8e32dd1ded705d02d3"
+        ],
+        "authored": "2025-11-12T18:09:37+01:00",
+        "committed": "2025-11-12T18:09:37+01:00",
+        "author": "mithun50",
+        "email": "mithungowda.b7411@gmail.com",
+        "subject": "fix: add --system flag to uv pip install in workflows",
+        "provenance": "upstream-parent-ancestry",
+        "files": [
+          ".github/workflows/quick-check.yml",
+          ".github/workflows/test.yml"
+        ]
+      },
+      "patch_result": 0,
+      "ancestry_to_head": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "ast_comparison": {}
+    },
+    "8da05a172063d16e062a0bfabf583debc9be385c": {
+      "metadata": {
+        "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+        "parents": [
+          "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a"
+        ],
+        "authored": "2025-11-12T18:12:57+01:00",
+        "committed": "2025-11-12T18:12:57+01:00",
+        "author": "mithun50",
+        "email": "mithungowda.b7411@gmail.com",
+        "subject": "fix: use direct commands instead of uv run with --system",
+        "provenance": "upstream-parent-ancestry",
+        "files": [
+          ".github/workflows/quick-check.yml",
+          ".github/workflows/test.yml"
+        ]
+      },
+      "patch_result": 0,
+      "ancestry_to_head": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "ast_comparison": {}
+    },
+    "e2896335ba82f83a0b1a271cb872ff04b7ea884b": {
+      "metadata": {
+        "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+        "parents": [
+          "8da05a172063d16e062a0bfabf583debc9be385c"
+        ],
+        "authored": "2025-11-12T18:17:39+01:00",
+        "committed": "2025-11-12T18:17:39+01:00",
+        "author": "mithun50",
+        "email": "mithungowda.b7411@gmail.com",
+        "subject": "fix: resolve all ruff linting errors",
+        "provenance": "upstream-parent-ancestry",
+        "files": [
+          "pyproject.toml",
+          "src/superclaude/__init__.py",
+          "src/superclaude/cli/doctor.py",
+          "src/superclaude/cli/install_commands.py",
+          "src/superclaude/cli/install_skill.py",
+          "src/superclaude/cli/main.py",
+          "src/superclaude/execution/__init__.py",
+          "src/superclaude/execution/parallel.py",
+          "src/superclaude/execution/reflection.py",
+          "src/superclaude/execution/self_correction.py",
+          "src/superclaude/pm_agent/__init__.py",
+          "src/superclaude/pm_agent/confidence.py",
+          "src/superclaude/pm_agent/reflexion.py",
+          "src/superclaude/pm_agent/self_check.py",
+          "src/superclaude/pytest_plugin.py",
+          "tests/conftest.py",
+          "tests/integration/test_pytest_plugin.py",
+          "tests/unit/test_cli_install.py",
+          "tests/unit/test_confidence.py",
+          "tests/unit/test_reflexion.py",
+          "tests/unit/test_self_check.py",
+          "tests/unit/test_token_budget.py"
+        ]
+      },
+      "patch_result": 0,
+      "ancestry_to_head": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "ast_comparison": {
+        "src/superclaude/__init__.py": {
+          "equal": false
+        },
+        "src/superclaude/cli/doctor.py": {
+          "equal": false
+        },
+        "src/superclaude/cli/install_commands.py": {
+          "equal": false
+        },
+        "src/superclaude/cli/install_skill.py": {
+          "equal": false
+        },
+        "src/superclaude/cli/main.py": {
+          "equal": false
+        },
+        "src/superclaude/execution/__init__.py": {
+          "equal": false
+        },
+        "src/superclaude/execution/parallel.py": {
+          "equal": false
+        },
+        "src/superclaude/execution/reflection.py": {
+          "equal": false
+        },
+        "src/superclaude/execution/self_correction.py": {
+          "equal": false
+        },
+        "src/superclaude/pm_agent/__init__.py": {
+          "equal": false
+        },
+        "src/superclaude/pm_agent/confidence.py": {
+          "equal": false
+        },
+        "src/superclaude/pm_agent/reflexion.py": {
+          "equal": false
+        },
+        "src/superclaude/pm_agent/self_check.py": {
+          "equal": false
+        },
+        "src/superclaude/pytest_plugin.py": {
+          "equal": false
+        },
+        "tests/conftest.py": {
+          "equal": false
+        },
+        "tests/integration/test_pytest_plugin.py": {
+          "equal": false
+        },
+        "tests/unit/test_cli_install.py": {
+          "equal": false
+        },
+        "tests/unit/test_confidence.py": {
+          "equal": true
+        },
+        "tests/unit/test_reflexion.py": {
+          "equal": false
+        },
+        "tests/unit/test_self_check.py": {
+          "equal": true
+        },
+        "tests/unit/test_token_budget.py": {
+          "equal": true
+        }
+      }
+    },
+    "b00547ad535ee638952c5e38b2a139888e50f496": {
+      "metadata": {
+        "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+        "parents": [
+          "e2896335ba82f83a0b1a271cb872ff04b7ea884b"
+        ],
+        "authored": "2025-11-12T18:19:45+01:00",
+        "committed": "2025-11-12T18:19:45+01:00",
+        "author": "mithun50",
+        "email": "mithungowda.b7411@gmail.com",
+        "subject": "style: apply ruff formatting to all files",
+        "provenance": "upstream-parent-ancestry",
+        "files": [
+          "src/superclaude/cli/doctor.py",
+          "src/superclaude/cli/install_commands.py",
+          "src/superclaude/cli/install_skill.py",
+          "src/superclaude/cli/main.py",
+          "src/superclaude/execution/__init__.py",
+          "src/superclaude/execution/parallel.py",
+          "src/superclaude/execution/reflection.py",
+          "src/superclaude/execution/self_correction.py",
+          "src/superclaude/pm_agent/confidence.py",
+          "src/superclaude/pm_agent/reflexion.py",
+          "src/superclaude/pytest_plugin.py",
+          "tests/conftest.py",
+          "tests/unit/test_cli_install.py",
+          "tests/unit/test_confidence.py"
+        ]
+      },
+      "patch_result": 0,
+      "ancestry_to_head": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "ast_comparison": {
+        "src/superclaude/cli/doctor.py": {
+          "equal": true
+        },
+        "src/superclaude/cli/install_commands.py": {
+          "equal": true
+        },
+        "src/superclaude/cli/install_skill.py": {
+          "equal": true
+        },
+        "src/superclaude/cli/main.py": {
+          "equal": true
+        },
+        "src/superclaude/execution/__init__.py": {
+          "equal": true
+        },
+        "src/superclaude/execution/parallel.py": {
+          "equal": true
+        },
+        "src/superclaude/execution/reflection.py": {
+          "equal": true
+        },
+        "src/superclaude/execution/self_correction.py": {
+          "equal": true
+        },
+        "src/superclaude/pm_agent/confidence.py": {
+          "equal": true
+        },
+        "src/superclaude/pm_agent/reflexion.py": {
+          "equal": true
+        },
+        "src/superclaude/pytest_plugin.py": {
+          "equal": true
+        },
+        "tests/conftest.py": {
+          "equal": true
+        },
+        "tests/unit/test_cli_install.py": {
+          "equal": true
+        },
+        "tests/unit/test_confidence.py": {
+          "equal": true
+        }
+      }
+    }
+  },
+  "paths": {
+    ".github/workflows/publish-pypi.yml": {
+      "exists": false,
+      "line_count": null,
+      "history": {
+        "returncode": 0,
+        "stdout": "bb66aa7c 2026-10-22 Ryan wiancko ci: simplify GitHub Actions workflows\n",
+        "stderr": ""
+      }
+    },
+    ".github/workflows/quick-check.yml": {
+      "exists": false,
+      "line_count": null,
+      "history": {
+        "returncode": 0,
+        "stdout": "bb66aa7c 2026-10-22 Ryan wiancko ci: simplify GitHub Actions workflows\n64b730a7 2026-07-05 Ironbelly fix(ci): unblock master CI baseline \u2014 ruff pin + format sweep + dep allow-list + lint/arch (#216)\nf79b1bd5 2026-05-13 RyanW feat(workspace-rca): layered remediation for skill-creator workspace misplacement\n18c0e4e1 2025-11-14 BlackBear Add missing install.sh script (#483)\n",
+        "stderr": ""
+      }
+    },
+    ".github/workflows/readme-quality-check.yml": {
+      "exists": false,
+      "line_count": null,
+      "history": {
+        "returncode": 0,
+        "stdout": "bb66aa7c 2026-10-22 Ryan wiancko ci: simplify GitHub Actions workflows\nfa2e6239 2026-09-25 Ryan wiancko ci: move artifacts to Artifact Keeper\n0994693b 2026-02-21 RyanW Removed Chinese characters from workflow to prevent automatic chinese descriptions from being generated\n",
+        "stderr": ""
+      }
+    },
+    ".github/workflows/test.yml": {
+      "exists": true,
+      "line_count": 191,
+      "history": {
+        "returncode": 0,
+        "stdout": "053b7566 2026-10-23 Ryan wiancko ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)\nbb66aa7c 2026-10-22 Ryan wiancko ci: simplify GitHub Actions workflows\nf28ae4be 2026-10-22 Ryan wiancko ci: install the Claude CLI in the doctor job\n025c1f73 2026-09-24 Ryan wiancko fix(ci): install native components before doctor-check\nb0de1479 2026-06-08 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n525386a9 2026-05-27 Ironbelly fix(ci): restore master CI \u2014 dep baseline + mirror sync + path drift (#99)\n1ca25953 2026-05-21 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)\n",
+        "stderr": ""
+      }
+    },
+    "pyproject.toml": {
+      "exists": true,
+      "line_count": 216,
+      "history": {
+        "returncode": 0,
+        "stdout": "08cbea9e 2026-10-20 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n64b730a7 2026-07-05 Ironbelly fix(ci): unblock master CI baseline \u2014 ruff pin + format sweep + dep allow-list + lint/arch (#216)\n921464b4 2026-06-19 Ironbelly fix(sprint): per-phase turn-budget model \u2014 fresh ledger per phase (R-1..R-10, TM-0..TM-14) (#187)\n2c5357c8 2026-06-12 Ironbelly feat(sc:pr-submit): PR review auto-remediation monitor (V1.0) (#162)\nb0de1479 2026-06-08 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n5d660ca9 2026-06-04 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)\n1a00efb2 2026-06-03 Ironbelly Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)\n74bf717d 2026-05-30 Ironbelly feat(cli): add ic launcher script for model alias selection (#105)\n38ca920d 2026-05-25 Ironbelly fix(lint): resolve Issue #60 \u2014 eliminate pre-existing ruff debt (441 \u2192 0) (#83)\n1ca25953 2026-05-21 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)\nad72b1bb 2026-05-17 RyanW fix(lint): ruff --fix sweep \u2014 F401 unused imports + I001 import order\ne30a6caa 2026-03-23 RyanW Final 3.0 - 3.2 remediation work Planning work for:  - RoadmapRemediationV2  - SpawnV2 - V3.3 TurnLedger Validation  -\nf4d9035f 2026-03-19 RyanW  feat(v3.0): unified audit gating \u2014 wiring integrity, convergence engine, eval suite\n8b70fd58 2026-03-15 RyanW fix(executors): replace --file fallback with inline embedding\nc39fa913 2026-03-14 RyanW  feat(cli): complete v2.24.1 roadmap cli-portify v5 workflow\n07381489 2026-03-06 RyanW  feat(sprint,pipeline): add unified audit trailing gates and execution evidence artifacts\n6548f174 2026-03-05 RyanW   Branch: feature/v2.05-v2.08   Stats: 106 files changed, +895 insertions, -21,209 deletions\n1bd92c91 2026-01-18 Sergei Frolov chore: bump version to 4.2.0 (#514)\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/__init__.py": {
+      "exists": true,
+      "line_count": 21,
+      "history": {
+        "returncode": 0,
+        "stdout": "5d660ca9 2026-06-04 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)\n1bd92c91 2026-01-18 Sergei Frolov chore: bump version to 4.2.0 (#514)\nfd8c67f6 2025-11-14 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n86a26333 2025-11-13 mithun50 fix: update __version__ in __init__.py to 4.1.8\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/cli/doctor.py": {
+      "exists": true,
+      "line_count": 260,
+      "history": {
+        "returncode": 0,
+        "stdout": "9749a959 2026-09-24 Ryan wiancko fix: preserve ccsession install state across retries\ncbc9321c 2026-09-24 Ryan wiancko feat: wire ccsession as a native install component\n263521c6 2026-07-25 RyanW Fixes hardcoded paths to Coder instancesZ\n8cc65e93 2026-02-19 RyanW   ---   feat(v1.06): implement /sc:cleanup-audit skill \u2014 multi-pass repository audit\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/cli/install_commands.py": {
+      "exists": true,
+      "line_count": 166,
+      "history": {
+        "returncode": 0,
+        "stdout": "051f39fe 2026-10-14 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n2219545c 2026-05-20 Ironbelly fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)\n42946f84 2025-11-13 mithun50 fix: prioritize package location for commands path resolution\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/cli/install_skill.py": {
+      "exists": true,
+      "line_count": 150,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/cli/main.py": {
+      "exists": true,
+      "line_count": 567,
+      "history": {
+        "returncode": 0,
+        "stdout": "d594babb 2026-10-20 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)\n38c20f88 2026-09-27 clayphi feat(install): ship shared Claude Code user setup\ncbc9321c 2026-09-24 Ryan wiancko feat: wire ccsession as a native install component\na5e9df4b 2026-09-18 RyanW feat: install global bash batching policy\n263521c6 2026-07-25 RyanW Fixes hardcoded paths to Coder instancesZ\nbcad8852 2026-06-10 Ironbelly feat(reflect): audit-only wrapper \u2192 bounded auto-fix engine (contract 1.4.0) (#159)\nb0de1479 2026-06-08 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n681a347f 2026-06-04 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)\n238d6583 2026-06-03 Ironbelly feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)\n38ca920d 2026-05-25 Ironbelly fix(lint): resolve Issue #60 \u2014 eliminate pre-existing ruff debt (441 \u2192 0) (#83)\n1ca25953 2026-05-21 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)\n2219545c 2026-05-20 Ironbelly fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)\nd90bed68 2026-05-13 RyanW feat(freshness-system): ship v1 context freshness hooks\n09e2ccc0 2026-04-13 Alireza feat: modularized the prd skill and port it to the cli\nc4fa7f42 2026-03-16 RyanW  feat(v2.25): complete cli-portify pipeline phases 4-11 with preflight executor integration\nb702f039 2026-03-14 RyanW more updates and planning\nc39fa913 2026-03-14 RyanW  feat(cli): complete v2.24.1 roadmap cli-portify v5 workflow\n4ba61f6c 2026-03-09 RyanW feat(workflow): complete v2.20 WorkflowEvolution release readiness\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/execution/__init__.py": {
+      "exists": true,
+      "line_count": 227,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/execution/parallel.py": {
+      "exists": true,
+      "line_count": 349,
+      "history": {
+        "returncode": 0,
+        "stdout": "37b83a26 2026-06-19 Ironbelly feat(swarm): wire --tui dashboard (FR-1..FR-7) + FR-1 regression fix (#188)\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/execution/reflection.py": {
+      "exists": true,
+      "line_count": 400,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/execution/self_correction.py": {
+      "exists": true,
+      "line_count": 425,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/pm_agent/__init__.py": {
+      "exists": true,
+      "line_count": 19,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/pm_agent/confidence.py": {
+      "exists": true,
+      "line_count": 272,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/pm_agent/reflexion.py": {
+      "exists": true,
+      "line_count": 352,
+      "history": {
+        "returncode": 0,
+        "stdout": "d36591ee 2026-05-19 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\n",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/pm_agent/self_check.py": {
+      "exists": true,
+      "line_count": 249,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "src/superclaude/pytest_plugin.py": {
+      "exists": true,
+      "line_count": 228,
+      "history": {
+        "returncode": 0,
+        "stdout": "d36591ee 2026-05-19 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\n",
+        "stderr": ""
+      }
+    },
+    "tests/conftest.py": {
+      "exists": true,
+      "line_count": 225,
+      "history": {
+        "returncode": 0,
+        "stdout": "d36591ee 2026-05-19 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\n8b70fd58 2026-03-15 RyanW fix(executors): replace --file fallback with inline embedding\n",
+        "stderr": ""
+      }
+    },
+    "tests/integration/test_pytest_plugin.py": {
+      "exists": true,
+      "line_count": 230,
+      "history": {
+        "returncode": 0,
+        "stdout": "08cbea9e 2026-10-20 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n",
+        "stderr": ""
+      }
+    },
+    "tests/unit/test_cli_install.py": {
+      "exists": true,
+      "line_count": 1100,
+      "history": {
+        "returncode": 0,
+        "stdout": "4865e94c 2026-10-22 Ryan wiancko fix(implement): contain revert deletes, reject symlinked brief folders, bundle plugin adviser\n3ad7e207 2026-10-22 Ryan wiancko feat(implement): add escalating QA retry ladder and safe artifact recovery\n08cbea9e 2026-10-20 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n051f39fe 2026-10-14 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3ae238b1 2026-09-30 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n263521c6 2026-07-25 RyanW Fixes hardcoded paths to Coder instancesZ\n0d3b99c8 2026-07-06 Ironbelly feat(post-release): /sc:post-release command-backed refactor + sc-post-release-protocol skill (#218)\n681a347f 2026-06-04 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)\n",
+        "stderr": ""
+      }
+    },
+    "tests/unit/test_confidence.py": {
+      "exists": true,
+      "line_count": 181,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "tests/unit/test_reflexion.py": {
+      "exists": true,
+      "line_count": 183,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "tests/unit/test_self_check.py": {
+      "exists": true,
+      "line_count": 236,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "tests/unit/test_token_budget.py": {
+      "exists": true,
+      "line_count": 129,
+      "history": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  },
+  "workflow_paths": {
+    "returncode": 0,
+    "stdout": ".github/workflows/README.md\n.github/workflows/boundary-guard.yml\n.github/workflows/contract3-generator-constraint-lint.yml\n.github/workflows/pull-sync-framework.yml\n.github/workflows/test.yml\n",
+    "stderr": ""
+  },
+  "runtime_references": {
+    "returncode": 0,
+    "stdout": "src/superclaude/cli/eval/suites/post_release_command_contract.yaml:113:      - prompt: \"Run this exact command via the Bash tool from the repository root and print its output: `uv run python -c \\\"from superclaude.cli.install_commands import list_available_commands; from superclaude.cli.install_skill import list_available_skills; from superclaude.cli.install_skills import _has_corresponding_command; assert 'post-release' in list_available_commands(); assert 'sc-post-release-protocol' in list_available_skills(); assert _has_corresponding_command('sc-post-release-protocol') is False; assert _has_corresponding_command('sc-post-release') is True; print('POST_RELEASE_DISCOVERY_OK')\\\"`. This is read-only; do not modify anything.\"\nsrc/superclaude/cli/swarm/dispatch.py:12::class:`superclaude.execution.parallel.ParallelExecutor`. The swarm\nsrc/superclaude/cli/swarm/dispatch.py:116:from superclaude.execution.parallel import ParallelExecutor, Task\nsrc/superclaude/cli/swarm/dispatch.py:347:    :class:`superclaude.execution.parallel.ParallelExecutor`; the\nsrc/superclaude/execution/__init__.py:10:    from superclaude.execution import intelligent_execute\ntests/cli/test_update_command.py:18:    \"superclaude.cli.install_commands.install_commands\",\ntests/cli/test_update_command.py:20:    \"superclaude.cli.install_skills.install_all_skills\",\ntests/cli/test_update_command.py:153:        \"superclaude.cli.install_commands.list_available_commands\",\ntests/cli/test_update_command.py:154:        \"superclaude.cli.install_commands.list_installed_commands\",\ntests/cli/test_update_command.py:157:        \"superclaude.cli.install_skill.list_available_skills\",\ntests/cli/test_update_command.py:158:        \"superclaude.cli.install_skills.list_installed_skills\",\ntests/cli/test_update_command.py:364:    monkeypatch.setattr(\"superclaude.cli.install_commands.install_commands\", commands)\ntests/commands/test_workflow_command.py:12:from superclaude.cli.install_skill import install_skill_command\ntests/skills/test_task_workspace_smoke.py:25:from superclaude.cli.install_skill import install_skill_command\ntests/swarm/test_dispatch.py:17:   :class:`superclaude.execution.parallel.ParallelExecutor` via the\ntests/swarm/test_dispatch.py:40:from superclaude.execution.parallel import ParallelExecutor\ntests/swarm/test_dispatch.py:285:    ``superclaude.execution.parallel`` (which dispatch does NOT\ntests/swarm/test_imm3_parallel.py:52:from superclaude.execution.parallel import ExecutionPlan, ParallelExecutor\ntests/swarm/test_imm_suite.py:123:    from superclaude.execution.parallel import ParallelExecutor\ntests/swarm/test_parallel_executor_routing.py:5::class:`superclaude.execution.parallel.ParallelExecutor`. No code path\ntests/swarm/test_parallel_executor_routing.py:39:   ``superclaude.execution.parallel``. The import statement is the\ntests/swarm/test_parallel_executor_routing.py:83:from superclaude.execution.parallel import ExecutionPlan, ParallelExecutor\ntests/swarm/test_parallel_executor_routing.py:102:REQUIRED_DISPATCH_IMPORT_MODULE = \"superclaude.execution.parallel\"\ntests/swarm/test_parallel_executor_routing.py:180:    ``from superclaude.execution.parallel import X[, Y, ...]``. The\ntests/swarm/test_parallel_executor_routing.py:301:    ``superclaude.execution.parallel.ParallelExecutor`` specifically --\ntests/swarm/test_parallel_executor_routing.py:363:        \"superclaude.execution.parallel.ParallelExecutor:\\n\" + \"\\n\".join(offenders)\ntests/swarm/test_parallel_executor_routing.py:413:    that imports something else from ``superclaude.execution.parallel``\ntests/swarm/test_parallel_executor_routing.py:417:    synthetic = \"from superclaude.execution.parallel import Task\\nx = Task\\n\"\ntests/swarm/test_run_tui_integration.py:52:from superclaude.execution.parallel import ParallelExecutor\ntests/unit/test_ccsession_tag.py:931:    from superclaude.cli.install_skill import install_skill_command\ntests/unit/test_cli_doctor.py:8:from superclaude.cli.doctor import _check_ccsession, _check_skills_installed\ntests/unit/test_cli_doctor.py:9:from superclaude.cli.install_commands import install_commands\ntests/unit/test_cli_doctor.py:10:from superclaude.cli.install_skills import install_all_skills\ntests/unit/test_cli_install.py:30:from superclaude.cli.install_commands import (\ntests/unit/test_cli_install.py:672:    from superclaude.cli.install_commands import (\ntests/unit/test_cli_install.py:696:        from superclaude.cli.install_skills import _has_corresponding_command\ntests/unit/test_cli_install.py:701:        from superclaude.cli.install_skills import _has_corresponding_command\ntests/unit/test_cli_install.py:708:        from superclaude.cli.install_skills import _has_corresponding_command\ntests/unit/test_cli_install.py:717:        from superclaude.cli.install_skills import _has_corresponding_command\ntests/unit/test_cli_install.py:723:        from superclaude.cli.install_skills import install_all_skills\ntests/unit/test_cli_install.py:734:        from superclaude.cli.install_skills import (\ntests/unit/test_cli_install.py:753:        from superclaude.cli.install_skills import (\ntests/unit/test_cli_install.py:822:        from superclaude.cli.install_skill import list_available_skills\ntests/unit/test_cli_install.py:828:        from superclaude.cli.install_skills import install_all_skills\ntests/unit/test_cli_install.py:839:        from superclaude.cli.install_skills import _has_corresponding_command\ntests/unit/test_cli_install.py:986:    from superclaude.cli.install_skills import (\ntests/unit/test_confidence.py:9:from superclaude.pm_agent.confidence import ConfidenceChecker\ntests/unit/test_reflexion.py:9:from superclaude.pm_agent.reflexion import ReflexionPattern\ntests/unit/test_self_check.py:9:from superclaude.pm_agent.self_check import SelfCheckProtocol\ntests/unit/test_token_budget.py:9:from superclaude.pm_agent.token_budget import TokenBudgetManager\n",
+    "stderr": ""
+  }
+}

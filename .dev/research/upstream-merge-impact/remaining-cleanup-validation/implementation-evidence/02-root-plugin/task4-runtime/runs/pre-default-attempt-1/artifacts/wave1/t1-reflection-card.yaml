@@ -1,0 +1,32 @@
+# Wave 1C Tier-1 reflection card. Author: sc:sc-root-cause-analyst (model slot: sonnet). Persisted verbatim by orchestrator.
+# Citation paths are relative to fixtures/project/.
+reflection_card:
+  tier: 1
+  uc: UC-1
+  mode: read-only
+  matrix_check:
+    verified: "R-001->T-101 (spec.md:5 / proposed.md:3), R-002->T-102 (spec.md:8 / proposed.md:6), R-003->T-103 (spec.md:11 / proposed.md:9). Each ID match is exact."
+    note: "coverage_pct 1.0 holds only at the ID level. At the acceptance-criterion level it is lower (see below). S_dev_density 0.0 is correct: there are no unmapped tasks (3 requirements, 3 tasks)."
+  coverage_findings:
+    - {req: R-001, verdict: partially-covered, spec: "spec.md:6 requires the exact string 'Hello, Ada!' for input Ada.", tasklist: "proposed.md:4 says only 'returning the required greeting'. The literal string and the Ada example are not carried forward, so the task has no checkable acceptance criterion."}
+    - {req: R-002, verdict: covered, spec: "spec.md:9 requires ValueError on an empty name.", tasklist: "proposed.md:7 says 'Reject an empty name using ValueError', which matches. The remaining gap is that 'empty' is undefined (see risks)."}
+    - {req: R-003, verdict: partially-covered, spec: "spec.md:12 requires tests that exercise both the ordinary greeting and empty-input rejection.", tasklist: "proposed.md:10 says 'Add ordinary and empty-name test cases'. It does not require asserting the exact string or the ValueError, so tests that run but assert nothing would satisfy it."}
+  risks:
+    - {id: K1, severity: HIGH, risk: "The plan ignores existing code. greet() already exists and already satisfies R-001 and R-002: it raises ValueError on a falsy name and returns f'Hello, {name}!' (src/greeting.py:2-4). tests/test_greeting.py:4-13 already covers both R-003 cases. T-101 ('Implement', proposed.md:4) and T-103 ('Add', proposed.md:10) would therefore duplicate or overwrite untracked files. The git repo has no commits, so there is no history to recover from.", cites: ["proposed.md:4", "proposed.md:10", "src/greeting.py:1-4", "tests/test_greeting.py:4-13"]}
+    - {id: K2, severity: MEDIUM, risk: "Acceptance criteria were dropped between spec and tasklist (R-001's exact string, R-003's assertions). An executor could mark a task done without meeting the spec, so the work is not verifiable.", cites: ["spec.md:6", "proposed.md:4", "proposed.md:10"]}
+    - {id: K3, severity: MEDIUM, risk: "'Empty' is undefined. The existing `not name` check (src/greeting.py:2) rejects '' and None, but accepts whitespace-only '   ' and returns 'Hello,    !'. The test only checks '' (tests/test_greeting.py:10). Whether whitespace or None must be rejected is unspecified.", cites: ["spec.md:9", "src/greeting.py:2", "tests/test_greeting.py:10"]}
+    - {id: K4, severity: LOW, risk: "'Ordinary' is undefined (spec.md:12). The only generalization of the greeting is the f-string template (src/greeting.py:4), so the spec gives no behavior for names other than Ada.", cites: ["spec.md:6", "spec.md:12", "src/greeting.py:4"]}
+    - {id: K5, severity: LOW, risk: "The spec gives no module path or signature. The existing test imports `src.greeting` (tests/test_greeting.py:1). The plan does not name a path or a run command, so an executor could place the code where the test cannot import it. [INFERRED] Whether src/ has an __init__.py or a rootdir config was not checked.", cites: ["spec.md:6", "proposed.md:4", "tests/test_greeting.py:1"]}
+    - {id: K6, severity: LOW, risk: "test_empty uses a hand-rolled try/except that returns early (tests/test_greeting.py:8-13). It works, but pytest.raises is the idiomatic form. This is a style point only.", cites: ["tests/test_greeting.py:8-13"]}
+  best_practice_grade: 2
+  grade_justification: "Traceability by ID is clean (3 requirements to 3 tasks, no extras). But acceptance criteria are not carried forward, there is no verification step, and the plan ignores code and tests that already exist."
+  recommendations:
+    - {file: "proposed.md:4", change: "Reword T-101 to 'Verify or adjust the existing greet in src/greeting.py so greet(\"Ada\") == \"Hello, Ada!\". Do not recreate the file.' Carry the exact string into the task.", verifier: "Run `pytest tests/test_greeting.py::test_ordinary`, or inspect src/greeting.py:4. The result must be unchanged for Ada."}
+    - {file: "proposed.md:7", change: "Add the definition of 'empty' to T-102: '' and None, with whitespace-only as an explicit decision. Also state that src/greeting.py:2-3 already implements the rejection.", verifier: "A test calls greet('') and, if decided, greet('   '). Each must raise ValueError."}
+    - {file: "proposed.md:10", change: "Reword T-103 to 'Confirm tests/test_greeting.py asserts == \"Hello, Ada!\" and ValueError for empty input. Add only missing cases.' Prefer pytest.raises.", verifier: "Run `pytest tests/test_greeting.py`. Both tests must pass, and the assertion text must be present when read at tests/test_greeting.py:5 and :10-11."}
+    - {file: "spec.md:6, :9, :12", change: "Define 'empty' and 'ordinary', and add the module path and signature (src/greeting.py, greet(name: str) -> str).", verifier: "Re-run the Wave-1B requirements analysis. It should flag no ambiguity at these lines."}
+    - {file: "proposed.md (new line after :10)", change: "Add a final verification task: run the test suite and check each requirement against its criterion.", verifier: "The tasklist contains an explicit run-and-confirm step that names a command."}
+  deviation_classification:
+    result: "none for contradiction or unmapped-task drift. UC-1 has no completed work."
+    details: "No planned item contradicts the spec and no task is unmapped (proposed.md:3-10 against spec.md:5-12). Two items are under-specified rather than divergent: T-101 and T-103 weaken the spec's acceptance wording. If executed as written, K1 would produce a [INFERRED] regression or drift risk by overwriting working code. No classification is assigned now, because a deviation can only be judged after execution."
+  self_reported_confidence: 0.85

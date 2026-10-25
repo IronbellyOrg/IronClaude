@@ -1,0 +1,67 @@
+{
+  "findings": [
+    {
+      "id": "GG-1",
+      "hunk_ref": "src/greeting.py:2",
+      "evidence_missing": "Driving spec/requirement text defining 'empty name'",
+      "why_not_classifiable": "`if not name` rejects all falsy values and admits whitespace-only/truthy non-str; scope vs. intent undecidable without a spec",
+      "next_evidence_needed": "Spec/tasklist entry for R-002 or user statement of intended input domain",
+      "owner": "user",
+      "decision_needed_by_user": true
+    },
+    {
+      "id": "GG-2",
+      "hunk_ref": "execution.log:2-4",
+      "evidence_missing": "Driving spec, tasklist, diff or commit range",
+      "why_not_classifiable": "Adherence checkable only against the log's own claims; external requirement coverage unassessable",
+      "next_evidence_needed": "--spec and/or --tasklist; optionally --diff",
+      "owner": "user",
+      "decision_needed_by_user": true
+    },
+    {
+      "id": "GG-3",
+      "hunk_ref": "tests/test_greeting.py:1",
+      "evidence_missing": "Test-runner config and any execution result",
+      "why_not_classifiable": "Import resolvability depends on invocation; no execution available",
+      "next_evidence_needed": "python -m pytest output from project root",
+      "owner": "user",
+      "decision_needed_by_user": false
+    },
+    {
+      "id": "GG-4",
+      "hunk_ref": "repo-wide (git init, no commits)",
+      "evidence_missing": "Baseline/history",
+      "why_not_classifiable": "Regression and 'created' require a before state",
+      "next_evidence_needed": "Baseline commit or --diff/--commit-range",
+      "owner": "user",
+      "decision_needed_by_user": false
+    },
+    {
+      "id": "GG-5",
+      "hunk_ref": "tests/test_greeting.py:4-13",
+      "evidence_missing": "Test coverage requirement",
+      "why_not_classifiable": "Whether untested None/whitespace inputs are a shortfall depends on GG-1",
+      "next_evidence_needed": "Spec for R-003 coverage expectations",
+      "owner": "user",
+      "decision_needed_by_user": false
+    },
+    {
+      "id": "GG-6",
+      "hunk_ref": "verification triangle (\u00a76.1 step 5.5)",
+      "evidence_missing": "Verified test-suite state",
+      "why_not_classifiable": "--no-mcp: execute_shell_command unavailable; \u00a710.4 Regression detection degraded to task-log claim, which claims no run (execution.log:5)",
+      "next_evidence_needed": "Re-run without --no-mcp or supply test output",
+      "owner": "user",
+      "decision_needed_by_user": false
+    },
+    {
+      "id": "GG-7",
+      "hunk_ref": "MCP grounding chain (\u00a76.1 steps 2-7')",
+      "evidence_missing": "Symbolic/diagnostic/reuse/runtime-surface evidence",
+      "why_not_classifiable": "--no-mcp: serena/auggie unavailable; native Read/Grep/Glob only; reuse sweep and runtime-surface sweep not performed",
+      "next_evidence_needed": "Re-run with MCP if symbolic evidence is required",
+      "owner": "user",
+      "decision_needed_by_user": false
+    }
+  ]
+}

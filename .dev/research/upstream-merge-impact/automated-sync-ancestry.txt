@@ -1,0 +1,11 @@
+merge-base --is-ancestor 465797ad0d6157a3bb2ffc4a7e902f66f07ae942 HEAD: rc=0 
+merge-base --is-ancestor ff5f73adf5d9a143228a02516b8ba7ae466acfdc HEAD: rc=0 
+merge-base --is-ancestor ec9f066f2ebcf7511b28bac59182329b17b36f17 HEAD: rc=0 
+merge-base --is-ancestor 66d54204c24b65e4bf96e039a37ada94a761a7a3 HEAD: rc=0 
+merge-base --is-ancestor f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3 HEAD: rc=0 
+merge-base --is-ancestor d3cf593808f5e5df12da7f0c3e506556fdc34e01 HEAD: rc=1 
+refs containing pending commit:
+refs/remotes/origin/sync/framework d3cf593808f5e5df12da7f0c3e506556fdc34e01
+
+origin/sync/framework:
+d3cf593808f5e5df12da7f0c3e506556fdc34e01 b41f32525c9065a6ff242135a3ed51a30629ca21

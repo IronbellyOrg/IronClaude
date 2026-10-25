@@ -1,0 +1,28 @@
+You are reviewing a code change for the repository at the workspace root. Identify narrow bugs and higher-level concerns as structured JSON. Read only. Do not edit anything.
+
+Target: diff origin/master...HEAD
+Title: ci: remove framework sync and Codecov upload
+Scope: intentionally delete .github/workflows/pull-sync-framework.yml, scripts/sync_from_framework.py and docs/.framework-sync-commit; remove only the Codecov upload step from .github/workflows/test.yml while preserving exact pytest coverage; remove obsolete workflow documentation in .github/workflows/README.md. Preserve upstream-derived content and src/superclaude/templates/documents/readme_template.md generic badge. No remote PR/branch cleanup is in scope. .dev historical records are excluded from the reference-cleanup requirement.
+
+Files changed (5):
+.github/workflows/README.md
+.github/workflows/pull-sync-framework.yml (deleted)
+.github/workflows/test.yml
+docs/.framework-sync-commit (deleted)
+scripts/sync_from_framework.py (deleted)
+
+Full diff: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reviews/diff-origin-master-HEAD-20261023174443/inputs/diff.patch
+Read it then use indexed codebase context to investigate surviving callers and regressions. Do not report intentional deletions as bugs without a real surviving dependency.
+
+Focus areas (cover all; cross-reference related callers and conventions):
+security: secrets, auth permissions, external uploads, injection, path trust boundaries; inspect whether removals introduce exposure.
+architecture: layering, coupling, dangling integrations, retained unrelated sync/build mechanisms.
+quality: correctness, missing config, dead callers, unintended diff changes.
+performance: regressions from the changed flows, not unrelated optimizations.
+anti-patterns: duplication, speculative code, shotgun changes made by this diff.
+tests: existing dependent checks, preserved measurement and exact pytest XML/terminal reporting.
+docs: stale active integration references; exempt the generic template and .dev records.
+
+Return only a single JSON object with this exact shape:
+{"findings":[{"title":"one-line summary","category":"security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style","severity_hint":"critical | high | medium | low | nit","file":"repo-relative path","line":1,"line_range_end":null,"in_diff":true,"evidence":"exact verbatim excerpt or null","why":"concrete inputs/state and consequence in 2-4 sentences","recommendation":"concrete fix in 1-3 sentences","cross_references":["path:line"],"confidence":"high | medium | low"}],"cross_cutting_observations":[{"title":"...","category":"architecture","severity_hint":"medium","affected_files":["path"],"why":"...","recommendation":"...","confidence":"high | medium | low"}],"notes_for_orchestrator":"coverage and negative searches or uncertain areas"}
+Every finding cites a real current HEAD file:line, not an invented line in a deleted file. If not verified, confidence low and evidence null. Prefer changed lines; out-of-diff only if newly exposed. It is OK to return zero findings: do not pad. Do not make approve/merge recommendations. Return JSON only.

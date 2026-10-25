@@ -1,0 +1,19 @@
+# Returned by sc:evidence-validator (requested model slot: haiku -> grok-4.7[1m]); persisted by orchestrator
+draft: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-default-attempt-1/artifacts/REPORT.draft.md
+citations_total: 12
+citations_revalidated: 12
+citations_verified: 11
+citations_dropped: 1
+dropped:
+  - id: C12
+    location: execution.log:5
+    reason: "claim-mismatch: line disclaims an execution claim; does not observe that tests were not run"
+body_claims_citing_unsupported_location:
+  - "RK-1/summary/G-1 relied on C12 -> re-grounded on orchestrator diagnostic (audit.log wave1 step 5.5 row: verification_ran false, tool-unavailable)"
+  - "RK-2/RK-3 cited C7 only -> re-attributed to C7+C8 (both verified)"
+untagged_uncited_claims_resolution:
+  - "git root / no commits / untracked -> grounded as diagnostic command output recorded in audit.log wave0 step 0.0 and section 'Diagnostic evidence'"
+  - "verification triangle unavailable / execute_shell_command not exposed -> grounded on audit.log wave0 step 0.5d and wave1 step 5.5 rows"
+  - "'spec is silent' on non-str/whitespace -> tagged [INFERRED]"
+  - "'--scope src' -> grounded on the invocation arguments recorded in audit.log wave0 step 0.0"
+zero_drop_flag: false

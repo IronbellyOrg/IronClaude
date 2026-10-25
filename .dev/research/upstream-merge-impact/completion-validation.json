@@ -1,0 +1,8 @@
+{
+  "scope": "Reviewed substantive report, eight unit artifacts, HEAD and tracked content only; outside-state comparison remains separately disclosed FAIL",
+  "substantive_report_matches_review": true,
+  "changed_unit_artifacts": [],
+  "head_unchanged": true,
+  "tracked_content_unchanged": true,
+  "report_sha256": "c0f5ee958d42d11246fe87d876f6fa22cde88046248c390348b0d0c8f2133c94"
+}

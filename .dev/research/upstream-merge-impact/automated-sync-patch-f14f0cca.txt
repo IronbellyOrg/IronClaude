@@ -1,0 +1,15 @@
+commit f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3
+Author:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+AuthorDate: Sun Sep 27 16:29:46 2026 +0000
+Commit:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+CommitDate: Sun Sep 27 16:29:46 2026 +0000
+
+    chore: automated sync and namespace isolation from framework [2026-09-27 16:29]
+
+diff --git a/docs/.framework-sync-commit b/docs/.framework-sync-commit
+index e76151ea..bf8b9f0d 100644
+--- a/docs/.framework-sync-commit
++++ b/docs/.framework-sync-commit
+@@ -1 +1 @@
+-2d0fda08f2eed9951794dc9c54a6289454961075
++fe68862c8ed9e2afb8120c2d9e27d0c3a7ce73a2

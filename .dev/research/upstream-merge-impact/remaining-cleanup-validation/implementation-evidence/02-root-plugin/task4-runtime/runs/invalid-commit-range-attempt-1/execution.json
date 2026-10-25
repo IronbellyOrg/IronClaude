@@ -1,0 +1,165 @@
+{
+  "case": "invalid-commit-range",
+  "attempt": "1",
+  "state": "exited",
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/plugin",
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--model",
+    "opus",
+    "--permission-mode",
+    "bypassPermissions",
+    "--no-session-persistence",
+    "--tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--append-system-prompt",
+    "This is an authorized isolated plugin-only audit. The synthetic audited repository is /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project, not your empty launch cwd. Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. Write only under the requested safe output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/invalid-commit-range-attempt-1/artifacts; when the actual --output is forbidden, refuse without creating it. Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources. Never print provider credentials or credential environment values.",
+    "/sc:sc-reflect --mode post --commit-range NOT_A_REAL_REF..ALSO_NOT_REAL --scope /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/src --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/invalid-commit-range-attempt-1/artifacts"
+  ],
+  "cwd": "/tmp/ironclaude-reflect-runtime-3nu4qv_t",
+  "environment": {
+    "PATH": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin:/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/invalid-commit-range-attempt-1/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/invalid-commit-range-attempt-1/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/invalid-commit-range-attempt-1/home/.config"
+  },
+  "provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "framework_executable_absent": true,
+  "runtime_tools_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin/uv\n/usr/bin/git\n",
+  "timeout_seconds": 600,
+  "started_monotonic": 2163754.628565199,
+  "returncode": 0,
+  "duration_seconds": 40.335293461568654,
+  "changed_plugin_files": [],
+  "added_plugin_files": [],
+  "fixture_staged_files": [],
+  "fixture_head_created": false,
+  "changed_audit_inputs": [],
+  "native_result": {
+    "duration_api_ms": 39470,
+    "stop_reason": "end_turn",
+    "session_id": "090a36c4-83ab-4b46-a339-97ff148380f3",
+    "total_cost_usd": 1.1307164,
+    "usage": {
+      "input_tokens": 8,
+      "cache_creation_input_tokens": 124762,
+      "cache_read_input_tokens": 280942,
+      "output_tokens": 3820,
+      "output_tokens_details": {
+        "thinking_tokens": 324
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 124762,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 712,
+          "cache_read_input_tokens": 128243,
+          "cache_creation_input_tokens": 2329,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 2329
+          },
+          "type": "message",
+          "model": null
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5-5[1m]": {
+        "inputTokens": 8,
+        "outputTokens": 3820,
+        "cacheReadInputTokens": 280942,
+        "cacheCreationInputTokens": 124762,
+        "webSearchRequests": 0,
+        "costUSD": 1.1307164,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 324,
+        "canonicalModel": "claude-opus-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 0,
+      "requested": {
+        "background": 0,
+        "foreground": 0,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 0,
+      "spawned_by_subagents": 0,
+      "completed": 0,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {}
+    },
+    "is_error": false,
+    "num_turns": 5,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "The audit stopped before it started: the commit range doesn't exist, so there was no completed work to review and no verdict was produced.\n\n**Why it stopped**\n- I checked the range read-only against `fixtures/project`. `git rev-parse --verify <ref>^{commit}` failed (exit 1) for `NOT_A_REAL_REF`, for `ALSO_NOT_REAL`, and for `HEAD`, because the repo has no commits yet.\n- You didn't pass a `--diff` or `--task-log` either. A post audit needs one of those three, so the protocol stops here. I didn't substitute another range.\n\n**Result**\n- **Mode:** post (you set it explicitly).\n- **Status:** `failed`, stop reason `unresolved_commit_range`.\n- **Tier and confidence:** none. Tier 1 never ran, so there is no calibrated confidence.\n- **Deviation counts:** all 0, because nothing was classified. That is not a clean pass.\n- **Citations:** 0 total, 0 dropped. The citation check (`sc:evidence-validator`) did not run.\n- **Not run:** reviewers, adversarial merge (`merge_method: null`) and verification.\n- **Promotion:** skipped because of `--no-promote`; no files were moved.\n- **Remediation:** not requested; all remediation paths are null.\n- **Grounding gaps / degraded components:** none recorded, since no evidence was gathered.\n\n**Artifacts** (the output directory passed the safety checks, so I wrote a refusal record there):\n- Report: `.../runs/invalid-commit-range-attempt-1/artifacts/REPORT.md`\n- Contract: `.../runs/invalid-commit-range-attempt-1/artifacts/return-contract.yaml` (JSON)\n- Audit log: `.../runs/invalid-commit-range-attempt-1/artifacts/audit.log`\n\nNothing else was written. The fixture repo, plugin files and Git state weren't touched.\n\nTo get a real audit, re-run with a commit range that exists (the fixture repo would need commits first), a `--diff` file, or a `--task-log`.",
+    "ttft_ms": 2702,
+    "type": "result",
+    "duration_ms": 39717,
+    "uuid": "b3be7881-90ee-441f-b514-bd5bc8301079",
+    "ttft_stream_ms": 2201,
+    "time_to_request_ms": 134,
+    "first_content_frame_ms": 2202,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "artifact_files": [
+    "execution.json",
+    "stderr.txt",
+    "role-and-tool-calls.json",
+    "native-init.json",
+    "stdout.jsonl",
+    "artifacts/REPORT.md",
+    "artifacts/audit.log",
+    "artifacts/return-contract.yaml"
+  ]
+}

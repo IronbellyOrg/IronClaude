@@ -1,0 +1,262 @@
+COMMAND git diff --no-ext-diff --find-renames 1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5 ad6b2e9982d978b02f301ce81ea3a89183cbb5c8 -- CHANGELOG.md CLAUDE.md PLANNING.md README-ja.md README-kr.md README-zh.md README.md
+RETURN 0
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f5698289..4adb01b6 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -7,36 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ ## [Unreleased]
+ 
+-## [4.2.0] - 2025-09-18
++## [4.2.0] - 2026-01-18
+ ### Added
+-- **Deep Research System** - Complete implementation of autonomous web research capabilities
+-  - New `/sc:research` command for intelligent web research with DR Agent architecture
+-  - `deep-research-agent` - 15th specialized agent for research orchestration
+-  - `MODE_DeepResearch` - 7th behavioral mode for research workflows
+-  - Tavily MCP integration (7th MCP server) for real-time web search
+-  - Research configuration system (`RESEARCH_CONFIG.md`)
+-  - Comprehensive workflow examples (`deep_research_workflows.md`)
+-  - Three planning strategies: Planning-Only, Intent-to-Planning, Unified Intent-Planning
+-  - Multi-hop reasoning with genealogy tracking for complex queries
+-  - Case-based reasoning for learning from past research patterns
++- **AIRIS MCP Gateway** - Optional unified MCP solution with 60+ tools (#509)
++  - Single SSE endpoint at `localhost:9400`
++  - 98% token reduction through HOT/COLD tool management
++  - Requires Docker (optional - individual servers still supported)
++- **Airis Agent and MindBase MCP servers** - New individual server options (#497)
++- **Explicit command boundaries and handoff instructions** - All 30 commands now have clear scope definitions (#513)
++- **Complete command reference documentation** - Comprehensive docs for all slash commands (#512)
++
++### Fixed
++- UTF-8 encoding handling for MCP command output on all platforms (#507)
+ 
+ ### Changed
+-- Updated agent count from 14 to 15 (added deep-research-agent)
+-- Updated mode count from 6 to 7 (added MODE_DeepResearch)
+-- Updated MCP server count from 6 to 7 (added Tavily)
+-- Updated command count from 24 to 25 (added /sc:research)
+-- Enhanced MCP component with remote server support for Tavily
+-- Added `_install_remote_mcp_server` method to handle remote MCP configurations
++- MCP installer now offers AIRIS Gateway as recommended option (with Docker)
++- Individual MCP servers remain fully supported for users without Docker
++- Command documentation improved with boundaries, triggers, and next-step guidance
+ 
+-### Technical
+-- Added Tavily to `server_docs_map` in `setup/components/mcp_docs.py`
+-- Implemented remote MCP server handler in `setup/components/mcp.py`
+-- Added `check_research_prerequisites()` function in `setup/utils/environment.py`
+-- Created verification script `scripts/verify_research_integration.sh`
+-
+-### Requirements
+-- `TAVILY_API_KEY` environment variable for web search functionality
+-- Node.js and npm for Tavily MCP execution
++## [4.1.9] - 2026-01-15
++### Added
++- **Framework Restoration** - Complete SuperClaude framework restored from commit d4a17fc
++- **30 Slash Commands** - All slash commands restored with comprehensive documentation
++- **install.sh Script** - Missing installation script added (#483)
++- **MCP Command** - New `superclaude mcp` command for MCP server management
++- **Tavily MCP Server** - Web search integration for deep research capabilities
++- **Chrome DevTools MCP** - Browser debugging and performance analysis
++
++### Fixed
++- Package distribution now includes all plugin resources
++- Commands path resolution prioritizes package location
++- Commands and skills properly included in MANIFEST.in
++
++### Changed
++- Synchronized translated READMEs with main README structure
++- Added `__init__.py` to all packages for proper module resolution
+ 
+ ## [4.1.5] - 2025-09-26
+ ### Added
+diff --git a/CLAUDE.md b/CLAUDE.md
+index e9446b74..8295384f 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -18,10 +18,10 @@ uv run python script.py          # Execute scripts
+ 
+ ## 📂 Project Structure
+ 
+-**Current v4.1.9 Architecture**: Python package with slash commands
++**Current v4.2.0 Architecture**: Python package with slash commands
+ 
+ ```
+-# Claude Code Configuration (v4.1.9)
++# Claude Code Configuration (v4.2.0)
+ .claude/
+ ├── settings.json        # User settings
+ └── commands/            # Slash commands (installed via `superclaude install`)
+@@ -115,7 +115,7 @@ Registered via `pyproject.toml` entry point, automatically available after insta
+ - Automatic dependency analysis
+ - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
+ 
+-### Slash Commands (v4.1.9)
++### Slash Commands (v4.2.0)
+ 
+ - Install via: `pipx install superclaude && superclaude install`
+ - Commands installed to: `~/.claude/commands/`
+@@ -241,7 +241,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
+ 
+ ## 🚀 Development & Installation
+ 
+-### Current Installation Method (v4.1.9)
++### Current Installation Method (v4.2.0)
+ 
+ **Standard Installation**:
+ ```bash
+@@ -275,7 +275,7 @@ See `docs/plugin-reorg.md` for details.
+ ## 📊 Package Information
+ 
+ **Package name**: `superclaude`
+-**Version**: 4.1.9
++**Version**: 4.2.0
+ **Python**: >=3.10
+ **Build system**: hatchling (PEP 517)
+ 
+diff --git a/PLANNING.md b/PLANNING.md
+index 3b2ef00f..0923cbd4 100644
+--- a/PLANNING.md
++++ b/PLANNING.md
+@@ -23,7 +23,7 @@ SuperClaude Framework transforms Claude Code into a structured development platf
+ 
+ ## 🏗️ **Architecture Overview**
+ 
+-### **Current State (v4.1.9)**
++### **Current State (v4.2.0)**
+ 
+ SuperClaude is a **Python package** with:
+ - Pytest plugin (auto-loaded via entry points)
+@@ -33,7 +33,7 @@ SuperClaude is a **Python package** with:
+ - Optional slash commands (installed to ~/.claude/commands/)
+ 
+ ```
+-SuperClaude Framework v4.1.9
++SuperClaude Framework v4.2.0
+ │
+ ├── Core Package (src/superclaude/)
+ │   ├── pytest_plugin.py          # Auto-loaded by pytest
+@@ -237,7 +237,7 @@ Use SelfCheckProtocol to prevent hallucinations:
+ ### **Version Management**
+ 
+ 1. **Version sources of truth**:
+-   - Framework version: `VERSION` file (e.g., 4.1.9)
++   - Framework version: `VERSION` file (e.g., 4.2.0)
+    - Python package version: `pyproject.toml` (e.g., 0.4.0)
+    - NPM package version: `package.json` (should match VERSION)
+ 
+@@ -338,17 +338,19 @@ Before releasing a new version:
+ 
+ ## 🚀 **Roadmap**
+ 
+-### **v4.1.9 (Current)**
++### **v4.2.0 (Current)**
+ - ✅ Python package with pytest plugin
+ - ✅ PM Agent patterns (confidence, self-check, reflexion)
+ - ✅ Parallel execution framework
+-- ✅ CLI tools
+-- ✅ Optional slash commands
++- ✅ CLI tools and slash commands
++- ✅ AIRIS MCP Gateway (optional, requires Docker)
++- ✅ Explicit command boundaries and handoff instructions
++- ✅ Complete command reference documentation
+ 
+-### **v4.2.0 (Next)**
++### **v4.3.0 (Next)**
+ - [ ] Complete placeholder implementations in confidence.py
+ - [ ] Add comprehensive test coverage (>80%)
+-- [ ] Enhance MCP server integration
++- [ ] Enhanced MCP server integration
+ - [ ] Improve documentation
+ 
+ ### **v5.0 (Future)**
+diff --git a/README-ja.md b/README-ja.md
+index a1547afb..f7d61ddf 100644
+--- a/README-ja.md
++++ b/README-ja.md
+@@ -5,7 +5,7 @@
+ ### **Claude Codeを構造化開発プラットフォームに変換**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.2.0-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -93,7 +93,7 @@ Claude Codeは[Anthropic](https://www.anthropic.com/)によって構築および
+ > まだ利用できません（v5.0で予定）。v4.xの現在のインストール
+ > 手順については、以下の手順に従ってください。
+ 
+-### **現在の安定バージョン (v4.1.9)**
++### **現在の安定バージョン (v4.2.0)**
+ 
+ SuperClaudeは現在スラッシュコマンドを使用しています。
+ 
+diff --git a/README-kr.md b/README-kr.md
+index 01a774f8..a92493df 100644
+--- a/README-kr.md
++++ b/README-kr.md
+@@ -5,7 +5,7 @@
+ ### **Claude Code를 구조화된 개발 플랫폼으로 변환**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.2.0-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -96,7 +96,7 @@ Claude Code는 [Anthropic](https://www.anthropic.com/)에 의해 구축 및 유
+ > 아직 사용할 수 없습니다(v5.0에서 계획). v4.x의 현재 설치
+ > 지침은 아래 단계를 따르세요.
+ 
+-### **현재 안정 버전 (v4.1.9)**
++### **현재 안정 버전 (v4.2.0)**
+ 
+ SuperClaude는 현재 슬래시 명령어를 사용합니다.
+ 
+diff --git a/README-zh.md b/README-zh.md
+index bc66a5e3..66083a2c 100644
+--- a/README-zh.md
++++ b/README-zh.md
+@@ -5,7 +5,7 @@
+ ### **将Claude Code转换为结构化开发平台**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.2.0-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -93,7 +93,7 @@ Claude Code是由[Anthropic](https://www.anthropic.com/)构建和维护的产品
+ > 尚未可用（计划在v5.0中推出）。请按照以下v4.x的
+ > 当前安装说明操作。
+ 
+-### **当前稳定版本 (v4.1.9)**
++### **当前稳定版本 (v4.2.0)**
+ 
+ SuperClaude目前使用斜杠命令。
+ 
+diff --git a/README.md b/README.md
+index b1ad5cb8..aa3099de 100644
+--- a/README.md
++++ b/README.md
+@@ -17,7 +17,7 @@
+ <a href="https://github.com/SuperClaude-Org/SuperQwen_Framework" target="_blank">
+   <img src="https://img.shields.io/badge/Try-SuperQwen_Framework-orange" alt="Try SuperQwen Framework"/>
+ </a>
+-  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.2.0-blue" alt="Version">
+   <a href="https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml">
+     <img src="https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml/badge.svg" alt="Tests">
+   </a>
+@@ -113,7 +113,7 @@ Claude Code is a product built and maintained by [Anthropic](https://www.anthrop
+ > not yet available (planned for v5.0). For current installation
+ > instructions, please follow the steps below for v4.x.
+ 
+-### **Current Stable Version (v4.1.9)**
++### **Current Stable Version (v4.2.0)**
+ 
+ SuperClaude currently uses slash commands.
+ 

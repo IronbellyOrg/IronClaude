@@ -1,0 +1,33 @@
+{
+  "selected_tier": 1,
+  "fired_rule_number": null,
+  "hard_override": "--tier 1 (\u00a75.1: STOP at T1)",
+  "rubric_shadow_evaluation": {
+    "rule_that_would_fire": 2,
+    "reason": "C=0.86>=0.85, S_scope=2<=10, S_domains=2<=2, S_dev_density=0.00<=0.10; rule 1 fails on C<0.90 and S_domains=2"
+  },
+  "coverage_degraded": null,
+  "surface_unreached": null,
+  "inputs": {
+    "C": 0.86,
+    "S_scope": 2,
+    "S_domains": 2,
+    "domains": [
+      "code",
+      "tests"
+    ],
+    "S_dev_density": 0.0,
+    "regression_candidate_count": 0
+  },
+  "composite_score": 1.0,
+  "per_signal_breakdown": {
+    "scope_size": 0,
+    "task_count": 0,
+    "blast_radius": 0,
+    "spec_density": 1,
+    "ambiguity_signals": 0
+  },
+  "escalation_reason": "Pinned --tier 1; no escalation. spec_density=1 reflects absent spec (ungrounded requirement IDs).",
+  "t2_model_class_diversity": "full",
+  "t2_vendor_diversity": "multi"
+}

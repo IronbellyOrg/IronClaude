@@ -1,0 +1,17 @@
+{
+  "skill": "sc:confidence-check",
+  "full_score": 0.525,
+  "checks": {
+    "no_duplicates": "pass (reuse-audit distinct)",
+    "architecture": "partial: audited repo has no CLAUDE.md/PLANNING.md/pyproject.toml (explicit absence; ancestor config not read)",
+    "official_docs": "fail: Context7 unavailable",
+    "oss_reference": "fail: Tavily/WebSearch not used",
+    "root_cause": "pass (GG-1, GG-2 explicit)"
+  },
+  "lightweight_form": {
+    "R-001": "paths verified by Read",
+    "R-002": "command [UNVERIFIED] \u2014 executing would write caches into audited repo",
+    "R-003": "path verified by Read"
+  },
+  "disposition": "recommendations surfaced with R-002 marked [UNVERIFIED]; blocked_by_low_confidence=false (not every rec gated)"
+}

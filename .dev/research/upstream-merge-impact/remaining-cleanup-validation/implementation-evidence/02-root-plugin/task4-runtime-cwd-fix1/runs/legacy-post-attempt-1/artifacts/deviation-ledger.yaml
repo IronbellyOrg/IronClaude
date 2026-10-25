@@ -1,0 +1,4 @@
+# 4-category deviation ledger (Authorized / Necessary / Drift / Regression). Per-hunk mode (2 work files, 0 unmapped).
+deviation_aggregation_mode: per-hunk
+deviations: []
+counts: {authorized: 0, necessary: 0, drift: 0, regression: 0}

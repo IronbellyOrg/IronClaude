@@ -1,0 +1,7 @@
+input_tree_sha256: a6d82ad1fb1a7e0c44393978a448ea7207a143941fba3bae671123ed02cb0c98
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261022-211556/source.md
+    sha256: c4ed5c42191c2668e1d34c30dd6d0db24ae8a3f3278fe4c36ffcd819f46b5b5e
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261022-211556/TASK-WF-spec-20261022-211556.md
+    sha256: dcb320b5f6bc069b34d86bda80897e154197aa3ca48c4d011287ea84386a33bb
+file_count: 2

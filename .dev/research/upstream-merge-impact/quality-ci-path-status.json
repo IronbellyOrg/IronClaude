@@ -1,0 +1,158 @@
+[
+  {
+    "path": ".github/workflows/publish-pypi.yml",
+    "exists_at_head": false,
+    "lines": 0,
+    "sha256": null
+  },
+  {
+    "path": ".github/workflows/quick-check.yml",
+    "exists_at_head": false,
+    "lines": 0,
+    "sha256": null
+  },
+  {
+    "path": ".github/workflows/readme-quality-check.yml",
+    "exists_at_head": false,
+    "lines": 0,
+    "sha256": null
+  },
+  {
+    "path": ".github/workflows/test.yml",
+    "exists_at_head": true,
+    "lines": 191,
+    "sha256": "e26d4d380f4bc78fd7adb91862a186f8a7e80d8e58177516e187c0b36b852b9c"
+  },
+  {
+    "path": "pyproject.toml",
+    "exists_at_head": true,
+    "lines": 216,
+    "sha256": "d1d4698190110949e2893fc4e86483c662d0ea2c2e4cb860f5174e44d517bcfb"
+  },
+  {
+    "path": "src/superclaude/__init__.py",
+    "exists_at_head": true,
+    "lines": 21,
+    "sha256": "c4eab5203cd034199de749373878bf71c9e19a1f4e85e92eaf29aa64d7d264a4"
+  },
+  {
+    "path": "src/superclaude/cli/doctor.py",
+    "exists_at_head": true,
+    "lines": 260,
+    "sha256": "40b07a121fe741cc590baceac02542cef64e2c75dce2d85e793f1639ad71e515"
+  },
+  {
+    "path": "src/superclaude/cli/install_commands.py",
+    "exists_at_head": true,
+    "lines": 166,
+    "sha256": "8b58d7d88253a4b088aa388f8e8a01eede56beec6555ba7d77986d9bf28af58d"
+  },
+  {
+    "path": "src/superclaude/cli/install_skill.py",
+    "exists_at_head": true,
+    "lines": 150,
+    "sha256": "dba905ac3d3e7407f380146ada15cffa957d174e3371a5140a1fc2d06e3537c8"
+  },
+  {
+    "path": "src/superclaude/cli/main.py",
+    "exists_at_head": true,
+    "lines": 567,
+    "sha256": "cc54e0cbb54aa6acb6350afe8a9744f33d2c889e346c62168b6656c31dea70d0"
+  },
+  {
+    "path": "src/superclaude/execution/__init__.py",
+    "exists_at_head": true,
+    "lines": 227,
+    "sha256": "606bb5fa241acd5b7fc4e4b4d11a08ab382a40c90a9dbe0dad14ea6c0cd33eb8"
+  },
+  {
+    "path": "src/superclaude/execution/parallel.py",
+    "exists_at_head": true,
+    "lines": 349,
+    "sha256": "95970b942c41e13c47c7e39a7dadd636102e7cad195ccf529726641b9827b669"
+  },
+  {
+    "path": "src/superclaude/execution/reflection.py",
+    "exists_at_head": true,
+    "lines": 400,
+    "sha256": "92d30e388af15930df15f9fb96b94047175fcaba6844cfeb26f78c1259f23d8a"
+  },
+  {
+    "path": "src/superclaude/execution/self_correction.py",
+    "exists_at_head": true,
+    "lines": 425,
+    "sha256": "3593d3d99ce672a188697db5ffec7da57b47e0b2a5f18f238664f775ee98acd8"
+  },
+  {
+    "path": "src/superclaude/pm_agent/__init__.py",
+    "exists_at_head": true,
+    "lines": 19,
+    "sha256": "70e084fee1b69664f5cb5c7eeb3a237c15d40a9fa5441c9b97a829ffc494cdc0"
+  },
+  {
+    "path": "src/superclaude/pm_agent/confidence.py",
+    "exists_at_head": true,
+    "lines": 272,
+    "sha256": "1ca474cf679927bb686513e023405d261e66060acf97d7cdfe381afe6de153d8"
+  },
+  {
+    "path": "src/superclaude/pm_agent/reflexion.py",
+    "exists_at_head": true,
+    "lines": 352,
+    "sha256": "22e3f8a2d8aa2fe38afda899584d9d1912a56be9bdf7afd94cda92c5c7b76c1b"
+  },
+  {
+    "path": "src/superclaude/pm_agent/self_check.py",
+    "exists_at_head": true,
+    "lines": 249,
+    "sha256": "1973e2ccd8e33c63ac393947cb64bd58caf361ee2737600b16ad80a03a1c940e"
+  },
+  {
+    "path": "src/superclaude/pytest_plugin.py",
+    "exists_at_head": true,
+    "lines": 228,
+    "sha256": "7032be80d90a66b6bd446fd3831c61c74e87bc0765648a1988563a97cc069e78"
+  },
+  {
+    "path": "tests/conftest.py",
+    "exists_at_head": true,
+    "lines": 225,
+    "sha256": "e567e4f50130a3ad08b2e08e1181148d24b1bc8293f5d239f6afbb78ee6e46d1"
+  },
+  {
+    "path": "tests/integration/test_pytest_plugin.py",
+    "exists_at_head": true,
+    "lines": 230,
+    "sha256": "35e3bad9bf5de386aba4897c06a86dac109de0e53c628cb9fd970b026181e7c8"
+  },
+  {
+    "path": "tests/unit/test_cli_install.py",
+    "exists_at_head": true,
+    "lines": 1100,
+    "sha256": "25f68dcf2ca5fb2ee20bc90fbde5d45d693208db80706ebaf54509dc7bae1b32"
+  },
+  {
+    "path": "tests/unit/test_confidence.py",
+    "exists_at_head": true,
+    "lines": 181,
+    "sha256": "ceb891ea2e19cb36e4ca52e15d12a64e152f2df7989dd40731eded9a6c39e072"
+  },
+  {
+    "path": "tests/unit/test_reflexion.py",
+    "exists_at_head": true,
+    "lines": 183,
+    "sha256": "c068bd807438efb5209415bd822c271376cbb2d0554b6d40b7ef3ebc77556f89"
+  },
+  {
+    "path": "tests/unit/test_self_check.py",
+    "exists_at_head": true,
+    "lines": 236,
+    "sha256": "f98ee30885e3d770059c97deff59f4cdb5a6a7d74b787212dbc3dae19a6f9efb"
+  },
+  {
+    "path": "tests/unit/test_token_budget.py",
+    "exists_at_head": true,
+    "lines": 129,
+    "sha256": "f698cc98051d33c672a42d67f1255e2e304870d6e9ec57765d755e74ce63ef7d"
+  }
+]

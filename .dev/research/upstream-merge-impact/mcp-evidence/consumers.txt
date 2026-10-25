@@ -1,0 +1,177 @@
+HEAD:.secrets.baseline:187:    "src/superclaude/cli/install_mcp.py": [
+HEAD:.secrets.baseline:190:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:.secrets.baseline:197:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:.secrets.baseline:204:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:.secrets.baseline:211:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:.secrets.baseline:218:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:.secrets.baseline:225:        "filename": "src/superclaude/cli/install_mcp.py",
+HEAD:PROJECT_INDEX.json:92:      "installers": ["install_core.py", "install_commands.py", "install_agents.py", "install_skills.py", "install_skill.py", "install_hooks.py", "install_mcp.py", "install_templates.py", "install_user_setup.py", "install_ccsession.py"],
+HEAD:PROJECT_INDEX.md:66:- `install_core.py`, `install_commands.py`, `install_agents.py`, `install_skills.py`, `install_skill.py`, `install_hooks.py`, `install_mcp.py`, `install_templates.py`, `install_user_setup.py`, `install_ccsession.py` - installers
+HEAD:docs/generated/contributor-knowledge-base/cli-api-inventory.md:30:├── install_mcp.py
+HEAD:docs/generated/contributor-knowledge-base/cli-api-inventory.md:53:| `superclaude mcp` | `mcp` | `install_mcp` | List or install MCP servers. |
+HEAD:docs/generated/contributor-knowledge-base/cli-api-inventory.md:74:| `src/superclaude/cli/install_mcp.py` | `AIRIS_GATEWAY`, `MCP_SERVERS`, `install_mcp_servers`, `list_available_servers`, `install_mcp_server` | MCP server catalog and install orchestration. |
+HEAD:docs/generated/contributor-knowledge-base/cli-api-inventory.md:257:6. `src/superclaude/cli/install_mcp.py`
+HEAD:docs/generated/contributor-knowledge-base/visual-architecture-summary.md:216:    CLI --> CLI_INSTALL[install_core.py<br/>install_commands.py<br/>install_agents.py<br/>install_skill.py<br/>install_skills.py<br/>install_mcp.py]
+HEAD:docs/generated/contributor-knowledge-base/visual-architecture-summary.md:259:    D --> D1[install_mcp.py]
+HEAD:src/superclaude/cli/install_mcp.py:24:AIRIS_GATEWAY = {
+HEAD:src/superclaude/cli/install_mcp.py:256:            f"[DRY RUN] Would create {install_dir}, download {AIRIS_GATEWAY['docker_compose_url']}, create .env, start Docker Compose and register with Claude Code. Docker is required only for actual installation."
+HEAD:src/superclaude/cli/install_mcp.py:277:                AIRIS_GATEWAY["docker_compose_url"],
+HEAD:src/superclaude/cli/install_mcp.py:304:                    AIRIS_GATEWAY["mcp_config_url"],
+HEAD:src/superclaude/cli/install_mcp.py:457:            AIRIS_GATEWAY["name"],
+HEAD:src/superclaude/cli/install_mcp.py:458:            AIRIS_GATEWAY["endpoint"],
+HEAD:src/superclaude/cli/install_mcp.py:478:    click.echo(f"   • Documentation: {AIRIS_GATEWAY['repository']}")
+HEAD:src/superclaude/cli/install_mcp.py:1010:def install_mcp_server(
+HEAD:src/superclaude/cli/install_mcp.py:1243:def install_mcp_servers(
+HEAD:src/superclaude/cli/install_mcp.py:1356:                success = install_mcp_server(MCP_SERVERS[name], scope, dry_run)
+HEAD:src/superclaude/cli/main.py:78:    from .install_mcp import (
+HEAD:src/superclaude/cli/main.py:324:    from .install_mcp import install_mcp_servers, list_available_servers
+HEAD:src/superclaude/cli/main.py:334:    success, message = install_mcp_servers(
+HEAD:src/superclaude/cli/recommend/plugin_eval.py:3:Step 5.5 — preconditions: dispatch on `kind` and REUSE the install_mcp checks
+HEAD:src/superclaude/cli/recommend/plugin_eval.py:24:from superclaude.cli.install_mcp import (
+HEAD:src/superclaude/cli/recommend/plugin_eval.py:44:    Dispatches on ``kind``; reuses install_mcp checks for server/binary and
+HEAD:src/superclaude/core/RESEARCH_CONFIG.md:61:Tavily MCP version: `tavily-mcp@0.2.22` (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
+HEAD:src/superclaude/core/RESEARCH_CONFIG.md:63:`install_mcp.py` / `MCP_Tavily.md` — not duplicated here). Each profile below overrides
+HEAD:src/superclaude/mcp/MCP_Tavily.md:5:**Version**: `tavily-mcp@0.2.22` (pinned — see the `install_mcp.py` registry). This file is the
+HEAD:src/superclaude/mcp/MCP_Tavily.md:64:in the `install_mcp.py` registry — it is not restated elsewhere). Every Tavily call inherits this
+HEAD:tests/cli/test_install_codebase_memory.py:840:    from superclaude.cli import install_mcp
+HEAD:tests/cli/test_install_codebase_memory.py:851:        module=install_mcp,
+HEAD:tests/cli/test_install_codebase_memory.py:863:        real_native_install=install_mcp.install_codebase_memory_mcp,
+HEAD:tests/cli/test_install_codebase_memory.py:864:        real_native_remove=install_mcp.uninstall_codebase_memory_mcp,
+HEAD:tests/cli/test_install_codebase_memory.py:865:        real_gateway=install_mcp.install_airis_gateway,
+HEAD:tests/cli/test_install_codebase_memory.py:868:        install_mcp, "_is_interactive", lambda: state.interactive, raising=False
+HEAD:tests/cli/test_install_codebase_memory.py:871:        install_mcp.shutil,
+HEAD:tests/cli/test_install_codebase_memory.py:875:    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
+HEAD:tests/cli/test_install_codebase_memory.py:938:    monkeypatch.setattr(install_mcp, "_run_command", command)
+HEAD:tests/cli/test_install_codebase_memory.py:939:    monkeypatch.setattr(install_mcp, "install_codebase_memory_mcp", install)
+HEAD:tests/cli/test_install_codebase_memory.py:940:    monkeypatch.setattr(install_mcp, "uninstall_codebase_memory_mcp", remove)
+HEAD:tests/cli/test_install_codebase_memory.py:941:    monkeypatch.setattr(install_mcp, "install_airis_gateway", gateway)
+HEAD:tests/cli/test_install_codebase_memory.py:1389:    from superclaude.cli import install_mcp
+HEAD:tests/cli/test_install_codebase_memory.py:1487:    monkeypatch.setattr(install_mcp, "_run_command", claude_process)
+HEAD:tests/cli/test_install_codebase_memory.py:1489:        install_mcp.click,
+HEAD:tests/cli/test_install_codebase_memory.py:1494:        install_mcp.click,
+HEAD:tests/cli/test_install_mcp_registry.py:8:from superclaude.cli import install_mcp
+HEAD:tests/cli/test_install_mcp_registry.py:23:        entry = install_mcp.MCP_SERVERS[key]
+HEAD:tests/cli/test_install_mcp_registry.py:29:        install_mcp.MCP_SERVERS["morphllm-fast-apply"]["api_key_env"] == "MORPH_API_KEY"
+HEAD:tests/cli/test_install_mcp_registry.py:32:        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"]["install_command"]
+HEAD:tests/cli/test_install_mcp_registry.py:39:        assert name not in install_mcp.MCP_SERVERS
+HEAD:tests/cli/test_install_mcp_registry.py:75:                install_mcp.MCP_SERVERS[server_name]["command"]
+HEAD:tests/cli/test_install_mcp_registry.py:95:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_registry.py:96:    monkeypatch.setattr(install_mcp.click, "confirm", lambda *args, **kwargs: True)
+HEAD:tests/cli/test_install_mcp_registry.py:98:    assert install_mcp.ensure_global_binary(
+HEAD:tests/cli/test_install_mcp_registry.py:99:        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
+HEAD:tests/cli/test_install_mcp_registry.py:119:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_registry.py:120:    monkeypatch.setattr(install_mcp.click, "confirm", lambda *args, **kwargs: True)
+HEAD:tests/cli/test_install_mcp_registry.py:122:    assert not install_mcp.ensure_global_binary(
+HEAD:tests/cli/test_install_mcp_registry.py:123:        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
+HEAD:tests/cli/test_install_mcp_registry.py:135:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_registry.py:137:    assert install_mcp.ensure_global_binary(
+HEAD:tests/cli/test_install_mcp_registry.py:138:        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
+HEAD:tests/cli/test_install_mcp_registry.py:167:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_registry.py:168:    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: True)
+HEAD:tests/cli/test_install_mcp_registry.py:169:    monkeypatch.setattr(install_mcp.click, "confirm", lambda *args, **kwargs: True)
+HEAD:tests/cli/test_install_mcp_registry.py:171:    assert install_mcp.install_mcp_server(install_mcp.MCP_SERVERS["auggie"])
+HEAD:tests/cli/test_install_mcp_registry.py:184:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_registry.py:186:    assert not install_mcp.ensure_global_binary(
+HEAD:tests/cli/test_install_mcp_registry.py:187:        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
+HEAD:tests/cli/test_install_mcp_registry.py:193:    entry = install_mcp.MCP_SERVERS["codebase-memory-mcp"]
+HEAD:tests/cli/test_install_mcp_registry.py:209:    monkeypatch.setattr(install_mcp, "install_codebase_memory_mcp", install)
+HEAD:tests/cli/test_install_mcp_registry.py:211:        install_mcp,
+HEAD:tests/cli/test_install_mcp_registry.py:215:    assert install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_registry.py:216:        install_mcp.MCP_SERVERS["codebase-memory-mcp"], scope="user", dry_run=True
+HEAD:tests/cli/test_install_mcp_registry.py:237:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_registry.py:238:    assert install_mcp.check_prerequisites(["codebase-memory-mcp"]) == (True, [])
+HEAD:tests/cli/test_install_mcp_registry.py:254:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_registry.py:255:    assert install_mcp.check_prerequisites(["context7"]) == (True, [])
+HEAD:tests/cli/test_install_mcp_tavily.py:19:from superclaude.cli import install_mcp
+HEAD:tests/cli/test_install_mcp_tavily.py:21:# Repo root: tests/cli/test_install_mcp_tavily.py -> parents[2]
+HEAD:tests/cli/test_install_mcp_tavily.py:36:    assert install_mcp.TAVILY_MCP_VERSION == "0.2.22"
+HEAD:tests/cli/test_install_mcp_tavily.py:37:    entry = install_mcp.MCP_SERVERS["tavily"]
+HEAD:tests/cli/test_install_mcp_tavily.py:38:    assert entry["command"] == f"npx -y tavily-mcp@{install_mcp.TAVILY_MCP_VERSION}"
+HEAD:tests/cli/test_install_mcp_tavily.py:45:    entry = install_mcp.MCP_SERVERS["tavily"]
+HEAD:tests/cli/test_install_mcp_tavily.py:74:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_tavily.py:75:    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
+HEAD:tests/cli/test_install_mcp_tavily.py:76:    monkeypatch.setattr(install_mcp, "prompt_for_api_key", lambda *a, **k: dummy_key)
+HEAD:tests/cli/test_install_mcp_tavily.py:87:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:88:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:116:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:117:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:143:    install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:144:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:175:    """Drive the *already-installed* branch of install_mcp_server deterministically.
+HEAD:tests/cli/test_install_mcp_tavily.py:194:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_tavily.py:195:    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: True)
+HEAD:tests/cli/test_install_mcp_tavily.py:196:    monkeypatch.setattr(install_mcp, "prompt_for_api_key", lambda *a, **k: dummy_key)
+HEAD:tests/cli/test_install_mcp_tavily.py:203:    This is the core regression: ``install_mcp_server`` must NOT name-idempotently skip an
+HEAD:tests/cli/test_install_mcp_tavily.py:208:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:209:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:239:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:240:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:256:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:257:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=True
+HEAD:tests/cli/test_install_mcp_tavily.py:283:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:284:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:296:        install_mcp._parse_mcp_get_command('  Command: npx\n  Args: -y "oops\n') is None
+HEAD:tests/cli/test_install_mcp_tavily.py:312:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:313:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:334:    ok = install_mcp.install_mcp_server(
+HEAD:tests/cli/test_install_mcp_tavily.py:335:        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+HEAD:tests/cli/test_install_mcp_tavily.py:357:    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+HEAD:tests/cli/test_install_mcp_tavily.py:359:        install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.22"
+HEAD:tests/cli/test_install_mcp_tavily.py:366:        install_mcp._parse_mcp_get_scope("  Scope: User config (all projects)\n")
+HEAD:tests/cli/test_install_mcp_tavily.py:369:    assert install_mcp._parse_mcp_get_scope("  Scope: Project config\n") == "project"
+HEAD:tests/cli/test_install_mcp_tavily.py:370:    assert install_mcp._parse_mcp_get_scope("  Scope: Local config\n") == "local"
+HEAD:tests/cli/test_install_mcp_tavily.py:371:    assert install_mcp._parse_mcp_get_scope("  Type: stdio\n") is None
+HEAD:tests/cli/test_install_mcp_tavily.py:377:    entry = install_mcp.MCP_SERVERS["tavily"]
+HEAD:tests/cli/test_install_mcp_tavily.py:468:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_tavily.py:490:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:503:    assert install_mcp.install_codebase_memory_mcp()[0]
+HEAD:tests/cli/test_install_mcp_tavily.py:520:    assert install_mcp.install_codebase_memory_mcp()[0]
+HEAD:tests/cli/test_install_mcp_tavily.py:546:    assert install_mcp.install_codebase_memory_mcp()[0]
+HEAD:tests/cli/test_install_mcp_tavily.py:569:    assert install_mcp.install_codebase_memory_mcp()[0]
+HEAD:tests/cli/test_install_mcp_tavily.py:594:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:610:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:620:    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (True, None)
+HEAD:tests/cli/test_install_mcp_tavily.py:624:    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (
+HEAD:tests/cli/test_install_mcp_tavily.py:634:    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (False, None)
+HEAD:tests/cli/test_install_mcp_tavily.py:640:    success, message = install_mcp.install_codebase_memory_mcp(scope=scope)
+HEAD:tests/cli/test_install_mcp_tavily.py:659:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_tavily.py:660:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:677:        install_mcp,
+HEAD:tests/cli/test_install_mcp_tavily.py:681:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:698:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:709:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:719:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:732:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:741:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:748:    assert install_mcp.install_codebase_memory_mcp()[0]
+HEAD:tests/cli/test_install_mcp_tavily.py:765:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:778:    original = install_mcp._run_command
+HEAD:tests/cli/test_install_mcp_tavily.py:789:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_tavily.py:790:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:808:    original = install_mcp._run_command
+HEAD:tests/cli/test_install_mcp_tavily.py:817:    monkeypatch.setattr(install_mcp, "_run_command", run)
+HEAD:tests/cli/test_install_mcp_tavily.py:818:    success, message = install_mcp.install_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:827:    success, message = install_mcp.install_codebase_memory_mcp(dry_run=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:848:        install_mcp.click,
+HEAD:tests/cli/test_install_mcp_tavily.py:888:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:918:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:936:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:951:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:963:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:970:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:980:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:988:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:1002:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:1013:    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:1025:    success, message = install_mcp.uninstall_codebase_memory_mcp()
+HEAD:tests/cli/test_install_mcp_tavily.py:1034:    success, message = install_mcp.uninstall_codebase_memory_mcp(dry_run=True)
+HEAD:tests/cli/test_install_mcp_tavily.py:1050:    success, message = install_mcp.uninstall_codebase_memory_mcp(
+HEAD:tests/cli/test_update_command.py:28:_NATIVE_INSTALLER = "superclaude.cli.install_mcp.install_codebase_memory_mcp"
+HEAD:tests/cli/test_update_command.py:34:    from superclaude.cli import install_mcp, install_user_setup
+HEAD:tests/cli/test_update_command.py:50:    monkeypatch.setattr(install_mcp, "install_codebase_memory_mcp", phase)
+HEAD:tests/cli/test_update_command.py:53:        install_mcp, "read_user_mcp_entry", lambda name: (state.known, state.entry)
+HEAD:tests/cli/test_update_command.py:64:        install_mcp, "_run_command", lambda *a, **k: pytest.fail("real Claude CLI")
+HEAD:tests/docs/test_tavily_doc_alignment.py:113:    The canonical value lives in `install_mcp.py` and `src/superclaude/mcp/MCP_Tavily.md`;
+HEAD:tests/unit/test_cli_install.py:149:MCP_Airis-Agent.md MCP_Auggie.md MCP_Context7.md MCP_Mindbase.md MCP_Morphllm.md
+HEAD:tests/unit/test_cli_install.py:151:configs/airis-agent.json configs/auggie.json configs/context7.json
+HEAD:tests/unit/test_cli_install.py:152:configs/mindbase.json configs/morphllm.json configs/playwright.json

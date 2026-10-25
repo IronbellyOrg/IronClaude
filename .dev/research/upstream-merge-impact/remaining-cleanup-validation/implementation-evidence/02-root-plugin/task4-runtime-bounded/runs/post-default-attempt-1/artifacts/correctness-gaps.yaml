@@ -1,0 +1,7 @@
+# Advisory, non-gating (refs/deviation-taxonomy.md "Correctness-gap"); spec silent
+- hunk_ref: "src/greeting.py:2"
+  correctness_gap: "`if not name` rejects every falsy value (None, 0, []) and accepts whitespace-only names; R-002 (spec.md:9) defines only 'empty name'"
+  siblings: [greet guard, R-002]
+  why_advisory: "Spec silent on None/whitespace/non-string input; no documented invariant"
+  next_evidence_needed: "Spec criterion defining valid name input"
+  owner: user

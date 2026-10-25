@@ -1,0 +1,10 @@
+input_tree_sha256: 1ada46a4c536d2a6d78013a5f3ac6730a449715df5c19e7ef4db7b034201d7d5
+file_count: 3
+file_list:
+  - path: execution.log
+    sha256: db52c076e3eccc09207806f3620bce1750d834f7cbc01259484cf8bddc51db52
+  - path: src/greeting.py
+    sha256: 6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35
+  - path: tests/test_greeting.py
+    sha256: 6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4
+tree_basis: task_log + depth-1 log-referenced paths (src/greeting.py in --scope; tests/test_greeting.py log-declared). No spec/tasklist/diff supplied. Output root outside work-unit: exclusion no-op.

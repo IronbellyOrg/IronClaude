@@ -7,7 +7,7 @@ mcp-servers: [playwright]
 personas: [devops-engineer]
 ---
 
-# /sc:sc:sc:build - Project Building and Packaging
+# /sc:sc-build - Project Building and Packaging
 
 ## Triggers
 - Project compilation and packaging requests for different environments
@@ -17,7 +17,7 @@ personas: [devops-engineer]
 
 ## Usage
 ```
-/sc:sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
+/sc:sc-build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
 ```
 
 ## Behavioral Flow
@@ -55,28 +55,28 @@ Key behaviors:
 
 ### Standard Project Build
 ```
-/sc:sc:build
+/sc:sc-build
 # Builds entire project using default configuration
 # Generates artifacts and comprehensive build report
 ```
 
 ### Production Optimization Build
 ```
-/sc:sc:build --type prod --clean --optimize
+/sc:sc-build --type prod --clean --optimize
 # Clean production build with advanced optimizations
 # Minification, tree-shaking, and deployment preparation
 ```
 
 ### Targeted Component Build
 ```
-/sc:sc:build frontend --verbose
+/sc:sc-build frontend --verbose
 # Builds specific project component with detailed output
 # Real-time progress monitoring and diagnostic information
 ```
 
 ### Development Build with Validation
 ```
-/sc:sc:build --type dev --validate
+/sc:sc-build --type dev --validate
 # Development build with Playwright validation
 # UI testing and build verification integration
 ```

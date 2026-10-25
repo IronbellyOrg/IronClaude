@@ -1,0 +1,29 @@
+# Wave 1B UC-2 task-log -> on-disk-work map (orchestrator, native Read; --no-mcp)
+gold_standard_reference: none-supplied   # no --spec, no --tasklist; task log is executor narrative only
+diff_source: task-log                     # repo has no commits; no git diff possible
+hunks:
+  - id: H-1
+    path: src/greeting.py
+    range: "1-4"
+    kind: new-file (untracked)
+    in_scope: true
+    mapped_log_items: [T-101, T-102]
+  - id: H-2
+    path: tests/test_greeting.py
+    range: "1-13"
+    kind: new-file (untracked)
+    in_scope: false            # outside --scope src; included as task-log-declared linked evidence (T-103)
+    mapped_log_items: [T-103]
+log_items:
+  - {id: T-101, log_ref: "execution.log:2", claim: "created src/greeting.py", evidence: "src/greeting.py:1-4", verified_by_read: true}
+  - {id: T-102, log_ref: "execution.log:3", claim: "empty names raise ValueError", evidence: "src/greeting.py:2-3", verified_by_read: true}
+  - {id: T-103, log_ref: "execution.log:4", claim: "tests for ordinary and empty-name cases", evidence: "tests/test_greeting.py:4-13", verified_by_read: true}
+structural_signals: {S_scope: 2, S_domains: 2, S_domains_set: [code, tests], S_dev_density: 0.0, unmapped_hunks: 0, total_hunks: 2}
+tasklist_completion_pct: 1.0   # 3/3 log-declared items have matching on-disk content; NOT verified against an independent tasklist
+runtime_surface: {tagged: [], note: "greet is a plain undecorated module function (src/greeting.py:1); no runtime-surface kind -> sweep not run"}
+reachability: {gate_ran: false, skip_reason: spec-and-tasklist-absent}
+reuse_sweep:
+  method: inline-grep-skeleton (degraded; --no-mcp, auggie unavailable)
+  candidates: ["greet (src/greeting.py:1)"]
+  neighbours_found: 0      # only definition is src/greeting.py:1; tests/test_greeting.py:1 is a consumer import
+  findings_capped_at: L2

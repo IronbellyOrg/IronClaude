@@ -1,0 +1,15 @@
+{
+  "snapshot": "053b75664c8979bf223b8040f68310dce882d05b",
+  "revised_report_sha256": "af3d8e8d9833a6361269267529891089d59bfd251ec7c489a7895e43fc12a66c",
+  "no_placeholders": true,
+  "manual_automatic_distinction": true,
+  "manual_service_availability_unverified": true,
+  "mismatch_anchored_repository_instructions": true,
+  "december_manual_guidance_kept": true,
+  "january_instruction_partial": true,
+  "exact_rename_described": true,
+  "obsolete_duplicate_description_absent": true,
+  "all_nine_records_named": true,
+  "rename_summary": "rename docs/{User-Guide => user-guide}/mcp-installation.md (100%)",
+  "primary_sources_unchanged": true
+}

@@ -1,0 +1,22 @@
+findings:
+  - id: GG-1
+    hunk_ref: "src/greeting.py:2-3"
+    evidence_missing: "R-002 requirement text / acceptance criteria; log gives only 'empty names raise ValueError' (execution.log:3); message 'name required' unspecified in any supplied input"
+    why_not_classifiable: "Conformance of `if not name` falsy semantics (rejects None/0/[]; accepts whitespace-only) and the message string to R-002 cannot be judged without the spec"
+    next_evidence_needed: "Supply the R-002 spec/tasklist text or confirm intended semantics (empty only vs blank/None) and any required message"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "tests/test_greeting.py:1"
+    evidence_missing: "No verification result: execute_shell_command unavailable under --no-mcp (verification_skip_reason: tool-unavailable); log disclaims execution (execution.log:5); no pytest config found in audit_repo_root"
+    why_not_classifiable: "Collection/pass-fail unknown; Regression detection degraded to the task-log claim, which makes no test claim"
+    next_evidence_needed: "Approved pytest run from audit_repo_root with exit code recorded (1=Regression, 2/3=Grounding Gap, 5=Drift/coverage)"
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-3
+    hunk_ref: "execution.log:1-5"
+    evidence_missing: "Gold-standard spec/tasklist not supplied (--spec/--tasklist absent); executor log is narrative, not gold standard"
+    why_not_classifiable: "Authorized/Necessary/Drift cannot be distinguished from conformant work without a gold standard"
+    next_evidence_needed: "Re-run with --spec and/or --tasklist naming the authoritative R-001..R-003 source"
+    owner: user
+    decision_needed_by_user: true

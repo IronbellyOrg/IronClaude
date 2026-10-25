@@ -1,0 +1,9 @@
+COMMAND git diff --no-ext-diff --find-renames 86a26333912b09a98fab1d9a81c0cd23e404f224 d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d -- VERSION
+RETURN 0
+diff --git a/VERSION b/VERSION
+index 9edf2a44..a7c00da3 100644
+--- a/VERSION
++++ b/VERSION
+@@ -1 +1 @@
+-4.1.7
++4.1.8

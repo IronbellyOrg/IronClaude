@@ -1,0 +1,14 @@
+CLAUDE.md | exists=True
+README.md | exists=True
+docs/Development/install-process-analysis.md | exists=False
+docs/User-Guide/mcp-installation.md | exists=False
+docs/capability-mapping-v5.md | exists=False
+docs/reference/comprehensive-features.md | exists=False
+docs/user-guide/mcp-servers.md | exists=True
+setup/components/mcp.py | exists=False
+src/superclaude/cli/install_mcp.py | exists=True
+src/superclaude/cli/main.py | exists=True
+src/superclaude/mcp/MCP_Airis-Agent.md | exists=True
+src/superclaude/mcp/MCP_Mindbase.md | exists=True
+src/superclaude/mcp/configs/airis-agent.json | exists=True
+src/superclaude/mcp/configs/mindbase.json | exists=True

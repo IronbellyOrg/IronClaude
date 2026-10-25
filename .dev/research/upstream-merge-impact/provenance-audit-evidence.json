@@ -1,0 +1,391 @@
+{
+  "head": "053b75664c8979bf223b8040f68310dce882d05b",
+  "reachable_commits": 973,
+  "window_commits": 679,
+  "named_merges": [
+    {
+      "sha": "1e8c6e1622e157f36f44792e41f667399edb2a79",
+      "parents": [
+        "e60e844ed733069398516d00f4b0af5597fbf9ce",
+        "b061b2f7b00ca33d66c10b666c15016873b2e094"
+      ],
+      "authored": "2026-03-06T10:22:09-05:00",
+      "committed": "2026-03-06T10:22:09-05:00",
+      "name": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "body": "Merge branch 'SuperClaude-Org:master' into master"
+    },
+    {
+      "sha": "0ceb29553c2ba42efc3c55d1ec9402f8087b7773",
+      "parents": [
+        "f3ba7c21cb3fb68d2fae4f1be13cffbe88312555",
+        "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+      ],
+      "authored": "2026-02-13T16:54:27-05:00",
+      "committed": "2026-02-13T16:54:27-05:00",
+      "name": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "body": "Merge branch 'SuperClaude-Org:master' into master"
+    }
+  ],
+  "upstream_count": 47,
+  "sync_count": 5,
+  "inventory_upstream_matches": true,
+  "inventory_sync_matches": true,
+  "all_54_records_assigned_once": true,
+  "path_list_mismatches": [],
+  "nonfork_outside_upstream_and_sync": [
+    {
+      "sha": "51a8e11840bdce59a41379bc0159ecc4f3765469",
+      "parents": [
+        "f64ea624546e808801f62d0558f24ca6a9218a7b"
+      ],
+      "authored": "2026-05-17T02:58:39+00:00",
+      "committed": "2026-05-17T02:58:39+00:00",
+      "name": "Claude",
+      "email": "noreply@anthropic.com",
+      "subject": "feat(skills): add sc-crash-recovery for post-crash work-state diagnosis",
+      "body": "feat(skills): add sc-crash-recovery for post-crash work-state diagnosis\n\nFans parallel subagents across pipeline artifacts, recent Claude Code session\nlogs, serena memory, git status, and auggie semantic sweeps to produce a\nstructured \"where was I, what's in-flight, what to resume\" report.\n\nBuilt per Developer Guide patterns: allowed-tools safety boundary, refs/ for\nlazy-loaded reference material, STOP-on-invalid-input contract, and explicit\ntool-failure fallback matrix. Read-only diagnosis \u2014 proposes resume commands\nbut never executes them.\n\nPipeline knowledge covers PRD, TDD, spec/research, roadmap, tasklist, sprint,\nand MDTM task layouts with their canonical resume idioms.\n\nSupports single-project mode (default, current cwd) and fleet sweep across\nall /config/workspace/ projects with --all flag.\n\nCo-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
+    },
+    {
+      "sha": "93cb9758e3638fe395663bcef255f6151bed0779",
+      "parents": [
+        "ef4dfd5fb8409438c01b08c180be6c4af51f4f58"
+      ],
+      "authored": "2026-02-01T04:52:16+00:00",
+      "committed": "2026-02-01T04:52:16+00:00",
+      "name": "Claude",
+      "email": "noreply@anthropic.com",
+      "subject": "feat(commands): add review-translation command for localization QA",
+      "body": "feat(commands): add review-translation command for localization QA\n\nAdds comprehensive localization review command with:\n- Chain of thought context analysis (audience, use case, tone)\n- Parallel sub-agent deployment for multi-file review\n- Adversarial validation with research-backed evidence\n- Individual per-language reports with scoring matrix\n- Project summary with prioritized task list\n- Implementation path for applying fixes\n\nhttps://claude.ai/code/session_01JhPm26WEUV15d8rT1irmYZ"
+    }
+  ],
+  "bots_in_window": [
+    {
+      "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+      "parents": [
+        "c13a3dde7040336087fea5ada7e79dd4599d024f"
+      ],
+      "authored": "2026-09-27T16:29:46+00:00",
+      "committed": "2026-09-27T16:29:46+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-27 16:29]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-09-27 16:29]"
+    },
+    {
+      "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+      "parents": [
+        "64b1bb4483397f2aee1f8a9b15205644c57b87ea"
+      ],
+      "authored": "2026-09-15T03:37:59+00:00",
+      "committed": "2026-09-15T03:37:59+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-15 03:37]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-09-15 03:37]"
+    },
+    {
+      "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+      "parents": [
+        "c1621ae663af3ed4abff1b56f6dfaf83e9137040"
+      ],
+      "authored": "2026-08-21T06:44:16+00:00",
+      "committed": "2026-08-21T06:44:16+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-08-21 06:44]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-08-21 06:44]"
+    },
+    {
+      "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+      "parents": [
+        "70a7bc592b128d05971b0b7fe2c41df33d522cd3"
+      ],
+      "authored": "2026-07-22T08:28:18+00:00",
+      "committed": "2026-07-22T08:28:18+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-07-22 08:28]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-07-22 08:28]"
+    },
+    {
+      "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+      "parents": [
+        "abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4"
+      ],
+      "authored": "2026-05-17T08:21:23+00:00",
+      "committed": "2026-05-17T08:21:23+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-05-17 08:21]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-05-17 08:21]"
+    }
+  ],
+  "author_outside_committer_window": [],
+  "committer_outside_author_window": [],
+  "upstream_keyword_nonupstream": [
+    {
+      "sha": "d23c161aa0da404037a8c41f3cde21efa6c1f4d7",
+      "parents": [
+        "82aca3617fd335183d8551b90d7a0ca632562bad"
+      ],
+      "authored": "2026-10-22T11:23:27+00:00",
+      "committed": "2026-10-22T18:43:15+00:00",
+      "name": "Ryan wiancko",
+      "email": "ryan@ironbelly.com",
+      "subject": "fix(mcp): restore registration after failed remove; re-acquire after partial upstream install",
+      "body": "fix(mcp): restore registration after failed remove; re-acquire after partial upstream install\n\n- install_mcp: when `claude mcp remove` fails (it may have persisted the\n  deletion before exiting nonzero or timing out), restore the captured\n  previous user entry instead of reporting \"no replacement was attempted\".\n  Restoration only re-adds our own captured entry; a third party's entry is\n  never removed. Reports \"intact\" or \"restoration failed\" distinctly.\n- install_codebase_memory: write a private pending marker before the upstream\n  install stage and clear it only after the acquisition receipt is written.\n  A canonical binary with the marker is re-acquired instead of reused, so a\n  retry after a partial upstream run completes setup and records ownership.\n  Pre-existing/manual and external binaries are still reused without\n  adoption; an untrusted marker fails closed.\n- Regression tests for both, including persist-then-fail removes and\n  place-then-fail upstream runs.\n\nAddresses Augment review on PR #275.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
+    },
+    {
+      "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+      "parents": [
+        "c13a3dde7040336087fea5ada7e79dd4599d024f"
+      ],
+      "authored": "2026-09-27T16:29:46+00:00",
+      "committed": "2026-09-27T16:29:46+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-27 16:29]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-09-27 16:29]"
+    },
+    {
+      "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+      "parents": [
+        "64b1bb4483397f2aee1f8a9b15205644c57b87ea"
+      ],
+      "authored": "2026-09-15T03:37:59+00:00",
+      "committed": "2026-09-15T03:37:59+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-15 03:37]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-09-15 03:37]"
+    },
+    {
+      "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+      "parents": [
+        "c1621ae663af3ed4abff1b56f6dfaf83e9137040"
+      ],
+      "authored": "2026-08-21T06:44:16+00:00",
+      "committed": "2026-08-21T06:44:16+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-08-21 06:44]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-08-21 06:44]"
+    },
+    {
+      "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+      "parents": [
+        "70a7bc592b128d05971b0b7fe2c41df33d522cd3"
+      ],
+      "authored": "2026-07-22T08:28:18+00:00",
+      "committed": "2026-07-22T08:28:18+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-07-22 08:28]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-07-22 08:28]"
+    },
+    {
+      "sha": "f333cdf107405939cec92247b527012314f6d3fe",
+      "parents": [
+        "16fd657d3bfb9d44ce55646480f592ad4d34c82e"
+      ],
+      "authored": "2026-05-20T02:25:19-04:00",
+      "committed": "2026-05-20T02:25:19-04:00",
+      "name": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "fix(prd): align gates.py research-notes schema with upstream prompt (#62)",
+      "body": "fix(prd): align gates.py research-notes schema with upstream prompt (#62)\n\nThe PRD pipeline gate hard-coded a 7-name section list that did not match\nwhat the prompt instructs the agent to emit, causing every\n`superclaude prd run` invocation to halt at the step-4 gate. The upstream\nskill at src/superclaude/skills/prd/SKILL.md is the source of truth for\nthe EXISTING_FILES schema; the gate's list was a port-time fabrication.\n\nEdits:\n- gates.py: rewrite _RESEARCH_REQUIRED_SECTIONS to the EXISTING_FILES\n  schema (EXISTING_FILES, PATTERNS_AND_CONVENTIONS, FEATURE_ANALYSIS,\n  RECOMMENDED_OUTPUTS, SUGGESTED_PHASES, TEMPLATE_NOTES,\n  AMBIGUITIES_FOR_USER).\n- gates.py: widen _check_suggested_phases_detail regex \\s+ -> [\\s_]+ so\n  the underscore form `## SUGGESTED_PHASES` matches in addition to the\n  space forms.\n- test_gates.py: rewrite TestCheckResearchNotesSections fixture in\n  lockstep with the new schema.\n- test_e2e.py: rewrite the research-notes branch of _make_passing_output\n  so the 5 e2e scenarios that feed mock subprocess output through the\n  real gate continue to pass.\n- test_research_notes_roundtrip.py: new integration test that wires\n  build_research_notes_prompt() output through both check functions to\n  prevent future schema drift.\n\nVerification: focused pytest 15/15, full PRD suite 68/68, ruff clean on\nall four edited files. The halted TUIBBS V1 run resumes via\n`superclaude prd resume sufficiency-review` with $0 re-cost.\n\nCo-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+    },
+    {
+      "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+      "parents": [
+        "abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4"
+      ],
+      "authored": "2026-05-17T08:21:23+00:00",
+      "committed": "2026-05-17T08:21:23+00:00",
+      "name": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-05-17 08:21]",
+      "body": "chore: automated sync and namespace isolation from framework [2026-05-17 08:21]"
+    },
+    {
+      "sha": "4e5e3759b951bf38b64f5c7501e23900cecd6ddd",
+      "parents": [
+        "2f9b721090829b7429598cc670d7e7b40a0ab2c6"
+      ],
+      "authored": "2026-03-23T21:00:26+00:00",
+      "committed": "2026-03-23T21:00:26+00:00",
+      "name": "RyanW",
+      "email": "ryan@ironbelly.com",
+      "subject": "  - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION",
+      "body": "  - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring\n    - Added src/superclaude/cli/audit/reachability.py\n    - Added src/superclaude/cli/roadmap/fidelity_checker.py\n    - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees\n    - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py\n  - test(v3.3): expand wiring, rollout, fidelity, and regression coverage\n    - Extended tests/v3.3/test_wiring_points_e2e.py\n    - Added:\n        - tests/v3.3/test_zero_files_analyzed.py\n      - tests/v3.3/test_broken_wiring_detection.py\n      - tests/v3.3/test_fidelity_checker.py\n      - tests/v3.3/test_gate_rollout_modes.py\n      - tests/v3.3/test_integration_regression.py\n      - tests/v3.3/test_turnledger_lifecycle.py\n    - Updated roadmap convergence tests:\n        - tests/roadmap/test_convergence_e2e.py\n      - tests/roadmap/test_convergence_smoke.py\n      - tests/roadmap/test_convergence_wiring.py\n  - fix(sprint): complete sprint runner/TUI wiring updates\n    - Updated:\n        - src/superclaude/cli/sprint/commands.py\n      - src/superclaude/cli/sprint/config.py\n      - src/superclaude/cli/sprint/executor.py\n      - src/superclaude/cli/sprint/tui.py\n    - Added:\n        - tests/sprint/test_resolve_release_dir.py\n      - tests/sprint/test_tui_task_updates.py\n  - docs(artifacts): record completed v3.3 and v3.6 outputs\n    - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/\n    - Added final/generated artifacts like:\n        - docs/generated/v3.3-wiring-verification-final.md\n      - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050\n    - Added completed workflow doc:\n        - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md\n  - docs(cleanup): remove legacy framework and translated documentation\n    - Deleted large sets of outdated top-level and docs/ content including:\n        - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh\n      - legacy architecture/dev docs\n      - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)\n    - Updated README.md and VERSION\n\n  High-level stats\n\n  - 80 tracked files changed\n  - 3805 insertions\n  - 25203 deletions\n\n  Important note\n\n  This is not one clean logical change set \u2014 it mixes:\n  1. v3.3 TurnLedger validation implementation,\n  2. sprint runner bugfix work,\n  3. generated artifacts,\n  4. broad doc deletions/restructure."
+    },
+    {
+      "sha": "6c84826498b736df6615fa5ef51fce521dfc8dcc",
+      "parents": [
+        "376411f40333a1c217c563a4cd3e5a91f5d926e4"
+      ],
+      "authored": "2026-03-18T02:39:31+00:00",
+      "committed": "2026-03-18T02:39:31+00:00",
+      "name": "RyanW",
+      "email": "ryan@ironbelly.com",
+      "subject": "Prepro to Framework Wide refactor - Release split skill built to split up releases into smaller chunks if value is deemed - Roadmap protocol to CLI gaps identified and ready to be fixed - Organized all 3.x sprints for execution, specs created.",
+      "body": "Prepro to Framework Wide refactor\n- Release split skill built to split up releases into smaller chunks if value is deemed\n- Roadmap protocol to CLI gaps identified and ready to be fixed\n- Organized all 3.x sprints for execution, specs created."
+    },
+    {
+      "sha": "34852699fff4a55593da4a06c34e9410691d1214",
+      "parents": [
+        "2c6e59b737290282ce4f37bf98d7aead08947648"
+      ],
+      "authored": "2026-03-16T02:00:06+00:00",
+      "committed": "2026-03-16T02:00:06+00:00",
+      "name": "RyanW",
+      "email": "ryan@ironbelly.com",
+      "subject": "Phase8 Planning Other planning Cross framework analysis complete",
+      "body": "Phase8 Planning\nOther planning\nCross framework analysis complete"
+    },
+    {
+      "sha": "1e8c6e1622e157f36f44792e41f667399edb2a79",
+      "parents": [
+        "e60e844ed733069398516d00f4b0af5597fbf9ce",
+        "b061b2f7b00ca33d66c10b666c15016873b2e094"
+      ],
+      "authored": "2026-03-06T10:22:09-05:00",
+      "committed": "2026-03-06T10:22:09-05:00",
+      "name": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "body": "Merge branch 'SuperClaude-Org:master' into master"
+    },
+    {
+      "sha": "0ceb29553c2ba42efc3c55d1ec9402f8087b7773",
+      "parents": [
+        "f3ba7c21cb3fb68d2fae4f1be13cffbe88312555",
+        "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+      ],
+      "authored": "2026-02-13T16:54:27-05:00",
+      "committed": "2026-02-13T16:54:27-05:00",
+      "name": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "body": "Merge branch 'SuperClaude-Org:master' into master"
+    },
+    {
+      "sha": "de177847a83acbd5a1633684cf1f34861fc8305d",
+      "parents": [
+        "430948a6f3cb5b16adc25b33442ed6d36523d700"
+      ],
+      "authored": "2026-02-13T20:50:26+00:00",
+      "committed": "2026-02-13T20:50:26+00:00",
+      "name": "RyanW",
+      "email": "ryan@ironbelly.com",
+      "subject": "feat(v1.05): add core framework file installation to superclaude install",
+      "body": "feat(v1.05): add core framework file installation to superclaude install\n\nPreviously, `superclaude install` only copied slash commands to\n~/.claude/commands/sc/. Core framework files (CLAUDE.md, PERSONAS.md,\nORCHESTRATOR.md, etc.) had no distribution mechanism.\n\n- Create install_core.py with install/list/verify functions for core files\n- Update CLI install command to copy core files to ~/.claude/ before commands\n- Update CLI update command to also refresh core framework files\n- Add --list mode showing both core files and slash commands\n- Copy all 6 compressed v1.05 core files to src/superclaude/core/\n- Update install.sh messaging for combined framework + commands install\n\nThis ensures fresh installs get the 50.5% token reduction from v1.05.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+    }
+  ],
+  "cherry_pick_trailers": [],
+  "reverse_counts": {
+    "1": 48,
+    "0": 5,
+    "128": 1
+  },
+  "reverse_empty": [
+    {
+      "unit": "mcp-installation",
+      "sha": "67449770c0157372f276c16f99f0a935de1b1125",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 128,
+      "stdout": "",
+      "stderr": "error: No valid patches in input (allow with \"--allow-empty\")\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    }
+  ],
+  "first_fork_parent": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+  "pending_sync_ancestor_of_HEAD": false,
+  "pending_sync_ancestor_of_origin/master": false,
+  "pending_sync_ancestor_of_origin/sync/framework": true,
+  "endpoint_audit": [
+    {
+      "unit": "foundation-migration",
+      "count": 269,
+      "manifest_matches": true,
+      "extra_over_default": [
+        "docs/User-Guide/mcp-installation.md"
+      ]
+    },
+    {
+      "unit": "installer-packaging",
+      "count": 76,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "quality-ci",
+      "count": 26,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "docs-memory-releases",
+      "count": 30,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "commands-framework",
+      "count": 217,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "mcp-installation",
+      "count": 14,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "sync-protection",
+      "count": 2,
+      "manifest_matches": true,
+      "extra_over_default": []
+    },
+    {
+      "unit": "automated-sync-copies",
+      "count": 54,
+      "manifest_matches": true,
+      "extra_over_default": []
+    }
+  ],
+  "all_endpoint_count": 563,
+  "base_upstream_count": 45,
+  "upstream_not_in_original_base": [
+    "55c658c77f88c538cf9d90a3736c1b24f8f64f44",
+    "b061b2f7b00ca33d66c10b666c15016873b2e094"
+  ],
+  "upstream_author_counts": {
+    "Utakata": 3,
+    "Yuxin Liu": 1,
+    "Sergei Frolov": 4,
+    "kazuki nakai": 5,
+    "smartdddlab": 1,
+    "kazuki": 2,
+    "Gurdas Nijor": 1,
+    "mithun50": 27,
+    "BlackBear": 1,
+    "Baran Acar": 1,
+    "Cedric Hurst": 1
+  },
+  "shallow": "false",
+  "named_merge_net_paths": {
+    "1e8c6e1622e157f36f44792e41f667399edb2a79": [
+      ".github/workflows/pull-sync-framework.yml",
+      "scripts/sync_from_framework.py"
+    ],
+    "0ceb29553c2ba42efc3c55d1ec9402f8087b7773": [
+      "src/superclaude/cli/install_mcp.py"
+    ]
+  }
+}

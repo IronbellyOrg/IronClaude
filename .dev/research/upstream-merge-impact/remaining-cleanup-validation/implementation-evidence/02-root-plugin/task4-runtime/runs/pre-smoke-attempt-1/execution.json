@@ -1,0 +1,204 @@
+{
+  "case": "pre-smoke",
+  "attempt": "1",
+  "state": "exited",
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/plugin",
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--model",
+    "opus",
+    "--permission-mode",
+    "bypassPermissions",
+    "--no-session-persistence",
+    "--tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--append-system-prompt",
+    "This is an authorized isolated plugin-only audit. The synthetic audited repository is /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project, not your empty launch cwd. Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. Write only under the requested safe output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/artifacts; when the actual --output is forbidden, refuse without creating it. Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources.",
+    "/sc:sc-reflect --mode pre --spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md --tasklist /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/proposed.md --tier 1 --no-mcp --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/artifacts"
+  ],
+  "cwd": "/tmp/ironclaude-reflect-runtime-ey32nhi4",
+  "environment": {
+    "PATH": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin:/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/home/.config"
+  },
+  "provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "framework_executable_absent": true,
+  "runtime_tools_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin/uv\n/usr/bin/git\n",
+  "timeout_seconds": 1800,
+  "started_monotonic": 2163143.257221517,
+  "returncode": 0,
+  "duration_seconds": 502.8781725666486,
+  "changed_plugin_files": [],
+  "changed_audit_inputs": [],
+  "native_result": {
+    "duration_api_ms": 501259,
+    "stop_reason": "end_turn",
+    "session_id": "f3b1d4a5-a7a8-4488-8392-00c2e0df0076",
+    "total_cost_usd": 3.7768496000000007,
+    "usage": {
+      "input_tokens": 46,
+      "cache_creation_input_tokens": 208686,
+      "cache_read_input_tokens": 3716832,
+      "output_tokens": 32686,
+      "output_tokens_details": {
+        "thinking_tokens": 5000
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 208686,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1361,
+          "cache_read_input_tokens": 204021,
+          "cache_creation_input_tokens": 4665,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 4665
+          },
+          "type": "message",
+          "model": null
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5-5[1m]": {
+        "inputTokens": 52,
+        "outputTokens": 37933,
+        "cacheReadInputTokens": 3738254,
+        "cacheCreationInputTokens": 227672,
+        "webSearchRequests": 0,
+        "costUSD": 3.2709368000000003,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 6874,
+        "canonicalModel": "claude-opus-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "claude-sonnet-5-5[1m]": {
+        "inputTokens": 8,
+        "outputTokens": 17703,
+        "cacheReadInputTokens": 30425,
+        "cacheCreationInputTokens": 39826,
+        "webSearchRequests": 0,
+        "costUSD": 0.282696,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 1626,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "grok-4.7[1m]": {
+        "inputTokens": 14984,
+        "outputTokens": 8077,
+        "cacheReadInputTokens": 8704,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.2232168,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 6469,
+        "canonicalModel": "grok-4.7[1m]",
+        "provider": "firstParty",
+        "costBasis": "unknown"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 4,
+      "requested": {
+        "background": 0,
+        "foreground": 4,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 1,
+      "spawned_by_subagents": 0,
+      "completed": 4,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {
+        "sc:sc-requirements-analyst": 1,
+        "sc:sc-root-cause-analyst": 1,
+        "sc:confidence-calibrator": 1,
+        "sc:evidence-validator": 1
+      }
+    },
+    "is_error": false,
+    "num_turns": 25,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "The pre-execution audit finished with **status: success** at Tier 1. The plan covers every requirement in the spec, but it's too vague to hand to an executor as written.\n\n**Artifacts** (under `runs/pre-smoke-attempt-1/artifacts/`):\n- Report: `REPORT.md`\n- Contract: `return-contract.yaml` (written as JSON, which is valid YAML)\n- Also there: `audit.log`, `reflection-card.yaml`, `calibration/t1-calibration.md`, `evidence-validation.md`, `confidence-check.md`, `metrics.json`, `REPORT.draft.md`, plus `artifacts/{input-snapshot,coverage-matrix,tier_decision}.yaml`. The doubled `artifacts/artifacts/` path comes from your output directory also being named `artifacts`.\n\n**Result**\n- **Mode and tier:** pre, set by `--mode pre`. Tier 1 was pinned by `--tier 1`; the scoring rules would have stopped at Tier 1 anyway.\n- **Coverage:** 1.00. R-001, R-002 and R-003 each map to exactly one task (T-101, T-102, T-103). No requirements are unmapped and no extra inferred requirements turned up. Best-practice grade is 3/5.\n- **Calibrated confidence: 0.93.** A separate calibrator on the opus slot scored the reflection card without seeing how it was produced (0.92 / 1.00 / 0.90 / 0.90 / 0.92). The card came from the root-cause analyst on the sonnet slot, so the calibrator and author were different model classes.\n- **Citations:** 13 total, 13 verified, 0 dropped, 4 tagged as inferred. The evidence check ran on the haiku slot, which this environment maps to `grok-4.7[1m]`. A zero-drop result is logged as a flag for spot-checking, not as proof the report is clean.\n- **Deviation classes:** not applicable in pre mode, since nothing has been executed. All counts are 0.\n\n**Gaps found (all specificity, none in coverage):**\n- **High:** T-101 never states the exact string \"Hello, Ada!\", so a hard-coded stub would pass.\n- **High:** \"empty\" is undefined in both spec and plan (whitespace-only? `None`?).\n- **Medium:** T-103 doesn't say what the tests should assert.\n- **Medium:** no task names a file or a verification command.\n- **Low:** no ordering between tasks.\n\nThe report has five recommendations (R-01..R-05), each with a file, a change and a way to verify it. R-03's `pytest.raises` is marked `[UNVERIFIED]` because neither input names a test framework.\n\n**What was skipped or degraded**\n- **MCP tools:** off because of `--no-mcp`. Grounding used plain file reads only. No Serena or auggie symbol lookup, checkpoint prompts, memory read/write, or external best-practice lookup was done.\n- **Executor model class:** not identified.\n- **Structural checks:** the evidence checker's A1\u2013A10 assertions weren't run, because only citations were in scope.\n- **Cross-run log:** the append to `.dev/reflect/runs.jsonl` was skipped because it's outside the permitted output directory.\n- **Merge:** there was no reviewer merge at Tier 1. `merge_method` is `null` with a note in the contract, because neither of its two legal values applies.\n- **No reviewers:** no Tier-2 reviewers, snapshot or adversarial merge.\n\n**Promotion and remediation:** promotion was not applicable (`--no-promote`, and pre-mode audits can't be promoted). Remediation was not offered because `--remediate` wasn't passed.\n\nNothing was written outside the output directory. The fixture repo still shows only its original untracked files, with nothing staged or committed.",
+    "ttft_ms": 5943,
+    "type": "result",
+    "duration_ms": 502383,
+    "uuid": "5ef08883-9957-4bc7-bdf8-c8c56d064d37",
+    "ttft_stream_ms": 5095,
+    "time_to_request_ms": 111,
+    "first_content_frame_ms": 5096,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "artifact_files": [
+    "execution.json",
+    "stderr.txt",
+    "role-and-tool-calls.json",
+    "native-init.json",
+    "stdout.jsonl",
+    "artifacts/confidence-check.md",
+    "artifacts/REPORT.md",
+    "artifacts/REPORT.draft.md",
+    "artifacts/metrics.json",
+    "artifacts/evidence-validation.md",
+    "artifacts/reflection-card.yaml",
+    "artifacts/audit.log",
+    "artifacts/return-contract.yaml",
+    "artifacts/artifacts/tier_decision.yaml",
+    "artifacts/artifacts/coverage-matrix.yaml",
+    "artifacts/artifacts/input-snapshot.yaml",
+    "artifacts/calibration/t1-calibration.md"
+  ]
+}

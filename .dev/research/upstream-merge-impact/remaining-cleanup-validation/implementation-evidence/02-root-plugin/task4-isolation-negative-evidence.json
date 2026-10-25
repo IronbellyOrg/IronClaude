@@ -1,0 +1,18 @@
+{
+  "case": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-default-attempt-1",
+  "state": "timeout",
+  "outside_resource_reads": [
+    {
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/pyproject.toml",
+      "tool_returned_error": false,
+      "parent_agent_type": "general-purpose",
+      "parent_description": "Round 2.5 invariant probe fault-finder",
+      "assignment_contains_explicit_audit_repo_root": false,
+      "assignment_mentions_fixture_project": false,
+      "assignment_sha256": "baf75c962c966348e8863061d66c0ee93e4f2acf4d7b81c376959bfdd73a3f40",
+      "assignment_excerpt": "ROUND 2.5: INVARIANT PROBE \u2014 FAULT-FINDER AGENT (Skill sc:sc-adversarial-protocol, Mode A, depth standard).\nYou are an independent fault-finder. You are NOT an advocate for any variant. Find invariant violations, boundary-condition errors and hidden assumptions in the EMERGING CONSENSUS. STRICTLY READ-ONLY: use ONLY Read, Grep and Glob; no Bash or shell; write nothing.\n\nAD = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-default-attempt-1/artifacts/adversarial/adversarial\nRead: AD/diff-analysis.md, AD/round-1-statements.md, AD/round-2-rebuttals.md, variants AD/variant-{1,2,3}-original.md. Ground-truth evidence snapshot (no tests were executed by anyone): /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-default-attempt-1/artifacts/reviewer-snapshot/root (spec.md, completed.md, changes.patch, execution.log, src/greeting.py, tests/test_greeting.py, __run_evidence__/artifacts/*). No branch-trace.md artifact exists, so for sufficiency_challenge produce an inline source-file enumeration.\n\nEMERGING CONSENSUS (after Roun"
+    }
+  ],
+  "proof_disposition": "REJECTED: timeout and outside-fixture package metadata read; retained as negative evidence",
+  "replacement_boundary_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/restricted-probe/mechanical-check.json"
+}

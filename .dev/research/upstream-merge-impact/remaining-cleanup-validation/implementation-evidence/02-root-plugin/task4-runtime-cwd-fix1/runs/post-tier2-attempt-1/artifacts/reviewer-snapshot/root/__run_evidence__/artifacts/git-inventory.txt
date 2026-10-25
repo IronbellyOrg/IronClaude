@@ -1,0 +1,9 @@
+# read-only: git -C <audit_repo_root> status --porcelain --untracked-files=all ; git -C <audit_repo_root> rev-parse --verify HEAD
+?? changes.patch
+?? completed.md
+?? execution.log
+?? proposed.md
+?? spec.md
+?? src/greeting.py
+?? tests/test_greeting.py
+rev-parse: fatal: Needed a single revision

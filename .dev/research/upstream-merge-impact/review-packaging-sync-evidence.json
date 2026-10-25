@@ -1,0 +1,2741 @@
+{
+  "head": "053b75664c8979bf223b8040f68310dce882d05b",
+  "tracked_diff": "",
+  "units": [
+    {
+      "unit": "installer-packaging",
+      "commits": 12,
+      "paths": 76,
+      "report_missing_paths": [],
+      "placeholder": false,
+      "results": [
+        {
+          "sha": "8c0559ca9a99a14c7337b48e888959b47dc8acb8",
+          "parent": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+          "paths": [
+            ".github/workflows/README.md",
+            ".github/workflows/quick-check.yml",
+            ".github/workflows/test.yml",
+            ".gitignore",
+            "KNOWLEDGE.md",
+            "PLANNING.md",
+            "README.md",
+            "TASK.md",
+            "package.json",
+            "src/superclaude/cli/install_commands.py",
+            "src/superclaude/cli/main.py",
+            "src/superclaude/pm_agent/token_budget.py",
+            "tests/__init__.py",
+            "tests/conftest.py",
+            "tests/integration/__init__.py",
+            "tests/integration/test_pytest_plugin.py",
+            "tests/unit/__init__.py",
+            "tests/unit/test_cli_install.py",
+            "tests/unit/test_confidence.py",
+            "tests/unit/test_reflexion.py",
+            "tests/unit/test_self_check.py",
+            "tests/unit/test_token_budget.py"
+          ],
+          "stat": " .github/workflows/README.md              | 158 ++++++++\n .github/workflows/quick-check.yml        |  55 +++\n .github/workflows/test.yml               | 173 +++++++++\n .gitignore                               |  10 +-\n KNOWLEDGE.md                             | 602 +++++++++++++++++++++++++++++++\n PLANNING.md                              | 387 ++++++++++++++++++++\n README.md                                |  15 +-\n TASK.md                                  | 345 ++++++++++++++++++\n package.json                             |   2 +-\n src/superclaude/cli/install_commands.py  | 163 +++++++++\n src/superclaude/cli/main.py              |  63 ++++\n src/superclaude/pm_agent/token_budget.py |   6 +-\n tests/__init__.py                        |  10 +\n tests/conftest.py                        | 117 ++++++\n tests/integration/__init__.py            |   5 +\n tests/integration/test_pytest_plugin.py  | 146 ++++++++\n tests/unit/__init__.py                   |   5 +\n tests/unit/test_cli_install.py           | 181 ++++++++++\n tests/unit/test_confidence.py            | 178 +++++++++\n tests/unit/test_reflexion.py             | 182 ++++++++++\n tests/unit/test_self_check.py            | 235 ++++++++++++\n tests/unit/test_token_budget.py          | 128 +++++++\n 22 files changed, 3157 insertions(+), 9 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: tests/unit/test_token_budget.py:1\nerror: tests/unit/test_token_budget.py: patch does not apply\nerror: patch failed: tests/unit/test_self_check.py:1\nerror: tests/unit/test_self_check.py: patch does not apply\nerror: patch failed: tests/unit/test_reflexion.py:1\nerror: tests/unit/test_reflexion.py: patch does not apply\nerror: patch failed: tests/unit/test_confidence.py:1\nerror: tests/unit/test_confidence.py: patch does not apply\nerror: patch failed: tests/unit/test_cli_install.py:1\nerror: tests/unit/test_cli_install.py: patch does not apply\nerror: patch failed: tests/integration/test_pytest_plugin.py:1\nerror: tests/integration/test_pytest_plugin.py: patch does not apply\nerror: patch failed: tests/conftest.py:1\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/cli/main.py:25\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: patch failed: package.json:1\nerror: package.json: patch does not apply\nerror: TASK.md: No such file or directory\nerror: patch failed: README.md:15\nerror: README.md: patch does not apply\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:1\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: .github/workflows/test.yml:1\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\nerror: patch failed: .github/workflows/README.md:1\nerror: .github/workflows/README.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0",
+          "parent": "8c0559ca9a99a14c7337b48e888959b47dc8acb8",
+          "paths": [
+            "README.md",
+            "docs/memory/solutions_learned.jsonl",
+            "docs/mistakes/test_database_connection-2025-11-11.md",
+            "docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md",
+            "docs/mistakes/unknown-2025-11-11.md",
+            "plugins/superclaude/commands/sc.md",
+            "src/superclaude/cli/install_commands.py",
+            "src/superclaude/cli/main.py"
+          ],
+          "stat": " README.md                                          |   9 +-\n docs/memory/solutions_learned.jsonl                |  48 ++++++++\n .../test_database_connection-2025-11-11.md         |  44 +++++++\n ...est_reflexion_with_real_exception-2025-11-11.md |  44 +++++++\n docs/mistakes/unknown-2025-11-11.md                |  44 +++++++\n plugins/superclaude/commands/sc.md                 | 130 +++++++++++++++++++++\n src/superclaude/cli/install_commands.py            |  12 +-\n src/superclaude/cli/main.py                        |   8 +-\n 8 files changed, 325 insertions(+), 14 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: src/superclaude/cli/main.py:46\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: plugins/superclaude/commands/sc.md: No such file or directory\nerror: docs/mistakes/unknown-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_database_connection-2025-11-11.md: No such file or directory\nerror: patch failed: docs/memory/solutions_learned.jsonl:1\nerror: docs/memory/solutions_learned.jsonl: patch does not apply\nerror: patch failed: README.md:125\nerror: README.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "25785363af21849898ca77624aac0b05fc780b94",
+          "parent": "58008c94446386718f036cc402f2dc4e99b3f007",
+          "paths": [
+            "src/superclaude/cli/main.py"
+          ],
+          "stat": " src/superclaude/cli/main.py | 32 ++++++++++++++++++++++++++++++++\n 1 file changed, 32 insertions(+)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: src/superclaude/cli/main.py:89\nerror: src/superclaude/cli/main.py: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "c6e72825b4feb6ba37facabef868865e11c5ae45",
+          "parent": "d11abead403e4de8438f008a468f98ca10e5472e",
+          "paths": [
+            "pyproject.toml",
+            "src/superclaude/commands/README.md",
+            "src/superclaude/commands/agent.md",
+            "src/superclaude/commands/index-repo.md",
+            "src/superclaude/commands/recommend.md",
+            "src/superclaude/commands/research.md",
+            "src/superclaude/commands/sc.md"
+          ],
+          "stat": " pyproject.toml                         |    1 +\n src/superclaude/commands/README.md     |   22 +\n src/superclaude/commands/agent.md      |   71 +++\n src/superclaude/commands/index-repo.md |  165 ++++++\n src/superclaude/commands/recommend.md  | 1005 ++++++++++++++++++++++++++++++++\n src/superclaude/commands/research.md   |  122 ++++\n src/superclaude/commands/sc.md         |  130 +++++\n 7 files changed, 1516 insertions(+)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: src/superclaude/commands/sc.md: No such file or directory\nerror: patch failed: src/superclaude/commands/research.md:1\nerror: src/superclaude/commands/research.md: patch does not apply\nerror: patch failed: src/superclaude/commands/recommend.md:1\nerror: src/superclaude/commands/recommend.md: patch does not apply\nerror: patch failed: src/superclaude/commands/index-repo.md:1\nerror: src/superclaude/commands/index-repo.md: patch does not apply\nerror: patch failed: src/superclaude/commands/agent.md:1\nerror: src/superclaude/commands/agent.md: patch does not apply\nerror: patch failed: src/superclaude/commands/README.md:1\nerror: src/superclaude/commands/README.md: patch does not apply\nerror: patch failed: pyproject.toml:70\nerror: pyproject.toml: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "2847f7551871eb17d2821730be0adc39cba9666a",
+          "parent": "c6e72825b4feb6ba37facabef868865e11c5ae45",
+          "paths": [
+            "MANIFEST.in"
+          ],
+          "stat": " MANIFEST.in | 2 ++\n 1 file changed, 2 insertions(+)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: MANIFEST.in: No such file or directory\n",
+          "central_matches": true
+        },
+        {
+          "sha": "81343a678bc6011ac8410b95b4f29a6d91749b3d",
+          "parent": "2847f7551871eb17d2821730be0adc39cba9666a",
+          "paths": [
+            "MANIFEST.in",
+            "pyproject.toml",
+            "src/superclaude/agents/README.md",
+            "src/superclaude/agents/deep-research.md",
+            "src/superclaude/agents/repo-index.md",
+            "src/superclaude/agents/self-review.md",
+            "src/superclaude/hooks/README.md",
+            "src/superclaude/hooks/hooks.json",
+            "src/superclaude/scripts/README.md",
+            "src/superclaude/scripts/clean_command_names.py",
+            "src/superclaude/scripts/session-init.sh"
+          ],
+          "stat": " MANIFEST.in                                    |   7 +-\n pyproject.toml                                 |   8 +-\n src/superclaude/agents/README.md               |  20 +++\n src/superclaude/agents/deep-research.md        |  31 +++++\n src/superclaude/agents/repo-index.md           |  30 +++++\n src/superclaude/agents/self-review.md          |  33 +++++\n src/superclaude/hooks/README.md                |  18 +++\n src/superclaude/hooks/hooks.json               |  15 +++\n src/superclaude/scripts/README.md              |  19 +++\n src/superclaude/scripts/clean_command_names.py | 168 +++++++++++++++++++++++++\n src/superclaude/scripts/session-init.sh        |  30 +++++\n 11 files changed, 376 insertions(+), 3 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: src/superclaude/scripts/clean_command_names.py:1\nerror: src/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: patch failed: src/superclaude/scripts/README.md:1\nerror: src/superclaude/scripts/README.md: patch does not apply\nerror: patch failed: src/superclaude/hooks/hooks.json:1\nerror: src/superclaude/hooks/hooks.json: patch does not apply\nerror: patch failed: src/superclaude/hooks/README.md:1\nerror: src/superclaude/hooks/README.md: patch does not apply\nerror: patch failed: src/superclaude/agents/self-review.md:1\nerror: src/superclaude/agents/self-review.md: patch does not apply\nerror: patch failed: src/superclaude/agents/repo-index.md:1\nerror: src/superclaude/agents/repo-index.md: patch does not apply\nerror: patch failed: src/superclaude/agents/deep-research.md:1\nerror: src/superclaude/agents/deep-research.md: patch does not apply\nerror: patch failed: src/superclaude/agents/README.md:1\nerror: src/superclaude/agents/README.md: patch does not apply\nerror: patch failed: pyproject.toml:69\nerror: pyproject.toml: patch does not apply\nerror: MANIFEST.in: No such file or directory\n",
+          "central_matches": true
+        },
+        {
+          "sha": "42946f8445f13f4444aa67ecb1f503ed6d91eb79",
+          "parent": "81343a678bc6011ac8410b95b4f29a6d91749b3d",
+          "paths": [
+            "src/superclaude/cli/install_commands.py"
+          ],
+          "stat": " src/superclaude/cli/install_commands.py | 30 +++++++++++++++---------------\n 1 file changed, 15 insertions(+), 15 deletions(-)\n",
+          "reverse_code": 0,
+          "reverse_stderr": "",
+          "central_matches": true
+        },
+        {
+          "sha": "18c0e4e127dc352db19ae132a770019bf1f32d8a",
+          "parent": "1b14d065378163809c027873454eaa38cc6a108b",
+          "paths": [
+            ".github/workflows/quick-check.yml",
+            "install.sh",
+            "plugins/superclaude/scripts/clean_command_names.py",
+            "pyproject.toml",
+            "scripts/ab_test_workflows.py",
+            "scripts/analyze_workflow_metrics.py",
+            "scripts/build_superclaude_plugin.py",
+            "setup.py",
+            "src/superclaude/cli/install_mcp.py",
+            "src/superclaude/cli/main.py",
+            "src/superclaude/scripts/clean_command_names.py"
+          ],
+          "stat": " .github/workflows/quick-check.yml                  |   1 -\n install.sh                                         | 363 +++++++++++++++++++++\n plugins/superclaude/scripts/clean_command_names.py |   7 +-\n pyproject.toml                                     |   1 +\n scripts/ab_test_workflows.py                       |   5 +-\n scripts/analyze_workflow_metrics.py                |  10 +-\n scripts/build_superclaude_plugin.py                |   1 -\n setup.py                                           |   2 +-\n src/superclaude/cli/install_mcp.py                 |  46 +--\n src/superclaude/cli/main.py                        |  15 +-\n src/superclaude/scripts/clean_command_names.py     |  22 +-\n 11 files changed, 423 insertions(+), 50 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: src/superclaude/cli/main.py:91\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_mcp.py:9\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\nerror: setup.py: No such file or directory\nerror: patch failed: pyproject.toml:165\nerror: pyproject.toml: patch does not apply\nerror: patch failed: plugins/superclaude/scripts/clean_command_names.py:116\nerror: plugins/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: install.sh: No such file or directory\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+          "central_matches": true
+        },
+        {
+          "sha": "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72",
+          "parent": "18c0e4e127dc352db19ae132a770019bf1f32d8a",
+          "paths": [
+            "CLAUDE.md",
+            "KNOWLEDGE.md",
+            "MANIFEST.in",
+            "PLANNING.md",
+            "README-ja.md",
+            "README-kr.md",
+            "README-zh.md",
+            "README.md",
+            "VERSION",
+            "docs/reference/commands-list.md",
+            "docs/reference/comprehensive-features.md",
+            "plugins/superclaude/__init__.py",
+            "plugins/superclaude/agents/__init__.py",
+            "plugins/superclaude/commands/__init__.py",
+            "plugins/superclaude/examples/__init__.py",
+            "plugins/superclaude/hooks/__init__.py",
+            "plugins/superclaude/mcp/configs/__init__.py",
+            "plugins/superclaude/scripts/__init__.py",
+            "plugins/superclaude/skills/__init__.py",
+            "plugins/superclaude/skills/confidence-check/__init__.py",
+            "pyproject.toml",
+            "src/superclaude/__init__.py",
+            "src/superclaude/agents/__init__.py",
+            "src/superclaude/commands/__init__.py",
+            "src/superclaude/examples/__init__.py",
+            "src/superclaude/hooks/__init__.py",
+            "src/superclaude/mcp/configs/__init__.py",
+            "src/superclaude/scripts/__init__.py",
+            "src/superclaude/skills/__init__.py",
+            "src/superclaude/skills/confidence-check/__init__.py"
+          ],
+          "stat": " CLAUDE.md                                               | 14 +++++++-------\n KNOWLEDGE.md                                            |  8 ++++----\n MANIFEST.in                                             | 11 +++++++++++\n PLANNING.md                                             |  8 ++++----\n README-ja.md                                            |  4 ++--\n README-kr.md                                            |  4 ++--\n README-zh.md                                            |  4 ++--\n README.md                                               |  4 ++--\n VERSION                                                 |  2 +-\n docs/reference/commands-list.md                         |  2 +-\n docs/reference/comprehensive-features.md                |  2 +-\n plugins/superclaude/__init__.py                         |  0\n plugins/superclaude/agents/__init__.py                  |  0\n plugins/superclaude/commands/__init__.py                |  0\n plugins/superclaude/examples/__init__.py                |  0\n plugins/superclaude/hooks/__init__.py                   |  0\n plugins/superclaude/mcp/configs/__init__.py             |  0\n plugins/superclaude/scripts/__init__.py                 |  0\n plugins/superclaude/skills/__init__.py                  |  0\n plugins/superclaude/skills/confidence-check/__init__.py |  0\n pyproject.toml                                          | 11 +++++++++--\n src/superclaude/__init__.py                             |  2 +-\n src/superclaude/agents/__init__.py                      |  0\n src/superclaude/commands/__init__.py                    |  0\n src/superclaude/examples/__init__.py                    |  0\n src/superclaude/hooks/__init__.py                       |  0\n src/superclaude/mcp/configs/__init__.py                 |  0\n src/superclaude/scripts/__init__.py                     |  0\n src/superclaude/skills/__init__.py                      |  0\n src/superclaude/skills/confidence-check/__init__.py     |  0\n 30 files changed, 47 insertions(+), 29 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: docs/reference/comprehensive-features.md: No such file or directory\nerror: docs/reference/commands-list.md: No such file or directory\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: MANIFEST.in: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "9ca48494021325defc117145a7f38634852b27b6",
+          "parent": "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72",
+          "paths": [
+            "pyproject.toml"
+          ],
+          "stat": " pyproject.toml | 26 ++++++--------------------\n 1 file changed, 6 insertions(+), 20 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: pyproject.toml:67\nerror: pyproject.toml: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "074b99480db9ffe7f2f86a5cbd7a96f13843410c",
+          "parent": "9ca48494021325defc117145a7f38634852b27b6",
+          "paths": [
+            "pyproject.toml"
+          ],
+          "stat": " pyproject.toml | 10 +++-------\n 1 file changed, 3 insertions(+), 7 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: pyproject.toml:68\nerror: pyproject.toml: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "323137a9df985c17f221f559ccede9860d40cb23",
+          "parent": "074b99480db9ffe7f2f86a5cbd7a96f13843410c",
+          "paths": [
+            "pyproject.toml"
+          ],
+          "stat": " pyproject.toml | 9 +++++++--\n 1 file changed, 7 insertions(+), 2 deletions(-)\n",
+          "reverse_code": 0,
+          "reverse_stderr": "",
+          "central_matches": true
+        }
+      ]
+    },
+    {
+      "unit": "automated-sync-copies",
+      "commits": 5,
+      "paths": 54,
+      "report_missing_paths": [],
+      "placeholder": false,
+      "results": [
+        {
+          "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+          "parent": "abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4",
+          "paths": [
+            ".claude-plugin/plugin.json",
+            "agents/sc-README.md",
+            "agents/sc-backend-architect.md",
+            "agents/sc-business-panel-experts.md",
+            "agents/sc-deep-research-agent.md",
+            "agents/sc-deep-research.md",
+            "agents/sc-devops-architect.md",
+            "agents/sc-frontend-architect.md",
+            "agents/sc-learning-guide.md",
+            "agents/sc-performance-engineer.md",
+            "agents/sc-pm-agent.md",
+            "agents/sc-python-expert.md",
+            "agents/sc-quality-engineer.md",
+            "agents/sc-refactoring-expert.md",
+            "agents/sc-repo-index.md",
+            "agents/sc-requirements-analyst.md",
+            "agents/sc-root-cause-analyst.md",
+            "agents/sc-security-engineer.md",
+            "agents/sc-self-review.md",
+            "agents/sc-socratic-mentor.md",
+            "agents/sc-system-architect.md",
+            "agents/sc-technical-writer.md",
+            "commands/sc-README.md",
+            "commands/sc-agent.md",
+            "commands/sc-analyze.md",
+            "commands/sc-brainstorm.md",
+            "commands/sc-build.md",
+            "commands/sc-business-panel.md",
+            "commands/sc-cleanup.md",
+            "commands/sc-design.md",
+            "commands/sc-document.md",
+            "commands/sc-estimate.md",
+            "commands/sc-explain.md",
+            "commands/sc-git.md",
+            "commands/sc-help.md",
+            "commands/sc-implement.md",
+            "commands/sc-improve.md",
+            "commands/sc-index-repo.md",
+            "commands/sc-index.md",
+            "commands/sc-load.md",
+            "commands/sc-pm.md",
+            "commands/sc-recommend.md",
+            "commands/sc-reflect.md",
+            "commands/sc-research.md",
+            "commands/sc-save.md",
+            "commands/sc-sc.md",
+            "commands/sc-select-tool.md",
+            "commands/sc-spawn.md",
+            "commands/sc-spec-panel.md",
+            "commands/sc-task.md",
+            "commands/sc-test.md",
+            "commands/sc-troubleshoot.md",
+            "commands/sc-workflow.md",
+            "docs/.framework-sync-commit"
+          ],
+          "stat": " .claude-plugin/plugin.json          |   12 +\n agents/sc-README.md                 |   20 +\n agents/sc-backend-architect.md      |   48 ++\n agents/sc-business-panel-experts.md |  247 +++++++++\n agents/sc-deep-research-agent.md    |  185 +++++++\n agents/sc-deep-research.md          |   31 ++\n agents/sc-devops-architect.md       |   48 ++\n agents/sc-frontend-architect.md     |   48 ++\n agents/sc-learning-guide.md         |   48 ++\n agents/sc-performance-engineer.md   |   48 ++\n agents/sc-pm-agent.md               |  692 ++++++++++++++++++++++++\n agents/sc-python-expert.md          |   48 ++\n agents/sc-quality-engineer.md       |   48 ++\n agents/sc-refactoring-expert.md     |   48 ++\n agents/sc-repo-index.md             |   30 ++\n agents/sc-requirements-analyst.md   |   48 ++\n agents/sc-root-cause-analyst.md     |   48 ++\n agents/sc-security-engineer.md      |   50 ++\n agents/sc-self-review.md            |   33 ++\n agents/sc-socratic-mentor.md        |  291 ++++++++++\n agents/sc-system-architect.md       |   48 ++\n agents/sc-technical-writer.md       |   48 ++\n commands/sc-README.md               |   22 +\n commands/sc-agent.md                |   71 +++\n commands/sc-analyze.md              |   98 ++++\n commands/sc-brainstorm.md           |  122 +++++\n commands/sc-build.md                |   94 ++++\n commands/sc-business-panel.md       |  113 ++++\n commands/sc-cleanup.md              |  112 ++++\n commands/sc-design.md               |   96 ++++\n commands/sc-document.md             |   88 +++\n commands/sc-estimate.md             |  107 ++++\n commands/sc-explain.md              |   92 ++++\n commands/sc-git.md                  |   80 +++\n commands/sc-help.md                 |  148 ++++++\n commands/sc-implement.md            |  111 ++++\n commands/sc-improve.md              |  113 ++++\n commands/sc-index-repo.md           |  165 ++++++\n commands/sc-index.md                |   86 +++\n commands/sc-load.md                 |   93 ++++\n commands/sc-pm.md                   |  592 +++++++++++++++++++++\n commands/sc-recommend.md            | 1005 +++++++++++++++++++++++++++++++++++\n commands/sc-reflect.md              |   88 +++\n commands/sc-research.md             |  123 +++++\n commands/sc-save.md                 |   93 ++++\n commands/sc-sc.md                   |  130 +++++\n commands/sc-select-tool.md          |   87 +++\n commands/sc-spawn.md                |  105 ++++\n commands/sc-spec-panel.md           |  436 +++++++++++++++\n commands/sc-task.md                 |  116 ++++\n commands/sc-test.md                 |   93 ++++\n commands/sc-troubleshoot.md         |  120 +++++\n commands/sc-workflow.md             |  118 ++++\n docs/.framework-sync-commit         |    1 +\n 54 files changed, 7085 insertions(+)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:1\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:1\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:1\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:1\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-recommend.md:1\nerror: commands/sc-recommend.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:1\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:1\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:1\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:1\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-help.md:1\nerror: commands/sc-help.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:1\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:1\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:1\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:1\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: commands/sc-README.md:1\nerror: commands/sc-README.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:1\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:1\nerror: agents/sc-deep-research.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+          "parent": "70a7bc592b128d05971b0b7fe2c41df33d522cd3",
+          "paths": [
+            "agents/sc-README.md",
+            "agents/sc-backend-architect.md",
+            "agents/sc-business-panel-experts.md",
+            "agents/sc-deep-research-agent.md",
+            "agents/sc-deep-research.md",
+            "agents/sc-devops-architect.md",
+            "agents/sc-frontend-architect.md",
+            "agents/sc-learning-guide.md",
+            "agents/sc-performance-engineer.md",
+            "agents/sc-pm-agent.md",
+            "agents/sc-python-expert.md",
+            "agents/sc-quality-engineer.md",
+            "agents/sc-refactoring-expert.md",
+            "agents/sc-repo-index.md",
+            "agents/sc-requirements-analyst.md",
+            "agents/sc-root-cause-analyst.md",
+            "agents/sc-security-engineer.md",
+            "agents/sc-self-review.md",
+            "agents/sc-socratic-mentor.md",
+            "agents/sc-system-architect.md",
+            "agents/sc-technical-writer.md",
+            "commands/sc-README.md",
+            "commands/sc-agent.md",
+            "commands/sc-analyze.md",
+            "commands/sc-brainstorm.md",
+            "commands/sc-build.md",
+            "commands/sc-business-panel.md",
+            "commands/sc-cleanup.md",
+            "commands/sc-design.md",
+            "commands/sc-document.md",
+            "commands/sc-estimate.md",
+            "commands/sc-explain.md",
+            "commands/sc-git.md",
+            "commands/sc-help.md",
+            "commands/sc-implement.md",
+            "commands/sc-improve.md",
+            "commands/sc-index-repo.md",
+            "commands/sc-index.md",
+            "commands/sc-load.md",
+            "commands/sc-pm.md",
+            "commands/sc-recommend.md",
+            "commands/sc-reflect.md",
+            "commands/sc-research.md",
+            "commands/sc-save.md",
+            "commands/sc-sc.md",
+            "commands/sc-select-tool.md",
+            "commands/sc-spawn.md",
+            "commands/sc-spec-panel.md",
+            "commands/sc-task.md",
+            "commands/sc-test.md",
+            "commands/sc-troubleshoot.md",
+            "commands/sc-workflow.md",
+            "docs/.framework-sync-commit"
+          ],
+          "stat": " agents/sc-README.md                 |   1 -\n agents/sc-backend-architect.md      |   8 ---\n agents/sc-business-panel-experts.md |  12 ----\n agents/sc-deep-research-agent.md    |  29 +--------\n agents/sc-deep-research.md          |   3 -\n agents/sc-devops-architect.md       |   8 ---\n agents/sc-frontend-architect.md     |   8 ---\n agents/sc-learning-guide.md         |   8 ---\n agents/sc-performance-engineer.md   |   8 ---\n agents/sc-pm-agent.md               |  30 ---------\n agents/sc-python-expert.md          |   8 ---\n agents/sc-quality-engineer.md       |   8 ---\n agents/sc-refactoring-expert.md     |   8 ---\n agents/sc-repo-index.md             |   4 --\n agents/sc-requirements-analyst.md   |   8 ---\n agents/sc-root-cause-analyst.md     |   8 ---\n agents/sc-security-engineer.md      |   8 ---\n agents/sc-self-review.md            |   4 --\n agents/sc-socratic-mentor.md        |  19 ------\n agents/sc-system-architect.md       |   8 ---\n agents/sc-technical-writer.md       |   8 ---\n commands/sc-README.md               |   1 -\n commands/sc-agent.md                |   1 -\n commands/sc-analyze.md              |  15 +----\n commands/sc-brainstorm.md           |  18 +-----\n commands/sc-build.md                |  15 +----\n commands/sc-business-panel.md       |  18 +-----\n commands/sc-cleanup.md              |  18 +-----\n commands/sc-design.md               |  15 +----\n commands/sc-document.md             |  14 +---\n commands/sc-estimate.md             |  14 ----\n commands/sc-explain.md              |  15 +----\n commands/sc-git.md                  |  13 +---\n commands/sc-help.md                 |   5 --\n commands/sc-implement.md            |  18 +-----\n commands/sc-improve.md              |  16 -----\n commands/sc-index-repo.md           |  12 ----\n commands/sc-index.md                |  14 +---\n commands/sc-load.md                 |  15 +----\n commands/sc-pm.md                   |  28 --------\n commands/sc-recommend.md            |   7 --\n commands/sc-reflect.md              | 124 ++++++++++++++++--------------------\n commands/sc-research.md             |  19 +-----\n commands/sc-save.md                 |  15 +----\n commands/sc-sc.md                   |  16 +----\n commands/sc-select-tool.md          |  13 +---\n commands/sc-spawn.md                |  17 +----\n commands/sc-spec-panel.md           |  59 +----------------\n commands/sc-task.md                 |  18 +-----\n commands/sc-test.md                 |  15 +----\n commands/sc-troubleshoot.md         |  19 +-----\n commands/sc-workflow.md             |  17 +----\n docs/.framework-sync-commit         |   2 +-\n 53 files changed, 79 insertions(+), 733 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:28\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:28\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:90\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:64\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:114\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:28\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:28\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:31\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:28\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:28\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:54\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:31\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:165\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:9\nerror: agents/sc-deep-research.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+          "parent": "c1621ae663af3ed4abff1b56f6dfaf83e9137040",
+          "paths": [
+            "docs/.framework-sync-commit"
+          ],
+          "stat": " docs/.framework-sync-commit | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+          "parent": "64b1bb4483397f2aee1f8a9b15205644c57b87ea",
+          "paths": [
+            "commands/sc-brainstorm.md",
+            "commands/sc-cleanup.md",
+            "commands/sc-estimate.md",
+            "commands/sc-explain.md",
+            "commands/sc-implement.md",
+            "commands/sc-improve.md",
+            "commands/sc-index.md",
+            "commands/sc-recommend.md",
+            "commands/sc-spec-panel.md",
+            "commands/sc-task.md",
+            "commands/sc-workflow.md",
+            "docs/.framework-sync-commit"
+          ],
+          "stat": " commands/sc-brainstorm.md   |  3 ++-\n commands/sc-cleanup.md      |  3 ++-\n commands/sc-estimate.md     |  1 +\n commands/sc-explain.md      |  3 ++-\n commands/sc-implement.md    |  3 ++-\n commands/sc-improve.md      |  1 +\n commands/sc-index.md        |  3 ++-\n commands/sc-recommend.md    | 15 +++++++++++++--\n commands/sc-spec-panel.md   |  3 ++-\n commands/sc-task.md         |  3 ++-\n commands/sc-workflow.md     |  3 ++-\n docs/.framework-sync-commit |  2 +-\n 12 files changed, 32 insertions(+), 11 deletions(-)\n",
+          "reverse_code": 1,
+          "reverse_stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:40\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:40\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:100\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: patch failed: commands/sc-index.md:37\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:37\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:41\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:37\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:37\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:43\nerror: commands/sc-brainstorm.md: patch does not apply\n",
+          "central_matches": true
+        },
+        {
+          "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+          "parent": "c13a3dde7040336087fea5ada7e79dd4599d024f",
+          "paths": [
+            "docs/.framework-sync-commit"
+          ],
+          "stat": " docs/.framework-sync-commit | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+          "reverse_code": 0,
+          "reverse_stderr": "",
+          "central_matches": true
+        }
+      ]
+    }
+  ],
+  "citations": [
+    {
+      "report": "installer-packaging",
+      "report_line": 13,
+      "path": "installer-packaging-paths.json",
+      "start": 1,
+      "end": 458,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 13,
+      "path": "installer-packaging-extract.py",
+      "start": 10,
+      "end": 12,
+      "source_lines": 41,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 15,
+      "path": "src/superclaude/commands/analyze.md",
+      "start": 25,
+      "end": 31,
+      "source_lines": 111,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 20,
+      "path": "pyproject.toml",
+      "start": 69,
+      "end": 87,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 20,
+      "path": "src/superclaude/cli/main.py",
+      "start": 197,
+      "end": 205,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 20,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 11,
+      "end": 64,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 20,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 512,
+      "end": 576,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 22,
+      "path": "src/superclaude/cli/main.py",
+      "start": 189,
+      "end": 275,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 22,
+      "path": "src/superclaude/cli/main.py",
+      "start": 363,
+      "end": 431,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 22,
+      "path": "tests/cli/test_update_command.py",
+      "start": 16,
+      "end": 25,
+      "source_lines": 424,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 24,
+      "path": "src/superclaude/cli/main.py",
+      "start": 29,
+      "end": 34,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 24,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 25,
+      "end": 27,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 24,
+      "path": "Makefile",
+      "start": 131,
+      "end": 136,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 24,
+      "path": "src/superclaude/commands/README.md",
+      "start": 1,
+      "end": 11,
+      "source_lines": 11,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 26,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 26,
+      "path": "src/superclaude/commands/README.md",
+      "start": 5,
+      "end": 11,
+      "source_lines": 11,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 26,
+      "path": "src/superclaude/commands/recommend.md",
+      "start": 1,
+      "end": 58,
+      "source_lines": 138,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 26,
+      "path": "installer-packaging-c6e72825.patch",
+      "start": 318,
+      "end": 1328,
+      "source_lines": 1592,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_agents.py",
+      "start": 15,
+      "end": 57,
+      "source_lines": 142,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "start": 113,
+      "end": 178,
+      "source_lines": 576,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/hooks/hooks.json",
+      "start": 3,
+      "end": 32,
+      "source_lines": 113,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "start": 173,
+      "end": 178,
+      "source_lines": 576,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "start": 133,
+      "end": 141,
+      "source_lines": 576,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/scripts/session-init.sh",
+      "start": 5,
+      "end": 30,
+      "source_lines": 30,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "start": 42,
+      "end": 80,
+      "source_lines": 576,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 30,
+      "path": "pyproject.toml",
+      "start": 85,
+      "end": 87,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 30,
+      "path": "installer-packaging-323137a9.patch",
+      "start": 22,
+      "end": 42,
+      "source_lines": 42,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 30,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 476,
+      "end": 492,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 30,
+      "path": "src/superclaude/cli/install_templates.py",
+      "start": 106,
+      "end": 128,
+      "source_lines": 156,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 30,
+      "path": "src/superclaude/cli/install_user_setup.py",
+      "start": 39,
+      "end": 46,
+      "source_lines": 324,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 32,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 2133,
+      "end": 2148,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 32,
+      "path": "src/superclaude/pm_agent/token_budget.py",
+      "start": 33,
+      "end": 45,
+      "source_lines": 85,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 32,
+      "path": "src/superclaude/pytest_plugin.py",
+      "start": 96,
+      "end": 114,
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 32,
+      "path": "tests/unit/test_token_budget.py",
+      "start": 43,
+      "end": 48,
+      "source_lines": 129,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 34,
+      "path": "installer-packaging-paths.json",
+      "start": 8,
+      "end": 12,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 34,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "start": 1,
+      "end": 4,
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 34,
+      "path": "installer-packaging-ad80f57f.patch",
+      "start": 48,
+      "end": 101,
+      "source_lines": 460,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 34,
+      "path": "tests/conftest.py",
+      "start": 17,
+      "end": 117,
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 41,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 65,
+      "end": 489,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 41,
+      "path": "installer-packaging-reverse.json",
+      "start": 2,
+      "end": 10,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 42,
+      "path": "installer-packaging-ad80f57f.patch",
+      "start": 28,
+      "end": 460,
+      "source_lines": 460,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 42,
+      "path": "installer-packaging-reverse.json",
+      "start": 11,
+      "end": 19,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 43,
+      "path": "installer-packaging-25785363.patch",
+      "start": 15,
+      "end": 57,
+      "source_lines": 57,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 43,
+      "path": "installer-packaging-reverse.json",
+      "start": 20,
+      "end": 28,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 44,
+      "path": "installer-packaging-c6e72825.patch",
+      "start": 30,
+      "end": 1592,
+      "source_lines": 1592,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 44,
+      "path": "installer-packaging-reverse.json",
+      "start": 29,
+      "end": 37,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 45,
+      "path": "installer-packaging-2847f755.patch",
+      "start": 20,
+      "end": 32,
+      "source_lines": 32,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 45,
+      "path": "pyproject.toml",
+      "start": 1,
+      "end": 3,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 45,
+      "path": "installer-packaging-fork-08cbea9e.patch",
+      "start": 33,
+      "end": 71,
+      "source_lines": 133,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 45,
+      "path": "installer-packaging-reverse.json",
+      "start": 38,
+      "end": 46,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 46,
+      "path": "installer-packaging-81343a67.patch",
+      "start": 45,
+      "end": 501,
+      "source_lines": 501,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 46,
+      "path": "installer-packaging-reverse.json",
+      "start": 47,
+      "end": 55,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 47,
+      "path": "installer-packaging-42946f84.patch",
+      "start": 31,
+      "end": 82,
+      "source_lines": 82,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 47,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 47,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 912,
+      "end": 948,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 47,
+      "path": "installer-packaging-reverse.json",
+      "start": 56,
+      "end": 64,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 48,
+      "path": "installer-packaging-18c0e4e1.patch",
+      "start": 83,
+      "end": 828,
+      "source_lines": 828,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 48,
+      "path": "pyproject.toml",
+      "start": 173,
+      "end": 181,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 48,
+      "path": "installer-packaging-reverse.json",
+      "start": 65,
+      "end": 73,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 49,
+      "path": "installer-packaging-fd8c67f6.patch",
+      "start": 19,
+      "end": 386,
+      "source_lines": 386,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 49,
+      "path": "pyproject.toml",
+      "start": 5,
+      "end": 16,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 49,
+      "path": "src/superclaude/__init__.py",
+      "start": 8,
+      "end": 20,
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 49,
+      "path": "installer-packaging-reverse.json",
+      "start": 74,
+      "end": 82,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 50,
+      "path": "installer-packaging-9ca48494.patch",
+      "start": 17,
+      "end": 54,
+      "source_lines": 54,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 50,
+      "path": "pyproject.toml",
+      "start": 78,
+      "end": 87,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 50,
+      "path": "installer-packaging-reverse.json",
+      "start": 83,
+      "end": 91,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 50,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 868,
+      "end": 903,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 51,
+      "path": "installer-packaging-074b9948.patch",
+      "start": 18,
+      "end": 38,
+      "source_lines": 38,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 51,
+      "path": "installer-packaging-323137a9.patch",
+      "start": 22,
+      "end": 42,
+      "source_lines": 42,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 51,
+      "path": "installer-packaging-reverse.json",
+      "start": 92,
+      "end": 100,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 52,
+      "path": "installer-packaging-323137a9.patch",
+      "start": 22,
+      "end": 42,
+      "source_lines": 42,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 52,
+      "path": "installer-packaging-reverse.json",
+      "start": 101,
+      "end": 109,
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 57,
+      "path": "installer-packaging-fork-de177847.patch",
+      "start": 24,
+      "end": 151,
+      "source_lines": 153,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 58,
+      "path": "installer-packaging-fork-d90bed68.patch",
+      "start": 61,
+      "end": 182,
+      "source_lines": 182,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 58,
+      "path": "src/superclaude/cli/main.py",
+      "start": 228,
+      "end": 234,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 58,
+      "path": "src/superclaude/hooks/hooks.json",
+      "start": 3,
+      "end": 111,
+      "source_lines": 113,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 59,
+      "path": "installer-packaging-fork-2219545c.patch",
+      "start": 97,
+      "end": 109,
+      "source_lines": 109,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 59,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 81,
+      "end": 93,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 60,
+      "path": "installer-packaging-fork-cbc9321c.patch",
+      "start": 13,
+      "end": 77,
+      "source_lines": 79,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 60,
+      "path": "tests/cli/test_update_command.py",
+      "start": 96,
+      "end": 139,
+      "source_lines": 424,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 61,
+      "path": "installer-packaging-fork-38c20f88.patch",
+      "start": 26,
+      "end": 96,
+      "source_lines": 96,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "start": 236,
+      "end": 252,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 62,
+      "path": "installer-packaging-fork-051f39fe.patch",
+      "start": 22,
+      "end": 63,
+      "source_lines": 63,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 62,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 855,
+      "end": 860,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 63,
+      "path": "installer-packaging-fork-08cbea9e.patch",
+      "start": 33,
+      "end": 71,
+      "source_lines": 133,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 63,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 46,
+      "end": 52,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 63,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 47,
+      "end": 93,
+      "source_lines": 230,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 64,
+      "path": "src/superclaude/cli/main.py",
+      "start": 254,
+      "end": 275,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 64,
+      "path": "tests/cli/test_update_command.py",
+      "start": 125,
+      "end": 139,
+      "source_lines": 424,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 64,
+      "path": "installer-packaging-paths.json",
+      "start": 278,
+      "end": 282,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 69,
+      "path": "endpoint-inventory.json",
+      "start": 1379,
+      "end": 1460,
+      "source_lines": 4433,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 73,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 1890,
+      "end": 2150,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 73,
+      "path": "installer-packaging-18c0e4e1.patch",
+      "start": 573,
+      "end": 737,
+      "source_lines": 828,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 74,
+      "path": "pyproject.toml",
+      "start": 1,
+      "end": 16,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 74,
+      "path": "package.json",
+      "start": 1,
+      "end": 14,
+      "source_lines": 52,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 74,
+      "path": "src/superclaude/__init__.py",
+      "start": 8,
+      "end": 20,
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 74,
+      "path": "installer-packaging-paths.json",
+      "start": 38,
+      "end": 42,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 75,
+      "path": "installer-packaging-c6e72825.patch",
+      "start": 42,
+      "end": 1592,
+      "source_lines": 1592,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 75,
+      "path": "installer-packaging-81343a67.patch",
+      "start": 84,
+      "end": 501,
+      "source_lines": 501,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 75,
+      "path": "installer-packaging-18c0e4e1.patch",
+      "start": 464,
+      "end": 495,
+      "source_lines": 828,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 75,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 53,
+      "end": 68,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 76,
+      "path": "installer-packaging-fd8c67f6.patch",
+      "start": 281,
+      "end": 307,
+      "source_lines": 386,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 76,
+      "path": "installer-packaging-paths.json",
+      "start": 134,
+      "end": 198,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 76,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 53,
+      "end": 68,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 77,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 2151,
+      "end": 3397,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 77,
+      "path": "tests/conftest.py",
+      "start": 17,
+      "end": 117,
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 77,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 47,
+      "end": 93,
+      "source_lines": 230,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 77,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 868,
+      "end": 1100,
+      "source_lines": 1100,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 78,
+      "path": "installer-packaging-18c0e4e1.patch",
+      "start": 508,
+      "end": 561,
+      "source_lines": 828,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 79,
+      "path": ".github/workflows/test.yml",
+      "start": 25,
+      "end": 40,
+      "source_lines": 191,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 79,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 65,
+      "end": 489,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 79,
+      "path": "installer-packaging-18c0e4e1.patch",
+      "start": 83,
+      "end": 94,
+      "source_lines": 828,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 80,
+      "path": "README.md",
+      "start": 53,
+      "end": 79,
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 80,
+      "path": "installer-packaging-8c0559ca.patch",
+      "start": 490,
+      "end": 1877,
+      "source_lines": 3397,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 80,
+      "path": "installer-packaging-fd8c67f6.patch",
+      "start": 19,
+      "end": 249,
+      "source_lines": 386,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 80,
+      "path": "installer-packaging-paths.json",
+      "start": 26,
+      "end": 84,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 81,
+      "path": "installer-packaging-ad80f57f.patch",
+      "start": 48,
+      "end": 251,
+      "source_lines": 460,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 81,
+      "path": "installer-packaging-fd8c67f6.patch",
+      "start": 257,
+      "end": 279,
+      "source_lines": 386,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 81,
+      "path": "installer-packaging-paths.json",
+      "start": 86,
+      "end": 120,
+      "source_lines": 458,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 81,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "start": 1,
+      "end": 4,
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 82,
+      "path": "endpoint-inventory.json",
+      "start": 1379,
+      "end": 1460,
+      "source_lines": 4433,
+      "valid": true
+    },
+    {
+      "report": "installer-packaging",
+      "report_line": 90,
+      "path": "endpoint-inventory.json",
+      "start": 1379,
+      "end": 1460,
+      "source_lines": 4433,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 14,
+      "path": ".dev/research/upstream-merge-impact/ANALYSIS-INSTRUCTIONS.md",
+      "start": 9,
+      "end": 28,
+      "source_lines": 32,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 14,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-evidence.json",
+      "start": 1,
+      "end": 6,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-collect.py",
+      "start": 17,
+      "end": 39,
+      "source_lines": 57,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-evidence.json",
+      "start": 1,
+      "end": 6,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-content.txt",
+      "start": 1,
+      "end": 1,
+      "source_lines": 6790,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 18,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 18,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 18,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 18,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 74,
+      "end": 85,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 26,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 26,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 1,
+      "end": 60,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 26,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 7432,
+      "end": 7438,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 26,
+      "path": ".claude-plugin/plugin.json",
+      "start": 1,
+      "end": 12,
+      "source_lines": 12,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 7440,
+      "end": 7459,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 10870,
+      "end": 11024,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 12441,
+      "end": 12449,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-reflect.txt",
+      "start": 18,
+      "end": 62,
+      "source_lines": 179,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": "commands/sc-reflect.md",
+      "start": 18,
+      "end": 45,
+      "source_lines": 88,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 27,
+      "path": "src/superclaude/commands/reflect.md",
+      "start": 13,
+      "end": 35,
+      "source_lines": 311,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 28,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 12451,
+      "end": 12465,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 28,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 21,
+      "end": 42,
+      "source_lines": 121,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 29,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 12467,
+      "end": 12686,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 29,
+      "path": "commands/sc-implement.md",
+      "start": 38,
+      "end": 42,
+      "source_lines": 109,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 12688,
+      "end": 12702,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 30,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 28,
+      "end": 42,
+      "source_lines": 121,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 34,
+      "path": ".claude-plugin/plugin.json",
+      "start": 1,
+      "end": 12,
+      "source_lines": 12,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 34,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 34,
+      "path": "src/superclaude/commands/help.md",
+      "start": 25,
+      "end": 28,
+      "source_lines": 135,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 38,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 38,
+      "path": "src/superclaude/cli/install_agents.py",
+      "start": 89,
+      "end": 108,
+      "source_lines": 142,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "start": 78,
+      "end": 97,
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 40,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 23,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 40,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 40,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 74,
+      "end": 90,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 40,
+      "path": "Makefile",
+      "start": 65,
+      "end": 86,
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 42,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 21,
+      "end": 54,
+      "source_lines": 121,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 42,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 80,
+      "end": 118,
+      "source_lines": 121,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 42,
+      "path": "scripts/sync_from_framework.py",
+      "start": 719,
+      "end": 758,
+      "source_lines": 928,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 42,
+      "path": "scripts/sync_from_framework.py",
+      "start": 200,
+      "end": 248,
+      "source_lines": 928,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 44,
+      "path": "src/superclaude/cli/cli_portify/resolution.py",
+      "start": 78,
+      "end": 85,
+      "source_lines": 261,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 44,
+      "path": "src/superclaude/cli/cli_portify/resolution.py",
+      "start": 89,
+      "end": 105,
+      "source_lines": 261,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 44,
+      "path": "tests/cli_portify/test_resolution.py",
+      "start": 30,
+      "end": 79,
+      "source_lines": 370,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 44,
+      "path": "src/superclaude/scripts/clean_command_names.py",
+      "start": 23,
+      "end": 42,
+      "source_lines": 168,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 44,
+      "path": "src/superclaude/scripts/clean_command_names.py",
+      "start": 128,
+      "end": 145,
+      "source_lines": 168,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 50,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-history.txt",
+      "start": 1,
+      "end": 9,
+      "source_lines": 9,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-reflect.txt",
+      "start": 18,
+      "end": 62,
+      "source_lines": 179,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 10870,
+      "end": 11024,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 52,
+      "path": "commands/sc-reflect.md",
+      "start": 18,
+      "end": 45,
+      "source_lines": 88,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 52,
+      "path": "src/superclaude/commands/reflect.md",
+      "start": 13,
+      "end": 35,
+      "source_lines": 311,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-removal.txt",
+      "start": 26,
+      "end": 41,
+      "source_lines": 368,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 56,
+      "path": "commands/sc-implement.md",
+      "start": 10,
+      "end": 23,
+      "source_lines": 109,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 56,
+      "path": "src/superclaude/commands/implement.md",
+      "start": 9,
+      "end": 18,
+      "source_lines": 146,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 56,
+      "path": "scripts/sync_from_framework.py",
+      "start": 70,
+      "end": 102,
+      "source_lines": 928,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 58,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 58,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 18,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 58,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 74,
+      "end": 85,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 58,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 62,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 443,
+      "end": 486,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 66,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 443,
+      "end": 450,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 452,
+      "end": 459,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 461,
+      "end": 468,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 69,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 470,
+      "end": 477,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 479,
+      "end": 486,
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 76,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "start": 50,
+      "end": 54,
+      "source_lines": 121,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 76,
+      "path": "scripts/sync_from_framework.py",
+      "start": 205,
+      "end": 234,
+      "source_lines": 928,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 77,
+      "path": "scripts/sync_from_framework.py",
+      "start": 70,
+      "end": 102,
+      "source_lines": 928,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 77,
+      "path": "commands/sc-implement.md",
+      "start": 10,
+      "end": 23,
+      "source_lines": 109,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 78,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "start": 10870,
+      "end": 11024,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 78,
+      "path": "src/superclaude/commands/reflect.md",
+      "start": 13,
+      "end": 35,
+      "source_lines": 311,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 79,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 79,
+      "path": "scripts/build_superclaude_plugin.py",
+      "start": 15,
+      "end": 23,
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 85,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "start": 115,
+      "end": 127,
+      "source_lines": 222,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 85,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "start": 1,
+      "end": 7,
+      "source_lines": 1088,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "start": 9,
+      "end": 39,
+      "source_lines": 1088,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "start": 149,
+      "end": 155,
+      "source_lines": 1088,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "start": 750,
+      "end": 756,
+      "source_lines": 1088,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "start": 886,
+      "end": 892,
+      "source_lines": 1088,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 97,
+      "path": "automated-sync-evidence.json",
+      "start": 8,
+      "end": 8,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 98,
+      "path": "automated-sync-evidence.json",
+      "start": 22,
+      "end": 22,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 99,
+      "path": "automated-sync-evidence.json",
+      "start": 37,
+      "end": 37,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 100,
+      "path": "automated-sync-evidence.json",
+      "start": 52,
+      "end": 52,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 101,
+      "path": "automated-sync-evidence.json",
+      "start": 70,
+      "end": 70,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 102,
+      "path": "automated-sync-evidence.json",
+      "start": 87,
+      "end": 87,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 103,
+      "path": "automated-sync-evidence.json",
+      "start": 102,
+      "end": 102,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 104,
+      "path": "automated-sync-evidence.json",
+      "start": 117,
+      "end": 117,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 105,
+      "path": "automated-sync-evidence.json",
+      "start": 132,
+      "end": 132,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 106,
+      "path": "automated-sync-evidence.json",
+      "start": 147,
+      "end": 147,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 107,
+      "path": "automated-sync-evidence.json",
+      "start": 162,
+      "end": 162,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 108,
+      "path": "automated-sync-evidence.json",
+      "start": 177,
+      "end": 177,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 109,
+      "path": "automated-sync-evidence.json",
+      "start": 192,
+      "end": 192,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 110,
+      "path": "automated-sync-evidence.json",
+      "start": 207,
+      "end": 207,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 111,
+      "path": "automated-sync-evidence.json",
+      "start": 222,
+      "end": 222,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 112,
+      "path": "automated-sync-evidence.json",
+      "start": 237,
+      "end": 237,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 113,
+      "path": "automated-sync-evidence.json",
+      "start": 252,
+      "end": 252,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 114,
+      "path": "automated-sync-evidence.json",
+      "start": 267,
+      "end": 267,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 115,
+      "path": "automated-sync-evidence.json",
+      "start": 282,
+      "end": 282,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 116,
+      "path": "automated-sync-evidence.json",
+      "start": 297,
+      "end": 297,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 117,
+      "path": "automated-sync-evidence.json",
+      "start": 312,
+      "end": 312,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 118,
+      "path": "automated-sync-evidence.json",
+      "start": 327,
+      "end": 327,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 119,
+      "path": "automated-sync-evidence.json",
+      "start": 342,
+      "end": 342,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 120,
+      "path": "automated-sync-evidence.json",
+      "start": 357,
+      "end": 357,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 121,
+      "path": "automated-sync-evidence.json",
+      "start": 374,
+      "end": 374,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 122,
+      "path": "automated-sync-evidence.json",
+      "start": 397,
+      "end": 397,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 123,
+      "path": "automated-sync-evidence.json",
+      "start": 424,
+      "end": 424,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 124,
+      "path": "automated-sync-evidence.json",
+      "start": 446,
+      "end": 446,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 125,
+      "path": "automated-sync-evidence.json",
+      "start": 472,
+      "end": 472,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 126,
+      "path": "automated-sync-evidence.json",
+      "start": 495,
+      "end": 495,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 127,
+      "path": "automated-sync-evidence.json",
+      "start": 519,
+      "end": 519,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 128,
+      "path": "automated-sync-evidence.json",
+      "start": 541,
+      "end": 541,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 129,
+      "path": "automated-sync-evidence.json",
+      "start": 550,
+      "end": 550,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 130,
+      "path": "automated-sync-evidence.json",
+      "start": 573,
+      "end": 573,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 131,
+      "path": "automated-sync-evidence.json",
+      "start": 594,
+      "end": 594,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 132,
+      "path": "automated-sync-evidence.json",
+      "start": 639,
+      "end": 639,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 133,
+      "path": "automated-sync-evidence.json",
+      "start": 665,
+      "end": 665,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 134,
+      "path": "automated-sync-evidence.json",
+      "start": 688,
+      "end": 688,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 135,
+      "path": "automated-sync-evidence.json",
+      "start": 703,
+      "end": 703,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 136,
+      "path": "automated-sync-evidence.json",
+      "start": 725,
+      "end": 725,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 137,
+      "path": "automated-sync-evidence.json",
+      "start": 747,
+      "end": 747,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 138,
+      "path": "automated-sync-evidence.json",
+      "start": 770,
+      "end": 770,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 139,
+      "path": "automated-sync-evidence.json",
+      "start": 904,
+      "end": 904,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 140,
+      "path": "automated-sync-evidence.json",
+      "start": 925,
+      "end": 925,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 141,
+      "path": "automated-sync-evidence.json",
+      "start": 948,
+      "end": 948,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 142,
+      "path": "automated-sync-evidence.json",
+      "start": 970,
+      "end": 970,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 143,
+      "path": "automated-sync-evidence.json",
+      "start": 978,
+      "end": 978,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 144,
+      "path": "automated-sync-evidence.json",
+      "start": 986,
+      "end": 986,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 145,
+      "path": "automated-sync-evidence.json",
+      "start": 1014,
+      "end": 1014,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 146,
+      "path": "automated-sync-evidence.json",
+      "start": 1047,
+      "end": 1047,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 147,
+      "path": "automated-sync-evidence.json",
+      "start": 1074,
+      "end": 1074,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 148,
+      "path": "automated-sync-evidence.json",
+      "start": 1096,
+      "end": 1096,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 149,
+      "path": "automated-sync-evidence.json",
+      "start": 1119,
+      "end": 1119,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 150,
+      "path": "automated-sync-evidence.json",
+      "start": 1143,
+      "end": 1143,
+      "source_lines": 1245,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 166,
+      "path": "automated-sync-fork-reflect.txt",
+      "start": 18,
+      "end": 62,
+      "source_lines": 179,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 166,
+      "path": "automated-sync-patches.txt",
+      "start": 10870,
+      "end": 11024,
+      "source_lines": 12702,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 166,
+      "path": "commands/sc-reflect.md",
+      "start": 18,
+      "end": 45,
+      "source_lines": 88,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 166,
+      "path": "src/superclaude/commands/reflect.md",
+      "start": 13,
+      "end": 35,
+      "source_lines": 311,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 168,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 96,
+      "end": 126,
+      "source_lines": 166,
+      "valid": true
+    },
+    {
+      "report": "automated-sync-copies",
+      "report_line": 168,
+      "path": "CHANGELOG.md",
+      "start": 11,
+      "end": 11,
+      "source_lines": 210,
+      "valid": true
+    }
+  ],
+  "invalid_citations": [],
+  "july_nonblank_diff": "55\t69\tcommands/sc-reflect.md\n1\t1\tcommands/sc-sc.md\n1\t1\tdocs/.framework-sync-commit\n",
+  "manifest_paths": [
+    ".claude-plugin/plugin.json"
+  ],
+  "pending_in_head": 1,
+  "pending_in_master": 1
+}

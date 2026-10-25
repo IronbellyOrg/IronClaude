@@ -1,0 +1,24 @@
+# Persisted by orchestrator from sc:confidence-calibrator return. requested_slot: opus; returned_model: claude-opus-5-5[1m]; agentId: acc40ec428f137175
+# Card author class: sonnet -> calibrator class opus is disjoint -> calibrator_diversity: full. Inputs: card + rubric only (no formation trail); calibrator independently re-Read cited evidence.
+calibration_failed: false
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet]   # T1 card author
+calibrator_diversity: full
+citation_spotchecks_total: 17
+citation_spotchecks_match: 16
+citation_spotchecks_unreadable: 1   # RK-4 directory-absence claim ([INFERRED]); not checkable via Read alone
+citation_spotchecks_mismatch: 0
+scores:
+  citation_grounding: 0.95
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.95
+  risk_surface_coverage: 0.92
+  recommendation_actionability: 0.88
+arithmetic_mean: 0.93   # (0.95+0.95+0.95+0.92+0.88)/5 = 4.65/5 = 0.930
+self_reported_ignored: 0.82
+rationale:
+  citation_grounding: "16 load-bearing cites match; inferences tagged; one directory-absence claim not Read-checkable."
+  coverage_completeness: "1 hunk, 3 reqs, 3 tasks mapped; unmapped_hunks 0; out-of-scope files explicit."
+  deviation_classification_clarity: "deviations: [] justified per class; T-103 routed to grounding gaps; no Regression without verification."
+  risk_surface_coverage: "falsy breadth, whitespace/non-str, shared-hunk, import fragility, no execution/baseline; thin blast radius."
+  recommendation_actionability: "REC-2 lacks exact command/cwd; REC-3 verifier weak; REC-6 is process note."

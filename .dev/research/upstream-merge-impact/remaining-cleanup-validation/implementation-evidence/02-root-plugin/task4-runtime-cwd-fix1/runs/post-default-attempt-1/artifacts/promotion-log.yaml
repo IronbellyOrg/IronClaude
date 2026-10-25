@@ -1,0 +1,10 @@
+promotion_log_version: "1.0"
+adapter: none
+mode: auto
+action: skipped
+source: null
+destination: null
+gate_passed: null
+skip_reason: user-flag
+note: "--no-promote set; Wave 7 suppressed. No move, archive or repository mutation performed. (completed.md is not under .dev/tasks/to-do or .dev/releases/current, so no adapter would apply anyway.)"
+timestamp: "2026-10-24T23:21:22.173710+00:00"

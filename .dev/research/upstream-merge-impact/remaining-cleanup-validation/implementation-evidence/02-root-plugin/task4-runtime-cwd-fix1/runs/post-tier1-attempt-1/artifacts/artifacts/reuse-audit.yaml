@@ -1,0 +1,30 @@
+# Persisted by orchestrator from sc:reuse-auditor return (requested slot: sonnet; agent-reported model: claude-sonnet-5-5[1m]; agentId aa2b67dd5cf5103c9)
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+findings:
+  - candidate: greet
+    file_line: src/greeting.py:1-4
+    capability_fingerprint:
+      capability: "Construct greeting string from a name; reject falsy name with ValueError"
+      F1_io_skeleton: "guard falsy input -> raise; else format+return string (pure, no I/O)"
+      F2_idempotency_idiom: "none (pure function, guard-then-return)"
+      F3_persistence_target: "none"
+      F4_call_graph_role: "leaf utility; sole referrer tests/test_greeting.py:1,5,10 (consumer, not prior art)"
+      F5_trust_rationale: "no docstring; spec.md R-001/R-002 contract is the only rationale"
+      F6_domain_nouns: [name, greeting]
+    neighbours: []
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: null
+    S_reuse: 0.0
+    confidence: 0.8
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+    notes: "No import-boundary markers / pyproject.toml / import-boundaries.yaml inside audit_repo_root (explicit absence)."

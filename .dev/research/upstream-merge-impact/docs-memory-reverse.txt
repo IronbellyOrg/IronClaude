@@ -1,0 +1,128 @@
+[
+  {
+    "unit": "docs-memory-releases",
+    "sha": "bea4bfe289f298e790da4746212474d3ed2b0ed8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/user-guide/memory-system.md:1\nerror: docs/user-guide/memory-system.md: patch does not apply\nerror: docs/research/reflexion-integration-2025.md: No such file or directory\nerror: docs/research/llm-agent-token-efficiency-2025.md: No such file or directory\nerror: patch failed: docs/memory/token_efficiency_validation.md:85\nerror: docs/memory/token_efficiency_validation.md: patch does not apply\nerror: patch failed: docs/memory/pm_context.md:32\nerror: docs/memory/pm_context.md: patch does not apply\nerror: patch failed: docs/memory/README.md:1\nerror: docs/memory/README.md: patch does not apply\nerror: patch failed: docs/mcp/mcp-integration-policy.md:1\nerror: docs/mcp/mcp-integration-policy.md: patch does not apply\nerror: patch failed: README.md:126\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: plugins/superclaude/commands/sc.md: No such file or directory\nerror: docs/research/task-tool-parallel-execution-results.md: No such file or directory\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\nerror: TASK.md: No such file or directory\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "58008c94446386718f036cc402f2dc4e99b3f007",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "61591211ae99847130aed3e84737bfa63b3b6520",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "86a26333912b09a98fab1d9a81c0cd23e404f224",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: VERSION:1\nerror: VERSION: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "d11abead403e4de8438f008a468f98ca10e5472e",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "43ca81d1693b1ecfc6648531798e29224cb305c3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: docs/mistakes/unknown-2025-11-14.md: No such file or directory\nerror: docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md: No such file or directory\nerror: docs/mistakes/test_database_connection-2025-11-14.md: No such file or directory\nerror: patch failed: docs/memory/solutions_learned.jsonl:46\nerror: docs/memory/solutions_learned.jsonl: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:2\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "208c66e1a781376a85132087b5a99767a9f13e31",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/user-guide/commands.md:1\nerror: docs/user-guide/commands.md: patch does not apply\nerror: patch failed: README.md:101\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:17\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\nerror: patch failed: CHANGELOG.md:7\nerror: CHANGELOG.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  }
+]

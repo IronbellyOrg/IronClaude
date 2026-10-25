@@ -1,0 +1,20 @@
+# Wave 1D blind calibration — returned by sc:confidence-calibrator (requested slot: opus; agent_id a5da75693d0f32d7c; returned provider model not surfaced)
+# Inputs given: reflection-card.yaml + refs/reflection-rubric.md ONLY (no formation context)
+calibrator_agent: sc:confidence-calibrator
+calibrator_model_slot: opus
+card_author_model_slot: sonnet
+calibrator_diversity: full        # T1: calibrator slot (opus) disjoint from card-author slot (sonnet); no T2 reviewers
+calibration: independent          # not inline-fallback
+dimensions:
+  citation_grounding: {score: 0.88, rationale: "All findings cite spec/proposed lines with quotes; two risks uncited; F-6 relies on reported wc -l check."}
+  coverage_completeness: {score: 1.00, rationale: "coverage_pct 1.0, unmapped [], no coverage_undefined."}
+  deviation_classification_clarity: {score: 0.30, rationale: "Plan-vs-spec gaps F-1/F-3/F-4 carry severity + Grounded/[INFERRED] tags but no 4-category label."}
+  risk_surface_coverage: {score: 0.80, rationale: "Main risks covered; blast-radius reasoning thin."}
+  recommendation_actionability: {score: 0.90, rationale: "File+change+verifier+priority on each; whitespace/None risk and F-6 lack a recommendation; F-4 verifier doesn't name the command."}
+arithmetic: "(0.88 + 1.00 + 0.30 + 0.80 + 0.90) / 5 = 3.88 / 5 = 0.776 -> 0.78"
+C: 0.78
+self_reported_confidence: 0.82
+calibration_delta: -0.04
+calibrator_notes:
+  - "Calibrator read only card + rubric (by design); it did not open the cited files."
+  - "Orchestrator note: the 4-category deviation taxonomy is defined for UC-2 completed work; in UC-1 plan-vs-spec gaps are rendered as a gap registry. The low dim-3 score is retained as returned, not adjusted."

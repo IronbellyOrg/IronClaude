@@ -1,0 +1,28 @@
+{
+  "calibrator_agent": "sc:confidence-calibrator",
+  "calibrator_model_class": "opus",
+  "reviewer_model_classes": [
+    "sonnet"
+  ],
+  "calibrator_diversity": "full",
+  "blind": true,
+  "input": "cards/tier1-card.yaml + refs/reflection-rubric.md only",
+  "per_dimension": {
+    "citation_grounding": 0.95,
+    "coverage_completeness": 0.9,
+    "deviation_classification_clarity": 0.88,
+    "risk_surface_coverage": 0.9,
+    "recommendation_actionability": 0.9
+  },
+  "arithmetic_mean_unrounded": 0.906,
+  "confidence_calibrated": 0.91,
+  "self_reported": 0.8,
+  "caps_applied": "none",
+  "justifications": {
+    "citation_grounding": "all cited ranges re-Read and match; git claim correctly [INFERRED]; import-risk relies on Glob absence",
+    "coverage_completeness": "1 hunk, 3 reqs, 3 tasks all mapped; R-003 partial recorded in gap registry",
+    "deviation_classification_clarity": "empty deviation list defensibly justified; test-hunk gap correctly kept out of 4 classes",
+    "risk_surface_coverage": "regression candidates checked; edge cases, collection risk, frontmatter overstatement, no execution",
+    "recommendation_actionability": "file+change+verifier on all 3; rec 1 bundles two changes"
+  }
+}

@@ -1,0 +1,152 @@
+PASS t2-sample-check.py still passes on the final files (RESULT: ALL PASS (0 failures))
+PASS t3-static-check.py still passes on the final files (RESULT: ALL PASS (0 failures))
+PASS reflexion.jsonl.example: six synthetic rows parse and carry solutions
+PASS intended live source exists: src/superclaude/pm_agent/reflexion.py
+PASS intended live source exists: src/superclaude/pytest_plugin.py
+PASS intended live source exists: tests/conftest.py
+PASS intended live source exists: tests/unit/test_reflexion.py
+PASS intended live source exists: tests/unit/test_reflexion_pollution_guard.py
+PASS intended live source exists: src/superclaude/agents/pm-agent.md
+PASS intended live source exists: src/superclaude/__init__.py
+PASS intended live source exists: src/superclaude/pm_agent/__init__.py
+PASS docs/user-guide/memory-system.md:201 docs/reference/pm-agent-autonomous-reflection.md exists
+PASS docs/user-guide/memory-system.md:205 docs/FAQ.md marked historical
+PASS docs/memory/README.md:7 docs/user-guide/memory-system.md exists
+PASS docs/memory/README.md:33 docs/user-guide/memory-system.md exists
+PASS docs/memory/README.md:66 docs/memory/WORKFLOW_METRICS_SCHEMA.md exists
+PASS docs/memory/README.md:222 docs/user-guide/memory-system.md exists
+PASS docs/memory/README.md:225 docs/reference/pm-agent-autonomous-reflection.md exists
+PASS docs/memory/README.md:226 src/superclaude/agents/pm-agent.md exists
+PASS docs/mcp/mcp-integration-policy.md:13 docs/user-guide/memory-system.md exists
+PASS docs/mcp/mcp-integration-policy.md:450 docs/user-guide/memory-system.md exists
+PASS docs/mcp/mcp-integration-policy.md:493 docs/architecture/pm-agent-responsibility-cleanup.md marked historical
+PASS docs/mcp/mcp-integration-policy.md:494 docs/user-guide/memory-system.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:5 pm.md marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:5 plugins/superclaude/commands/pm.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:193 docs/user-guide/memory-system.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:294 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:299 docs/research/reflexion-integration-2025.md marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:305 docs/reference/pm-agent-autonomous-reflection.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:678 plugins/superclaude/commands/pm.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:679 docs/user-guide/memory-system.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:679 docs/research/reflexion-integration-2025.md marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:679 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/memory/pm_context.md:3 docs/user-guide/memory-system.md exists
+PASS docs/memory/pm_context.md:27 llm-agent-token-efficiency-2025.md marked historical
+PASS docs/memory/pm_context.md:60 docs/memory/WORKFLOW_METRICS_SCHEMA.md exists
+PASS docs/memory/pm_context.md:95 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/memory/token_efficiency_validation.md:6 docs/user-guide/memory-system.md exists
+PASS docs/memory/token_efficiency_validation.md:6 plugins/superclaude/commands/pm.md exists
+PASS docs/memory/token_efficiency_validation.md:44 docs/memory/WORKFLOW_METRICS_SCHEMA.md exists
+PASS docs/memory/token_efficiency_validation.md:61 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/memory/token_efficiency_validation.md:62 docs/memory/pm_context.md exists
+PASS docs/memory/token_efficiency_validation.md:179 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/memory/token_efficiency_validation.md:180 docs/memory/pm_context.md exists
+PASS docs/memory/token_efficiency_validation.md:181 plugins/superclaude/commands/pm.md exists
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md:7 docs/user-guide/memory-system.md exists
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md:421 plugins/superclaude/commands/pm.md exists
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md:422 docs/research/llm-agent-token-efficiency-2025.md marked historical
+PASS docs/user-guide/memory-system.md states 'REFLEXION_OUTPUT_DIR'
+PASS docs/user-guide/memory-system.md states '0.7'
+PASS docs/user-guide/memory-system.md states 'first matching row'
+PASS docs/user-guide/memory-system.md states 'stub'
+PASS docs/user-guide/memory-system.md states 'does **not** remove'
+PASS docs/user-guide/memory-system.md states 'synthetic'
+PASS docs/memory/README.md states 'solutions_learned.jsonl'
+PASS docs/memory/README.md states '0.7'
+PASS docs/memory/README.md states 'first matching row'
+PASS docs/memory/README.md states 'stub'
+PASS docs/memory/README.md states 'does **not** filter or redact'
+PASS docs/memory/README.md states 'Callers must redact'
+PASS docs/mcp/mcp-integration-policy.md states 'ReflexionPattern'
+PASS docs/mcp/mcp-integration-policy.md states 'UNVERIFIED'
+PASS docs/mcp/mcp-integration-policy.md states 'superseded'
+PASS docs/mcp/mcp-integration-policy.md states 'first match in file order'
+PASS docs/reference/pm-agent-autonomous-reflection.md states 'ReflexionPattern'
+PASS docs/reference/pm-agent-autonomous-reflection.md states 'NOT implemented'
+PASS docs/reference/pm-agent-autonomous-reflection.md states 'Nothing is redacted'
+PASS docs/reference/pm-agent-autonomous-reflection.md states 'UNVERIFIED'
+PASS docs/memory/pm_context.md states 'historical design notes'
+PASS docs/memory/pm_context.md states 'unmeasured'
+PASS docs/memory/pm_context.md states 'Superseded'
+PASS docs/memory/pm_context.md states 'explicit Python API'
+PASS docs/memory/token_efficiency_validation.md states 'historical record'
+PASS docs/memory/token_efficiency_validation.md states 'superseded'
+PASS docs/memory/token_efficiency_validation.md states 'never measured'
+PASS docs/memory/token_efficiency_validation.md states 'explicit API'
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md states 'documented'
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md states 'error_search_tool'
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md states 'not automatically emitted'
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md states 'separate data flow'
+PASS no unlabelled retired text 'ReflexionMemory (Built-in, Always Available)'
+PASS no unlabelled retired text 'superclaude/core/pm_init/reflexion_memory.py`'
+PASS no unlabelled retired text 'Auto-Managed: true (internal'
+PASS no unlabelled retired text 'Mindbase MCP (automatic)'
+PASS no unlabelled retired text 'Mindbase: Automatic save'
+PASS no unlabelled retired text 'Mindbase auto-load (automatic)'
+PASS no unlabelled retired text 'Search: Keyword-based (50% overlap'
+PASS no unlabelled retired text 'Return entries with >50% overlap'
+PASS no unlabelled retired text 'Sort by timestamp (most recent first)'
+PASS no unlabelled retired text 'rm docs/memory/reflexion.jsonl'
+PASS no unlabelled retired text 'jq -s 'unique_by(.mistake)''
+PASS no unlabelled retired text 'tail -100 docs/memory/reflexion.jsonl'
+PASS no unlabelled retired text 'Copy this to `reflexion.jsonl`'
+PASS no unlabelled retired text 'docs/memory/reflexion.jsonl (ReflexionMemory'
+PASS no unlabelled retired text 'Built-in ReflexionMemory (Always Available)'
+PASS no unlabelled retired text 'SuperClaude provides significant token savings with built-in'
+PASS no retired active text '"mindbase_used": false,\n  "sub_agents"'
+PASS docs/user-guide/memory-system.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/memory/README.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/memory/reflexion.jsonl.example: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/mcp/mcp-integration-policy.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/reference/pm-agent-autonomous-reflection.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/memory/pm_context.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/memory/token_efficiency_validation.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS docs/memory/WORKFLOW_METRICS_SCHEMA.md: bare 'reflexion.jsonl' only appears inside superseded/historical text
+PASS no claim that status affects matching (negations stripped)
+PASS no active automatic-load/save claim for memory
+PASS metrics example record uses error_search_tool: none and not mindbase_used
+PASS metrics table row labels error_search_tool a documented optional metric with accurate local/none examples
+PASS mindbase_used appears on one line only: the note that the old data is left unchanged
+PASS error_search_tool is in the Optional Fields table, not Required
+PASS README: no '(Auto-generated)' heading for workflow_metrics/patterns_learned
+PASS README: retired 'generated by PM Agent' / 'automatically created and managed' wording is gone
+PASS README: states no tracked code writes workflow_metrics.jsonl / patterns_learned.jsonl
+PASS README: file-size figures only appear as unverified earlier estimates
+PASS reflection reference: no 'Automatic best practice adoption' claim
+PASS reflection reference: workflow metrics labelled documented design, not written by tracked code
+PASS reflection reference: no 'benchmark achieved' claim
+PASS reflection reference: Monitoring block labelled design sketch, separate from error learning
+PASS pm_context: docs/pdca line marked historical
+PASS pm.md is 112 lines with no confidence/self-check text (so its old line refs are stale)
+PASS reflection reference: status is historical, not 'Production Ready'
+PASS reflection reference: stale pm.md range marked: - Line 870-1016: Self-Correction Loop (拡張済み; historical)
+PASS reflection reference: stale pm.md range marked: - Line 870-1016: Self-Correction Loop (historical; that vers
+PASS reflection reference: stale pm.md range marked: For implementation details, see `plugins/superclaude/command
+PASS reflection reference: Integration Points block marked historical
+PASS reflection reference: Phase 1 'Complete' marked as unverified claim
+PASS reflection reference: Expected Results section and blocks labelled unmeasured
+PASS reflection reference: figure labelled unmeasured: Savings: 93% (2,150 tokens
+PASS reflection reference: figure labelled unmeasured: ROI: 25-250x
+PASS reflection reference: figure labelled unmeasured: Savings: 80-95% on reflection cost
+PASS reflection reference: figure labelled unmeasured: Savings: 80-98% token reduction
+PASS reflection reference: figure labelled unmeasured: (60-95% potential savings
+PASS reflection reference: figure labelled unmeasured: 94% hallucination detection rate
+PASS reflection reference: figure labelled unmeasured: (94% detection rate
+PASS reflection reference: figure labelled unmeasured: = 46% savings
+PASS reflection reference: figure labelled unmeasured: Tokens Saved: 15-30K
+PASS reflection reference: validation metrics labelled targets
+PASS README: overview and pm_context description qualified
+PASS pm_context: A/B pattern and Known Issues qualified
+PASS metrics schema: no move/touch/delete recipes against the real data file
+PASS validation note: optimization framework labelled design intent
+PASS no tracked src/plugins writer mentions the two files (hits: [])
+PASS changed product files == the eight allowed files (8 changed)
+PASS no untracked files outside .dev/
+PASS nothing staged outside .dev/tasks/
+PASS all 1949 protected baseline files unchanged (code, tests, guards, memory data, mistakes)
+PASS docs/memory/solutions_learned.jsonl byte-identical to baseline
+PASS docs/memory/workflow_metrics.jsonl byte-identical to baseline
+PASS docs/memory/patterns_learned.jsonl byte-identical to baseline
+PASS docs/mistakes/ was not created
+RESULT: ALL PASS (0 failures)

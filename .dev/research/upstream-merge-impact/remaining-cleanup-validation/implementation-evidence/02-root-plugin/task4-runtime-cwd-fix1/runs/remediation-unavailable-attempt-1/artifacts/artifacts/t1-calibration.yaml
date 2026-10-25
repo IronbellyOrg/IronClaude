@@ -1,0 +1,39 @@
+# Wave 1D blind calibration. Returned by Agent sc:confidence-calibrator (requested slot: opus; agentId a2bc0b03539f51942).
+# Persisted verbatim in substance by the orchestrator.
+# Actual provider model: the Agent tool does not report it. Requested slot opus -> ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-5-5[1m] (resolved alias).
+# Card author slot = sonnet. Calibrator slot = opus. The classes are disjoint, so calibrator_diversity = full (no Tier-2 reviewers exist).
+# Executor class is unresolved (no flag, no env, no commit-author hint): executor_class_source = unknown.
+calibrator_agent: sc:confidence-calibrator
+calibrator_model_slot_requested: opus
+card_author_model_slot_requested: sonnet
+calibrator_diversity: full
+formation_context_supplied: false
+citation_spot_checks:   # 15/15 verified by the calibrator's own Reads under audit_repo_root
+  - {citation: "execution.log:2", result: verified}
+  - {citation: "execution.log:3", result: verified}
+  - {citation: "execution.log:4", result: verified}
+  - {citation: "execution.log:2-4", result: verified}
+  - {citation: "execution.log:5", result: verified}
+  - {citation: "src/greeting.py:1", result: verified}
+  - {citation: "src/greeting.py:4", result: verified}
+  - {citation: "src/greeting.py:2-3", result: verified}
+  - {citation: "src/greeting.py:2", result: verified}
+  - {citation: "src/greeting.py:2-4", result: verified}
+  - {citation: "src/greeting.py:1-4", result: verified}
+  - {citation: "tests/test_greeting.py:4-5", result: verified}
+  - {citation: "tests/test_greeting.py:8-13", result: verified}
+  - {citation: "tests/test_greeting.py:1", result: verified}
+  - {citation: "tests/test_greeting.py:1-13", result: verified}
+calibrator_unverified_items:
+  - "Orchestrator annotation that src/ holds exactly one file. The calibrator has Read only and cannot list directories; the orchestrator confirmed it at Wave 0 with find."
+  - "'repo has zero commits' and '--no-mcp' are run facts, not things the calibrator could check by reading files."
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.80
+arithmetic_mean_unrounded: 0.834
+confidence_calibrated: 0.83
+self_reported_confidence: 0.60   # not used for routing
+calibrator_escalation_recommendation: "ESCALATE (C < 0.85)"

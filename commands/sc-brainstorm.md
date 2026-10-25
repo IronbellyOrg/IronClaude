@@ -7,9 +7,9 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
-# /sc:sc:sc:brainstorm - Interactive Requirements Discovery
+# /sc:sc-brainstorm - Interactive Requirements Discovery
 
-> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:sc:brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.
+> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:sc-brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.
 
 ## Triggers
 - Ambiguous project ideas requiring structured exploration
@@ -19,7 +19,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 ## Context Trigger Pattern
 ```
-/sc:sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+/sc:sc-brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 **Usage**: Type this pattern in your Claude Code conversation to activate brainstorming behavioral mode with systematic exploration and multi-persona coordination.
 
@@ -60,27 +60,27 @@ Key behaviors:
 
 ### Systematic Product Discovery
 ```
-/sc:sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
+/sc:sc-brainstorm "AI-powered project management tool" --strategy systematic --depth deep
 # Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
 ```
 
 ### Agile Feature Exploration
 ```
-/sc:sc:brainstorm "real-time collaboration features" --strategy agile --parallel
+/sc:sc-brainstorm "real-time collaboration features" --strategy agile --parallel
 # Parallel exploration paths with frontend, backend, and security personas
 # Context7 and Magic MCP for framework and UI pattern analysis
 ```
 
 ### Enterprise Solution Validation
 ```
-/sc:sc:brainstorm "enterprise data analytics platform" --strategy enterprise --validate
+/sc:sc-brainstorm "enterprise data analytics platform" --strategy enterprise --validate
 # Comprehensive validation with security, devops, and architect personas
 # Serena MCP for cross-session persistence and enterprise requirements tracking
 ```
 
 ### Cross-Session Refinement
 ```
-/sc:sc:brainstorm "mobile app monetization strategy" --depth normal
+/sc:sc-brainstorm "mobile app monetization strategy" --depth normal
 # Serena MCP manages cross-session context and iterative refinement
 # Progressive dialogue enhancement with memory-driven insights
 ```
@@ -104,8 +104,8 @@ Key behaviors:
 This command produces a REQUIREMENTS SPECIFICATION ONLY.
 
 **Explicitly Will NOT**:
-- Create architecture diagrams or system designs (use `/sc:sc:design`)
-- Generate implementation code (use `/sc:sc:implement`)
+- Create architecture diagrams or system designs (use `/sc:sc-design`)
+- Generate implementation code (use `/sc:sc-implement`)
 - Make architectural decisions
 - Design database schemas or API contracts
 - Create technical specifications beyond requirements
@@ -117,4 +117,4 @@ This command produces a REQUIREMENTS SPECIFICATION ONLY.
 - User stories / acceptance criteria
 - Open questions for user
 
-**Next Step**: After brainstorm completes, use `/sc:sc:design` for architecture or `/sc:sc:workflow` for implementation planning.
+**Next Step**: After brainstorm completes, use `/sc:sc-design` for architecture or `/sc:sc-workflow` for implementation planning.

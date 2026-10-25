@@ -1,0 +1,16 @@
+# Wave 3C — persisted scores returned by sc:confidence-calibrator for reviewer-1 card
+card: reviewer-cards/reviewer-1-card.yaml
+calibrator_agent: sc:confidence-calibrator
+requested_model_slot: opus      # claude-opus-5-5[1m]; provider model not separately reported by Agent tool
+reviewer_model_slot: sonnet
+calibrator_diversity: full
+formation_context_supplied: false
+citation_spot_check_summary: "~24 citations Read at cited ranges in the snapshot/plugin refs; all resolve. Partial: git-inventory 'no commits' (no line cited; content matches line 9); snapshot Glob claim (calibrator cannot Glob; indirectly backed by git-inventory). Provenance note: card admits execution.log/git-inventory facts came from the brief, though content resolves."
+scores:
+  citation_grounding: 0.90
+  coverage_completeness: 0.92
+  deviation_classification_clarity: 0.88
+  risk_surface_coverage: 0.88
+  recommendation_actionability: 0.90
+C: 0.90    # 4.48/5 = 0.896
+self_reported: 0.85

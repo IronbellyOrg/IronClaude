@@ -1,0 +1,14 @@
+# sc:confidence-check (bundled skill, lightweight token-verification form) before chat recommendations
+checks:
+  no_duplicate: pass        # grep proposed.md: no existing 'Hello, Ada!' / Acceptance / depends lines (rc=1)
+  architecture_compliance: partial   # fixture tests/test_greeting.py uses plain assert; pytest as framework not confirmed -> pytest.raises token [UNVERIFIED]
+  official_docs: n/a        # plan-text edits; no external API
+  oss_reference: n/a
+  root_cause: pass          # gaps grounded in spec.md:6/:12 vs proposed.md:4/:10 (validator-verified)
+confidence: 0.80
+decision: present-with-alternatives   # R-1/R-2 actionable; R-2 framework token unverified; R-3 paths and R-4 need user decision
+recommendations:
+  - {id: R-1, decision: actionable}
+  - {id: R-2, decision: actionable, note: "'pytest.raises(ValueError)' is an example; framework unconfirmed [UNVERIFIED]"}
+  - {id: R-3, decision: needs-user-input, note: "paths depend on G-2"}
+  - {id: R-4, decision: needs-user-decision}

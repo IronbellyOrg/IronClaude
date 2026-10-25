@@ -1,0 +1,26 @@
+selected_tier: 1
+fired_rule_number: null            # §5.1 hard override `--tier 1` applied before §5.3 evaluation
+hard_override: "--tier 1"
+rubric_shadow_evaluation:          # recorded for audit; not deciding
+  rule_1: "fail (S_domains == 2, requires 1)"
+  rule_2: "match — C 0.924 >= 0.85, S_scope 3 <= 10, S_domains 2 <= 2, S_dev_density 0.0 <= 0.10 -> STOP at T1 (no WARN; density <= 0.05)"
+  would_have_fired_rule_number: 2
+coverage_degraded: null
+coverage_undefined: false
+surface_unreached: null
+inputs:
+  C: 0.924
+  S_scope: 3
+  S_domains: 2        # [INFERRED] from task text (code + tests); plan names no paths
+  S_dev_density: 0.0
+  coverage_pct: 1.0
+composite_score: 1
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1   # plan wording gaps (F-001, F-003)
+escalation_reason: "User pinned --tier 1; rubric independently agrees (rule 2 STOP at T1). No Wave 3/4."
+t2_model_class_diversity: full     # 3 distinct aliases; moot (T2 not run)
+t2_vendor_diversity: multi

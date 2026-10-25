@@ -1,0 +1,101 @@
+# Tier-1 reflection card (Wave 1C) — authored by Task(sc:sc-root-cause-analyst), requested slot: sonnet
+# Persisted by orchestrator before calibration. Self-reported confidence is retained for audit only; it is NOT used for routing.
+card_author: {agent: sc:sc-root-cause-analyst, requested_model_slot: sonnet, agent_id: af5897361865923f7, actual_provider_model: "claude-sonnet-5-5[1m] (slot alias; not self-reported by agent)"}
+mode: pre
+use_case: UC-1
+tier: 1
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+scope_summary: "Proposed 3-task plan (T-101..T-103) vs 3-requirement synthetic greeting spec (R-001..R-003). Coverage from Wave 1B matrix (verified, not recomputed). src/greeting.py and tests/test_greeting.py read only to ground plan risks."
+S_scope: 3
+S_domains: 2   # [INFERRED] code + tests from task text; plan names no file paths
+
+findings:
+  - id: F-001
+    claim: "R-001 is covered by T-101 (exact ID) but T-101 does not pin the contract string: it says 'the required greeting' and omits the literal 'Hello, Ada!' / Ada input."
+    tag: grounded
+    severity: medium
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md:6"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:4"
+  - id: F-002
+    claim: "R-002 is covered by T-102 with full fidelity (empty name + ValueError); T-102 does not name the function it modifies nor define 'empty'."
+    tag: grounded
+    severity: low
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md:9"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:7"
+  - id: F-003
+    claim: "R-003 is covered by T-103 by ID, but T-103 does not require the ordinary test to assert 'Hello, Ada!' nor the empty-name test to assert ValueError specifically; weak tests would satisfy the wording."
+    tag: grounded
+    severity: medium
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md:12"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:10"
+  - id: F-004
+    claim: "Wave 1B matrix confirmed: 3 parsed reqs, 3 tasks, 0 inferred, 0 unmapped, coverage_pct 1.0, S_dev_density 0.0; each spec heading maps to a '## T-10x R-00x' heading."
+    tag: grounded
+    severity: low
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml:27"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml:34"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:3"
+  - id: F-005
+    claim: "The plan names no file targets (no path for greet, none for tests), nor test framework; executor must guess layout."
+    tag: grounded
+    severity: medium
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:4"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:10"
+  - id: F-006
+    claim: "No ordering/dependency statement (T-103 depends on T-101/T-102) and no acceptance/verification step or definition of done."
+    tag: grounded
+    severity: medium
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md:9"
+  - id: F-007
+    claim: "The repo already contains src/greeting.py and tests/test_greeting.py; the plan reads as greenfield ('Implement', 'Add') without saying create/modify/verify — risk of overwrite, duplication or silent no-op."
+    tag: grounded
+    severity: medium
+    citations:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/src/greeting.py:1"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/tests/test_greeting.py:4"
+  - id: F-008
+    claim: "[INFERRED] 'Empty' is semantically ambiguous (empty string vs any falsy value); the plan does not resolve it."
+    tag: "[INFERRED]"
+    severity: low
+    citations: []
+  - id: F-009
+    claim: "[INFERRED] One-task-per-requirement with ID-linked headings follows traceability practice; prose-only bodies without acceptance criteria are the weakness. No external best-practice lookup performed."
+    tag: "[INFERRED]"
+    severity: low
+    citations: []
+
+best_practice_grade: 3
+best_practice_rationale: "Strong traceability (proposed.md:3,:6,:9; coverage 1.0) held to 3 by missing file targets (F-005), ordering/acceptance (F-006), exact-string/assertion pinning (F-001, F-003), and no reconciliation with existing files (F-007)."
+
+risks:
+  - {id: RK-1, basis: F-001, risk: "False pass on R-001: a different string/casing would still read as satisfying T-101."}
+  - {id: RK-2, basis: F-003, risk: "Weak tests (generic exception catch, no exact-string assert) satisfy T-103 wording yet give no real evidence for R-001/R-002."}
+  - {id: RK-3, basis: F-007, risk: "Executor collision with existing src/greeting.py and tests/test_greeting.py (overwrite, duplicate, or silent no-op)."}
+  - {id: RK-4, basis: F-006, risk: "No run/verify step; 100% ID coverage does not guarantee a working greet."}
+  - {id: RK-5, basis: "tests/test_greeting.py:1", tag: "[INFERRED]", risk: "Import path fragility of 'from src.greeting import greet' (not run)."}
+
+recommendations:
+  - {id: REC-1, priority: high, file: proposed.md, change: "Reword T-101: implement greet(name) in src/greeting.py so greet(\"Ada\") returns exactly \"Hello, Ada!\".", verifier: "T-101 body contains the literal \"Hello, Ada!\"."}
+  - {id: REC-2, priority: high, file: proposed.md, change: "Reword T-103: in tests/test_greeting.py assert greet(\"Ada\") == \"Hello, Ada!\" and that greet(\"\") raises ValueError.", verifier: "T-103 text names both assertions; post-execution UC-2 audit matches test bodies."}
+  - {id: REC-3, priority: medium, file: proposed.md, change: "Add ordering (T-101, T-102 before T-103), file targets, and an acceptance step: run the test file, expect both tests pass.", verifier: "proposed.md contains a dependency line and both file paths."}
+  - {id: REC-4, priority: medium, file: proposed.md, change: "State whether src/greeting.py and tests/test_greeting.py are to be created, modified or verified only.", verifier: "proposed.md states the intended action for each existing file."}
+  - {id: REC-5, priority: low, file: spec.md, change: "Define 'empty' in R-002 (empty string only vs any falsy value).", verifier: "spec.md R-002 states the accepted input set."}
+
+deviation_classification:
+  note: "UC-1 has no executed work; the 4-category deviation taxonomy is n/a in pre mode."
+  deviations: []
+
+grounding_gaps:
+  - "No Serena/LSP; find_implementations not run."
+  - "No external best-practice lookup (tech-research/context7 unavailable)."
+  - "No tests run; existing test pass state and import path unverified."
+  - "completed.md, changes.patch, execution.log not read (post-execution artifacts outside pre scope)."
+  - "Repo has git init only, no commits; no baseline."
+
+self_reported_confidence: 0.82   # discarded for routing; see calibration.yaml

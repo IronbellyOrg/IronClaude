@@ -1,0 +1,42 @@
+# Wave 1B UC-2 task/spec-to-work map (orchestrator, native Read grounding; Serena/auggie unavailable)
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+git_state: "git init only; no commits; all fixture files untracked (git -C status --porcelain)"
+diff_source: "task-log (--task-log); no --diff/--commit-range supplied; changes.patch present in repo but NOT a supplied input"
+work_files:
+  - path: src/greeting.py          # in --scope
+    lines: 4
+    domain: code
+  - path: tests/test_greeting.py   # outside --scope, declared by execution.log:4
+    lines: 13
+    domain: tests
+tasks:
+  - id: T-101
+    tasklist_ref: completed.md:6
+    spec: R-001 (spec.md:5-6)
+    log_ref: execution.log:2
+    work_ref: src/greeting.py:1,4
+    observed: 'return f"Hello, {name}!" yields "Hello, Ada!" for "Ada"'
+    mapped: true
+  - id: T-102
+    tasklist_ref: completed.md:7
+    spec: R-002 (spec.md:8-9)
+    log_ref: execution.log:3
+    work_ref: src/greeting.py:2-3
+    observed: 'if not name: raise ValueError("name required")'
+    mapped: true
+  - id: T-103
+    tasklist_ref: completed.md:8
+    spec: R-003 (spec.md:11-12)
+    log_ref: execution.log:4
+    work_ref: tests/test_greeting.py:4-5,8-13
+    observed: "test_ordinary asserts greet('Ada'); test_empty expects ValueError on ''"
+    mapped: true
+unmapped_hunks: []
+frontmatter: {status: done, ref: completed.md:2}
+structural_signals: {S_scope: 2, S_domains: 2, S_dev_density: 0.0, total_hunks: 2, unmapped_hunks: 0}
+verification:
+  ran: false
+  skip_reason: tool-unavailable   # execute_shell_command not exposed; execution.log:5 explicitly claims no test run
+runtime_surface: {requirements: [], sweep_ran: false, note: "greet is a plain undecorated module function (src/greeting.py:1); kind resolved by native Read, not Serena"}
+reachability: {gate_ran: false, skip_reason: no-side-effect-requirements}
+interaction_effects_scanned: true  # 3 completed tasks; native overlap: T-101/T-102 share symbol greet; T-103 tests it; no cross-task contradiction

@@ -1,0 +1,123 @@
+{
+  "status": "verified",
+  "snapshot_kind": "native-selected-inputs",
+  "source_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project",
+  "reviewer_grounding_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root",
+  "selection_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/selected-inputs.json",
+  "selection_sha256": "701adb0f98ea62badbb3f9153765479618bb5b19bba6d6c8ef4e2a9639b9f22c",
+  "coverage_basis": "explicit --diff changes.patch, --spec spec.md, --tasklist completed.md; --scope src discovered via git ls-files --cached --others --exclude-standard (repo has zero commits; all files untracked); linked evidence tests/test_greeting.py (T-103/R-003 claim, outside --scope, not in diff); run-evidence = T1 card + Wave-1B map + reuse audit. execution.log/proposed.md not supplied, excluded.",
+  "enumeration_complete": true,
+  "output_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts",
+  "discovery_metadata": {
+    "version": 1,
+    "scopes": [
+      "src"
+    ],
+    "gitignore_policy": "exclude-standard",
+    "verification_artifact_excludes": {
+      "directories": [
+        "__pycache__",
+        ".pytest_cache",
+        "htmlcov",
+        ".mypy_cache",
+        ".ruff_cache",
+        "target",
+        ".hypothesis"
+      ],
+      "suffixes": [
+        ".pyc",
+        ".pyo",
+        ".pyd",
+        ".egg-info"
+      ],
+      "names": [
+        ".coverage",
+        ".tsbuildinfo"
+      ],
+      "prefixes": [
+        ".coverage."
+      ],
+      "nested": [
+        "node_modules/.cache"
+      ]
+    }
+  },
+  "scoped_inventory_before": [
+    {
+      "path": "src/greeting.py",
+      "kind": "regular"
+    }
+  ],
+  "files": [
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/spec.md",
+      "sha256_before": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548",
+      "sha256_copy": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548",
+      "sha256_after": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/completed.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/completed.md",
+      "sha256_before": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25",
+      "sha256_copy": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25",
+      "sha256_after": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/changes.patch",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/changes.patch",
+      "sha256_before": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74",
+      "sha256_copy": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74",
+      "sha256_after": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/tests/test_greeting.py",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/tests/test_greeting.py",
+      "sha256_before": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4",
+      "sha256_copy": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4",
+      "sha256_after": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/t1-card.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/t1-card.md",
+      "sha256_before": "191d4fdca89dd7c3cbe0bd65c6c157eba51235d5299171db84c2b82d88080fab",
+      "sha256_copy": "191d4fdca89dd7c3cbe0bd65c6c157eba51235d5299171db84c2b82d88080fab",
+      "sha256_after": "191d4fdca89dd7c3cbe0bd65c6c157eba51235d5299171db84c2b82d88080fab"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/artifacts/task-to-diff-map.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/artifacts/task-to-diff-map.md",
+      "sha256_before": "fc07a9a96a8357402d65149d78087d39252301d65cbd29a619f7aa3d7196c0ab",
+      "sha256_copy": "fc07a9a96a8357402d65149d78087d39252301d65cbd29a619f7aa3d7196c0ab",
+      "sha256_after": "fc07a9a96a8357402d65149d78087d39252301d65cbd29a619f7aa3d7196c0ab"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/artifacts/reuse-audit.yaml",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/artifacts/reuse-audit.yaml",
+      "sha256_before": "294377765bb95ae887cb5bc362fd0ae33086f311aa393fd2bf45411b763f7424",
+      "sha256_copy": "294377765bb95ae887cb5bc362fd0ae33086f311aa393fd2bf45411b763f7424",
+      "sha256_after": "294377765bb95ae887cb5bc362fd0ae33086f311aa393fd2bf45411b763f7424"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/src/greeting.py",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/src/greeting.py",
+      "sha256_before": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35",
+      "sha256_copy": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35",
+      "sha256_after": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35"
+    }
+  ],
+  "scoped_inventory_after": [
+    {
+      "path": "src/greeting.py",
+      "kind": "regular"
+    }
+  ]
+}

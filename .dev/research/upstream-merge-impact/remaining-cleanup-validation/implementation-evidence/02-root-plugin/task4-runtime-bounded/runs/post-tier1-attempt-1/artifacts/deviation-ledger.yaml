@@ -1,0 +1,3 @@
+# UC-2 deviation ledger (4-category). No classified deviations.
+deviation_aggregation_mode: per-hunk
+deviations: []

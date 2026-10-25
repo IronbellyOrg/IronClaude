@@ -1,0 +1,118 @@
+commit 8da05a172063d16e062a0bfabf583debc9be385c
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Wed Nov 12 18:12:57 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Wed Nov 12 18:12:57 2025 +0100
+
+    fix: use direct commands instead of uv run with --system
+    
+    Changed from 'uv run <command>' to direct '<command>' execution
+    since we're using 'uv pip install --system' which installs to
+    the system Python environment.
+    
+    This fixes pytest-cov and other plugin detection issues.
+    
+    Changes:
+    - pytest instead of uv run pytest
+    - ruff instead of uv run ruff
+    - superclaude instead of uv run superclaude
+    - Added uv pip list for debugging
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/.github/workflows/quick-check.yml b/.github/workflows/quick-check.yml
+index 2e8005a5..6b0352f6 100644
+--- a/.github/workflows/quick-check.yml
++++ b/.github/workflows/quick-check.yml
+@@ -31,19 +31,19 @@ jobs:
+ 
+       - name: Run unit tests only
+         run: |
+-          uv run pytest tests/unit/ -v --tb=short -x
++          pytest tests/unit/ -v --tb=short -x
+ 
+       - name: Run linter
+         run: |
+-          uv run ruff check src/ tests/
++          ruff check src/ tests/
+ 
+       - name: Check formatting
+         run: |
+-          uv run ruff format --check src/ tests/
++          ruff format --check src/ tests/
+ 
+       - name: Verify pytest plugin
+         run: |
+-          uv run pytest --trace-config 2>&1 | grep -q "superclaude"
++          pytest --trace-config 2>&1 | grep -q "superclaude"
+ 
+       - name: Summary
+         if: success()
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 5b1e08a1..2a206703 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -36,19 +36,21 @@ jobs:
+       - name: Install dependencies
+         run: |
+           uv pip install --system -e ".[dev]"
++          uv pip list --system
+ 
+       - name: Verify package installation
+         run: |
+-          uv run python -c "import superclaude; print(f'SuperClaude {superclaude.__version__} installed')"
++          python -c "import superclaude; print(f'SuperClaude {superclaude.__version__} installed')"
++          python -c "import pytest_cov; print('pytest-cov is installed')"
+ 
+       - name: Run tests
+         run: |
+-          uv run pytest -v --tb=short --color=yes
++          pytest -v --tb=short --color=yes
+ 
+       - name: Run tests with coverage
+         if: matrix.python-version == '3.10'
+         run: |
+-          uv run pytest --cov=superclaude --cov-report=xml --cov-report=term
++          pytest --cov=superclaude --cov-report=xml --cov-report=term
+ 
+       - name: Upload coverage to Codecov
+         if: matrix.python-version == '3.10'
+@@ -83,11 +85,11 @@ jobs:
+ 
+       - name: Run ruff linter
+         run: |
+-          uv run ruff check src/ tests/
++          ruff check src/ tests/
+ 
+       - name: Check ruff formatting
+         run: |
+-          uv run ruff format --check src/ tests/
++          ruff format --check src/ tests/
+ 
+   plugin-check:
+     name: Pytest Plugin Check
+@@ -113,11 +115,11 @@ jobs:
+ 
+       - name: Verify pytest plugin loaded
+         run: |
+-          uv run pytest --trace-config 2>&1 | grep -q "superclaude" && echo "✅ Plugin loaded successfully" || (echo "❌ Plugin not loaded" && exit 1)
++          pytest --trace-config 2>&1 | grep -q "superclaude" && echo "✅ Plugin loaded successfully" || (echo "❌ Plugin not loaded" && exit 1)
+ 
+       - name: Check available fixtures
+         run: |
+-          uv run pytest --fixtures | grep -E "(confidence_checker|self_check_protocol|reflexion_pattern|token_budget|pm_context)"
++          pytest --fixtures | grep -E "(confidence_checker|self_check_protocol|reflexion_pattern|token_budget|pm_context)"
+ 
+   doctor-check:
+     name: SuperClaude Doctor Check
+@@ -143,7 +145,7 @@ jobs:
+ 
+       - name: Run doctor command
+         run: |
+-          uv run superclaude doctor --verbose
++          superclaude doctor --verbose
+ 
+   test-summary:
+     name: Test Summary

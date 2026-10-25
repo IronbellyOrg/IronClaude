@@ -1,0 +1,344 @@
+{
+  "cases": 14,
+  "successful_shell_commands": 105,
+  "foreign_file_calls": 0,
+  "shells_with_foreign_checkout_literals": [
+    {
+      "case": "invalid-commit-range-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 109,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 410,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 14,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 74,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 503,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 507,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "missing-post-attempt-1",
+      "event": 11,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "missing-pre-attempt-1",
+      "event": 11,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "missing-pre-attempt-1",
+      "event": 34,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 12,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 93,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 106,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 520,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 34,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 125,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 210,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 216,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 222,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 77,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 292,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 458,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 496,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 11,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 89,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 260,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 267,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 419,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 616,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 1056,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 1292,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 1532,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 1542,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-default-attempt-1",
+      "event": 9,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-default-attempt-1",
+      "event": 40,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 52,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 212,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 302,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "readiness-unavailable-attempt-1",
+      "event": 6,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 8,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 89,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 455,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 464,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    },
+    {
+      "case": "unsafe-output-attempt-1",
+      "event": 6,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded"
+      ]
+    }
+  ],
+  "output": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded-trace-audit.json"
+}

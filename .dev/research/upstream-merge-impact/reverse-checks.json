@@ -1,0 +1,488 @@
+[
+  {
+    "unit": "foundation-migration",
+    "sha": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/skills/confidence-check/SKILL.md:1\nerror: src/superclaude/skills/confidence-check/SKILL.md: patch does not apply\nerror: patch failed: src/superclaude/pytest_plugin.py:1\nerror: src/superclaude/pytest_plugin.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/token_budget.py:1\nerror: src/superclaude/pm_agent/token_budget.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/self_check.py:1\nerror: src/superclaude/pm_agent/self_check.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/reflexion.py:1\nerror: src/superclaude/pm_agent/reflexion.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/confidence.py:1\nerror: src/superclaude/pm_agent/confidence.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/__init__.py:1\nerror: src/superclaude/pm_agent/__init__.py: patch does not apply\nerror: patch failed: src/superclaude/execution/self_correction.py:1\nerror: src/superclaude/execution/self_correction.py: patch does not apply\nerror: patch failed: src/superclaude/execution/reflection.py:1\nerror: src/superclaude/execution/reflection.py: patch does not apply\nerror: patch failed: src/superclaude/execution/parallel.py:1\nerror: src/superclaude/execution/parallel.py: patch does not apply\nerror: patch failed: src/superclaude/execution/__init__.py:1\nerror: src/superclaude/execution/__init__.py: patch does not apply\nerror: patch failed: src/superclaude/cli/main.py:1\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_skill.py:1\nerror: src/superclaude/cli/install_skill.py: patch does not apply\nerror: patch failed: src/superclaude/cli/doctor.py:1\nerror: src/superclaude/cli/doctor.py: patch does not apply\nerror: patch failed: src/superclaude/cli/__init__.py:1\nerror: src/superclaude/cli/__init__.py: patch does not apply\nerror: patch failed: src/superclaude/__init__.py:1\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: skills/confidence-check/SKILL.md:1\nerror: skills/confidence-check/SKILL.md: patch does not apply\nerror: patch failed: scripts/build_superclaude_plugin.py:1\nerror: scripts/build_superclaude_plugin.py: patch does not apply\nerror: patch failed: pyproject.toml:1\nerror: pyproject.toml: patch does not apply\nerror: patch failed: plugins/superclaude/skills/confidence-check/SKILL.md:1\nerror: plugins/superclaude/skills/confidence-check/SKILL.md: patch does not apply\nerror: patch failed: plugins/superclaude/scripts/clean_command_names.py:1\nerror: plugins/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: patch failed: plugins/superclaude/hooks/hooks.json:1\nerror: plugins/superclaude/hooks/hooks.json: patch does not apply\nerror: patch failed: plugins/superclaude/commands/research.md:1\nerror: plugins/superclaude/commands/research.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/index-repo.md:1\nerror: plugins/superclaude/commands/index-repo.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/agent.md:1\nerror: plugins/superclaude/commands/agent.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/self-review.md:1\nerror: plugins/superclaude/agents/self-review.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/repo-index.md:1\nerror: plugins/superclaude/agents/repo-index.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/deep-research.md:1\nerror: plugins/superclaude/agents/deep-research.md: patch does not apply\nerror: docs/sessions/2025-10-14-summary.md: No such file or directory\nerror: docs/research/task-tool-parallel-execution-results.md: No such file or directory\nerror: docs/research/skills-migration-test.md: No such file or directory\nerror: docs/research/research_serena_mcp_2025-01-16.md: No such file or directory\nerror: docs/research/repository-understanding-proposal.md: No such file or directory\nerror: docs/research/python_src_layout_research_20251021.md: No such file or directory\nerror: docs/research/pm_agent_roi_analysis_2025-10-21.md: No such file or directory\nerror: docs/research/pm-skills-migration-results.md: No such file or directory\nerror: docs/research/pm-mode-validation-methodology.md: No such file or directory\nerror: docs/research/phase1-implementation-strategy.md: No such file or directory\nerror: docs/research/parallel-execution-findings.md: No such file or directory\nerror: docs/research/parallel-execution-complete-findings.md: No such file or directory\nerror: docs/research/markdown-to-python-migration-plan.md: No such file or directory\nerror: docs/research/intelligent-execution-architecture.md: No such file or directory\nerror: docs/research/complete-python-skills-migration.md: No such file or directory\nerror: patch failed: docs/reference/pm-agent-autonomous-reflection.md:48\nerror: docs/reference/pm-agent-autonomous-reflection.md: patch does not apply\nerror: docs/plugin-reorg.md: No such file or directory\nerror: docs/next-refactor-plan.md: No such file or directory\nerror: patch failed: docs/memory/token_efficiency_validation.md:8\nerror: docs/memory/token_efficiency_validation.md: patch does not apply\nerror: docs/architecture/SKILLS_CLEANUP.md: No such file or directory\nerror: docs/architecture/PM_AGENT_COMPARISON.md: No such file or directory\nerror: docs/architecture/PHASE_3_COMPLETE.md: No such file or directory\nerror: docs/architecture/PHASE_2_COMPLETE.md: No such file or directory\nerror: docs/architecture/PHASE_1_COMPLETE.md: No such file or directory\nerror: docs/architecture/MIGRATION_TO_CLEAN_ARCHITECTURE.md: No such file or directory\nerror: docs/architecture/CONTEXT_WINDOW_ANALYSIS.md: No such file or directory\nerror: docs/PR_STRATEGY.md: No such file or directory\nerror: TEST_PLUGIN.md: No such file or directory\nerror: patch failed: README.md:62\nerror: README.md: patch does not apply\nerror: QUALITY_COMPARISON.md: No such file or directory\nerror: PR_DOCUMENTATION.md: No such file or directory\nerror: patch failed: PROJECT_INDEX.md:1\nerror: PROJECT_INDEX.md: patch does not apply\nerror: patch failed: PROJECT_INDEX.json:1\nerror: PROJECT_INDEX.json: patch does not apply\nerror: PLUGIN_INSTALL.md: No such file or directory\nerror: PARALLEL_INDEXING_PLAN.md: No such file or directory\nerror: patch failed: Makefile:1\nerror: Makefile: patch does not apply\nerror: MANIFEST.in: No such file or directory\nerror: DELETION_RATIONALE.md: No such file or directory\nerror: patch failed: CLAUDE.md:1\nerror: CLAUDE.md: patch does not apply\nerror: patch failed: AGENTS.md:1\nerror: AGENTS.md: patch does not apply\nerror: patch failed: .gitignore:100\nerror: .gitignore: patch does not apply\nerror: .claude/skills/confidence-check/confidence.ts: No such file or directory\nerror: .claude/skills/confidence-check/SKILL.md: No such file or directory\nerror: patch failed: .claude/settings.json:1\nerror: .claude/settings.json: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "foundation-migration",
+    "sha": "10844490e2609a61ec201e073872428bac9f9470",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: Makefile:1\nerror: Makefile: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "foundation-migration",
+    "sha": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "8c0559ca9a99a14c7337b48e888959b47dc8acb8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: tests/unit/test_token_budget.py:1\nerror: tests/unit/test_token_budget.py: patch does not apply\nerror: patch failed: tests/unit/test_self_check.py:1\nerror: tests/unit/test_self_check.py: patch does not apply\nerror: patch failed: tests/unit/test_reflexion.py:1\nerror: tests/unit/test_reflexion.py: patch does not apply\nerror: patch failed: tests/unit/test_confidence.py:1\nerror: tests/unit/test_confidence.py: patch does not apply\nerror: patch failed: tests/unit/test_cli_install.py:1\nerror: tests/unit/test_cli_install.py: patch does not apply\nerror: patch failed: tests/integration/test_pytest_plugin.py:1\nerror: tests/integration/test_pytest_plugin.py: patch does not apply\nerror: patch failed: tests/conftest.py:1\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/cli/main.py:25\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: patch failed: package.json:1\nerror: package.json: patch does not apply\nerror: TASK.md: No such file or directory\nerror: patch failed: README.md:15\nerror: README.md: patch does not apply\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:1\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: .github/workflows/test.yml:1\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\nerror: patch failed: .github/workflows/README.md:1\nerror: .github/workflows/README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:46\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: plugins/superclaude/commands/sc.md: No such file or directory\nerror: docs/mistakes/unknown-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_database_connection-2025-11-11.md: No such file or directory\nerror: patch failed: docs/memory/solutions_learned.jsonl:1\nerror: docs/memory/solutions_learned.jsonl: patch does not apply\nerror: patch failed: README.md:125\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "25785363af21849898ca77624aac0b05fc780b94",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:89\nerror: src/superclaude/cli/main.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "c6e72825b4feb6ba37facabef868865e11c5ae45",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: src/superclaude/commands/sc.md: No such file or directory\nerror: patch failed: src/superclaude/commands/research.md:1\nerror: src/superclaude/commands/research.md: patch does not apply\nerror: patch failed: src/superclaude/commands/recommend.md:1\nerror: src/superclaude/commands/recommend.md: patch does not apply\nerror: patch failed: src/superclaude/commands/index-repo.md:1\nerror: src/superclaude/commands/index-repo.md: patch does not apply\nerror: patch failed: src/superclaude/commands/agent.md:1\nerror: src/superclaude/commands/agent.md: patch does not apply\nerror: patch failed: src/superclaude/commands/README.md:1\nerror: src/superclaude/commands/README.md: patch does not apply\nerror: patch failed: pyproject.toml:70\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "2847f7551871eb17d2821730be0adc39cba9666a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: MANIFEST.in: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "81343a678bc6011ac8410b95b4f29a6d91749b3d",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/scripts/clean_command_names.py:1\nerror: src/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: patch failed: src/superclaude/scripts/README.md:1\nerror: src/superclaude/scripts/README.md: patch does not apply\nerror: patch failed: src/superclaude/hooks/hooks.json:1\nerror: src/superclaude/hooks/hooks.json: patch does not apply\nerror: patch failed: src/superclaude/hooks/README.md:1\nerror: src/superclaude/hooks/README.md: patch does not apply\nerror: patch failed: src/superclaude/agents/self-review.md:1\nerror: src/superclaude/agents/self-review.md: patch does not apply\nerror: patch failed: src/superclaude/agents/repo-index.md:1\nerror: src/superclaude/agents/repo-index.md: patch does not apply\nerror: patch failed: src/superclaude/agents/deep-research.md:1\nerror: src/superclaude/agents/deep-research.md: patch does not apply\nerror: patch failed: src/superclaude/agents/README.md:1\nerror: src/superclaude/agents/README.md: patch does not apply\nerror: patch failed: pyproject.toml:69\nerror: pyproject.toml: patch does not apply\nerror: MANIFEST.in: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "42946f8445f13f4444aa67ecb1f503ed6d91eb79",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "18c0e4e127dc352db19ae132a770019bf1f32d8a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:91\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_mcp.py:9\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\nerror: setup.py: No such file or directory\nerror: patch failed: pyproject.toml:165\nerror: pyproject.toml: patch does not apply\nerror: patch failed: plugins/superclaude/scripts/clean_command_names.py:116\nerror: plugins/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: install.sh: No such file or directory\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: docs/reference/comprehensive-features.md: No such file or directory\nerror: docs/reference/commands-list.md: No such file or directory\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: MANIFEST.in: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "9ca48494021325defc117145a7f38634852b27b6",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:67\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "074b99480db9ffe7f2f86a5cbd7a96f13843410c",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:68\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "323137a9df985c17f221f559ccede9860d40cb23",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "quality-ci",
+    "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: .github/workflows/readme-quality-check.yml: No such file or directory\nerror: .github/workflows/publish-pypi.yml: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "quality-ci",
+    "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: .github/workflows/test.yml:35\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "quality-ci",
+    "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: .github/workflows/test.yml:36\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "quality-ci",
+    "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: tests/unit/test_cli_install.py:4\nerror: tests/unit/test_cli_install.py: patch does not apply\nerror: patch failed: tests/conftest.py:5\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/pytest_plugin.py:9\nerror: src/superclaude/pytest_plugin.py: patch does not apply\nerror: patch failed: src/superclaude/pm_agent/reflexion.py:23\nerror: src/superclaude/pm_agent/reflexion.py: patch does not apply\nerror: patch failed: src/superclaude/execution/self_correction.py:334\nerror: src/superclaude/execution/self_correction.py: patch does not apply\nerror: patch failed: src/superclaude/execution/parallel.py:106\nerror: src/superclaude/execution/parallel.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:4\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: patch failed: src/superclaude/cli/doctor.py:5\nerror: src/superclaude/cli/doctor.py: patch does not apply\nerror: patch failed: pyproject.toml:153\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "quality-ci",
+    "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: tests/conftest.py:5\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/execution/parallel.py:158\nerror: src/superclaude/execution/parallel.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:9\nerror: src/superclaude/cli/install_commands.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "bea4bfe289f298e790da4746212474d3ed2b0ed8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/user-guide/memory-system.md:1\nerror: docs/user-guide/memory-system.md: patch does not apply\nerror: docs/research/reflexion-integration-2025.md: No such file or directory\nerror: docs/research/llm-agent-token-efficiency-2025.md: No such file or directory\nerror: patch failed: docs/memory/token_efficiency_validation.md:85\nerror: docs/memory/token_efficiency_validation.md: patch does not apply\nerror: patch failed: docs/memory/pm_context.md:32\nerror: docs/memory/pm_context.md: patch does not apply\nerror: patch failed: docs/memory/README.md:1\nerror: docs/memory/README.md: patch does not apply\nerror: patch failed: docs/mcp/mcp-integration-policy.md:1\nerror: docs/mcp/mcp-integration-policy.md: patch does not apply\nerror: patch failed: README.md:126\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: plugins/superclaude/commands/sc.md: No such file or directory\nerror: docs/research/task-tool-parallel-execution-results.md: No such file or directory\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\nerror: TASK.md: No such file or directory\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "58008c94446386718f036cc402f2dc4e99b3f007",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "61591211ae99847130aed3e84737bfa63b3b6520",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "86a26333912b09a98fab1d9a81c0cd23e404f224",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: VERSION:1\nerror: VERSION: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "d11abead403e4de8438f008a468f98ca10e5472e",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "43ca81d1693b1ecfc6648531798e29224cb305c3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: docs/mistakes/unknown-2025-11-14.md: No such file or directory\nerror: docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md: No such file or directory\nerror: docs/mistakes/test_database_connection-2025-11-14.md: No such file or directory\nerror: patch failed: docs/memory/solutions_learned.jsonl:46\nerror: docs/memory/solutions_learned.jsonl: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:2\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "208c66e1a781376a85132087b5a99767a9f13e31",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/user-guide/commands.md:1\nerror: docs/user-guide/commands.md: patch does not apply\nerror: patch failed: README.md:101\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "docs-memory-releases",
+    "sha": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: README.md:17\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\nerror: patch failed: CHANGELOG.md:7\nerror: CHANGELOG.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "commands-framework",
+    "sha": "0ef8ea8139202acb17c5ffc938619f331c7184ab",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: plugins/superclaude/commands/recommend.md:1\nerror: plugins/superclaude/commands/recommend.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "commands-framework",
+    "sha": "ab8904bc8cc2291b347a8641b913099f699f0c91",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/commands/workflow.md:1\nerror: src/superclaude/commands/workflow.md: patch does not apply\nerror: patch failed: src/superclaude/commands/troubleshoot.md:1\nerror: src/superclaude/commands/troubleshoot.md: patch does not apply\nerror: patch failed: src/superclaude/commands/test.md:1\nerror: src/superclaude/commands/test.md: patch does not apply\nerror: patch failed: src/superclaude/commands/task.md:1\nerror: src/superclaude/commands/task.md: patch does not apply\nerror: patch failed: src/superclaude/commands/spec-panel.md:1\nerror: src/superclaude/commands/spec-panel.md: patch does not apply\nerror: patch failed: src/superclaude/commands/spawn.md:1\nerror: src/superclaude/commands/spawn.md: patch does not apply\nerror: src/superclaude/commands/select-tool.md: No such file or directory\nerror: patch failed: src/superclaude/commands/save.md:1\nerror: src/superclaude/commands/save.md: patch does not apply\nerror: patch failed: src/superclaude/commands/research.md:1\nerror: src/superclaude/commands/research.md: patch does not apply\nerror: patch failed: src/superclaude/commands/reflect.md:1\nerror: src/superclaude/commands/reflect.md: patch does not apply\nerror: patch failed: src/superclaude/commands/pm.md:1\nerror: src/superclaude/commands/pm.md: patch does not apply\nerror: patch failed: src/superclaude/commands/load.md:1\nerror: src/superclaude/commands/load.md: patch does not apply\nerror: patch failed: src/superclaude/commands/index.md:1\nerror: src/superclaude/commands/index.md: patch does not apply\nerror: patch failed: src/superclaude/commands/improve.md:1\nerror: src/superclaude/commands/improve.md: patch does not apply\nerror: patch failed: src/superclaude/commands/implement.md:1\nerror: src/superclaude/commands/implement.md: patch does not apply\nerror: patch failed: src/superclaude/commands/help.md:1\nerror: src/superclaude/commands/help.md: patch does not apply\nerror: patch failed: src/superclaude/commands/git.md:1\nerror: src/superclaude/commands/git.md: patch does not apply\nerror: patch failed: src/superclaude/commands/explain.md:1\nerror: src/superclaude/commands/explain.md: patch does not apply\nerror: src/superclaude/commands/estimate.md: No such file or directory\nerror: patch failed: src/superclaude/commands/document.md:1\nerror: src/superclaude/commands/document.md: patch does not apply\nerror: patch failed: src/superclaude/commands/design.md:1\nerror: src/superclaude/commands/design.md: patch does not apply\nerror: patch failed: src/superclaude/commands/cleanup.md:1\nerror: src/superclaude/commands/cleanup.md: patch does not apply\nerror: patch failed: src/superclaude/commands/business-panel.md:1\nerror: src/superclaude/commands/business-panel.md: patch does not apply\nerror: patch failed: src/superclaude/commands/build.md:1\nerror: src/superclaude/commands/build.md: patch does not apply\nerror: patch failed: src/superclaude/commands/brainstorm.md:1\nerror: src/superclaude/commands/brainstorm.md: patch does not apply\nerror: patch failed: src/superclaude/commands/analyze.md:1\nerror: src/superclaude/commands/analyze.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/workflow.md:1\nerror: plugins/superclaude/commands/workflow.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/troubleshoot.md:1\nerror: plugins/superclaude/commands/troubleshoot.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/test.md:1\nerror: plugins/superclaude/commands/test.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/task.md:1\nerror: plugins/superclaude/commands/task.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/spec-panel.md:1\nerror: plugins/superclaude/commands/spec-panel.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/spawn.md:1\nerror: plugins/superclaude/commands/spawn.md: patch does not apply\nerror: plugins/superclaude/commands/select-tool.md: No such file or directory\nerror: patch failed: plugins/superclaude/commands/save.md:1\nerror: plugins/superclaude/commands/save.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/research.md:1\nerror: plugins/superclaude/commands/research.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/reflect.md:1\nerror: plugins/superclaude/commands/reflect.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/pm.md:1\nerror: plugins/superclaude/commands/pm.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/load.md:1\nerror: plugins/superclaude/commands/load.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/index.md:1\nerror: plugins/superclaude/commands/index.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/improve.md:1\nerror: plugins/superclaude/commands/improve.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/implement.md:1\nerror: plugins/superclaude/commands/implement.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/help.md:1\nerror: plugins/superclaude/commands/help.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/git.md:1\nerror: plugins/superclaude/commands/git.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/explain.md:1\nerror: plugins/superclaude/commands/explain.md: patch does not apply\nerror: plugins/superclaude/commands/estimate.md: No such file or directory\nerror: patch failed: plugins/superclaude/commands/document.md:1\nerror: plugins/superclaude/commands/document.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/design.md:1\nerror: plugins/superclaude/commands/design.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/cleanup.md:1\nerror: plugins/superclaude/commands/cleanup.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/business-panel.md:1\nerror: plugins/superclaude/commands/business-panel.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/build.md:1\nerror: plugins/superclaude/commands/build.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/brainstorm.md:1\nerror: plugins/superclaude/commands/brainstorm.md: patch does not apply\nerror: patch failed: plugins/superclaude/commands/analyze.md:1\nerror: plugins/superclaude/commands/analyze.md: patch does not apply\nerror: docs/reference/commands-list.md: No such file or directory\nerror: patch failed: README.md:65\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "commands-framework",
+    "sha": "3762d6ab24508107dc794811d9b6b0c9def84707",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/modes/MODE_Token_Efficiency.md:1\nerror: src/superclaude/modes/MODE_Token_Efficiency.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_Task_Management.md:1\nerror: src/superclaude/modes/MODE_Task_Management.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_Orchestration.md:1\nerror: src/superclaude/modes/MODE_Orchestration.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_Introspection.md:1\nerror: src/superclaude/modes/MODE_Introspection.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_DeepResearch.md:1\nerror: src/superclaude/modes/MODE_DeepResearch.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_Business_Panel.md:1\nerror: src/superclaude/modes/MODE_Business_Panel.md: patch does not apply\nerror: patch failed: src/superclaude/modes/MODE_Brainstorming.md:1\nerror: src/superclaude/modes/MODE_Brainstorming.md: patch does not apply\nerror: src/superclaude/mcp/configs/tavily.json: No such file or directory\nerror: patch failed: src/superclaude/mcp/configs/serena.json:1\nerror: src/superclaude/mcp/configs/serena.json: patch does not apply\nerror: src/superclaude/mcp/configs/sequential.json: No such file or directory\nerror: patch failed: src/superclaude/mcp/configs/morphllm.json:1\nerror: src/superclaude/mcp/configs/morphllm.json: patch does not apply\nerror: src/superclaude/mcp/configs/magic.json: No such file or directory\nerror: patch failed: src/superclaude/mcp/MCP_Tavily.md:1\nerror: src/superclaude/mcp/MCP_Tavily.md: patch does not apply\nerror: patch failed: src/superclaude/mcp/MCP_Serena.md:1\nerror: src/superclaude/mcp/MCP_Serena.md: patch does not apply\nerror: src/superclaude/mcp/MCP_Sequential.md: No such file or directory\nerror: patch failed: src/superclaude/mcp/MCP_Playwright.md:1\nerror: src/superclaude/mcp/MCP_Playwright.md: patch does not apply\nerror: patch failed: src/superclaude/mcp/MCP_Morphllm.md:1\nerror: src/superclaude/mcp/MCP_Morphllm.md: patch does not apply\nerror: src/superclaude/mcp/MCP_Magic.md: No such file or directory\nerror: patch failed: src/superclaude/mcp/MCP_Context7.md:1\nerror: src/superclaude/mcp/MCP_Context7.md: patch does not apply\nerror: src/superclaude/mcp/MCP_Chrome-DevTools.md: No such file or directory\nerror: patch failed: src/superclaude/examples/deep_research_workflows.md:1\nerror: src/superclaude/examples/deep_research_workflows.md: patch does not apply\nerror: patch failed: src/superclaude/core/RULES.md:1\nerror: src/superclaude/core/RULES.md: patch does not apply\nerror: patch failed: src/superclaude/core/RESEARCH_CONFIG.md:1\nerror: src/superclaude/core/RESEARCH_CONFIG.md: patch does not apply\nerror: patch failed: src/superclaude/core/PRINCIPLES.md:1\nerror: src/superclaude/core/PRINCIPLES.md: patch does not apply\nerror: src/superclaude/core/FLAGS.md: No such file or directory\nerror: patch failed: src/superclaude/core/BUSINESS_SYMBOLS.md:1\nerror: src/superclaude/core/BUSINESS_SYMBOLS.md: patch does not apply\nerror: patch failed: src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md:1\nerror: src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md: patch does not apply\nerror: patch failed: src/superclaude/agents/technical-writer.md:1\nerror: src/superclaude/agents/technical-writer.md: patch does not apply\nerror: patch failed: src/superclaude/agents/system-architect.md:1\nerror: src/superclaude/agents/system-architect.md: patch does not apply\nerror: patch failed: src/superclaude/agents/socratic-mentor.md:1\nerror: src/superclaude/agents/socratic-mentor.md: patch does not apply\nerror: patch failed: src/superclaude/agents/security-engineer.md:1\nerror: src/superclaude/agents/security-engineer.md: patch does not apply\nerror: patch failed: src/superclaude/agents/root-cause-analyst.md:1\nerror: src/superclaude/agents/root-cause-analyst.md: patch does not apply\nerror: patch failed: src/superclaude/agents/requirements-analyst.md:1\nerror: src/superclaude/agents/requirements-analyst.md: patch does not apply\nerror: patch failed: src/superclaude/agents/refactoring-expert.md:1\nerror: src/superclaude/agents/refactoring-expert.md: patch does not apply\nerror: patch failed: src/superclaude/agents/quality-engineer.md:1\nerror: src/superclaude/agents/quality-engineer.md: patch does not apply\nerror: patch failed: src/superclaude/agents/python-expert.md:1\nerror: src/superclaude/agents/python-expert.md: patch does not apply\nerror: patch failed: src/superclaude/agents/pm-agent.md:1\nerror: src/superclaude/agents/pm-agent.md: patch does not apply\nerror: patch failed: src/superclaude/agents/performance-engineer.md:1\nerror: src/superclaude/agents/performance-engineer.md: patch does not apply\nerror: patch failed: src/superclaude/agents/learning-guide.md:1\nerror: src/superclaude/agents/learning-guide.md: patch does not apply\nerror: patch failed: src/superclaude/agents/frontend-architect.md:1\nerror: src/superclaude/agents/frontend-architect.md: patch does not apply\nerror: patch failed: src/superclaude/agents/devops-architect.md:1\nerror: src/superclaude/agents/devops-architect.md: patch does not apply\nerror: patch failed: src/superclaude/agents/deep-research-agent.md:1\nerror: src/superclaude/agents/deep-research-agent.md: patch does not apply\nerror: patch failed: src/superclaude/agents/business-panel-experts.md:1\nerror: src/superclaude/agents/business-panel-experts.md: patch does not apply\nerror: patch failed: src/superclaude/agents/backend-architect.md:1\nerror: src/superclaude/agents/backend-architect.md: patch does not apply\nerror: patch failed: pyproject.toml:74\nerror: pyproject.toml: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Token_Efficiency.md:1\nerror: plugins/superclaude/modes/MODE_Token_Efficiency.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Task_Management.md:1\nerror: plugins/superclaude/modes/MODE_Task_Management.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Orchestration.md:1\nerror: plugins/superclaude/modes/MODE_Orchestration.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Introspection.md:1\nerror: plugins/superclaude/modes/MODE_Introspection.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_DeepResearch.md:1\nerror: plugins/superclaude/modes/MODE_DeepResearch.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Business_Panel.md:1\nerror: plugins/superclaude/modes/MODE_Business_Panel.md: patch does not apply\nerror: patch failed: plugins/superclaude/modes/MODE_Brainstorming.md:1\nerror: plugins/superclaude/modes/MODE_Brainstorming.md: patch does not apply\nerror: plugins/superclaude/mcp/configs/tavily.json: No such file or directory\nerror: patch failed: plugins/superclaude/mcp/configs/serena.json:1\nerror: plugins/superclaude/mcp/configs/serena.json: patch does not apply\nerror: plugins/superclaude/mcp/configs/sequential.json: No such file or directory\nerror: patch failed: plugins/superclaude/mcp/configs/morphllm.json:1\nerror: plugins/superclaude/mcp/configs/morphllm.json: patch does not apply\nerror: plugins/superclaude/mcp/configs/magic.json: No such file or directory\nerror: patch failed: plugins/superclaude/mcp/MCP_Tavily.md:1\nerror: plugins/superclaude/mcp/MCP_Tavily.md: patch does not apply\nerror: patch failed: plugins/superclaude/mcp/MCP_Serena.md:1\nerror: plugins/superclaude/mcp/MCP_Serena.md: patch does not apply\nerror: plugins/superclaude/mcp/MCP_Sequential.md: No such file or directory\nerror: patch failed: plugins/superclaude/mcp/MCP_Playwright.md:1\nerror: plugins/superclaude/mcp/MCP_Playwright.md: patch does not apply\nerror: patch failed: plugins/superclaude/mcp/MCP_Morphllm.md:1\nerror: plugins/superclaude/mcp/MCP_Morphllm.md: patch does not apply\nerror: plugins/superclaude/mcp/MCP_Magic.md: No such file or directory\nerror: patch failed: plugins/superclaude/mcp/MCP_Context7.md:1\nerror: plugins/superclaude/mcp/MCP_Context7.md: patch does not apply\nerror: plugins/superclaude/mcp/MCP_Chrome-DevTools.md: No such file or directory\nerror: patch failed: plugins/superclaude/examples/deep_research_workflows.md:1\nerror: plugins/superclaude/examples/deep_research_workflows.md: patch does not apply\nerror: patch failed: plugins/superclaude/core/RULES.md:1\nerror: plugins/superclaude/core/RULES.md: patch does not apply\nerror: patch failed: plugins/superclaude/core/RESEARCH_CONFIG.md:1\nerror: plugins/superclaude/core/RESEARCH_CONFIG.md: patch does not apply\nerror: patch failed: plugins/superclaude/core/PRINCIPLES.md:1\nerror: plugins/superclaude/core/PRINCIPLES.md: patch does not apply\nerror: plugins/superclaude/core/FLAGS.md: No such file or directory\nerror: patch failed: plugins/superclaude/core/BUSINESS_SYMBOLS.md:1\nerror: plugins/superclaude/core/BUSINESS_SYMBOLS.md: patch does not apply\nerror: patch failed: plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md:1\nerror: plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/technical-writer.md:1\nerror: plugins/superclaude/agents/technical-writer.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/system-architect.md:1\nerror: plugins/superclaude/agents/system-architect.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/socratic-mentor.md:1\nerror: plugins/superclaude/agents/socratic-mentor.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/security-engineer.md:1\nerror: plugins/superclaude/agents/security-engineer.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/root-cause-analyst.md:1\nerror: plugins/superclaude/agents/root-cause-analyst.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/requirements-analyst.md:1\nerror: plugins/superclaude/agents/requirements-analyst.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/refactoring-expert.md:1\nerror: plugins/superclaude/agents/refactoring-expert.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/quality-engineer.md:1\nerror: plugins/superclaude/agents/quality-engineer.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/python-expert.md:1\nerror: plugins/superclaude/agents/python-expert.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/pm-agent.md:1\nerror: plugins/superclaude/agents/pm-agent.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/performance-engineer.md:1\nerror: plugins/superclaude/agents/performance-engineer.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/learning-guide.md:1\nerror: plugins/superclaude/agents/learning-guide.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/frontend-architect.md:1\nerror: plugins/superclaude/agents/frontend-architect.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/devops-architect.md:1\nerror: plugins/superclaude/agents/devops-architect.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/deep-research-agent.md:1\nerror: plugins/superclaude/agents/deep-research-agent.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/business-panel-experts.md:1\nerror: plugins/superclaude/agents/business-panel-experts.md: patch does not apply\nerror: patch failed: plugins/superclaude/agents/backend-architect.md:1\nerror: plugins/superclaude/agents/backend-architect.md: patch does not apply\nerror: docs/reference/comprehensive-features.md: No such file or directory\nerror: docs/pm-agent-implementation-status.md: No such file or directory\nerror: docs/User-Guide/session-management.md: No such file or directory\nerror: docs/User-Guide/modes.md: No such file or directory\nerror: docs/User-Guide/mcp-servers.md: No such file or directory\nerror: docs/User-Guide/flags.md: No such file or directory\nerror: docs/User-Guide/commands.md: No such file or directory\nerror: docs/User-Guide/agents.md: No such file or directory\nerror: docs/User-Guide-zh/session-management.md: No such file or directory\nerror: docs/User-Guide-zh/modes.md: No such file or directory\nerror: docs/User-Guide-zh/mcp-servers.md: No such file or directory\nerror: docs/User-Guide-zh/flags.md: No such file or directory\nerror: docs/User-Guide-zh/commands.md: No such file or directory\nerror: docs/User-Guide-zh/agents.md: No such file or directory\nerror: docs/User-Guide-kr/session-management.md: No such file or directory\nerror: docs/User-Guide-kr/modes.md: No such file or directory\nerror: docs/User-Guide-kr/mcp-servers.md: No such file or directory\nerror: docs/User-Guide-kr/flags.md: No such file or directory\nerror: docs/User-Guide-kr/commands.md: No such file or directory\nerror: docs/User-Guide-kr/agents.md: No such file or directory\nerror: docs/User-Guide-jp/session-management.md: No such file or directory\nerror: docs/User-Guide-jp/modes.md: No such file or directory\nerror: docs/User-Guide-jp/mcp-servers.md: No such file or directory\nerror: docs/User-Guide-jp/flags.md: No such file or directory\nerror: docs/User-Guide-jp/commands.md: No such file or directory\nerror: docs/User-Guide-jp/agents.md: No such file or directory\nerror: docs/Reference/troubleshooting.md: No such file or directory\nerror: docs/Reference/mcp-server-guide.md: No such file or directory\nerror: docs/Reference/integration-patterns.md: No such file or directory\nerror: docs/Reference/examples-cookbook.md: No such file or directory\nerror: docs/Reference/diagnostic-reference.md: No such file or directory\nerror: docs/Reference/common-issues.md: No such file or directory\nerror: docs/Reference/claude-code-history-management.md: No such file or directory\nerror: docs/Reference/basic-examples.md: No such file or directory\nerror: docs/Reference/advanced-workflows.md: No such file or directory\nerror: docs/Reference/advanced-patterns.md: No such file or directory\nerror: docs/Reference/README.md: No such file or directory\nerror: docs/README.md: No such file or directory\nerror: docs/Getting-Started/quick-start.md: No such file or directory\nerror: docs/Getting-Started/installation.md: No such file or directory\nerror: docs/Development/tasks/current-tasks.md: No such file or directory\nerror: docs/Development/project-structure-understanding.md: No such file or directory\nerror: docs/Development/pm-agent-integration.md: No such file or directory\nerror: docs/Development/pm-agent-ideal-workflow.md: No such file or directory\nerror: docs/Development/installation-flow-understanding.md: No such file or directory\nerror: docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md: No such file or directory\nerror: docs/Development/TASKS.md: No such file or directory\nerror: docs/Development/ROADMAP.md: No such file or directory\nerror: docs/Development/PROJECT_STATUS.md: No such file or directory\nerror: docs/Development/ARCHITECTURE.md: No such file or directory\nerror: docs/Developer-Guide/testing-debugging.md: No such file or directory\nerror: docs/Developer-Guide/technical-architecture.md: No such file or directory\nerror: docs/Developer-Guide/documentation-index.md: No such file or directory\nerror: docs/Developer-Guide/contributing-code.md: No such file or directory\nerror: docs/Developer-Guide/README.md: No such file or directory\nerror: MANIFEST.in: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "commands-framework",
+    "sha": "e61aaba771055f65dd7c4f5de4d0e3e91ac928ec",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/commands/workflow.md:94\nerror: src/superclaude/commands/workflow.md: patch does not apply\nerror: patch failed: src/superclaude/commands/troubleshoot.md:85\nerror: src/superclaude/commands/troubleshoot.md: patch does not apply\nerror: patch failed: src/superclaude/commands/task.md:86\nerror: src/superclaude/commands/task.md: patch does not apply\nerror: patch failed: src/superclaude/commands/spec-panel.md:425\nerror: src/superclaude/commands/spec-panel.md: patch does not apply\nerror: patch failed: src/superclaude/commands/spawn.md:82\nerror: src/superclaude/commands/spawn.md: patch does not apply\nerror: patch failed: src/superclaude/commands/research.md:100\nerror: src/superclaude/commands/research.md: patch does not apply\nerror: patch failed: src/superclaude/commands/improve.md:92\nerror: src/superclaude/commands/improve.md: patch does not apply\nerror: patch failed: src/superclaude/commands/implement.md:94\nerror: src/superclaude/commands/implement.md: patch does not apply\nerror: src/superclaude/commands/estimate.md: No such file or directory\nerror: patch failed: src/superclaude/commands/design.md:85\nerror: src/superclaude/commands/design.md: patch does not apply\nerror: patch failed: src/superclaude/commands/cleanup.md:90\nerror: src/superclaude/commands/cleanup.md: patch does not apply\nerror: patch failed: src/superclaude/commands/business-panel.md:78\nerror: src/superclaude/commands/business-panel.md: patch does not apply\nerror: patch failed: src/superclaude/commands/brainstorm.md:97\nerror: src/superclaude/commands/brainstorm.md: patch does not apply\nerror: patch failed: src/superclaude/commands/analyze.md:86\nerror: src/superclaude/commands/analyze.md: patch does not apply\nerror: patch failed: docs/user-guide/commands.md:205\nerror: docs/user-guide/commands.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "5a68595835256815c19b8fde256722f4dc687dd5",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: setup/components/mcp.py: No such file or directory\nerror: docs/Development/install-process-analysis.md: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "67449770c0157372f276c16f99f0a935de1b1125",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 128,
+    "stdout": "",
+    "stderr": "error: No valid patches in input (allow with \"--allow-empty\")\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "1b14d065378163809c027873454eaa38cc6a108b",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:89\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_mcp.py:1\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\nerror: docs/reference/comprehensive-features.md: No such file or directory\nerror: docs/User-Guide/mcp-installation.md: No such file or directory\nerror: patch failed: README.md:119\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "202660b52451d0680969c3fbb1042cb52539d35a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/mcp/configs/mindbase.json:1\nerror: src/superclaude/mcp/configs/mindbase.json: patch does not apply\nerror: patch failed: src/superclaude/mcp/configs/airis-agent.json:1\nerror: src/superclaude/mcp/configs/airis-agent.json: patch does not apply\nerror: patch failed: src/superclaude/mcp/MCP_Mindbase.md:1\nerror: src/superclaude/mcp/MCP_Mindbase.md: patch does not apply\nerror: patch failed: src/superclaude/mcp/MCP_Airis-Agent.md:1\nerror: src/superclaude/mcp/MCP_Airis-Agent.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "6ae5e9987736dab9908260d392f1a6c89b2dcde4",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/user-guide/mcp-servers.md:167\nerror: docs/user-guide/mcp-servers.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "04c9b85cd0c2ed774f397bcc39f21a56178c7d49",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "3294a0ad941f299e8c997bbe88a718694e173a8f",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/install_mcp.py:13\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\nerror: docs/capability-mapping-v5.md: No such file or directory\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "55c658c77f88c538cf9d90a3736c1b24f8f64f44",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/install_mcp.py:168\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "mcp-installation",
+    "sha": "0ceb29553c2ba42efc3c55d1ec9402f8087b7773",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/install_mcp.py:168\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "sync-protection",
+    "sha": "b061b2f7b00ca33d66c10b666c15016873b2e094",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: scripts/sync_from_framework.py:1\nerror: scripts/sync_from_framework.py: patch does not apply\nerror: patch failed: .github/workflows/pull-sync-framework.yml:1\nerror: .github/workflows/pull-sync-framework.yml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "sync-protection",
+    "sha": "1e8c6e1622e157f36f44792e41f667399edb2a79",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: scripts/sync_from_framework.py:1\nerror: scripts/sync_from_framework.py: patch does not apply\nerror: patch failed: .github/workflows/pull-sync-framework.yml:1\nerror: .github/workflows/pull-sync-framework.yml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "automated-sync-copies",
+    "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:1\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:1\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:1\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:1\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-recommend.md:1\nerror: commands/sc-recommend.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:1\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:1\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:1\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:1\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-help.md:1\nerror: commands/sc-help.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:1\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:1\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:1\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:1\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: commands/sc-README.md:1\nerror: commands/sc-README.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:1\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:1\nerror: agents/sc-deep-research.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "automated-sync-copies",
+    "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:28\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:28\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:90\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:64\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:114\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:28\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:28\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:31\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:28\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:28\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:54\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:31\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:165\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:9\nerror: agents/sc-deep-research.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "automated-sync-copies",
+    "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "automated-sync-copies",
+    "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:40\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:40\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:100\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: patch failed: commands/sc-index.md:37\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:37\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:41\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:37\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:37\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:43\nerror: commands/sc-brainstorm.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "automated-sync-copies",
+    "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  }
+]

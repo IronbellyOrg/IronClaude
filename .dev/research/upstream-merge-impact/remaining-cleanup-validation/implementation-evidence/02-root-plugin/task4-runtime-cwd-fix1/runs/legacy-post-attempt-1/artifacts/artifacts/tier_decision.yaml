@@ -1,0 +1,15 @@
+selected_tier: 1
+fired_rule_number: null          # §5.1 hard override, not a §5.3 row
+hard_override: "--tier 1"
+coverage_degraded: null
+surface_unreached: null
+rubric_shadow_evaluation: "rule 2 would also STOP at T1 (C=0.88>=0.85, S_scope=2<=10, S_domains=2<=2, S_dev_density=0.0<=0.10); rule 3 n/a (no Regression candidate)"
+composite_score: 1.0
+per_signal_breakdown: {scope_size: 0, task_count: 0.5, blast_radius: 0, spec_density: 0, ambiguity_signals: 0.5}
+escalation_reason: "user pin --tier 1; no pre-filter set"
+confidence_calibrated: 0.88
+S_scope: 2
+S_domains: 2
+S_dev_density: 0.0
+t2_model_class_diversity: full   # 3 distinct aliases resolved (values not printed); Tier 2 not composed due to --tier 1 pin
+t2_vendor_diversity: single

@@ -1,0 +1,4 @@
+Scope: all Markdown/text in .dev/tasks/to-do and .dev/proposals, including hidden/ignored files.
+Query: uninstall[_-]legacy|uninstall_legacy\.sh|MindBase.*(includ|disabl)|automatic.gateway
+exit_code=1
+Interpretation: no matching active-plan/proposal text when exit_code=1; not proof about other checkouts.

@@ -7,7 +7,7 @@ mcp-servers: []
 personas: []
 ---
 
-# /sc:sc:sc:troubleshoot - Issue Diagnosis and Resolution
+# /sc:sc-troubleshoot - Issue Diagnosis and Resolution
 
 ## Triggers
 - Code defects and runtime error investigation requests
@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/sc:sc:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
+/sc:sc-troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
 ```
 
 ## Behavioral Flow
@@ -49,28 +49,28 @@ Key behaviors:
 
 ### Code Bug Investigation
 ```
-/sc:sc:troubleshoot "Null pointer exception in user service" --type bug --trace
+/sc:sc-troubleshoot "Null pointer exception in user service" --type bug --trace
 # Systematic analysis of error context and stack traces
 # Identifies root cause and provides targeted fix recommendations
 ```
 
 ### Build Failure Analysis
 ```
-/sc:sc:troubleshoot "TypeScript compilation errors" --type build --fix
+/sc:sc-troubleshoot "TypeScript compilation errors" --type build --fix
 # Analyzes build logs and TypeScript configuration
 # Automatically applies safe fixes for common compilation issues
 ```
 
 ### Performance Issue Diagnosis
 ```
-/sc:sc:troubleshoot "API response times degraded" --type performance
+/sc:sc-troubleshoot "API response times degraded" --type performance
 # Performance metrics analysis and bottleneck identification
 # Provides optimization recommendations and monitoring guidance
 ```
 
 ### Deployment Problem Resolution
 ```
-/sc:sc:troubleshoot "Service not starting in production" --type deployment --trace
+/sc:sc-troubleshoot "Service not starting in production" --type deployment --trace
 # Environment and configuration analysis
 # Systematic verification of deployment requirements and dependencies
 ```
@@ -117,4 +117,4 @@ This command is DIAGNOSIS-FIRST by default.
 
 **Next Step**: User reviews diagnosis, then either:
 - Re-run with `--fix` flag to apply recommended fix
-- Use `/sc:sc:improve` for broader refactoring
+- Use `/sc:sc-improve` for broader refactoring

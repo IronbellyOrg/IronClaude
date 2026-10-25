@@ -1,0 +1,12 @@
+- hunk_ref: "spec.md:9"
+  evidence_missing: "Spec says only 'reject an empty name'; whitespace-only, None and non-string input unaddressed."
+  why_not_classifiable: "No spec intent stated, so the plan's silence is neither drift nor covered."
+  next_evidence_needed: "User/spec-owner decision on whether 'empty' includes whitespace-only and None."
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: "proposed.md:4, proposed.md:10"
+  evidence_missing: "No greet module path, test file location or test framework named in spec or plan."
+  why_not_classifiable: "Spec is silent; omission cannot be judged a deviation."
+  next_evidence_needed: "Project convention or user decision on module/test layout."
+  owner: user
+  decision_needed_by_user: true

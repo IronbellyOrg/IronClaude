@@ -1,0 +1,182 @@
+commit d90bed680887223deceabd682966f92e15cb5eca
+Author:     RyanW <ryan@ironbelly.com>
+AuthorDate: Wed May 13 03:04:01 2026 +0000
+Commit:     RyanW <ryan@ironbelly.com>
+CommitDate: Wed May 13 03:04:01 2026 +0000
+
+    feat(freshness-system): ship v1 context freshness hooks
+    
+    Adds seven active hook scripts that protect against stale-fact-reuse — citing
+    file:line numbers, IPs, hostnames, or other source-tied facts from working
+    memory after the underlying file has been modified.
+    
+    Components
+    - 6 freshness handlers in src/superclaude/hooks/scripts/:
+      freshness-session-start, freshness-user-prompt, freshness-pre-edit (the gate),
+      freshness-post-read, freshness-subagent-start, freshness-subagent-stop.
+    - install_hooks.py: atomic additive merge into ~/.claude/settings.json with
+      backups before any write, malformed-target refusal, and matcher-collision
+      detection that preserves existing user hooks.
+    - Context freshness discipline section appended to src/superclaude/core/CLAUDE.md
+      (auto-distributed via existing install_core_files).
+    - Makefile sync-dev now also syncs hooks scripts into .claude/hooks/.
+    - Wired into superclaude install orchestrator (step 5 after skills).
+    - session-init.sh registration rewritten from fragile relative form
+      ./scripts/session-init.sh to ~/.claude/hooks/session-init.sh.
+    
+    Tests
+    - 13 pytest cases for install_hooks (atomic merge, malformed-target refusal,
+      permission denied, backup-before-write, collision detection, etc.). All green.
+    - freshness-test-suite.sh — 15 unit-test scenarios of the hook script logic
+      (no API calls).
+    - freshness-realworld-test.sh — 5 real-world scenarios via `claude -p` that
+      validate Claude Code actually fires the hooks and recovers from blocks.
+    - Live install verified on this machine via T05.01 (Phase 5 gating checkpoint).
+    - Gate organically caught Write attempts during this session's own work
+      (factual stderr, exit 2, telemetry row at ~/.claude/logs/freshness-hook.jsonl).
+    
+    Known v1 limitation
+    The FileChanged registration was removed after live probing (T02.05) revealed
+    Claude Code's matcher only accepts |-separated literal filenames, not regex —
+    the design's matcher ".*" silently watched nothing. The freshness-file-changed.sh
+    script stays in src/ as a v1.5 starting point. See CHANGELOG "v1.5 work items"
+    for the FileChanged redesign options (static per-project watch list vs dynamic
+    watchPaths from PostToolUse), Write-to-new-file refinement, install_hooks
+    --no-orphans flag, reads.jsonl rotation, and session_id sanitization.
+    
+    Documentation
+    - README highlights bullet pointing to docs/user-guide/freshness-hooks.md.
+    - CHANGELOG.md with [Unreleased] Added/Fixed/Known-limitation/v1.5-work-items.
+    - KNOWLEDGE.md with F1-F5 reusable debugging insights (FileChanged matcher
+      semantics; grep -c double-count; flock -w timeout fallthrough; counter
+      read-outside-lock race; per-session reads.jsonl semantics).
+    - Full tasklist artifacts and 5 checkpoint reports at
+      .dev/releases/current/freshness-system/ (20 deliverables, probe-finding,
+      runbooks for the remaining interactive Phase 5 work).
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+diff --git a/src/superclaude/cli/main.py b/src/superclaude/cli/main.py
+index 5c4b878c..affddb3d 100644
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -71,6 +71,7 @@ def install(target: str, force: bool, list_only: bool):
+         list_core_files,
+         list_installed_core_files,
+     )
++    from .install_hooks import install_hooks
+     from .install_skill import list_available_skills
+     from .install_skills import install_all_skills, list_installed_skills
+ 
+@@ -161,8 +162,22 @@ def install(target: str, force: bool, list_only: bool):
+ 
+     skill_success, skill_message = install_all_skills(force=force)
+     click.echo(skill_message)
++    click.echo()
+ 
+-    if not core_success or not cmd_success or not agent_success or not skill_success:
++    # Step 5: Install hooks (scripts + additive settings.json merge)
++    click.echo("📦 Installing hooks to ~/.claude/hooks/...")
++    click.echo()
++
++    hooks_success, hooks_message = install_hooks(force=force)
++    click.echo(hooks_message)
++
++    if (
++        not core_success
++        or not cmd_success
++        or not agent_success
++        or not skill_success
++        or not hooks_success
++    ):
+         sys.exit(1)
+ 
+ 
+diff --git a/src/superclaude/hooks/hooks.json b/src/superclaude/hooks/hooks.json
+index 91ef9ca8..62a1bf29 100644
+--- a/src/superclaude/hooks/hooks.json
++++ b/src/superclaude/hooks/hooks.json
+@@ -5,10 +5,80 @@
+         "hooks": [
+           {
+             "type": "command",
+-            "command": "./scripts/session-init.sh",
++            "command": "~/.claude/hooks/session-init.sh",
+             "timeout": 10
+           }
+         ]
++      },
++      {
++        "matcher": "*",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-session-start.sh",
++            "timeout": 5
++          }
++        ]
++      }
++    ],
++    "UserPromptSubmit": [
++      {
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-user-prompt.sh",
++            "timeout": 3
++          }
++        ]
++      }
++    ],
++    "PreToolUse": [
++      {
++        "matcher": "Edit|Write|mcp__serena__replace_content|mcp__serena__replace_symbol_body|mcp__serena__insert_after_symbol|mcp__serena__insert_before_symbol",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-pre-edit.sh",
++            "timeout": 1
++          }
++        ]
++      }
++    ],
++    "PostToolUse": [
++      {
++        "matcher": "Read",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-post-read.sh",
++            "timeout": 1,
++            "async": true
++          }
++        ]
++      }
++    ],
++    "SubagentStart": [
++      {
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-subagent-start.sh",
++            "timeout": 1,
++            "async": true
++          }
++        ]
++      }
++    ],
++    "SubagentStop": [
++      {
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/freshness-subagent-stop.sh",
++            "timeout": 1,
++            "async": true
++          }
++        ]
+       }
+     ]
+   }

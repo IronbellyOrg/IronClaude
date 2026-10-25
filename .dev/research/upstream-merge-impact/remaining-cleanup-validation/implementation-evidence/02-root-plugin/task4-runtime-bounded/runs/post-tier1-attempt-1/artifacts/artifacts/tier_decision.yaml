@@ -1,0 +1,23 @@
+selected_tier: 1
+decision_source: hard-override   # §5.1 `--tier 1` -> STOP at T1 (skip Wave 3+)
+fired_rule_number: 2             # rubric-equivalent first match had no override applied (rule 1 fails on C=0.89 < 0.90)
+override_agrees_with_rubric: true
+coverage_degraded: null          # UC-1-only guard
+surface_unreached: null          # runtime-surface sweep did not run (non-surface diff)
+inputs:
+  confidence_calibrated: 0.89
+  S_scope: 1
+  S_domains: 1
+  S_dev_density: 0.0
+  regression_candidate_count: 0
+  reuse_miss_L3: 0
+composite_score: 2               # recording only
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 1
+  blast_radius: 0                # greet has no production referrers
+  spec_density: 0
+  ambiguity_signals: 1           # two grounding gaps
+escalation_reason: "--tier 1 pinned by caller; rubric rule 2 (C>=0.85, S_scope<=10, S_domains<=2, S_dev_density<=0.10) would also STOP at T1; no WARN (density 0.0 <= 0.05)"
+t2_model_class_diversity: full   # 3 distinct aliases resolved; T2 not reached
+t2_vendor_diversity: multi

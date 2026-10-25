@@ -1,0 +1,11 @@
+# files whose hash differs from baseline-hashes.txt (expected: exactly the three docs files below)
+docs/memory/README.md
+docs/memory/reflexion.jsonl.example
+docs/user-guide/memory-system.md
+# protected check (three docs files excluded):
+PROTECTED_UNCHANGED
+# solutions_learned.jsonl / workflow_metrics / patterns_learned hashes now vs baseline:
+solutions_learned identical
+workflow_metrics identical
+patterns_learned identical
+# docs/mistakes exists? no

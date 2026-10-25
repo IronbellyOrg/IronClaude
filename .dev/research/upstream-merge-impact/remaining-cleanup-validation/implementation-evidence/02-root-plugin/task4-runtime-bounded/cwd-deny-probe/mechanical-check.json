@@ -1,0 +1,30 @@
+{
+  "verdict": "PASS",
+  "launch_cwd": "/tmp/ironclaude-cwd-deny-wv4q7m_y",
+  "directory_change_attempts": [
+    {
+      "nested": false,
+      "command": "cd /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/cwd-deny-probe && pwd -P",
+      "denied": true,
+      "result": "Permission to use Bash with command cd /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/cwd-deny-probe && pwd -P has been denied."
+    },
+    {
+      "nested": true,
+      "command": "cd /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/cwd-deny-probe; pwd -P",
+      "denied": true,
+      "result": "Permission to use Bash with command cd /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/cwd-deny-probe; pwd -P has been denied."
+    }
+  ],
+  "absolute_operation_results": [
+    {
+      "nested": true,
+      "success": true,
+      "output": "/tmp/ironclaude-cwd-deny-wv4q7m_y\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    {
+      "nested": false,
+      "success": true,
+      "output": "/tmp/ironclaude-cwd-deny-wv4q7m_y"
+    }
+  ]
+}

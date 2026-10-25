@@ -1,0 +1,22 @@
+{
+  "validator": "sc:evidence-validator",
+  "requested_slot": "haiku",
+  "returned_model": "grok-4.7[1m]",
+  "agentId": "a72b02fa8be5da603",
+  "draft": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-default-attempt-1/artifacts/REPORT.draft.md",
+  "citation_budget_policy": "full_reread",
+  "citations_total": 19,
+  "citations_revalidated": 19,
+  "citations_verified": 18,
+  "citations_dropped": 1,
+  "citations_inferred": 1,
+  "dropped": [
+    {
+      "id": "C17",
+      "location": "tests/test_greeting.py:8-13",
+      "original_claim": "the test asserts only the exception type, which is enough for R-003",
+      "reason": "span is test_empty only; R-003 (spec.md:12) also requires the ordinary case; adequacy was inference stated as grounded"
+    }
+  ],
+  "coverage_recompute": "no affected coverage field (C17 was advisory; tasklist_completion_pct unchanged at 0.67)"
+}

@@ -1,0 +1,47 @@
+{
+  "firstStartTime": "2026-10-24T19:36:24.156Z",
+  "firstStartVersion": "2.1.286",
+  "machineID": "a56b0e359ea08768e98c7d5864b9e68f53b1769879e682c91479ed25514977f9",
+  "opusProMigrationComplete": true,
+  "sonnet1m45MigrationComplete": true,
+  "seenNotifications": {},
+  "hasResetAutoModeOptInForDefaultOffer": true,
+  "migrationVersion": 14,
+  "userID": "18a0c39143f77baa0dac0fef5738b4e3e8e9625c67c61f8e06ec79457c99a44a",
+  "pluginUsage": {
+    "sc@inline": {
+      "usageCount": 14,
+      "lastUsedAt": 1792872366540,
+      "lastUsedNumStartups": 0
+    },
+    "cc-plugin-agents-md@builtin": {
+      "usageCount": 0,
+      "lastUsedAt": 1792870584376,
+      "lastUsedNumStartups": 0
+    },
+    "cc-plugin-telemetry@builtin": {
+      "usageCount": 0,
+      "lastUsedAt": 1792870584376,
+      "lastUsedNumStartups": 0
+    },
+    "cc-plugin-plugin-authoring@builtin": {
+      "usageCount": 0,
+      "lastUsedAt": 1792870584376,
+      "lastUsedNumStartups": 0
+    }
+  },
+  "skillUsage": {
+    "sc:sc-reflect": {
+      "usageCount": 1,
+      "lastUsedAt": 1792870584387
+    },
+    "sc:sc-reflect-protocol": {
+      "usageCount": 1,
+      "lastUsedAt": 1792870590019
+    },
+    "sc:sc-adversarial-protocol": {
+      "usageCount": 1,
+      "lastUsedAt": 1792871075356
+    }
+  }
+}

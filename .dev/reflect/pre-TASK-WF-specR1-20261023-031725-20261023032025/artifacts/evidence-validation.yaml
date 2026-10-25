@@ -1,0 +1,6 @@
+citations_total: 41
+citations_checked: 41
+dropped:
+  - {citation: "tasklist:69", claim_ref: D-004, correct: "tasklist:75"}
+  - {citation: "tasklist:94", claim_ref: D-013, correct: "tasklist:96"}
+zero_drop_flag: false

@@ -1,0 +1,27 @@
+# files differing from baseline-hashes.txt (expected: exactly the eight allowed docs files)
+docs/mcp/mcp-integration-policy.md
+docs/memory/pm_context.md
+docs/memory/README.md
+docs/memory/reflexion.jsonl.example
+docs/memory/token_efficiency_validation.md
+docs/memory/WORKFLOW_METRICS_SCHEMA.md
+docs/reference/pm-agent-autonomous-reflection.md
+docs/user-guide/memory-system.md
+# files in baseline now missing:
+none
+# git changed outside .dev:
+docs/mcp/mcp-integration-policy.md
+docs/memory/pm_context.md
+docs/memory/README.md
+docs/memory/reflexion.jsonl.example
+docs/memory/token_efficiency_validation.md
+docs/memory/WORKFLOW_METRICS_SCHEMA.md
+docs/reference/pm-agent-autonomous-reflection.md
+docs/user-guide/memory-system.md
+# untracked outside .dev:
+# real data files:
+solutions_learned identical
+workflow_metrics identical
+patterns_learned identical
+# docs/mistakes exists?
+no

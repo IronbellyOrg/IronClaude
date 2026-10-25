@@ -1,0 +1,29 @@
+# Wave 1B coverage map — returned by sc:sc-requirements-analyst (requested slot: sonnet; agentId ab4cb8555c74a9ebc), persisted verbatim-in-substance by orchestrator
+producer: {agent: sc:sc-requirements-analyst, requested_model_slot: sonnet, resolved_alias: "claude-sonnet-5-5[1m]", agent_id: ab4cb8555c74a9ebc}
+id_regex: '\b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b'
+fuzzy_ids: false
+coverage_matrix:
+  - {requirement_id: R-001, source: parsed, span: "spec.md:5-7", matched_task_ids: [T-101], match_method: exact, fidelity: partial,
+     fidelity_note: "spec.md:6 fixes exact string 'Hello, Ada!' for Ada; T-101 (proposed.md:4) says only 'returning the required greeting'",
+     citations: ["spec.md:5","spec.md:6","proposed.md:3","proposed.md:4"]}
+  - {requirement_id: R-002, source: parsed, span: "spec.md:8-10", matched_task_ids: [T-102], match_method: exact, fidelity: full,
+     citations: ["spec.md:8","spec.md:9","proposed.md:6","proposed.md:7"]}
+  - {requirement_id: R-003, source: parsed, span: "spec.md:11-13", matched_task_ids: [T-103], match_method: exact, fidelity: full,
+     fidelity_note: "T-103 does not state the empty-name test asserts ValueError (not required by spec)",
+     citations: ["spec.md:11","spec.md:12","proposed.md:9","proposed.md:10"]}
+pass2:
+  inferred_rows_emitted: 0
+  dropped_by_span_dedup: ["spec.md:6 (R-001 span)","spec.md:9 (R-002 span)","spec.md:12 (R-003 span)"]
+summary:
+  parsed_count: 3
+  inferred_count: 0
+  coverage_pct: 1.0
+  coverage_pct_union: 1.0
+  unmapped_requirements: []
+  unmapped_requirements_union: []
+  coverage_undefined: false
+  coverage_degraded: null
+  S_scope: 3
+  S_domains: 2   # [INFERRED] code + tests from task text (no file paths in tasklist)
+  S_dev_density: 0.0
+  best_practice_grade: 4

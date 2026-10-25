@@ -1,0 +1,13 @@
+# sc:confidence-check applied by orchestrator before actionable chat recommendations (not an independent agent)
+form: per-recommendation (lightweight token verification; full 5-check for implementation-type recs)
+recommendations:
+  R-001: {type: evidence-gathering, tokens_verified: ["tests/test_greeting.py exists", "--scope takes a single <path> per command doc -> corrected to --scope <audit_repo_root>"], disposition: proceed}
+  R-002: {type: evidence-gathering, tokens_verified: ["tests/test_greeting.py exists"], unverified: ["uv run pytest invocation: no pyproject.toml/pytest config in audit root; not executed (read-only)"], disposition: proceed-with-UNVERIFIED-marker}
+  R-005: {type: evidence-gathering, tokens_verified: ["execution.log exists in audit root"], disposition: proceed}
+  R-003:
+    type: implementation/policy
+    checks: {no_duplicates: pass, architecture: "fail (no CLAUDE.md/pyproject in audit root - explicit absence; ancestor not consulted)", official_docs: "fail (context7 unavailable)", oss_reference: "fail (tavily unavailable)", root_cause: pass}
+    score: 0.40
+    disposition: STOP - user decision required
+  R-004: {type: implementation, score: 0.40, disposition: "STOP - depends on R-003"}
+blocked_by_low_confidence: false   # not every actionable rec is < 0.70

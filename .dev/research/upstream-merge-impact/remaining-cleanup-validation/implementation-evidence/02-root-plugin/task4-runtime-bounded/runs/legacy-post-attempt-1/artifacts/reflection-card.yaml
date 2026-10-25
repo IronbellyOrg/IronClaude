@@ -1,0 +1,124 @@
+# Wave 1C Tier-1 card — persisted by orchestrator verbatim from agent return
+# agent: sc:sc-root-cause-analyst  agent_id: aa8691140b3cb7d8c
+# requested_model_slot: sonnet ; env-resolved alias: claude-sonnet-5-5[1m]
+# actual_returned_provider_model: not surfaced by the Agent tool result (unverified)
+# hypothesis_source: agent (not inline-fallback)
+card_author: sc:sc-root-cause-analyst
+mode: post
+# agent note: Wave-1B map read at artifacts/artifacts/task-spec-work-map.yaml; changes.patch / proposed.md not used.
+
+per_task:
+  - task_id: T-101
+    requirement: "R-001: greet MUST return exactly 'Hello, Ada!' for Ada"
+    verdict: satisfied
+    deviation_class: none
+    evidence: [spec.md:5-6, completed.md:6, src/greeting.py:4, tests/test_greeting.py:4-5]
+    rationale: >
+      src/greeting.py:4 returns f"Hello, {name}!". For name="Ada" this gives
+      "Hello, Ada!", which matches the spec string byte for byte (static read).
+      No test was executed, so this is satisfied by inspection only.
+  - task_id: T-102
+    requirement: "R-002: greet MUST reject an empty name with ValueError"
+    verdict: satisfied
+    deviation_class: none
+    evidence: [spec.md:8-9, completed.md:7, src/greeting.py:2-3, tests/test_greeting.py:8-13]
+    rationale: >
+      `if not name: raise ValueError("name required")` rejects "" with ValueError
+      (static read). The guard is broader than the spec: it also rejects None
+      and other falsy values. That is a superset of R-002 and contradicts no
+      criterion. See R-2 and R-3.
+  - task_id: T-103
+    requirement: "R-003: tests MUST exercise the ordinary greeting and empty-input rejection"
+    verdict: satisfied
+    deviation_class: none
+    evidence: [spec.md:11-12, completed.md:8, tests/test_greeting.py:4-5, tests/test_greeting.py:8-13]
+    rationale: >
+      test_ordinary asserts greet("Ada") == "Hello, Ada!". test_empty calls
+      greet("") and returns only if ValueError is raised, otherwise it raises
+      AssertionError. Both cases required by R-003 are present and correctly
+      structured. The tests have not been run, so "satisfied" covers presence
+      and structure only, not a passing run. The file is outside --scope src/,
+      but T-103 declares it (execution.log:4) and completed.md:8 maps it.
+
+deviations: []
+
+grounding_gaps:
+  - hunk_ref: "src/greeting.py:1-4; tests/test_greeting.py:1-13"
+    evidence_missing: "No test or lint execution. The verification triangle did not run (map lines 34-36). execution.log:5 explicitly claims no test execution."
+    why_not_classifiable: "Regression detection by pass/fail is impossible without execution. The static read shows no contradiction, but runtime behavior is unconfirmed."
+    next_evidence_needed: "Run pytest from the project root and record the exit code and collected test count. Exit 0 with 2 tests would close this gap. Exit 2/3 or 5 would change the picture per the taxonomy mapping."
+    owner: user
+    decision_needed_by_user: false
+  - hunk_ref: "tests/test_greeting.py:1"
+    evidence_missing: "The glob shows no src/__init__.py, conftest.py, pytest config, or pyproject in the fixture project."
+    why_not_classifiable: >
+      `from src.greeting import greet` works only if the project root is on
+      sys.path. Under rootdir/rootdir-conftest or `python -m pytest`, src
+      resolves as a namespace package. Plain `pytest` with the default
+      prepend import mode puts tests/ on sys.path, not the root, so the import
+      may fail. That would give pytest exit 2/3 (a Grounding Gap per the
+      taxonomy), not a regression.
+    next_evidence_needed: "Run the tests with the intended invocation. Alternatively, confirm the intended runner configuration (a missing config is a gap here, not something to fill from elsewhere)."
+    owner: user
+    decision_needed_by_user: false
+
+risks:
+  - id: R-1
+    description: "No test has been executed, and the import path for the tests is unconfirmed. src/ has no __init__.py and the project has no conftest or pytest config, so `from src.greeting import greet` depends on how pytest is invoked."
+    evidence: "tests/test_greeting.py:1; execution.log:5; file glob of the project"
+    severity: medium
+  - id: R-2
+    description: "Behavior beyond spec. `not name` rejects every falsy value (None, 0, [], b\"\") with ValueError. R-002 only covers an empty name. Callers passing None get ValueError rather than TypeError. This does not contradict the spec but is untested and undocumented."
+    evidence: src/greeting.py:2-3
+    severity: low
+  - id: R-3
+    description: "Whitespace-only names such as \"   \" pass the guard and yield \"Hello,    !\". Whether that counts as \"empty\" is not specified. No test pins the behavior either way."
+    evidence: "src/greeting.py:2-4; spec.md:9"
+    severity: low
+  - id: R-4
+    description: "Non-string truthy input is accepted (for example greet(5) gives \"Hello, 5!\"). There is no type validation and the spec is silent. [INFERRED] from the f-string at src/greeting.py:4."
+    evidence: "[INFERRED] src/greeting.py:4"
+    severity: low
+  - id: R-5
+    description: "The tests cover only the one happy-path input (\"Ada\") and one empty input (\"\"). Whether the ValueError message \"name required\" is part of the contract is not specified, and the tests do not check it. They also do not exercise the None or whitespace edges from R-2 and R-3. The hand-rolled try/except could be simplified with pytest.raises (style note, not a defect)."
+    evidence: "tests/test_greeting.py:8-13"
+    severity: low
+  - id: R-6
+    description: "completed.md carries `status: done` and all tasks are ticked [x], but the repo has no commits and no verification ran. The \"done\" status rests on static inspection only. The git state gives no pre-state, so \"previously passing\" tests cannot be established."
+    evidence: "completed.md:2,6-8; task-spec-work-map.yaml:2-3,34-36"
+    severity: low
+
+recommendations:
+  - id: REC-1
+    file: tests/test_greeting.py
+    change: "Run the suite once with the intended invocation (e.g. `python -m pytest` from the project root) and record the exit code and test count. This closes both grounding gaps."
+    verifier: "pytest exit 0 with 2 tests collected"
+    linked: [R-1, GG-1, GG-2]
+    priority: high
+  - id: REC-2
+    file: spec.md
+    change: "Optionally clarify whether whitespace-only and non-string names count as empty or invalid. Then either add tests for them or document that they are out of scope."
+    verifier: "Spec text explicit. If tests are added, they pass."
+    linked: [R-2, R-3, R-4]
+    priority: low
+  - id: REC-3
+    file: tests/test_greeting.py
+    change: "Optional: replace the try/except in test_empty with pytest.raises(ValueError). Cosmetic, not required by the spec."
+    verifier: "pytest still passes"
+    linked: [R-5]
+    priority: low
+
+claims:
+  - {text: "greet returns f'Hello, {name}!', which equals 'Hello, Ada!' for 'Ada'.", tag: grounded, citation: "src/greeting.py:4"}
+  - {text: "greet raises ValueError for falsy input, including the empty string.", tag: grounded, citation: "src/greeting.py:2-3"}
+  - {text: "The guard `not name` is broader than R-002 and does not contradict it.", tag: grounded, citation: "src/greeting.py:2; spec.md:9"}
+  - {text: "test_ordinary asserts the exact R-001 string.", tag: grounded, citation: "tests/test_greeting.py:4-5"}
+  - {text: "test_empty passes only if greet('') raises ValueError, and fails with AssertionError otherwise.", tag: grounded, citation: "tests/test_greeting.py:8-13"}
+  - {text: "The work maps to T-101..T-103 and R-001..R-003, with no unmapped hunks.", tag: grounded, citation: "completed.md:6-8; spec.md:5-12; task-spec-work-map.yaml:6-28"}
+  - {text: "No test execution was claimed or performed. The pass/fail state is unknown.", tag: grounded, citation: "execution.log:5; task-spec-work-map.yaml:34-36"}
+  - {text: "No __init__.py, conftest, or pytest config appears in the fixture project listing.", tag: grounded, citation: "file glob of fixtures/project"}
+  - {text: "Under plain `pytest` with default import mode, `from src.greeting import greet` might not resolve.", tag: inferred, citation: "[INFERRED] tests/test_greeting.py:1"}
+  - {text: "Zero deviations: no divergence from the spec or tasklist is detectable by static reading.", tag: grounded, citation: "src/greeting.py:1-4; tests/test_greeting.py:1-13; spec.md:5-12"}
+  - {text: "Whitespace-only names are accepted by greet.", tag: grounded, citation: "src/greeting.py:2"}
+
+self_reported_confidence: 0.8   # ignored by rubric; see calibration/tier1-calibration.yaml

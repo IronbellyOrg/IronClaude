@@ -1,0 +1,23 @@
+# Wave 5 mandatory gate. Returned by Agent sc:evidence-validator (requested slot: haiku -> ANTHROPIC_DEFAULT_HAIKU_MODEL=grok-4.7[1m]; agentId a2ddec2cdbb0dd616).
+# The Agent tool did not report the actual provider model. Persisted by the orchestrator.
+validated_draft: REPORT.draft.md
+evidence_validator_ran: true
+citations:
+  - {id: C1, citation: "execution.log:2", verdict: verified}
+  - {id: C2, citation: "src/greeting.py:1", verdict: verified}
+  - {id: C3, citation: "src/greeting.py:4", verdict: verified}
+  - {id: C4, citation: "execution.log:3", verdict: verified}
+  - {id: C5, citation: "src/greeting.py:2-3", verdict: verified}
+  - {id: C6, citation: "execution.log:4", verdict: verified, note: "exact substring; line also carries the 'T-103 R-003: ' prefix"}
+  - {id: C7, citation: "tests/test_greeting.py:4-5", verdict: verified}
+  - {id: C8, citation: "tests/test_greeting.py:8-13", verdict: verified}
+  - {id: C9, citation: "src/greeting.py:2", verdict: verified}
+  - {id: C10, citation: "execution.log:2-4", verdict: verified}
+  - {id: C11, citation: "tests/test_greeting.py:1", verdict: verified}
+  - {id: C12, citation: "execution.log:5", verdict: verified}
+g3_whole_file_ranges: verified
+citations_total: 12
+citations_dropped: 0
+dropped_ids: []
+inferred_count: 3
+zero_drop_flag: true   # audit flag per §11.2: a zero-drop pass is logged for meta-eval spot-check, not treated as a clean signal

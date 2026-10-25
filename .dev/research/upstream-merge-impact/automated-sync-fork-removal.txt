@@ -1,0 +1,368 @@
+commit 3ae238b178fb7c67ca02809d24745de620c2bd50
+Author:     Ryan wiancko <ryan@ironbelly.com>
+AuthorDate: Wed Sep 30 18:36:20 2026 +0000
+Commit:     Ryan wiancko <ryan@ironbelly.com>
+CommitDate: Wed Sep 30 18:36:39 2026 +0000
+
+    chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+    
+    Remove estimate, select-tool, sc dispatcher, and the post-release-update alias.
+    Stop shipping sequential-thinking, magic, and chrome-devtools from the MCP registry and docs.
+    
+    Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+diff --git a/commands/sc-README.md b/commands/sc-README.md
+index bb0270de..29a4a345 100644
+--- a/commands/sc-README.md
++++ b/commands/sc-README.md
+@@ -8,7 +8,6 @@ This directory contains slash commands that are installed to `~/.claude/commands
+ - **index-repo.md** - Repository indexing for context optimization
+ - **recommend.md** - Command recommendations
+ - **research.md** - Deep web research with parallel search
+-- **sc.md** - Show all available SuperClaude commands
+ 
+ ## Important
+ 
+diff --git a/commands/sc-estimate.md b/commands/sc-estimate.md
+deleted file mode 100644
+index 4beb342f..00000000
+--- a/commands/sc-estimate.md
++++ /dev/null
+@@ -1,108 +0,0 @@
+----
+-name: estimate
+-description: "Provide development estimates for tasks, features, or projects with intelligent analysis"
+-category: special
+-complexity: standard
+-mcp-servers: [sequential, context7]
+-personas: [architect, performance, project-manager]
+----
+-
+-# /sc:sc:sc:estimate - Development Estimation
+-
+-## Triggers
+-- Development planning requiring time, effort, or complexity estimates
+-- Project scoping and resource allocation decisions
+-- Feature breakdown needing systematic estimation methodology
+-- Risk assessment and confidence interval analysis requirements
+-
+-## Usage
+-```
+-/sc:sc:estimate [target] [--type time|effort|complexity] [--unit hours|days|weeks] [--breakdown]
+-```
+-
+-## Behavioral Flow
+-1. **Analyze**: Examine scope, complexity factors, dependencies, and framework patterns
+-2. **Calculate**: Apply estimation methodology with historical benchmarks and complexity scoring
+-3. **Validate**: Cross-reference estimates with project patterns and domain expertise
+-4. **Present**: Provide detailed breakdown with confidence intervals and risk assessment
+-5. **Track**: Document estimation accuracy for continuous methodology improvement
+-
+-Key behaviors:
+-- Multi-persona coordination (architect, performance, project-manager) based on estimation scope
+-- Sequential MCP integration for systematic analysis and complexity assessment
+-- Context7 MCP integration for framework-specific patterns and historical benchmarks
+-- Intelligent breakdown analysis with confidence intervals and risk factors
+-
+-## MCP Integration
+-- **Sequential MCP**: Complex multi-step estimation analysis and systematic complexity assessment
+-- **Context7 MCP**: Framework-specific estimation patterns and historical benchmark data
+-- **Persona Coordination**: Architect (design complexity), Performance (optimization effort), Project Manager (timeline)
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+-
+-## Tool Coordination
+-- **Read/Grep/Glob**: Codebase analysis for complexity assessment and scope evaluation
+-- **TodoWrite**: Estimation breakdown and progress tracking for complex estimation workflows
+-- **Task**: Advanced delegation for multi-domain estimation requiring systematic coordination
+-- **Bash**: Project analysis and dependency evaluation for accurate complexity scoring
+-
+-## Key Patterns
+-- **Scope Analysis**: Project requirements → complexity factors → framework patterns → risk assessment
+-- **Estimation Methodology**: Time-based → Effort-based → Complexity-based → Cost-based approaches
+-- **Multi-Domain Assessment**: Architecture complexity → Performance requirements → Project timeline
+-- **Validation Framework**: Historical benchmarks → cross-validation → confidence intervals → accuracy tracking
+-
+-## Examples
+-
+-### Feature Development Estimation
+-```
+-/sc:sc:estimate "user authentication system" --type time --unit days --breakdown
+-# Systematic analysis: Database design (2 days) + Backend API (3 days) + Frontend UI (2 days) + Testing (1 day)
+-# Total: 8 days with 85% confidence interval
+-```
+-
+-### Project Complexity Assessment
+-```
+-/sc:sc:estimate "migrate monolith to microservices" --type complexity --breakdown
+-# Architecture complexity analysis with risk factors and dependency mapping
+-# Multi-persona coordination for comprehensive assessment
+-```
+-
+-### Performance Optimization Effort
+-```
+-/sc:sc:estimate "optimize application performance" --type effort --unit hours
+-# Performance persona analysis with benchmark comparisons
+-# Effort breakdown by optimization category and expected impact
+-```
+-
+-## Boundaries
+-
+-**Will:**
+-- Provide systematic development estimates with confidence intervals and risk assessment
+-- Apply multi-persona coordination for comprehensive complexity analysis
+-- Generate detailed breakdown analysis with historical benchmark comparisons
+-
+-**Will Not:**
+-- Guarantee estimate accuracy without proper scope analysis and validation
+-- Provide estimates without appropriate domain expertise and complexity assessment
+-- Override historical benchmarks without clear justification and analysis
+-
+-## CRITICAL BOUNDARIES
+-
+-**STOP AFTER ESTIMATION**
+-
+-This command produces an ESTIMATION REPORT ONLY - no implementation.
+-
+-**Explicitly Will NOT**:
+-- Execute work based on estimates
+-- Create implementation timelines for execution
+-- Start implementation tasks
+-- Make commitments on behalf of user
+-
+-**Output**: Estimation report containing:
+-- Time/effort breakdown
+-- Complexity analysis
+-- Confidence intervals
+-- Risk assessment
+-- Resource requirements
+-
+-**Next Step**: After estimation, user decides on timeline. Use `/sc:sc:workflow` for planning or `/sc:sc:implement` for execution.
+diff --git a/commands/sc-sc.md b/commands/sc-sc.md
+deleted file mode 100644
+index ff724729..00000000
+--- a/commands/sc-sc.md
++++ /dev/null
+@@ -1,130 +0,0 @@
+----
+-name: sc
+-description: SuperClaude command dispatcher - Use /sc:sc [command] to access all SuperClaude features
+----
+-
+-# SuperClaude Command Dispatcher
+-
+-🚀 **SuperClaude Framework** - Main command dispatcher
+-
+-## Usage
+-
+-All SuperClaude commands use the `/sc:sc:` prefix:
+-
+-```
+-/sc:sc:command [args...]
+-```
+-
+-## Available Commands
+-
+-### Research & Analysis
+-```
+-/sc:sc:research [query]         - Deep web research with parallel search
+-```
+-
+-### Repository Management
+-```
+-/sc:sc:index-repo              - Index repository for context optimization
+-```
+-
+-### AI Agents
+-```
+-/sc:sc:agent [type]            - Launch specialized AI agents
+-```
+-
+-### Recommendations
+-```
+-/sc:sc:recommend [context]     - Get command recommendations
+-```
+-
+-### Help
+-```
+-/sc:sc                         - Show this help (all available commands)
+-```
+-
+-## Command Namespace
+-
+-All commands are namespaced under `sc:` to keep them organized:
+-- ✅ `/sc:sc:research query`
+-- ✅ `/sc:sc:index-repo`
+-- ✅ `/sc:sc:agent type`
+-- ✅ `/sc:sc:recommend`
+-- ✅ `/sc:sc` (help)
+-
+-## Examples
+-
+-### Research
+-```
+-/sc:sc:research React 18 new features
+-/sc:sc:research LLM agent architectures 2024
+-/sc:sc:research Python async best practices
+-```
+-
+-### Index Repository
+-```
+-/sc:sc:index-repo
+-```
+-
+-### Agent
+-```
+-/sc:sc:agent deep-research
+-/sc:sc:agent self-review
+-/sc:sc:agent repo-index
+-```
+-
+-### Recommendations
+-```
+-/sc:sc:recommend
+-```
+-
+-## Quick Reference
+-
+-| Command | Description | Example |
+-|---------|-------------|---------|
+-| `/sc:sc:research` | Deep web research | `/sc:sc:research topic` |
+-| `/sc:sc:index-repo` | Repository indexing | `/sc:sc:index-repo` |
+-| `/sc:sc:agent` | Specialized AI agents | `/sc:sc:agent type` |
+-| `/sc:sc:recommend` | Command suggestions | `/sc:sc:recommend` |
+-| `/sc:sc` | Show help | `/sc:sc` |
+-
+-## Features
+-
+-- **Parallel Execution**: Research runs multiple searches in parallel
+-- **Evidence-Based**: All findings backed by sources
+-- **Context-Aware**: Uses repository context when available
+-- **Token Efficient**: Optimized for minimal token usage
+-
+-## Help
+-
+-For help on specific commands:
+-```
+-/sc:sc:research --help
+-/sc:sc:agent --help
+-```
+-
+-Or use the main help command:
+-```
+-/sc:sc
+-```
+-
+-Check the documentation:
+-- PLANNING.md - Architecture and design
+-- TASK.md - Current tasks and priorities
+-- KNOWLEDGE.md - Tips and best practices
+-
+-## Version
+-
+-SuperClaude v4.1.7
+-- Python package: 0.4.0
+-- Pytest plugin included
+-- PM Agent patterns enabled
+-
+----
+-
+-💡 **Tip**: All commands use the `/sc:sc:` prefix - e.g., `/sc:sc:research`, `/sc:sc:agent`
+-
+-🔧 **Installation**: Run `superclaude install` to install/update commands
+-
+-📚 **Documentation**: https://github.com/SuperClaude-Org/SuperClaude_Framework
+-
+-⚠️ **Important**: Restart Claude Code after installing commands to use them!
+diff --git a/commands/sc-select-tool.md b/commands/sc-select-tool.md
+deleted file mode 100644
+index 95e3a539..00000000
+--- a/commands/sc-select-tool.md
++++ /dev/null
+@@ -1,87 +0,0 @@
+----
+-name: select-tool
+-description: "Intelligent MCP tool selection based on complexity scoring and operation analysis"
+-category: special
+-complexity: high
+-mcp-servers: [serena, morphllm]
+-personas: []
+----
+-
+-# /sc:sc:sc:select-tool - Intelligent MCP Tool Selection
+-
+-## Triggers
+-- Operations requiring optimal MCP tool selection between Serena and Morphllm
+-- Meta-system decisions needing complexity analysis and capability matching
+-- Tool routing decisions requiring performance vs accuracy trade-offs
+-- Operations benefiting from intelligent tool capability assessment
+-
+-## Usage
+-```
+-/sc:sc:select-tool [operation] [--analyze] [--explain]
+-```
+-
+-## Behavioral Flow
+-1. **Parse**: Analyze operation type, scope, file count, and complexity indicators
+-2. **Score**: Apply multi-dimensional complexity scoring across various operation factors
+-3. **Match**: Compare operation requirements against Serena and Morphllm capabilities
+-4. **Select**: Choose optimal tool based on scoring matrix and performance requirements
+-5. **Validate**: Verify selection accuracy and provide confidence metrics
+-
+-Key behaviors:
+-- Complexity scoring based on file count, operation type, language, and framework requirements
+-- Performance assessment evaluating speed vs accuracy trade-offs for optimal selection
+-- Decision logic matrix with direct mappings and threshold-based routing rules
+-- Tool capability matching for Serena (semantic operations) vs Morphllm (pattern operations)
+-
+-## MCP Integration
+-- **Serena MCP**: Optimal for semantic operations, LSP functionality, symbol navigation, and project context
+-- **Morphllm MCP**: Optimal for pattern-based edits, bulk transformations, and speed-critical operations
+-- **Decision Matrix**: Intelligent routing based on complexity scoring and operation characteristics
+-
+-## Tool Coordination
+-- **get_current_config**: System configuration analysis for tool capability assessment
+-- **execute_sketched_edit**: Operation testing and validation for selection accuracy
+-- **Read/Grep**: Operation context analysis and complexity factor identification
+-- **Integration**: Automatic selection logic used by refactor, edit, implement, and improve commands
+-
+-## Key Patterns
+-- **Direct Mapping**: Symbol operations → Serena, Pattern edits → Morphllm, Memory operations → Serena
+-- **Complexity Thresholds**: Score >0.6 → Serena, Score <0.4 → Morphllm, 0.4-0.6 → Feature-based
+-- **Performance Trade-offs**: Speed requirements → Morphllm, Accuracy requirements → Serena
+-- **Fallback Strategy**: Serena → Morphllm → Native tools degradation chain
+-
+-## Examples
+-
+-### Complex Refactoring Operation
+-```
+-/sc:sc:select-tool "rename function across 10 files" --analyze
+-# Analysis: High complexity (multi-file, symbol operations)
+-# Selection: Serena MCP (LSP capabilities, semantic understanding)
+-```
+-
+-### Pattern-Based Bulk Edit
+-```
+-/sc:sc:select-tool "update console.log to logger.info across project" --explain
+-# Analysis: Pattern-based transformation, speed priority
+-# Selection: Morphllm MCP (pattern matching, bulk operations)
+-```
+-
+-### Memory Management Operation
+-```
+-/sc:sc:select-tool "save project context and discoveries"
+-# Direct mapping: Memory operations → Serena MCP
+-# Rationale: Project context and cross-session persistence
+-```
+-
+-## Boundaries
+-
+-**Will:**
+-- Analyze operations and provide optimal tool selection between Serena and Morphllm
+-- Apply complexity scoring based on file count, operation type, and requirements
+-- Provide sub-100ms decision time with >95% selection accuracy
+-
+-**Will Not:**
+-- Override explicit tool specifications when user has clear preference
+-- Select tools without proper complexity analysis and capability matching
+-- Compromise performance requirements for convenience or speed
+-

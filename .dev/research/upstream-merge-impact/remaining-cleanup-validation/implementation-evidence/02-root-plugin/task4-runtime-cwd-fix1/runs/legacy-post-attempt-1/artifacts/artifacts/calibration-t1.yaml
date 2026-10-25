@@ -1,0 +1,23 @@
+# Wave 1D blind calibration. Agent: sc:confidence-calibrator, requested slot opus (agentId a962b2a3bcfc6c6d2).
+# Self-reported provider model by agent: claude-opus-5-5[1m]. Card author slot: sonnet -> calibrator_diversity: full.
+# Orchestrator note: the rubric path echoed in the agent's report omits the "02-root-plugin/task4-runtime-cwd-fix1" segments;
+# recorded verbatim, not corrected. Supplied rubric path was the bundled plugin ref.
+calibration_failed: false
+calibration: independent   # not inline-fallback
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet]   # T1 card author
+calibrator_diversity: full
+citation_spot_checks_summary: {verified: 26, mismatch: 0, unreadable: 0}
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.90
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.88
+calibrated_confidence: 0.88
+self_reported_confidence_ignored: 0.78
+key_deductions:
+  - per_task uses "none" (no deviation) rather than a class
+  - broader `if not name` semantics left as risk rather than classified
+  - no explicit coverage_pct on card
+  - R-risk-5 ungrounded (orchestrator-rejected)

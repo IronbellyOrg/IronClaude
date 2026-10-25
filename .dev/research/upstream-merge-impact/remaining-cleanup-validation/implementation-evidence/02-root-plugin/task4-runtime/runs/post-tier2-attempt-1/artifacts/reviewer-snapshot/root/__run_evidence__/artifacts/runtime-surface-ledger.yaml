@@ -1,0 +1,4 @@
+# Step 4b' tagger: greet is a plain module-level function, no decorator / entrypoint / registry kind in diff.
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+rows: []

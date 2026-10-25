@@ -1,0 +1,13 @@
+# §10.6 Grounding Gaps — evidence-insufficient findings (NOT deviations). Source: T1 card GG-1, GG-2 (GG-3 folded into GG-1 as a self-declared duplicate).
+- hunk_ref: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/src/greeting.py:1-4; /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/tests/test_greeting.py:1-13
+  evidence_missing: "No test execution result. execution.log:5 states no test execution is claimed; the §6.1 step 5.5 verification triangle was unavailable (execute_shell_command not exposed), so Regression detection degraded to the task-log claim, which makes no pass claim."
+  why_not_classifiable: "Without an executed result, neither a Regression (failing test) nor a verified pass can be asserted; static reading alone matches R-001..R-003."
+  next_evidence_needed: "Captured output and exit code of `python -m pytest tests/test_greeting.py` run from the project root."
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/tests/test_greeting.py:1
+  evidence_missing: "Intended test invocation / sys.path configuration; no conftest.py, pytest config or __init__.py exists in the project."
+  why_not_classifiable: "`from src.greeting import greet` resolves only when the project root is on sys.path, which depends on how the tests are invoked; collection success is unknown."
+  next_evidence_needed: "Actual pytest collection result, or the project's intended invocation command."
+  owner: user
+  decision_needed_by_user: true

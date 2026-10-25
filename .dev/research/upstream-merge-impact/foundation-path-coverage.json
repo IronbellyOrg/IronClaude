@@ -1,0 +1,3792 @@
+[
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": ".claude/settings.json",
+    "status": "A",
+    "added_deleted": [
+      "1",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": ".claude/skills/confidence-check/SKILL.md",
+    "status": "A",
+    "added_deleted": [
+      "125",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": ".claude/skills/confidence-check/confidence.ts",
+    "status": "A",
+    "added_deleted": [
+      "171",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": ".gitignore",
+    "status": "M",
+    "added_deleted": [
+      "4",
+      "1"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "AGENTS.md",
+    "status": "A",
+    "added_deleted": [
+      "38",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "CLAUDE.md",
+    "status": "A",
+    "added_deleted": [
+      "305",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "DELETION_RATIONALE.md",
+    "status": "A",
+    "added_deleted": [
+      "400",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "MANIFEST.in",
+    "status": "M",
+    "added_deleted": [
+      "3",
+      "8"
+    ],
+    "class": "build-config-tools",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "Makefile",
+    "status": "A",
+    "added_deleted": [
+      "130",
+      "0"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "PARALLEL_INDEXING_PLAN.md",
+    "status": "A",
+    "added_deleted": [
+      "190",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "PLUGIN_INSTALL.md",
+    "status": "A",
+    "added_deleted": [
+      "161",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "PROJECT_INDEX.json",
+    "status": "A",
+    "added_deleted": [
+      "245",
+      "0"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "PROJECT_INDEX.md",
+    "status": "A",
+    "added_deleted": [
+      "324",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "PR_DOCUMENTATION.md",
+    "status": "A",
+    "added_deleted": [
+      "320",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "QUALITY_COMPARISON.md",
+    "status": "A",
+    "added_deleted": [
+      "222",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "README.md",
+    "status": "M",
+    "added_deleted": [
+      "110",
+      "61"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "TEST_PLUGIN.md",
+    "status": "A",
+    "added_deleted": [
+      "47",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "bin/check_env.js",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "60"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "bin/check_update.js",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "276"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "bin/cli.js",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "44"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "bin/install.js",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "114"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "bin/update.js",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "71"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/ARCHITECTURE.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "529"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/PROJECT_STATUS.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "172"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/ROADMAP.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "349"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/TASKS.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "151"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/architecture-overview.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "103"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/cli-install-improvements.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "658"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/code-style.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "50"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "390"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/install-process-analysis.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "489"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/installation-flow-understanding.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "378"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/pm-agent-ideal-workflow.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "341"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/pm-agent-improvements.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "149"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/pm-agent-integration.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "477"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/pm-agent-parallel-architecture.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "716"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/pm-agent-parallel-execution-complete.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "235"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/project-overview.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "24"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/project-structure-understanding.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "368"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/Development/tasks/current-tasks.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "163"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/PM_AGENT.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "332"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/PR_STRATEGY.md",
+    "status": "A",
+    "added_deleted": [
+      "386",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/CONTEXT_WINDOW_ANALYSIS.md",
+    "status": "A",
+    "added_deleted": [
+      "348",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/MIGRATION_TO_CLEAN_ARCHITECTURE.md",
+    "status": "A",
+    "added_deleted": [
+      "692",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/PHASE_1_COMPLETE.md",
+    "status": "A",
+    "added_deleted": [
+      "235",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/PHASE_2_COMPLETE.md",
+    "status": "A",
+    "added_deleted": [
+      "300",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/PHASE_3_COMPLETE.md",
+    "status": "A",
+    "added_deleted": [
+      "544",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/PM_AGENT_COMPARISON.md",
+    "status": "A",
+    "added_deleted": [
+      "529",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/architecture/SKILLS_CLEANUP.md",
+    "status": "A",
+    "added_deleted": [
+      "240",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+    "status": "M",
+    "added_deleted": [
+      "1",
+      "1"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/memory/pm_context.md",
+    "status": "M",
+    "added_deleted": [
+      "2",
+      "2"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/memory/token_efficiency_validation.md",
+    "status": "M",
+    "added_deleted": [
+      "3",
+      "3"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/next-refactor-plan.md",
+    "status": "A",
+    "added_deleted": [
+      "115",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/plugin-reorg.md",
+    "status": "A",
+    "added_deleted": [
+      "53",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/pm-agent-implementation-status.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "332"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/reference/pm-agent-autonomous-reflection.md",
+    "status": "M",
+    "added_deleted": [
+      "3",
+      "3"
+    ],
+    "class": "documentation",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/complete-python-skills-migration.md",
+    "status": "A",
+    "added_deleted": [
+      "961",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/intelligent-execution-architecture.md",
+    "status": "A",
+    "added_deleted": [
+      "524",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/markdown-to-python-migration-plan.md",
+    "status": "A",
+    "added_deleted": [
+      "431",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/parallel-execution-complete-findings.md",
+    "status": "A",
+    "added_deleted": [
+      "561",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/parallel-execution-findings.md",
+    "status": "A",
+    "added_deleted": [
+      "418",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/phase1-implementation-strategy.md",
+    "status": "A",
+    "added_deleted": [
+      "331",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/pm-mode-validation-methodology.md",
+    "status": "A",
+    "added_deleted": [
+      "371",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/pm-skills-migration-results.md",
+    "status": "A",
+    "added_deleted": [
+      "218",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/pm_agent_roi_analysis_2025-10-21.md",
+    "status": "A",
+    "added_deleted": [
+      "255",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/python_src_layout_research_20251021.md",
+    "status": "A",
+    "added_deleted": [
+      "236",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/repository-understanding-proposal.md",
+    "status": "A",
+    "added_deleted": [
+      "483",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/research_serena_mcp_2025-01-16.md",
+    "status": "M",
+    "added_deleted": [
+      "2",
+      "2"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/skills-migration-test.md",
+    "status": "A",
+    "added_deleted": [
+      "120",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/research/task-tool-parallel-execution-results.md",
+    "status": "A",
+    "added_deleted": [
+      "421",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/sessions/2025-10-14-summary.md",
+    "status": "M",
+    "added_deleted": [
+      "2",
+      "2"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "docs/templates/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "0"
+    ],
+    "class": "documentation",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/agents/deep-research.md",
+    "status": "A",
+    "added_deleted": [
+      "31",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/agents/repo-index.md",
+    "status": "A",
+    "added_deleted": [
+      "30",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/agents/self-review.md",
+    "status": "A",
+    "added_deleted": [
+      "33",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/commands/agent.md",
+    "status": "A",
+    "added_deleted": [
+      "71",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/commands/index-repo.md",
+    "status": "A",
+    "added_deleted": [
+      "165",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/commands/research.md",
+    "status": "A",
+    "added_deleted": [
+      "122",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/hooks/hooks.json",
+    "status": "A",
+    "added_deleted": [
+      "15",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/scripts/clean_command_names.py",
+    "status": "A",
+    "added_deleted": [
+      "168",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/scripts/session-init.sh",
+    "status": "A",
+    "added_deleted": [
+      "30",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/skills/confidence-check/SKILL.md",
+    "status": "A",
+    "added_deleted": [
+      "124",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "plugins/superclaude/skills/confidence-check/confidence.ts",
+    "status": "A",
+    "added_deleted": [
+      "332",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "pyproject.toml",
+    "status": "M",
+    "added_deleted": [
+      "106",
+      "83"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "scripts/build_and_upload.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "282"
+    ],
+    "class": "build-config-tools",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "scripts/build_superclaude_plugin.py",
+    "status": "A",
+    "added_deleted": [
+      "98",
+      "0"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "scripts/validate_pypi_ready.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "231"
+    ],
+    "class": "build-config-tools",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "scripts/verify_research_integration.sh",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "168"
+    ],
+    "class": "build-config-tools",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "24"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "11"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/base.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "83"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/commands/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "18"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/commands/backup.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "609"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/commands/install.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "765"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/commands/uninstall.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "983"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/cli/commands/update.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "512"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "15"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/agents.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "261"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/commands.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "388"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/framework_docs.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "286"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/mcp.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "1268"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/components/modes.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "241"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/core/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "6"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/core/base.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "467"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/core/installer.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "304"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/core/registry.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "414"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/core/validator.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "723"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/data/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "4"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/data/features.json",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "49"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/data/requirements.json",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "54"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/services/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "11"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/services/claude_md.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "334"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/services/config.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "365"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/services/files.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "442"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/services/settings.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "533"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "10"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/environment.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "535"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/logger.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "335"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/paths.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "54"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/security.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "943"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/symbols.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "198"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/ui.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "203"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "setup/utils/updater.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "329"
+    ],
+    "class": "legacy-installer",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/main.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "skills/confidence-check/SKILL.md",
+    "status": "A",
+    "added_deleted": [
+      "124",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "skills/confidence-check/confidence.ts",
+    "status": "A",
+    "added_deleted": [
+      "332",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/__init__.py",
+    "status": "A",
+    "added_deleted": [
+      "21",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/__version__.py",
+    "status": "A",
+    "added_deleted": [
+      "3",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/cli/__init__.py",
+    "status": "A",
+    "added_deleted": [
+      "12",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/cli/doctor.py",
+    "status": "A",
+    "added_deleted": [
+      "148",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/cli/install_skill.py",
+    "status": "A",
+    "added_deleted": [
+      "149",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/cli/main.py",
+    "status": "A",
+    "added_deleted": [
+      "118",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/execution/__init__.py",
+    "status": "A",
+    "added_deleted": [
+      "225",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/execution/parallel.py",
+    "status": "A",
+    "added_deleted": [
+      "335",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/execution/reflection.py",
+    "status": "A",
+    "added_deleted": [
+      "383",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/execution/self_correction.py",
+    "status": "A",
+    "added_deleted": [
+      "426",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pm_agent/__init__.py",
+    "status": "A",
+    "added_deleted": [
+      "19",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pm_agent/confidence.py",
+    "status": "A",
+    "added_deleted": [
+      "268",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pm_agent/reflexion.py",
+    "status": "A",
+    "added_deleted": [
+      "343",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pm_agent/self_check.py",
+    "status": "A",
+    "added_deleted": [
+      "249",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pm_agent/token_budget.py",
+    "status": "A",
+    "added_deleted": [
+      "81",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/pytest_plugin.py",
+    "status": "A",
+    "added_deleted": [
+      "222",
+      "0"
+    ],
+    "class": "runtime",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/skills/confidence-check/SKILL.md",
+    "status": "A",
+    "added_deleted": [
+      "124",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "src/superclaude/skills/confidence-check/confidence.ts",
+    "status": "A",
+    "added_deleted": [
+      "305",
+      "0"
+    ],
+    "class": "primitives",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "24"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/__init__.py",
+      "plugins/superclaude/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/__main__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "13"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "0"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/__init__.py",
+      "plugins/superclaude/agents/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/backend-architect.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/backend-architect.md",
+      "plugins/superclaude/agents/backend-architect.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/business-panel-experts.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "247"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/business-panel-experts.md",
+      "plugins/superclaude/agents/business-panel-experts.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/deep-research-agent.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "185"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/deep-research-agent.md",
+      "plugins/superclaude/agents/deep-research-agent.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/devops-architect.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/devops-architect.md",
+      "plugins/superclaude/agents/devops-architect.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/frontend-architect.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/frontend-architect.md",
+      "plugins/superclaude/agents/frontend-architect.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/learning-guide.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/learning-guide.md",
+      "plugins/superclaude/agents/learning-guide.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/performance-engineer.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/performance-engineer.md",
+      "plugins/superclaude/agents/performance-engineer.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/pm-agent.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "523"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/pm-agent.md",
+      "plugins/superclaude/agents/pm-agent.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/python-expert.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/python-expert.md",
+      "plugins/superclaude/agents/python-expert.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/quality-engineer.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/quality-engineer.md",
+      "plugins/superclaude/agents/quality-engineer.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/refactoring-expert.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/refactoring-expert.md",
+      "plugins/superclaude/agents/refactoring-expert.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/requirements-analyst.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/requirements-analyst.md",
+      "plugins/superclaude/agents/requirements-analyst.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/root-cause-analyst.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/root-cause-analyst.md",
+      "plugins/superclaude/agents/root-cause-analyst.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/security-engineer.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "50"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/security-engineer.md",
+      "plugins/superclaude/agents/security-engineer.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/socratic-mentor.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "291"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/socratic-mentor.md",
+      "plugins/superclaude/agents/socratic-mentor.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/system-architect.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/system-architect.md",
+      "plugins/superclaude/agents/system-architect.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/agents/technical-writer.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "48"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/agents/technical-writer.md",
+      "plugins/superclaude/agents/technical-writer.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "5"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/cli/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/_console.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "8"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/app.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "70"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/commands/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "5"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/commands/config.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "268"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/commands/doctor.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "206"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/cli/commands/install.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "261"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "0"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/__init__.py",
+      "plugins/superclaude/commands/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/analyze.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "89"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/analyze.md",
+      "plugins/superclaude/commands/analyze.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/brainstorm.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "100"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/brainstorm.md",
+      "plugins/superclaude/commands/brainstorm.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/build.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "94"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/build.md",
+      "plugins/superclaude/commands/build.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/business-panel.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "81"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/business-panel.md",
+      "plugins/superclaude/commands/business-panel.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/cleanup.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "93"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/cleanup.md",
+      "plugins/superclaude/commands/cleanup.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/design.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "88"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/design.md",
+      "plugins/superclaude/commands/design.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/document.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "88"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/document.md",
+      "plugins/superclaude/commands/document.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/estimate.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "87"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/explain.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "92"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/explain.md",
+      "plugins/superclaude/commands/explain.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/git.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "80"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/git.md",
+      "plugins/superclaude/commands/git.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/help.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "148"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/help.md",
+      "plugins/superclaude/commands/help.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/implement.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "97"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/implement.md",
+      "plugins/superclaude/commands/implement.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/improve.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "94"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/improve.md",
+      "plugins/superclaude/commands/improve.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/index.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "86"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/index.md",
+      "plugins/superclaude/commands/index.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/load.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "93"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/load.md",
+      "plugins/superclaude/commands/load.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/pm.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "46"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/pm.md",
+      "plugins/superclaude/commands/pm.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/reflect.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "88"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/reflect.md",
+      "plugins/superclaude/commands/reflect.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/research.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "103"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/research.md",
+      "plugins/superclaude/commands/research.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/save.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "93"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/save.md",
+      "plugins/superclaude/commands/save.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/select-tool.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "87"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/spawn.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "85"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/spawn.md",
+      "plugins/superclaude/commands/spawn.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/spec-panel.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "428"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/spec-panel.md",
+      "plugins/superclaude/commands/spec-panel.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/task.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "89"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/task.md",
+      "plugins/superclaude/commands/task.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/test.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "93"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/test.md",
+      "plugins/superclaude/commands/test.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/troubleshoot.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "88"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/troubleshoot.md",
+      "plugins/superclaude/commands/troubleshoot.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/commands/workflow.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "97"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/commands/workflow.md",
+      "plugins/superclaude/commands/workflow.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "279"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+      "plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/BUSINESS_SYMBOLS.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "212"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/BUSINESS_SYMBOLS.md",
+      "plugins/superclaude/core/BUSINESS_SYMBOLS.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/FLAGS.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "133"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/PRINCIPLES.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "60"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/PRINCIPLES.md",
+      "plugins/superclaude/core/PRINCIPLES.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/RESEARCH_CONFIG.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "446"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/RESEARCH_CONFIG.md",
+      "plugins/superclaude/core/RESEARCH_CONFIG.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/RULES.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "287"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/RULES.md",
+      "plugins/superclaude/core/RULES.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "0"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/core/__init__.py",
+      "plugins/superclaude/core/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/pm_init/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "13"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/pm_init/context_contract.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "139"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/pm_init/init_hook.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "134"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/core/pm_init/reflexion_memory.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "151"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/examples/deep_research_workflows.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "495"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/examples/deep_research_workflows.md",
+      "plugins/superclaude/examples/deep_research_workflows.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Brainstorming.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "44"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Brainstorming.md",
+      "plugins/superclaude/modes/MODE_Brainstorming.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Business_Panel.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "335"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Business_Panel.md",
+      "plugins/superclaude/modes/MODE_Business_Panel.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_DeepResearch.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "58"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_DeepResearch.md",
+      "plugins/superclaude/modes/MODE_DeepResearch.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Introspection.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "39"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Introspection.md",
+      "plugins/superclaude/modes/MODE_Introspection.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Orchestration.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "67"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Orchestration.md",
+      "plugins/superclaude/modes/MODE_Orchestration.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Task_Management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "103"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Task_Management.md",
+      "plugins/superclaude/modes/MODE_Task_Management.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/MODE_Token_Efficiency.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "75"
+    ],
+    "class": "legacy-primitives",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/MODE_Token_Efficiency.md",
+      "plugins/superclaude/modes/MODE_Token_Efficiency.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "superclaude/modes/__init__.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "0"
+    ],
+    "class": "legacy-runtime",
+    "current_exists": false,
+    "mapped_candidates": [
+      "src/superclaude/modes/__init__.py",
+      "plugins/superclaude/modes/__init__.py"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_cli_smoke.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "126"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_get_components.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "28"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_install_command.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "67"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_installer.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "96"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_mcp_component.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "87"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_mcp_docs_component.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "41"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+    "path": "tests/test_ui.py",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "52"
+    ],
+    "class": "tests",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "10844490e2609a61ec201e073872428bac9f9470",
+    "path": "Makefile",
+    "status": "M",
+    "added_deleted": [
+      "9",
+      "1"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "10844490e2609a61ec201e073872428bac9f9470",
+    "path": "scripts/uninstall_legacy.sh",
+    "status": "A",
+    "added_deleted": [
+      "118",
+      "0"
+    ],
+    "class": "build-config-tools",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Developer-Guide/README.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "172"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Developer-Guide/contributing-code.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "401"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/developer-guide/contributing-code.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Developer-Guide/documentation-index.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "227"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/developer-guide/documentation-index.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Developer-Guide/technical-architecture.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "356"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/developer-guide/technical-architecture.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Developer-Guide/testing-debugging.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "324"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/developer-guide/testing-debugging.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Getting-Started/installation.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "514"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/getting-started/installation.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Getting-Started/quick-start.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "492"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/getting-started/quick-start.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/README.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "249"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/advanced-patterns.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "323"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/advanced-workflows.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "309"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/basic-examples.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "553"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/claude-code-history-management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "556"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/reference/claude-code-history-management.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/common-issues.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "79"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/reference/common-issues.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/diagnostic-reference.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "338"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/reference/diagnostic-reference.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/examples-cookbook.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "172"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/integration-patterns.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "319"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/mcp-server-guide.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "755"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/reference/mcp-server-guide.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/Reference/troubleshooting.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "124"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/reference/troubleshooting.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/agents.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "1029"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/commands.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "415"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/flags.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "388"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/mcp-servers.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "319"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/modes.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "726"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-jp/session-management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "414"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/agents.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "865"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/commands.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "367"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/flags.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "271"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/mcp-servers.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "340"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/modes.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "658"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-kr/session-management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "311"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/agents.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "819"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/commands.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "305"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/flags.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "270"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/mcp-servers.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "272"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/modes.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "603"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide-zh/session-management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "310"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/agents.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "936"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/agents.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/commands.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "367"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/commands.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/flags.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "273"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/flags.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/mcp-servers.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "339"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/mcp-servers.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/modes.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "659"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/modes.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/User-Guide/session-management.md",
+    "status": "D",
+    "added_deleted": [
+      "0",
+      "310"
+    ],
+    "class": "docs-case",
+    "current_exists": false,
+    "mapped_candidates": [
+      "docs/user-guide/session-management.md"
+    ],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  },
+  {
+    "commit": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+    "path": "docs/user-guide/mcp-installation.md",
+    "status": "A",
+    "added_deleted": [
+      "231",
+      "0"
+    ],
+    "class": "docs-case",
+    "current_exists": true,
+    "mapped_candidates": [],
+    "content_inspection": "UNVERIFIED unless specifically cited in analysis"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "kind": "read-only-worker-return",
+  "worker": "validate-memory-docs",
+  "status": "current memory docs FAIL accuracy; docs-only scope supported",
+  "files_changed": [],
+  "allowlist": ["docs/memory/README.md", "docs/user-guide/memory-system.md", "docs/memory/reflexion.jsonl.example", "docs/mcp/mcp-integration-policy.md", "docs/memory/pm_context.md", "docs/memory/token_efficiency_validation.md", "docs/reference/pm-agent-autonomous-reflection.md", "docs/memory/WORKFLOW_METRICS_SCHEMA.md"],
+  "source_anchors": ["src/superclaude/pm_agent/reflexion.py:57-82", "src/superclaude/pm_agent/reflexion.py:110-244", "src/superclaude/pytest_plugin.py:172-196", "tests/conftest.py:23-117", "docs/memory/solutions_learned.jsonl:1-4"],
+  "preservation": "All working code, exports, tests, pollution guards, PM protocol and four legitimate committed pattern records remain byte-identical; no sample seeding or backend implementation.",
+  "plan_overlap": "No same-objective active plan found within bounded tracked/untracked to-do/proposal searches. Existing CI proposals/plans are unrelated.",
+  "unverified": ["runtime", "benchmarks", "external manual MindBase deployment", "external consumers"],
+  "process_limitation": "Worker reports one initial unscoped Auggie discovery MCP call exceeded intended local-only discovery. All relied-on findings subsequently confirmed locally; no further remote calls. No tests/imports/checkers/installers/builds/GitHub calls.",
+  "self_audit": "Checked both schemas, raw serialization/privacy, exact comparison/order, callers, real records and guard limitations. No basis for code removal, data deletion or new backend. Worker complete."
+}

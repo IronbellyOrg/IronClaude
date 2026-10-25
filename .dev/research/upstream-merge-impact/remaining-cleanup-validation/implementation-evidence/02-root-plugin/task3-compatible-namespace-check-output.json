@@ -1,0 +1,456 @@
+{
+  "task": 2,
+  "verdict": "PASS",
+  "checks": {
+    "exact_allowed_set": {
+      "pass": true,
+      "details": [
+        "commands/sc-agent.md",
+        "commands/sc-analyze.md",
+        "commands/sc-brainstorm.md",
+        "commands/sc-build.md",
+        "commands/sc-business-panel.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-design.md",
+        "commands/sc-document.md",
+        "commands/sc-explain.md",
+        "commands/sc-git.md",
+        "commands/sc-help.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index.md",
+        "commands/sc-load.md",
+        "commands/sc-pm.md",
+        "commands/sc-recommend.md",
+        "commands/sc-reflect.md",
+        "commands/sc-research.md",
+        "commands/sc-save.md",
+        "commands/sc-spawn.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-test.md",
+        "commands/sc-troubleshoot.md",
+        "commands/sc-workflow.md"
+      ]
+    },
+    "availability:commands/sc-brainstorm.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-cleanup.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-explain.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-implement.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-improve.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-index.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-spec-panel.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-task.md": {
+      "pass": true,
+      "details": 1
+    },
+    "availability:commands/sc-workflow.md": {
+      "pass": true,
+      "details": 1
+    },
+    "all_26_exact_transformations": {
+      "pass": true,
+      "details": {
+        "commands/sc-agent.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "1c37a0992dd8b834ea84f2a35eb12ca59eb5d2a9fec7f51927c804d4ffe159cf",
+          "actual_sha256": "c855fcee372c587737f0179525dfe7812b704dd0128370648b9dd9738cd5bc9d"
+        },
+        "commands/sc-analyze.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "f03613e5a2fa2cf8f7b8b998c76d32114014aea6a6409a47196296fd28edc9fc",
+          "actual_sha256": "629f84212c6930f04454dbc55ed4a1642adec49750c1a8d548b0bcd519768a6c"
+        },
+        "commands/sc-brainstorm.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "553ab63b9e65ac052c1ae682e44283f64f20a7fb81b33ea544fc045f02b5f912",
+          "actual_sha256": "5b1391adb07f66a0fd9b23f3aad274eaa6ea951ad89458fed81a02fb9bd09e2d"
+        },
+        "commands/sc-build.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "bd6352c7ecd028bc6c10e108bd7542e3bd0c71f7fe52ce03785fda1bc2ef8407",
+          "actual_sha256": "13fc1907320e92b07e1fd501a3a6a68c5c1bd3a15c061d9e4842aef0dc0af817"
+        },
+        "commands/sc-business-panel.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "1f50cf7de4a715dab45cc6201e865cc5789260a1720552d8326ba2c5687419b8",
+          "actual_sha256": "96e819e8abcaf4aeb5e21ed28749b2ca879b72bf3d8b25dd4de734ced878431a"
+        },
+        "commands/sc-cleanup.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "6ff44f9b7539902ebee02372a7b9baf0550d7291491403b3b8fc743f6b16839e",
+          "actual_sha256": "c8f1708bcff606a0b2078178126bb47927c83987f28721185d4dc7c5703025ab"
+        },
+        "commands/sc-design.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "fdbad6a1ed968367712a57b7b7dbce977eed4d27da7aac134b0628620d075f6b",
+          "actual_sha256": "36869fbc8f759afff5223bea73df98cc356d86a72cd41e00d3476f59e31a69a7"
+        },
+        "commands/sc-document.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "c18fc3f1852e2a91b077dcf955370994978610b5888f161e91a6523dac8f0272",
+          "actual_sha256": "f52b9b968f060a422e6342147050875a038bbd059ea8fc947eef0801bee1612e"
+        },
+        "commands/sc-explain.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "175a69ecc8e1e9601a599ba27802fbea6882fd4042e77ee483512a077449cc82",
+          "actual_sha256": "12f3b53f67316240e6e5e81da5cecaf85c310244afeaa7b87a7c7ff426ff5ab5"
+        },
+        "commands/sc-git.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "4e6d92aac61a930202cd293b2a8a9afac85da3690ae5431737ab384bc3afd14d",
+          "actual_sha256": "6bf6ace052daa0037c6e27a267709f85c778bc90f6152a0b01314a3b1ea1de90"
+        },
+        "commands/sc-help.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "4e3a06f7d5dc31626e61f8dc5ec3cd149496b6c48c2a5efc3d5c62dbf5dd7e3a",
+          "actual_sha256": "603d095ffd4a5ea24d0b172c668bb0285782d7a79d11dd8893ce2827280c2898"
+        },
+        "commands/sc-implement.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "e693f85db40ebd2776d09f7127f66875463d8596e18014a846a026928c2485fb",
+          "actual_sha256": "c52c92dda39ca139a23ff71280a356af192055437d934f4c717f9a9c767abb90"
+        },
+        "commands/sc-improve.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "a781245ace321da730a789d31b40a77e5837cb8297cb19e20c7d7fd3cd4a5955",
+          "actual_sha256": "bdf1f6cb8e2e8fef76bf10c740c9ebb2b95cd4a78278d697a6730d1dc74cf15c"
+        },
+        "commands/sc-index.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "b5e280ff98c7c4c47641743872fe75b998242dd34f9bd686d236084fcad7ee5c",
+          "actual_sha256": "83c59084c090f438aea7f04089766527070217e01a25d8a745c32116fb404ad6"
+        },
+        "commands/sc-load.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "768d62092b91b93fb1082c6b5fd355dffad4447247bee62d9f7647e7dd4ced83",
+          "actual_sha256": "4bfc9171cf785bdb5eb27dffc116956e3b12044158fb31e88b3686730d70ddca"
+        },
+        "commands/sc-pm.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "3bb9e21b83cde46a33bbf34966af7273a0be16b5f9a1d040728dfbb6c8954371",
+          "actual_sha256": "136595fbea3c7c3a203e937d3040297cc6bf4ad0cae30e9fc6993a17c7bc588e"
+        },
+        "commands/sc-recommend.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "74221917ff88add8e183a74d4c504d16a4c31099b8e884e9b4ff62f33230e669",
+          "actual_sha256": "a732bca6c340e036c797ba58531bc1cf9d68156cfabeee214e0f7971dc97a2ba"
+        },
+        "commands/sc-reflect.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "b4e213e4eeb457093eb1d5e96ec4edb48efb7b92ccb23ee357df98cd90b15861",
+          "actual_sha256": "7b540833f11551e365a1112e5fcd34287b318750d2b733a667966e9e4ae384e3"
+        },
+        "commands/sc-research.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "896e428a0485f4f01f28cd8e627f73f34cebabbdc30b5831224dd880f7f5613b",
+          "actual_sha256": "09eeee4b3ac7db861836e0c739ce332ff785314a9c5143498692373247180c3e"
+        },
+        "commands/sc-save.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "d360a611050f12c7f7719f15a264130aa0c5ecf660d2eba508cb576c5e0460da",
+          "actual_sha256": "b3b91b05444ce7d5b29bee3fdf5bdbdd4735bae713313354a8428ec125e2c125"
+        },
+        "commands/sc-spawn.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "fe0d65bee5abeab16e5b7ed335236825c369c1eebea39b109c5a946adcbf283d",
+          "actual_sha256": "2f728748980fb9734c90c8f635deb59be9dc8f151090d3269aeaa697f7cb47ab"
+        },
+        "commands/sc-spec-panel.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "3beea2889c80bcaadbec39ab8c56a830df98bc9d8ae9cc52817d22d51d922cf4",
+          "actual_sha256": "d2ccd768a36056abd030129f6b3548340dc857bd444276e486bc8c5bdd9eb8ad"
+        },
+        "commands/sc-task.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "584c66084960c95149ae2e6dfbf4f561f5e8076ee496df3dfa5fb8f1509bc622",
+          "actual_sha256": "fc822e64173d4649e39ab2e749b5ca09e6774fd7761fbaf11538d1e88be514ae"
+        },
+        "commands/sc-test.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "a3659fff35e4fb7d1ccd06793e62dcac6a671e4613fbe1087fcfb4c06652882b",
+          "actual_sha256": "0bccca9b636dc61578f553319411723da7dfa0184e93b16e5f0b379186610c47"
+        },
+        "commands/sc-troubleshoot.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "1b12a7616b829d0e398750746c00ddb57512b6c5c88666492e0e9bcaf360549a",
+          "actual_sha256": "0822c3497831a5207cc38cf8cf2a62fc04609babcd25b0f77e9f957635b9c74a"
+        },
+        "commands/sc-workflow.md": {
+          "baseline_hash_valid": true,
+          "expected_file_matches_helper": true,
+          "actual_matches_expected_bytes": true,
+          "original_sha256": "9ef384bec4017423df08702de25f206bdbdbf39b060f7ed6a771584d3ed1119b",
+          "actual_sha256": "fdec4ffc6aa80c3de18e8cdd16a3ee6ca536545b1972dd2bab922431841b5c33"
+        }
+      }
+    },
+    "changed_references_resolve": {
+      "pass": true,
+      "details": {
+        "unresolved": [],
+        "changed_tokens": {
+          "/sc:sc-*": 5,
+          "/sc:sc-agent": 1,
+          "/sc:sc-analyze": 35,
+          "/sc:sc-brainstorm": 10,
+          "/sc:sc-build": 33,
+          "/sc:sc-business-panel": 8,
+          "/sc:sc-cleanup": 9,
+          "/sc:sc-design": 29,
+          "/sc:sc-document": 9,
+          "/sc:sc-explain": 7,
+          "/sc:sc-git": 7,
+          "/sc:sc-help": 4,
+          "/sc:sc-implement": 22,
+          "/sc:sc-improve": 23,
+          "/sc:sc-index": 6,
+          "/sc:sc-load": 7,
+          "/sc:sc-pm": 5,
+          "/sc:sc-recommend": 31,
+          "/sc:sc-reflect": 6,
+          "/sc:sc-research": 5,
+          "/sc:sc-save": 7,
+          "/sc:sc-spawn": 6,
+          "/sc:sc-spec-panel": 13,
+          "/sc:sc-task": 10,
+          "/sc:sc-test": 22,
+          "/sc:sc-troubleshoot": 12,
+          "/sc:sc-workflow": 9,
+          "UNAVAILABLE(code-to-spec)": 2,
+          "UNAVAILABLE(deploy)": 2,
+          "UNAVAILABLE(migrate)": 1,
+          "UNAVAILABLE(refactor)": 1,
+          "UNAVAILABLE(scan)": 9
+        }
+      }
+    },
+    "exact_15_unavailable_labels": {
+      "pass": true,
+      "details": {
+        "count": 15,
+        "counts": {
+          "commands/sc-recommend.md:deploy": 2,
+          "commands/sc-recommend.md:migrate": 1,
+          "commands/sc-recommend.md:refactor": 1,
+          "commands/sc-recommend.md:scan": 9,
+          "commands/sc-spec-panel.md:code-to-spec": 2
+        }
+      }
+    },
+    "nine_availability_passages": {
+      "pass": true,
+      "details": [
+        "commands/sc-brainstorm.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-explain.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-workflow.md"
+      ]
+    },
+    "protected_hashes": {
+      "pass": true,
+      "details": {
+        "count": 2233,
+        "changed": []
+      }
+    },
+    "corrected_manifest_preserved": {
+      "pass": true,
+      "details": "170abf536b2206432f82d65c2b786cef2055d51a8bf687fa7ffb42e90dce9601"
+    },
+    "commands_agents_skills_inventory_preserved": {
+      "pass": true,
+      "details": {
+        "commands": 28,
+        "agents": 27,
+        "skill_files": [
+          "skills/confidence-check/SKILL.md",
+          "skills/confidence-check/confidence.ts",
+          "skills/sc-adversarial-protocol/SKILL.md",
+          "skills/sc-adversarial-protocol/refs/agent-specs.md",
+          "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+          "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+          "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+          "skills/sc-reflect-protocol/SKILL.md",
+          "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+          "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+          "skills/sc-reflect-protocol/refs/input-resolution.md",
+          "skills/sc-reflect-protocol/refs/ops-integration.md",
+          "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+          "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+          "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+          "skills/sc-reflect-protocol/refs/report-template.md",
+          "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+          "skills/sc-reflect-protocol/refs/runtime-surface.md"
+        ]
+      }
+    },
+    "zero_malformed_namespaces_commands_agents": {
+      "pass": true,
+      "details": []
+    },
+    "retired_producer_and_commands_absent": {
+      "pass": true,
+      "details": []
+    },
+    "exact_two_retired_help_rows_removed": {
+      "pass": true,
+      "details": [
+        "| `/sc:sc:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |",
+        "| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |"
+      ]
+    },
+    "exact_task3_additions": {
+      "pass": true,
+      "details": [
+        "skills/sc-reflect-protocol/SKILL.md",
+        "skills/sc-reflect-protocol/refs/input-resolution.md",
+        "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+        "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+        "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+        "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+        "skills/sc-reflect-protocol/refs/report-template.md",
+        "skills/sc-reflect-protocol/refs/runtime-surface.md",
+        "skills/sc-reflect-protocol/refs/ops-integration.md",
+        "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+        "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+        "skills/sc-adversarial-protocol/SKILL.md",
+        "skills/sc-adversarial-protocol/refs/agent-specs.md",
+        "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+        "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+        "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+        "agents/confidence-calibrator.md",
+        "agents/evidence-validator.md",
+        "agents/reflect-reviewer.md",
+        "agents/reuse-auditor.md",
+        "agents/debate-orchestrator.md",
+        "agents/merge-executor.md"
+      ]
+    },
+    "exact_tracked_product_diff": {
+      "pass": true,
+      "details": [
+        ".claude-plugin/plugin.json",
+        "commands/sc-agent.md",
+        "commands/sc-analyze.md",
+        "commands/sc-brainstorm.md",
+        "commands/sc-build.md",
+        "commands/sc-business-panel.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-design.md",
+        "commands/sc-document.md",
+        "commands/sc-explain.md",
+        "commands/sc-git.md",
+        "commands/sc-help.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index.md",
+        "commands/sc-load.md",
+        "commands/sc-pm.md",
+        "commands/sc-recommend.md",
+        "commands/sc-reflect.md",
+        "commands/sc-research.md",
+        "commands/sc-save.md",
+        "commands/sc-spawn.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-test.md",
+        "commands/sc-troubleshoot.md",
+        "commands/sc-workflow.md"
+      ]
+    },
+    "index_unchanged": {
+      "pass": true,
+      "details": []
+    },
+    "branch_head_unchanged": {
+      "pass": true,
+      "details": {
+        "branch": [
+          "fix/root-plugin"
+        ],
+        "head": [
+          "2658e6d6326b56695f327e3c1584cc007a31c4e7"
+        ]
+      }
+    }
+  },
+  "failed_checks": [],
+  "runtime_audit_proofs": "NOT RUN: Task 4 only"
+}

@@ -1,0 +1,31 @@
+{
+  "branch": "feature/remove-framework-sync-codecov",
+  "head": "0d4aa9c23f4ca2646213e0c34264a2af53d7efd0",
+  "product_status": [],
+  "protected": {
+    "src/superclaude/cli/install_mcp.py": "ccdba3b5f198db555a6c67145caf93d34f0d42203f6baf35afbe3360b078ac1c",
+    "src/superclaude/core/CLAUDE.md": "d6ac5f20eb7cb191e8dc95d0920cb054b93e4beb09168928e22a827d067804bd",
+    "tests/cli/test_install_codebase_memory.py": "fc8967187ef42ca693644327e5a0f830456ef252d32aff39f3d9ec4c65342ccd",
+    "src/superclaude/mcp/MCP_Airis-Agent.md": "cfedaf358cf8955b5481b0e8f280b9bdb685885d771be53077dba15e440195b4",
+    "src/superclaude/mcp/MCP_Auggie.md": "6e759deac70a0cee89cf32b0a25214681dc5afa868db20c42b51536610cfa2ff",
+    "src/superclaude/mcp/MCP_Context7.md": "8c2506e3285a226f893f785bc3a0472f1d3d30050553eb24aeacbcc225087e00",
+    "src/superclaude/mcp/MCP_Mindbase.md": "c9e86fdbfe2251bd9f74252fbb67b328dd3a037aee3fa3c148796169788e3f2d",
+    "src/superclaude/mcp/MCP_Morphllm.md": "ace9bf679341ad88c4af3dd3f52c9ab72821a01e01b782fe09271e019d34e9d5",
+    "src/superclaude/mcp/MCP_Playwright.md": "f04273859d2149fb6d362d9c34bd64922525c0062cd8eb2c307c4f84d10e188e",
+    "src/superclaude/mcp/MCP_Serena.md": "17dc0b24642d1c18aab71aba8e43bdd08aaec3976d3c3d97bdac5a1f7c7f9d9f",
+    "src/superclaude/mcp/MCP_Tavily.md": "f5559505f8d7f773170141fd3993b464576a79f05c05fd4f31238cdc322d1aa7",
+    "src/superclaude/mcp/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/superclaude/mcp/configs/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/superclaude/mcp/configs/airis-agent.json": "6a7837c34d2f18bb3dfbbfe7fc6c09c1f0526019166957b962d8edaa12a49ad1",
+    "src/superclaude/mcp/configs/auggie.json": "590994b63d2ccea27e56d50e23d6f49d2c7f0bee1abc27369bf08d0623ecfb9f",
+    "src/superclaude/mcp/configs/context7.json": "8248c166c80ed8374769fa38de2a6e098da41a6bc08a8614a0b3764fa2f9079f",
+    "src/superclaude/mcp/configs/mindbase.json": "e2582fc3e92fa7c9b4618fc5d226da937b3ef6f5b315946fdcd122e6167a3a49",
+    "src/superclaude/mcp/configs/morphllm.json": "0eba327a6dcaba0d496e0ffba8200589e98738593b76f6b78e52cec4fcdf241c",
+    "src/superclaude/mcp/configs/playwright.json": "67c37abefd9605d61b79bea056d79f054281c17675e200f2c432a88caf72797b",
+    "src/superclaude/mcp/configs/serena-docker.json": "c0effee00f00ea5cad6d357c164f1ef4897682cf814e584413349e66f07f5155",
+    "src/superclaude/mcp/configs/serena.json": "ad36d5f2a8890ab63161b4702d611e5265f7986413cecced676d0891dd2e43a0"
+  },
+  "prefix_sha": "1ce15bc1c689e15c03fd0b06886c1ebe17b888460f0f5089e133f6161fee617d",
+  "suffix_sha": "2118f53f6bf8e28718445468f7a0e23d875bd8bde6107e9a573a2d896215e3c8",
+  "paragraph": "**Recommended**: Use **airis-mcp-gateway** for unified MCP management.\n**HIGHEST PRIORITY SERVER**\nAuggie MCP should be used whenever broader codebase context and knowledge would be valuable.  It is free and costs little to no tokens\n\n```bash\nsuperclaude mcp  # Interactive install, gateway is default (requires Docker)\n```\n\n**Gateway Benefits**: 60+ tools, 98% token reduction, single SSE endpoint, Web UI\n\n**High Priority Servers** (included in gateway):\n\n- **Tavily**: Web search (Deep Research)\n- **Context7**: Official documentation (prevent hallucination)\n- **Serena**: Session persistence\n- **Mindbase**: Cross-session learning\n\n"
+}

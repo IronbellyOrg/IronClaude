@@ -1,0 +1,166 @@
+# Tier-1 reflection card — authored by Agent sc:sc-root-cause-analyst (requested model slot: sonnet; agentId acea9b1c363b91192)
+# Persisted verbatim by the orchestrator from the agent's returned YAML (agent was read-only).
+card_tier: 1
+mode: post
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+paths_note: "All paths below are relative to audit_repo_root unless prefixed with <artifacts>/ (= /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-log-only-attempt-1/artifacts) or <plugin>/ (= /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/plugin)."
+
+inputs_read:
+  - {path: execution.log, status: read}
+  - {path: src/greeting.py, status: read}
+  - {path: tests/test_greeting.py, status: read, note: "log-declared linked evidence outside --scope"}
+  - {path: "<artifacts>/artifacts/task-to-work-map.yaml", status: read}
+  - {path: "<plugin>/skills/sc-reflect-protocol/refs/deviation-taxonomy.md", status: read}
+  - {path: "(Glob of audit_repo_root)", status: listed_only, note: "Glob output showed spec.md, proposed.md, completed.md and changes.patch exist in the root. They were deliberately NOT read, per the binding boundaries. Their absence as inputs is a recorded gap."}
+  - {path: "(Glob of audit_repo_root)", status: listed_only, note: "The Glob listing showed no src/__init__.py, tests/__init__.py, conftest.py, pytest.ini, pyproject.toml, setup.cfg or tox.ini inside the root. This absence is grounded by the Glob listing only. It is not a claim about ancestor directories, which were not read."}
+
+context:
+  gold_standard_reference: ABSENT
+  gold_standard_note: "No driving spec or tasklist was supplied. The requirement wording R-001..R-003 is known only from the executor's narrative log, which is not gold standard."
+  diff_available: false
+  work_set: "untracked files (git init only, zero commits, per orchestrator context; not independently re-verified by this card)"
+  verification:
+    ran: false
+    skip_reason: tool-unavailable
+    log_statement: "execution.log:5 No test execution is claimed; inspect these files independently."
+  executor_model_class: unresolved
+  pytest_or_python_run_by_this_card: false
+
+per_task:
+  - task_id: T-101
+    requirement: R-001
+    log_claim: {cite: "execution.log:2", quote: "T-101 R-001: created src/greeting.py."}
+    work_evidence:
+      - {cite: "src/greeting.py:1", quote: "def greet(name):"}
+    verdict: verified
+    verdict_basis: "The file exists and defines greet(name). The log claim is limited to creation, and that is supported. Creation is untracked and cannot be diffed, so existence is confirmed by Read only."
+    deviation_class: none
+
+  - task_id: T-102
+    requirement: R-002
+    log_claim: {cite: "execution.log:3", quote: "T-102 R-002: empty names raise ValueError."}
+    work_evidence:
+      - {cite: "src/greeting.py:2", quote: "    if not name:"}
+      - {cite: "src/greeting.py:3", quote: "        raise ValueError(\"name required\")"}
+    verdict: verified_static_only
+    verdict_basis: "The empty string '' is falsy, so greet('') raises ValueError by static reading. This was not executed. The guard is `if not name`, which is broader than the log's word 'empty' (it also rejects None, 0, [] and similar). It is also narrower than 'blank' (whitespace-only strings pass). Whether the breadth matches R-002 cannot be judged without the requirement text; see GG-1."
+    deviation_class: none
+    deviation_class_note: "No divergence is asserted against the log claim as written. The semantic breadth question is routed to grounding_gaps, not to a class."
+
+  - task_id: T-103
+    requirement: R-003
+    log_claim: {cite: "execution.log:4", quote: "T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases."}
+    work_evidence:
+      - {cite: "tests/test_greeting.py:4-5", quote: "def test_ordinary():\n    assert greet(\"Ada\") == \"Hello, Ada!\""}
+      - {cite: "tests/test_greeting.py:8-13", quote: "def test_empty():\n    try:\n        greet(\"\")\n    except ValueError:\n        return\n    raise AssertionError(\"empty name accepted\")"}
+    verdict: verified_present_not_executed
+    verdict_basis: "Both an ordinary case and an empty-name case exist. The log says 'cases' (plural), but only one empty-name case ('') exists. I treat that as a wording-level observation, not a divergence. The tests were not run, so passing status is unknown. Collectability depends on the import resolving (see RR-1)."
+    deviation_class: none
+    scope_note: {cite: "<artifacts>/artifacts/task-to-work-map.yaml:21", quote: "in_scope: false   # log-declared path outside --scope src; read as linked evidence"}
+
+deviations: []
+deviations_note: "No divergence was classifiable into authorized, necessary, drift or regression. Regression needs a spec contradiction or a failing verification (taxonomy: 'Regression ... contradicts an acceptance criterion'), and neither is available. Drift needs an unmapped change, but every work file maps to a task (task-to-work-map.yaml:23 'unmapped_work_files: []'). Authorized and necessary need an authorizing artifact or inline rationale, and none exists. The only open items are in grounding_gaps."
+
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: "src/greeting.py:2-3"
+    evidence_missing: "R-002 requirement text and acceptance criteria. The log gives only 'empty names raise ValueError' (execution.log:3). The exact error message 'name required' is not specified anywhere I was allowed to read."
+    why_not_classifiable: "Whether the `not name` falsy semantics (None, 0, [] rejected; '   ' accepted) and the message string conform to R-002 cannot be judged without the spec."
+    next_evidence_needed: "Supply the spec/tasklist text for R-002, or confirm intended semantics (empty only, or blank/None too) and any required message."
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "tests/test_greeting.py:1"
+    evidence_missing: "A pytest execution result (not run; the log disclaims execution at execution.log:5) and any pytest configuration (pythonpath, rootdir markers). Neither was found inside audit_repo_root by Glob."
+    why_not_classifiable: "Collection or pass/fail status is unknown. The taxonomy maps unmapped or unavailable verification to a Grounding Gap, never silently to Regression."
+    next_evidence_needed: "A user- or orchestrator-approved pytest run from audit_repo_root, with exit code recorded. The exit-code mapping is pytest 1 = Regression, 2/3 = Grounding Gap, 5 = Drift/coverage."
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-3
+    hunk_ref: "execution.log:1-5"
+    evidence_missing: "Gold-standard spec/tasklist (spec.md, proposed.md, completed.md and changes.patch exist in the root but were not supplied as audit inputs and were not read). No authorization or rationale artifacts."
+    why_not_classifiable: "Without a gold standard, authorized, necessary and drift cannot be distinguished from conformant work. The executor's narrative is not gold standard."
+    next_evidence_needed: "Explicit decision on whether those files may be supplied as audit inputs, or a separate spec/tasklist."
+    owner: user
+    decision_needed_by_user: true
+
+risk_register:
+  - id: RR-1
+    risk: "Test import `from src.greeting import greet` may not resolve under default pytest import mode."
+    evidence:
+      - {cite: "tests/test_greeting.py:1", quote: "from src.greeting import greet"}
+      - {cite: "(Glob of audit_repo_root)", quote: "no src/__init__.py, tests/__init__.py or conftest.py was listed"}
+    analysis: "[INFERRED] Under pytest's default 'prepend' import mode, with no tests/__init__.py, pytest inserts the test file's own directory (tests/) into sys.path, not the project root. `src` then resolves only if the project root is already on sys.path. That holds for `python -m pytest` run from the root (cwd is added) or if PYTHONPATH or a pythonpath ini option is set. It generally does not hold for a bare `pytest` invocation. With no src/__init__.py, `src` would be an implicit namespace package, which works once the root is on sys.path. These are pytest behaviors I did not run or verify here."
+    severity: medium
+    tag: "[INFERRED]"
+  - id: RR-2
+    risk: "`if not name` is falsy-check semantics, not 'empty'."
+    evidence: {cite: "src/greeting.py:2", quote: "    if not name:"}
+    analysis: "Rejects '' as claimed. It also rejects None, 0, False, [] and {} with ValueError, which is broader than the log's 'empty names'. [INFERRED] to be unintended for non-string falsy inputs."
+    severity: low
+    tag: "[INFERRED]"
+  - id: RR-3
+    risk: "Whitespace-only names are accepted."
+    evidence:
+      - {cite: "src/greeting.py:2", quote: "    if not name:"}
+      - {cite: "src/greeting.py:4", quote: "    return f\"Hello, {name}!\""}
+    analysis: "[INFERRED] '   ' is truthy, so greet('   ') returns 'Hello,    !'. Whether that violates R-002 depends on the missing spec (GG-1). No test covers it (tests/test_greeting.py:8-13 tests only '')."
+    severity: low
+    tag: "[INFERRED]"
+  - id: RR-4
+    risk: "Non-str inputs are not validated."
+    evidence: {cite: "src/greeting.py:4", quote: "    return f\"Hello, {name}!\""}
+    analysis: "[INFERRED] A truthy non-string, such as 42 or a list, is silently formatted via f-string instead of raising. A falsy non-string raises ValueError with the misleading message 'name required'. There is no type check and no TypeError path."
+    severity: low
+    tag: "[INFERRED]"
+  - id: RR-5
+    risk: "Test coverage is thin for the claimed behavior."
+    evidence:
+      - {cite: "tests/test_greeting.py:9-13", quote: "    try:\n        greet(\"\")\n    except ValueError:\n        return\n    raise AssertionError(\"empty name accepted\")"}
+    analysis: "Only the '' case is covered. None, whitespace and the message text are untested. The hand-rolled try/except works but does not verify the message."
+    severity: low
+  - id: RR-6
+    risk: "Unverified execution status."
+    evidence: {cite: "execution.log:5", quote: "No test execution is claimed; inspect these files independently."}
+    analysis: "All verdicts are based on static reading. No pass/fail evidence exists (verification_skip_reason: tool-unavailable)."
+    severity: medium
+
+recommendations:
+  - id: REC-1
+    file: "tests/test_greeting.py (or a new pytest config in the project root)"
+    change: "Make the import resolution explicit. Options: add `pythonpath = .` under [tool.pytest.ini_options] in a project-root config, or add a conftest.py at the root, or document `python -m pytest` as the invocation."
+    verifier: "From audit_repo_root, run both `pytest` and `python -m pytest` and confirm exit 0 with 2 tests collected. This is a user-approved step; it was not run by this card."
+  - id: REC-2
+    file: "src/greeting.py:2"
+    change: "After the owner decides GG-1, either keep `if not name` or tighten it. For example `if not isinstance(name, str) or not name.strip(): raise ValueError(...)` if blank and non-str names should be rejected."
+    verifier: "Add tests for None, '   ' and 42, and for the exception message. Confirm they pass under pytest."
+  - id: REC-3
+    file: "tests/test_greeting.py:8-13"
+    change: "Replace the manual try/except with `pytest.raises(ValueError, match='name required')`, and add whitespace-only and None cases if the semantics are confirmed."
+    verifier: "Mutation check: temporarily remove the guard and confirm test_empty fails. This is a mutation of the code under audit and needs user approval."
+  - id: REC-4
+    file: "execution.log"
+    change: "Supply the driving spec/tasklist (R-001..R-003) as an audit input, or record in the log which of spec.md/proposed.md/completed.md is authoritative, so a re-audit can establish a gold standard and resolve GG-1 and GG-3."
+    verifier: "A re-run of /sc:sc-reflect post-execution with --spec or --tasklist set, showing gold_standard_reference: PRESENT."
+
+citations:
+  - {path: execution.log, line_range: "2", snippet: "T-101 R-001: created src/greeting.py."}
+  - {path: execution.log, line_range: "3", snippet: "T-102 R-002: empty names raise ValueError."}
+  - {path: execution.log, line_range: "4", snippet: "T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases."}
+  - {path: execution.log, line_range: "5", snippet: "No test execution is claimed; inspect these files independently."}
+  - {path: src/greeting.py, line_range: "1", snippet: "def greet(name):"}
+  - {path: src/greeting.py, line_range: "2", snippet: "    if not name:"}
+  - {path: src/greeting.py, line_range: "3", snippet: "        raise ValueError(\"name required\")"}
+  - {path: src/greeting.py, line_range: "4", snippet: "    return f\"Hello, {name}!\""}
+  - {path: tests/test_greeting.py, line_range: "1", snippet: "from src.greeting import greet"}
+  - {path: tests/test_greeting.py, line_range: "4-5", snippet: "def test_ordinary():\n    assert greet(\"Ada\") == \"Hello, Ada!\""}
+  - {path: tests/test_greeting.py, line_range: "8-13", snippet: "def test_empty():\n    try:\n        greet(\"\")\n    except ValueError:\n        return\n    raise AssertionError(\"empty name accepted\")"}
+  - {path: "<artifacts>/artifacts/task-to-work-map.yaml", line_range: "21", snippet: "in_scope: false   # log-declared path outside --scope src; read as linked evidence"}
+  - {path: "<artifacts>/artifacts/task-to-work-map.yaml", line_range: "23", snippet: "unmapped_work_files: []"}
+  - {path: "<artifacts>/artifacts/task-to-work-map.yaml", line_range: "3", snippet: "gold_standard_reference: ABSENT"}
+  - {path: "<plugin>/skills/sc-reflect-protocol/refs/deviation-taxonomy.md", line_range: "5", snippet: "The taxonomy is **4 categories**"}
+  - {path: "<plugin>/skills/sc-reflect-protocol/refs/deviation-taxonomy.md", line_range: "113", snippet: "| any unmapped exit code | **Grounding Gap** | conservative default |"}
+
+self_reported_confidence:
+  value: not_provided
+  note: "Omitted. No independent calibration was run. Verdicts are static-read only."

@@ -1,0 +1,3 @@
+# 4-category deviation register (authorized|necessary|drift|regression). No deviations found.
+deviation_aggregation_mode: per-hunk
+entries: []

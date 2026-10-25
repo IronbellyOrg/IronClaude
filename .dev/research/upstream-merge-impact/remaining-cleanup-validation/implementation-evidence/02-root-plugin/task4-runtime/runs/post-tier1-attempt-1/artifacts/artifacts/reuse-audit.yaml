@@ -1,0 +1,29 @@
+# Returned by Task(sc:reuse-auditor, model=haiku, stage=post); persisted verbatim-in-substance by orchestrator.
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: null
+degraded: true
+degraded_components: [neighbour-search:auggie_unavailable]
+sampled: false
+tools_used: [Glob, Read, Grep]
+notes: >
+  auggie/serena not exposed; fallback full-tree Glob + Grep (def/ValueError/Hello/greet) + Read of every file under repo_root.
+  C_aug dropped and renormalized. Only function definitions are greet and its two pytest callers.
+findings:
+  - candidate: greet
+    location: src/greeting.py:1
+    capability_tag: "reject empty name with ValueError, else return f-string greeting"
+    neighbours: []
+    examined_non_neighbours:
+      - {ref: "tests/test_greeting.py:4", reason: "pytest caller; framework boilerplate"}
+      - {ref: "tests/test_greeting.py:8", reason: "pytest caller; framework boilerplate"}
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    confidence: 0.9
+    tier: distinct
+    verdict: distinct
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true

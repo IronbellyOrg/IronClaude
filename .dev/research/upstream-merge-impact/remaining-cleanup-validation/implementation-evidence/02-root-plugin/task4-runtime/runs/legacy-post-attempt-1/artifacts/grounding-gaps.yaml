@@ -1,0 +1,12 @@
+- hunk_ref: "tests/test_greeting.py:1"
+  evidence_missing: "No pytest run; no conftest.py/pytest.ini/pyproject.toml and no src/__init__.py in fixture; import resolution of `from src.greeting import greet` unverified."
+  why_not_classifiable: "Whether the test is collectable depends on pytest invocation; cannot distinguish Regression (uncollectable test) from clean."
+  next_evidence_needed: "Output of `python -m pytest tests/test_greeting.py` and bare `pytest tests/test_greeting.py` from the fixture root."
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: "tests/test_greeting.py:4-13"
+  evidence_missing: "Verification triangle did not run (execute_shell_command unavailable: verification_skip_reason=tool-unavailable); execution.log:5 disclaims any test run."
+  why_not_classifiable: "Regression detection degraded to the task-log claim, and the task log makes no pass claim; R-001/R-002 behaviour is established only by static reading."
+  next_evidence_needed: "A passing run log for test_ordinary and test_empty via an enabled, sanctioned verification surface."
+  owner: user
+  decision_needed_by_user: true

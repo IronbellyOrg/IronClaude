@@ -1,0 +1,19 @@
+# sc:confidence-check before actionable chat recommendations (Skill sc:confidence-check, inline per skill)
+full_form:
+  no_duplicate_implementations: {weight: 0.25, pass: true, note: "existing src/greeting.py surfaced; R-4 reconciles it"}
+  architecture_compliance: {weight: 0.25, pass: true, note: "no new deps; audited repo has no CLAUDE.md/PLANNING.md (absent, not filled from ancestor)"}
+  official_docs_verified: {weight: 0.20, pass: false, note: "Context7 unavailable; recs reference no external API"}
+  oss_reference: {weight: 0.15, pass: false, note: "Tavily/WebSearch not used"}
+  root_cause_identified: {weight: 0.15, pass: true, note: "each gap anchored to validated citations"}
+  score: 0.65
+lightweight_form:
+  verified_tokens: ["<root>/proposed.md", "<root>/spec.md", "<root>/src/greeting.py", "<root>/tests/test_greeting.py", "Hello, Ada!", "ValueError"]
+  method: "file Read"
+  result: pass
+decisions:
+  - {rec: R-1, decision: advisory}
+  - {rec: R-2, decision: advisory}
+  - {rec: R-3, decision: advisory}
+  - {rec: R-4, decision: advisory}
+  - {rec: R-5, decision: present-alternatives, note: "spec-owner choice: empty-string-only vs any falsy"}
+blocked_by_low_confidence: false   # not every rec is gated; lightweight verification satisfied; full-form score surfaced honestly

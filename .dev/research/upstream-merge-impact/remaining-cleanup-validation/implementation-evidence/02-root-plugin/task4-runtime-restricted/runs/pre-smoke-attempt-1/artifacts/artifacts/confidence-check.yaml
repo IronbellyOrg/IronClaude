@@ -1,0 +1,16 @@
+# sc:confidence-check (bundled skill) applied before chat recommendations; lightweight Grep evidence within audit_repo_root
+checks:
+  no_duplicate_implementations: {weight: 0.25, result: fail, score: 0.0,
+    evidence: ["src/greeting.py:1 'def greet(name):' already exists (untracked)", "src/greeting.py:3 raises ValueError"],
+    note: "T-101 'Implement greet(name)' may duplicate existing work; outside UC-1 selected inputs, so recorded here, not added as a report finding"}
+  architecture_compliance: {weight: 0.25, result: partial, score: 0.0,
+    evidence: ["tests/test_greeting.py:11 uses 'except ValueError:' (no pytest usage found)", "no CLAUDE.md/PLANNING.md in audit repo (explicit absence; ancestor not read)"],
+    note: "R-2 reworded to drop the pytest.raises token; convention otherwise unverified -> scored 0"}
+  official_docs_verified: {weight: 0.20, result: fail, score: 0.0, note: "--no-mcp; no docs lookup performed"}
+  oss_reference: {weight: 0.15, result: fail, score: 0.0, note: "--no-mcp; no OSS lookup performed"}
+  root_cause_identified: {weight: 0.15, result: pass, score: 0.15, note: "gaps G-1..G-3 grounded and re-validated"}
+total: 0.15
+disposition: "STOP (<0.70): request more context; recommendations shipped as advisory, gated"
+note_on_strictness: "Checks 3/4 are arguably not applicable to plan-wording edits; NOT overridden. Strict score retained."
+context_requested:
+  - "Is src/greeting.py pre-existing work the plan should build on? If so, re-run as --mode post (diff/task-log) or amend T-101 to 'verify/adjust existing greet'."

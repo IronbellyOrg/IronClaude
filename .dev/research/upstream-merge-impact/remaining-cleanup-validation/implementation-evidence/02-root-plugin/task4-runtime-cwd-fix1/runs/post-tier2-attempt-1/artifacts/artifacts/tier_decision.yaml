@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: null      # §5.1 hard override (--tier 2) — rubric table not evaluated for the decision
+override: "--tier 2"
+coverage_degraded: null
+surface_unreached: null
+rubric_inputs: {C: 0.93, S_scope: 1, S_domains: 1, S_dev_density: 0.0, regression_candidates: 0}
+would_have_fired_without_override: 1   # recording only: C>=0.90, scope<=5, 1 domain, density<=0.05
+composite_score: 1.5
+per_signal_breakdown: {scope_size: 0, task_count: 0.5, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+escalation_reason: "Explicit --tier 2 override (§5.1). Rubric alone would STOP at T1 (rule 1)."
+t2_model_class_diversity: full
+reviewer_plan: [{n: 1, slot: sonnet, persona: analyzer}, {n: 2, slot: haiku, model: "grok-4.7[1m]", persona: qa}]
+calibrator_slot: opus

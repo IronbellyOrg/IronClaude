@@ -1,0 +1,85 @@
+# Tier-1 reflection card — returned verbatim by Task(sc:sc-root-cause-analyst, model=sonnet); persisted by orchestrator.
+# File paths are relative to repo_root:
+repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+card_id: uc2-tier1-task4-runtime-greeting
+mode: post
+reviewer_agent: sc:sc-root-cause-analyst
+reviewer_model_class: sonnet
+
+map_verification: >
+  Orchestrator's draft map is accurate against the files read: single-file, single-hunk diff
+  (changes.patch:1-9); src/greeting.py on disk matches the patch content (src/greeting.py:1-4).
+  [INFERRED] "no commits / untracked" could not be independently confirmed without running git.
+
+per_requirement:
+  - id: R-001
+    spec_ref: spec.md:5-6
+    task: T-101 (completed.md:6)
+    evidence:
+      - 'src/greeting.py:4 "    return f"Hello, {name}!""'
+      - 'spec.md:6 "The greet function MUST return the exact string Hello, Ada! for Ada."'
+    verdict: satisfied (static trace only; not executed)
+  - id: R-002
+    spec_ref: spec.md:8-9
+    task: T-102 (completed.md:7)
+    evidence:
+      - 'src/greeting.py:2-3 "    if not name:" / "        raise ValueError("name required")"'
+      - 'spec.md:9 "The greet function MUST reject an empty name with ValueError."'
+    verdict: satisfied (static; "" is falsy -> ValueError)
+  - id: R-003
+    spec_ref: spec.md:11-12
+    task: T-103 (completed.md:8)
+    evidence:
+      - 'tests/test_greeting.py:5 "assert greet("Ada") == "Hello, Ada!""'
+      - 'tests/test_greeting.py:9-13 greet("") / except ValueError / raise AssertionError("empty name accepted")'
+      - 'changes.patch:1-9 touches only src/greeting.py; no tests/ hunk'
+    verdict: partially-evidenced (both cases exist on disk, but outside supplied diff and declared scope; pass/fail unverified — GG-1)
+
+tasklist_completion_pct_claimed: 1.0      # completed.md:6-8 (3/3 checked)
+tasklist_completion_pct_diff_evidenced: 0.67   # 2/3 evidenced in diff; R-003 only via file outside diff; execution unverified for all
+
+deviations: []
+# No groundable classifiable divergence. Diff adds exactly one function mapped to T-101/T-102 (changes.patch:6-9);
+# no extra files/behaviour/API surface. Missing test hunk is an evidence gap, not a deviation (GG-1).
+
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: "T-103/R-003 — no corresponding hunk in changes.patch (tests/test_greeting.py)"
+    evidence_missing: >
+      T-103 marked done (completed.md:8) but changes.patch has no tests/ hunk. tests/test_greeting.py exists on disk
+      (tests/test_greeting.py:1-13) but its provenance relative to this work is not established by the supplied inputs;
+      no test result or task log supplied.
+    why_not_classifiable: >
+      If the file belongs to this work the issue is diff incompleteness (not a deviation); if not, T-103 is unmet
+      (Drift/Regression candidate). Inputs cannot distinguish. File is also outside declared scope src/.
+    next_evidence_needed: "Diff including tests/test_greeting.py, or git provenance; a test run of tests/test_greeting.py from project root."
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "all requirements (R-001..R-003)"
+    evidence_missing: "No execution evidence: verification triangle unavailable; no --task-log supplied."
+    why_not_classifiable: "Runtime pass/fail cannot be established statically; per_requirement verdicts are static traces."
+    next_evidence_needed: "pytest run from project root, or a --task-log with results."
+    owner: user
+    decision_needed_by_user: false
+
+risks:
+  - {risk: "`if not name` rejects None/0/False/[]/{} too (None -> ValueError not TypeError); unspecified, untested", evidence: "src/greeting.py:2; spec.md:9", severity: low}
+  - {risk: "Whitespace-only names are truthy -> 'Hello,    !'; spec ambiguous on whether that is 'empty'", evidence: "src/greeting.py:2-4", severity: low}
+  - {risk: "Non-string truthy inputs accepted and formatted; no type validation", evidence: "src/greeting.py:4", severity: low}
+  - risk: >
+      Test import/collection risk: `from src.greeting import greet` with no src/__init__.py, conftest.py or pytest config in
+      the project; relies on project root on sys.path (true for `python -m pytest` from root; plain `pytest` prepend mode
+      inserts tests/ instead — may raise ModuleNotFoundError).
+    evidence: "tests/test_greeting.py:1; Glob of project shows no __init__.py/conftest/pytest config"
+    severity: medium
+  - {risk: "test_empty uses try/except+return instead of pytest.raises; no message check; no None/whitespace coverage", evidence: "tests/test_greeting.py:8-13", severity: low}
+  - {risk: "Frontmatter `status: done` overstates supplied evidence for R-003 (tests outside diff/scope)", evidence: "completed.md:2; completed.md:8; changes.patch:1-9", severity: medium}
+
+recommendations:
+  - {file: tests/test_greeting.py, change: "Include in audited diff/scope or supply provenance; add src/__init__.py + conftest.py or pytest pythonpath so `src` imports reliably", verifier: "`python -m pytest tests/test_greeting.py` and plain `pytest` from project root both collect and pass", priority: high}
+  - {file: src/greeting.py, change: "If intent is empty-only, make guard explicit (`name == ''` or `not isinstance(name, str) or not name.strip()`) and document None/whitespace behaviour in spec.md", verifier: "new tests for None and '   ' assert the chosen behaviour", priority: low}
+  - {file: tests/test_greeting.py, change: "Use pytest.raises(ValueError) and add edge-case tests", verifier: "pytest passes; removing the guard makes test_empty fail", priority: low}
+
+regression_candidates: []   # pure new-file addition (changes.patch:2-5); no prior behaviour to regress
+self_reported_confidence: 0.8   # NOT used for routing; recalibrated independently

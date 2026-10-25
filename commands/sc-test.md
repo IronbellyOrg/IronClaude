@@ -7,7 +7,7 @@ mcp-servers: [playwright]
 personas: [qa-specialist]
 ---
 
-# /sc:sc:sc:test - Testing and Quality Assurance
+# /sc:sc-test - Testing and Quality Assurance
 
 ## Triggers
 - Test execution requests for unit, integration, or e2e tests
@@ -17,7 +17,7 @@ personas: [qa-specialist]
 
 ## Usage
 ```
-/sc:sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
+/sc:sc-test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
 ```
 
 ## Behavioral Flow
@@ -55,27 +55,27 @@ Key behaviors:
 
 ### Basic Test Execution
 ```
-/sc:sc:test
+/sc:sc-test
 # Discovers and runs all tests with standard configuration
 # Generates pass/fail summary and basic coverage
 ```
 
 ### Targeted Coverage Analysis
 ```
-/sc:sc:test src/components --type unit --coverage
+/sc:sc-test src/components --type unit --coverage
 # Unit tests for specific directory with detailed coverage metrics
 ```
 
 ### Browser Testing
 ```
-/sc:sc:test --type e2e
+/sc:sc-test --type e2e
 # Activates Playwright MCP for comprehensive browser testing
 # Cross-browser compatibility and visual validation
 ```
 
 ### Development Watch Mode
 ```
-/sc:sc:test --watch --fix
+/sc:sc-test --watch --fix
 # Continuous testing with automatic simple failure fixes
 # Real-time feedback during development
 ```

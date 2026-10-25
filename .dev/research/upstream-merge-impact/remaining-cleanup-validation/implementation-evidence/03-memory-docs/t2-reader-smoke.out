@@ -1,0 +1,8 @@
+PASS 0.90 pair -> match
+PASS 0.70 pair (inclusive boundary) -> match
+PASS 0.50 pair -> no match
+PASS JWT message-only 4/8 -> no match
+PASS KeyError row 2 own signature -> match
+PASS get_statistics {'total_errors': 6, 'errors_with_solutions': 6, 'solution_reuse_rate': 100.0}
+PASS sibling mistakes dir created inside isolated root and left empty (no record_error call)
+RESULT: ALL PASS

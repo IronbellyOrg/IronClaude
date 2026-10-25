@@ -1,0 +1,20 @@
+051f39feaf2796e6f2bec1313dcfa9ce713055b6 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when
+
+D	docs/reference/comprehensive-features.md
+4e5e3759b951bf38b64f5c7501e23900cecd6ddd 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045–D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION
+
+D	docs/capability-mapping-v5.md
+ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211 2025-12-12T22:09:50+07:00 kazuki fix: remove duplicate uppercase docs paths for macOS compatibility
+
+D	docs/User-Guide/mcp-installation.md
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+D	docs/Development/install-process-analysis.md
+D	setup/components/mcp.py
+00706f0ea99aa04f54a3ddf5244738b0a9b37a91 2025-10-18T20:28:10+05:30 kazuki nakai feat: comprehensive framework improvements (#447)
+
+D	docs/Development/install-process-analysis.md
+D	setup/components/mcp.py
+1d03832f2d2dabd51b9f788493f527a426fcd73b 2025-08-05T13:59:17+02:00 NomenAK SuperClaude V4 Beta: Major framework restructuring
+
+D	setup/components/mcp.py

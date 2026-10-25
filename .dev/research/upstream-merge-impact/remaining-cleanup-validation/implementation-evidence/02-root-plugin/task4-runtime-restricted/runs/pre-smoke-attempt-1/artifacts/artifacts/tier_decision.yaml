@@ -1,0 +1,13 @@
+selected_tier: 1
+hard_override: "--tier 1"          # §5.1: STOP at T1 (skip Wave 3+)
+fired_rule_number: null            # no §5.3 rubric row decided; hard override outranks the rubric
+rubric_would_fire_without_override: 6   # C=0.78 < 0.85 -> ESCALATE (rows 1/2 fail on C)
+coverage_degraded: null
+coverage_undefined: false
+surface_unreached: null
+inputs: {C: 0.78, S_scope: 3, S_domains: 2, S_dev_density: 0.0, coverage_pct: 1.0, coverage_floor: 0.90}
+S_domains_basis: "[INFERRED] tasklist items imply code (T-101, T-102) + tests (T-103); spec names no file paths"
+composite_score: 1
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+t2_model_class_diversity: full
+escalation_reason: "Pinned to Tier 1 by explicit --tier 1. WARN: calibrated confidence 0.78 is below the 0.85 floor; under --tier auto rule 6 would have escalated to Tier 2."

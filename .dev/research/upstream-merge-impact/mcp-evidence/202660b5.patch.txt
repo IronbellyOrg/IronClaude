@@ -1,0 +1,172 @@
+commit 202660b52451d0680969c3fbb1042cb52539d35a
+Author:     kazuki nakai <48890992+kazukinakai@users.noreply.github.com>
+AuthorDate: Sat Dec 13 11:00:18 2025 +0900
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Dec 13 07:30:18 2025 +0530
+
+    feat(mcp): add Airis Agent and MindBase MCP servers (#497)
+    
+    * feat(mcp): add Airis Agent and MindBase MCP servers
+    
+    Add Docker-based MCP server integrations:
+    
+    - airis-agent: Confidence checking, deep research, repo indexing
+      - Prevents wrong-direction work with pre-implementation validation
+      - ghcr.io/agiletec-inc/airis-agent:latest
+    
+    - mindbase: Semantic memory with pgvector embeddings
+      - Store/search memories with automatic embedding generation
+      - ghcr.io/kazuph/mindbase-mcp:latest
+    
+    Both servers run via Docker for easy setup - no local dependencies.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix: use correct ghcr.io org for mindbase-mcp
+    
+    ---------
+    
+    Co-authored-by: kazuki <kazuki@kazukinoMacBook-Air.local>
+    Co-authored-by: Claude Opus 4.5 <noreply@anthropic.com>
+
+diff --git a/src/superclaude/mcp/MCP_Airis-Agent.md b/src/superclaude/mcp/MCP_Airis-Agent.md
+new file mode 100644
+index 00000000..02741d50
+--- /dev/null
++++ b/src/superclaude/mcp/MCP_Airis-Agent.md
+@@ -0,0 +1,31 @@
++# Airis Agent MCP Server
++
++Airis Agent provides confidence checking, deep research, and repository indexing capabilities to prevent wrong-direction work.
++
++## Tools
++
++- **airis_confidence_check** - Validate decisions before implementation
++- **airis_deep_research** - Comprehensive research with web search
++- **airis_repo_index** - Index repository structure for better context
++
++## Installation
++
++```bash
++superclaude mcp --servers airis-agent
++```
++
++## Requirements
++
++- Docker installed and running
++- (Optional) Workspace directory mounted at `/workspace`
++
++## Configuration
++
++The server runs as a Docker container from `ghcr.io/agiletec-inc/airis-agent:latest`.
++
++No additional configuration required for basic usage.
++
++## Links
++
++- [GitHub Repository](https://github.com/agiletec-inc/airis-agent)
++- [Docker Image](https://ghcr.io/agiletec-inc/airis-agent)
+diff --git a/src/superclaude/mcp/MCP_Mindbase.md b/src/superclaude/mcp/MCP_Mindbase.md
+new file mode 100644
+index 00000000..50520f21
+--- /dev/null
++++ b/src/superclaude/mcp/MCP_Mindbase.md
+@@ -0,0 +1,51 @@
++# MindBase MCP Server
++
++MindBase provides semantic memory storage and retrieval using PostgreSQL with pgvector for embeddings.
++
++## Tools
++
++- **store_memory** - Store memories with automatic embedding
++- **search_memories** - Semantic search across stored memories
++- **list_memories** - List all stored memories
++- **delete_memory** - Remove specific memories
++
++## Installation
++
++```bash
++superclaude mcp --servers mindbase
++```
++
++## Requirements
++
++- Docker installed and running
++- PostgreSQL with pgvector extension
++- Ollama running locally (for embeddings)
++
++## Configuration
++
++Set the following environment variables:
++
++| Variable | Description | Default |
++|----------|-------------|---------|
++| `MINDBASE_DATABASE_URL` | PostgreSQL connection string | `postgresql://mindbase:mindbase@host.docker.internal:5432/mindbase` |
++| `OLLAMA_URL` | Ollama server URL | `http://host.docker.internal:11434` |
++| `EMBEDDING_MODEL` | Embedding model name | `nomic-embed-text` |
++
++## Quick Start with Docker Compose
++
++```yaml
++services:
++  mindbase-postgres:
++    image: pgvector/pgvector:pg17
++    environment:
++      POSTGRES_USER: mindbase
++      POSTGRES_PASSWORD: mindbase
++      POSTGRES_DB: mindbase
++    ports:
++      - "5432:5432"
++```
++
++## Links
++
++- [GitHub Repository](https://github.com/kazuph/mindbase)
++- [Docker Image](https://ghcr.io/agiletec-inc/mindbase-mcp)
+diff --git a/src/superclaude/mcp/configs/airis-agent.json b/src/superclaude/mcp/configs/airis-agent.json
+new file mode 100644
+index 00000000..ca5311f9
+--- /dev/null
++++ b/src/superclaude/mcp/configs/airis-agent.json
+@@ -0,0 +1,14 @@
++{
++  "airis-agent": {
++    "command": "docker",
++    "args": [
++      "run",
++      "--rm",
++      "-i",
++      "-v", "${PWD}:/workspace",
++      "--workdir", "/workspace",
++      "ghcr.io/agiletec-inc/airis-agent:latest",
++      "airis-agent-mcp"
++    ]
++  }
++}
+diff --git a/src/superclaude/mcp/configs/mindbase.json b/src/superclaude/mcp/configs/mindbase.json
+new file mode 100644
+index 00000000..5156ca6f
+--- /dev/null
++++ b/src/superclaude/mcp/configs/mindbase.json
+@@ -0,0 +1,19 @@
++{
++  "mindbase": {
++    "command": "docker",
++    "args": [
++      "run",
++      "--rm",
++      "-i",
++      "-e", "DATABASE_URL=${MINDBASE_DATABASE_URL:-postgresql://mindbase:mindbase@host.docker.internal:5432/mindbase}",
++      "-e", "OLLAMA_URL=${OLLAMA_URL:-http://host.docker.internal:11434}",
++      "-e", "EMBEDDING_MODEL=${EMBEDDING_MODEL:-nomic-embed-text}",
++      "ghcr.io/agiletec-inc/mindbase-mcp:latest"
++    ],
++    "env": {
++      "MINDBASE_DATABASE_URL": "${MINDBASE_DATABASE_URL}",
++      "OLLAMA_URL": "${OLLAMA_URL}",
++      "EMBEDDING_MODEL": "${EMBEDDING_MODEL}"
++    }
++  }
++}

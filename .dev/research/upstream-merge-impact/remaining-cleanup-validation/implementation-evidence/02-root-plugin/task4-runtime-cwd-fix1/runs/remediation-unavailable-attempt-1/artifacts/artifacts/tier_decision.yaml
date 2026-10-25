@@ -1,0 +1,20 @@
+selected_tier: 1
+override_applied: "--tier 1"           # §5.1 hard override: STOP at T1, skip Wave 3+
+fired_rule_number: 6                    # rubric-only evaluation (recorded): C=0.83 < 0.85 -> would ESCALATE. Overridden by the explicit pin.
+override_warn: "WARN: --tier 1 pin overrides §5.3 rule 6 (C=0.83 < 0.85); the Tier-2 ensemble was NOT run, so findings rest on a single card plus blind calibration."
+coverage_degraded: null                 # UC-1-only guard
+surface_unreached: null                 # runtime-surface sweep not run (--no-mcp; no diff hunks)
+inputs:
+  confidence_calibrated: 0.83
+  S_scope: 2                            # log-declared touched files (src/greeting.py, tests/test_greeting.py); no diff exists
+  S_domains: 2                          # code, tests
+  S_dev_density: 0.0                    # 0 unmapped of 2 log-declared files (no hunks; computed over files)
+  regression_candidate_count: 0
+composite_score: 3                      # recording only, not deciding
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 2                       # driving spec absent
+  ambiguity_signals: 1                  # R-002 'empty' semantics (GG-1)
+escalation_reason: "Explicit --tier 1 pin; the rubric would have escalated on rule 6 (low calibrated confidence caused by absent spec, baseline and verification)."

@@ -1,0 +1,90 @@
+{
+  "source": "../../plans/01-legacy-uninstall.md",
+  "authorization": "User requested /sc:implement after confirming uniqueness against PR 287.",
+  "confidence": {
+    "assessment": "Ready: exact bounded deletion, caller set verified, no replacement implementation or new API/dependency.",
+    "library_documentation_and_oss_examples": "Not applicable to deleting the existing optional facility; source and caller verification used instead."
+  },
+  "comparison": {
+    "pull_request": "https://github.com/IronbellyOrg/IronClaude/pull/287",
+    "state_observed_before_execution": "MERGED",
+    "head_observed": "3d171809f5a1bcdff326999271896135cbcbf989",
+    "product_paths_in_common": [],
+    "legacy_names_in_any_product_patch": [],
+    "dependency_assessment": "No tracked caller from PR-submit or hook installation. The install_hooks.py PR hunk only removes a dead offer-pr-review.sh comment reference, not legacy plugin uninstall.",
+    "methods": [
+      "gh pr view 287 --repo IronbellyOrg/IronClaude --json number,title,state,baseRefName,headRefName,baseRefOid,headRefOid,body,files,commits,url",
+      "gh api repos/IronbellyOrg/IronClaude/pulls/287/files --paginate",
+      "git grep -n -I -E 'uninstall-legacy|uninstall_legacy\\.sh' -- . ':!.dev'",
+      "Auggie semantic retrieval of legacy callers and PR-submit/hook-installer dependencies"
+    ],
+    "boundary": "Remote reads were comparison preflight only. No remote operation during task execution. No PR-submit changes imported or rebased."
+  },
+  "baseline": {
+    "command": "uv run --no-sync python .dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/check_retirement.py --capture",
+    "exit_code": 0,
+    "stdout": "CAPTURED: original contents and hashes, 19269 preserved paths, ignored inventory\n",
+    "snapshot": "af574e7e4f4cfc733dbcf48dfb3afd3b2d3d9806",
+    "index_boundary": "Snapshot used an isolated temporary GIT_INDEX_FILE, never the user index. No user staging, commit, push, rebase or installer invocation."
+  },
+  "failed_attempts": [
+    {
+      "operation": "Locate pre-existing evidence and ledger directories with ls -la / ls -ld",
+      "result": "exit 2: implementation-evidence and source-specific ledger did not yet exist",
+      "recovery": "Created only task-owned evidence and the required legacy implementation ledger."
+    },
+    {
+      "operation": "Initial baseline capture",
+      "result": "exit 1: IsADirectoryError on .vendor/anthropic-skills",
+      "recovery": "Verified mode 160000 with git ls-files --stage; fingerprint gitlinks by index entry, status and directory mode instead of reading a directory as bytes. No baseline was written on failure."
+    },
+    {
+      "operation": "Initial ruff check of the new static check",
+      "result": "exit 1: I001 import order",
+      "recovery": "Scoped ruff check --fix and ruff format to the task-owned check only."
+    },
+    {
+      "operation": "Second baseline capture",
+      "result": "exit 1: baseline Makefile fragment assertion",
+      "recovery": "Inspected exact final bytes with UV; the target ended in one newline, not two. Corrected the check fragment before product edits; no baseline was written on failure."
+    },
+    {
+      "operation": "Independent reviewer parsing fetched PR patch capture",
+      "result": "Reviewer reported one failed JSON parse because the capture contains sequential JSON values, not a single JSON document.",
+      "recovery": "Reviewer independently parsed the sequence with raw_decode and confirmed 38 product patches, zero shared paths and zero legacy names."
+    },
+    {
+      "operation": "Independent reviewer Markdown artifact delivery",
+      "result": "Reviewer returned PASS/compliant but could not write qa-review.md because their developer instructions prohibit report Markdown writes; the long response was also truncated in delivery.",
+      "recovery": "Requested bounded full-text chunks, created the registered report skeleton and began coordinator transcription of the independent review. Saved report confirmation remains required before ledger completion."
+    }
+  ],
+  "whitespace_check": {
+    "command": "git diff --check",
+    "first_result": "exit 2: Makefile:561: new blank line at EOF",
+    "recovery": "Removed the separator immediately before the retired target with that target; updated the exact static expectation without replacing the captured baseline.",
+    "final_exit_code": 0,
+    "final_stdout": "",
+    "diff": "product-final.diff",
+    "initial_diff_retained": "product.diff"
+  },
+  "acceptance_check": {
+    "command": "uv run --no-sync python .dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/check_retirement.py",
+    "exit_code": 0,
+    "output": "static-check-final.log",
+    "initial_output_retained": "static-check.log"
+  },
+  "editing_recovery": "The freshness hook blocked the first metadata Edit because Write did not count as Read. Read execution.json explicitly, then retried the same targeted Edit.",
+  "limits": [
+    "Ignored paths were inventoried, not content-hashed; no task mutation targets ignored assets or home-folder data.",
+    "External callers of the retired Make target and future runtime outcomes remain UNVERIFIED.",
+    "The deleted script, its Make target, historical revert and replacement home-folder deletion were never executed."
+  ],
+  "review_delivery": {
+    "reviewer_original_transcript": "/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-ci-followup/a967615d-4796-436e-97ab-5f9a55dfe102/subagents/agent-alegacy-uninstall-review-1c15c9d9a31573ca.jsonl",
+    "recovery": "Read the complete original independent report from the on-disk reviewer transcript, then populated qa-review.md incrementally from the registered template. Only coordinator provenance and refreshed execution.json line ranges were added; no independent verdict was invented.",
+    "report": "qa-review.md",
+    "completion_requirement": "Reviewer must read and confirm the saved transcription before ledger completion; any confirmation is recorded separately in review-confirmation.json.",
+    "extras": "extras.json"
+  }
+}

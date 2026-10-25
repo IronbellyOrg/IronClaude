@@ -1,0 +1,10 @@
+# sc:confidence-check (plugin skill) applied before surfacing chat recommendations
+checks:
+  no_duplicate_implementations: {weight: 0.25, score: 0.25, note: "existing greet/tests located; recommendations exist to avoid duplication"}
+  architecture_compliance: {weight: 0.25, score: 0.15, note: "pytest implied by tests/test_greeting.py; no project config; tests NOT executed (would write caches into read-only audited tree)"}
+  official_docs_verified: {weight: 0.20, score: 0.10, note: "context7 unavailable; pytest.raises is standard API but not doc-verified this run"}
+  oss_reference: {weight: 0.15, score: 0.075, note: "tavily unavailable; n/a for plan wording"}
+  root_cause_identified: {weight: 0.15, score: 0.15, note: "gaps grounded and validated 17/17"}
+total: 0.775
+band: "0.70-0.89 -> present as advisory alternatives; pytest commands marked [UNVERIFIED]"
+blocked_by_low_confidence: false

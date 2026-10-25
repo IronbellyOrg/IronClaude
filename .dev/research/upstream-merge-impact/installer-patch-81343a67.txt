@@ -1,0 +1,457 @@
+diff --git a/MANIFEST.in b/MANIFEST.in
+index ddb8a37c..2c486d35 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -7,9 +7,12 @@ include SECURITY.md
+ include pyproject.toml
+ recursive-include docs *.md
+ recursive-include tests *.py
+-recursive-include src/superclaude *.py *.md *.ts *.json
++recursive-include src/superclaude *.py *.md *.ts *.json *.sh
+ recursive-include src/superclaude/commands *.md
+-recursive-include src/superclaude/skills *.md *.json
++recursive-include src/superclaude/agents *.md
++recursive-include src/superclaude/hooks *.json
++recursive-include src/superclaude/scripts *.py *.sh
++recursive-include src/superclaude/skills *.md *.ts *.json
+ global-exclude __pycache__
+ global-exclude *.py[co]
+ global-exclude .DS_Store
+diff --git a/pyproject.toml b/pyproject.toml
+index 328f292d..5399e363 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -69,8 +69,14 @@ superclaude = "superclaude.pytest_plugin"
+ [tool.hatch.build.targets.wheel]
+ packages = ["src/superclaude"]
+ include = [
+-    "src/superclaude/skills/confidence-check/**",
++    "src/superclaude/skills/**/*.md",
++    "src/superclaude/skills/**/*.ts",
++    "src/superclaude/skills/**/*.json",
+     "src/superclaude/commands/**/*.md",
++    "src/superclaude/agents/**/*.md",
++    "src/superclaude/hooks/**/*.json",
++    "src/superclaude/scripts/**/*.py",
++    "src/superclaude/scripts/**/*.sh",
+ ]
+ 
+ [tool.hatch.build.targets.sdist]
+diff --git a/src/superclaude/agents/README.md b/src/superclaude/agents/README.md
+new file mode 100644
+index 00000000..4fc51617
+--- /dev/null
++++ b/src/superclaude/agents/README.md
+@@ -0,0 +1,20 @@
++# SuperClaude Agents
++
++This directory contains agent definition files for specialized AI agents.
++
++## Available Agents
++
++- **deep-research.md** - Autonomous web research agent
++- **repo-index.md** - Repository indexing agent
++- **self-review.md** - Code review and quality check agent
++
++## Important
++
++These agents are copies from `plugins/superclaude/agents/` for package distribution.
++
++When updating agents:
++1. Edit files in `plugins/superclaude/agents/`
++2. Copy changes to `src/superclaude/agents/`
++3. Both locations must stay in sync
++
++In v5.0, the plugin system will use `plugins/` directly.
+diff --git a/src/superclaude/agents/deep-research.md b/src/superclaude/agents/deep-research.md
+new file mode 100644
+index 00000000..58578099
+--- /dev/null
++++ b/src/superclaude/agents/deep-research.md
+@@ -0,0 +1,31 @@
++---
++name: deep-research
++description: Adaptive research specialist for external knowledge gathering
++category: analysis
++---
++
++# Deep Research Agent
++
++Deploy this agent whenever the SuperClaude Agent needs authoritative information from outside the repository.
++
++## Responsibilities
++- Clarify the research question, depth (`quick`, `standard`, `deep`, `exhaustive`), and deadlines.
++- Draft a lightweight plan (goals, search pivots, likely sources).
++- Execute searches in parallel using approved tools (Tavily, WebFetch, Context7, Sequential).
++- Track sources with credibility notes and timestamps.
++- Deliver a concise synthesis plus a citation table.
++
++## Workflow
++1. **Understand** — restate the question, list unknowns, determine blocking assumptions.
++2. **Plan** — choose depth, divide work into hops, and mark tasks that can run concurrently.
++3. **Execute** — run searches, capture key facts, and highlight contradictions or gaps.
++4. **Validate** — cross-check claims, verify official documentation, and flag remaining uncertainty.
++5. **Report** — respond with:
++   ```
++   🧭 Goal:
++   📊 Findings summary (bullets)
++   🔗 Sources table (URL, title, credibility score, note)
++   🚧 Open questions / suggested follow-up
++   ```
++
++Escalate back to the SuperClaude Agent if authoritative sources are unavailable or if further clarification from the user is required.
+diff --git a/src/superclaude/agents/repo-index.md b/src/superclaude/agents/repo-index.md
+new file mode 100644
+index 00000000..c1aca087
+--- /dev/null
++++ b/src/superclaude/agents/repo-index.md
+@@ -0,0 +1,30 @@
++---
++name: repo-index
++description: Repository indexing and codebase briefing assistant
++category: discovery
++---
++
++# Repository Index Agent
++
++Use this agent at the start of a session or when the codebase changes substantially. Its goal is to compress repository context so subsequent work stays token-efficient.
++
++## Core Duties
++- Inspect directory structure (`src/`, `tests/`, `docs/`, configuration, scripts).
++- Surface recently changed or high-risk files.
++- Generate/update `PROJECT_INDEX.md` and `PROJECT_INDEX.json` when stale (>7 days) or missing.
++- Highlight entry points, service boundaries, and relevant README/ADR docs.
++
++## Operating Procedure
++1. Detect freshness: if an index exists and is younger than 7 days, confirm and stop. Otherwise continue.
++2. Run parallel glob searches for the five focus areas (code, documentation, configuration, tests, scripts).
++3. Summarize results in a compact brief:
++   ```
++   📦 Summary:
++     - Code: src/superclaude (42 files), pm/ (TypeScript agents)
++     - Tests: tests/pm_agent, pytest plugin smoke tests
++     - Docs: docs/developer-guide, PROJECT_INDEX.md (to be regenerated)
++   🔄 Next: create PROJECT_INDEX.md (94% token savings vs raw scan)
++   ```
++4. If regeneration is needed, instruct the SuperClaude Agent to run the automated index task or execute it via available tools.
++
++Keep responses short and data-driven so the SuperClaude Agent can reference the brief without rereading the entire repository.
+diff --git a/src/superclaude/agents/self-review.md b/src/superclaude/agents/self-review.md
+new file mode 100644
+index 00000000..a269efdf
+--- /dev/null
++++ b/src/superclaude/agents/self-review.md
+@@ -0,0 +1,33 @@
++---
++name: self-review
++description: Post-implementation validation and reflexion partner
++category: quality
++---
++
++# Self Review Agent
++
++Use this agent immediately after an implementation wave to confirm the result is production-ready and to capture lessons learned.
++
++## Primary Responsibilities
++- Verify tests and tooling reported by the SuperClaude Agent.
++- Run the four mandatory self-check questions:
++  1. Tests/validation executed? (include command + outcome)
++  2. Edge cases covered? (list anything intentionally left out)
++  3. Requirements matched? (tie back to acceptance criteria)
++  4. Follow-up or rollback steps needed?
++- Summarize residual risks and mitigation ideas.
++- Record reflexion patterns when defects appear so the SuperClaude Agent can avoid repeats.
++
++## How to Operate
++1. Review the task summary and implementation diff supplied by the SuperClaude Agent.
++2. Confirm test evidence; if missing, request a rerun before approval.
++3. Produce a short checklist-style report:
++   ```
++   ✅ Tests: uv run pytest -m unit (pass)
++   ⚠️ Edge cases: concurrency behaviour not exercised
++   ✅ Requirements: acceptance criteria met
++   📓 Follow-up: add load tests next sprint
++   ```
++4. When issues remain, recommend targeted actions rather than reopening the entire task.
++
++Keep answers brief—focus on evidence, not storytelling. Hand results back to the SuperClaude Agent for the final user response.
+diff --git a/src/superclaude/hooks/README.md b/src/superclaude/hooks/README.md
+new file mode 100644
+index 00000000..3a43d2bf
+--- /dev/null
++++ b/src/superclaude/hooks/README.md
+@@ -0,0 +1,18 @@
++# SuperClaude Hooks
++
++This directory contains hook configuration files.
++
++## Files
++
++- **hooks.json** - Hook definitions for event-driven automation
++
++## Important
++
++These hooks are copies from `plugins/superclaude/hooks/` for package distribution.
++
++When updating hooks:
++1. Edit files in `plugins/superclaude/hooks/`
++2. Copy changes to `src/superclaude/hooks/`
++3. Both locations must stay in sync
++
++In v5.0, the plugin system will use `plugins/` directly.
+diff --git a/src/superclaude/hooks/hooks.json b/src/superclaude/hooks/hooks.json
+new file mode 100644
+index 00000000..91ef9ca8
+--- /dev/null
++++ b/src/superclaude/hooks/hooks.json
+@@ -0,0 +1,15 @@
++{
++  "hooks": {
++    "SessionStart": [
++      {
++        "hooks": [
++          {
++            "type": "command",
++            "command": "./scripts/session-init.sh",
++            "timeout": 10
++          }
++        ]
++      }
++    ]
++  }
++}
+diff --git a/src/superclaude/scripts/README.md b/src/superclaude/scripts/README.md
+new file mode 100644
+index 00000000..eb30fcd6
+--- /dev/null
++++ b/src/superclaude/scripts/README.md
+@@ -0,0 +1,19 @@
++# SuperClaude Scripts
++
++This directory contains utility scripts.
++
++## Files
++
++- **clean_command_names.py** - Command name cleaning utility
++- **session-init.sh** - Session initialization script
++
++## Important
++
++These scripts are copies from `plugins/superclaude/scripts/` for package distribution.
++
++When updating scripts:
++1. Edit files in `plugins/superclaude/scripts/`
++2. Copy changes to `src/superclaude/scripts/`
++3. Both locations must stay in sync
++
++In v5.0, the plugin system will use `plugins/` directly.
+diff --git a/src/superclaude/scripts/clean_command_names.py b/src/superclaude/scripts/clean_command_names.py
+new file mode 100644
+index 00000000..39ab8e30
+--- /dev/null
++++ b/src/superclaude/scripts/clean_command_names.py
+@@ -0,0 +1,168 @@
++#!/usr/bin/env python3
++"""
++SuperClaude Plugin - Command Name Attribute Cleanup Script
++
++This script automatically removes redundant 'name:' attributes from command
++frontmatter in markdown files. The plugin naming system derives command names
++from the plugin name + filename, making explicit name attributes unnecessary.
++
++Usage:
++    python scripts/clean_command_names.py
++
++Exit Codes:
++    0 - Success (files modified or no changes needed)
++    1 - Error (directory not found or processing failed)
++"""
++
++import os
++import re
++import sys
++from pathlib import Path
++from typing import Tuple
++
++
++def find_project_root() -> Path:
++    """
++    Find the project root directory by locating plugin.json.
++
++    Returns:
++        Path: Project root directory
++
++    Raises:
++        FileNotFoundError: If project root cannot be determined
++    """
++    script_dir = Path(__file__).parent.absolute()
++    current_dir = script_dir.parent
++
++    # Look for plugin.json up to 3 levels up
++    for _ in range(3):
++        if (current_dir / "plugin.json").exists():
++            return current_dir
++        current_dir = current_dir.parent
++
++    raise FileNotFoundError("Could not find project root (plugin.json not found)")
++
++
++def clean_name_attributes(content: str) -> Tuple[str, bool]:
++    """
++    Remove 'name:' attributes from YAML frontmatter.
++
++    Args:
++        content: File content as string
++
++    Returns:
++        Tuple of (cleaned content, was_modified)
++    """
++    # Pattern to match 'name: value' in frontmatter
++    # Matches: name: value, name : value, NAME: value (case-insensitive)
++    name_pattern = re.compile(r'^\s*name\s*:\s*.*$', re.MULTILINE | re.IGNORECASE)
++
++    # Check if modification is needed
++    if not name_pattern.search(content):
++        return content, False
++
++    # Remove name attributes
++    cleaned = name_pattern.sub('', content)
++
++    # Clean up multiple consecutive newlines (max 2)
++    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
++
++    # Remove trailing whitespace while preserving final newline
++    cleaned = cleaned.rstrip() + '\n' if cleaned.strip() else ''
++
++    return cleaned, True
++
++
++def process_commands_directory(commands_dir: Path) -> int:
++    """
++    Process all command markdown files in directory.
++
++    Args:
++        commands_dir: Path to commands directory
++
++    Returns:
++        Number of files modified
++    """
++    if not commands_dir.is_dir():
++        print(f"Error: Directory not found: {commands_dir}", file=sys.stderr)
++        return -1
++
++    modified_count = 0
++    processed_count = 0
++    error_count = 0
++
++    print(f"🔍 Scanning: {commands_dir}")
++    print(f"{'='*60}")
++
++    # Process all .md files
++    for md_file in sorted(commands_dir.glob("*.md")):
++        processed_count += 1
++
++        try:
++            # Read file content
++            content = md_file.read_text(encoding='utf-8')
++
++            # Clean name attributes
++            cleaned_content, was_modified = clean_name_attributes(content)
++
++            if was_modified:
++                # Write cleaned content back
++                md_file.write_text(cleaned_content, encoding='utf-8')
++                modified_count += 1
++                print(f"✅ Modified: {md_file.name}")
++            else:
++                print(f"⏭️  Skipped:  {md_file.name} (no name attribute)")
++
++        except Exception as e:
++            error_count += 1
++            print(f"❌ Error:    {md_file.name} - {e}", file=sys.stderr)
++
++    print(f"{'='*60}")
++    print(f"📊 Summary:")
++    print(f"   • Processed: {processed_count} files")
++    print(f"   • Modified:  {modified_count} files")
++    print(f"   • Errors:    {error_count} files")
++
++    return modified_count if error_count == 0 else -1
++
++
++def main() -> int:
++    """
++    Main execution function.
++
++    Returns:
++        Exit code (0 for success, 1 for error)
++    """
++    print("🚀 SuperClaude Plugin - Command Name Cleanup")
++    print()
++
++    try:
++        # Find project root and commands directory
++        project_root = find_project_root()
++        commands_dir = project_root / "commands"
++
++        print(f"📁 Project root: {project_root}")
++        print()
++
++        # Process commands directory
++        result = process_commands_directory(commands_dir)
++
++        if result < 0:
++            print("\n❌ Cleanup failed with errors", file=sys.stderr)
++            return 1
++
++        print(f"\n✅ Cleanup completed successfully")
++        return 0
++
++    except FileNotFoundError as e:
++        print(f"❌ Error: {e}", file=sys.stderr)
++        return 1
++    except Exception as e:
++        print(f"❌ Unexpected error: {e}", file=sys.stderr)
++        import traceback
++        traceback.print_exc()
++        return 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/src/superclaude/scripts/session-init.sh b/src/superclaude/scripts/session-init.sh
+new file mode 100755
+index 00000000..30beb21d
+--- /dev/null
++++ b/src/superclaude/scripts/session-init.sh
+@@ -0,0 +1,30 @@
++#!/bin/bash
++# SuperClaude SessionStart initialization script
++# Auto-executed when Claude Code session starts
++
++# 1. Check git status
++if git status --porcelain > /dev/null 2>&1; then
++    status=$(git status --porcelain)
++    if [ -z "$status" ]; then
++        echo "📊 Git: clean"
++    else
++        count=$(echo "$status" | wc -l | tr -d ' ')
++        echo "📊 Git: ${count} files"
++    fi
++else
++    echo "📊 Git: not a repo"
++fi
++
++# 2. Remind token budget
++echo "💡 Use /context to confirm token budget."
++
++# 3. Report core services
++echo ""
++echo "🛠️ Core Services Available:"
++echo "  ✅ Confidence Check (pre-implementation validation)"
++echo "  ✅ Deep Research (web/MCP integration)"
++echo "  ✅ Repository Index (token-efficient exploration)"
++echo ""
++echo "SC Agent ready — awaiting task assignment."
++
++exit 0

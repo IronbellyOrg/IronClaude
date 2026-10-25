@@ -1,0 +1,17 @@
+# Returned by Task(sc:reuse-auditor, model=haiku), native-only (--no-mcp) grep-skeleton degrade; persisted by orchestrator.
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: null
+degraded: true
+sampled: false
+per_candidate:
+  - candidate: src/greeting.py::greet
+    verdict: distinct
+    tier: distinct
+    neighbours: []
+    rationale: >
+      Pure function: reject falsy name with ValueError("name required"), else return f"Hello, {name}!".
+      Repo tree (excl .git) enumerated with Read/Grep/Glob; only other Python is tests/test_greeting.py,
+      which calls greet and does not reimplement it. No capability neighbour exists. Search degraded
+      (no auggie/serena); findings capped at advisory L2.

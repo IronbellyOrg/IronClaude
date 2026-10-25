@@ -1,0 +1,35 @@
+# Persisted by orchestrator from sc:sc-requirements-analyst (model slot: sonnet) Wave-1B return.
+# Pass 1 independently re-derived by orchestrator (regex over spec.md): R-001 (span 5-7), R-002 (8-10), R-003 (11-12) — agrees.
+producer: sc:sc-requirements-analyst
+producer_model_slot: sonnet
+spec: fixtures/project/spec.md
+tasklist: fixtures/project/proposed.md
+parsed_count: 3
+inferred_count: 0
+inferred_candidates_considered: 5   # 3 dropped (overlap parsed spans: spec.md:6, :9, :12), 2 not requirement-shaped (spec.md:1, :3)
+coverage_matrix:
+  - {requirement_id: R-001, source: parsed, span: "spec.md:5-7", matched_task_ids: [T-101], match_method: exact}
+  - {requirement_id: R-002, source: parsed, span: "spec.md:8-10", matched_task_ids: [T-102], match_method: exact}
+  - {requirement_id: R-003, source: parsed, span: "spec.md:11-12", matched_task_ids: [T-103], match_method: exact}
+tasks:
+  - {id: T-101, line: 3, refs: [R-001], text: "Implement greet(name) returning the required greeting."}
+  - {id: T-102, line: 6, refs: [R-002], text: "Reject an empty name using ValueError."}
+  - {id: T-103, line: 9, refs: [R-003], text: "Add ordinary and empty-name test cases."}
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+unmapped_requirements_union: []
+coverage_undefined: false
+coverage_degraded: null
+S_dev_density: 0.0
+S_scope: 3
+S_domains: 2   # code + tests (planned)
+best_practice_grade: 3
+findings:
+  - {id: F-01, type: specificity, inferred: false, claim: "T-101 omits exact string 'Hello, Ada!'", citations: ["spec.md:6", "proposed.md:4"]}
+  - {id: F-02, type: specificity, inferred: false, claim: "'empty' undefined (whitespace-only/None) in spec and plan", citations: ["spec.md:9", "proposed.md:7"]}
+  - {id: F-03, type: specificity, inferred: false, claim: "T-103 does not name assertions (exact string / ValueError)", citations: ["spec.md:12", "proposed.md:10"]}
+  - {id: F-04, type: specificity, inferred: true, claim: "No file targets or verification command in any task", citations: ["proposed.md:4", "proposed.md:10"]}
+  - {id: F-05, type: specificity, inferred: true, claim: "Behaviour for names other than Ada unspecified", citations: ["spec.md:6"]}
+  - {id: F-06, type: specificity, inferred: true, claim: "No inter-task dependency / done-when lines", citations: ["proposed.md:9"]}
+  - {id: F-07, type: coverage, inferred: false, claim: "No coverage gaps; 3/3 exact matches", citations: ["proposed.md:3", "proposed.md:6", "proposed.md:9"]}

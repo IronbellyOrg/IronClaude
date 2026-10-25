@@ -1,0 +1,4 @@
+# §6.1 step 5.5 verification triangle: NOT RUN.
+verification_ran: false
+verification_skip_reason: tool-unavailable   # mcp__serena__execute_shell_command not exposed; orchestrator did not substitute Bash for the sanctioned surface
+invocations: []

@@ -1,0 +1,18 @@
+Bounded negative-evidence record, snapshot HEAD 053b75664c8979bf223b8040f68310dce882d05b
+
+Observed read-only command:
+git grep -n -I -E 'AIRIS|airis-agent|mindbase' -- src/superclaude/skills src/superclaude/commands src/superclaude/core
+Observed stdout: empty (no matches). The containing compound command did not preserve this subcommand's separate exit code.
+Interpretation: no matching textual references in those tracked source scopes, not proof that installed users or external callers never access the services.
+
+Observed consumer discovery:
+git grep -n -I -E 'install_mcp|AIRIS_GATEWAY|MCP_Airis-Agent|MCP_Mindbase|airis-agent.json|mindbase.json' HEAD -- :!.dev :!plugins/superclaude :!src/superclaude/skills
+Results materialized in consumers.txt. The specific Airis Agent/MindBase resource filenames occur in the package-resource test baseline; no production-code lookup of these four filenames appears in that bounded result.
+
+Observed test search:
+git grep -n -I -E 'utf-8|errors.*replace|stdout.*None|check_mcp_server_installed' -- tests/cli/test_install_mcp_registry.py tests/cli/test_install_mcp_tavily.py tests/cli/test_install_codebase_memory.py
+The result contains installation-status mocking/reconciliation and unrelated None-output/native-process assertions. No dedicated test asserting the inherited wrapper's UTF-8/errors=replace policy was identified by that search. This is not an assertion that no such test exists anywhere in the repository. No tests were executed.
+
+Observed tracked plugin MCP inventory:
+git ls-files 'plugins/superclaude/mcp/*'
+The inventory contains Context7, Morphllm, Playwright, Serena and Tavily resources plus package initializers. It contains none of the Airis Agent/MindBase Markdown/JSON resources.

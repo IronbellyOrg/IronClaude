@@ -1,0 +1,37 @@
+# Wave 1D blind calibration — Task(sc:confidence-calibrator)
+calibrator: {agent: sc:confidence-calibrator, requested_model_slot: opus, agent_id: a9b87386d83a3fd84, actual_provider_model: "claude-opus-5-5[1m] (slot alias; not self-reported by agent)"}
+card_author_model_slot: sonnet
+reviewer_model_classes: [sonnet]          # Tier-1: the card author is the sole reviewer class
+calibrator_model_class: opus
+calibrator_diversity: full                # opus not in {sonnet}
+blind_inputs: [reflection-card.yaml, refs/reflection-rubric.md]
+evidence_reads: "calibrator independently Read every cited artifact at cited lines (14 rows)"
+formation_trail_supplied: false
+citation_spot_checks:
+  - {citation: "fixtures/project/spec.md:6", read: true, supports_claim: true}
+  - {citation: "fixtures/project/proposed.md:4", read: true, supports_claim: true, note: "calibrator note text mislabels it 'Line 6'; quoted content matches proposed.md:4"}
+  - {citation: "fixtures/project/spec.md:9", read: true, supports_claim: true}
+  - {citation: "fixtures/project/proposed.md:7", read: true, supports_claim: true}
+  - {citation: "fixtures/project/spec.md:12", read: true, supports_claim: true}
+  - {citation: "fixtures/project/proposed.md:10", read: true, supports_claim: true}
+  - {citation: "artifacts/coverage-matrix.yaml:27", read: true, supports_claim: true}
+  - {citation: "artifacts/coverage-matrix.yaml:34", read: true, supports_claim: true}
+  - {citation: "fixtures/project/proposed.md:3", read: true, supports_claim: true}
+  - {citation: "fixtures/project/proposed.md:9", read: true, supports_claim: true, note: "absence claim weakly anchored by one heading; whole file confirms"}
+  - {citation: "fixtures/project/src/greeting.py:1", read: true, supports_claim: true}
+  - {citation: "fixtures/project/tests/test_greeting.py:4", read: true, supports_claim: true}
+  - {citation: "tests/test_greeting.py:1 (RK-5)", read: true, supports_claim: true, note: "relative path; [INFERRED] risk"}
+  - {citation: "proposed.md:3,:6,:9 (best-practice rationale)", read: true, supports_claim: true}
+scores:
+  citation_grounding: 0.90
+  coverage_completeness: 1.00
+  deviation_classification_clarity: 0.95
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.92
+arithmetic: "(0.90 + 1.00 + 0.95 + 0.85 + 0.92) / 5 = 4.62 / 5 = 0.924"
+calibrated_confidence: 0.924
+self_reported_confidence_discarded: 0.82
+calibrator_observations:
+  - "Existing src/greeting.py:1-4 and tests/test_greeting.py:4-13 appear to already satisfy R-001..R-003 (not executed); card should foreground this reconciliation risk."
+  - "Secondary untested invariants (whitespace-only / non-string names) unaddressed."
+  - "Calibrator transcribed the rubric path with a missing 'task4-runtime-cwd-fix1' segment in its report header; the brief supplied the correct path and the rubric was read (cosmetic transcription error, recorded honestly)."

@@ -1,0 +1,614 @@
+[
+  {
+    "parent_tool_use_id": null,
+    "tool": "Skill",
+    "input": {
+      "skill": "sc:sc-reflect-protocol",
+      "args": "--mode pre --spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md --tasklist /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md --tier 1 --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts (legacy flags: --type task --analyze \u2192 --mode pre)"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "P=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded\nPROJ=$P/fixtures/project; OUT=$P/runs/legacy-pre-attempt-1/artifacts\ngit -C \"$PROJ\" rev-parse --show-toplevel; echo \"---ls proj\"; ls -la \"$PROJ\"; echo \"---out\"; ls -la \"$P/runs/legacy-pre-attempt-1\" 2>&1; ls -la \"$OUT\" 2>&1; echo \"---realpaths\"; realpath -m \"$OUT\"; realpath \"$P/runs/legacy-pre-attempt-1\"; find \"$P/runs/legacy-pre-attempt-1\" -maxdepth 0 -type l; echo \"---env\"; for v in ANTHROPIC_DEFAULT_OPUS_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL; do if [ -n \"${!v}\" ]; then echo \"$v=${!v}\"; else echo \"$v unset\"; fi; done; which uv git; date -u +%Y-%m-%dT%H:%M:%SZ",
+      "description": "Resolve git root, inspect output path and model aliases"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/coverage-mapping.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/reflection-rubric.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/report-template.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "P=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded\nOUT=$P/runs/legacy-pre-attempt-1/artifacts\nmkdir \"$OUT\" && mkdir \"$OUT/artifacts\" && \"$P/runtime-bin/uv\" run --no-project python - \"$P/fixtures/project\" \"$OUT\" <<'EOF'\nimport hashlib, json, sys, datetime, pathlib\nproj=pathlib.Path(sys.argv[1]); out=pathlib.Path(sys.argv[2])\nfiles=[proj/\"proposed.md\", proj/\"spec.md\"]\nfl=sorted([(str(f.relative_to(proj)), hashlib.sha256(f.read_bytes()).hexdigest()) for f in files])\ntree=hashlib.sha256(json.dumps(fl).encode()).hexdigest()\nd=dict(fl)\nsnap={\"input_tree_sha256\":tree,\"file_list\":[{\"path\":p,\"sha256\":s} for p,s in fl],\"file_count\":len(fl),\n      \"audit_repo_root\":str(proj),\"output_root\":str(out),\n      \"excluded_output_subtree\":str(out),\"link_following\":\"depth=1; proposed.md contains no file references\"}\n(out/\"artifacts/input-snapshot.yaml\").write_text(json.dumps(snap,indent=2)+\"\\n\")\nts=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec=\"seconds\")\nrows=[\n (0,\"0.1\",\"ok\",\"legacy --type task --analyze mapped to --mode pre; rule 1 (explicit mode) after legacy mapping; --tier 1 pin; --no-promote\"),\n (0,\"0.2\",\"ok\",\"spec.md (13 lines) and proposed.md (11 lines) readable and non-empty\"),\n (0,\"0.2b\",\"ok\",f\"audit_repo_root={proj} via git -C rev-parse --show-toplevel (git init, no commits)\"),\n (0,\"0.3\",\"ok\",\"sc:sc-adversarial-protocol registered; not needed at pinned Tier 1\"),\n (0,\"0.4\",\"ok\",f\"input_tree_sha256={tree} over 2 files; output pinned {out}; no overlap/symlink/.. ; not in plugin distribution dirs\"),\n (0,\"0.5\",\"ok\",\"3 distinct aliases: opus=claude-opus-5-5[1m], sonnet=claude-sonnet-5-5[1m], haiku-slot=grok-4.7[1m]\"),\n (0,\"0.5b\",\"warn\",\"executor_class_source=unknown (UC-1 pre: no executed work); executor_class_resolved=false\"),\n (0,\"0.5c\",\"skip\",\"mcp__serena__get_current_config not exposed; serena_version=unknown; degraded get_current_config\"),\n (0,\"0.5d\",\"skip\",\"availability: backend=none, execute_shell_command_available=false, onboarding_available=false, read_only=unconfirmed\"),\n (0,\"0.5e\",\"skip\",\"native reviewer snapshot not provisioned: Tier 1 pinned, no reviewers dispatched\"),\n (0,\"0.6\",\"warn\",\"t2_vendor_diversity=multi by alias heuristic (Anthropic + xAI grok); T2 not run\"),\n (0,\"0.7\",\"skip\",\"Serena activate_project/memory unavailable; onboarding_status=unknown (no S_dev_density down-weight)\"),\n (0,\"0.7b\",\"skip\",\"--onboard not set; onboarding_ran=false\"),\n (0,\"0.8\",\"ok\",\"audit log opened\"),\n (0,\"0.9\",\"skip\",\"--budget-remaining not set; budget_check_skipped=true\"),\n]\nwith open(out/\"audit.log\",\"w\") as h:\n    for w,s,o,e in rows:\n        h.write(json.dumps({\"wave\":w,\"step\":s,\"timestamp\":ts,\"outcome\":o,\"evidence_ref\":None,\"note\":e})+\"\\n\")\n(out/\"serena-config-snapshot.yaml\").write_text(json.dumps({\"status\":\"unavailable\",\"reason\":\"no Serena MCP tools exposed in this session\",\"serena_version\":\"unknown\"},indent=2)+\"\\n\")\nprint(tree, d)\nEOF\nls -la \"$OUT\" \"$OUT/artifacts\"",
+      "description": "Create output dir, compute input hash, write Wave-0 audit rows"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Agent",
+    "input": {
+      "description": "Wave 1B UC-1 coverage map",
+      "subagent_type": "sc:sc-requirements-analyst",
+      "model": "sonnet",
+      "run_in_background": false,
+      "prompt": "You are the Wave 1B coverage specialist for a read-only sc:sc-reflect UC-1 (pre-execution) audit. This is an authorized isolated audit of synthetic fixtures.\n\nBOUNDARIES (binding):\n- audit_repo_root = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\n- Allowed evidence roots: that project directory ONLY. Read only these inputs: <root>/spec.md and <root>/proposed.md.\n- Allowed output root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts \u2014 but DO NOT write anything; RETURN your result as text. The orchestrator persists it.\n- Plugin resource root (reference only, read only if needed): /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin ; the algorithm ref is plugin/skills/sc-reflect-protocol/refs/coverage-mapping.md.\n- Do NOT read any ancestor checkout file (pyproject.toml, CLAUDE.md, src/, .claude/ mirrors), do not run git or shell mutations, do not edit anything, do not install anything.\n\nTASK: Build the spec-to-tasklist coverage map with the two-pass extraction:\n1. Pass 1 (deterministic regex, authoritative): ID_REGEX = \\b(R-\\d+|REQ-\\d+|SPEC-\\d+|T-\\d+)\\b over spec.md (skip fenced code). Give each parsed ID its requirement SPAN (heading-borne ID owns its section to next same-or-higher heading / next ID). Then extract tasklist task IDs and the requirement IDs they reference; exact-ID matching (no fuzzy).\n2. Pass 2 (inference): read the FULL spec body and list requirement-shaped content (MUST/SHALL/MUST-NOT, acceptance criteria, constraints) that Pass 1 missed. Each candidate INF-NNN row needs a verbatim quote (max 2 sentences) and spec.md:line citation. Drop any INF row whose quote overlaps a line inside a parsed requirement's span \u2014 and report which candidates were dropped by this dedup rule and why.\n3. For each requirement, judge whether the matched task's text semantically SATISFIES the requirement's full content (not only the ID token), citing proposed.md:line. Flag partial-fidelity gaps (e.g. a task that omits a load-bearing detail of the requirement) as best-practice findings, NOT as unmapped coverage.\n4. Report: coverage_pct (parsed-only), coverage_pct_union, unmapped_requirements, unmapped_requirements_union, inferred_count, parsed_count, whether coverage_degraded: parsed-sparse fires (inferred_count > parsed_count), S_scope (tasklist item count), S_domains (distinct domains among {code, infra, docs, tests, config} the tasks target; say how derived), S_dev_density (UC-1: unmapped/union total), and a best-practice grade 0-5 with justification.\n\nEvery claim must carry an exact file:line citation you actually Read. Mark anything without citation as [INFERRED]. Return a compact YAML block (coverage_matrix rows: requirement_id, source, span, matched_task_ids, match_method, fidelity: full|partial, fidelity_note, citations) followed by a short findings list."
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HwtXNq6msXLKFWp72peXen",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HwtXNq6msXLKFWp72peXen",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HwtXNq6msXLKFWp72peXen",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/coverage-mapping.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "OUT=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts\ncat > \"$OUT/artifacts/coverage-matrix.yaml\" <<'EOF'\n# Wave 1B coverage map \u2014 returned by sc:sc-requirements-analyst (requested slot: sonnet; agentId ab4cb8555c74a9ebc), persisted verbatim-in-substance by orchestrator\nproducer: {agent: sc:sc-requirements-analyst, requested_model_slot: sonnet, resolved_alias: \"claude-sonnet-5-5[1m]\", agent_id: ab4cb8555c74a9ebc}\nid_regex: '\\b(R-\\d+|REQ-\\d+|SPEC-\\d+|T-\\d+)\\b'\nfuzzy_ids: false\ncoverage_matrix:\n  - {requirement_id: R-001, source: parsed, span: \"spec.md:5-7\", matched_task_ids: [T-101], match_method: exact, fidelity: partial,\n     fidelity_note: \"spec.md:6 fixes exact string 'Hello, Ada!' for Ada; T-101 (proposed.md:4) says only 'returning the required greeting'\",\n     citations: [\"spec.md:5\",\"spec.md:6\",\"proposed.md:3\",\"proposed.md:4\"]}\n  - {requirement_id: R-002, source: parsed, span: \"spec.md:8-10\", matched_task_ids: [T-102], match_method: exact, fidelity: full,\n     citations: [\"spec.md:8\",\"spec.md:9\",\"proposed.md:6\",\"proposed.md:7\"]}\n  - {requirement_id: R-003, source: parsed, span: \"spec.md:11-13\", matched_task_ids: [T-103], match_method: exact, fidelity: full,\n     fidelity_note: \"T-103 does not state the empty-name test asserts ValueError (not required by spec)\",\n     citations: [\"spec.md:11\",\"spec.md:12\",\"proposed.md:9\",\"proposed.md:10\"]}\npass2:\n  inferred_rows_emitted: 0\n  dropped_by_span_dedup: [\"spec.md:6 (R-001 span)\",\"spec.md:9 (R-002 span)\",\"spec.md:12 (R-003 span)\"]\nsummary:\n  parsed_count: 3\n  inferred_count: 0\n  coverage_pct: 1.0\n  coverage_pct_union: 1.0\n  unmapped_requirements: []\n  unmapped_requirements_union: []\n  coverage_undefined: false\n  coverage_degraded: null\n  S_scope: 3\n  S_domains: 2   # [INFERRED] code + tests from task text (no file paths in tasklist)\n  S_dev_density: 0.0\n  best_practice_grade: 4\nEOF\necho '{\"wave\":1,\"step\":\"1A\",\"timestamp\":\"'$(date -u +%FT%TZ)'\",\"outcome\":\"skip\",\"evidence_ref\":null,\"note\":\"Serena/Auggie unavailable; native Read grounding; UC-1 spec references no code modules (fixture src/ not in tasklist scope)\"}' >> \"$OUT/audit.log\"\necho '{\"wave\":1,\"step\":\"1B\",\"timestamp\":\"'$(date -u +%FT%TZ)'\",\"outcome\":\"ok\",\"evidence_ref\":\"'$OUT'/artifacts/coverage-matrix.yaml\",\"note\":\"coverage_pct=1.0 union=1.0 inferred=0; 1B.1 zero-task guard pass (3 tasks); 1B.2 not undefined; 1B.2b no parsed-sparse\"}' >> \"$OUT/audit.log\"",
+      "description": "Persist coverage matrix and Wave 1 audit rows"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Agent",
+    "input": {
+      "description": "Wave 1C Tier-1 reflection card",
+      "subagent_type": "sc:sc-root-cause-analyst",
+      "model": "sonnet",
+      "run_in_background": false,
+      "prompt": "You are the Wave 1C Tier-1 card author for a read-only sc:sc-reflect UC-1 (pre-execution) audit of a PROPOSED tasklist against its driving spec. Authorized isolated audit of synthetic fixtures.\n\nBOUNDARIES (binding):\n- audit_repo_root = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\n- Allowed evidence: <root>/spec.md, <root>/proposed.md, and the run-evidence file /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml (Wave 1B output). This is a PRE audit: the proposed plan is the subject; do not audit src/ or tests/ implementation.\n- Output root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts \u2014 DO NOT write; RETURN the card as text; the orchestrator persists it.\n- Plugin resources (reference only): /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin (rubric: plugin/skills/sc-reflect-protocol/refs/reflection-rubric.md).\n- Never read ancestor checkout files (pyproject.toml, CLAUDE.md, src/superclaude, .claude mirrors). No shell, git, edits or installs.\n\nTASK: Independently Read spec.md and proposed.md, verify the coverage matrix rather than trusting it, and produce ONE grounded reflection card (YAML) with:\n- verdict summary (does the proposed plan cover the spec; is it ready to execute?)\n- coverage: per-requirement row (R-ID \u2192 task, fidelity full|partial, citation spec.md:N + proposed.md:N)\n- findings: each with id, severity (high|medium|low), claim, citations (exact file:line you Read), tag Grounded or [INFERRED]. Include best-practice gaps (exactness of acceptance criteria carried into tasks, verification/acceptance steps, ambiguity such as what counts as \"empty\" e.g. whitespace-only, file targets) \u2014 classify these as plan-quality gaps; there is no executed work, so do not invent deviations.\n- risk register: risks if the plan is executed as-is.\n- recommendations: each names a file (proposed.md), a concrete change, a verifier, and priority P0-P2.\n- best_practice_grade 0-5.\n- self_reported_confidence (0-1) \u2014 it will be discarded and independently re-graded.\nBe skeptical; do not overstate. Every non-[INFERRED] claim must cite lines you actually Read."
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01LfTBzCgaGbDYLfn3jQMHE7",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01LfTBzCgaGbDYLfn3jQMHE7",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01LfTBzCgaGbDYLfn3jQMHE7",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01LfTBzCgaGbDYLfn3jQMHE7",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/reflection-rubric.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Write",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml",
+      "content": "# Wave 1C Tier-1 reflection card \u2014 authored by sc:sc-root-cause-analyst\n# requested_model_slot: sonnet (resolved alias claude-sonnet-5-5[1m]); agent_id: a4b410b615d7ff2e8\n# Persisted verbatim by the orchestrator BEFORE calibration. Paths: spec.md / proposed.md are relative to\n# audit_repo_root=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project ;\n# coverage-matrix.yaml = <output>/artifacts/coverage-matrix.yaml\nreflection_card:\n  mode: UC-1 pre-execution\n  tier: 1\n  audit_scope: spec.md (12 lines) vs proposed.md (10 lines); matrix at coverage-matrix.yaml verified independently\n  evidence_read: [spec.md, proposed.md, coverage-matrix.yaml, reflection-rubric.md]\n  note: Plan-quality audit only. No work has been executed, so no deviations are recorded.\n\nverdict:\n  summary: >\n    Every spec requirement (R-001..R-003) maps one-to-one to a task (T-101..T-103), so mapping coverage is\n    3/3 with no orphan tasks. Fidelity is not uniform. T-101 drops the exact-output acceptance criterion\n    from R-001, and the plan has no file targets or verification steps. The plan is conditionally ready:\n    fix the R-001 criterion (P0) before execution, and the remaining gaps are low risk.\n  covers_spec: yes (mapping), partial (R-001 fidelity)\n  ready_to_execute: conditional (after P0)\n  matrix_verification: >\n    I agree with the Wave 1B matrix on R-001 partial, R-002 full and R-003 full. I verified its line spans\n    and citations against both files. Its best_practice_grade of 4 is slightly generous (see grade).\n    coverage_pct 1.0 counts mapping only and does not reflect the R-001 fidelity gap.\n\ncoverage:\n  - r_id: R-001\n    task: T-101\n    fidelity: partial\n    citations: [\"spec.md:5\", \"spec.md:6\", \"proposed.md:3\", \"proposed.md:4\"]\n    note: >\n      spec.md:6 requires the exact string \"Hello, Ada!\" for Ada. proposed.md:4 says only \"returning the\n      required greeting\", so the exact string is not carried into the task.\n  - r_id: R-002\n    task: T-102\n    fidelity: full\n    citations: [\"spec.md:8\", \"spec.md:9\", \"proposed.md:6\", \"proposed.md:7\"]\n    note: >\n      The task restates both the empty-name rejection and ValueError. The definition of \"empty\" is\n      ambiguous in the spec itself (see F-003), so the plan inherits that ambiguity rather than creating it.\n  - r_id: R-003\n    task: T-103\n    fidelity: full\n    citations: [\"spec.md:11\", \"spec.md:12\", \"proposed.md:9\", \"proposed.md:10\"]\n    note: >\n      The spec requires tests for the ordinary greeting and empty-input rejection, and T-103 names both.\n      T-103 does not state what the tests assert, but the spec does not require that either.\n\nfindings:\n  - id: F-001\n    severity: medium\n    claim: >\n      T-101 omits the exact-output acceptance criterion. The spec fixes the string \"Hello, Ada!\" for Ada.\n      The task says only \"the required greeting\", which leaves the implementer and the test author to\n      reconstruct the criterion.\n    citations: [\"spec.md:6\", \"proposed.md:4\"]\n    tag: Grounded\n    class: plan-quality gap\n  - id: F-002\n    severity: medium\n    claim: >\n      T-103 does not tie the ordinary-case test to the exact string from R-001. It also does not say the\n      empty-name test asserts ValueError. Tests could pass with weak assertions (for example, a non-empty\n      result or any exception) and still match the task text, while the spec's \"exact string\" and\n      \"ValueError\" criteria go unchecked.\n    citations: [\"spec.md:6\", \"spec.md:9\", \"spec.md:12\", \"proposed.md:10\"]\n    tag: Grounded\n    class: plan-quality gap\n  - id: F-003\n    severity: low\n    claim: >\n      \"Empty\" is undefined in the spec and the plan. Whether whitespace-only names (for example \"   \")\n      or None count as empty is not stated. The spec says \"empty name\" and \"empty input\" in different\n      places, and T-102 repeats \"empty name\" without clarification.\n    citations: [\"spec.md:9\", \"spec.md:12\", \"proposed.md:7\"]\n    tag: Grounded\n    class: plan-quality gap (spec ambiguity propagated into plan)\n  - id: F-004\n    severity: low\n    claim: >\n      The spec gives the greeting only for the single example name Ada. The general format for other\n      names, such as \"Hello, <name>!\", is not stated. T-101 carries no template, so a reasonable\n      implementation could hardcode the string or generalize it differently.\n    citations: [\"spec.md:6\", \"proposed.md:4\"]\n    tag: \"[INFERRED] (that the general template is intended)\"\n    class: plan-quality gap (spec ambiguity)\n  - id: F-005\n    severity: low\n    claim: >\n      The plan names no file targets and no function module path for greet, the tests, or the test\n      runner. It has no verification or acceptance step, such as running the tests, and no\n      done-criteria per task.\n    citations: [\"proposed.md:3-10\"]\n    tag: Grounded (the absence is observable in the 10-line file)\n    class: plan-quality gap\n  - id: F-006\n    severity: low\n    claim: >\n      The Wave 1B matrix reports coverage_pct 1.0 and best_practice_grade 4 although one row is partial\n      and the plan has no verification steps. S_domains 2 is inferred from task text because the plan has\n      no file paths. The headline numbers should not be read as plan readiness.\n    citations: [\"coverage-matrix.yaml:6\", \"coverage-matrix.yaml:20\", \"coverage-matrix.yaml:27\", \"coverage-matrix.yaml:29\"]\n    tag: Grounded (the S_domains value is [INFERRED] by the matrix itself at line 27)\n    class: calibration caution\n\nrisk_register:\n  - id: RK-1\n    risk: >\n      Greeting implemented with a wrong format (punctuation or spacing) because the exact string is not\n      in T-101, and the tests do not catch it because T-103 states no exact assertion.\n    likelihood: low-medium\n    impact: R-001 fails silently\n    refs: [F-001, F-002]\n  - id: RK-2\n    risk: >\n      Inconsistent handling of whitespace-only or None names, leaving R-002 behaviour undefined at the\n      edges.\n    likelihood: medium\n    impact: low\n    refs: [F-003]\n  - id: RK-3\n    risk: >\n      The plan has no file targets, so the implementer may put greet and the tests in unexpected\n      locations. Without a verification step, completion is claimed without a test run.\n    likelihood: low\n    impact: low\n    refs: [F-005]\n  - id: RK-4\n    risk: >\n      Readers rely on coverage 1.0 or grade 4 and skip the R-001 fidelity fix.\n    likelihood: low-medium\n    impact: low\n    refs: [F-006]\n\nrecommendations:\n  - id: REC-1\n    file: proposed.md\n    change: >\n      Rewrite T-101 to state \"greet('Ada') returns exactly 'Hello, Ada!'\" (spec.md:6). Also state how\n      other names are formatted, or flag that the spec leaves this open.\n    verifier: >\n      Re-read T-101 and confirm the literal string \"Hello, Ada!\" appears. Re-run the R-001 fidelity\n      check and confirm it moves to full.\n    priority: P0\n  - id: REC-2\n    file: proposed.md\n    change: >\n      Extend T-103 so the ordinary test asserts equality with \"Hello, Ada!\" and the empty-name test\n      asserts ValueError is raised (for example with pytest.raises).\n    verifier: >\n      Confirm T-103 names both assertions. After execution, confirm the test source contains the exact\n      string and a ValueError assertion.\n    priority: P1\n  - id: REC-3\n    file: proposed.md\n    change: >\n      Add one sentence to T-102 defining \"empty\": either \"\" only, or \"\" plus whitespace-only strings.\n      Record the decision as an open spec question if the spec owner has not ruled on it.\n    verifier: >\n      Confirm T-102 contains an explicit definition. Confirm the T-103 test cases include the chosen\n      boundary case.\n    priority: P1\n  - id: REC-4\n    file: proposed.md\n    change: >\n      Name the file targets for the greet implementation and the tests. Add a final verification task\n      (or acceptance line on each task) that runs the test suite and reports pass/fail.\n    verifier: >\n      Check that every task lists a target path and that a verification step with an explicit pass\n      criterion exists.\n    priority: P2\n\nbest_practice_grade: 3\nbest_practice_grade_rationale: >\n  Mapping is clean, with traceable T-to-R IDs and no scope creep. The plan loses points for the lost\n  exact-string criterion, undefined \"empty\", no file targets, no verification step, and weak test\n  assertions. I put it one point below the matrix's 4.\n\nself_reported_confidence: 0.85\n"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Agent",
+    "input": {
+      "description": "Wave 1D blind calibration",
+      "subagent_type": "sc:confidence-calibrator",
+      "model": "opus",
+      "run_in_background": false,
+      "prompt": "Blind calibration assignment (sc:sc-reflect Wave 1D, UC-1 pre-execution, Tier 1). Authorized isolated audit of synthetic fixtures.\n\nBOUNDARIES (binding):\n- audit_repo_root = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\n- Allowed evidence roots: that project directory, and the run output root /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts (read-only for you; do not write \u2014 RETURN your result; the orchestrator persists it).\n- Plugin resource root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin\n- Never read ancestor checkout files (pyproject.toml, CLAUDE.md, src/superclaude, .claude mirrors).\n\nSUPPLIED INPUTS:\n1. The finished card: <output root>/reflection-card.yaml\n2. The rubric: <plugin root>/skills/sc-reflect-protocol/refs/reflection-rubric.md (use the \"5-dimension scoring\" section).\n\nYou are NOT given the formation trail or any other reviewer's scores; ignore the card's self_reported_confidence. BLIND DOES NOT MEAN EVIDENCE-BLIND: before scoring Citation grounding you MUST independently Read the artifacts the card cites, at the cited line ranges, within the allowed roots: <audit_repo_root>/spec.md, <audit_repo_root>/proposed.md, and <output root>/artifacts/coverage-matrix.yaml (the card's \"coverage-matrix.yaml\"). Check every citation in the card (coverage rows, findings F-001..F-006). Record per-citation results (verified | mismatch | unreadable) \u2014 missing/unreadable evidence must be recorded honestly, not counted as verified.\n\nRETURN (YAML): citation_spot_checks (citation, result, note), the five dimension scores (citation_grounding, coverage_completeness, deviation_classification_clarity, risk_surface_coverage, recommendation_actionability) each 0.00-1.00 with one-line rationale, and C = arithmetic mean (4 decimals). Note for dimension 3: this is a UC-1 pre audit with no executed work; judge whether the card classifies its findings unambiguously given that context."
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/reflection-rubric.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/coverage-matrix.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01HysNrCkGcCnxW8UdzkAAdg",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "OUT=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts\ncat > \"$OUT/artifacts/calibration.yaml\" <<'EOF'\n# Wave 1D blind calibration \u2014 returned by sc:confidence-calibrator; persisted by orchestrator\ncalibrator: {agent: sc:confidence-calibrator, requested_model_slot: opus, resolved_alias: \"claude-opus-5-5[1m]\", agent_id: a9a8c6b50cb14be52}\ncard_author_class: sonnet\nreviewer_model_classes: []          # Tier 1: no T2 reviewers\ncalibrator_model_class: opus\ncalibrator_diversity: full          # opus not in {sonnet (card author)}; no reviewer pool\nprovider_model_note: \"Agent tool returned no provider model id in its result metadata; requested slot alias recorded, actual provider model not independently observable\"\ninputs_supplied: [reflection-card.yaml, refs/reflection-rubric.md]\nformation_context_supplied: false\ncitation_spot_checks: {checked: 28, verified: 28, mismatch: 0, unreadable: 0}\nper_dimension_scores:\n  citation_grounding: 0.95\n  coverage_completeness: 1.00\n  deviation_classification_clarity: 0.85\n  risk_surface_coverage: 0.85\n  recommendation_actionability: 0.93\nC: 0.9160\nself_reported_confidence_ignored: 0.85\nescalation_recommendation: ORCHESTRATOR_DECIDES\nEOF\ncat > \"$OUT/artifacts/tier_decision.yaml\" <<'EOF'\nselected_tier: 1\ndecision_source: \"\u00a75.1 hard override --tier 1 (STOP at T1; Wave 3+ skipped)\"\nfired_rule_number: 2                # rubric evaluated for recording: rule 1 fails (S_domains=2 != 1); rule 2 matches (C 0.916>=0.85, S_scope 3<=10, S_domains 2<=2, S_dev_density 0.0<=0.10)\nrubric_agrees_with_override: true\ncoverage_undefined: false\ncoverage_degraded: null\nsurface_unreached: null\ninputs: {C: 0.9160, S_scope: 3, S_domains: 2, S_domains_inferred: true, S_dev_density: 0.0, coverage_pct: 1.0, coverage_pct_union: 1.0}\ncomposite_score: 1\nper_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}\nt2_model_class_diversity: full      # 3 distinct aliases resolved; T2 not run\nescalation_reason: \"Pinned Tier 1 by user flag; rubric independently reaches STOP at T1 via rule 2 (S_dev_density 0.0 <= 0.05, no WARN)\"\nEOF\nT=$(date -u +%FT%TZ)\nfor r in \\\n'{\"wave\":1,\"step\":\"1C\",\"outcome\":\"ok\",\"evidence_ref\":\"'$OUT'/reflection-card.yaml\",\"note\":\"card by sc:sc-root-cause-analyst slot sonnet; persisted before calibration; think_about_task_adherence unavailable (Serena absent) - checkpoint skipped\"}' \\\n'{\"wave\":1,\"step\":\"1D\",\"outcome\":\"ok\",\"evidence_ref\":\"'$OUT'/artifacts/calibration.yaml\",\"note\":\"sc:confidence-calibrator slot opus; C=0.9160; 28/28 citations verified; calibrator_diversity=full\"}' \\\n'{\"wave\":2,\"step\":\"2.1\",\"outcome\":\"ok\",\"evidence_ref\":\"'$OUT'/artifacts/tier_decision.yaml\",\"note\":\"--tier 1 override; rubric rule 2 agrees\"}' \\\n'{\"wave\":3,\"step\":\"3\",\"outcome\":\"skip\",\"evidence_ref\":null,\"note\":\"Tier 1 pinned: no reviewers, no snapshot\"}' \\\n'{\"wave\":4,\"step\":\"4\",\"outcome\":\"skip\",\"evidence_ref\":null,\"note\":\"Tier 1: no adversarial merge; no adversarial/ dir by design\"}' ; do\necho \"$r\" | sed \"s/^{/{\\\"timestamp\\\":\\\"$T\\\",/\" >> \"$OUT/audit.log\"; done\ncat -n \"$OUT/artifacts/coverage-matrix.yaml\" | sed -n '6p;20p;27p;29p'",
+      "description": "Persist calibration, tier decision, audit rows; verify matrix lines"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Write",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft.md",
+      "content": "# sc:sc-reflect report: UC-1 pre-execution, Tier 1 (DRAFT, pending evidence-validator)\n\n```yaml\ncontract_version: 1.8.0\nstatus: PENDING_EVIDENCE_GATE\nmode: pre\ntier_reached: 1\nconfidence_calibrated: 0.9160\ncitations_total: 17\ncitations_revalidated: PENDING\ncitations_dropped: PENDING\ncitations_inferred: 2\ncitation_budget_policy: full_reread\ncoverage_degraded: null\n```\n\n- **Audit root:** `/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project` (Git root from `git -C <dir> rev-parse --show-toplevel`; the repo was created with `git init` and has no commits).\n- **Inputs:** `spec.md` is the driving spec and `proposed.md` is the proposed tasklist. Paths below are relative to the audit root. `artifacts/coverage-matrix.yaml` is relative to the run output.\n- **Mode resolution:** the legacy flags `--type task --analyze` map to `--mode pre`. `--tier 1` pins Tier 1, and `--no-promote` was honoured. Wave 7 does not apply to UC-1 and nothing was moved.\n- **Degraded:** Serena, Auggie and Context7 MCP tools were not exposed, so native Read was used throughout. The scripted `think_about_*` checkpoints were skipped. The optional `tech-research` best-practice lookup is unavailable in the plugin distribution and was not run.\n\n## Verdict\n\nThe proposed plan **covers every requirement in the spec**. Parsed coverage and union coverage are both 3/3 = 1.0, with no unmapped requirements and no orphan tasks. The plan is **conditionally ready**. One requirement is carried into its task with only partial fidelity, and the plan has no file targets and no verification step. The best-practice grade is **3/5**: the Tier-1 card gave 3 and the Wave-1B matrix gave 4. The card's lower grade is used because it reflects the fidelity gap.\n\n## Coverage matrix\n\n| Req | Spec | Task | Plan | Match | Fidelity |\n|---|---|---|---|---|---|\n| R-001 | spec.md:5 heading; spec.md:6 \"MUST return the exact string Hello, Ada! for Ada.\" [C01, C02] | T-101 | proposed.md:3 heading; proposed.md:4 \"returning the required greeting\" [C03, C04] | exact | **partial** |\n| R-002 | spec.md:8; spec.md:9 \"MUST reject an empty name with ValueError.\" [C05, C06] | T-102 | proposed.md:6; proposed.md:7 \"Reject an empty name using ValueError.\" [C07, C08] | exact | full |\n| R-003 | spec.md:11; spec.md:12 \"Tests MUST exercise the ordinary greeting and empty-input rejection.\" [C09, C10] | T-103 | proposed.md:9; proposed.md:10 \"Add ordinary and empty-name test cases.\" [C11, C12] | exact | full |\n\n- **Pass 1 (regex):** 3 parsed IDs and 3 tasks.\n- **Pass 2 (inference):** emitted 0 rows. The three MUST sentences (spec.md:6, 9, 12) all fall inside the spans of their parsed headings, so dedup dropped them. The parsed-sparse guard therefore did not fire.\n- **Values:** `coverage_pct` = `coverage_pct_union` = 1.0. `S_dev_density` = 0.0. `S_scope` = 3.\n- **[INFERRED]** `S_domains` = 2 (code and tests). This is judged from the task text, because the tasklist names no file paths.\n\nNo Inferred-requirements (Pass 2) section is included because Pass 2 produced zero rows.\n\n## Findings (plan-quality gaps; no deviations because nothing has been executed)\n\n- **F-001 (medium) \u2014 T-101 drops the exact-output acceptance criterion.** spec.md:6 fixes the string \"Hello, Ada!\" for Ada. proposed.md:4 says only \"the required greeting\". [C02, C04]\n- **F-002 (medium) \u2014 T-103 states no assertions.** The tests could pass with weak checks: a non-empty result, or any exception. The spec's exact-string criterion (spec.md:6) and ValueError criterion (spec.md:9) would then go unchecked, even though the test requirement (spec.md:12) appears to be met. proposed.md:10. [C02, C06, C10, C12]\n- **F-003 (low) \u2014 \"Empty\" is undefined.** spec.md:9 says \"empty name\" and spec.md:12 says \"empty-input\". T-102 (proposed.md:7) repeats \"empty name\" without saying whether whitespace-only names or None count. [C06, C10, C08]\n- **F-004 (low) \u2014 [INFERRED] The general greeting format for names other than Ada is unstated.** The spec gives only the Ada example (spec.md:6), and T-101 carries no template (proposed.md:4). [C02, C04]\n- **F-005 (low) \u2014 No file targets and no verification step.** The plan names no file targets, no module path, no test runner, no verification or acceptance step, and no per-task done criteria anywhere in proposed.md:3-10. [C13]\n- **F-006 (low, calibration caution) \u2014 Headline numbers should not be read as readiness.** The Wave-1B matrix reports `coverage_pct: 1.0` and `best_practice_grade: 4` even though its R-001 row is partial and S_domains is inferred. See artifacts/coverage-matrix.yaml:6, 20, 27 and 29. [C14, C15, C16, C17]\n\n## Risk register\n\n- **RK-1 (low-medium):** the greeting is implemented in the wrong format and the tests don't catch it. Comes from F-001 and F-002.\n- **RK-2 (medium likelihood, low impact):** whitespace-only or None names are handled inconsistently. Comes from F-003.\n- **RK-3 (low):** files land in unexpected locations, and completion is claimed without a test run. Comes from F-005.\n- **RK-4 (low-medium):** readers trust \"coverage 1.0\" and skip the R-001 fix. Comes from F-006.\n- No `durable_sink:` or `@sink` annotations exist, so the reachability gate does not apply. It is UC-2 only in any case.\n\n## Grounding Gaps\n\nNone. No `grounding-gaps.yaml` was written.\n\n## Inferred-claim audit\n\n- `citations_inferred: 2` (F-004's template claim and S_domains)\n- Inferred fraction: 2 / 17 = 0.12\n\n## Recommendations\n\n### Recommendation R-001: State the exact greeting in T-101\n- **File:** proposed.md\n- **Change:** rewrite T-101 (proposed.md:4) to say `greet(\"Ada\")` returns exactly `Hello, Ada!`. Then either state the format for other names or flag it as an open spec question.\n- **Verifier:** re-Read T-101 and confirm the literal `Hello, Ada!` is present. Re-run `/sc:sc-reflect --mode pre` and confirm R-001 fidelity is full.\n- **Linked finding(s):** F-001, F-004\n- **Priority:** P0\n\n### Recommendation R-002: Specify the assertions in T-103\n- **File:** proposed.md\n- **Change:** add two assertions to T-103 (proposed.md:10): the ordinary test checks equality with `Hello, Ada!`, and the empty-name test checks that `ValueError` is raised.\n- **Verifier:** confirm T-103 names both assertions. After execution, confirm the test source contains the literal string and a ValueError assertion.\n- **Linked finding(s):** F-002\n- **Priority:** P1\n\n### Recommendation R-003: Define \"empty\" in T-102\n- **File:** proposed.md\n- **Change:** add one sentence to T-102 (proposed.md:7) that defines \"empty\" (either `\"\"` only, or `\"\"` plus whitespace-only) and add the chosen boundary case to T-103.\n- **Verifier:** T-102 contains the definition, and T-103 lists the boundary case.\n- **Linked finding(s):** F-003\n- **Priority:** P1\n\n### Recommendation R-004: Add file targets and a verification task\n- **File:** proposed.md\n- **Change:** name the target paths for `greet` and its tests, and add a final task that runs the test suite with an explicit pass criterion.\n- **Verifier:** every task lists a path, and a verification step with a pass/fail criterion exists.\n- **Linked finding(s):** F-005\n- **Priority:** P2\n\n## Citation index (for sc:evidence-validator)\n\n| ID | Citation | Claimed content |\n|---|---|---|\n| C01 | spec.md:5 | `## R-001 Greeting` heading |\n| C02 | spec.md:6 | greet MUST return exact string Hello, Ada! for Ada |\n| C03 | proposed.md:3 | `## T-101 R-001` |\n| C04 | proposed.md:4 | \"Implement greet(name) returning the required greeting.\" (no literal string) |\n| C05 | spec.md:8 | `## R-002 Empty input` |\n| C06 | spec.md:9 | MUST reject an empty name with ValueError |\n| C07 | proposed.md:6 | `## T-102 R-002` |\n| C08 | proposed.md:7 | \"Reject an empty name using ValueError.\" (no definition of empty) |\n| C09 | spec.md:11 | `## R-003 Evidence` |\n| C10 | spec.md:12 | Tests MUST exercise ordinary greeting and empty-input rejection |\n| C11 | proposed.md:9 | `## T-103 R-003` |\n| C12 | proposed.md:10 | \"Add ordinary and empty-name test cases.\" (no assertions stated) |\n| C13 | proposed.md:3-10 | no file paths, module path, test runner or verification step |\n| C14 | artifacts/coverage-matrix.yaml:6 | R-001 row with `fidelity: partial` |\n| C15 | artifacts/coverage-matrix.yaml:20 | `coverage_pct: 1.0` |\n| C16 | artifacts/coverage-matrix.yaml:27 | `S_domains: 2` marked [INFERRED] |\n| C17 | artifacts/coverage-matrix.yaml:29 | `best_practice_grade: 4` |\n"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Agent",
+    "input": {
+      "description": "Wave 5 evidence-validator gate",
+      "subagent_type": "sc:evidence-validator",
+      "model": "haiku",
+      "run_in_background": false,
+      "prompt": "Final evidence gate for an sc:sc-reflect UC-1 pre-execution report (Tier 1). Authorized isolated audit of synthetic fixtures.\n\nBOUNDARIES (binding):\n- audit_repo_root = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project  \u2014 `spec.md` and `proposed.md` citations resolve here.\n- Run output root (read-only for you) = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts \u2014 `artifacts/coverage-matrix.yaml` citations resolve under it (i.e. <output root>/artifacts/coverage-matrix.yaml).\n- Allowed evidence roots: only those two. Plugin resource root (reference only): /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin\n- Do NOT write anything; RETURN your validation; the orchestrator persists it. Never read ancestor checkout files (pyproject.toml, CLAUDE.md, src/superclaude, .claude mirrors).\n\nDRAFT: <output root>/REPORT.draft.md. Re-Read every file:line citation listed in its \"Citation index\" (C01-C17) AND every inline file:line in the Coverage matrix, Findings and Recommendations sections, against the actual files. Your job is to find unfounded citations, not to confirm absence of them. For each: kept | dropped (with reason: line content does not support the claimed content / file missing / out of range). Also check that claims tagged [INFERRED] are tagged, and flag any untagged claim that lacks a citation. Return YAML: citations_total, citations_revalidated, citations_dropped, per-citation results, dropped list, untagged-unsupported-claims list, and a verified evidence set."
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/calibration.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/tier_decision.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/input-snapshot.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Grep",
+    "input": {
+      "pattern": "parsed-sparse|best_practice_grade|grounding-gaps|durable_sink|orphan",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1",
+      "glob": "*.{md,yaml,yml,log}"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Grep",
+    "input": {
+      "pattern": "file:|spec\\.md:|proposed\\.md:|coverage-matrix\\.yaml:",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/.git"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Grep",
+    "input": {
+      "pattern": "parsed-sparse|best_practice_grade|0\\.9160|git init",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/audit.log"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/.git/HEAD"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_014qCiEd1kixEtCxdz4CJzyb",
+    "tool": "Grep",
+    "input": {
+      "pattern": "parsed-sparse|git init|no commits|0\\.9160|best_practice",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/audit.log",
+      "output_mode": "content"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "OUT=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts\nPROJ=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\ncat -n \"$OUT/artifacts/coverage-matrix.yaml\" | sed -n '15,28p'; echo ---; cat -n \"$OUT/artifacts/calibration.yaml\" | sed -n '17p'; echo ---; cat -n \"$OUT/reflection-card.yaml\" | sed -n '173p'; echo ---; cat -n \"$OUT/audit.log\" | sed -n '3p;17p' | cut -c1-260; echo ---; grep -nE 'durable_sink|@sink' \"$PROJ/spec.md\" \"$PROJ/proposed.md\" || echo \"no sink annotations\"; git -C \"$PROJ\" rev-list --all --count 2>&1",
+      "description": "Re-read validator-suggested anchor lines"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "OUT=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts\ncd /tmp && \"$OUT/../../../runtime-bin/uv\" run --no-project python - \"$OUT\" <<'EOF'\nimport sys, pathlib, re\nout=pathlib.Path(sys.argv[1]); d=(out/\"REPORT.draft.md\").read_text()\nrep=[\n(\"status: PENDING_EVIDENCE_GATE\",\"status: PENDING_EVIDENCE_GATE_PASS_2\"),\n(\"confidence_calibrated: 0.9160\\n\",\"confidence_calibrated: 0.9160         # artifacts/calibration.yaml:17 [C25]\\n\"),\n(\"citations_total: 17\",\"citations_total: 28\"),\n(\"(Git root from `git -C <dir> rev-parse --show-toplevel`; the repo was created with `git init` and has no commits)\",\n \"(Git root from `git -C <dir> rev-parse --show-toplevel`. Running `git -C <root> rev-list --all --count` printed `0`, so the repo has no commits.)\"),\n(\"Parsed coverage and union coverage are both 3/3 = 1.0, with no unmapped requirements and no orphan tasks.\",\n \"Parsed coverage and union coverage are both 3/3 = 1.0 [C15, C20, C21]. There are no unmapped requirements [C21]. There are no orphan tasks: each of the three tasks references a spec ID in its heading [C03, C07, C11].\"),\n(\"The best-practice grade is **3/5**: the Tier-1 card gave 3 and the Wave-1B matrix gave 4.\",\n \"The best-practice grade is **3** on the 0-5 contract scale. The Tier-1 card gave 3 [C26] and the Wave-1B matrix gave 4 [C17].\"),\n(\"- **Pass 1 (regex):** 3 parsed IDs and 3 tasks.\",\"- **Pass 1 (regex):** 3 parsed IDs [C20] and 3 tasks [C03, C07, C11].\"),\n(\"- **Pass 2 (inference):** emitted 0 rows. The three MUST sentences (spec.md:6, 9, 12) all fall inside the spans of their parsed headings, so dedup dropped them. The parsed-sparse guard therefore did not fire.\",\n \"- **Pass 2 (inference):** emitted 0 rows [C18]. The three MUST sentences (spec.md:6, 9, 12) fall inside the spans of their parsed headings, so span dedup dropped them [C19]. `coverage_degraded` is null [C24] because `inferred_count` (0) is not greater than `parsed_count` (3).\"),\n(\"- **Values:** `coverage_pct` = `coverage_pct_union` = 1.0. `S_dev_density` = 0.0. `S_scope` = 3.\",\n \"- **Values:** `coverage_pct` = `coverage_pct_union` = 1.0 [C15, C21]. `S_dev_density` = 0.0 [C23]. `S_scope` = 3 [C22].\"),\n(\"- No `durable_sink:` or `@sink` annotations exist, so the reachability gate does not apply. It is UC-2 only in any case.\",\n \"- Neither file contains a `durable_sink:` or `@sink` annotation: a full read of spec.md:1-13 and proposed.md:1-10 found none [C27, C28], and so did a `grep -nE 'durable_sink|@sink'`. The reachability gate is UC-2 only in any case.\"),\n(\"- Inferred fraction: 2 / 17 = 0.12\",\"- Inferred fraction: 2 / 28 = 0.07\"),\n]\nfor a,b in rep:\n    assert a in d, a[:60]; d=d.replace(a,b)\nd=d.replace(\"(DRAFT, pending evidence-validator)\",\"(DRAFT v2, pending evidence-validator pass 2)\")\nd+=\"\"\"| C18 | artifacts/coverage-matrix.yaml:15 | `inferred_rows_emitted: 0` |\n| C19 | artifacts/coverage-matrix.yaml:16 | `dropped_by_span_dedup` lists spec.md:6, 9, 12 |\n| C20 | artifacts/coverage-matrix.yaml:18 | `parsed_count: 3` |\n| C21 | artifacts/coverage-matrix.yaml:21-23 | `coverage_pct_union: 1.0`; `unmapped_requirements: []`; `unmapped_requirements_union: []` |\n| C22 | artifacts/coverage-matrix.yaml:26 | `S_scope: 3` |\n| C23 | artifacts/coverage-matrix.yaml:28 | `S_dev_density: 0.0` |\n| C24 | artifacts/coverage-matrix.yaml:25 | `coverage_degraded: null` |\n| C25 | artifacts/calibration.yaml:17 | `C: 0.9160` |\n| C26 | reflection-card.yaml:173 | `best_practice_grade: 3` |\n| C27 | spec.md:1-13 | whole spec; contains no `durable_sink:` / `@sink` |\n| C28 | proposed.md:1-10 | whole plan; contains no `durable_sink:` / `@sink` |\n\"\"\"\n(out/\"REPORT.draft-v2.md\").write_text(d)\nprint(\"ok\", len(d.splitlines()))\nEOF",
+      "description": "Write revised draft with grounded run-metadata claims"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Agent",
+    "input": {
+      "description": "Wave 5 evidence gate pass 2",
+      "subagent_type": "sc:evidence-validator",
+      "model": "haiku",
+      "run_in_background": false,
+      "prompt": "Final evidence gate (pass 2, on a revised draft) for an sc:sc-reflect UC-1 pre-execution report (Tier 1). Authorized isolated audit of synthetic fixtures.\n\nBOUNDARIES (binding):\n- audit_repo_root = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project \u2014 `spec.md` / `proposed.md` citations resolve here.\n- Run output root (read-only for you) = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts \u2014 `artifacts/coverage-matrix.yaml`, `artifacts/calibration.yaml` and `reflection-card.yaml` citations resolve under it.\n- Allowed evidence roots: only those two. Plugin resource root (reference only): /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin\n- Do NOT write; RETURN your validation; the orchestrator persists it. Never read ancestor checkout files (pyproject.toml, CLAUDE.md, src/superclaude, .claude mirrors).\n\nDRAFT: <output root>/REPORT.draft-v2.md. Independently re-Read EVERY citation in its Citation index (C01-C28) and every inline file:line in the body against the actual files. Your job is to find unfounded citations, not to confirm their absence. For each: kept | dropped (reason). Check [INFERRED] tagging, and list any remaining untagged claim with no citation. Note: one body claim is grounded by a diagnostic command + output (`git rev-list --all --count` \u2192 0) rather than a file:line; you cannot run commands \u2014 record it as not re-verifiable by you rather than verified. Return YAML: citations_total, citations_revalidated, citations_dropped, per-citation verdicts (short), dropped list, untagged_unsupported_claims list."
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Glob",
+    "input": {
+      "pattern": "REPORT.draft-v2.md",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft-v2.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project/proposed.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/coverage-matrix.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/calibration.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml",
+      "offset": 150,
+      "limit": 50
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/input-snapshot.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/artifacts/tier_decision.yaml"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml",
+      "limit": 80
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Glob",
+    "input": {
+      "pattern": "**/grounding-gaps.yaml",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "durable_sink|@sink",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/audit.log",
+      "limit": 200
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "rev-list|no-promote|think_about|Serena|tech-research|Wave 7|type task|auggie|Context7|grounding",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts",
+      "glob": "*.{log,yaml,md,json}"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/audit.log",
+      "offset": 23
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "Context7|tech-research|Wave 7|rev-list|moved|auggie|think_about",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/audit.log"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/reflection-card.yaml",
+      "offset": 78,
+      "limit": 40
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "tech-research|Context7|Wave 7|reachability|durable_sink|UC-2",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin",
+      "glob": "*.md",
+      "head_limit": 40
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "coverage_degraded|inferred_count",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol",
+      "glob": "*.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "Wave 7|reachability|UC-2|tech-research|Context7",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/SKILL.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "coverage_degraded|inferred_count",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/coverage-mapping.md",
+      "context": 3
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "Wave 7|reachability|tech-research|Context7|UC-2",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/SKILL.md",
+      "context": 2
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "coverage_degraded",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol",
+      "glob": "*.md"
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "coverage_degraded",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/coverage-mapping.md",
+      "output_mode": "content",
+      "-C": 4
+    }
+  },
+  {
+    "parent_tool_use_id": "toolu_01AgaUPkXxQrLSHT61yiqKZK",
+    "tool": "Grep",
+    "input": {
+      "pattern": "Wave 7|reachability|tech-research|Context7",
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/plugin/skills/sc-reflect-protocol/SKILL.md",
+      "output_mode": "content",
+      "-C": 2
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Skill",
+    "input": {
+      "skill": "sc:confidence-check",
+      "args": "Assess readiness to surface the sc:sc-reflect UC-1 recommendations (R-001 P0 state exact \"Hello, Ada!\" in T-101; R-002 P1 specify assertions in T-103; R-003 P1 define \"empty\" in T-102; R-004 P2 add file targets + verification task) for fixtures/project/proposed.md against spec.md. These are advisory plan-edit recommendations only; no implementation will be performed."
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "P=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded\nOUT=$P/runs/legacy-pre-attempt-1/artifacts\n\"$P/runtime-bin/uv\" run --no-project python - \"$OUT\" \"$P/fixtures/project\" <<'EOF'\nimport sys, json, pathlib, hashlib, datetime\nout=pathlib.Path(sys.argv[1]); proj=pathlib.Path(sys.argv[2])\nnow=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec=\"seconds\")\ndef row(w,s,o,ref,note):\n    with open(out/\"audit.log\",\"a\") as h: h.write(json.dumps({\"wave\":w,\"step\":s,\"timestamp\":now,\"outcome\":o,\"evidence_ref\":ref,\"note\":note})+\"\\n\")\n# provenance rows that make the report preamble's statements explicit\nrow(0,\"0.5c-mcp\",\"warn\",None,\"MCP tools not exposed this session: serena, auggie, context7, tavily -> native Read/Grep/Glob; degraded\")\nrow(1,\"1A-checkpoint\",\"skip\",None,\"think_about_collected_information unavailable (Serena absent) - scripted checkpoint skipped\")\nrow(1,\"1B-research\",\"skip\",None,\"optional tech-research best-practice lookup UNAVAILABLE in plugin-only distribution; not run; grounding gap noted\")\n# drift guard\nsnap=json.loads((out/\"artifacts/input-snapshot.yaml\").read_text())\nfl=sorted([(p, hashlib.sha256((proj/p).read_bytes()).hexdigest()) for p in [\"proposed.md\",\"spec.md\"]])\ntree=hashlib.sha256(json.dumps(fl).encode()).hexdigest()\ndrift = tree!=snap[\"input_tree_sha256\"]\nrow(5,\"5.x\",\"fail\" if drift else \"ok\",str(out/\"artifacts/input-snapshot.yaml\"),f\"input_tree_sha256 recompute {'MISMATCH' if drift else 'match'} {tree}\")\nassert not drift\nrow(5,\"5.0\",\"skip\",None,\"sc-adversarial probe not required: Tier 1, no Wave 4\")\n# evidence validation persistence\nev={\"gate_agent\":\"sc:evidence-validator\",\"requested_model_slot\":\"haiku\",\"resolved_alias\":\"grok-4.7[1m]\",\n \"passes\":[\n  {\"pass\":1,\"agent_id\":\"aa4ba27e56bda2842\",\"draft\":str(out/\"REPORT.draft.md\"),\"citations_total\":17,\"citations_revalidated\":17,\"citations_dropped\":0,\n   \"untagged_unsupported_claims\":8,\"orchestrator_action\":\"grounded each at validator-identified anchors (re-Read by orchestrator) -> C18-C28; git no-commit claim grounded by diagnostic command output; resubmitted\"},\n  {\"pass\":2,\"agent_id\":\"ab714561edd0ce1bc\",\"draft\":str(out/\"REPORT.draft-v2.md\"),\"citations_total\":28,\"citations_revalidated\":28,\"citations_dropped\":0,\n   \"not_reverifiable_by_validator\":[\"git -C <root> rev-list --all --count -> 0 (orchestrator-run diagnostic; validator has no shell)\"],\n   \"untagged_unsupported_claims\":7,\n   \"orchestrator_action\":\"run-provenance statements (MCP absence, tech-research skip, Wave 7 n/a, legacy mapping, checkpoint skips, no grounding-gaps.yaml) re-worded as orchestrator-recorded provenance pointing to audit.log rows, not evidentiary citations; 'checkpoints' plural corrected; inferred_count claim re-anchored to C18. No citation added or removed after pass 2.\"}],\n \"final\":{\"citations_total\":28,\"citations_revalidated\":28,\"citations_dropped\":0,\"citations_inferred\":2,\"citation_budget_policy\":\"full_reread\",\"zero_drop_flag\":True,\n  \"zero_drop_note\":\"zero drops on a small (28-citation) synthetic fixture after two independent passes; flagged per \u00a711.2 for meta-eval spot-check, not treated as proof of cleanliness\"}}\n(out/\"artifacts/evidence-validation.yaml\").write_text(json.dumps(ev,indent=2)+\"\\n\")\nrow(5,\"5.gate\",\"ok\",str(out/\"artifacts/evidence-validation.yaml\"),\"evidence-validator 2 passes: 28/28 kept, 0 dropped; zero-drop-flag: true\")\n# final report\nd=(out/\"REPORT.draft-v2.md\").read_text()\nrep=[\n(\"# sc:sc-reflect report: UC-1 pre-execution, Tier 1 (DRAFT v2, pending evidence-validator pass 2)\",\"# sc:sc-reflect report: UC-1 pre-execution, Tier 1\"),\n(\"status: PENDING_EVIDENCE_GATE_PASS_2\",\"status: success\"),\n(\"citations_revalidated: PENDING\",\"citations_revalidated: 28\"),\n(\"citations_dropped: PENDING\",\"citations_dropped: 0\"),\n(\"- **Mode resolution:** the legacy flags\",\"- **Run provenance (recorded by the orchestrator in audit.log, not audit evidence):** the legacy flags\"),\n(\"The scripted `think_about_*` checkpoints were skipped.\",\"The scripted `think_about_*` checkpoints that were reached (Wave 1A and Wave 1C) were skipped and logged.\"),\n(\"`coverage_degraded` is null [C24] because `inferred_count` (0) is not greater than `parsed_count` (3).\",\"`coverage_degraded` is null [C24]: zero inferred rows [C18] is not more than 3 parsed rows [C20].\"),\n(\"None. No `grounding-gaps.yaml` was written.\",\"None: no report claim lacked evidence, so no `grounding-gaps.yaml` was written. Note: skipping the optional `tech-research` best-practice lookup is a recorded degradation, not a classified gap.\"),\n]\nfor a,b in rep:\n    assert a in d, a[:50]; d=d.replace(a,b)\nd=d.replace(\"## Citation index (for sc:evidence-validator)\",\"## Evidence gate\\n\\n`sc:evidence-validator` ran 2 passes and re-read 28 of 28 citations; 0 were dropped. `zero-drop-flag: true` is logged per \u00a711.2 (see artifacts/evidence-validation.yaml).\\n\\n## Citation index\")\n(out/\"REPORT.md\").write_text(d)\nrow(5,\"5.final\",\"ok\",str(out/\"REPORT.md\"),\"REPORT.md finalized; sc:confidence-check lightweight form >=0.90 before chat recommendations\")\nrow(6,\"6\",\"skip\",None,\"--remediate not set: no Tier 3\")\nrow(7,\"7\",\"skip\",None,\"--no-promote set AND mode=pre: promotion not-applicable; no moves/archive writes\")\nprint(\"done\")\nEOF",
+      "description": "Drift check, persist validation, finalize REPORT.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "P=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded\nOUT=$P/runs/legacy-pre-attempt-1/artifacts\n\"$P/runtime-bin/uv\" run --no-project python - \"$OUT\" <<'EOF'\nimport sys, json, pathlib\nout=pathlib.Path(sys.argv[1]); a=out/\"artifacts\"\nsnap=json.loads((a/\"input-snapshot.yaml\").read_text())\nh={x[\"path\"]:x[\"sha256\"] for x in snap[\"file_list\"]}\nc={\"contract_version\":\"1.8.0\",\"status\":\"success\",\"mode\":\"pre\",\"resolved_from_legacy_flags\":\"--type task --analyze\",\n \"tier_reached\":1,\"report_path\":str(out/\"REPORT.md\"),\"audit_log_path\":str(out/\"audit.log\"),\n \"confidence_calibrated\":0.916,\"escalation_rule_matched\":None,\"tier_override\":\"--tier 1\",\"rubric_rule_recorded\":2,\n \"onboarding_ran\":False,\n \"coverage_pct\":1.0,\"coverage_pct_union\":1.0,\"coverage_undefined\":False,\"coverage_degraded\":None,\n \"unmapped_requirements\":[],\"unmapped_requirements_union\":[],\"best_practice_grade\":3,\n \"implementation_coverage_pct\":None,\"missing_implementations\":[],\"hierarchy_slice_path\":None,\"hierarchy_coverage_pct\":None,\n \"tasklist_completion_pct\":None,\"deviation_count_by_class\":{\"authorized\":0,\"necessary\":0,\"drift\":0,\"regression\":0},\n \"deviation_register_path\":None,\"grounding_gaps_path\":None,\n \"input_sha256\":{\"tasklist\":h[\"proposed.md\"],\"spec\":h[\"spec.md\"]},\n \"input_tree_sha256\":snap[\"input_tree_sha256\"],\"input_tree_file_count\":2,\"input_tree_snapshot_path\":str(a/\"input-snapshot.yaml\"),\n \"input_drift_detected\":False,\"input_drift_diff\":None,\n \"citations_total\":28,\"citations_revalidated\":28,\"citations_dropped\":0,\"citations_dropped_extrapolated\":0,\"citations_inferred\":2,\n \"citation_budget_policy\":\"full_reread\",\"evidence_validator_ran\":True,\"citation_revalidation_at_promotion\":False,\n \"reviewer_cards\":[],\"adversarial_artifacts_dir\":None,\"adversarial_convergence_score\":None,\"adversarial_unavailable\":False,\n \"merge_method\":None,\"merge_method_note\":\"Tier 1 pinned: no Wave 4 merge occurred; neither legal merge value applies\",\n \"t2_model_class_diversity\":\"full\",\"t2_vendor_diversity\":\"multi\",\"t2_effective_diversity\":\"full\",\"calibrator_diversity\":\"full\",\n \"remediation_offered\":False,\"remediation_accepted\":False,\"task_file_path\":None,\"remediation_task_path\":None,\"remediation_plan_path\":None,\"handoff_memory_key\":None,\n \"cannot_validate_without_user_input\":False,\"regression_present\":False,\"unauthorized_deviation_present\":False,\n \"blocked_by_low_confidence\":False,\"spec_is_wrong\":False,\"user_decision_required\":False,\"needs_human_decision\":False,\n \"per_task_verdicts\":[],\"interaction_effects_scanned\":False,\"interaction_effects_findings\":0,\n \"budget_forced_tier_downgrade\":False,\"budget_forced_stop\":False,\"budget_check_skipped\":True,\"forced_tier\":None,\n \"promotion_action\":\"not-applicable\",\"promotion_adapter\":None,\"promotion_source\":None,\"promotion_destination\":None,\n \"promotion_log_path\":None,\"promotion_gate_passed\":None,\"promotion_skip_reason\":\"user-flag\",\"promotion_fail_reason\":None,\n \"promotion_override_used\":None,\"promotion_rollback_command\":None,\"promotion_checkpoint_path\":None,\"promotion_cross_fs\":False,\"promotion_pending\":False,\n \"telemetry\":{\n  \"audit_repo_root\":\"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project\",\n  \"selected_inputs\":[\"spec.md\",\"proposed.md\"],\n  \"roles\":[\n   {\"wave\":\"1B\",\"agent\":\"sc:sc-requirements-analyst\",\"requested_slot\":\"sonnet\",\"alias\":\"claude-sonnet-5-5[1m]\",\"agent_id\":\"ab4cb8555c74a9ebc\",\"artifact\":str(a/\"coverage-matrix.yaml\")},\n   {\"wave\":\"1C\",\"agent\":\"sc:sc-root-cause-analyst\",\"requested_slot\":\"sonnet\",\"alias\":\"claude-sonnet-5-5[1m]\",\"agent_id\":\"a4b410b615d7ff2e8\",\"artifact\":str(out/\"reflection-card.yaml\")},\n   {\"wave\":\"1D\",\"agent\":\"sc:confidence-calibrator\",\"requested_slot\":\"opus\",\"alias\":\"claude-opus-5-5[1m]\",\"agent_id\":\"a9a8c6b50cb14be52\",\"artifact\":str(a/\"calibration.yaml\")},\n   {\"wave\":\"5\",\"agent\":\"sc:evidence-validator\",\"requested_slot\":\"haiku\",\"alias\":\"grok-4.7[1m]\",\"agent_ids\":[\"aa4ba27e56bda2842\",\"ab714561edd0ce1bc\"],\"artifact\":str(a/\"evidence-validation.yaml\")}],\n  \"provider_model_observation\":\"Agent results expose no provider model id; requested slot + env alias recorded; actual returned provider model NOT independently observable\",\n  \"degraded_components\":[\"serena\",\"auggie\",\"context7\",\"tavily\",\"get_current_config\",\"serena:onboarding-parse\",\"tech-research:unavailable-plugin-only\"],\n  \"serena_version\":\"unknown\",\"onboarding_status\":\"unknown\",\"executor_class_source\":\"unknown\",\"executor_class_resolved\":False,\n  \"executor_exclusion_degraded\":False,\"fallback_path\":None,\"zero_drop_flag\":True,\"memory_hits\":0,\"memory_misses\":0,\n  \"serena_checkpoints\":\"skipped (tools absent)\",\"verification_ran\":False,\"verification_skip_reason\":\"UC-1 (UC-2-only step)\"}}\n(out/\"return-contract.yaml\").write_text(json.dumps(c,indent=2)+\"\\n\")\nm={\"metrics_schema_version\":\"1.0\",\"skill\":\"sc-reflect\",\"skill_version\":\"1.8.0\",\"mode\":\"pre\",\"tier_reached\":1,\"status\":\"success\",\n \"calibration\":{\"calibrator_diversity\":\"full\",\"calibrated_confidence_initial\":0.916,\"calibrated_confidence_final\":0.916,\"calibration_delta\":0.066},\n \"ensemble\":{\"t2_model_class_diversity\":\"full\",\"t2_vendor_diversity\":\"multi\",\"t2_effective_diversity\":\"full\",\"reviewer_count\":0,\"executor_class_resolved\":False,\"executor_exclusion_degraded\":False},\n \"evidence_validator\":{\"ran\":True,\"citations_total\":28,\"citations_revalidated\":28,\"citations_dropped\":0,\"citations_dropped_extrapolated\":0,\"drop_rate\":0.0,\"budget_policy\":\"full_reread\"},\n \"deviation_counts\":{\"authorized\":0,\"necessary\":0,\"drift\":0,\"regression\":0,\"total\":0},\n \"adversarial\":{\"convergence_score\":None,\"merge_method\":None,\"adversarial_unavailable\":False,\"fallback_path\":None},\n \"promotion\":{\"action\":\"not-applicable\",\"gate_conditions_passed\":0,\"gate_conditions_total\":9,\"cross_fs\":False},\n \"degraded_components\":c[\"telemetry\"][\"degraded_components\"],\"input_drift_detected\":False,\"needs_human_decision\":False,\n \"note\":\"wave durations/token usage not instrumented in native plugin run; global .dev/reflect/runs.jsonl NOT appended (write outside allowed output)\"}\n(out/\"metrics.json\").write_text(json.dumps(m,indent=2)+\"\\n\")\nEOF\necho '{\"wave\":5,\"step\":\"5.contract\",\"timestamp\":\"'$(date -u +%FT%TZ)'\",\"outcome\":\"ok\",\"evidence_ref\":\"'$OUT'/return-contract.yaml\",\"note\":\"return-contract 1.8.0 (JSON-serialized YAML) + metrics.json written\"}' >> \"$OUT/audit.log\"\nfind \"$OUT\" -type f | sort; wc -l \"$OUT/audit.log\"; head -20 \"$OUT/REPORT.md\"; git -C \"$P/fixtures/project\" status --porcelain | head",
+      "description": "Write return contract and metrics; list outputs"
+    }
+  }
+]

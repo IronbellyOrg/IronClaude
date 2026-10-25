@@ -1,0 +1,596 @@
+# Reflection Rubric Reference
+
+Authoritative reference for the calibrated confidence score `C`, the three structural signals, and the calibrator-model selection algorithm. Consumed by **Wave 1D** (T1 self-card calibration) and **Wave 3C** (T2 per-reviewer-card calibration).
+
+Spec source: `.dev/brainstorms/sc-reflect-rebuild/merged-requirements.md` §5.2 (lines 327-338) and §11.3 (lines 882-904).
+
+---
+
+## 5-dimension scoring
+
+`C` is the **calibrated confidence** in the range `0.00-1.00`, computed as the **arithmetic mean across all five dimensions** below (spec §5.2 line 330). Each dimension is scored `0.00-1.00` on the criteria in this section, then averaged. The calibrator emits both the per-dimension scores and the mean `C` into `reflection-card.yaml`.
+
+The five dimensions (spec §5.2 line 331) are:
+
+### 1. Citation grounding
+
+**Measures:** Whether every claim in the reflection card is anchored to a concrete artifact (file:line, symbol path, diff hunk, or spec section). Speculation without a citation is not citation grounding.
+
+**Scoring guidance:**
+
+- `1.00` — every claim has a verifiable artifact reference; no orphaned assertions
+- `0.70-0.99` — most claims grounded; a small minority of supporting context lacks citations
+- `0.40-0.69` — material findings carry citations but minor claims drift into speculation
+- `< 0.40` — load-bearing claims lack any artifact reference
+
+### 2. Coverage completeness
+
+**Measures:** Whether the reflection touched every artifact in scope (every diff hunk for UC-2; every tasklist item / spec requirement for UC-1).
+
+**Scoring guidance:**
+
+- `1.00` — `coverage_pct == 1.00` and no `coverage_undefined` flag
+- `0.85-0.99` — coverage meets or exceeds the §5.3 `<coverage-floor>` (default 0.90)
+- `0.60-0.84` — partial coverage with explicit gap registry
+- `< 0.60` — significant unmapped artifacts; reflection cannot stand alone
+
+### 3. Deviation-classification clarity
+
+**Measures:** Whether each deviation from spec is classified unambiguously as one of `{Authorized, Necessary, Drift, Regression}` with a single defensible category — not split-categorized or hedged.
+
+**Scoring guidance:**
+
+- `1.00` — every deviation has exactly one category and a one-line rationale
+- `0.70-0.99` — categories assigned; a small minority hedge between two adjacent categories
+- `0.40-0.69` — categories assigned but the rationale is weak or category drift is common
+- `< 0.40` — categories missing, contradictory, or hedged across the majority of deviations
+
+### 4. Risk surface coverage
+
+**Measures:** Whether the reflection surfaces the load-bearing risks (regression candidates, blast-radius extensions, untested invariants) — not just the friendly findings.
+
+**Scoring guidance:**
+
+- `1.00` — risk register includes regression candidates AND structural risks (blast radius, untested invariants)
+- `0.70-0.99` — primary risks covered; some secondary risks missed
+- `0.40-0.69` — risks listed but shallow (no blast-radius reasoning)
+- `< 0.40` — reflection only reports successes; risk surface is absent
+
+### 5. Recommendation actionability
+
+**Measures:** Whether the reflection's recommendations name a concrete next action with an artifact target (file, command, or task) rather than abstract guidance.
+
+**Scoring guidance:**
+
+- `1.00` — every recommendation cites a file/command/task and a verifiable success criterion
+- `0.70-0.99` — most recommendations actionable; a minority are advisory
+- `0.40-0.69` — recommendations are directional but lack concrete targets
+- `< 0.40` — recommendations are platitudes; an executor cannot act on them
+
+**Contracted-sink reachability / oracle-admissibility (FR-RH1, UC-2) — folded into the five dimensions above; NOT a sixth dimension.** For every side-effect-bearing requirement with an explicit `durable_sink:` / `@sink` annotation, the calibrator additionally scores:
+
+- **Citation grounding (dim 1):** a completion claim is grounded ONLY if its oracle observes the *contracted* sink; evidence from a proxy sink (journald/slog/stdout/unit-pass/code-presence) is `[INFERRED]`, not grounded, and real-boot evidence anchors must resolve.
+- **Coverage completeness (dim 2):** every annotated side-effect requirement must carry a reachability ledger row (`reachable` / `unreachable` / `unproven`); an unevaluated annotated sink caps this dimension.
+- **Deviation-classification clarity (dim 3):** `unreachable` (real-boot-proven Regression) and `unproven` (Grounding Gap) must be distinguished *by evidence* — a static-only signal classified as Regression caps this dimension.
+- **Risk surface coverage (dim 4):** fail-open reachability (contracted sink never reached while unit tests pass) is the canonical risk this dimension exists to surface; an audit that reports "tests pass" over an unaddressed `unreachable`/`unproven` ledger row caps it.
+- **Recommendation actionability (dim 5):** an `unproven` gap's recommendation must name the concrete next evidence (boot the entrypoint and assert the contracted sink, or confirm the sink binding).
+
+Telemetry-only skips (`--no-reachability`, `spec-and-tasklist-absent`, `no-side-effect-requirements`) and advisory-only semantic fallback do NOT cap any dimension and never count against the score.
+
+**Threshold guidance.** Per spec §5.3, `C ≥ 0.90` is the strict T1 ceiling and `C ≥ 0.85` is the medium-confidence floor inherited from sc-troubleshoot. `C < 0.85` is an automatic ESCALATE.
+
+---
+
+## 3 structural signals
+
+Structural signals come from **Wave 1B** (not the calibrator) and feed §5.3 alongside `C`. They are spec §5.2 lines 335-337.
+
+### S_scope
+
+**Definition.** For UC-2: touched-file count from the diff. For UC-1: tasklist-item count.
+
+**Range.** Non-negative integer.
+
+**Threshold semantics (from §5.3):**
+
+- `≤ 5` files — narrow scope, eligible for the strict T1 STOP rule when other conditions hold
+- `≤ 10` files — medium scope, eligible for the §5.3 rule-2 path with WARN on `S_dev_density > 0.05`
+- `> 10` files — exits the T1 STOP path
+
+### S_domains
+
+**Definition.** Count of **distinct domains** touched, where domains are counted from file paths against the set `{code, infra, docs, tests, config}`.
+
+**Range.** Integer `1-5`.
+
+**Threshold semantics (from §5.3):**
+
+- `== 1` — single-domain, eligible for the strict T1 STOP rule
+- `≤ 2` — eligible for the §5.3 rule-2 path
+- `≥ 3` — automatic ESCALATE (rule 4): "multi-domain reflection cannot be reliably done by a single reviewer card"
+
+### S_dev_density
+
+**Definition.** For UC-2: `unmapped_diff_hunks / total_hunks`. For UC-1: `unmapped_spec_requirements / total_requirements`.
+
+**Range.** Float `0.00-1.00`.
+
+**Threshold semantics (from §5.3 / §5.5):**
+
+- `≤ 0.05` — near-zero ambiguity, eligible for the strict T1 STOP rule
+- `≤ 0.10` — eligible for the §5.3 rule-2 path (WARN above 0.05)
+- `> 0.20` — automatic ESCALATE (rule 5): "at one in five unmapped artifacts, a single reviewer cannot adjudicate without ensemble pressure"
+
+**S_dev_density sub-terms (V3 Serena adoptions).** The threshold semantics above are unchanged — the following are **additive weighting inputs** (not threshold changes) layered onto the computed value (the numerator arithmetic lives in `coverage-mapping.md`):
+
+- **FR-6 onboarding-status weight.** Keyed on `onboarding_status` (Wave 0.7): `not_bootstrapped` down-weights grounding confidence (the project has no bootstrapped memory to ground against, so unmapped artifacts are more likely genuine ambiguity). Per **FR-6.4**, `unknown` is **NO signal** — it does NOT down-weight (absence of an onboarding marker is not evidence of a missing bootstrap). `bootstrapped` is neutral.
+- **FR-7 context-exclusion up-weight.** When the Wave-0 `get_current_config` probe finds the active Serena context excludes a chain-critical tool (e.g. `get_diagnostics_for_file`), S_dev_density is **up-weighted** (the grounding chain ran with a known capability gap, so its unmapped-artifact ratio under-states true ambiguity) and `"serena:context-excluded"` is appended to `degraded_components`. The `serena:context-excluded` degrade token is an **intentional new colon-namespaced convention** (flagged in this task's Open Questions) — do not normalize it back to a hyphenated slug.
+- **FR-1 missing-implementor count.** For UC-1, abstract symbols whose implementors are unaccounted (the `missing_implementations` count from §6.1 step 3b `find_implementations`) feed the **unmapped-artifact numerator** — an interface added with no wired implementor is an unmapped requirement for coverage purposes. The numerator arithmetic is in `coverage-mapping.md`; the degenerate no-op (no eligible symbol of kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}) emits `implementation_coverage_pct: null` (C5) and contributes nothing to the numerator.
+- **FR-4 verification-failure weight (lint/type channel).** Keyed on `verification_failures` from the §6.1 step 5.5 verification triangle, **restricted to the `ruff`/`mypy` lint/type-finding channel** (exit 1 on those tools — explicitly NOT the §10.4 Regression channel, which is `pytest` exit 1 → `regression_present`). A verified lint/type finding on a hunk the tasklist claimed clean raises structural ambiguity, so it **up-weights** S_dev_density. This is an additive weighting input, not a numerator/threshold change; it is `null`-safe — when verification did not run (`verification_ran: false`) it contributes nothing.
+- **FR-RV3-MED.1 hierarchy-gap weight.** Keyed on `hierarchy_gaps_found` / `hierarchy_coverage_pct` from the §6.1 step 4.5 `type_hierarchy` retrieval: a type whose transitive subtype family is under-registered (low `hierarchy_coverage_pct` / nonzero `hierarchy_gaps_found`) raises structural ambiguity and **up-weights** S_dev_density. Additive weighting input, not a threshold change; `null`-safe — when the backend is unavailable / `--with-hierarchy` is unset (`type_hierarchy_invoked: false`, `hierarchy_coverage_pct: null`) it contributes nothing. The numerator/formula side lives in `coverage-mapping.md`.
+
+---
+
+## Calibrator selection
+
+The `sc:confidence-calibrator` agent is **stripped of formation context** (spec §11.3 line 886). The card itself is its only input. The calibrator's **model class** is selected per the disjoint-set rule below, sourced from ICLR 2025 MAD evidence (spec §11.3 line 888).
+
+### Pseudocode (verbatim from spec lines 889-898)
+
+```text
+LET reviewer_model_classes = union(reviewer 1..N model class)
+LET calibrator_model_class ∈ {opus, sonnet, haiku, qwen, kimi, deepseek} \ reviewer_model_classes
+IF disjoint set is non-empty: pick the highest-capability calibrator class from the disjoint set
+                              AND emit `calibrator_diversity: full`.
+IF disjoint set is empty (all available classes are reviewers):
+    use the class with the highest available capability tier NOT used by the most reviewers
+    AND emit `calibrator_diversity: degraded`.
+```
+
+### Telemetry
+
+The field `calibrator_diversity: full | degraded` is emitted into `reflection-card.yaml`. The §12 eval rubric dimension "calibration discipline" asserts: `calibrator_model_class NOT IN reviewer_model_classes` (spec §11.3 line 900).
+
+### Worked examples (disjoint-set resolution)
+
+**Example A — full diversity.** Reviewers are `{sonnet, haiku}`. The disjoint set is `{opus, qwen, kimi, deepseek}`. Pick `opus` (highest capability in the disjoint set). Emit `calibrator_diversity: full`.
+
+**Example B — full diversity, mixed-vendor.** Reviewers are `{opus, sonnet, haiku}`. The disjoint set is `{qwen, kimi, deepseek}`. Pick the highest-capability available among those three (resolved by deployment tier table; see Open Question below). Emit `calibrator_diversity: full`.
+
+**Example C — degraded.** Only Anthropic aliases available and reviewers are `{opus, sonnet, haiku}`. Disjoint set is empty. Apply the fallback: pick the class with the highest capability tier **not used by the most reviewers**. If each class has exactly one reviewer, fall back to highest capability available (`opus`). Emit `calibrator_diversity: degraded`.
+
+### Three-way partition (executor / reviewers / calibrator)
+
+Per spec §11.3 line 902, the disjoint-set principle extends from "calibrator ≠ reviewers" to a **three-way partition**:
+
+- `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be **pairwise disjoint**.
+- §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition.
+- §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D / Wave 3C.
+
+**Degradation behavior.** When all three pools cannot be made pairwise disjoint (e.g., only Anthropic aliases available AND executor was sonnet), the affected pool emits its `*_diversity: degraded` telemetry.
+
+**Grader assertion.** The grader assertion is extended: `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.
+
+**Wave 3C parallelism.** For Tier 2, *every* reviewer card is calibrated by an **independent calibrator instance in parallel** (spec §11.3 line 904). Calibrated scores — not self-reported — feed the §5.3 rubric and the sc:sc-adversarial-protocol debate weighting in Wave 4.
+
+---
+
+## Open Question
+
+The spec specifies "highest-capability calibrator class from the disjoint set" but does not publish the **capability ordering** across the six classes `{opus, sonnet, haiku, qwen, kimi, deepseek}`. For deterministic resolution of Example B and similar mixed-vendor cases, an explicit capability-tier table is required. This is under-specified in the spec sections cited (§5.2, §11.3) and should be resolved either by a separate `refs/model-capability-tiers.md` reference or by an explicit ordering line added to §11.3 of the merged requirements.
+# REPORT.md template (Wave 5 synthesis skeleton)
+
+## Template overview
+
+Wave 5 reads this ref and emits a `REPORT.md` matching the skeleton below. Every section is fillable without ambiguity: required fields are listed inline, conditional sections name their activation triggers, and worked examples illustrate the exact rendering format. The Grounded vs `[INFERRED]` tag is binary — there is no third bucket. Per-Task Verdicts is conditional and only activates when `per_task_verdicts.length ≥ 2` per §16 row 6 (P4-MANDATORY). The Grounding Gaps section only renders when `grounding-gaps.yaml` is non-empty. All other sections are unconditional.
+
+Wave 5 MUST NOT introduce findings that were not already classified upstream. Unclassifiable findings are dropped before Wave 5 synthesis per §11.1 (no third bucket). Wave 5's job is to render the validated card stream into the skeleton, not to re-judge it.
+
+## Report header (required)
+
+The header block is the first content in the emitted artifact. It is rendered as a fenced YAML block so downstream parsers (sprint TurnLedger, CI) can lift fields without Markdown parsing.
+
+```yaml
+contract_version: 1.8.0
+status: success | partial | needs_human_decision
+mode: pre | post
+tier_reached: 1 | 2
+confidence_calibrated: 0.00-1.00
+citations_total: <int>
+citations_revalidated: <int>          # M ≤ citations_total; equals citations_total in full_reread mode
+citations_dropped: <int>              # sample-count when sampled; absolute when full_reread
+citations_inferred: <int>             # count of [INFERRED]-tagged claims
+citation_budget_policy: full_reread | sampled
+coverage_degraded: parsed-sparse | null   # D13 Step 1B.2b guard; null when labeling density is healthy (UC-1 only; omit in post mode)
+reachability_gate_ran: <bool>            # FR-RH1 (UC-2, contract 1.7.0); UC-1 may omit the reachability_* block
+reachability_ledger_path: <abs path> | null          # null when the gate did not run
+reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
+reachability_unreachable: <int>                      # real-boot-proven Regression rows
+reachability_unproven: <int>                         # annotated-sink Grounding-Gap rows
+reachability_real_boot_ran: <bool>                   # best-effort boot fired at least once
+reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
+```
+
+Required fields (header is invalid if any are missing):
+
+- `contract_version` — pins the return-contract version this artifact was generated against.
+- `status` — terminal verdict. `partial` is forced if sc:evidence-validator dropped any citations, if `--no-evidence-validator` was used, or if `citations_total == 0 AND mode == post` (UC-2 vacuous-success rule, §11.2). UC-1 (`mode == pre`) with `citations_total == 0` is legitimate and may emit `status: success`.
+- `mode` — `pre` (UC-1 spec-coverage) or `post` (UC-2 post-execution verdict).
+- `tier_reached` — `1` for single-reviewer, `2` for heterogeneous ensemble + adversarial merge.
+- `confidence_calibrated` — calibrator-derived score; self-reported confidence is NOT permitted in this field.
+- `citations_total / citations_revalidated / citations_dropped / citations_inferred` — see budget-policy band below.
+- `citation_budget_policy` — `full_reread` when `citations_total ≤ 20`; `sampled` otherwise.
+
+## Inferred requirements (Pass 2) section (UC-1, D13)
+
+When Step 1B.0 Pass 2 emitted any `INF-NNN` rows, the report includes an `## Inferred requirements (Pass 2)` section rendering one table row per inferred requirement: `| INF id | Verbatim quote | Citation (file:line) | Match result |`. Rows the Wave-5 sc:evidence-validator dropped (quote does not match the cited lines) are listed in a one-line POSTSCRIPT inside this section with the drop reason; dropped INF rows go here and NEVER to the Grounding Gaps section (Grounding Gaps is for report-claim gaps per its own rules). A dropped INF row counts as a dropped citation for the header's `citations_dropped` and therefore forces `status: partial` per the existing dropped-citation rule. The recompute scope is exactly: `coverage_pct_union`, `unmapped_requirements_union`, and `S_dev_density` are recomputed over the surviving union before the report finalizes (the parsed-only `coverage_pct` and `unmapped_requirements` are unaffected by INF drops). When Pass 2 emitted zero rows, the section is omitted entirely (do not emit an empty header). This section is distinct from `[INFERRED]`-tagged report claims below: INF rows are spec-extraction artifacts with load-bearing citations, not non-load-bearing inference chains.
+
+## Grounded vs [INFERRED] tagging conventions
+
+Every claim in the body carries one of exactly two tags (binary, per §11.1):
+
+- **Grounded** — backed by a real `file:line` citation, a real diagnostic command + output, or a real spec/PRD section that survives sc:evidence-validator re-Read. This is the default; un-tagged claims are treated as Grounded.
+- **`[INFERRED]`** — a claim the reviewer reached without direct citation. The tag MUST be the literal prefix `[INFERRED]` and MUST appear at the start of the claim line.
+
+There is no third bucket. Findings that the upstream reviewer could not tag either way are dropped before Wave 5 synthesis (per §11.1) and never appear in this template's output. The `[INFERRED]` count surfaces in the header as `citations_inferred: N`.
+
+**WARN trigger.** When `citations_total > 20 AND citations_inferred > citations_total / 2`, Wave 5 surfaces an automatic WARN at the foot of the artifact (see Inferred-claim audit footer below). The artifact still ships; this is a soft signal, not a gate.
+
+## Deviation rendering format
+
+Every deviation is rendered using the block template below. The fields mirror §10.7: file:line, mapped tasklist item, spec section, evidence (verified by sc:evidence-validator), classification rationale (signals matched + gold-standard refs), default remediation, and `[INFERRED]` notes when present.
+
+Per-deviation block template:
+
+```markdown
+### Deviation D-<id>: <one-line headline>
+
+- **Location:** <file>:<line>
+- **Mapped tasklist item:** <task_id> | unmapped
+- **Spec section:** <§N.N title> | n/a
+- **Evidence:** <quoted file:line excerpt; verified by sc:evidence-validator>
+- **Classification:** <one of: authorized | necessary | drift | regression>
+- **Classification rationale:** <signals matched from refs/deviation-taxonomy.md + gold-standard refs cited>
+- **Default remediation:** <verb-led action; one sentence>
+- **[INFERRED] notes:** <only present when the reviewer attached an inferred sub-claim; prefixed with [INFERRED]>
+```
+
+Worked example:
+
+```markdown
+### Deviation D-003: Hash algorithm switched without spec authorization
+
+- **Location:** src/superclaude/pm_agent/confidence.py:142
+- **Mapped tasklist item:** TASK-PM-20260518-confidence-hash
+- **Spec section:** §6.3 Confidence checksum integrity
+- **Evidence:** "hashlib.md5(payload).hexdigest()" (src/superclaude/pm_agent/confidence.py:142, re-Read 2026-05-27)
+- **Classification:** regression
+- **Classification rationale:** Signals matched — security-sensitive hash function downgraded from SHA-256 to MD5; gold-standard ref: refs/deviation-taxonomy.md §3.4 "crypto-downgrade is always regression-class".
+- **Default remediation:** Restore SHA-256 in confidence.py:142 and add an integrity regression test under tests/pm_agent/.
+- **[INFERRED] notes:** [INFERRED] This may also affect the reflexion checkpoint hash chain — no direct citation, follow-up Read needed.
+```
+
+## Grounding Gaps section
+
+When `grounding-gaps.yaml` is non-empty (per §10.6), this section enumerates each row. When the file is empty, the section is omitted entirely (do not emit an empty header).
+
+Section template (one block per gap):
+
+```markdown
+## Grounding Gaps
+
+### Gap G-<id>
+
+- **Hunk ref:** <file>:<line-range>
+- **Evidence missing:** <what evidence would be needed to classify>
+- **Why not classifiable:** <which 4-category signals are absent>
+- **Next evidence needed:** <concrete next Read / diagnostic / spec lookup>
+```
+
+Each row maps 1:1 to a row in `grounding-gaps.yaml`; Wave 5 does NOT introduce new gaps. If this section is non-empty, the header MUST emit `status: needs_human_decision` (per §10.6).
+
+## Reachability & Oracle Admissibility section (UC-2, FR-RH1)
+
+This section renders only when the §6.1 step-5.6 contracted-sink gate ran (`reachability_gate_ran: true`). When the gate skipped (`reachability_skip_reason ∈ {--no-reachability, spec-and-tasklist-absent, no-side-effect-requirements}`) the section is omitted entirely and only the header `reachability_*` skip telemetry is emitted — a skip is NEVER rendered as a Grounding Gap and NEVER sets `needs_human_decision` or `status: partial`.
+
+When rendered, it summarizes the R7 fields and lists one finding per evaluated side-effect requirement from the reachability ledger:
+
+```markdown
+## Reachability & Oracle Admissibility
+
+- **Gate:** ran (scanned: <reachability_requirements_scanned>, real boot: <reachability_real_boot_ran>)
+- **Unreachable (real-boot-proven Regression):** <reachability_unreachable>
+- **Unproven (annotated-sink Grounding Gap):** <reachability_unproven>
+
+### Sink <contracted_sink> — <verdict>
+- **Requirement:** <ac-id / file:line>
+- **Reachability:** binding <bound|absent> at <entrypoint_ref>; emitter result <checked|discarded> at <emitter_ref>
+- **Oracle:** observed sink <contracted|proxy> at <oracle_ref> (oracle_match: <bool>)
+- **Real-boot evidence:** <command + observed-sink anchor, or "real-boot unavailable">
+```
+
+**Regression vs Grounding Gap rendering (FR-RH1).** A `verdict: unreachable` renders as a Regression D-<id> (real-boot-proven only). A `verdict: unproven` renders a Grounding Gap row **only** when it arises from an explicit `durable_sink:` / `@sink` annotated side-effect requirement with `reachability_unproven > 0`. Grounding Gaps are NEVER rendered for `--no-reachability`, `spec-and-tasklist-absent`, `no-side-effect-requirements`, or semantic-only fallback telemetry; advisory semantic-fallback candidates render (if at all) as non-gating `[INFERRED]` notes, never as gaps.
+
+## Per-Task Verdicts section (P4-MANDATORY when per_task_verdicts.length ≥ 2)
+
+**Activation rule.** This section is emitted if and only if the return contract's `per_task_verdicts` array has length ≥ 2 (§16 row 6, P4-MANDATORY). When length is 0 or 1, the section is omitted entirely. The verdicts are lifted directly from the contract array; Wave 5 does not recompute them.
+
+Per-task subsection template:
+
+```markdown
+### Task <task_id>
+
+- **Status:** success | partial | regression
+- **Deviation class:** authorized | necessary | drift | regression | none
+- **Citations dropped:** <int>
+- **Per-task validation strength:** strong | weak | none
+- **Evidence anchor:** <file>:<line> | (no evidence anchor)
+```
+
+Worked example (2 tasks, demonstrating the activation case):
+
+```markdown
+## Per-Task Verdicts
+
+### Task TASK-PM-20260518-confidence-hash
+
+- **Status:** regression
+- **Deviation class:** regression
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong
+- **Evidence anchor:** src/superclaude/pm_agent/confidence.py:142
+
+### Task TASK-PM-20260519-reflexion-checkpoint
+
+- **Status:** success
+- **Deviation class:** none
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong
+- **Evidence anchor:** src/superclaude/pm_agent/reflexion.py:88
+```
+
+## Budget-policy reporting band
+
+When `citation_budget_policy: sampled`, Wave 5 emits this band immediately below the header. When `citation_budget_policy: full_reread`, the band is omitted (the header alone is sufficient).
+
+Band template:
+
+```markdown
+> **Citation budget: sampled mode**
+> - `citations_revalidated: M` — size of the re-Read sample (M ≤ citations_total).
+> - `citations_dropped: <sample-count>` — drops observed in the sample only. This is the field that gates promotion (§14.5.2 condition 6a strict `== 0` check).
+> - `citations_dropped_extrapolated: <projection>` — population-level estimate, `round(citations_dropped × (citations_total / citations_revalidated))`. Recording-only; does not gate promotion. A non-zero value SHOULD prompt a follow-up `--depth deep` run that forces `full_reread`.
+```
+
+Interpretation hint (rendered as the last line of the band): "The extrapolated value is telemetry, not a verdict. The sample-count is what the validator actually examined; the extrapolation is what it would have found if the budget had permitted a full re-Read."
+
+## Inferred-claim audit footer
+
+Rendered as the final section before Recommendations. Always surfaces `citations_inferred: N` even when N = 0 (so operators can confirm the audit ran).
+
+Footer template:
+
+```markdown
+## Inferred-claim audit
+
+- `citations_inferred: <int>`
+- Inferred-fraction: `<citations_inferred> / <citations_total>` = <float, 2 dp>
+
+<!-- WARN block — only rendered when citations_total > 20 AND citations_inferred > citations_total / 2 -->
+> **WARN:** Reflection is more inference than evidence. Consider re-running with `--depth deep` or providing more grounding artifacts.
+```
+
+The WARN block activates only when both conditions are true: `citations_total > 20` AND `citations_inferred > citations_total / 2`. Below the >20 threshold, low absolute citation counts can legitimately skew the ratio without indicating a problem.
+
+## Recommendations section
+
+Per §12.1 dimension #4 ("Recommendation actionability"), every recommendation MUST be actionable: it names the file, the change, and the verifier that confirms the change landed. Vague advice ("consider improving error handling") is NOT permitted in this section and will be down-graded by the grader.
+
+Section template (one block per recommendation):
+
+```markdown
+## Recommendations
+
+### Recommendation R-<id>: <verb-led headline>
+
+- **File:** <path> (or "n/a" for cross-cutting recs with no single file target)
+- **Change:** <one-sentence description of the modification>
+- **Verifier:** <test command, diagnostic Read, or spec-section re-check that confirms the change>
+- **Linked deviation(s):** D-<id>[, D-<id>...] | none (for proactive recs)
+- **Priority:** P0 | P1 | P2
+```
+
+Worked example:
+
+```markdown
+### Recommendation R-001: Restore SHA-256 in confidence checksum
+
+- **File:** src/superclaude/pm_agent/confidence.py
+- **Change:** Replace `hashlib.md5` at line 142 with `hashlib.sha256` and update the checksum width in the schema test.
+- **Verifier:** `uv run pytest tests/pm_agent/test_confidence_checksum.py -v` passes; re-Read confidence.py:142 confirms SHA-256.
+- **Linked deviation(s):** D-003
+- **Priority:** P0
+```
+
+Wave 5 ordering: P0 recommendations first, then P1, then P2. Within a priority, deviation-linked recs precede proactive recs. Cross-cutting recs (no `file` target) appear last in their priority band.
+# Deviation Taxonomy
+
+Reference for Wave 1B (UC-2 deviation detection) and Wave 5 (synthesis classification).
+
+Reflection's defining contribution beyond a generic verification protocol is *classifying* every divergence between expected and actual work into a concrete, decision-driving category. The taxonomy is **4 categories** — `evidence-insufficient` findings route to a parallel artifact (see *Grounding-gaps parallel artifact* below), not a 5th category.
+
+The **gold-standard reference** for "what was expected" is the **driving spec/tasklist** (the artifact the agent was instructed to fulfil) — not the executor's commit message, which is reviewer-side narrative.
+
+Each category has: definition, detection signals, gold-standard reference, default remediation.
+
+## Aggregation
+
+When the diff under audit contains **more than 100 hunks**, taxonomy classification runs on **aggregated-by-file summaries** (one deviation entry per file) rather than per-hunk.
+
+**Per-file union rule.** A file's `deviation_class` is the highest-precedence class observed across its hunks under the precedence ordering defined in *Classification precedence* below (Regression > Drift > Necessary > Authorized). One file may contribute exactly one row to `deviation-ledger.yaml` in per-file mode.
+
+**Per-hunk evidence is preserved** as an auxiliary artifact at `<output>/per-hunk-evidence.yaml`. This file is **not consumed by the gate** — it exists so the operator can drill down from a per-file summary to the originating hunks.
+
+**Telemetry.** The orchestrator emits:
+
+- `deviation_aggregation_mode: per-file | per-hunk` — always set.
+- `hunk_count: <int>` — emitted only when `per-file` mode fires, so the operator can see which run triggered aggregation.
+
+**Threshold rationale.** The 100-hunk threshold is a heuristic to keep `deviation-ledger.yaml` bounded for human review. It is **NOT** a budget-policy decision and does not interact with the §11.5 citation budget.
+
+## Authorized
+
+**Definition.** A scope addition that was *explicitly* approved by an authoritative artifact (an updated tasklist, a referenced spec amendment, a PR description with explicit reviewer sign-off, or a directly-cited user instruction in the task log).
+
+**Detection signals.**
+
+- Diff hunk maps to a tasklist item AND that tasklist item was added (not original) AND the addition has a commit/timestamp predating the diff.
+- Task log contains explicit "user approved scope expansion to include X" or equivalent.
+- Spec doc has a revision-history entry adding the relevant requirement.
+
+**Gold-standard reference.** Updated tasklist file + revision-history of spec + task log explicit-approval lines.
+
+**Default remediation.** None. Document in the report. No Tier 3 task.
+
+## Necessary
+
+**Definition.** A divergence forced by a technical constraint discovered during execution, documented inline (commit message body, code comment, or task log entry) with a clear rationale, but *not* pre-authorized.
+
+**Detection signals.**
+
+- Diff hunk includes a TODO / NOTE / FIXME explaining why the original plan could not be followed.
+- Commit message body (not subject) contains the rationale.
+- Task log contains "blocked by X, deviated to Y" entry.
+- The deviation does NOT contradict any acceptance criterion in the spec.
+- A `third_party_api_verified` flag (FR-4): the divergence resolves to a verified external-API constraint — `find_symbol(search_deps:true)` confirmed the upstream third-party behavior the work conforms to — supporting classification as Necessary (forced by a real upstream constraint) rather than Drift.
+
+**Gold-standard reference.** Inline documentation (comment, commit body, task log) + spec acceptance-criteria check (no contradictions).
+
+**Default remediation.** Surface in report with `Documentation note` recommendation — propose updating the spec/tasklist so future runs match reality. No Tier 3 task unless `--remediate-docs` is set.
+
+## Drift
+
+**Definition.** A silent change not in the original spec/tasklist with no inline rationale. The work *happened* without explicit authorization and without recorded justification.
+
+**Detection signals.**
+
+- Diff hunk does NOT map to any tasklist item.
+- No commit-body rationale, no inline comment, no task-log entry explaining the change.
+- Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
+- A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
+
+Runtime-surface note (FR-RSR): unmapped is not the same signal as unreached. A decided runtime-surface `UNREACHED` finding is governed by SKILL.md §10.9 and maps onto the existing taxonomy by evidence; an unmapped-but-not-contradictory UNREACHED maps here to Drift, while contradiction maps to Regression.
+
+**Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
+
+**Default remediation.** Surface in report with `Authorize-or-revert decision required`. If `--remediate`, offer Tier 3 task to either (a) backfill spec to authorize, or (b) revert the drift.
+
+## Regression
+
+**Definition.** A change that *contradicts* an acceptance criterion, an explicit constraint in the spec, or a previously-passing test. The work undoes or violates a documented commitment.
+
+**Detection signals.**
+
+- Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by `get_diagnostics_for_file`).
+- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 verification triangle (`execute_shell_command`), not the task-log self-report.** A non-zero exit that the exit-code mapping (below) classifies as Regression sets `verification_regressions_detected += 1` → `regression_present: true`. `--no-verify` is the opt-out; `--rerun-tests` is a deprecated alias for "verification on". When verification is unavailable, this degrades to the task-log claim with a Grounding Gap entry.
+- A documented invariant in the spec or in a `@invariant` comment is violated.
+
+**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
+
+**Default remediation — unconditional Tier 3 escalation.** Regression is the **only class** that *unconditionally* triggers a Tier 3 remediation offer in Wave 6 when `--remediate` is set. It also **unconditionally forces escalation to Tier 2** per §5.3 rule 3 — the regression is debated by ≥2 reviewers before the report ships. No other deviation class carries an unconditional escalation; for Drift/Necessary/Authorized the escalation gate depends on other rule-set conditions.
+
+## Classification precedence
+
+When multiple signals match, precedence is:
+
+**Regression > Drift > Necessary > Authorized**
+
+Worked examples:
+
+- A diff hunk that contradicts a spec criterion but has an inline TODO rationale is still a **Regression** — rationale does not authorise contradiction.
+- A diff hunk with no tasklist mapping AND no rationale AND no contradiction is **Drift**, not Necessary.
+- An authorized scope addition that also happens to contradict a spec criterion is a **Regression** — explicit authorization does not override an acceptance-criteria contradiction.
+
+This precedence is also the union rule for the per-file aggregation mode (see *Aggregation* above): a file's class is the max-precedence class across its hunks.
+
+## Verification exit-code → deviation-class mapping (FR-4)
+
+A non-zero exit from the §6.1 step 5.5 verification triangle is **NOT** uniformly a Regression. Each invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently a Regression). This mapping feeds the precedence union above *by evidence*, not by assignment — only the rows mapped to Regression set `regression_present`.
+
+| Tool / exit | Class | Effect |
+|-------------|-------|--------|
+| `pytest` exit 1 (test failed) | **Regression** | `verification_regressions_detected += 1`; `regression_present: true` |
+| `pytest` exit 2/3 (collection / internal error) | **Grounding Gap** | NOT a regression; `needs_human_decision` |
+| `pytest` exit 5 (no tests collected) | **Drift / coverage** | claimed-added test absent; NOT a regression |
+| `ruff` / `mypy` exit 1 (lint / type finding) | `S_dev_density` signal | feeds the rubric; NOT `regression_present` |
+| any tool exit 124 (timeout) | **Grounding Gap** | `verify_timeout_hit: true`; NOT a regression |
+| flaky (single retry-on-failure flips result) | **Grounding Gap** + `verify_flaky_suspected: true` | retry once BEFORE classifying as Regression |
+| any unmapped exit code | **Grounding Gap** | conservative default |
+
+(Full per-tool table including `make`/`cargo`/`npm`/`tsc` is enumerated during eval-authoring, OQ-M9.)
+
+## Contracted-sink reachability / oracle-admissibility → deviation-class mapping (FR-RH1)
+
+The §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (UC-2) feeds the same precedence union *by evidence, not by assignment*, and adds **no 5th category** — `unreachable` routes to the existing **Regression** class and `unproven` routes to the existing **Grounding Gap** parallel artifact below. This is a sibling finding-modifier to the Runtime-surface UNREACHED note (FR-RSR, SKILL.md §10.9) above: both map onto the same 4 classes, neither is a new class, and neither subsumes the other (FR-RSR governs the static runtime-surface sweep; FR-RH1 governs the real-boot contracted-sink gate, keyed on `reachability_unreachable` / `reachability_unproven` counters).
+
+| Reachability / oracle evidence | Class | Effect |
+|---|---|---|
+| Real boot ran and observed the contracted sink **absent** | **Regression** | `reachability_unreachable += 1`; `verification_regressions_detected += 1`; `regression_present: true` |
+| **(C7, step 5.6a) A spec/TDD-declared in-scope + enabled-by-config REQUIRED capability is statically behaviorally-unreachable — its runtime entrypoint's result is discarded/dead-guarded, OR its callee is a not-implemented sentinel (an `ErrNoStream`-shape stub). A bare production referrer edge does NOT clear this (symbol-edge presence is necessary-but-insufficient).** | **Regression** | `reachability_unreachable += 1`; `regression_present: true`. Annotation-free and static — the spec declaration is the contract, so NO `durable_sink:` annotation and NO real-boot are required to block. |
+| Blocking annotated (`durable_sink:` / `@sink`) sink present, but no real-boot proof (static binding absence / discarded emitter result / unresolved sink identity / oracle mismatch / real-boot-unavailable) | **Grounding Gap** | `reachability_unproven += 1`; `needs_human_decision: true`; Tier-1 preserved |
+| Binding present, emitter result checked, oracle observes the contracted sink | **none / reachable** | clean |
+
+**Skip / fallback are NOT deviations.** `--no-reachability`, `spec-and-tasklist-absent`, and `no-side-effect-requirements` are telemetry-only skips, and semantic-only classification without an explicit `durable_sink:` / `@sink` annotation is advisory telemetry only: none of these may create a Grounding Gap, increment `reachability_unproven`, set `needs_human_decision`, or change `status`. There is no `deviation_count_by_class.reachability` counter.
+
+## Grounding-gaps parallel artifact
+
+The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class.
+
+When a hunk **cannot be classified due to insufficient evidence** (distinct from multi-signal ambiguity, which is resolved by precedence above), the orchestrator does NOT add it to `deviation-ledger.yaml`. Instead, it writes a row to `<output>/grounding-gaps.yaml`.
+
+Runtime-surface UNREACHED-by-evidence (SKILL.md §10.9 / FR-RSR) follows the same structural separation: degraded, comment-ambiguous, oracle-routed, or rootwalk-incomplete reachability findings have no decided `UNREACHED` verdict to classify, so they route here as Grounding Gaps and remain outside `deviation-ledger.yaml`. Decided UNREACHED findings are not a 5th class; they map to Regression or Drift by evidence.
+
+**Required fields (byte-exact schema from spec §10.6):**
+
+```yaml
+- hunk_ref: <file:line-range>
+  evidence_missing: <what is missing — e.g., "no commit body, no inline comment, no task-log entry, spec section ambiguous">
+  why_not_classifiable: <one-sentence reason>
+  next_evidence_needed: <what would resolve — e.g., "ask user whether feature X was authorized">
+  owner: user             # default; can be `reviewer` if a reviewer round can resolve
+  decision_needed_by_user: true | false
+```
+
+**Non-empty consequences.** When `grounding-gaps.yaml` is non-empty:
+
+- `status: partial` is **forced** in the return contract (cannot be `complete`).
+- `needs_human_decision: true` is emitted to the return contract.
+- The REPORT.md Grounding Gaps section enumerates each row with the missing-evidence rationale.
+
+**Structural separateness.** `grounding-gaps.yaml` is a **distinct artifact** from `deviation-ledger.yaml`. The two files never share rows. This separation absorbs V4's `unknown`-class semantics (with V4's required-field rigor) while preserving V2's Grounding Gap routing mechanism. The 5th deviation category was explicitly rejected in §17.7 Kill List; see that section for the rationale.
+
+## Correctness-gap (advisory parallel dimension — no 5th class)
+
+Adds **no 5th category**. Like the FR-RH1 reachability mapping and the Grounding-gaps parallel artifact above, this is a sibling finding-modifier that routes *by evidence*, never a new gating deviation class — the taxonomy stays exactly four classes (the 5th was rejected in §17.7 Kill List).
+
+**The coverage gap this closes.** The existing **Regression** class is *spec-relative*: it triggers on a change that breaks previously-working spec behavior OR contradicts a **documented** load-bearing invariant (see the Regression definition above). A **no-spec** correctness gap — code that is spec-conformant yet wrong because two sibling symbols disagree (the F1 / PR #209 class: e.g. a `diagnose()` guarding its probe argument as a file while sibling `load_evidence()` / `_evidence_sha256()` accept a directory) — has **no spec anchor and no documented invariant**, so it falls through all four categories. That fall-through is exactly this advisory dimension's reason to exist.
+
+**Advisory routing (raised for triage, never gating).** A no-spec correctness gap is written to a parallel artifact `<output>/correctness-gaps.yaml` (parallel to `grounding-gaps.yaml`), NEVER to `deviation-ledger.yaml`. It is **advisory only**: it does NOT set `regression_present`, does NOT increment `verification_regressions_detected`, does NOT enter the unconditional Tier-2 escalation path, and does NOT force `status: partial` or `needs_human_decision`. It is surfaced for a human / the orchestrator to triage — the gating decision stays downstream and this dimension never gates on its own. (This is strictly *more* advisory than the Grounding-gaps artifact above, which DOES force `status: partial`; a correctness gap, lacking any spec anchor, must not gate.)
+
+| No-spec correctness evidence | Class | Effect |
+|---|---|---|
+| Two sibling symbols disagree on a shared input's shape/contract, spec silent (no acceptance criterion, no documented invariant) | **none (advisory)** | `correctness_gap_raised += 1`; write a `correctness-gaps.yaml` row; NOT `regression_present`; NO `status` / `needs_human_decision` change |
+| The disagreement violates a **documented** invariant or a spec acceptance criterion | **Regression** | routes to the existing Regression class by evidence (spec-relative) — NOT this advisory channel |
+
+**Required fields (mirrors the Grounding-gaps schema shape):**
+
+```yaml
+- hunk_ref: <file:line-range>
+  correctness_gap: <the sibling disagreement — e.g., "diagnose() file-only guard vs load_evidence() dir">
+  siblings: [<symbol A>, <symbol B>]
+  why_advisory: <one-sentence reason the spec is silent / no documented invariant applies>
+  next_evidence_needed: <what would promote it — e.g., "add a spec acceptance criterion or a documented invariant">
+  owner: user
+```
+
+**Structural separateness.** `correctness-gaps.yaml` is a **distinct artifact** from both `deviation-ledger.yaml` and `grounding-gaps.yaml`; the three files never share rows. This preserves the four-class Kill-List invariant while giving the no-spec correctness class a non-gating triage home.

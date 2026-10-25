@@ -1,0 +1,39 @@
+# Wave 1B — UC-2 tasklist/spec-to-work map (inline; native Read only, Serena/auggie unavailable)
+repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+diff_source: changes.patch (file evidence; not applied)
+diff_files: [src/greeting.py]          # 1 file, 1 hunk (@@ -0,0 +1,4 @@), new file
+total_hunks: 1
+unmapped_hunks: 0
+scope: src/  (tracked membership: none — repo has no commits; src/greeting.py is untracked)
+tasklist_frontmatter_status: done      # completed.md:2
+requirements:
+  - id: R-001
+    spec_ref: spec.md:5-6
+    tasks: [T-101]                     # completed.md:6
+    work_evidence: [changes.patch:6-9, src/greeting.py:4]
+    static_verdict: satisfied          # f"Hello, {name}!" with name="Ada" -> "Hello, Ada!"
+  - id: R-002
+    spec_ref: spec.md:8-9
+    tasks: [T-102]                     # completed.md:7
+    work_evidence: [changes.patch:7-8, src/greeting.py:2-3]
+    static_verdict: satisfied          # `if not name: raise ValueError("name required")`
+  - id: R-003
+    spec_ref: spec.md:11-12
+    tasks: [T-103]                     # completed.md:8
+    work_evidence: [tests/test_greeting.py:4-5, tests/test_greeting.py:8-13]
+    static_verdict: satisfied-on-disk-not-in-diff
+    note: >-
+      tests/test_greeting.py exists on disk (untracked) and contains both cases, but it is
+      NOT part of changes.patch and is outside --scope src. Pass/fail state is unverified:
+      the verification triangle (execute_shell_command) is unavailable and no --task-log was supplied.
+tasks:
+  T-101: {mapped_requirement: R-001, hunk: "src/greeting.py@@-0,0+1,4", status: verified-static}
+  T-102: {mapped_requirement: R-002, hunk: "src/greeting.py@@-0,0+1,4", status: verified-static}
+  T-103: {mapped_requirement: R-003, hunk: null, status: verified-static-on-disk-outside-diff}
+structural_signals:
+  S_scope: 1
+  S_domains: 1                         # code (diff); tests file is outside the diff
+  S_dev_density: 0.0                   # 0 unmapped / 1 hunk
+runtime_surface: {tagged: [], reason: "greet is an undecorated plain function; no CLI/route/handler signal"}
+reachability: {skip_reason: no-side-effect-requirements, reason: "no durable_sink:/@sink annotation; pure function"}
+interaction_effects_scan: {ran: false, reason: "requires Serena find_symbol; also only one changed symbol"}

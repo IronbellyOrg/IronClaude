@@ -1,0 +1,18 @@
+# Wave 1D — returned by Agent(sc:confidence-calibrator, model slot: opus), agentId aafc76272fbc66985. Persisted verbatim (values) by orchestrator.
+card: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-log-only-attempt-1/artifacts/artifacts/t1-card.yaml
+calibrator_agent: sc:confidence-calibrator
+calibrator_model_slot: opus
+reviewer_model_classes: [sonnet]
+calibrator_diversity: full        # opus not in {sonnet}
+calibration: independent          # not inline
+formation_context_supplied: false
+scores:
+  citation_grounding: {score: 0.93, rationale: "All cited file:line ranges match on spot-check; import-path speculation honestly [INFERRED]; minor uncited Glob/config-absence remark."}
+  coverage_completeness: {score: 0.90, rationale: "All 3 log claims and both touched files mapped; unmapped work and 2 gaps recorded; requirement coverage capped by missing R-001..R-003 text (recorded as gap)."}
+  deviation_classification_clarity: {score: 0.85, rationale: "deviations: [] defensible; gaps kept separate from the 4 classes; minor inconsistency T-101 partially-satisfied vs T-102 satisfied under the same spec gap."}
+  risk_surface_coverage: {score: 0.88, rationale: "Main regression candidate (test import/collection) and untested edge cases identified; thin blast-radius reasoning (scope tiny)."}
+  recommendation_actionability: {score: 0.85, rationale: "Each rec names file, change and verifier; REC-2/REC-3 contingent on absent spec; success criteria loose."}
+arithmetic: "(0.93 + 0.90 + 0.85 + 0.88 + 0.85) / 5 = 4.41 / 5 = 0.882"
+calibrated_confidence: 0.882
+calibrator_notes:
+  - "Calibrator echoed the rubric path with the segment 'implementation-evidence/02-root-plugin/task4-runtime/' missing; the path supplied to it was the correct bundled path. Recorded as a transcription discrepancy in its output; scores were not affected by this."

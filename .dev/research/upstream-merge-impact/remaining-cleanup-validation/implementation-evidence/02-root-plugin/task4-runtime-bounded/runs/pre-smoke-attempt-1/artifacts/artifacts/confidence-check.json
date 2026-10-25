@@ -1,0 +1,18 @@
+{
+  "skill": "sc:confidence-check",
+  "score": 0.4,
+  "checks": {
+    "no_duplicates": "pass",
+    "architecture_compliance": "fail (no CLAUDE.md/PLANNING.md in audit root; ancestor reads forbidden; pytest framework unverified)",
+    "official_docs": "fail (--no-mcp; no docs lookup)",
+    "oss_reference": "fail (no search)",
+    "root_cause": "pass (validated citations)"
+  },
+  "routing": "<0.70 -> recommendations surfaced as advisory only; blocked_by_low_confidence=true",
+  "lightweight_token_verification": {
+    "proposed.md:4/7/10 targets": "verified by Read",
+    "'Hello, Ada!' literal": "verified spec.md:6",
+    "uv run pytest <file> -q": "UNVERIFIED (no test framework config in audit root)",
+    "pytest.raises(ValueError)": "UNVERIFIED (no docs lookup under --no-mcp)"
+  }
+}

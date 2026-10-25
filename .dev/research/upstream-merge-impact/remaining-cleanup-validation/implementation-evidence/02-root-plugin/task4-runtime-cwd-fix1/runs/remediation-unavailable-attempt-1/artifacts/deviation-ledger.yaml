@@ -1,0 +1,8 @@
+# 4-category deviation register (authorized / necessary / drift / regression)
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviations: []
+mapping:
+  - {task_id: T-101, log_ref: "execution.log:2", evidence: "src/greeting.py:1-4", mapped: true}
+  - {task_id: T-102, log_ref: "execution.log:3", evidence: "src/greeting.py:2-3", mapped: true}
+  - {task_id: T-103, log_ref: "execution.log:4", evidence: "tests/test_greeting.py:4-13", mapped: true}
+note: "There are zero classified deviations because nothing contradicts the log and no gold standard exists to define Drift or Authorized. Unclassifiable items are in grounding-gaps.yaml."

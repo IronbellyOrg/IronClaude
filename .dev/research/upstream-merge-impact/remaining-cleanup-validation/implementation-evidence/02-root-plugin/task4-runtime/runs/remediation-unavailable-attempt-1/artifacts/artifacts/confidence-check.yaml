@@ -1,0 +1,12 @@
+skill: sc:confidence-check (lightweight + 5-check)
+checks:
+  no_duplicate: pass        # reuse-audit: distinct, 0 neighbours
+  architecture: pass        # tests already pytest-style; no new deps proposed
+  official_docs: fail       # --no-mcp (no Context7); pytest not installed locally to inspect pytest.raises signature
+  oss_reference: fail       # no web/tavily under --no-mcp
+  root_cause: pass          # grounding gaps G-1/G-2 are clearly identified
+score: 0.65                 # .25+.25+0+0+.15
+decision: "<0.70 — chat recommendations surfaced only as [UNVERIFIED] with user-runnable verifier; blocked_by_low_confidence: true"
+token_checks:
+  - "fixtures/project/{pyproject.toml,pytest.ini,conftest.py,setup.cfg}: none exist (verified by ls)"
+  - "python3 -c 'import pytest' in orchestrator env: ModuleNotFoundError — pytest invocation and pytest.raises(match=) are [UNVERIFIED]"

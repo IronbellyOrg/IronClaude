@@ -7,7 +7,7 @@ mcp-servers: []
 personas: []
 ---
 
-# /sc:sc:sc:design - System and Component Design
+# /sc:sc-design - System and Component Design
 
 ## Triggers
 - Architecture planning and system design requests
@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/sc:sc:design [target] [--type architecture|api|component|database] [--format diagram|spec|code]
+/sc:sc-design [target] [--type architecture|api|component|database] [--format diagram|spec|code]
 ```
 
 ## Behavioral Flow
@@ -49,28 +49,28 @@ Key behaviors:
 
 ### System Architecture Design
 ```
-/sc:sc:design user-management-system --type architecture --format diagram
+/sc:sc-design user-management-system --type architecture --format diagram
 # Creates comprehensive system architecture with component relationships
 # Includes scalability considerations and best practices
 ```
 
 ### API Specification Design
 ```
-/sc:sc:design payment-api --type api --format spec
+/sc:sc-design payment-api --type api --format spec
 # Generates detailed API specification with endpoints and data models
 # Follows RESTful design principles and industry standards
 ```
 
 ### Component Interface Design
 ```
-/sc:sc:design notification-service --type component --format code
+/sc:sc-design notification-service --type component --format code
 # Designs component interfaces with clear contracts and dependencies
 # Provides implementation guidance and integration patterns
 ```
 
 ### Database Schema Design
 ```
-/sc:sc:design e-commerce-db --type database --format diagram
+/sc:sc-design e-commerce-db --type database --format diagram
 # Creates database schema with entity relationships and constraints
 # Includes normalization and performance considerations
 ```
@@ -83,7 +83,7 @@ Key behaviors:
 - Validate designs against maintainability and scalability standards
 
 **Will Not:**
-- Generate actual implementation code (use /sc:sc:implement for implementation)
+- Generate actual implementation code (use /sc:sc-implement for implementation)
 - Modify existing system architecture without explicit design approval
 - Create designs that violate established architectural constraints
 
@@ -93,4 +93,4 @@ Key behaviors:
 - Database schemas
 - Interface definitions
 
-**Next Step**: After design is approved, use `/sc:sc:implement` to build the designed components.
+**Next Step**: After design is approved, use `/sc:sc-implement` to build the designed components.

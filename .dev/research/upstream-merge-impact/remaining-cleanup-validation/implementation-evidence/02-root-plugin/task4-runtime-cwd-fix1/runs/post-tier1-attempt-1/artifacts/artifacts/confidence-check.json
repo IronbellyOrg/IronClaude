@@ -1,0 +1,41 @@
+{
+  "skill": "sc:confidence-check",
+  "form": "lightweight + 5-check score",
+  "checks": {
+    "no_duplicates": {
+      "result": "pass",
+      "weight": 0.25,
+      "score": 0.25,
+      "evidence": "artifacts/reuse-audit.yaml verdict distinct"
+    },
+    "architecture": {
+      "result": "partial",
+      "weight": 0.25,
+      "score": 0.125,
+      "evidence": "no CLAUDE.md/PLANNING.md/pyproject/conftest in audit root (explicit absence); uv present"
+    },
+    "official_docs": {
+      "result": "pass",
+      "weight": 0.2,
+      "score": 0.2,
+      "evidence": "`uv run --help` (uv 0.11.8): `-w, --with <WITH>` and `--no-project` exist; python -m sys.path behaviour remains [INFERRED]"
+    },
+    "oss_reference": {
+      "result": "not-performed",
+      "weight": 0.15,
+      "score": 0.0,
+      "evidence": "external lookup forbidden by run boundary"
+    },
+    "root_cause": {
+      "result": "pass",
+      "weight": 0.15,
+      "score": 0.15,
+      "evidence": "grounding gaps G-1/G-2 identify missing evidence precisely"
+    }
+  },
+  "total": 0.725,
+  "band": "0.70-0.89: present alternatives",
+  "unverified_tokens": [
+    "R-002 pytest exit code / import success: [UNVERIFIED] \u2014 not executed (would write caches into the audited repo and may fetch pytest)"
+  ]
+}

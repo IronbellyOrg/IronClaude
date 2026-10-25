@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: null
+surface_unreached: null
+inputs: {C: 0.79, S_scope: 1, S_domains: 1, S_dev_density: 0.0, regression_candidate_count: 0}
+composite_score: 2.0
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 2}
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+escalation_reason: "calibrated confidence 0.79 < 0.85 (rule 6); rules 1/2 fail on C; no regression candidate, single domain, zero unmapped hunks"

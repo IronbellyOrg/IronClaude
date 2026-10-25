@@ -7,7 +7,7 @@ mcp-servers: []
 personas: []
 ---
 
-# /sc:sc:sc:analyze - Code Analysis and Quality Assessment
+# /sc:sc-analyze - Code Analysis and Quality Assessment
 
 ## Triggers
 - Code quality assessment requests for projects or specific components
@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/sc:sc:analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
+/sc:sc-analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
 ```
 
 ## Behavioral Flow
@@ -50,28 +50,28 @@ Key behaviors:
 
 ### Comprehensive Project Analysis
 ```
-/sc:sc:analyze
+/sc:sc-analyze
 # Multi-domain analysis of entire project
 # Generates comprehensive report with key findings and roadmap
 ```
 
 ### Focused Security Assessment
 ```
-/sc:sc:analyze src/auth --focus security --depth deep
+/sc:sc-analyze src/auth --focus security --depth deep
 # Deep security analysis of authentication components
 # Vulnerability assessment with detailed remediation guidance
 ```
 
 ### Performance Optimization Analysis
 ```
-/sc:sc:analyze --focus performance --format report
+/sc:sc-analyze --focus performance --format report
 # Performance bottleneck identification
 # Generates HTML report with optimization recommendations
 ```
 
 ### Quick Quality Check
 ```
-/sc:sc:analyze src/components --focus quality --depth quick
+/sc:sc-analyze src/components --focus quality --depth quick
 # Rapid quality assessment of component directory
 # Identifies code smells and maintainability issues
 ```
@@ -95,4 +95,4 @@ Key behaviors:
 - Performance issues
 - Recommendations
 
-**Next Step**: After review, use `/sc:sc:improve` to apply recommended fixes or `/sc:sc:cleanup` for dead code removal.
+**Next Step**: After review, use `/sc:sc-improve` to apply recommended fixes or `/sc:sc-cleanup` for dead code removal.

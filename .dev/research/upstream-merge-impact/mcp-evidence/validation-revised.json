@@ -1,0 +1,13 @@
+{
+  "record_count": 9,
+  "historical_path_count": 14,
+  "rename_endpoints_present": true,
+  "references_checked": 142,
+  "missing": [],
+  "bad_references": [],
+  "placeholder_count": 0,
+  "review_corrections": "manual deployment not contradicted; automatic instruction mismatch isolated; 100 percent guide rename preserved",
+  "runtime_tests": "not run",
+  "actual_git_revert": "UNVERIFIED",
+  "independent_review": "pending recheck"
+}

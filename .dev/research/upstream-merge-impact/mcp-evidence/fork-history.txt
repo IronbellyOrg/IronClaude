@@ -1,0 +1,29 @@
+a26172ae687077fe1ba00b6d7aaca768a02aa414 2026-10-22T18:43:15+00:00 Ryan wiancko fix(mcp): refuse to replace a stale native entry that carries env or headers
+d23c161aa0da404037a8c41f3cde21efa6c1f4d7 2026-10-22T18:43:15+00:00 Ryan wiancko fix(mcp): restore registration after failed remove; re-acquire after partial upstream install
+d594babb0a0f696c829c189631d0e589e8f37716 2026-10-22T18:43:15+00:00 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)
+051f39feaf2796e6f2bec1313dcfa9ce713055b6 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when
+046a03ab41ac98c39a11d940794c6e96cfab6ceb 2026-10-03T02:33:07+00:00 Ryan wiancko chore: drop removed Sequential MCP references
+3ae238b178fb7c67ca02809d24745de620c2bd50 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+928482cdceafb6ea6f137edf4906d4a592e00ec6 2026-09-11T18:09:17+00:00 Ryan wiancko fix(mcp): require Auggie Node runtime
+2a436d1eefd403544cf57fc2a0d7359ae7d4c4d4 2026-09-11T17:51:24+00:00 Ryan wiancko fix(mcp): enforce pinned Auggie binary
+bc2e2338a874509253e0e3409679b563e780675f 2026-09-11T17:38:25+00:00 Ryan wiancko fix(mcp): pin sequential config templates
+bd163f9262ffccb025f085db6e250dfad607f21e 2026-09-11T17:30:25+00:00 Ryan wiancko fix(mcp): align distributed server templates
+0e7bc31f195dd2bc925fb8ba8528dbdb2a57a2de 2026-09-11T13:46:58+00:00 Ryan wiancko fix(mcp): pin supported server launchers
+64b730a7208a71fb1cca2fb15d8a1e8b1c491342 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline — ruff pin + format sweep + dep allow-list + lint/arch (#216)
+156f28292b4ddba09cefb89e5f160cbd2475e875 2026-07-01T12:45:13-04:00 Ironbelly fix: normalize Tavily MCP tool names (#208)
+89d9821ad4a0ac2879c90ade6254c68c7c5944a9 2026-06-25T17:03:11-04:00 Ironbelly fix(mcp): make install_mcp_server version-aware (re-register on pin drift) (#204)
+b3ebeab0de6994e489c86ce02f5908451cd9baf5 2026-06-25T12:24:17-04:00 Ironbelly feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters (#202)
+89df2c1105c01caff199288f949d5783f6594e70 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)
+723134f62a91ca87ca6932b98cf1ead4799e2b68 2026-05-17T04:38:46+00:00 RyanW style(lint): ruff format --check now passes
+208a5ba68f48d5f97112602f4a23372bfe062522 2026-04-30T14:29:46+00:00 RyanW Fixing tavily mcp installation
+8291dafac9f1bff497d38d8afbd1e2b1becf270f 2026-04-28T03:34:27+00:00 RyanW Enable Installation of Auggie MCP from superclaude instlal command
+55c658c77f88c538cf9d90a3736c1b24f8f64f44 2026-02-11T10:02:47+05:30 Yuxin Liu Fix AIRIS MCP Gateway installer bugs (#525)
+3294a0ad941f299e8c997bbe88a718694e173a8f 2026-01-10T18:15:12+05:30 kazuki nakai feat(mcp): add AIRIS MCP Gateway as default installation option (#509)
+04c9b85cd0c2ed774f397bcc39f21a56178c7d49 2026-01-09T11:03:41+05:30 smartdddlab fix: ensure UTF-8 encoding handling for MCP command output (#507)
+6ae5e9987736dab9908260d392f1a6c89b2dcde4 2025-12-15T21:18:01+05:30 kazuki nakai docs: add AIRIS MCP Gateway as unified installation option (#499)
+202660b52451d0680969c3fbb1042cb52539d35a 2025-12-13T07:30:18+05:30 kazuki nakai feat(mcp): add Airis Agent and MindBase MCP servers (#497)
+fd8c67f6f0be47371fe9fffce0be0ffad73b3c72 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages
+18c0e4e127dc352db19ae132a770019bf1f32d8a 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)
+1b14d065378163809c027873454eaa38cc6a108b 2025-11-13T16:29:10+01:00 mithun50 added mcp command fixed some issues
+3762d6ab24508107dc794811d9b6b0c9def84707 2025-11-13T16:16:05+01:00 mithun50 feat: restore complete SuperClaude framework from commit d4a17fc
+d5dfd7da217cfbbaee5cda15d481341a383678ea 2025-10-15T21:07:39+05:30 kazuki nakai refactor(docs): normalize documentation naming to lowercase for PEP8 compliance (#434)

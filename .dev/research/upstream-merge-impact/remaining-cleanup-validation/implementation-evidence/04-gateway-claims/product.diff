@@ -1,0 +1,23 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index f0d2f382..44e9b3dd 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -368,14 +368,15 @@ Auggie MCP should be used whenever broader codebase context and knowledge would
+ superclaude mcp  # Interactive install, gateway is default (requires Docker)
+ ```
+ 
+-**Gateway Benefits**: 60+ tools, 98% token reduction, single SSE endpoint, Web UI
++**Gateway Benefits** (the gateway's own advertised figures, not measured here; UNVERIFIED): 60+ tools, 98% token reduction, single SSE endpoint, Web UI
+ 
+-**High Priority Servers** (included in gateway):
++**Servers the gateway can offer** depend on the backend configuration the installer downloads from the upstream gateway repository; that content and its availability are UNVERIFIED here:
+ 
+ - **Tavily**: Web search (Deep Research)
+ - **Context7**: Official documentation (prevent hallucination)
+ - **Serena**: Session persistence
+-- **Mindbase**: Cross-session learning
++
++**Mindbase and Airis Agent are not enabled by the built-in install.** On a successful fresh download of the backend configuration (`mcp-config.json`), the installer marks any `mindbase` and `airis-agent` entries `enabled: false`, because their containers are not in the distribution Compose file (`src/superclaude/cli/install_mcp.py`). An already-existing `mcp-config.json` is reused unchanged, and the download-failure fallback (minimal or empty config) and parse-failure path (used as-is) differ, so do not assume every installation matches. The manual guides (`src/superclaude/mcp/MCP_Mindbase.md`, `src/superclaude/mcp/MCP_Airis-Agent.md`) describe a separate git clone plus `docker compose up` deployment; whether MindBase is available there is UNVERIFIED.
+ 
+ **Individual servers (not in the gateway; install with `superclaude mcp --servers <name>`)**:
+ 

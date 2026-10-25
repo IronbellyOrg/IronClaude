@@ -1,0 +1,18 @@
+# Returned by sc:reuse-auditor (sonnet slot); persisted by orchestrator
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+findings:
+  - candidate: "src/greeting.py:greet (lines 1-4)"
+    neighbours: []
+    referrers: ["tests/test_greeting.py:1"]
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    confidence: 0.6
+    tier: distinct
+    verdict: distinct

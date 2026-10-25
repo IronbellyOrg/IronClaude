@@ -1,0 +1,14 @@
+selected_tier: 1
+fired_rule_number: 2
+coverage_degraded: null
+surface_unreached: null
+coverage_undefined: false
+inputs: {C: 0.89, S_scope: 3, S_domains: 2, S_dev_density: 0.0, coverage_pct: 1.0, coverage_floor: 0.90}
+rule_trace:
+  rule_1: "miss (C 0.89 < 0.90; S_domains 2 != 1)"
+  rule_2: "match (C>=0.85, S_scope<=10, S_domains<=2 [code,tests], S_dev_density 0.0<=0.10, no pre-filters); no WARN (density <= 0.05)"
+composite_score: 1
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+escalation_reason: "STOP at T1 via rule 2: medium-high calibrated confidence, 3-item plan, two domains, full coverage"
+t2_model_class_diversity: full
+t2_vendor_diversity: multi

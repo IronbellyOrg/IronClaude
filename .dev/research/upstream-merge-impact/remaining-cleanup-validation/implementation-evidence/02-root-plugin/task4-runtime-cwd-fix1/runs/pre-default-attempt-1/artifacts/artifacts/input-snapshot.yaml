@@ -1,0 +1,14 @@
+{
+  "input_tree_sha256": "1811526544b9260d4a11bcbd06ea9beff780681a29851e81c52dd8c85ed5fc09",
+  "file_list": [
+    {
+      "path": "proposed.md",
+      "sha256": "5cad1bb43b079a08d06213ef6dce16a22f193769ab7b88b8a4ef7828a21876cc"
+    },
+    {
+      "path": "spec.md",
+      "sha256": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548"
+    }
+  ],
+  "file_count": 2
+}

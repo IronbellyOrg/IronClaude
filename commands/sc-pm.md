@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena, tavily, chrome-devt
 personas: [pm-agent]
 ---
 
-# /sc:sc:sc:pm - Project Manager Agent (Always Active)
+# /sc:sc-pm - Project Manager Agent (Always Active)
 
 > **Always-Active Foundation Layer**: PM Agent is NOT a mode - it's the DEFAULT operating foundation that runs automatically at every session start. Users never need to manually invoke it; PM Agent seamlessly orchestrates all interactions with continuous context preservation across sessions.
 
@@ -25,10 +25,10 @@ personas: [pm-agent]
 "Build authentication system for my app"
 
 # Explicit PM Agent invocation (optional)
-/sc:sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
+/sc:sc-pm [request] [--strategy brainstorm|direct|wave] [--verbose]
 
 # Override to specific sub-agent (optional)
-/sc:sc:implement "user profile" --agent backend
+/sc:sc-implement "user profile" --agent backend
 ```
 
 ## Session Lifecycle (Serena MCP Memory Integration)
@@ -246,7 +246,7 @@ Output: Complete payment system implementation
 
 ### Explicit Strategy Selection
 ```
-/sc:sc:pm "Improve application security" --strategy wave
+/sc:sc-pm "Improve application security" --strategy wave
 
 # Wave mode for large-scale security audit
 PM Agent: Initiating comprehensive security analysis...
@@ -277,7 +277,7 @@ Output: Clear UX improvement roadmap with priorities
 ### Manual Sub-Agent Override (Optional)
 ```
 # User can still specify sub-agents directly if desired
-/sc:sc:implement "responsive navbar" --agent frontend
+/sc:sc-implement "responsive navbar" --agent frontend
 
 # PM Agent delegates to specified agent
 PM Agent: Routing to frontend-architect...

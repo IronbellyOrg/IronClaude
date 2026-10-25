@@ -1,0 +1,14 @@
+# sc:confidence-check (bundled skill) run before actionable recommendations
+checks:
+  no_duplicate_implementations: {pass: true, weight: 0.25, evidence: "artifacts/reuse-audit.yaml verdict distinct; recommendations add no new implementation"}
+  architecture_compliance: {pass: false, weight: 0.25, evidence: "audited repo has no CLAUDE.md/PLANNING.md/pyproject (explicit absence; ancestor checkout not read); pytest not declared and not installed (uv run --no-project python -c 'import pytest' -> ModuleNotFoundError; Python 3.12.3)"}
+  official_docs_verified: {pass: false, weight: 0.20, evidence: "no Context7/web tools; pytest --help unavailable"}
+  oss_reference: {pass: false, weight: 0.15, evidence: "no search tools exposed"}
+  root_cause_identified: {pass: true, weight: 0.15, evidence: "GG-1/GG-2/GG-3 causes cited"}
+confidence: 0.40
+decision: "<0.70 — STOP for implementation; recommendations emitted advisory-only with [UNVERIFIED] tokens"
+unverified_tokens:
+  - {token: "-rA", confirm: "pytest --help | grep -- '-r chars'"}
+  - {token: "pytest default --import-mode=prepend rootdir insertion", confirm: "pytest --help | grep -- --import-mode"}
+  - {token: "pythonpath ini option (pytest >= 7)", confirm: "pytest --version; pytest --help | grep pythonpath"}
+blocked_by_low_confidence: true

@@ -1,0 +1,177 @@
+[
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/__init__.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/cli/doctor.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/cli/install_commands.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/cli/install_skill.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/cli/main.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/execution/__init__.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/execution/parallel.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/execution/reflection.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/execution/self_correction.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/pm_agent/__init__.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/pm_agent/confidence.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/pm_agent/reflexion.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/pm_agent/self_check.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "src/superclaude/pytest_plugin.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/conftest.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/integration/test_pytest_plugin.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/unit/test_cli_install.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/unit/test_confidence.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/unit/test_reflexion.py",
+    "ast_equal": false
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/unit/test_self_check.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "e2896335",
+    "path": "tests/unit/test_token_budget.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/cli/doctor.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/cli/install_commands.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/cli/install_skill.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/cli/main.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/execution/__init__.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/execution/parallel.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/execution/reflection.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/execution/self_correction.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/pm_agent/confidence.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/pm_agent/reflexion.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "src/superclaude/pytest_plugin.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "tests/conftest.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "tests/unit/test_cli_install.py",
+    "ast_equal": true
+  },
+  {
+    "commit": "b00547ad",
+    "path": "tests/unit/test_confidence.py",
+    "ast_equal": true
+  }
+]

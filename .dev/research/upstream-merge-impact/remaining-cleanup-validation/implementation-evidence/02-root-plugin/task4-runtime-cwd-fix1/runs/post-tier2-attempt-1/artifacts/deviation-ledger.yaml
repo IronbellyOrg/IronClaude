@@ -1,0 +1,5 @@
+# §10 deviation register (4-category taxonomy). Source: adversarial/merged-card.yaml findings: [] (both reviewers and T1 agree).
+deviation_aggregation_mode: per-hunk
+hunk_count: 1
+deviations: []
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}

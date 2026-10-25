@@ -1,0 +1,62 @@
+{
+  "metrics_schema_version": "1.0",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 1,
+  "status": "success",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_initial": 0.916,
+    "calibrated_confidence_final": 0.916,
+    "calibration_delta": 0.066
+  },
+  "ensemble": {
+    "t2_model_class_diversity": "full",
+    "t2_vendor_diversity": "multi",
+    "t2_effective_diversity": "full",
+    "reviewer_count": 0,
+    "executor_class_resolved": false,
+    "executor_exclusion_degraded": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 28,
+    "citations_revalidated": 28,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 0,
+    "regression": 0,
+    "total": 0
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "merge_method": null,
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "serena",
+    "auggie",
+    "context7",
+    "tavily",
+    "get_current_config",
+    "serena:onboarding-parse",
+    "tech-research:unavailable-plugin-only"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": false,
+  "note": "wave durations/token usage not instrumented in native plugin run; global .dev/reflect/runs.jsonl NOT appended (write outside allowed output)"
+}

@@ -1,0 +1,7 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 4.0
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 1, spec_density: 1, ambiguity_signals: 0}
+escalation_reason: "parsed-sparse pre-filter; C 0.67 < 0.85 (rule 6); S_scope 5 files, S_domains 2, S_dev_density 0.1449"

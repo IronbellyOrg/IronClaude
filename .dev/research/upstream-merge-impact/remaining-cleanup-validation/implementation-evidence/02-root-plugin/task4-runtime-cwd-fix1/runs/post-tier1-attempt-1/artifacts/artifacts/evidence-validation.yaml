@@ -1,0 +1,31 @@
+# Persisted by orchestrator from sc:evidence-validator return. requested_slot: haiku; returned_model (self-reported, unverified): grok-4.7; agentId: adc757e819db5f5d4
+validated_draft: REPORT.draft.md
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+inferred_count_observed: 3
+zero_drop_flag: true
+results:   # id: verdict (observed text in agent return; all re-Read at cited lines)
+  C1: {cite: "spec.md:6", verdict: keep}
+  C2: {cite: "spec.md:9", verdict: keep}
+  C3: {cite: "spec.md:12", verdict: keep}
+  C4a: {cite: "completed.md:6", verdict: keep}
+  C4b: {cite: "completed.md:7", verdict: keep}
+  C4c: {cite: "completed.md:8", verdict: keep}
+  C5: {cite: "changes.patch:9", verdict: keep}
+  C6: {cite: "changes.patch:7-8", verdict: keep}
+  C7: {cite: "src/greeting.py:4", verdict: keep}
+  C8: {cite: "src/greeting.py:2-3", verdict: keep}
+  C9: {cite: "completed.md:2", verdict: keep}
+  C10: {cite: "changes.patch:5-9", verdict: keep}
+  C11: {cite: "tests/test_greeting.py:4-5", verdict: keep}
+  C12: {cite: "tests/test_greeting.py:8-13", verdict: keep}
+  C13: {cite: "<output>/artifacts/task-diff-map.yaml:34", verdict: keep, note: "supports triangle ran:false only; G-2 'no task log' / 'zero commits' are supported by task-diff-map.yaml:14 and :3, uncited"}
+  C14: {cite: "src/greeting.py:2", verdict: keep}
+  C15: {cite: "<output>/artifacts/task-diff-map.yaml:33", verdict: keep, note: "no-cross-reference clause lives on line 31"}
+  C16: {cite: "tests/test_greeting.py:1", verdict: keep}
+consistency_findings_summary:
+  - "changes.patch contains only src/greeting.py; no test path — G-1 consistent."
+  - "Hunk does not contradict R-001/R-002; 'no evidence of regression' hedge consistent."
+  - "G-1 'untracked/outside scope' and G-2 'no task log/zero commits' qualifiers are supported by task-diff-map.yaml:3,10,12-14 but not cited there; not drops."
+suggested_status: partial

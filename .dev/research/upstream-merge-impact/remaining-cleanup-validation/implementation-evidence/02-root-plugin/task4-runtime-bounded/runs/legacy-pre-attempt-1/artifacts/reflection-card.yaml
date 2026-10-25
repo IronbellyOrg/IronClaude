@@ -1,0 +1,179 @@
+# Wave 1C Tier-1 reflection card — authored by sc:sc-root-cause-analyst
+# requested_model_slot: sonnet (resolved alias claude-sonnet-5-5[1m]); agent_id: a4b410b615d7ff2e8
+# Persisted verbatim by the orchestrator BEFORE calibration. Paths: spec.md / proposed.md are relative to
+# audit_repo_root=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project ;
+# coverage-matrix.yaml = <output>/artifacts/coverage-matrix.yaml
+reflection_card:
+  mode: UC-1 pre-execution
+  tier: 1
+  audit_scope: spec.md (12 lines) vs proposed.md (10 lines); matrix at coverage-matrix.yaml verified independently
+  evidence_read: [spec.md, proposed.md, coverage-matrix.yaml, reflection-rubric.md]
+  note: Plan-quality audit only. No work has been executed, so no deviations are recorded.
+
+verdict:
+  summary: >
+    Every spec requirement (R-001..R-003) maps one-to-one to a task (T-101..T-103), so mapping coverage is
+    3/3 with no orphan tasks. Fidelity is not uniform. T-101 drops the exact-output acceptance criterion
+    from R-001, and the plan has no file targets or verification steps. The plan is conditionally ready:
+    fix the R-001 criterion (P0) before execution, and the remaining gaps are low risk.
+  covers_spec: yes (mapping), partial (R-001 fidelity)
+  ready_to_execute: conditional (after P0)
+  matrix_verification: >
+    I agree with the Wave 1B matrix on R-001 partial, R-002 full and R-003 full. I verified its line spans
+    and citations against both files. Its best_practice_grade of 4 is slightly generous (see grade).
+    coverage_pct 1.0 counts mapping only and does not reflect the R-001 fidelity gap.
+
+coverage:
+  - r_id: R-001
+    task: T-101
+    fidelity: partial
+    citations: ["spec.md:5", "spec.md:6", "proposed.md:3", "proposed.md:4"]
+    note: >
+      spec.md:6 requires the exact string "Hello, Ada!" for Ada. proposed.md:4 says only "returning the
+      required greeting", so the exact string is not carried into the task.
+  - r_id: R-002
+    task: T-102
+    fidelity: full
+    citations: ["spec.md:8", "spec.md:9", "proposed.md:6", "proposed.md:7"]
+    note: >
+      The task restates both the empty-name rejection and ValueError. The definition of "empty" is
+      ambiguous in the spec itself (see F-003), so the plan inherits that ambiguity rather than creating it.
+  - r_id: R-003
+    task: T-103
+    fidelity: full
+    citations: ["spec.md:11", "spec.md:12", "proposed.md:9", "proposed.md:10"]
+    note: >
+      The spec requires tests for the ordinary greeting and empty-input rejection, and T-103 names both.
+      T-103 does not state what the tests assert, but the spec does not require that either.
+
+findings:
+  - id: F-001
+    severity: medium
+    claim: >
+      T-101 omits the exact-output acceptance criterion. The spec fixes the string "Hello, Ada!" for Ada.
+      The task says only "the required greeting", which leaves the implementer and the test author to
+      reconstruct the criterion.
+    citations: ["spec.md:6", "proposed.md:4"]
+    tag: Grounded
+    class: plan-quality gap
+  - id: F-002
+    severity: medium
+    claim: >
+      T-103 does not tie the ordinary-case test to the exact string from R-001. It also does not say the
+      empty-name test asserts ValueError. Tests could pass with weak assertions (for example, a non-empty
+      result or any exception) and still match the task text, while the spec's "exact string" and
+      "ValueError" criteria go unchecked.
+    citations: ["spec.md:6", "spec.md:9", "spec.md:12", "proposed.md:10"]
+    tag: Grounded
+    class: plan-quality gap
+  - id: F-003
+    severity: low
+    claim: >
+      "Empty" is undefined in the spec and the plan. Whether whitespace-only names (for example "   ")
+      or None count as empty is not stated. The spec says "empty name" and "empty input" in different
+      places, and T-102 repeats "empty name" without clarification.
+    citations: ["spec.md:9", "spec.md:12", "proposed.md:7"]
+    tag: Grounded
+    class: plan-quality gap (spec ambiguity propagated into plan)
+  - id: F-004
+    severity: low
+    claim: >
+      The spec gives the greeting only for the single example name Ada. The general format for other
+      names, such as "Hello, <name>!", is not stated. T-101 carries no template, so a reasonable
+      implementation could hardcode the string or generalize it differently.
+    citations: ["spec.md:6", "proposed.md:4"]
+    tag: "[INFERRED] (that the general template is intended)"
+    class: plan-quality gap (spec ambiguity)
+  - id: F-005
+    severity: low
+    claim: >
+      The plan names no file targets and no function module path for greet, the tests, or the test
+      runner. It has no verification or acceptance step, such as running the tests, and no
+      done-criteria per task.
+    citations: ["proposed.md:3-10"]
+    tag: Grounded (the absence is observable in the 10-line file)
+    class: plan-quality gap
+  - id: F-006
+    severity: low
+    claim: >
+      The Wave 1B matrix reports coverage_pct 1.0 and best_practice_grade 4 although one row is partial
+      and the plan has no verification steps. S_domains 2 is inferred from task text because the plan has
+      no file paths. The headline numbers should not be read as plan readiness.
+    citations: ["coverage-matrix.yaml:6", "coverage-matrix.yaml:20", "coverage-matrix.yaml:27", "coverage-matrix.yaml:29"]
+    tag: Grounded (the S_domains value is [INFERRED] by the matrix itself at line 27)
+    class: calibration caution
+
+risk_register:
+  - id: RK-1
+    risk: >
+      Greeting implemented with a wrong format (punctuation or spacing) because the exact string is not
+      in T-101, and the tests do not catch it because T-103 states no exact assertion.
+    likelihood: low-medium
+    impact: R-001 fails silently
+    refs: [F-001, F-002]
+  - id: RK-2
+    risk: >
+      Inconsistent handling of whitespace-only or None names, leaving R-002 behaviour undefined at the
+      edges.
+    likelihood: medium
+    impact: low
+    refs: [F-003]
+  - id: RK-3
+    risk: >
+      The plan has no file targets, so the implementer may put greet and the tests in unexpected
+      locations. Without a verification step, completion is claimed without a test run.
+    likelihood: low
+    impact: low
+    refs: [F-005]
+  - id: RK-4
+    risk: >
+      Readers rely on coverage 1.0 or grade 4 and skip the R-001 fidelity fix.
+    likelihood: low-medium
+    impact: low
+    refs: [F-006]
+
+recommendations:
+  - id: REC-1
+    file: proposed.md
+    change: >
+      Rewrite T-101 to state "greet('Ada') returns exactly 'Hello, Ada!'" (spec.md:6). Also state how
+      other names are formatted, or flag that the spec leaves this open.
+    verifier: >
+      Re-read T-101 and confirm the literal string "Hello, Ada!" appears. Re-run the R-001 fidelity
+      check and confirm it moves to full.
+    priority: P0
+  - id: REC-2
+    file: proposed.md
+    change: >
+      Extend T-103 so the ordinary test asserts equality with "Hello, Ada!" and the empty-name test
+      asserts ValueError is raised (for example with pytest.raises).
+    verifier: >
+      Confirm T-103 names both assertions. After execution, confirm the test source contains the exact
+      string and a ValueError assertion.
+    priority: P1
+  - id: REC-3
+    file: proposed.md
+    change: >
+      Add one sentence to T-102 defining "empty": either "" only, or "" plus whitespace-only strings.
+      Record the decision as an open spec question if the spec owner has not ruled on it.
+    verifier: >
+      Confirm T-102 contains an explicit definition. Confirm the T-103 test cases include the chosen
+      boundary case.
+    priority: P1
+  - id: REC-4
+    file: proposed.md
+    change: >
+      Name the file targets for the greet implementation and the tests. Add a final verification task
+      (or acceptance line on each task) that runs the test suite and reports pass/fail.
+    verifier: >
+      Check that every task lists a target path and that a verification step with an explicit pass
+      criterion exists.
+    priority: P2
+
+best_practice_grade: 3
+best_practice_grade_rationale: >
+  Mapping is clean, with traceable T-to-R IDs and no scope creep. The plan loses points for the lost
+  exact-string criterion, undefined "empty", no file targets, no verification step, and weak test
+  assertions. I put it one point below the matrix's 4.
+
+self_reported_confidence: 0.85

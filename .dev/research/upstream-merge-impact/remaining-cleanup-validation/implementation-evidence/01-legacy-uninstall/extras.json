@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "ruff",
+        "check",
+        ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/check_retirement.py"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "ruff",
+        "format",
+        "--check",
+        ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/check_retirement.py"
+      ],
+      "exit_code": 0,
+      "stdout": "1 file already formatted\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "python",
+        ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/01-legacy-uninstall/check_retirement.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: exact Makefile and guide edits; script absent, including dangling symlinks\nPASS: no active tracked callers; all other baseline files and user staging preserved\nLIMIT: ignored paths inventoried only; external callers and future runtime outcomes UNVERIFIED\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "typecheck": {
+    "status": "skip",
+    "reason": "Neither mypy nor pyright is installed; no tools installed for this task."
+  },
+  "full_test_suite": {
+    "status": "skip",
+    "reason": "Deletion-only product change; scoped static acceptance check executed instead."
+  }
+}

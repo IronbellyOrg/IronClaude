@@ -1,0 +1,18 @@
+# Wave 1A step 4a — returned by Agent sc:reuse-auditor (agentId a853743c4522f8dc4); persisted by orchestrator.
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+degraded_reason: "auggie/serena unavailable; native Read/Grep/Glob grep-skeleton fallback; findings capped at advisory L2."
+sampled: false
+findings:
+  - candidate: greet
+    location: src/greeting.py:1-4
+    capability_tag: "falsy-guarded name validation, then greeting string formatting"
+    neighbours: []
+    neighbour_search_notes: "Glob **/*.py in repo_root -> src/greeting.py, tests/test_greeting.py only; grep matched candidate itself, its test consumer (tests/test_greeting.py:5) and non-source docs."
+    composite_scores: {C_cap: 0.0, C_shape: 0.0, C_aug: 0.0, S_reuse: 0.0}
+    tier: distinct
+    verdict: distinct
+    confidence: 0.85

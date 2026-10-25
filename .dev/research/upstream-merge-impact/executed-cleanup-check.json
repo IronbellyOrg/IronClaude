@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "baseline": "053b75664c8979bf223b8040f68310dce882d05b",
+  "branch": {
+    "command": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "returncode": 0,
+    "stdout": "feature/remove-framework-sync-codecov\n",
+    "stderr": ""
+  },
+  "head": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stdout": "053b75664c8979bf223b8040f68310dce882d05b\n",
+    "stderr": ""
+  },
+  "exact_five_path_diff": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "053b75664c8979bf223b8040f68310dce882d05b",
+      "--",
+      ".",
+      ":!.dev"
+    ],
+    "returncode": 0,
+    "stdout": "M\t.github/workflows/README.md\nD\t.github/workflows/pull-sync-framework.yml\nM\t.github/workflows/test.yml\nD\tdocs/.framework-sync-commit\nD\tscripts/sync_from_framework.py\n",
+    "stderr": ""
+  },
+  "three_targets_absent_without_symlinks": {
+    ".github/workflows/pull-sync-framework.yml": true,
+    "scripts/sync_from_framework.py": true,
+    "docs/.framework-sync-commit": true
+  },
+  "exact_readme_transform": true,
+  "protected_files_unchanged": {
+    "pyproject.toml": true,
+    "src/superclaude/templates/documents/readme_template.md": true
+  },
+  "stale_reference_search": {
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-i",
+      "-E",
+      "pull-sync-framework|sync_from_framework|framework-sync-commit|codecov",
+      "--",
+      ".",
+      ":!.dev",
+      ":!src/superclaude/templates/documents/readme_template.md"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "workflow_checker": {
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "python",
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/done/TASK-WF-ripOutTheFramewo-20261023-134610/artifacts/check_test_workflow.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: workflow differs only by the complete approved upload-step deletion\nPASS: YAML parses; coverage step, XML and terminal reports, jobs and settings preserved\nPASS: unchanged pyproject.toml\nPASS: unchanged src/superclaude/templates/documents/readme_template.md\n",
+    "stderr": ""
+  },
+  "retained_logs": {
+    "t1-removal.log": {
+      "exists": true,
+      "lines": 50,
+      "sha256": "f3e98a3b9176bec4a5870f2a7ee54f52d1233d9752fa356849007d630213b8f8"
+    },
+    "t2-workflow-check.log": {
+      "exists": true,
+      "lines": 8,
+      "sha256": "189de2934745d6b6f33b2784d123e0a232f0559b50c3c0d5359adf463d369d25"
+    },
+    "t3-reference-check.log": {
+      "exists": true,
+      "lines": 29,
+      "sha256": "36386b32b96f8c9a7f7096da9340b1415caec0ffd0db8a73bf2ee1658a3a2f98"
+    }
+  },
+  "commit_or_remote_effects": "HEAD equals baseline: no resulting commit in this branch. Remote mutation history and live PR/branch state UNVERIFIED; no remote operation performed by review.",
+  "runtime": "Only task-owned static YAML/file assertions executed. No project test suite, hosted Actions, installer, sync script, build or real revert executed."
+}

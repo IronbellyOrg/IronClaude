@@ -1,0 +1,13 @@
+# Wave 5 sc:evidence-validator, requested slot opus (agentId a0ec72f5af9201974); persisted by orchestrator
+validator: sc:evidence-validator
+evidence_validator_ran: true
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+absence_claims: [{claim: "no conftest.py, pytest config or __init__.py", result: kept, method: "Glob **/* in audit_repo_root"}]
+claims_to_remove: []
+zero_drop_flag: true
+validator_suggested_status: success   # overridden by orchestrator: grounding-gaps.yaml non-empty -> partial (§10.6)
+advisory_applied: "reuse line now cites artifacts/reuse-audit.yaml"

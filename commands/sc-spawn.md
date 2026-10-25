@@ -7,7 +7,7 @@ mcp-servers: []
 personas: []
 ---
 
-# /sc:sc:sc:spawn - Meta-System Task Orchestration
+# /sc:sc-spawn - Meta-System Task Orchestration
 
 ## Triggers
 - Complex multi-domain operations requiring intelligent task breakdown
@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/sc:sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
+/sc:sc-spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
 ```
 
 ## Behavioral Flow
@@ -53,21 +53,21 @@ Key behaviors:
 
 ### Complex Feature Implementation
 ```
-/sc:sc:spawn "implement user authentication system"
+/sc:sc-spawn "implement user authentication system"
 # Breakdown: Database design → Backend API → Frontend UI → Testing
 # Coordinates across multiple domains with dependency management
 ```
 
 ### Large-Scale System Operation
 ```
-/sc:sc:spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
+/sc:sc-spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
 # Enterprise-scale operation with sophisticated orchestration
 # Adaptive coordination based on operation characteristics
 ```
 
 ### Cross-Domain Infrastructure
 ```
-/sc:sc:spawn "establish CI/CD pipeline with security scanning"
+/sc:sc-spawn "establish CI/CD pipeline with security scanning"
 # System-wide infrastructure operation spanning DevOps, Security, Quality domains
 # Parallel execution of independent components with validation gates
 ```
@@ -99,7 +99,7 @@ This command produces a TASK HIERARCHY ONLY - delegates execution to other comma
 **Output**: Task breakdown document with:
 - Epic decomposition
 - Task hierarchy with dependencies
-- Delegation assignments (which `/sc:sc:*` command handles each task)
+- Delegation assignments (which `/sc:sc-*` command handles each task)
 - Coordination strategy
 
-**Next Step**: Execute individual tasks using delegated commands (`/sc:sc:implement`, `/sc:sc:design`, `/sc:sc:test`, etc.)
+**Next Step**: Execute individual tasks using delegated commands (`/sc:sc-implement`, `/sc:sc-design`, `/sc:sc-test`, etc.)

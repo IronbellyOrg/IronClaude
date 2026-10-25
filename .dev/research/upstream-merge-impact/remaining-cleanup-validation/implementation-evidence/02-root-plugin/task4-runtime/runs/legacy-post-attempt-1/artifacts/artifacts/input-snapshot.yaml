@@ -1,0 +1,13 @@
+input_tree_sha256: c92b9146ec4b6adc046c8e1d570c3b16e5a75aaf51a46ccff0ca3afb1964747b
+file_count: 5
+file_list:
+  - path: completed.md
+    sha256: 2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25
+  - path: execution.log
+    sha256: db52c076e3eccc09207806f3620bce1750d834f7cbc01259484cf8bddc51db52
+  - path: spec.md
+    sha256: 9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548
+  - path: src/greeting.py
+    sha256: 6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35
+  - path: tests/test_greeting.py
+    sha256: 6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4

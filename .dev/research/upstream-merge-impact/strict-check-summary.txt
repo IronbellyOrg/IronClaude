@@ -1,0 +1,11 @@
+Snapshot: 053b75664c8979bf223b8040f68310dce882d05b
+54 Git records across eight units, 563 distinct historical changed paths.
+Strict reverse method: git diff --binary --no-ext-diff PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -
+The command checks patches only and does not apply them or change source/index/Git history.
+48 records returned 1: strict reverse patch check failed.
+Five records returned 0: ab0bb0f5, 42946f84, 323137a9, 04c9b85c, f14f0cca.
+One record returned 128: 67449770, because the parent-to-commit diff is empty (no change to reverse).
+An accepted strict reverse patch does not establish semantic safety.
+A rejected strict reverse patch does not establish that Git's three-way revert must conflict.
+Actual git revert results, runtime regression tests, and multi-step reversal-sequence results: UNVERIFIED. No revert was executed.
+Per-record stderr and exact parent comparisons: reverse-checks.json, units.json.

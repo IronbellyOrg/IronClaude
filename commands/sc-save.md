@@ -7,7 +7,7 @@ mcp-servers: [serena]
 personas: []
 ---
 
-# /sc:sc:sc:save - Session Context Persistence
+# /sc:sc-save - Session Context Persistence
 
 ## Triggers
 - Session completion and project context persistence needs
@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/sc:sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
+/sc:sc-save [--type session|learnings|context|all] [--summarize] [--checkpoint]
 ```
 
 ## Behavioral Flow
@@ -54,28 +54,28 @@ Key behaviors:
 
 ### Basic Session Save
 ```
-/sc:sc:save
+/sc:sc-save
 # Saves current session discoveries and context to Serena MCP
 # Automatically creates checkpoint if session exceeds 30 minutes
 ```
 
 ### Comprehensive Session Checkpoint
 ```
-/sc:sc:save --type all --checkpoint
+/sc:sc-save --type all --checkpoint
 # Complete session preservation with recovery checkpoint
 # Includes all learnings, context, and progress for session restoration
 ```
 
 ### Session Summary Generation
 ```
-/sc:sc:save --summarize
+/sc:sc-save --summarize
 # Creates session summary with discovery documentation
 # Updates cross-session learning patterns and project insights
 ```
 
 ### Discovery-Only Persistence
 ```
-/sc:sc:save --type learnings
+/sc:sc-save --type learnings
 # Saves only new patterns and insights discovered during session
 # Updates project understanding without full session preservation
 ```

@@ -1,0 +1,18 @@
+[
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "OUT=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/artifacts\nP=$(dirname \"$OUT\"); while [ ! -e \"$P\" ]; do P=$(dirname \"$P\"); done\necho \"nearest_existing_ancestor=$(realpath \"$P\")\"; echo \"out_exists=$([ -e \"$OUT\" ] && echo yes || echo no)\"\n[ -e \"$OUT\" ] && { echo \"out_realpath=$(realpath \"$OUT\")\"; ls -la \"$OUT\"; }\necho \"superclaude_on_path=$(command -v superclaude || echo ABSENT)\"",
+      "description": "Resolve output path and look up superclaude executable"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Write",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/artifacts/return-contract.yaml",
+      "content": "{\n  \"contract\": \"sc-reflect/detection-contract-readiness\",\n  \"status\": \"stopped-precondition\",\n  \"readiness\": \"UNAVAILABLE\",\n  \"reason\": \"superclaude package executable not found on PATH; it is not bundled with this plugin\",\n  \"requested_surface\": \"superclaude reflect contract-status --repo synthetic/example --pr 1\",\n  \"repo\": \"synthetic/example\",\n  \"pr\": 1,\n  \"audit_performed\": false,\n  \"mode\": null,\n  \"tier\": null,\n  \"calibrated_confidence\": null,\n  \"merge_method\": null,\n  \"package_cli_invoked\": false,\n  \"package_code_imported\": false,\n  \"installation_attempted\": false,\n  \"pr_state_modified\": false,\n  \"monitor_armed\": false,\n  \"no_promote\": true,\n  \"promotion_performed\": false,\n  \"remediation_requested\": false,\n  \"report_path\": null,\n  \"output_dir\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/artifacts\",\n  \"output_safety\": \"resolved via nearest existing ancestor; no '..', no symlink escape, outside plugin distribution dirs and audited fixture root\"\n}\n"
+    }
+  }
+]

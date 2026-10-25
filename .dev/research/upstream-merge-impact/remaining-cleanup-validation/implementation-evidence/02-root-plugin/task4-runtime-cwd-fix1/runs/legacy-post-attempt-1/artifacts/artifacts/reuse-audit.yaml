@@ -1,0 +1,9 @@
+# Step 4a, sc:reuse-auditor, requested slot haiku (agentId afe8fbc01082c3e95); persisted by orchestrator
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+findings:
+  - {candidate: greet, ref: "src/greeting.py:1-4", neighbours: [], C_cap: 0.0, C_shape: 0.0, C_aug: 0.0, S_reuse: 0.0, confidence: 0.86, tier: distinct, verdict: distinct, evidence_grounded: true}

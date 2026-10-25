@@ -1,0 +1,9 @@
+Static report completeness/citation check, 2026-10-23
+Method: parse quality-ci.md backtick file:line citations; assert file existence and line-range bounds; assert five full commit hashes, 26 distinct endpoint path rows, equality with endpoint-inventory.json, and no unresolved RF_PLACEHOLDER markers.
+First attempt: exit 1.
+AssertionError: [('.dev/research/upstream-merge-impact/quality-ci-e2896335.patch', '1', '403', 'line exceeds file'), ('.dev/research/upstream-merge-impact/quality-ci-e2896335.patch', '14', '403', 'line exceeds file'), ('.dev/research/upstream-merge-impact/quality-ci-e2896335.patch', '391', '403', 'line exceeds file')]
+Recovery: Read confirmed line 400 is the last substantive line; changed all three end ranges from virtual trailing line 403 to substantive line 400.
+Second attempt: exit 0.
+5/5 commits, 26/26 endpoint rows, no placeholders, 154 valid citation ranges; static checks only.
+Historical formatting AST check: 14 of 14 before/after Python syntax trees equal.
+No project tests, CI runs, or actual Git reverts were executed.

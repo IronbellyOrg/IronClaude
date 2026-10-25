@@ -1,0 +1,12 @@
+# files differing from baseline-hashes.txt (expected: the five allowed docs files changed so far)
+docs/mcp/mcp-integration-policy.md
+docs/memory/README.md
+docs/memory/reflexion.jsonl.example
+docs/reference/pm-agent-autonomous-reflection.md
+docs/user-guide/memory-system.md
+# protected check (five docs files excluded):
+PROTECTED_UNCHANGED
+solutions_learned identical
+workflow_metrics identical
+patterns_learned identical
+# docs/mistakes exists? no

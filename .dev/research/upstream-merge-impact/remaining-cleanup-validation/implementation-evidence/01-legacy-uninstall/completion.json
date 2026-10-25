@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "source_tasks": 1,
+  "completed_tasks": 1,
+  "verdict": "compliant",
+  "review_confirmed": true,
+  "ledger": ".dev/implement/01-legacy-uninstall-070d29db/progress.md",
+  "final_preservation_check": {
+    "exit_code": 0,
+    "stdout": "PASS: exact Makefile and guide edits; script absent, including dangling symlinks\nPASS: no active tracked callers; all other baseline files and user staging preserved\nLIMIT: ignored paths inventoried only; external callers and future runtime outcomes UNVERIFIED\n",
+    "stderr": ""
+  },
+  "snapshot_pin_removed": true,
+  "sweep_refs": []
+}

@@ -1,0 +1,20 @@
+# Returned by Task(sc:reuse-auditor) agentId a71706e220c4568b5; persisted verbatim-in-substance by orchestrator.
+stage: post
+run_level:
+  max_overlap: 0.0
+  degraded: ["neighbour-search:auggie_unavailable"]
+  degraded_reason: "auggie/serena MCP unavailable; native Glob+Grep over repo_root excluding .git; findings capped at advisory L2; C_aug dropped, renormalized over C_cap+C_shape."
+  sampled: false
+  candidates_scanned: 1
+  neighbours_found: 0
+findings:
+  - symbol: greet
+    file_line: "src/greeting.py:1-4"
+    tier: distinct
+    verdict: distinct
+    composite_scores: {C_cap: 0.0, C_shape: 0.0, C_aug: 0.0, S_reuse: 0.0}
+    confidence: 0.85
+    neighbours: []
+    notes:
+      - "Only Python sources: src/greeting.py (candidate) and tests/test_greeting.py (consumer, not prior art: import at line 1, calls at lines 5 and 10)."
+      - "spec/proposed/completed prose describe the requirement; no implementation."

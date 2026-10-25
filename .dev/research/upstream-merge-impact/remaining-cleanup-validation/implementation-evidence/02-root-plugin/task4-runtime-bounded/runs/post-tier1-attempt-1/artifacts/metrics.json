@@ -1,0 +1,52 @@
+{
+  "metrics_schema_version": "1.0",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "post",
+  "tier_reached": 1,
+  "status": "partial",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_initial": 0.89,
+    "calibrated_confidence_final": 0.89,
+    "calibration_delta": 0.17
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 18,
+    "citations_revalidated": 18,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 0,
+    "regression": 0,
+    "total": 0
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "merge_method": null,
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "skipped",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "serena",
+    "auggie",
+    "get_current_config",
+    "neighbour-search:auggie_unavailable",
+    "verification-triangle:tool-unavailable",
+    "think_about_checkpoints:skipped"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": true
+}

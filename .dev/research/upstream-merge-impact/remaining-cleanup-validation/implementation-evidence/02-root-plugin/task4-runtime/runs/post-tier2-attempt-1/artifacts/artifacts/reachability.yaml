@@ -1,0 +1,3 @@
+# Step 5.6 / 5.6a: no side-effect-bearing requirement, no durable_sink/@sink annotation, no spec-declared enabled-by-config capability.
+reachability_gate_ran: false
+reachability_skip_reason: no-side-effect-requirements

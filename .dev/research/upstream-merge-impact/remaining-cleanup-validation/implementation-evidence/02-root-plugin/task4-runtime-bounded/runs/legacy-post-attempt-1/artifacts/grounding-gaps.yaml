@@ -1,0 +1,15 @@
+findings:
+  - id: GG-1
+    hunk_ref: "src/greeting.py:1-4; tests/test_greeting.py:1-13"
+    evidence_missing: "No test/lint execution: verification triangle unavailable (execute_shell_command not exposed) and execution.log:5 claims no test execution."
+    why_not_classifiable: "Regression detection by pass/fail requires execution; static read shows no contradiction but runtime behaviour is unconfirmed (§10.4 degrade -> Grounding Gap)."
+    next_evidence_needed: "Run the suite from the project root (e.g. python -m pytest) and record exit code + collected count; exit 0 with 2 tests closes this gap."
+    owner: user
+    decision_needed_by_user: false
+  - id: GG-2
+    hunk_ref: "tests/test_greeting.py:1"
+    evidence_missing: "No src/__init__.py, conftest.py, pyproject.toml, pytest.ini or setup.cfg in the audited repo; intended test invocation is undeclared."
+    why_not_classifiable: "`from src.greeting import greet` resolves only when the project root is on sys.path; importability depends on the runner (pytest exit 2/3 would be a Grounding Gap, not Regression)."
+    next_evidence_needed: "Declare/confirm the intended runner configuration, or run tests with the intended invocation."
+    owner: user
+    decision_needed_by_user: false

@@ -1,0 +1,128 @@
+# Tier-1 reflection card — persisted verbatim by orchestrator from Task(sc:sc-root-cause-analyst)
+# agentId: aaf5e56db06815910 ; requested_model_slot: sonnet ; agent-reported model: claude-sonnet-5-5[1m]
+# Path conventions: bare paths are relative to audit_repo_root
+#   /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project
+# plugin/... and runs/... are relative to .../task4-runtime-bounded
+card_author: sc:sc-root-cause-analyst
+mode: post
+hypothesis_source: agent
+task_verdicts:
+  - task_id: T-101
+    spec_req: R-001
+    status: success
+    deviation_class: none
+    evidence_anchor: src/greeting.py:4
+    rationale: "completed.md:6 claims R-001 (spec.md:5-6). changes.patch:9 adds a line byte-identical to src/greeting.py:4, which returns f\"Hello, {name}!\" and so gives 'Hello, Ada!' for 'Ada'. Static diff evidence only; the verification triangle did not run, so the runtime outcome is unverified. Statically the behavior matches the spec."
+  - task_id: T-102
+    spec_req: R-002
+    status: success
+    deviation_class: none
+    evidence_anchor: src/greeting.py:2-3
+    rationale: "completed.md:7 claims R-002 (spec.md:8-9). changes.patch:7-8 adds `if not name: raise ValueError(\"name required\")`, which rejects the empty string with ValueError. Static evidence only. The guard is broader than the spec (K-001) but does not contradict it."
+  - task_id: T-103
+    spec_req: R-003
+    status: partial
+    deviation_class: none
+    evidence_anchor: tests/test_greeting.py:4-13
+    rationale: "completed.md:8 claims both ordinary and empty-input tests (spec.md:11-12). changes.patch has one hunk (lines 5-9), touching only src/greeting.py, so the audited diff contains no tests. tests/test_greeting.py:4-5 (test_ordinary) and :8-13 (test_empty) exist on disk, but the file is untracked, outside --scope src/, and was not executed. The claim is unverified against the diff and is not classified as drift or regression (see G-001)."
+deviations: []
+grounding_gaps:
+  - id: G-001
+    hunk_ref: "completed.md:8 (T-103) vs changes.patch:1-9 (no tests/ hunk); on-disk candidate tests/test_greeting.py:4-13"
+    evidence_missing: "No diff hunk adds tests. There is no task-log or commit evidence that tests/test_greeting.py was created during this work, no test-run result, and tests/ is outside --scope src/."
+    why_not_classifiable: "A claimed-but-absent test could be drift/coverage (the taxonomy's pytest exit 5 analogue), or just an out-of-scope or untracked file that the diff omits. With no commit, task log or run result, neither the Drift signals nor any Regression signal can be confirmed. There is no unmapped hunk and no demonstrated spec contradiction."
+    next_evidence_needed: "(a) A diff that includes tests/test_greeting.py, or confirmation that it was authored as part of T-103; (b) a pytest run result for tests/test_greeting.py."
+    owner: user
+    decision_needed_by_user: true
+  - id: G-002
+    hunk_ref: "changes.patch:5-9 -> src/greeting.py:1-4 (H1, T-101/T-102)"
+    evidence_missing: "No verification-triangle result (execute_shell_command unavailable; pytest deliberately not run) and no task-log/self-report supplied (execution.log and proposed.md were present but not supplied as inputs)."
+    why_not_classifiable: "Both the taxonomy's primary Regression signal (a previously-passing test now fails) and its fallback (the task-log claim) are absent. Absence of regression cannot be asserted, only that the check was degraded and is unproven. No class is invented."
+    next_evidence_needed: "A pytest run of tests/test_greeting.py with the result recorded, or a supplied task log, plus a baseline showing which tests passed before the diff, if any existed."
+    owner: user
+    decision_needed_by_user: true
+risks:
+  - id: K-001
+    claim: "`if not name` rejects every falsy input (None, 0, [], etc.) with ValueError, not just the empty string. Spec R-002 only requires rejecting an empty name, so behavior for None and 0 is unspecified. Raising ValueError is plausible but not confirmed as intended."
+    citation_or_INFERRED: "src/greeting.py:2-3; spec.md:8-9"
+    severity: low
+  - id: K-002
+    claim: "Whitespace-only names such as '   ' are truthy, so they are accepted and return 'Hello,    !'. The spec is silent and neither the code nor the tests cover this."
+    citation_or_INFERRED: "[INFERRED] from src/greeting.py:2-4 (truthiness check, no strip); spec.md:8-9 silent"
+    severity: medium
+  - id: K-003
+    claim: "Truthy non-str names (e.g. 5 or a list) are not type-checked and are formatted as-is ('Hello, 5!'). The spec does not define a type contract."
+    citation_or_INFERRED: "[INFERRED] from src/greeting.py:4 (f-string, no isinstance check)"
+    severity: low
+  - id: K-004
+    claim: "Untested invariants: the tests cover only the 'Ada' and '' cases. They do not cover None, whitespace, non-str input or the error message text, and test_empty only checks that ValueError is raised, not its message."
+    citation_or_INFERRED: "tests/test_greeting.py:4-13"
+    severity: low
+  - id: K-005
+    claim: "The tests were not executed, so whether tests/test_greeting.py passes is unknown. The import `from src.greeting import greet` depends on how src/ is resolved (package or namespace). The author did not check whether src/__init__.py or a pytest config exists, so a collection error (pytest exit 2) is possible."
+    citation_or_INFERRED: "[INFERRED] from tests/test_greeting.py:1; execution status from orchestrator evidence map (wave1-evidence-map.yaml:44-46)"
+    severity: medium
+  - id: K-006
+    claim: "The tasklist marks T-103 done (status: done) although it is the only task without diff evidence, which risks overstating completeness in the audit summary."
+    citation_or_INFERRED: "completed.md:1-3, completed.md:8; changes.patch:1-9"
+    severity: medium
+  - id: K-007
+    claim: "No regression candidates identified. The single hunk maps to T-101 and T-102 and contradicts no spec criterion. The regression check is degraded because verification did not run and no task log was supplied (G-002)."
+    citation_or_INFERRED: "changes.patch:5-9; spec.md:5-9; wave1-evidence-map.yaml:44-46"
+    severity: low
+recommendations:
+  - id: R-001
+    file: tests/test_greeting.py
+    change: "Bring this file into the audited diff (re-run with a diff covering tests/), or have the owner confirm it was authored under T-103. Use --scope src/ tests/ if both should be audited."
+    verifier: "Re-run UC-2 with a changes.patch that contains a tests/test_greeting.py hunk. T-103 then maps to R-003 with diff evidence and G-001 closes."
+    linked: [G-001, K-006]
+    priority: high
+  - id: R-002
+    file: tests/test_greeting.py
+    change: "Run pytest on tests/test_greeting.py from a writable copy of the fixture (not the read-only audit root) and record the exit code: 0 passes, 1 is a Regression, 2/3 is a Grounding Gap, 5 means no tests collected."
+    verifier: "pytest exit code and captured output, mapped per the taxonomy verification exit-code table (deviation-taxonomy.md:101-115)."
+    linked: [G-002, K-005]
+    priority: high
+  - id: R-003
+    file: spec.md
+    change: "Add an explicit rule for non-empty-string inputs (None, 0, whitespace-only, non-str): either reject them with ValueError or accept them as-is."
+    verifier: "Spec review, then new tests in tests/test_greeting.py asserting the chosen behavior for None, '   ' and a non-str value."
+    linked: [K-001, K-002, K-003, K-004]
+    priority: medium
+  - id: R-004
+    file: src/greeting.py
+    change: "Only after R-003 is decided: replace `if not name` at line 2 with an explicit check (isinstance str and name.strip() as appropriate) that matches the spec."
+    verifier: "The tests added under R-003 pass under pytest."
+    linked: [K-001, K-002, K-003]
+    priority: low
+  - id: R-005
+    file: completed.md
+    change: "Supply the task log (execution.log) as --task-log on the next run, or annotate T-103 with the tests' file path, so the claim can be grounded."
+    verifier: "A UC-2 re-run with --task-log supplied shows a populated task-log evidence field, and G-002 closes or narrows."
+    linked: [G-001, G-002]
+    priority: medium
+citations:
+  - spec.md:1-12
+  - spec.md:5-6
+  - spec.md:8-9
+  - spec.md:11-12
+  - completed.md:1-3
+  - completed.md:6
+  - completed.md:7
+  - completed.md:8
+  - changes.patch:1-9
+  - changes.patch:5-9
+  - changes.patch:7-8
+  - changes.patch:9
+  - src/greeting.py:1-4
+  - src/greeting.py:2-3
+  - src/greeting.py:2-4
+  - src/greeting.py:4
+  - tests/test_greeting.py:1
+  - tests/test_greeting.py:4-5
+  - tests/test_greeting.py:4-13
+  - tests/test_greeting.py:8-13
+  - plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md:101-115
+  - runs/post-tier1-attempt-1/artifacts/artifacts/wave1-evidence-map.yaml:44-46
+regression_candidate_count: 0
+self_reported_confidence: 0.72   # NOT used for routing; superseded by blind calibration

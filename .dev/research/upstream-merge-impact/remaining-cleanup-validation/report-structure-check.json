@@ -1,0 +1,7 @@
+{
+  "required_sections": true,
+  "no_placeholders": true,
+  "four_objective_sections": true,
+  "no_forbidden_dashes": true,
+  "boundary_pass": true
+}

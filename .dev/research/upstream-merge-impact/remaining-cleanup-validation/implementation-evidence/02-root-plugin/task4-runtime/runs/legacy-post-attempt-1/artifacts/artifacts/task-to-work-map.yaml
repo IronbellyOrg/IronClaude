@@ -1,0 +1,37 @@
+# Wave 1B (UC-2) tasklist/spec -> work map. Work sources: untracked working-tree files
+# (repo has no commits/index; git ls-files --others), scope=src plus task-log-declared tests file.
+repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+work_basis: "no commits; working-tree untracked files; no --diff supplied; changes.patch present in repo but NOT a supplied input"
+requirements:
+  - id: R-001
+    spec: spec.md:5-6
+    task: T-101 (completed.md:6)
+    work: src/greeting.py:1-4
+    log: execution.log:2
+    status: mapped
+  - id: R-002
+    spec: spec.md:8-9
+    task: T-102 (completed.md:7)
+    work: src/greeting.py:2-3
+    log: execution.log:3
+    status: mapped
+  - id: R-003
+    spec: spec.md:11-12
+    task: T-103 (completed.md:8)
+    work: tests/test_greeting.py:4-13
+    log: execution.log:4
+    status: mapped
+work_hunks:
+  - file: src/greeting.py
+    lines: 1-4
+    kind: new-file
+    mapped_to: [T-101, T-102]
+  - file: tests/test_greeting.py
+    lines: 1-13
+    kind: new-file (outside --scope src; declared by task log and T-103)
+    mapped_to: [T-103]
+unmapped_hunks: []
+tasklist_completion_pct: 1.0
+S_scope: 2
+S_domains: 2   # code, tests
+S_dev_density: 0.0

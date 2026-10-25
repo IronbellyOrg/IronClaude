@@ -1,0 +1,105 @@
+# Tier-1 reflection card (Wave 1C) authored by sc:sc-root-cause-analyst (model slot: sonnet, agentId a579f42984d0d6bf2).
+# Persisted verbatim by the orchestrator before calibration.
+# Citation path legend (relative names used in this card):
+#   spec.md     = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md
+#   proposed.md = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/proposed.md
+#   coverage-matrix.yaml = <output>/artifacts/coverage-matrix.yaml
+#   requirements-analyst-output.md = <output>/artifacts/requirements-analyst-output.md
+#   <output> = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/legacy-pre-attempt-1/artifacts
+card_id: reflect-pre-uc1-greeting-fixture-tier1
+mode: pre
+tier: 1
+card_author: {agent: sc:sc-root-cause-analyst, model_class: sonnet}
+inputs:
+  spec: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md
+  tasklist: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/proposed.md
+
+coverage:
+  coverage_pct: 1.0            # coverage-matrix.yaml:4 "coverage_pct: 1.0"
+  coverage_pct_union: 1.0      # coverage-matrix.yaml:5 "coverage_pct_union: 1.0"
+  semantic_fully_covered: "1 of 3 (R-002 only); R-001 and R-003 partial"   # [INFERRED]
+  unmapped_requirements: []    # coverage-matrix.yaml:8
+  S_scope: 3                   # coverage-matrix.yaml:10
+  S_domains: 2                 # coverage-matrix.yaml:11
+  S_dev_density: 0.0           # coverage-matrix.yaml:12 — [INFERRED] understates the two drift items below
+
+requirement_findings:
+  - requirement_id: R-001
+    spec_citation: "spec.md:6"
+    spec_quote: "The greet function MUST return the exact string Hello, Ada! for Ada."
+    task_id: T-101
+    task_citation: "proposed.md:4"
+    task_quote: "Implement greet(name) returning the required greeting."
+    verdict: partial
+    notes: "T-101 maps to R-001 by ID (proposed.md:3 '## T-101 R-001'). It does not restate the literal 'Hello, Ada!' or the Ada input, and has no acceptance check. [INFERRED] An implementer could choose a different format and still claim compliance."
+  - requirement_id: R-002
+    spec_citation: "spec.md:9"
+    spec_quote: "The greet function MUST reject an empty name with ValueError."
+    task_id: T-102
+    task_citation: "proposed.md:7"
+    task_quote: "Reject an empty name using ValueError."
+    verdict: covered
+    notes: "Faithful restatement; exception type and trigger both match."
+  - requirement_id: R-003
+    spec_citation: "spec.md:12"
+    spec_quote: "Tests MUST exercise the ordinary greeting and empty-input rejection."
+    task_id: T-103
+    task_citation: "proposed.md:10"
+    task_quote: "Add ordinary and empty-name test cases."
+    verdict: partial
+    notes: "Both scenarios named; assertions (exact string, ValueError) and a run/pass step not stated. Analyst graded covered-loosely (coverage-matrix.yaml:16)."
+
+deviations:
+  - id: DEV-1
+    headline: "T-101 does not restate the exact required output string"
+    location: "proposed.md:4"
+    mapped_task: T-101
+    spec_section: "R-001 (spec.md:6)"
+    evidence_quote: "Implement greet(name) returning the required greeting."
+    classification: drift
+    rationale: "Under-specification that risks silent divergence from the exact-string MUST; does not contradict it, so not regression."
+    default_remediation: "Amend T-101 to state greet('Ada') == 'Hello, Ada!' (exact match) as its acceptance criterion."
+  - id: DEV-2
+    headline: "T-103 does not define test assertions or a run/pass step"
+    location: "proposed.md:10"
+    mapped_task: T-103
+    spec_section: "R-003 (spec.md:12)"
+    evidence_quote: "Add ordinary and empty-name test cases."
+    classification: drift
+    rationale: "A test could exist without asserting the exact string or ValueError, satisfying plan text but not the MUST's intent. Under-specification, not contradiction. [INFERRED] No run step is stated."
+    default_remediation: "Amend T-103 to require assertions on 'Hello, Ada!' and on ValueError for empty name, plus a final test-run step that must pass."
+  # regression: none; authorized / necessary: none; out-of-spec scope: none
+
+grounding_gaps:
+  - ref: "R-002 boundary inputs (whitespace-only, None, non-string)"
+    evidence_missing: "spec.md:9 only says 'reject an empty name'; whitespace-only / non-string not addressed."
+    why_not_classifiable: "No spec text states intent, so omission cannot be called drift or covered."
+    next_evidence_needed: "Spec clarification or owner decision on whether 'empty' includes whitespace-only and None."
+    owner: user
+    decision_needed_by_user: true
+  - ref: "Test framework, file location, and module path"
+    evidence_missing: "Neither spec nor plan names test framework, test file location, or greet module path (requirements-analyst-output.md:30)."
+    why_not_classifiable: "Spec is silent, so the omission cannot be judged a deviation."
+    next_evidence_needed: "Project conventions or user decision on module and test layout."
+    owner: user
+    decision_needed_by_user: true
+
+risks:
+  - {id: RISK-1, severity: medium, risk: "Token-only traceability overstates fidelity: coverage 1.0 while R-001/R-003 semantically partial.", evidence: "coverage-matrix.yaml:14 and :16"}
+  - {id: RISK-2, severity: medium, risk: "Regression candidate: a differently formatted greeting for Ada would satisfy T-101 text but violate R-001.", evidence: "[INFERRED] proposed.md:4 vs spec.md:6"}
+  - {id: RISK-3, severity: medium, risk: "Regression candidate: tests not asserting ValueError/exact string would satisfy T-103 but leave R-003 unmet.", evidence: "[INFERRED] proposed.md:10"}
+  - {id: RISK-4, severity: low, risk: "No dependency/ordering fields and no per-task acceptance criteria.", evidence: "requirements-analyst-output.md:28-29"}
+  - {id: RISK-5, severity: low, risk: "No end-to-end test-run/exit step.", evidence: "[INFERRED] proposed.md lines 1-10 contain no run task"}
+  - {id: RISK-6, severity: low, risk: "S_dev_density 0.0 may read as zero deviation although two drift items exist.", evidence: "coverage-matrix.yaml:12"}
+
+recommendations:
+  - {id: REC-1, priority: high, file: "proposed.md", change: "T-101 (line 4): add acceptance criterion greet('Ada') == 'Hello, Ada!' (exact match), replacing 'the required greeting'.", verifier: "Grep proposed.md T-101 section for literal 'Hello, Ada!'.", linked: [DEV-1, RISK-1, RISK-2]}
+  - {id: REC-2, priority: high, file: "proposed.md", change: "T-103 (line 10): specify assertions (exact 'Hello, Ada!'; empty name raises ValueError) and require the suite to run and pass.", verifier: "Grep T-103 section for 'ValueError', 'Hello, Ada!', and a run/pass statement.", linked: [DEV-2, RISK-3, RISK-5]}
+  - {id: REC-3, priority: medium, file: "proposed.md", change: "Add per-task Acceptance lines, T-103 depends-on T-101/T-102, and target file paths.", verifier: "Read proposed.md; every task has Acceptance, T-103 lists dependencies, paths named.", linked: [RISK-4, "grounding_gaps[1]"]}
+  - {id: REC-4, priority: low, file: "spec.md", change: "Optional, needs user decision: clarify in R-002 whether whitespace-only/None counts as empty.", verifier: "Read R-002 section; boundary-input policy stated.", linked: ["grounding_gaps[0]"]}
+
+best_practice_grade:
+  score: 3
+  rationale: "1:1 traceability, no scope creep, no MUST contradicted; lacks acceptance criteria, exact-output restatement, assertion detail, ordering, file paths, test-run step."
+
+self_reported_confidence: 0.85   # narrative only; NOT used for routing

@@ -1,0 +1,25 @@
+selected_tier: 1
+hard_override: "--tier 1"          # §5.1: STOP at T1, skip Wave 3+
+fired_rule_number: 2                # §5.3 rubric evaluated for the record; rule 1 fails on S_domains==2
+coverage_degraded: null
+coverage_undefined: false
+surface_unreached: null
+inputs:
+  C: 0.93
+  S_scope: 3
+  S_domains: 2                      # [INFERRED] planned code+tests; tasklist names no paths
+  S_dev_density: 0.0
+  coverage_pct: 1.0
+rule_trace:
+  rule_1: "fail (S_domains 2 != 1)"
+  rule_2: "pass (C 0.93>=0.85, S_scope 3<=10, S_domains 2<=2, S_dev_density 0.0<=0.10; no WARN since density <= 0.05)"
+composite_score: 1.0
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1             # undefined 'empty' and Ada-only greeting pin
+escalation_reason: "--tier 1 hard pin; rubric would independently STOP at T1 via rule 2"
+t2_model_class_diversity: full     # 3 distinct aliases resolved (unused at T1)
+calibrator_diversity: full

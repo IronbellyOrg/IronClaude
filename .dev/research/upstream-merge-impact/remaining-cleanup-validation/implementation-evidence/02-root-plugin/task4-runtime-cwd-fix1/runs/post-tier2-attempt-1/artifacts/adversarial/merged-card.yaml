@@ -1,0 +1,102 @@
+# Provenance: produced by Skill sc:sc-adversarial-protocol (Mode A), merge executed by sc:merge-executor
+# Base: Variant 2 (haiku:qa, reviewer-2) — force-selected under BLOCKED_BY_INVARIANTS (INV-006)
+# Merge date: 2026-10-25T14:35:43Z
+# Bare paths resolve under the frozen snapshot S=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root; task-diff-map.yaml/git-inventory.txt under S/__run_evidence__/artifacts/; deviation-taxonomy.md under <plugin>/skills/sc-reflect-protocol/refs/.
+# Merged from reviewers 1 (sonnet:analyzer) and 2 (haiku:qa); base identity (reviewer 2, persona qa) kept per plan G-4.
+# Base original comments (Variant 2, lines 1-2), kept verbatim:
+# Persisted verbatim by orchestrator. Agent: sc:reflect-reviewer (read-only), requested model slot: haiku (env ANTHROPIC_DEFAULT_HAIKU_MODEL=grok-4.7[1m]); provider model not separately reported by Agent tool.
+# Bare paths resolve under reviewer_grounding_root=<output>/reviewer-snapshot/root (task-diff-map.yaml / git-inventory.txt under __run_evidence__/artifacts/); deviation-taxonomy.md under <plugin>/skills/sc-reflect-protocol/refs/.
+reviewer: 2
+persona: qa
+# Source: Base (original); Anchor: findings; Disposition: preserved-exact
+findings: []
+grounding_gaps:
+  # G1. Source: Base (original, modified) — Change #4; Anchor: grounding_gaps[0] (V2:7-12), A-002, INV-005; Disposition: modified (why_not_classifiable appended, next_evidence_needed prefixed; hunk_ref, evidence_missing, owner, decision_needed_by_user preserved-exact); Decision basis: A-002 / INV-005
+  - hunk_ref: "completed.md:8 (T-103) / tests/test_greeting.py:1-13 (no changes.patch hunk)"
+    evidence_missing: "changes.patch:1-9 is only src/greeting.py. tests/test_greeting.py:1-13 is in the snapshot and git-inventory.txt:8 lists it untracked, but it has no hunk. execution.log:4 is a self-report of creation; execution.log:5 disclaims execution. Untracked status is not distinctive: src/greeting.py is also untracked (git-inventory.txt:7) because rev-parse failed (git-inventory.txt:9); the real hole is absence from the supplied diff."
+    why_not_classifiable: "R-003 (spec.md:12) is not contradicted by an on-disk test file that calls both cases, and there is no unmapped hunk (task-diff-map.yaml:29) to class as Drift. Confirming or denying T-103 from the diff alone would be a guess. The missing hunk is explained by audit scope (task-diff-map.yaml:27: test file 'outside --scope src/'), so this is an evidence-supply gap, not proof of non-delivery."
+    next_evidence_needed: "A regenerated diff with the scope widened beyond src/ (see recommendations[0]) containing a changes.patch hunk for tests/test_greeting.py covering the same 13 lines as tests/test_greeting.py:1-13, or an explicit user confirmation that this untracked file is the delivered T-103 artifact."
+    owner: user
+    decision_needed_by_user: true
+  # G2. Source: Base (original, modified) — Change #5; Anchor: grounding_gaps[1] (V2:13-18), A-001, INV-003; Disposition: modified (evidence_missing appended; other fields preserved-exact); Decision basis: A-001 / INV-003
+  - hunk_ref: "tests/test_greeting.py:1 (from src.greeting import greet) / src/greeting.py:1-4 (no package marker)"
+    evidence_missing: "No test run. Snapshot glob has no src/__init__.py, tests/__init__.py, conftest.py, pyproject.toml, or pytest config. task-diff-map.yaml:38 records verification_ran false (tool-unavailable). execution.log:5 disclaims execution. git-inventory.txt:2-8 (untracked listing of the whole audit root) also shows no package marker or pytest config, so the absence is not an artifact of the snapshot glob. The snapshot is not a complete mirror (proposed.md, git-inventory.txt:5, is not in it)."
+    why_not_classifiable: "[INFERRED] from src.greeting can resolve as a namespace package when the project root is on sys.path (python -m pytest from the root). Under plain pytest prepend mode with no __init__.py, tests/ is put on sys.path and the import may raise ModuleNotFoundError (pytest exit 2/3), which deviation-taxonomy.md:108 maps to a Grounding Gap, not a Regression. Not observed."
+    next_evidence_needed: "Output of python -m pytest tests and of plain pytest tests, both with the audit root as cwd."
+    owner: user
+    decision_needed_by_user: true
+  # G3. Source: Base (original, modified) — Change #6; Anchor: grounding_gaps[2] (V2:19-24), INV-004, C-001/X-002; Disposition: modified (why_not_classifiable appended; other fields preserved-exact, decision_needed_by_user: false kept); Decision basis: INV-004
+  - hunk_ref: "src/greeting.py:2-3 (R-002, spec.md:9)"
+    evidence_missing: "spec.md:9 says reject an empty name with ValueError and does not define empty for None, 0, whitespace-only, or non-str."
+    why_not_classifiable: "No spec sentence is contradicted. if not name also rejects other falsy values and accepts '   ' (src/greeting.py:2-4). That is neither authorized nor forbidden, and the line maps to T-102 (completed.md:7), so it is not an unmapped Drift hunk. As a grounding_gaps row it still forces status partial and needs_human_decision (deviation-taxonomy.md:149-152); decision_needed_by_user: false only marks it as not urgent. The advisory correctness-gaps channel does not apply: it needs two sibling symbols (deviation-taxonomy.md:175) and src/greeting.py defines one function."
+    next_evidence_needed: "Spec text stating whether None/non-str should raise TypeError or ValueError, and whether whitespace-only names are empty."
+    owner: user
+    decision_needed_by_user: false
+agreements_with_t1:
+  # Source: Base (original, modified) — Change #2, with Variant 1 (sonnet:analyzer) V1:6-9, V1:22-26 reasoning; Anchor: agreements_with_t1[0] (V2:26), INV-011; Disposition: merged-from-multiple; Decision basis: S-001 / INV-011
+  - "No 4-class deviation. changes.patch has one hunk (changes.patch:5-9); task-diff-map.yaml:29 unmapped_hunks is empty. Precedence in deviation-taxonomy.md:89-97 does not fire. With no verification run (task-diff-map.yaml:38) and unmapped_hunks: [] (task-diff-map.yaml:29), none of the Drift signals at deviation-taxonomy.md:62/:65/:67/:109 fire; Drift needs an unmapped hunk or a run-derived signal, and neither exists."
+  # Source: Base (original); Anchor: agreements_with_t1[1] (V2:27), R-001; Disposition: preserved-exact
+  - "R-001 (spec.md:6) is statically met: src/greeting.py:4 and changes.patch:9 return f\"Hello, {name}!\", so greet('Ada') is Hello, Ada!. execution.log:2 agrees. Diff-evidenced. Not executed."
+  # Source: Base (original); Anchor: agreements_with_t1[2] (V2:28), R-002; Disposition: preserved-exact
+  - "R-002 (spec.md:9) is statically met for '': src/greeting.py:2-3 and changes.patch:7-8 raise ValueError('name required'). execution.log:3 agrees. Diff-evidenced for the empty string only."
+  # Source: Base (original); Anchor: agreements_with_t1[3] (V2:29), R-003 / T-103; Disposition: preserved-exact
+  - "R-003 (spec.md:12) is not evidenced by the supplied diff. Coverage row T-103 has mapped_hunks [] (task-diff-map.yaml:23-28). On-disk tests/test_greeting.py:4-5 asserts the exact Ada string; tests/test_greeting.py:8-13 expects ValueError on ''. Those two cases match the MUST text if collection succeeds."
+  # Source: Base (original); Anchor: agreements_with_t1[4] (V2:30), R-001..R-003 coverage; Disposition: preserved-exact
+  - "Every requirement-bearing spec span is in the matrix: spec.md:6 (R-001), spec.md:9 (R-002), spec.md:12 (R-003). spec.md:1-3 is title/disclaimer, not a MUST."
+  # Source: Base (original, modified) — Change #10; Anchor: agreements_with_t1[5] (V2:31), threshold 2/3 = 0.667, INV-017(d), INV-012; Disposition: modified (appended; 2/3 and 0.667 preserved-exact); Decision basis: INV-017(d) / INV-012
+  - "completed.md:2 status: done is not supported. Static diff-backed completion is 2/3 = 0.667 (task-diff-map.yaml:34). Non-empty grounding gaps force status partial (deviation-taxonomy.md:149-153). needs_human_decision is true (deviation-taxonomy.md:152). Deviation counts by class are all zero (authorized 0, necessary 0, drift 0, regression 0). G1-G3 are ordinal labels for the grounding_gaps rows."
+  # Source: Base (original); Anchor: agreements_with_t1[6] (V2:32), regression_present; Disposition: preserved-exact
+  - "regression_present is false. No previously-passing test exists (git-inventory.txt:9, no HEAD). execution.log:5 gives no pass/fail. Reachability skip is no-side-effect-requirements (task-diff-map.yaml:37), not a deviation."
+disagreements_with_t1:
+  # Source: Base (original); Anchor: disagreements_with_t1[0] (V2:34), G1 wording; Disposition: preserved-exact
+  - "G1 wording only; class unchanged. T1 says there is no tracked-state evidence the test file was delivered. git-inventory.txt:7-9 shows the whole tree is untracked, including src/greeting.py, which is in changes.patch:1-9. Absence from the patch is the gap, not untracked status."
+  # Source: Base (original, modified) — Change #12 (V2 advocate R2); Anchor: disagreements_with_t1[1] (new), t1-card.md:89, INV-006; Disposition: modified (appended entry); Decision basis: INV-006
+  - "T1's run recommendation (t1-card.md:89) is success-only. A verification run must be classified per deviation-taxonomy.md:105-113; a bare 'exit 1 = Regression' rule would let an environment failure set regression_present (see recommendations[1])."
+risks:
+  # Source: Base (original); Anchor: risks[0] (V2:36), T-103 false completion; Disposition: preserved-exact
+  - "False completion: completed.md:2 and completed.md:8 mark T-103 done while task-diff-map.yaml:28 is unverified-in-diff and execution.log:5 disclaims any run."
+  # Source: Base (original); Anchor: risks[1] (V2:37), pytest exit 2/3; Disposition: preserved-exact
+  - "[INFERRED] tests/test_greeting.py:1 may fail collection under plain pytest (no package marker in the snapshot). If so, R-003 evidence is non-functional even though the file exists. pytest exit 2/3 would stay a Grounding Gap (deviation-taxonomy.md:108)."
+  # Source: Base (original); Anchor: risks[2] (V2:38), threshold executed coverage 0/3; Disposition: preserved-exact
+  - "[INFERRED] If collection works, both tests pass: greet('Ada') matches tests/test_greeting.py:5, and greet('') hits ValueError at src/greeting.py:2-3 so tests/test_greeting.py:11-12 returns. That is static, not an observed run. Executed coverage is 0/3."
+  # Source: Base (original); Anchor: risks[3] (V2:39), weak oracle (C-008); Disposition: preserved-exact
+  - "Weak oracle, still spec-legal: tests/test_greeting.py:11 accepts any ValueError and does not check the message. spec.md:9 does not require a message."
+  # Source: Base (original, modified) — Change #13, with Variant 1 (sonnet:analyzer) V1:80 — Change #13; Anchor: risks[4] (V2:40), worked example "Hello,   !"; Disposition: merged-from-multiple; Decision basis: concrete-over-generic (plan anchor-omission table)
+  - "src/greeting.py:2 rejects every falsy value and accepts whitespace (src/greeting.py:4). Unspecified (spec.md:9); surprise for callers, not a contradiction. For example, src/greeting.py:4 returns \"Hello,   !\" for a whitespace-only name (V1:80)."
+  # Source: Base (original, modified) — Change #9; Anchor: risks[5] (V2:41), git-inventory.txt:5 / proposed.md, U-001, A-001; Disposition: modified (extra-MUST inference dropped; snapshot hole kept); Decision basis: U-001 / A-001
+  - "git-inventory.txt:5 lists ?? proposed.md, which is not in the snapshot, so the snapshot is not a complete mirror of the audit root. Its audit-root copy (proposed.md:3-10) only restates T-101/T-102/T-103 and adds no MUST beyond spec.md:6/9/12."
+recommendations:
+  # Source: Base (original, modified) — Change #3; Anchor: recommendations[0] (V2:43-46), C-009, A-002, INV-001, INV-015, INV-017(a); Disposition: modified (file/change/verifier rewritten; priority: high preserved-exact); Decision basis: C-009 / A-002 / INV-001 / INV-015 / INV-017(a)
+  - file: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/changes.patch"
+    change: "Regenerate the audited diff (audit root, task-diff-map.yaml:3; the frozen snapshot copy is read-only and must not be edited) as ONE patch covering both src/greeting.py and tests/test_greeting.py:1-13, with the scope widened beyond `--scope src/` (task-diff-map.yaml:27 records the test file as outside that scope). Same-scope regeneration reproduces G1. With no HEAD and every file untracked (git-inventory.txt:2-9), a tests-only intent-to-add would drop the existing H1 hunk."
+    verifier: "After the Wave 1B map is rebuilt: H1 still maps to T-101/T-102 and a new hunk whose body matches tests/test_greeting.py:1-13 maps to T-103 (no longer mapped_hunks: [], task-diff-map.yaml:26). G1 can then close; R-003 execution evidence still requires the Change 1 run."
+    priority: high
+  # Source: Base (original, modified) — Change #1, with Variant 1 (sonnet:analyzer) V1:91 — Change #1; Anchor: recommendations[1] (V2:47-50), exit codes 0/1/2/3/5/124, "2 passed", INV-006, INV-014; Disposition: merged-from-multiple (change/verifier replaced; file and priority: high preserved-exact); Decision basis: INV-006 / INV-014
+  - file: "tests/test_greeting.py"
+    change: "User action (reviewers may not execute tests): from the audit root, run `python -m pytest tests -q` and plain `pytest tests -q` and record both outputs. Prefer clearing an import failure by invocation (`python -m pytest` from the audit root) over adding files. Adding src/__init__.py, conftest.py or pytest config maps to no task or spec line (completed.md:6-8; spec.md:6/9/12) and would show up as an unmapped hunk (Drift signal, deviation-taxonomy.md:62) unless the user records the decision or amends the tasklist first."
+    verifier: "Classify each exit per deviation-taxonomy.md:105-113: 0 (expected success detail: 2 passed) clears G2; 1 is a Regression only if pytest actually collected and ran the tests and an assertion failed (a tool or interpreter error such as 'No module named pytest' is a Grounding Gap, not a Regression); retry once on failure before classifying (flaky -> Grounding Gap, :112); 2/3 -> Grounding Gap (:108); 5 (no tests collected) -> Drift/coverage (:109); 124 timeout -> Grounding Gap (:111); any other exit -> Grounding Gap (:113). If the two invocations disagree, G2 stays open. A clean run clears G2 only; it closes neither G1 nor G3. Do not treat execution.log:5 as a run."
+    priority: high
+  # Source: Base (original, modified) — Change #7; Anchor: recommendations[2] (V2:51-54), completed.md:2, completed.md:8, INV-002, INV-017(c), C-006; Disposition: modified (change/verifier rewritten; file and priority: high preserved-exact); Decision basis: INV-002 / INV-017(c)
+  - file: "completed.md"
+    change: "User action: keep completed.md:2 (status) and the completed.md:8 [x] T-103 checkbox from asserting done (set status partial and uncheck T-103) until the test hunk is in the diff and a real run is recorded. Any edit to the audit root makes snapshot S stale; take a fresh snapshot before re-audit."
+    verifier: "completed.md:2 says done and completed.md:8 is checked only after both artifacts exist. Note that the reflect status stays partial while any grounding gap (including G3) remains (deviation-taxonomy.md:149)."
+    priority: high
+  # Source: Base (original, modified) — Change #8, priority calibration from Variant 1 (sonnet:analyzer) V1:93-96 — Change #8; Anchor: recommendations[3] (V2:55-58), spec.md:9, src/greeting.py:2, C-007, INV-016; Disposition: modified (change/verifier rewritten; priority medium -> low); Decision basis: C-007 tie / INV-016
+  - file: "spec.md"
+    change: "Clarify spec.md:9 first: state whether None/non-str should raise TypeError or ValueError and whether whitespace-only names count as empty. Change src/greeting.py:2 and add assertions only after the spec states it. Do not edit src/greeting.py before then."
+    verifier: "spec.md:9 amended; each newly stated case then has a passing assertion."
+    priority: low
+  # Source: Base (original, modified) — Change #9; Anchor: recommendations[4] (V2:59-62), proposed.md, U-001, A-001; Disposition: modified (change/verifier rewritten; file and priority: low preserved-exact); Decision basis: U-001 / A-001
+  - file: "proposed.md"
+    change: "Include proposed.md in future snapshots so snapshot-absence claims stay sound."
+    verifier: "proposed.md is readable inside the snapshot."
+    priority: low
+verdict:
+  # Source: Base (original); Anchor: verdict.tasklist_completion_pct = 0.667; Disposition: preserved-exact (comment added per Change #11; Decision basis: INV-008)
+  tasklist_completion_pct: 0.667  # 2/3 tasks diff-backed (task-diff-map.yaml:34); completed.md claims 3/3; executed coverage 0/3
+  # Source: Base (original); Anchor: verdict.regression_present = false; Disposition: preserved-exact
+  regression_present: false
+  # Source: Base (original); Anchor: verdict.status_recommendation = partial; Disposition: preserved-exact (comment added per Change #11; Decision basis: INV-008)
+  status_recommendation: partial  # forced by non-empty grounding_gaps (3 rows: G1, G2, G3) per deviation-taxonomy.md:149-152; needs_human_decision: true
+# Source: Base (original); Anchor: self_reported_confidence = 0.8; Disposition: preserved-exact. Self-reported by the base reviewer (reviewer 2); NOT the calibrated confidence (calibrated: V1 0.90, V2 0.92).
+self_reported_confidence: 0.8

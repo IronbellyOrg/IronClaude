@@ -1,0 +1,87 @@
+{
+  "calibrator_agent": "sc:confidence-calibrator",
+  "agent_id": "a88b5045cb0485844",
+  "requested_model_slot": "opus",
+  "env_alias": "claude-opus-5-5[1m]",
+  "returned_provider_model": "not surfaced by Agent result",
+  "card_author_slot": "sonnet",
+  "calibrator_model_class": "opus",
+  "reviewer_model_classes": [
+    "sonnet"
+  ],
+  "calibrator_diversity": "full",
+  "formation_context_supplied": false,
+  "citation_spot_checks_performed": true,
+  "citation_spot_checks": [
+    {
+      "citation": "execution.log:1-5",
+      "result": "verified"
+    },
+    {
+      "citation": "execution.log:2",
+      "result": "verified"
+    },
+    {
+      "citation": "execution.log:3",
+      "result": "verified"
+    },
+    {
+      "citation": "execution.log:4",
+      "result": "verified"
+    },
+    {
+      "citation": "execution.log:5",
+      "result": "verified"
+    },
+    {
+      "citation": "src/greeting.py:1-4",
+      "result": "verified"
+    },
+    {
+      "citation": "src/greeting.py:2-3",
+      "result": "verified"
+    },
+    {
+      "citation": "src/greeting.py:2",
+      "result": "verified"
+    },
+    {
+      "citation": "src/greeting.py:4",
+      "result": "verified"
+    },
+    {
+      "citation": "tests/test_greeting.py:1",
+      "result": "verified"
+    },
+    {
+      "citation": "tests/test_greeting.py:4-5",
+      "result": "verified"
+    },
+    {
+      "citation": "tests/test_greeting.py:8-13",
+      "result": "verified"
+    },
+    {
+      "citation": "(uncited) no src/__init__.py",
+      "result": "verified by direct Read absence"
+    },
+    {
+      "citation": "(uncited) git init, no commits",
+      "result": "partially verified (.git/HEAD -> refs/heads/master absent; packed-refs not ruled out)"
+    }
+  ],
+  "scores": {
+    "citation_grounding": 0.88,
+    "coverage_completeness": 0.8,
+    "deviation_classification_clarity": 0.85,
+    "risk_surface_coverage": 0.85,
+    "recommendation_actionability": 0.9
+  },
+  "sum": 4.28,
+  "mean_unrounded": 0.856,
+  "confidence_calibrated": 0.86,
+  "self_reported": 0.8,
+  "delta": 0.06,
+  "escalation_recommendation": "ORCHESTRATOR_DECIDES",
+  "calibration_failed": false
+}

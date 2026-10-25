@@ -1,0 +1,10 @@
+{
+  "fixture_has_commit": false,
+  "fixture_indexed_files": [],
+  "patch_diff_headers": [
+    "diff --git a/src/greeting.py b/src/greeting.py"
+  ],
+  "task_log_flag_passed": false,
+  "execution_log_exists": true,
+  "invariant_disposition": "Still unresolved; original T-103 provenance cannot be established by widening scope or synthesizing a new patch"
+}

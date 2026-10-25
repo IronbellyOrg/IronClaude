@@ -1,0 +1,2 @@
+deviation_aggregation_mode: per-hunk
+deviations: []      # 0 authorized / 0 necessary / 0 drift / 0 regression; evidence-insufficient items are in grounding-gaps.yaml

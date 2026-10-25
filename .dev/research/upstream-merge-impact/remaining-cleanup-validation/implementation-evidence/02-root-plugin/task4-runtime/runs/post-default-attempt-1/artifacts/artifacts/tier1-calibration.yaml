@@ -1,0 +1,17 @@
+# Wave 1D — returned by Agent sc:confidence-calibrator (model slot: opus), agentId a7614a93bb644c1c3; persisted verbatim.
+# Calibrator input: card file + rubric only (no formation context). Disclosure: the brief also restated the
+# taxonomy's Drift/Regression definitions (one sentence of rubric-adjacent context).
+dimension_scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.90
+calibrated_confidence: 0.79   # (0.85+0.85+0.55+0.80+0.90)/5 = 0.79
+self_reported_confidence: 0.80
+delta: -0.01
+key_finding: "DEV-1 classified Drift despite mapped_task T-102; Drift requires an unmapped change -> category misapplied"
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet]
+calibrator_diversity: full
+notes: ["spot_check_not_performed (calibrator restricted to card + rubric)"]

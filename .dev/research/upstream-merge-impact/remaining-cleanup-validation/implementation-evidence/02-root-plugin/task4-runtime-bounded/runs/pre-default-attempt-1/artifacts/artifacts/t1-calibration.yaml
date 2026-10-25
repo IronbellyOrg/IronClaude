@@ -1,0 +1,26 @@
+# Wave 1D blind calibration. Agent: sc:confidence-calibrator, requested slot opus (alias -> claude-opus-5-5[1m]; provider model not echoed by Agent tool). agentId a2eaff49fc5f49751.
+# Inputs: t1-reflection-card.yaml + refs/reflection-rubric.md only (no formation trail); calibrator independently Read spec.md and proposed.md at cited ranges.
+card_author_slot: sonnet
+calibrator_slot: opus
+calibrator_diversity: full   # opus not in {sonnet} (T1 author set); no T2 reviewers
+citation_spot_checks:
+  - {citation: "spec.md:5,8,11", verified: true}
+  - {citation: "proposed.md:3,6,9", verified: true}
+  - {citation: "proposed.md:4", verified: true}
+  - {citation: "spec.md:6", verified: true}
+  - {citation: "proposed.md:7", verified: true}
+  - {citation: "proposed.md:10", verified: true}
+  - {citation: "spec.md:9", verified: true}
+  - {citation: "spec.md:12", verified: true}
+  - {citation: "proposed.md:9", verified: true}
+  - {citation: "rec-4 target 'proposed.md: new line after line 11'", verified: false, note: "proposed.md has 10 lines; line 11 does not exist"}
+  - {citation: "dropped_or_adjusted entries", verified: false, note: "no artifact cited"}
+  - {citation: "src/greeting.py, tests/test_greeting.py", verified: false, note: "not read; context-only per card"}
+scores:
+  citation_grounding: 0.88
+  coverage_completeness: 1.00
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.92
+calibrated_confidence: 0.89   # mean(0.88,1.00,0.80,0.85,0.92)=4.45/5=0.89
+self_reported_confidence_ignored: 0.72

@@ -1,0 +1,2 @@
+[claude-code:unrecognized_model] {"model":"grok-4.7[1m]","query_source":"agent:custom:sc:reflect-reviewer"}
+Background tasks still running after 600s; terminating. Set CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 to wait indefinitely.

@@ -1,0 +1,1008 @@
+===== metadata =====
+COMMAND: ['git', 'show', '--no-patch', '--format=fuller', 'b061b2f7', '1e8c6e16']
+RETURN_CODE: 0
+commit b061b2f7b00ca33d66c10b666c15016873b2e094
+Author:     Utakata <syouryuu1111@gmail.com>
+AuthorDate: Wed Feb 25 18:14:50 2026 +0900
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Feb 25 14:44:50 2026 +0530
+
+    fix: correct pull-sync workflow protection rules (#530)
+
+commit 1e8c6e1622e157f36f44792e41f667399edb2a79
+Merge: e60e844e b061b2f7
+Author:     Ironbelly <ryan@ironbelly.com>
+AuthorDate: Fri Mar 6 10:22:09 2026 -0500
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Mar 6 10:22:09 2026 -0500
+
+    Merge branch 'SuperClaude-Org:master' into master
+
+===== added-files =====
+COMMAND: ['git', 'diff', '--name-status', 'b061b2f7^', 'b061b2f7']
+RETURN_CODE: 0
+A	.github/workflows/pull-sync-framework.yml
+A	scripts/sync_from_framework.py
+
+===== merge-net-files =====
+COMMAND: ['git', 'diff', '--numstat', '1e8c6e16^1', '1e8c6e16']
+RETURN_CODE: 0
+115	0	.github/workflows/pull-sync-framework.yml
+959	0	scripts/sync_from_framework.py
+
+===== merge-versus-incoming-tip =====
+COMMAND: ['git', 'diff', 'b061b2f7', '1e8c6e16', '--', '.github/workflows/pull-sync-framework.yml', 'scripts/sync_from_framework.py']
+RETURN_CODE: 0
+
+===== first-fork-script-change =====
+COMMAND: ['git', 'show', 'f7ea213a', '--', 'scripts/sync_from_framework.py']
+RETURN_CODE: 0
+commit f7ea213a8f43e6c1b7b34352920ab632e6bc1e68
+Author: RyanW <ryan@ironbelly.com>
+Date:   Wed Mar 18 03:05:10 2026 +0000
+
+    Roadmap gaps
+
+diff --git a/scripts/sync_from_framework.py b/scripts/sync_from_framework.py
+index 53c89355..3d8dc647 100755
+--- a/scripts/sync_from_framework.py
++++ b/scripts/sync_from_framework.py
+@@ -33,20 +33,21 @@ import logging
+ 
+ # Configure logging
+ logging.basicConfig(
+-    level=logging.INFO,
+-    format='%(asctime)s - %(levelname)s - %(message)s'
++    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+ )
+ logger = logging.getLogger(__name__)
+ 
+ 
+ class ProtectionViolationError(RuntimeError):
+     """Raised when sync would overwrite a Plugin-owned file listed in PROTECTED_PATHS."""
++
+     pass
+ 
+ 
+ @dataclass
+ class SyncResult:
+     """Results from sync operation."""
++
+     success: bool
+     timestamp: str
+     framework_commit: str
+@@ -67,10 +68,10 @@ class ContentTransformer:
+     """Transforms Framework content for Plugin namespace."""
+ 
+     # Regex patterns for transformation
+-    COMMAND_HEADER_PATTERN = re.compile(r'^(#+\s+)/(\w+)', re.MULTILINE)
+-    COMMAND_REF_PATTERN = re.compile(r'(?<![/\w])/(\w+)(?=\s|$|:|`|\)|\])')
+-    LINK_REF_PATTERN = re.compile(r'\[/(\w+)\]')
+-    FRONTMATTER_NAME_PATTERN = re.compile(r'^name:\s*(.+)$', re.MULTILINE)
++    COMMAND_HEADER_PATTERN = re.compile(r"^(#+\s+)/(\w+)", re.MULTILINE)
++    COMMAND_REF_PATTERN = re.compile(r"(?<![/\w])/(\w+)(?=\s|$|:|`|\)|\])")
++    LINK_REF_PATTERN = re.compile(r"\[/(\w+)\]")
++    FRONTMATTER_NAME_PATTERN = re.compile(r"^name:\s*(.+)$", re.MULTILINE)
+ 
+     @staticmethod
+     def transform_command(content: str, filename: str) -> str:
+@@ -92,22 +93,13 @@ class ContentTransformer:
+         logger.debug(f"Transforming command: {filename}")
+ 
+         # Transform main header
+-        content = ContentTransformer.COMMAND_HEADER_PATTERN.sub(
+-            r'\1/sc:\2',
+-            content
+-        )
++        content = ContentTransformer.COMMAND_HEADER_PATTERN.sub(r"\1/sc:\2", content)
+ 
+         # Transform command references in text
+-        content = ContentTransformer.COMMAND_REF_PATTERN.sub(
+-            r'/sc:\1',
+-            content
+-        )
++        content = ContentTransformer.COMMAND_REF_PATTERN.sub(r"/sc:\1", content)
+ 
+         # Transform command references in links
+-        content = ContentTransformer.LINK_REF_PATTERN.sub(
+-            r'[/sc:\1]',
+-            content
+-        )
++        content = ContentTransformer.LINK_REF_PATTERN.sub(r"[/sc:\1]", content)
+ 
+         return content
+ 
+@@ -129,10 +121,7 @@ class ContentTransformer:
+         logger.debug(f"Transforming agent: {filename}")
+ 
+         # Parse frontmatter
+-        frontmatter_pattern = re.compile(
+-            r'^---\n(.*?)\n---',
+-            re.DOTALL | re.MULTILINE
+-        )
++        frontmatter_pattern = re.compile(r"^---\n(.*?)\n---", re.DOTALL | re.MULTILINE)
+ 
+         match = frontmatter_pattern.search(content)
+         if not match:
+@@ -144,21 +133,16 @@ class ContentTransformer:
+         # Transform name field (add sc- prefix if not already present)
+         def add_prefix(match):
+             name = match.group(1).strip()
+-            if not name.startswith('sc-'):
+-                return f'name: sc-{name}'
++            if not name.startswith("sc-"):
++                return f"name: sc-{name}"
+             return match.group(0)
+ 
+         frontmatter = ContentTransformer.FRONTMATTER_NAME_PATTERN.sub(
+-            add_prefix,
+-            frontmatter
++            add_prefix, frontmatter
+         )
+ 
+         # Replace frontmatter
+-        content = frontmatter_pattern.sub(
+-            f'---\n{frontmatter}\n---',
+-            content,
+-            count=1
+-        )
++        content = frontmatter_pattern.sub(f"---\n{frontmatter}\n---", content, count=1)
+ 
+         return content
+ 
+@@ -175,14 +159,16 @@ class FileSyncer:
+         """Check if git is available and repo is initialized."""
+         try:
+             subprocess.run(
+-                ['git', 'rev-parse', '--git-dir'],
++                ["git", "rev-parse", "--git-dir"],
+                 cwd=self.plugin_root,
+                 capture_output=True,
+-                check=True
++                check=True,
+             )
+             return True
+         except (subprocess.CalledProcessError, FileNotFoundError):
+-            logger.warning("Git not available - file operations will not preserve history")
++            logger.warning(
++                "Git not available - file operations will not preserve history"
++            )
+             return False
+ 
+     def sync_directory(
+@@ -190,7 +176,7 @@ class FileSyncer:
+         source_dir: Path,
+         dest_dir: Path,
+         filename_prefix: str = "",
+-        transform_fn=None
++        transform_fn=None,
+     ) -> Dict[str, int]:
+         """
+         Sync directory with namespace prefix and transformation.
+@@ -204,7 +190,7 @@ class FileSyncer:
+         Returns:
+             Statistics dict with counts of synced/modified files
+         """
+-        stats = {'synced': 0, 'modified': 0, 'renamed': 0}
++        stats = {"synced": 0, "modified": 0, "renamed": 0}
+ 
+         if not source_dir.exists():
+             logger.warning(f"Source directory not found: {source_dir}")
+@@ -213,17 +199,17 @@ class FileSyncer:
+         dest_dir.mkdir(parents=True, exist_ok=True)
+ 
+         # Get existing files in dest (with sc- prefix)
+-        existing_files = {f.name: f for f in dest_dir.glob('*.md')}
++        existing_files = {f.name: f for f in dest_dir.glob("*.md")}
+         synced_files = set()
+ 
+-        for source_file in source_dir.glob('*.md'):
++        for source_file in source_dir.glob("*.md"):
+             # Apply filename prefix
+             new_name = f"{filename_prefix}{source_file.name}"
+             synced_files.add(new_name)
+             dest_file = dest_dir / new_name
+ 
+             # Read and transform content
+-            content = source_file.read_text(encoding='utf-8')
++            content = source_file.read_text(encoding="utf-8")
+             if transform_fn:
+                 content = transform_fn(content, source_file.name)
+ 
+@@ -235,22 +221,22 @@ class FileSyncer:
+                 # File needs renaming: use git mv to preserve history
+                 if self.git_available:
+                     self._git_mv(old_file_path, dest_file)
+-                    stats['renamed'] += 1
++                    stats["renamed"] += 1
+                 else:
+                     # Fallback to regular rename
+                     if not self.dry_run:
+                         old_file_path.rename(dest_file)
+-                    stats['renamed'] += 1
++                    stats["renamed"] += 1
+                     logger.info(f"  📝 Renamed: {old_unprefixed} → {new_name}")
+ 
+             # Write content
+             if not self.dry_run:
+-                dest_file.write_text(content, encoding='utf-8')
++                dest_file.write_text(content, encoding="utf-8")
+ 
+             if dest_file.exists():
+-                stats['modified'] += 1
++                stats["modified"] += 1
+             else:
+-                stats['synced'] += 1
++                stats["synced"] += 1
+ 
+         # Remove files that no longer exist in source
+         # (only remove files with prefix that aren't in synced set)
+@@ -270,10 +256,10 @@ class FileSyncer:
+ 
+         try:
+             subprocess.run(
+-                ['git', 'mv', str(old_path), str(new_path)],
++                ["git", "mv", str(old_path), str(new_path)],
+                 cwd=self.plugin_root,
+                 check=True,
+-                capture_output=True
++                capture_output=True,
+             )
+             logger.info(f"  📝 Renamed (git mv): {old_path.name} → {new_path.name}")
+         except subprocess.CalledProcessError as e:
+@@ -299,7 +285,7 @@ class FileSyncer:
+         dest_dir.mkdir(parents=True, exist_ok=True)
+         count = 0
+ 
+-        for source_file in source_dir.glob('**/*'):
++        for source_file in source_dir.glob("**/*"):
+             if source_file.is_file():
+                 rel_path = source_file.relative_to(source_dir)
+                 dest_file = dest_dir / rel_path
+@@ -330,10 +316,10 @@ class PluginJsonGenerator:
+         Returns:
+             Complete plugin.json dictionary
+         """
+-        commands_dir = self.plugin_root / 'commands'
++        commands_dir = self.plugin_root / "commands"
+ 
+         # Base metadata from existing plugin.json
+-        root_plugin_json = self.plugin_root / 'plugin.json'
++        root_plugin_json = self.plugin_root / "plugin.json"
+         if root_plugin_json.exists():
+             base_metadata = json.loads(root_plugin_json.read_text())
+         else:
+@@ -341,16 +327,16 @@ class PluginJsonGenerator:
+                 "name": "sc",
+                 "description": "SuperClaude Plugin",
+                 "author": {"name": "SuperClaude Team"},
+-                "license": "MIT"
++                "license": "MIT",
+             }
+ 
+         # Build command mappings
+         commands = {}
+         if commands_dir.exists():
+-            for cmd_file in sorted(commands_dir.glob('sc-*.md')):
++            for cmd_file in sorted(commands_dir.glob("sc-*.md")):
+                 # Extract command name from filename
+                 # sc-brainstorm.md → brainstorm
+-                cmd_name = cmd_file.stem.replace('sc-', '')
++                cmd_name = cmd_file.stem.replace("sc-", "")
+ 
+                 # Map sc:brainstorm to path
+                 commands[f"sc:{cmd_name}"] = f"commands/{cmd_file.name}"
+@@ -363,7 +349,7 @@ class PluginJsonGenerator:
+             "homepage": base_metadata.get("homepage", ""),
+             "repository": base_metadata.get("repository", ""),
+             "license": base_metadata.get("license", "MIT"),
+-            "keywords": base_metadata.get("keywords", [])
++            "keywords": base_metadata.get("keywords", []),
+         }
+ 
+         logger.info(f"✅ Generated plugin.json with {len(commands)} commands")
+@@ -372,7 +358,7 @@ class PluginJsonGenerator:
+ 
+     def write(self, plugin_json: dict, dry_run: bool = False):
+         """Write plugin.json to .claude-plugin/ directory."""
+-        output_path = self.plugin_root / '.claude-plugin' / 'plugin.json'
++        output_path = self.plugin_root / ".claude-plugin" / "plugin.json"
+         output_path.parent.mkdir(parents=True, exist_ok=True)
+ 
+         if dry_run:
+@@ -381,8 +367,7 @@ class PluginJsonGenerator:
+             return
+ 
+         output_path.write_text(
+-            json.dumps(plugin_json, indent=2) + '\n',
+-            encoding='utf-8'
++            json.dumps(plugin_json, indent=2) + "\n", encoding="utf-8"
+         )
+         logger.info(f"✅ Written: {output_path}")
+ 
+@@ -393,11 +378,7 @@ class McpMerger:
+     def __init__(self, plugin_root: Path):
+         self.plugin_root = plugin_root
+ 
+-    def merge(
+-        self,
+-        framework_mcp: dict,
+-        plugin_mcp: dict
+-    ) -> Tuple[dict, List[str]]:
++    def merge(self, framework_mcp: dict, plugin_mcp: dict) -> Tuple[dict, List[str]]:
+         """
+         Merge MCP configurations with conflict detection.
+ 
+@@ -424,9 +405,7 @@ class McpMerger:
+         for name, config in plugin_mcp.items():
+             if name not in merged:
+                 merged[name] = config
+-                warnings.append(
+-                    f"Preserved plugin-specific MCP server: {name}"
+-                )
++                warnings.append(f"Preserved plugin-specific MCP server: {name}")
+             else:
+                 # Check if configurations differ
+                 if config != merged[name]:
+@@ -438,15 +417,15 @@ class McpMerger:
+ 
+     def backup_current(self) -> Optional[Path]:
+         """Create backup of current plugin.json."""
+-        plugin_json = self.plugin_root / 'plugin.json'
++        plugin_json = self.plugin_root / "plugin.json"
+         if not plugin_json.exists():
+             return None
+ 
+-        backup_dir = self.plugin_root / 'backups'
++        backup_dir = self.plugin_root / "backups"
+         backup_dir.mkdir(exist_ok=True)
+ 
+-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+-        backup_path = backup_dir / f'plugin.json.{timestamp}.backup'
++        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
++        backup_path = backup_dir / f"plugin.json.{timestamp}.backup"
+ 
+         shutil.copy2(plugin_json, backup_path)
+         logger.info(f"📦 Backup created: {backup_path}")
+@@ -462,8 +441,8 @@ class FrameworkSyncer:
+     # Symmetric pair with PROTECTED_PATHS below: a path appears in one or the other,
+     # never both.
+     SYNC_MAPPINGS = {
+-        "src/superclaude/commands": "commands",   # /cmd → /sc:cmd, sc- prefix
+-        "src/superclaude/agents":   "agents",     # name → sc-name in frontmatter
++        "src/superclaude/commands": "commands",  # /cmd → /sc:cmd, sc- prefix
++        "src/superclaude/agents": "agents",  # name → sc-name in frontmatter
+         # core/ and modes/ are intentionally absent — they live in PROTECTED_PATHS
+     }
+ 
+@@ -500,12 +479,7 @@ class FrameworkSyncer:
+         "modes/",
+     ]
+ 
+-    def __init__(
+-        self,
+-        framework_repo: str,
+-        plugin_root: Path,
+-        dry_run: bool = False
+-    ):
++    def __init__(self, framework_repo: str, plugin_root: Path, dry_run: bool = False):
+         self.framework_repo = framework_repo
+         self.plugin_root = plugin_root
+         self.dry_run = dry_run
+@@ -554,13 +528,13 @@ class FrameworkSyncer:
+                 timestamp=datetime.now().isoformat(),
+                 framework_commit=framework_commit,
+                 framework_version=framework_version,
+-                files_synced=stats['files_synced'],
+-                files_modified=stats['files_modified'],
+-                commands_transformed=stats['commands'],
+-                agents_transformed=stats['agents'],
++                files_synced=stats["files_synced"],
++                files_modified=stats["files_modified"],
++                commands_transformed=stats["commands"],
++                agents_transformed=stats["agents"],
+                 mcp_servers_merged=mcp_merged,
+                 warnings=self.warnings,
+-                errors=self.errors
++                errors=self.errors,
+             )
+ 
+         except ProtectionViolationError as e:
+@@ -577,7 +551,7 @@ class FrameworkSyncer:
+                 agents_transformed=0,
+                 mcp_servers_merged=0,
+                 warnings=self.warnings,
+-                errors=self.errors
++                errors=self.errors,
+             )
+         except Exception as e:
+             logger.error(f"❌ Sync failed: {e}", exc_info=True)
+@@ -593,7 +567,7 @@ class FrameworkSyncer:
+                 agents_transformed=0,
+                 mcp_servers_merged=0,
+                 warnings=self.warnings,
+-                errors=self.errors
++                errors=self.errors,
+             )
+         finally:
+             self._cleanup()
+@@ -623,11 +597,13 @@ class FrameworkSyncer:
+                 rel = protected
+                 snapshot[rel] = self._hash_file(target)
+             elif target.is_dir():
+-                for f in sorted(target.rglob('*')):
++                for f in sorted(target.rglob("*")):
+                     if f.is_file():
+                         rel = str(f.relative_to(self.plugin_root))
+                         snapshot[rel] = self._hash_file(f)
+-        logger.info(f"🔒 Protection snapshot: {len(snapshot)} Plugin-owned files hashed")
++        logger.info(
++            f"🔒 Protection snapshot: {len(snapshot)} Plugin-owned files hashed"
++        )
+         return snapshot
+ 
+     def _validate_protected_files(self, snapshot: Dict[str, str]) -> None:
+@@ -658,7 +634,9 @@ class FrameworkSyncer:
+             logger.error(msg)
+             raise ProtectionViolationError(msg)
+ 
+-        logger.info(f"🔒 Protection check passed — {len(snapshot)} Plugin-owned files unchanged")
++        logger.info(
++            f"🔒 Protection check passed — {len(snapshot)} Plugin-owned files unchanged"
++        )
+ 
+     # ── Core sync workflow ─────────────────────────────────────────────────────
+ 
+@@ -666,15 +644,22 @@ class FrameworkSyncer:
+         """Clone Framework repository to temp directory."""
+         logger.info(f"📥 Cloning Framework: {self.framework_repo}")
+ 
+-        self.temp_dir = tempfile.mkdtemp(prefix='superclaude_framework_')
+-        framework_path = Path(self.temp_dir) / 'framework'
++        self.temp_dir = tempfile.mkdtemp(prefix="superclaude_framework_")
++        framework_path = Path(self.temp_dir) / "framework"
+ 
+         try:
+             subprocess.run(
+-                ['git', 'clone', '--depth', '1', self.framework_repo, str(framework_path)],
++                [
++                    "git",
++                    "clone",
++                    "--depth",
++                    "1",
++                    self.framework_repo,
++                    str(framework_path),
++                ],
+                 check=True,
+                 capture_output=True,
+-                text=True
++                text=True,
+             )
+             logger.info(f"✅ Cloned to: {framework_path}")
+             return framework_path
+@@ -687,11 +672,11 @@ class FrameworkSyncer:
+         """Get current commit hash from repository."""
+         try:
+             result = subprocess.run(
+-                ['git', 'rev-parse', 'HEAD'],
++                ["git", "rev-parse", "HEAD"],
+                 cwd=repo_path,
+                 check=True,
+                 capture_output=True,
+-                text=True
++                text=True,
+             )
+             return result.stdout.strip()
+         except subprocess.CalledProcessError:
+@@ -700,26 +685,26 @@ class FrameworkSyncer:
+     def _get_version(self, framework_path: Path) -> str:
+         """Extract version from Framework."""
+         # Try to read version from plugin.json or package.json
+-        for version_file in ['plugin.json', 'package.json']:
++        for version_file in ["plugin.json", "package.json"]:
+             version_path = framework_path / version_file
+             if version_path.exists():
+                 try:
+                     data = json.loads(version_path.read_text())
+-                    if 'version' in data:
+-                        return data['version']
++                    if "version" in data:
++                        return data["version"]
+                 except (json.JSONDecodeError, KeyError):
+                     continue
+ 
+         # Fallback to current Plugin version
+-        plugin_json = self.plugin_root / 'plugin.json'
++        plugin_json = self.plugin_root / "plugin.json"
+         if plugin_json.exists():
+             try:
+                 data = json.loads(plugin_json.read_text())
+-                return data.get('version', '1.0.0')
++                return data.get("version", "1.0.0")
+             except json.JSONDecodeError:
+                 pass
+ 
+-        return '1.0.0'
++        return "1.0.0"
+ 
+     def _create_backup(self):
+         """Create backup of current plugin state."""
+@@ -736,45 +721,40 @@ class FrameworkSyncer:
+         logger.info("🔄 Syncing content...")
+ 
+         file_syncer = FileSyncer(self.plugin_root, self.dry_run)
+-        stats = {
+-            'files_synced': 0,
+-            'files_modified': 0,
+-            'commands': 0,
+-            'agents': 0
+-        }
++        stats = {"files_synced": 0, "files_modified": 0, "commands": 0, "agents": 0}
+ 
+         # Sync commands with transformation
+         logger.info("📝 Syncing commands...")
+-        source_commands = framework_path / 'src/superclaude/commands'
+-        dest_commands = self.plugin_root / 'commands'
++        source_commands = framework_path / "src/superclaude/commands"
++        dest_commands = self.plugin_root / "commands"
+ 
+         if source_commands.exists():
+             cmd_stats = file_syncer.sync_directory(
+                 source_commands,
+                 dest_commands,
+-                filename_prefix='sc-',
+-                transform_fn=ContentTransformer.transform_command
++                filename_prefix="sc-",
++                transform_fn=ContentTransformer.transform_command,
+             )
+-            stats['commands'] = cmd_stats['synced'] + cmd_stats['modified']
+-            stats['files_synced'] += cmd_stats['synced']
+-            stats['files_modified'] += cmd_stats['modified']
++            stats["commands"] = cmd_stats["synced"] + cmd_stats["modified"]
++            stats["files_synced"] += cmd_stats["synced"]
++            stats["files_modified"] += cmd_stats["modified"]
+             logger.info(f"✅ Commands: {stats['commands']} transformed")
+ 
+         # Sync agents with transformation
+         logger.info("📝 Syncing agents...")
+-        source_agents = framework_path / 'src/superclaude/agents'
+-        dest_agents = self.plugin_root / 'agents'
++        source_agents = framework_path / "src/superclaude/agents"
++        dest_agents = self.plugin_root / "agents"
+ 
+         if source_agents.exists():
+             agent_stats = file_syncer.sync_directory(
+                 source_agents,
+                 dest_agents,
+-                filename_prefix='sc-',
+-                transform_fn=ContentTransformer.transform_agent
++                filename_prefix="sc-",
++                transform_fn=ContentTransformer.transform_agent,
+             )
+-            stats['agents'] = agent_stats['synced'] + agent_stats['modified']
+-            stats['files_synced'] += agent_stats['synced']
+-            stats['files_modified'] += agent_stats['modified']
++            stats["agents"] = agent_stats["synced"] + agent_stats["modified"]
++            stats["files_synced"] += agent_stats["synced"]
++            stats["files_modified"] += agent_stats["modified"]
+             logger.info(f"✅ Agents: {stats['agents']} transformed")
+ 
+         # core/ and modes/ are in PROTECTED_PATHS — Plugin maintains its own versions.
+@@ -798,24 +778,24 @@ class FrameworkSyncer:
+         logger.info("🔗 Merging MCP configurations...")
+ 
+         # Read Framework MCP config
+-        framework_plugin_json = framework_path / 'plugin.json'
++        framework_plugin_json = framework_path / "plugin.json"
+         framework_mcp = {}
+ 
+         if framework_plugin_json.exists():
+             try:
+                 data = json.loads(framework_plugin_json.read_text())
+-                framework_mcp = data.get('mcpServers', {})
++                framework_mcp = data.get("mcpServers", {})
+             except json.JSONDecodeError:
+                 logger.warning("Failed to read Framework plugin.json")
+ 
+         # Read Plugin MCP config
+-        plugin_json_path = self.plugin_root / 'plugin.json'
++        plugin_json_path = self.plugin_root / "plugin.json"
+         plugin_mcp = {}
+ 
+         if plugin_json_path.exists():
+             try:
+                 data = json.loads(plugin_json_path.read_text())
+-                plugin_mcp = data.get('mcpServers', {})
++                plugin_mcp = data.get("mcpServers", {})
+             except json.JSONDecodeError:
+                 logger.warning("Failed to read Plugin plugin.json")
+ 
+@@ -831,10 +811,9 @@ class FrameworkSyncer:
+         # Update plugin.json with merged MCP config
+         if not self.dry_run and plugin_json_path.exists():
+             data = json.loads(plugin_json_path.read_text())
+-            data['mcpServers'] = merged_mcp
++            data["mcpServers"] = merged_mcp
+             plugin_json_path.write_text(
+-                json.dumps(data, indent=2) + '\n',
+-                encoding='utf-8'
++                json.dumps(data, indent=2) + "\n", encoding="utf-8"
+             )
+ 
+         logger.info(f"✅ MCP servers merged: {len(merged_mcp)}")
+@@ -845,19 +824,19 @@ class FrameworkSyncer:
+         logger.info("🔍 Validating sync...")
+ 
+         # Check commands directory
+-        commands_dir = self.plugin_root / 'commands'
++        commands_dir = self.plugin_root / "commands"
+         if commands_dir.exists():
+-            sc_commands = list(commands_dir.glob('sc-*.md'))
++            sc_commands = list(commands_dir.glob("sc-*.md"))
+             logger.info(f"✅ Found {len(sc_commands)} sc- prefixed commands")
+ 
+         # Check agents directory
+-        agents_dir = self.plugin_root / 'agents'
++        agents_dir = self.plugin_root / "agents"
+         if agents_dir.exists():
+-            sc_agents = list(agents_dir.glob('sc-*.md'))
++            sc_agents = list(agents_dir.glob("sc-*.md"))
+             logger.info(f"✅ Found {len(sc_agents)} sc- prefixed agents")
+ 
+         # Check plugin.json
+-        plugin_json_path = self.plugin_root / '.claude-plugin' / 'plugin.json'
++        plugin_json_path = self.plugin_root / ".claude-plugin" / "plugin.json"
+         if plugin_json_path.exists():
+             logger.info(f"✅ plugin.json exists at {plugin_json_path}")
+         else:
+@@ -873,35 +852,27 @@ class FrameworkSyncer:
+ def main():
+     """Main entry point."""
+     parser = argparse.ArgumentParser(
+-        description='Sync SuperClaude Framework to Plugin with namespace isolation'
++        description="Sync SuperClaude Framework to Plugin with namespace isolation"
+     )
+     parser.add_argument(
+-        '--framework-repo',
+-        default='https://github.com/SuperClaude-Org/SuperClaude_Framework',
+-        help='Framework repository URL'
++        "--framework-repo",
++        default="https://github.com/SuperClaude-Org/SuperClaude_Framework",
++        help="Framework repository URL",
+     )
+     parser.add_argument(
+-        '--plugin-root',
++        "--plugin-root",
+         type=Path,
+         default=Path.cwd(),
+-        help='Plugin repository root path'
++        help="Plugin repository root path",
+     )
+     parser.add_argument(
+-        '--dry-run',
+-        type=lambda x: x.lower() in ('true', '1', 'yes'),
++        "--dry-run",
++        type=lambda x: x.lower() in ("true", "1", "yes"),
+         default=False,
+-        help='Preview changes without applying'
+-    )
+-    parser.add_argument(
+-        '--output-report',
+-        type=Path,
+-        help='Save sync report to file'
+-    )
+-    parser.add_argument(
+-        '--verbose',
+-        action='store_true',
+-        help='Enable verbose logging'
++        help="Preview changes without applying",
+     )
++    parser.add_argument("--output-report", type=Path, help="Save sync report to file")
++    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+ 
+     args = parser.parse_args()
+ 
+@@ -915,16 +886,14 @@ def main():
+     syncer = FrameworkSyncer(
+         framework_repo=args.framework_repo,
+         plugin_root=args.plugin_root,
+-        dry_run=args.dry_run
++        dry_run=args.dry_run,
+     )
+ 
+     result = syncer.sync()
+ 
+     # Output report
+     if args.output_report:
+-        args.output_report.write_text(
+-            json.dumps(result.to_dict(), indent=2) + '\n'
+-        )
++        args.output_report.write_text(json.dumps(result.to_dict(), indent=2) + "\n")
+         logger.info(f"📊 Report saved to: {args.output_report}")
+ 
+     # Print summary
+@@ -955,5 +924,5 @@ def main():
+     sys.exit(0 if result.success else 1)
+ 
+ 
+-if __name__ == '__main__':
++if __name__ == "__main__":
+     main()
+
+===== push-and-protection-fix =====
+COMMAND: ['git', 'show', 'abdc4cdf', '--', '.github/workflows/pull-sync-framework.yml']
+RETURN_CODE: 0
+commit abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4
+Author: Ironbelly <ryan@ironbelly.com>
+Date:   Sun May 17 01:29:03 2026 -0400
+
+    docs(ci): add CONTRIBUTING.md CI Hygiene + fix pull-sync push target (#41)
+    
+    * docs(ci): add CONTRIBUTING.md CI Hygiene + fix pull-sync push target
+    
+    - Create CONTRIBUTING.md with CI Hygiene rot-budget rule (AC5)
+    - Fix pull-sync workflow line 112: git push origin main -> master
+    - Clean PROTECTED list: remove 7 entries that reference nonexistent paths
+      (README-ja.md, README-zh.md, BACKUP_GUIDE.md, MIGRATION_GUIDE.md,
+      .claude-plugin/marketplace.json, core/, modes/)
+    
+    PR5 of 5 — final PR in the CI rot remediation chain.
+    
+    Refs: .dev/tasks/to-do/TASK-RF-track-5-20260517-032112/
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+    
+    * fix(ci): make pull-sync git-add defensive against missing paths
+    
+    Fork-specific structure causes some upstream paths (plugin.json,
+    .claude-plugin/plugin.json, commands/, agents/) to be absent.
+    Hard git-add on those paths halted the workflow even after the
+    main->master push-target fix. Wrapping in an exists-check makes
+    the workflow tolerant of fork structure variance.
+    
+    Refs: .dev/tasks/to-do/TASK-RF-track-5-20260517-032112/ Phase 4.1 dispatch failure log
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+    
+    * fix(ci): push HEAD:master so workflow_dispatch on non-master refs works
+    
+    actions/checkout with no ref: in scheduled runs checks out the default
+    branch (master), so the local branch IS master and 'git push origin
+    master' works. In workflow_dispatch with --ref <feature-branch>, the
+    local branch is the feature branch, and 'git push origin master' fails
+    with 'src refspec master does not match any'.
+    
+    Using 'git push origin HEAD:master' pushes whatever is currently checked
+    out to the remote master branch, which is correct in both modes.
+    
+    Refs: .dev/tasks/to-do/TASK-RF-track-5-20260517-032112/
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: Claude Opus 4.7 <noreply@anthropic.com>
+
+diff --git a/.github/workflows/pull-sync-framework.yml b/.github/workflows/pull-sync-framework.yml
+index 949d369a..2d641079 100644
+--- a/.github/workflows/pull-sync-framework.yml
++++ b/.github/workflows/pull-sync-framework.yml
+@@ -65,11 +65,8 @@ jobs:
+         run: |
+           # 修正: plugin.json はスクリプトによってMCPマージとして更新されるため、リストから削除しました
+           PROTECTED=(
+-            "README.md" "README-ja.md" "README-zh.md"
+-            "BACKUP_GUIDE.md" "MIGRATION_GUIDE.md" "SECURITY.md"
++            "README.md" "SECURITY.md"
+             "CLAUDE.md" "LICENSE" ".gitignore"
+-            ".claude-plugin/marketplace.json"
+-            "core/" "modes/"
+           )
+           VIOLATIONS=()
+           for path in "${PROTECTED[@]}"; do
+@@ -100,7 +97,14 @@ jobs:
+           git config user.email "github-actions[bot]@users.noreply.github.com"
+ 
+           # 修正: ルートの plugin.json を追加（MCPの更新をコミットするため）
+-          git add commands/ agents/ .claude-plugin/plugin.json plugin.json
++          # PR5: defensively add only paths that exist — this fork's structure
++          # differs from upstream SuperClaude_Plugin; missing paths must not
++          # halt the workflow (was: hard `git add commands/ agents/ ...`).
++          for p in commands/ agents/ .claude-plugin/plugin.json plugin.json; do
++            if [ -e "$p" ]; then
++              git add "$p"
++            fi
++          done
+           
+           # 修正: .gitignoreによる除外を確実に回避するため -f オプションを付与
+           if [ -f "docs/.framework-sync-commit" ]; then
+@@ -109,7 +113,7 @@ jobs:
+ 
+           if ! git diff --cached --quiet; then
+             git commit -m "chore: automated sync and namespace isolation from framework [$(date +'%Y-%m-%d %H:%M')]"
+-            git push origin main
++            git push origin HEAD:master
+           else
+             echo "No changes detected."
+           fi
+
+===== checkout-and-path-simplification =====
+COMMAND: ['git', 'show', 'bb66aa7c', '--', '.github/workflows/pull-sync-framework.yml']
+RETURN_CODE: 0
+commit bb66aa7ce3677e6fca44b415da62a807ba0e1fe8
+Author: Ryan wiancko <ryan@ironbelly.com>
+Date:   Thu Oct 22 20:41:38 2026 +0000
+
+    ci: simplify GitHub Actions workflows
+    
+    - Delete readme-quality-check.yml (checked README translations and a Docs/
+      path that do not exist), publish-pypi.yml (fork installs from git), and
+      quick-check.yml (duplicated test.yml on every PR).
+    - test.yml: run on Python 3.10 only (requires-python floor) with a single
+      pytest run carrying coverage; replace the curl uv installer +
+      setup-python pairs with astral-sh/setup-uv@v10.3.2 and an activated venv;
+      merge lint, plugin-check and verify-deps into one lint job that also runs
+      make verify-sync and make lint-architecture; shrink test-summary to one
+      contains() condition.
+    - verify-deps keeps auditing a separate uv.lock-resolved env
+      (UV_PROJECT_ENVIRONMENT): `uv pip install -e ".[dev]"` ignores uv.lock and
+      resolves py-cpuinfo2, which is outside the dependency baseline.
+    - contract3: paths filter replaces the git-diff detect step.
+    - boundary-guard: three steps merged into one; warning first, git diff
+      outside the heredoc with a fallback, render verified identical.
+    - pull-sync-framework: drop the unused framework checkout and the missing
+      root plugin.json entry.
+    - README updated to match.
+    
+    Plan, ledger and evidence: .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/
+    
+    Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+
+diff --git a/.github/workflows/pull-sync-framework.yml b/.github/workflows/pull-sync-framework.yml
+index 2d641079..44fb2248 100644
+--- a/.github/workflows/pull-sync-framework.yml
++++ b/.github/workflows/pull-sync-framework.yml
+@@ -40,13 +40,6 @@ jobs:
+             echo "has-updates=true" >> $GITHUB_OUTPUT
+           fi
+ 
+-      - name: Checkout Framework Repository (Source)
+-        if: steps.check-updates.outputs.has-updates == 'true'
+-        uses: actions/checkout@v4
+-        with:
+-          repository: SuperClaude-Org/SuperClaude_Framework
+-          path: framework-src
+-
+       - name: Set up Python
+         if: steps.check-updates.outputs.has-updates == 'true'
+         uses: actions/setup-python@v5
+@@ -63,7 +56,7 @@ jobs:
+         if: steps.check-updates.outputs.has-updates == 'true'
+         working-directory: plugin-repo
+         run: |
+-          # 修正: plugin.json はスクリプトによってMCPマージとして更新されるため、リストから削除しました
++          # The plugin manifest is rewritten by the sync's MCP merge, so it is not in this protected list.
+           PROTECTED=(
+             "README.md" "SECURITY.md"
+             "CLAUDE.md" "LICENSE" ".gitignore"
+@@ -96,11 +89,11 @@ jobs:
+           git config user.name "github-actions[bot]"
+           git config user.email "github-actions[bot]@users.noreply.github.com"
+ 
+-          # 修正: ルートの plugin.json を追加（MCPの更新をコミットするため）
++          # Include .claude-plugin/plugin.json so the sync's MCP updates are committed.
+           # PR5: defensively add only paths that exist — this fork's structure
+           # differs from upstream SuperClaude_Plugin; missing paths must not
+           # halt the workflow (was: hard `git add commands/ agents/ ...`).
+-          for p in commands/ agents/ .claude-plugin/plugin.json plugin.json; do
++          for p in commands/ agents/ .claude-plugin/plugin.json; do
+             if [ -e "$p" ]; then
+               git add "$p"
+             fi
+
+===== review-before-merge-flow =====
+COMMAND: ['git', 'show', '053b7566', '--', '.github/workflows/pull-sync-framework.yml']
+RETURN_CODE: 0
+commit 053b75664c8979bf223b8040f68310dce882d05b
+Author: Ryan wiancko <ryan@ironbelly.com>
+Date:   Fri Oct 23 04:45:04 2026 +0000
+
+    ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)
+    
+    - pull-sync-framework: force-push sync/framework and open a pull request
+      into master (reusing an open one) instead of pushing to master; the job
+      gets pull-requests: write and the step sets GH_TOKEN.
+    - boundary-guard: describe the job as advisory and diff with three dots.
+    - test: Codecov step uses `files` and passes CODECOV_TOKEN.
+    - workflows/README.md: fork badge URLs, Codecov secret, advisory guard, PR-based sync.
+    - scripts/README.md: drop the removed publish-pypi workflow; the fork installs from git.
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+diff --git a/.github/workflows/pull-sync-framework.yml b/.github/workflows/pull-sync-framework.yml
+index 44fb2248..c121d031 100644
+--- a/.github/workflows/pull-sync-framework.yml
++++ b/.github/workflows/pull-sync-framework.yml
+@@ -10,6 +10,7 @@ jobs:
+     runs-on: ubuntu-latest
+     permissions:
+       contents: write
++      pull-requests: write
+ 
+     steps:
+       - name: Checkout Plugin Repository (Target)
+@@ -85,6 +86,8 @@ jobs:
+       - name: Commit and Push Changes
+         if: steps.check-updates.outputs.has-updates == 'true'
+         working-directory: plugin-repo
++        env:
++          GH_TOKEN: ${{ github.token }}
+         run: |
+           git config user.name "github-actions[bot]"
+           git config user.email "github-actions[bot]@users.noreply.github.com"
+@@ -106,7 +109,13 @@ jobs:
+ 
+           if ! git diff --cached --quiet; then
+             git commit -m "chore: automated sync and namespace isolation from framework [$(date +'%Y-%m-%d %H:%M')]"
+-            git push origin HEAD:master
++            git push --force origin HEAD:refs/heads/sync/framework
++            open_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --head sync/framework --base master --state open --json number --jq 'length')
++            if [ "$open_prs" = "0" ]; then
++              gh pr create --repo "$GITHUB_REPOSITORY" --base master --head sync/framework --title "chore: automated sync from framework" --body "Automated sync of upstream framework changes, opened by the Pull Sync from Framework workflow. Review before merging."
++            else
++              echo "An open pull request from sync/framework already exists - reusing it."
++            fi
+           else
+             echo "No changes detected."
+           fi
+
+===== later-script-history =====
+COMMAND: ['git', 'log', '--format=%H %aI %an %s', '--follow', '--', 'scripts/sync_from_framework.py']
+RETURN_CODE: 0
+38ca920d4c820d62bdc2854414aedf29d65300f5 2026-05-25T15:46:10-04:00 Ironbelly fix(lint): resolve Issue #60 — eliminate pre-existing ruff debt (441 → 0) (#83)
+f7ea213a8f43e6c1b7b34352920ab632e6bc1e68 2026-03-18T03:05:10+00:00 RyanW Roadmap gaps
+b061b2f7b00ca33d66c10b666c15016873b2e094 2026-02-25T18:14:50+09:00 Utakata fix: correct pull-sync workflow protection rules (#530)
+
+===== later-workflow-history =====
+COMMAND: ['git', 'log', '--format=%H %aI %an %s', '--follow', '--', '.github/workflows/pull-sync-framework.yml']
+RETURN_CODE: 0
+053b75664c8979bf223b8040f68310dce882d05b 2026-10-23T04:45:04+00:00 Ryan wiancko ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)
+bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 2026-10-22T20:41:38+00:00 Ryan wiancko ci: simplify GitHub Actions workflows
+abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4 2026-05-17T01:29:03-04:00 Ironbelly docs(ci): add CONTRIBUTING.md CI Hygiene + fix pull-sync push target (#41)
+b061b2f7b00ca33d66c10b666c15016873b2e094 2026-02-25T18:14:50+09:00 Utakata fix: correct pull-sync workflow protection rules (#530)
+
+===== tracked-sync-consumers =====
+COMMAND: ['git', 'grep', '-n', '-E', 'sync_from_framework|pull-sync-framework|FrameworkSyncer|ContentTransformer|FileSyncer|PluginJsonGenerator|McpMerger|framework-sync-commit', 'HEAD', '--', ':!.dev']
+RETURN_CODE: 0
+HEAD:.github/workflows/README.md:41:### 4. **pull-sync-framework.yml** - Framework Sync
+HEAD:.github/workflows/pull-sync-framework.yml:29:          if [ -f "plugin-repo/docs/.framework-sync-commit" ]; then
+HEAD:.github/workflows/pull-sync-framework.yml:30:            LAST_SYNCED=$(cat plugin-repo/docs/.framework-sync-commit)
+HEAD:.github/workflows/pull-sync-framework.yml:54:          python3 scripts/sync_from_framework.py
+HEAD:.github/workflows/pull-sync-framework.yml:75:            echo "Fix: check SYNC_MAPPINGS in scripts/sync_from_framework.py"
+HEAD:.github/workflows/pull-sync-framework.yml:83:          echo "${{ steps.check-updates.outputs.framework-head }}" > plugin-repo/docs/.framework-sync-commit
+HEAD:.github/workflows/pull-sync-framework.yml:106:          if [ -f "docs/.framework-sync-commit" ]; then
+HEAD:.github/workflows/pull-sync-framework.yml:107:            git add -f docs/.framework-sync-commit
+HEAD:scripts/sync_from_framework.py:11:    python scripts/sync_from_framework.py [OPTIONS]
+HEAD:scripts/sync_from_framework.py:67:class ContentTransformer:
+HEAD:scripts/sync_from_framework.py:96:        content = ContentTransformer.COMMAND_HEADER_PATTERN.sub(r"\1/sc:\2", content)
+HEAD:scripts/sync_from_framework.py:99:        content = ContentTransformer.COMMAND_REF_PATTERN.sub(r"/sc:\1", content)
+HEAD:scripts/sync_from_framework.py:102:        content = ContentTransformer.LINK_REF_PATTERN.sub(r"[/sc:\1]", content)
+HEAD:scripts/sync_from_framework.py:140:        frontmatter = ContentTransformer.FRONTMATTER_NAME_PATTERN.sub(
+HEAD:scripts/sync_from_framework.py:150:class FileSyncer:
+HEAD:scripts/sync_from_framework.py:303:class PluginJsonGenerator:
+HEAD:scripts/sync_from_framework.py:375:class McpMerger:
+HEAD:scripts/sync_from_framework.py:436:class FrameworkSyncer:
+HEAD:scripts/sync_from_framework.py:713:        mcp_merger = McpMerger(self.plugin_root)
+HEAD:scripts/sync_from_framework.py:723:        file_syncer = FileSyncer(self.plugin_root, self.dry_run)
+HEAD:scripts/sync_from_framework.py:736:                transform_fn=ContentTransformer.transform_command,
+HEAD:scripts/sync_from_framework.py:753:                transform_fn=ContentTransformer.transform_agent,
+HEAD:scripts/sync_from_framework.py:772:        generator = PluginJsonGenerator(self.plugin_root)
+HEAD:scripts/sync_from_framework.py:803:        merger = McpMerger(self.plugin_root)
+HEAD:scripts/sync_from_framework.py:886:    syncer = FrameworkSyncer(
+
+===== static-AST-comparison =====
+Non-import AST identical=True
+Whole AST identical=False
+Original lines=959; current lines=928
+Original imports=["Import(names=[alias(name='argparse')])", "Import(names=[alias(name='hashlib')])", "Import(names=[alias(name='json')])", "Import(names=[alias(name='logging')])", "Import(names=[alias(name='re')])", "Import(names=[alias(name='shutil')])", "Import(names=[alias(name='subprocess')])", "Import(names=[alias(name='sys')])", "Import(names=[alias(name='tempfile')])", "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='asdict')], level=0)", "ImportFrom(module='datetime', names=[alias(name='datetime')], level=0)", "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)", "ImportFrom(module='typing', names=[alias(name='Dict'), alias(name='List'), alias(name='Tuple'), alias(name='Optional')], level=0)"]
+Current imports=["Import(names=[alias(name='argparse')])", "Import(names=[alias(name='hashlib')])", "Import(names=[alias(name='json')])", "Import(names=[alias(name='logging')])", "Import(names=[alias(name='re')])", "Import(names=[alias(name='shutil')])", "Import(names=[alias(name='subprocess')])", "Import(names=[alias(name='sys')])", "Import(names=[alias(name='tempfile')])", "ImportFrom(module='dataclasses', names=[alias(name='asdict'), alias(name='dataclass')], level=0)", "ImportFrom(module='datetime', names=[alias(name='datetime')], level=0)", "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)", "ImportFrom(module='typing', names=[alias(name='Dict'), alias(name='List'), alias(name='Optional'), alias(name='Tuple')], level=0)"]

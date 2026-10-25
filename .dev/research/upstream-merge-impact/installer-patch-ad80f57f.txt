@@ -1,0 +1,433 @@
+diff --git a/README.md b/README.md
+index c97de357..e95458e5 100644
+--- a/README.md
++++ b/README.md
+@@ -125,10 +125,11 @@ superclaude doctor
+ ```
+ 
+ After installation, restart Claude Code to use the commands:
+-- `/research` - Deep web research with parallel search
+-- `/index-repo` - Repository indexing for context optimization
+-- `/agent` - Specialized AI agents
+-- `/recommend` - Command recommendations
++- `/sc:research` - Deep web research with parallel search
++- `/sc:index-repo` - Repository indexing for context optimization
++- `/sc:agent` - Specialized AI agents
++- `/sc:recommend` - Command recommendations
++- `/sc` - Show all available SuperClaude commands
+ 
+ **Option 2: Direct Installation from Git**
+ ```bash
+diff --git a/docs/memory/solutions_learned.jsonl b/docs/memory/solutions_learned.jsonl
+new file mode 100644
+index 00000000..096e3d5b
+--- /dev/null
++++ b/docs/memory/solutions_learned.jsonl
+@@ -0,0 +1,48 @@
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:05:14.945830"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:05:14.947103"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:05:14.948186"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:05:14.949488"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:05:14.949687"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:05:14.953355"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:05:14.955135"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:05:14.956625"}
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:05:52.563775"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:05:52.564932"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:05:52.566243"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:05:52.567884"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:05:52.568207"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:05:52.572514"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:05:52.574152"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:05:52.575383"}
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:07:29.547542"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:07:29.548522"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:07:29.549669"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:07:29.551484"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:07:29.551745"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:07:29.555660"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:07:29.557344"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:07:29.558510"}
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:08:46.653324"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:08:46.654315"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:08:46.655438"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:08:46.657037"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:08:46.674014"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:08:46.692286"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:08:46.694160"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:08:46.697041"}
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:14:31.164433"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:14:31.165513"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:14:31.166705"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:14:31.168467"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:14:31.168682"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:14:31.173189"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:14:31.175044"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:14:31.176104"}
++{"test_name": "test_feature", "error_type": "AssertionError", "error_message": "Expected 5, got 3", "traceback": "File test.py, line 10...", "timestamp": "2025-11-11T18:36:41.373001"}
++{"test_name": "test_database_connection", "error_type": "ConnectionError", "error_message": "Could not connect to database", "solution": "Ensure database is running and credentials are correct", "timestamp": "2025-11-11T18:36:41.374057"}
++{"error_type": "ImportError", "error_message": "No module named 'pytest'", "solution": "Install pytest: pip install pytest", "timestamp": "2025-11-11T18:36:41.375577"}
++{"error_type": "TypeError", "error_message": "expected str, got int", "solution": "Convert int to str using str()", "timestamp": "2025-11-11T18:36:41.377470"}
++{"error_type": "TypeError", "error_message": "expected int, got str", "solution": "Convert str to int using int()", "timestamp": "2025-11-11T18:36:41.377698"}
++{"error_type": "FileNotFoundError", "error_message": "config.json not found", "solution": "Create config.json in project root", "session": "session_1", "timestamp": "2025-11-11T18:36:41.381639"}
++{"test_name": "test_reflexion_marker_integration", "error_type": "IntegrationTestError", "error_message": "Testing reflexion integration", "timestamp": "2025-11-11T18:36:41.383655"}
++{"test_name": "test_reflexion_with_real_exception", "error_type": "ZeroDivisionError", "error_message": "division by zero", "traceback": "simulated traceback", "solution": "Check denominator is not zero before division", "timestamp": "2025-11-11T18:36:41.385124"}
+diff --git a/docs/mistakes/test_database_connection-2025-11-11.md b/docs/mistakes/test_database_connection-2025-11-11.md
+new file mode 100644
+index 00000000..b1f09b0e
+--- /dev/null
++++ b/docs/mistakes/test_database_connection-2025-11-11.md
+@@ -0,0 +1,44 @@
++# Mistake Record: test_database_connection
++
++**Date**: 2025-11-11
++**Error Type**: ConnectionError
++
++---
++
++## ❌ What Happened
++
++Could not connect to database
++
++```
++No traceback
++```
++
++---
++
++## 🔍 Root Cause
++
++Not analyzed
++
++---
++
++## 🤔 Why Missed
++
++Not analyzed
++
++---
++
++## ✅ Fix Applied
++
++Ensure database is running and credentials are correct
++
++---
++
++## 🛡️ Prevention Checklist
++
++Not documented
++
++---
++
++## 💡 Lesson Learned
++
++Not documented
+diff --git a/docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md b/docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md
+new file mode 100644
+index 00000000..ad3ad5da
+--- /dev/null
++++ b/docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md
+@@ -0,0 +1,44 @@
++# Mistake Record: test_reflexion_with_real_exception
++
++**Date**: 2025-11-11
++**Error Type**: ZeroDivisionError
++
++---
++
++## ❌ What Happened
++
++division by zero
++
++```
++simulated traceback
++```
++
++---
++
++## 🔍 Root Cause
++
++Not analyzed
++
++---
++
++## 🤔 Why Missed
++
++Not analyzed
++
++---
++
++## ✅ Fix Applied
++
++Check denominator is not zero before division
++
++---
++
++## 🛡️ Prevention Checklist
++
++Not documented
++
++---
++
++## 💡 Lesson Learned
++
++Not documented
+diff --git a/docs/mistakes/unknown-2025-11-11.md b/docs/mistakes/unknown-2025-11-11.md
+new file mode 100644
+index 00000000..c8a685c8
+--- /dev/null
++++ b/docs/mistakes/unknown-2025-11-11.md
+@@ -0,0 +1,44 @@
++# Mistake Record: unknown
++
++**Date**: 2025-11-11
++**Error Type**: FileNotFoundError
++
++---
++
++## ❌ What Happened
++
++config.json not found
++
++```
++No traceback
++```
++
++---
++
++## 🔍 Root Cause
++
++Not analyzed
++
++---
++
++## 🤔 Why Missed
++
++Not analyzed
++
++---
++
++## ✅ Fix Applied
++
++Create config.json in project root
++
++---
++
++## 🛡️ Prevention Checklist
++
++Not documented
++
++---
++
++## 💡 Lesson Learned
++
++Not documented
+diff --git a/plugins/superclaude/commands/sc.md b/plugins/superclaude/commands/sc.md
+new file mode 100644
+index 00000000..f18be4c4
+--- /dev/null
++++ b/plugins/superclaude/commands/sc.md
+@@ -0,0 +1,130 @@
++---
++name: sc
++description: SuperClaude command dispatcher - Use /sc [command] to access all SuperClaude features
++---
++
++# SuperClaude Command Dispatcher
++
++🚀 **SuperClaude Framework** - Main command dispatcher
++
++## Usage
++
++All SuperClaude commands use the `/sc:` prefix:
++
++```
++/sc:command [args...]
++```
++
++## Available Commands
++
++### Research & Analysis
++```
++/sc:research [query]         - Deep web research with parallel search
++```
++
++### Repository Management
++```
++/sc:index-repo              - Index repository for context optimization
++```
++
++### AI Agents
++```
++/sc:agent [type]            - Launch specialized AI agents
++```
++
++### Recommendations
++```
++/sc:recommend [context]     - Get command recommendations
++```
++
++### Help
++```
++/sc                         - Show this help (all available commands)
++```
++
++## Command Namespace
++
++All commands are namespaced under `sc:` to keep them organized:
++- ✅ `/sc:research query`
++- ✅ `/sc:index-repo`
++- ✅ `/sc:agent type`
++- ✅ `/sc:recommend`
++- ✅ `/sc` (help)
++
++## Examples
++
++### Research
++```
++/sc:research React 18 new features
++/sc:research LLM agent architectures 2024
++/sc:research Python async best practices
++```
++
++### Index Repository
++```
++/sc:index-repo
++```
++
++### Agent
++```
++/sc:agent deep-research
++/sc:agent self-review
++/sc:agent repo-index
++```
++
++### Recommendations
++```
++/sc:recommend
++```
++
++## Quick Reference
++
++| Command | Description | Example |
++|---------|-------------|---------|
++| `/sc:research` | Deep web research | `/sc:research topic` |
++| `/sc:index-repo` | Repository indexing | `/sc:index-repo` |
++| `/sc:agent` | Specialized AI agents | `/sc:agent type` |
++| `/sc:recommend` | Command suggestions | `/sc:recommend` |
++| `/sc` | Show help | `/sc` |
++
++## Features
++
++- **Parallel Execution**: Research runs multiple searches in parallel
++- **Evidence-Based**: All findings backed by sources
++- **Context-Aware**: Uses repository context when available
++- **Token Efficient**: Optimized for minimal token usage
++
++## Help
++
++For help on specific commands:
++```
++/sc:research --help
++/sc:agent --help
++```
++
++Or use the main help command:
++```
++/sc
++```
++
++Check the documentation:
++- PLANNING.md - Architecture and design
++- TASK.md - Current tasks and priorities
++- KNOWLEDGE.md - Tips and best practices
++
++## Version
++
++SuperClaude v4.1.6
++- Python package: 0.4.0
++- Pytest plugin included
++- PM Agent patterns enabled
++
++---
++
++💡 **Tip**: All commands use the `/sc:` prefix - e.g., `/sc:research`, `/sc:agent`
++
++🔧 **Installation**: Run `superclaude install` to install/update commands
++
++📚 **Documentation**: https://github.com/SuperClaude-Org/SuperClaude_Framework
++
++⚠️ **Important**: Restart Claude Code after installing commands to use them!
+diff --git a/src/superclaude/cli/install_commands.py b/src/superclaude/cli/install_commands.py
+index 4c8c8cdc..2ac47303 100644
+--- a/src/superclaude/cli/install_commands.py
++++ b/src/superclaude/cli/install_commands.py
+@@ -1,7 +1,7 @@
+ """
+ Command Installation
+ 
+-Installs SuperClaude slash commands to ~/.claude/commands/ directory.
++Installs SuperClaude slash commands to ~/.claude/commands/sc/ directory.
+ """
+ 
+ from pathlib import Path
+@@ -17,15 +17,15 @@ def install_commands(
+     Install all SuperClaude commands to Claude Code
+ 
+     Args:
+-        target_path: Target installation directory (default: ~/.claude/commands)
++        target_path: Target installation directory (default: ~/.claude/commands/sc)
+         force: Force reinstall if commands exist
+ 
+     Returns:
+         Tuple of (success: bool, message: str)
+     """
+-    # Default to ~/.claude/commands
++    # Default to ~/.claude/commands/sc to maintain /sc: namespace
+     if target_path is None:
+-        target_path = Path.home() / ".claude" / "commands"
++        target_path = Path.home() / ".claude" / "commands" / "sc"
+ 
+     # Get command source directory
+     command_source = _get_commands_source()
+@@ -145,12 +145,12 @@ def list_available_commands() -> List[str]:
+ 
+ def list_installed_commands() -> List[str]:
+     """
+-    List installed commands in ~/.claude/commands/
++    List installed commands in ~/.claude/commands/sc/
+ 
+     Returns:
+         List of installed command names
+     """
+-    commands_dir = Path.home() / ".claude" / "commands"
++    commands_dir = Path.home() / ".claude" / "commands" / "sc"
+ 
+     if not commands_dir.exists():
+         return []
+diff --git a/src/superclaude/cli/main.py b/src/superclaude/cli/main.py
+index 15dccfe7..cd7028f2 100644
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -28,8 +28,8 @@ def main():
+ @main.command()
+ @click.option(
+     "--target",
+-    default="~/.claude/commands",
+-    help="Installation directory (default: ~/.claude/commands)",
++    default="~/.claude/commands/sc",
++    help="Installation directory (default: ~/.claude/commands/sc)",
+ )
+ @click.option(
+     "--force",
+@@ -46,8 +46,8 @@ def install(target: str, force: bool, list_only: bool):
+     """
+     Install SuperClaude commands to Claude Code
+ 
+-    Installs all slash commands (/research, /index-repo, etc.) to your
+-    ~/.claude/commands directory so you can use them in Claude Code.
++    Installs all slash commands (/sc:research, /sc:index-repo, etc.) to your
++    ~/.claude/commands/sc directory so you can use them in Claude Code.
+ 
+     Examples:
+         superclaude install

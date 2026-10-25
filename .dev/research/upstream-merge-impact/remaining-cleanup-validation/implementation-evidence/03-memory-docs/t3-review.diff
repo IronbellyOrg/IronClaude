@@ -1,0 +1,498 @@
+diff --git a/docs/mcp/mcp-integration-policy.md b/docs/mcp/mcp-integration-policy.md
+index 0642803c..555e4397 100644
+--- a/docs/mcp/mcp-integration-policy.md
++++ b/docs/mcp/mcp-integration-policy.md
+@@ -8,27 +8,30 @@ Integration policy and usage guidelines for MCP (Model Context Protocol) servers
+ 
+ #### Memory & Error Learning
+ 
+-**ReflexionMemory (Built-in, Always Available)**
++**ReflexionPattern (Built into the Python package, explicit API)**
++
++> The earlier "ReflexionMemory" entry here (automatic use by the PM Agent, `superclaude/core/pm_init/reflexion_memory.py`, `docs/memory/reflexion.jsonl`, 50% overlap) is **superseded** and no longer describes the implementation. See [docs/user-guide/memory-system.md](../user-guide/memory-system.md) for the full contract.
+ 
+ ```yaml
+-Name: ReflexionMemory
+-Purpose: Error history storage and learning
+-Category: Memory Management (Built-in)
+-Auto-Managed: true (internal implementation)
+-PM Agent Role: Automatically used on errors
++Name: ReflexionPattern
++Purpose: Error record storage and lookup
++Category: Memory Management (built-in Python class, not an MCP server)
++Auto-Managed: false (called explicitly; the only automatic use is the opt-in pytest recorder)
++PM Agent Role: None (the PM agent definition does not call it)
+ 
+ Capabilities:
+-  - Memory of past errors and solutions
+-  - Keyword-based similar error search
+-  - Learning to prevent recurrence
+-  - Project-scoped memory
++  - record_error(): append a caller-supplied error dictionary to solutions_learned.jsonl
++  - get_solution(): return the first stored row whose signature overlaps at 0.7 or higher
++  - get_statistics(): count rows and rows that have a solution
+ 
+ Implementation:
+-  Location: superclaude/core/pm_init/reflexion_memory.py
+-  Storage: docs/memory/reflexion.jsonl (local file)
+-  Search: Keyword-based (50% overlap threshold)
++  Location: src/superclaude/pm_agent/reflexion.py
++  Storage: <memory_dir>/solutions_learned.jsonl (default docs/memory/); mistake notes in the sibling mistakes/ directory
++  Directory: memory_dir argument > non-empty REFLEXION_OUTPUT_DIR > docs/memory/ under the current directory
++  Search: lowercase word-set overlap on error_type + error_message + test_name; 0.7 inclusive; first match in file order
+ 
+-Note: This is an internal implementation, not an external MCP server
++Note: Internal Python class, not an external MCP server. It does not redact secrets;
++      callers must redact before recording.
+ ```
+ 
+ **Mindbase MCP (Optional Enhancement via airis-mcp-gateway)**
+@@ -38,7 +41,11 @@ Name: mindbase
+ Purpose: Semantic search across all conversation history
+ Category: Memory Management (Optional MCP)
+ Auto-Managed: false (external MCP server - requires installation)
+-PM Agent Role: Automatically selected by Claude when available
++PM Agent Role: None defined in this repository
++Status: Optional external service you install and configure yourself. This repository does
++        not install, configure or test it, and its availability is UNVERIFIED. The Python
++        class above has a MindBase hook (_search_mindbase) that is an unimplemented stub
++        and always returns None.
+ 
+ Capabilities:
+   - Persistence of all conversation history (PostgreSQL + pgvector)
+@@ -55,16 +62,16 @@ Installation:
+   Requires: airis-mcp-gateway with "recommended" profile
+   See: https://github.com/agiletec-inc/airis-mcp-gateway
+ 
+-Profile Dependency:
++Profile Dependency (as described by the external gateway project; not verified here):
+   - "recommended" profile: mindbase included (long-term projects)
+   - "minimal" profile: mindbase NOT included (lightweight, quick tasks)
+ 
+ Usage Pattern:
+-  - With installation + recommended profile: Claude automatically uses it
+-  - Otherwise: Falls back to ReflexionMemory
+-  - PM Agent instructs: "Search past errors" (Claude selects tool)
++  - If you install it, you call its tools explicitly, or Claude may choose them
++  - There is no automatic fallback between it and ReflexionPattern, and no code in this
++    repository connects the two
+ 
+-Note: Optional enhancement. SuperClaude works fully with ReflexionMemory alone.
++Note: Optional. SuperClaude does not need it; ReflexionPattern works with only the local file.
+ ```
+ 
+ #### Serena MCP
+@@ -191,7 +198,7 @@ Usage Pattern:
+   NOT for:
+     - プロジェクト内情報（Grep使用）
+     - コードベース検索（Serena使用）
+-    - 過去の会話（Mindbase使用）
++    - 過去の会話（Mindbase: 任意・手動で導入した場合のみ）
+ 
+ Trigger Conditions:
+   - Keywords: "search", "latest", "current"
+@@ -229,9 +236,9 @@ Research & Investigation:
+   Example: "Latest security best practices 2025"
+ 
+ Memory & History:
+-  Primary: Mindbase MCP (automatic)
+-  Secondary: None (fully automated)
+-  Example: N/A (transparent)
++  Primary: None by default; call ReflexionPattern explicitly for error records
++  Secondary: Mindbase MCP (optional, manually installed; availability unverified)
++  Example: Record a failing test's cause and fix with ReflexionPattern.record_error()
+ 
+ Task Management:
+   Primary: TodoWrite (built-in)
+@@ -271,10 +278,12 @@ Session Start:
+     1. git status && git branch
+     2. Read CLAUDE.md
+     3. Read docs/patterns/*.md (latest 5)
+-    4. Mindbase auto-load (automatic)
++    4. (Superseded: "Mindbase auto-load". No automatic memory load is implemented for
++       solutions_learned.jsonl or Mindbase. The PM agent definition restores context
++       through Serena read_memory calls instead.)
+ 
+   MCPs Used:
+-    - Mindbase: Automatic (no explicit call)
++    - Mindbase: not used by default
+     - Others: None (wait for task)
+ 
+   Output: 📍 [branch] | [status] | 🧠 [token]%
+@@ -310,7 +319,8 @@ Post-Implementation:
+     3. Documentation update
+ 
+   MCPs Used:
+-    - Mindbase: Automatic save
++    - Mindbase: not used by default (the former "automatic save" is superseded)
++    - Error records: call ReflexionPattern.record_error() explicitly if you want one stored
+     - Others: None (file-based documentation)
+ 
+   Output:
+@@ -374,27 +384,32 @@ Tavily MCP:
+ ### DO NOT
+ 
+ ```yaml
+-❌ Mindbaseを明示的に操作:
+-  Reason: 完全自動管理、PM Agentは触らない
+-  Instead: 何もしない（自動で動く）
+-
+ ❌ Serenaをタスク管理に使用:
+   Reason: コード理解専用
+   Instead: TodoWrite使用
+ 
+-❌ write_memory() / read_memory() 使用:
+-  Reason: Serenaはコード理解専用、タスク管理ではない
+-  Instead: TodoWrite + docs/
+-
+-❌ docs/memory/ ディレクトリ作成:
+-  Reason: Mindbaseと重複
+-  Instead: docs/patterns/ と docs/mistakes/ 使用
+-
+ ❌ Context7をプロジェクトドキュメントに使用:
+   Reason: 公式ドキュメント専用
+   Instead: Read docs/ 使用
+ ```
+ 
++**Superseded prohibitions (historical, NOT current policy).** An earlier version of this
++list banned three things. They no longer apply:
++
++```yaml
++Former: "Do not operate Mindbase explicitly" (it was described as fully automatic)
++  Now: Mindbase is not automatic here. If you installed it, using its tools explicitly is fine.
++
++Former: "Do not use write_memory() / read_memory()"
++  Now: Explicit memory calls are supported. The PM agent definition itself uses Serena
++       read_memory / write_memory (src/superclaude/agents/pm-agent.md), and
++       ReflexionPattern is an explicit API.
++
++Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
++  Now: docs/memory/ is the default storage of ReflexionPattern and holds tracked records.
++       Do not delete it, and do not move its records to docs/patterns/ or docs/mistakes/.
++```
++
+ ## Best Practices
+ 
+ ### Efficient MCP Usage
+@@ -411,7 +426,7 @@ Tavily MCP:
+   Let PM Agent auto-trigger
+ 
+ ✅ Clear Separation:
+-  Memory: Mindbase (automatic)
++  Memory: ReflexionPattern (explicit API) or optional Mindbase (manual install)
+   Knowledge: docs/ (file-based)
+   Progress: TodoWrite (session)
+   Code: Serena (understanding)
+@@ -429,10 +444,10 @@ Tavily MCP:
+ ```yaml
+ Test Cases:
+ 
+-1. Mindbase Auto-Load:
+-   - Start session
+-   - Verify past context loaded automatically
+-   - No explicit mindbase calls
++1. (Superseded) "Mindbase Auto-Load":
++   - The former case checked automatic loading of past context. That behavior is not
++     implemented, so the case has been removed.
++   - Error-record behavior is described in docs/user-guide/memory-system.md.
+ 
+ 2. Serena Code Understanding:
+    - Task: "Refactor auth across 15 files"
+@@ -452,10 +467,13 @@ Test Cases:
+ 
+ ## Migration Checklist
+ 
++This checklist is historical. Its first two items are **superseded and must not be
++followed**: docs/memory/ is live storage and explicit memory calls are supported.
++
+ ```yaml
+ From Old System:
+-  - [ ] Remove docs/memory/ references
+-  - [ ] Remove write_memory() / read_memory() calls
++  - [ ] (superseded) Remove docs/memory/ references
++  - [ ] (superseded) Remove write_memory() / read_memory() calls
+   - [ ] Remove MODE_Task_Management.md memory sections
+   - [ ] Update pm-agent.md with new MCP policy
+ 
+@@ -472,4 +490,5 @@ To New System:
+ - PM Agent: `~/.claude/superclaude/agents/pm-agent.md`
+ - Modes: `~/.claude/superclaude/modes/MODE_*.md`
+ - Rules: `~/.claude/superclaude/framework/rules.md`
+-- Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md`
++- Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md` (historical; this document no longer exists in the repository)
++- Error-record contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md)
+diff --git a/docs/reference/pm-agent-autonomous-reflection.md b/docs/reference/pm-agent-autonomous-reflection.md
+index 19978fa6..b3bd8ee0 100644
+--- a/docs/reference/pm-agent-autonomous-reflection.md
++++ b/docs/reference/pm-agent-autonomous-reflection.md
+@@ -21,8 +21,8 @@ PM Agentの自律的振り返りとトークン最適化システム。**間違
+    - 効果: テスト結果必須、完了報告ブロック機能
+ 
+ 3. **同じ間違いの繰り返し**
+-   - 解決: Reflexion Pattern (過去エラー検索)
+-   - 効果: 94%のエラー検出率 (研究論文実証済み)
++   - 解決: Reflexion Pattern (過去エラー検索。明示的に呼び出す `ReflexionPattern` API で、自動ではない)
++   - 効果: 未測定 (94% は論文の数値で、このシステムで測定した値ではない / unverified: the 94% figure comes from the paper, not from this system)
+ 
+ 4. **振り返りがトークンを食う矛盾**
+    - 解決: Token-Budget-Aware Reflection
+@@ -38,13 +38,13 @@ PM Agentの自律的振り返りとトークン最適化システム。**間違
+ 
+ - PM Agentが**実装前に確信度を自己評価**します
+ - **証拠なしの完了報告はブロック**されます
+-- **過去の失敗から自動学習**します
++- 過去の失敗を**明示的な API で記録・検索**できます (自動学習ではありません)
+ 
+ **What You'll Notice:**
+ 
+ 1. 不確実な時は**素直に質問してきます** (Low Confidence <70%)
+ 2. 完了報告時に**必ずテスト結果を提示**します
+-3. 同じエラーは**2回目から即座に解決**します
++3. 記録済みの似たエラーは `get_solution()` で検索できます (最初に一致した記録を返すだけで、自動適用や即時解決の保証はありません)
+ 
+ ### For Developers
+ 
+@@ -189,33 +189,33 @@ Result:
+ 
+ **Purpose**: 過去の失敗から学習、同じ間違いを繰り返さない
+ 
++> **Status**: explicit API only (`src/superclaude/pm_agent/reflexion.py`). The PM agent does not call it, nothing loads it at session start, and no fix is applied automatically. The earlier "automatic tool selection", MindBase semantic search and automatic storage described here were never implemented. Full contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md).
++
+ ```yaml
+-When: Error detected
+-Token Budget: 0 tokens (cache lookup) → 1-2K tokens (new investigation)
++When: You (or code you write) call ReflexionPattern. The only automatic use is the
++      opt-in pytest recorder (see below).
++Token Budget: unmeasured (the "0 tokens" and "1-2K tokens" figures of earlier versions are
++              design targets from the class docstring, not measurements)
+ 
+ Process:
+-  1. Check Past Errors (Automatic Tool Selection):
+-     → Search conversation history for similar errors
+-     → Claude automatically selects best available tool:
+-       * mindbase_search (if airis-mcp-gateway installed)
+-         - Semantic search across all conversations
+-         - Higher recall, cross-project patterns
+-       * ReflexionMemory (built-in, always available)
+-         - Keyword search in reflexion.jsonl
+-         - Fast, project-scoped error matching
+-
+-  2. IF similar error found:
+-     ✅ "⚠️ Same error occurred before"
+-     ✅ "Solution: [past_solution]"
+-     ✅ Apply solution immediately
+-     → Skip lengthy investigation (HUGE token savings)
+-
+-  3. ELSE (new error):
++  1. Check past errors (explicit call):
++     → reflexion.get_solution(error_info)
++       * Builds a signature from error_type, error_message (digits become N, first
++         100 characters) and test_name
++       * Reads solutions_learned.jsonl from the top, in file order
++       * Returns the first stored row whose word-set overlap is 0.7 or higher
++         ({solution, root_cause, prevention, timestamp}), or None
++       * MindBase semantic search is NOT implemented (the hook is a stub returning None)
++
++  2. IF a row is returned:
++     → Read it and decide whether it applies. Nothing applies it for you, and a returned
++       row may have no solution (its fields come back as None).
++
++  3. ELSE (None):
+      → Root cause investigation (WebSearch, docs, patterns)
+-     → Document solution (future reference)
+-     → Store in ReflexionMemory for future sessions
++     → Record what you learned: reflexion.record_error({... solution, root_cause, prevention})
+ 
+-  4. Self-Reflection:
++  4. Self-Reflection (a working practice, not something the code produces):
+      "Reflection:
+       ❌ What went wrong: JWT validation failed
+       🔍 Root cause: Missing env var SUPABASE_JWT_SECRET
+@@ -224,14 +224,25 @@ Process:
+       📝 Learning: Add env validation to startup checklist"
+ 
+ Storage:
+-  → docs/memory/reflexion.jsonl (ReflexionMemory - ALWAYS)
+-  → docs/mistakes/[feature]-YYYY-MM-DD.md (failure analysis)
+-  → mindbase (if airis-mcp-gateway installed, automatic storage)
++  → <memory_dir>/solutions_learned.jsonl (default docs/memory/; one JSON object per line)
++  → <memory_dir>/../mistakes/<test_name>-YYYY-MM-DD.md (default docs/mistakes/; written only
++    when root_cause or solution is non-empty)
++  → no other backend (MindBase is not implemented)
+ 
+-Result:
+-  ✅ <10% error recurrence rate (same error twice)
+-  ✅ Instant resolution for known errors (0 tokens)
+-  ✅ Continuous learning and improvement
++Record fields (synthetic samples: docs/memory/reflexion.jsonl.example):
++  error_type, error_message, test_name, traceback, solution, root_cause, prevention, timestamp
++
++Marked pytest capture:
++  → A test marked @pytest.mark.reflexion whose call phase raises is recorded by the plugin
++    (test_name, test_file, error_type, error_message, traceback). It does not call
++    get_solution() and adds no solution.
++
++Privacy:
++  → Nothing is redacted. Callers must redact before recording.
++
++Result (design targets, UNVERIFIED; nothing has been measured):
++  · lower recurrence of a repeated error (earlier versions claimed "<10%")
++  · fewer tokens spent re-investigating a recorded error
+ ```
+ 
+ ### Layer 4: Token-Budget-Aware Reflection
+@@ -284,7 +295,7 @@ Research Documentation:
+     - Industry benchmarks
+     - Progressive loading architecture
+ 
+-  docs/research/reflexion-integration-2025.md:
++  docs/research/reflexion-integration-2025.md (historical; this file no longer exists in the repository):
+     - Reflexion framework integration
+     - Self-reflection patterns
+     - Hallucination prevention
+@@ -297,8 +308,10 @@ Reference Guide:
+ 
+ Memory Storage:
+   docs/memory/solutions_learned.jsonl:
+-    - Past error solutions (append-only log)
+-    - Format: {"error":"...","solution":"...","date":"..."}
++    - Error records written by ReflexionPattern.record_error() (append-only log)
++    - Format: {"error_type":"...","error_message":"...","test_name":"...","solution":"...","root_cause":"...","prevention":"...","timestamp":"..."}
++    - It also holds older pattern-style rows that the lookup never matches; leave them in place
++    - Synthetic samples: docs/memory/reflexion.jsonl.example
+ 
+   docs/memory/workflow_metrics.jsonl:
+     - Task metrics for continuous optimization
+@@ -323,9 +336,9 @@ Self-Check Protocol (This System):
+   → Prevents hallucination (94% detection rate)
+ 
+ Reflexion Pattern (This System):
+-  → Executed ON error detection
+-  → Smart lookup: mindbase OR grep
+-  → Prevents error recurrence (<10% repeat rate)
++  → Executed only when called explicitly (plus the opt-in pytest recorder)
++  → Lookup: local solutions_learned.jsonl, first match at 0.7 word-set overlap (no MindBase)
++  → Effect on error recurrence: unmeasured
+ 
+ Workflow Metrics:
+   → Tracks: task_type, complexity, tokens_used, success
+@@ -355,11 +368,11 @@ Self-Check Protocol:
+   Old Approach: Unlimited (10-50K tokens with full trajectory)
+   Savings: 80-95% on reflection cost
+ 
+-Reflexion (Error Learning):
+-  Known Error: 0 tokens (cache lookup)
+-  New Error: 1-2K tokens (investigation + documentation)
+-  Second Occurrence: 0 tokens (instant resolution)
+-  Savings: 100% on repeated errors
++Reflexion (Error Learning) - design targets, NOT measured:
++  Known Error: 0 tokens (target for a local file lookup)
++  New Error: 1-2K tokens (target for investigation + documentation)
++  Second Occurrence: lookup returns a stored row; applying it is up to the caller
++  Savings: unmeasured (earlier versions claimed 100% on repeated errors)
+ 
+ Total Expected Savings:
+   Ultra-Light tasks: 72% reduction
+@@ -377,10 +390,10 @@ Hallucination Detection:
+   With Self-Check: 94% (Reflexion benchmark)
+   Result: 94% reduction in false claims
+ 
+-Error Recurrence:
+-  Baseline: 30-50% (same error happens again)
+-  With Reflexion: <10% (instant resolution from memory)
+-  Result: 75% reduction in repeat errors
++Error Recurrence (historical estimates, UNVERIFIED; nothing here has been measured):
++  Baseline: 30-50% (estimate: same error happens again)
++  With Reflexion: <10% (target)
++  Result: 75% reduction in repeat errors (derived from the two numbers above)
+ 
+ Confidence Accuracy:
+   High Confidence → Success: >90%
+@@ -401,7 +414,7 @@ Before:
+ After:
+   ✅ "Tests: 15/15 passed. Coverage: 87%. Complete."
+   ✅ "わかりません。教えてください。" (honest)
+-  ✅ "過去に同じエラー発生。即座に解決。"
++  ✅ "過去に似たエラーの記録あり。記録を確認して適用可否を判断。" (explicit lookup; the fix is not applied automatically)
+   ✅ Evidence-based, honest communication
+ ```
+ 
+@@ -510,27 +523,24 @@ Result:
+ ### Example 4: Reflexion Learning
+ 
+ ```yaml
+-Error: "JWTError: Missing SUPABASE_JWT_SECRET"
+-
+-PM Agent:
+-  Check Past Errors:
+-    → Grep docs/memory/solutions_learned.jsonl
+-    → Match found: "JWT secret missing"
+-
+-  Solution (Instant):
+-    "⚠️ 過去に同じエラー発生済み (2025-10-15)
+-
+-     Known Solution:
+-     1. Check .env.example for required variables
+-     2. Copy to .env and fill in values
+-     3. Restart server to load environment
+-
+-     Applying solution now..."
+-
+-  Result:
+-    ✅ Problem resolved in 30 seconds (vs 30 minutes investigation)
+-
+-Tokens Saved: 1-2K (skipped investigation) ✅
++Error: "ValueError: invalid port value 9090 in config file" (test_load_config)
++
++Explicit lookup (illustrative; uses the synthetic sample row, not real data):
++  reflexion = ReflexionPattern(memory_dir=<isolated test directory>/docs/memory)
++  known = reflexion.get_solution({"error_type": "ValueError",
++                                  "error_message": "invalid port value 9090 in config file",
++                                  "test_name": "test_load_config"})
++
++  If solutions_learned.jsonl holds the first row of docs/memory/reflexion.jsonl.example
++  (9 of 10 distinct words shared = 0.90, above the 0.7 threshold), `known` is:
++    {"solution": "Validate the port is an integer in 1-65535 before binding",
++     "root_cause": "Config loader accepted any string for the port",
++     "prevention": "Add a range check to the config schema",
++     "timestamp": "2026-01-15T10:00:00.123456"}
++  Otherwise `known` is None: investigate, then record the result with record_error().
++
++What happens next is up to the caller. The lookup returns a stored row; it does not
++apply the fix. No time or token savings are claimed (none were measured).
+ ```
+ 
+ ---
+@@ -560,7 +570,7 @@ Performance Tests:
+ 
+ Validation Metrics:
+   - Hallucination detection: >90%
+-  - Error recurrence: <10%
++  - Error recurrence: <10% (target; no measurement exists)
+   - Confidence accuracy: >85%
+   - Token savings: >60%
+ ```
+@@ -625,7 +635,7 @@ Weekly Analysis:
+ 
+ 6. **CrewAI + Mem0**
+    - Achievement: 90% token reduction with vector DB
+-   - Application: mindbase integration strategy
++   - Application: background reading only; no MindBase integration is implemented
+ 
+ ---
+ 
+@@ -636,7 +646,7 @@ Weekly Analysis:
+ - [x] Confidence Check implementation
+ - [x] Self-Check Protocol implementation
+ - [x] Evidence Requirement enforcement
+-- [x] Reflexion Pattern integration
++- [x] Reflexion Pattern: explicit `ReflexionPattern` API and opt-in pytest recorder (no automatic PM Agent use, no MindBase)
+ - [x] Token-Budget-Aware Reflection
+ - [x] Documentation and testing
+ 
+@@ -659,4 +669,4 @@ Weekly Analysis:
+ **End of Document**
+ 
+ For implementation details, see `plugins/superclaude/commands/pm.md` (Line 870-1016).
+-For research background, see `docs/research/reflexion-integration-2025.md` and `docs/research/llm-agent-token-efficiency-2025.md`.
++For research background, see `docs/research/reflexion-integration-2025.md` (historical; no longer in the repository) and `docs/research/llm-agent-token-efficiency-2025.md`. The current error-record contract is in [docs/user-guide/memory-system.md](../user-guide/memory-system.md).

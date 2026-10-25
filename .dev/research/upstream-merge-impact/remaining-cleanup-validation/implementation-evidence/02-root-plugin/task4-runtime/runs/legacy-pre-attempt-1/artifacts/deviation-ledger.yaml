@@ -1,0 +1,3 @@
+# UC-1 plan-vs-spec divergences (4-category taxonomy; grounding gaps kept separately in grounding-gaps.yaml)
+- {id: D-1, location: "proposed.md:4", mapped_task: T-101, spec_section: "R-001 (spec.md:6)", deviation_class: drift, rationale: "exact-string MUST not restated; under-specification, not contradiction"}
+- {id: D-2, location: "proposed.md:10", mapped_task: T-103, spec_section: "R-003 (spec.md:12)", deviation_class: drift, rationale: "no assertions or run/pass step specified; under-specification, not contradiction"}

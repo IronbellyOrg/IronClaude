@@ -7,7 +7,7 @@ mcp-servers: [tavily, playwright, serena]
 personas: [deep-research-agent]
 ---
 
-# /sc:sc:sc:research - Deep Research Command
+# /sc:sc-research - Deep Research Command
 
 > **Context Framework Note**: This command activates comprehensive research capabilities with adaptive planning, multi-hop reasoning, and evidence-based synthesis.
 
@@ -20,7 +20,7 @@ personas: [deep-research-agent]
 
 ## Context Trigger Pattern
 ```
-/sc:sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
+/sc:sc-research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
 ```
 
 ## Behavioral Flow
@@ -92,9 +92,9 @@ personas: [deep-research-agent]
 
 ## Examples
 ```
-/sc:sc:research "latest developments in quantum computing 2024"
-/sc:sc:research "competitive analysis of AI coding assistants" --depth deep
-/sc:sc:research "best practices for distributed systems" --strategy unified
+/sc:sc-research "latest developments in quantum computing 2024"
+/sc:sc-research "competitive analysis of AI coding assistants" --depth deep
+/sc:sc-research "best practices for distributed systems" --strategy unified
 ```
 
 ## Boundaries
@@ -119,4 +119,4 @@ This command produces a RESEARCH REPORT ONLY - no implementation.
 - Recommendations (for human decision)
 - Cited references
 
-**Next Step**: After research completes, user decides next action. Use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
+**Next Step**: After research completes, user decides next action. Use `/sc:sc-design` for architecture or `/sc:sc-implement` for coding.

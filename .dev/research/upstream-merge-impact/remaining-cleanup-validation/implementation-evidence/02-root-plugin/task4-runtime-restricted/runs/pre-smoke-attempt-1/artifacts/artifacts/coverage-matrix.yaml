@@ -1,0 +1,128 @@
+{
+  "produced_by": {
+    "agent": "sc:sc-requirements-analyst",
+    "requested_model_slot": "sonnet",
+    "agent_id": "a77571ffb91a2ce59",
+    "returned_provider_model": "not surfaced by Agent tool result"
+  },
+  "pass1_parsed": [
+    {
+      "id": "R-001",
+      "id_line": "spec.md:5",
+      "span": "spec.md:5-7"
+    },
+    {
+      "id": "R-002",
+      "id_line": "spec.md:8",
+      "span": "spec.md:8-10"
+    },
+    {
+      "id": "R-003",
+      "id_line": "spec.md:11",
+      "span": "spec.md:11-13"
+    }
+  ],
+  "pass2_inference": {
+    "candidates": 3,
+    "dropped_overlapping_parsed_span": [
+      "spec.md:6",
+      "spec.md:9",
+      "spec.md:12"
+    ],
+    "inferred_rows": [],
+    "inferred_count": 0
+  },
+  "tasklist": [
+    {
+      "task_id": "T-101",
+      "line": "proposed.md:3",
+      "refs": [
+        "R-001"
+      ]
+    },
+    {
+      "task_id": "T-102",
+      "line": "proposed.md:6",
+      "refs": [
+        "R-002"
+      ]
+    },
+    {
+      "task_id": "T-103",
+      "line": "proposed.md:9",
+      "refs": [
+        "R-003"
+      ]
+    }
+  ],
+  "coverage_matrix": [
+    {
+      "requirement_id": "R-001",
+      "source": "parsed",
+      "spec_lines": "5-7",
+      "matched_task_ids": [
+        "T-101"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-002",
+      "source": "parsed",
+      "spec_lines": "8-10",
+      "matched_task_ids": [
+        "T-102"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-003",
+      "source": "parsed",
+      "spec_lines": "11-13",
+      "matched_task_ids": [
+        "T-103"
+      ],
+      "match_method": "exact"
+    }
+  ],
+  "summary": {
+    "parsed_count": 3,
+    "inferred_count": 0,
+    "coverage_pct": 1.0,
+    "coverage_pct_union": 1.0,
+    "unmapped_requirements": [],
+    "unmapped_requirements_union": [],
+    "missing_implementations_count": 0,
+    "S_dev_density": 0.0,
+    "coverage_degraded": null,
+    "coverage_undefined": false,
+    "total_tasks": 3,
+    "fuzzy": "disabled"
+  },
+  "qualitative_fidelity": [
+    {
+      "pair": "R-001->T-101",
+      "verdict": "weak",
+      "claim": "task omits the exact expected value 'Hello, Ada!' and the Ada input",
+      "cites": [
+        "spec.md:6",
+        "proposed.md:4"
+      ]
+    },
+    {
+      "pair": "R-002->T-102",
+      "verdict": "faithful",
+      "cites": [
+        "spec.md:9",
+        "proposed.md:7"
+      ]
+    },
+    {
+      "pair": "R-003->T-103",
+      "verdict": "faithful",
+      "cites": [
+        "spec.md:12",
+        "proposed.md:10"
+      ]
+    }
+  ]
+}

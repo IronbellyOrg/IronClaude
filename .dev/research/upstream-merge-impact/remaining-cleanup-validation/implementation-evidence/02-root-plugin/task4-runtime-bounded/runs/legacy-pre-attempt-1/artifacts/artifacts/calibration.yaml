@@ -1,0 +1,19 @@
+# Wave 1D blind calibration — returned by sc:confidence-calibrator; persisted by orchestrator
+calibrator: {agent: sc:confidence-calibrator, requested_model_slot: opus, resolved_alias: "claude-opus-5-5[1m]", agent_id: a9a8c6b50cb14be52}
+card_author_class: sonnet
+reviewer_model_classes: []          # Tier 1: no T2 reviewers
+calibrator_model_class: opus
+calibrator_diversity: full          # opus not in {sonnet (card author)}; no reviewer pool
+provider_model_note: "Agent tool returned no provider model id in its result metadata; requested slot alias recorded, actual provider model not independently observable"
+inputs_supplied: [reflection-card.yaml, refs/reflection-rubric.md]
+formation_context_supplied: false
+citation_spot_checks: {checked: 28, verified: 28, mismatch: 0, unreadable: 0}
+per_dimension_scores:
+  citation_grounding: 0.95
+  coverage_completeness: 1.00
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.93
+C: 0.9160
+self_reported_confidence_ignored: 0.85
+escalation_recommendation: ORCHESTRATOR_DECIDES

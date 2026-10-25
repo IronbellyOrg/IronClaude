@@ -1,0 +1,347 @@
+{
+  "case_outcomes": [
+    {
+      "case": "pre-smoke",
+      "attempt": "pre-smoke-attempt-1",
+      "native_exit": 0,
+      "status": "success",
+      "mode": "pre",
+      "tier": 1,
+      "confidence": 0.94,
+      "stop_reason": null,
+      "merge_method": null,
+      "evidence_validator_ran": true,
+      "producer_checks_pass": true,
+      "output_directory": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts"
+    }
+  ],
+  "runtime_case_types_missing": [
+    "invalid-commit-range",
+    "legacy-post",
+    "legacy-pre",
+    "missing-post",
+    "missing-pre",
+    "post-default",
+    "post-log-only",
+    "post-tier1",
+    "post-tier2",
+    "pre-default",
+    "readiness-unavailable",
+    "remediation-unavailable",
+    "unsafe-output"
+  ],
+  "all_cases_required_in_this_run": false,
+  "verdict": "PASS",
+  "checks": {
+    "all_other_commands_resources_and_protected_bytes_preserved": {
+      "pass": true,
+      "details": {
+        "checked": 2281,
+        "changed": []
+      }
+    },
+    "root_entrypoint_modern_contract_and_local_binding": {
+      "pass": true,
+      "details": {
+        "missing": [],
+        "obsolete": []
+      }
+    },
+    "retired_producer_and_commands_remain_absent": {
+      "pass": true,
+      "details": [
+        ".github/workflows/pull-sync-framework.yml",
+        "scripts/sync_from_framework.py",
+        "docs/.framework-sync-commit",
+        "commands/sc-estimate.md",
+        "commands/sc-sc.md",
+        "commands/sc-select-tool.md"
+      ]
+    },
+    "exact_bounded_product_inventory": {
+      "pass": true,
+      "details": {
+        "unexpected": [],
+        "missing": []
+      }
+    },
+    "index_unchanged": {
+      "pass": true,
+      "details": ""
+    },
+    "head_unchanged": {
+      "pass": true,
+      "details": "2658e6d6326b56695f327e3c1584cc007a31c4e7"
+    },
+    "actual_isolated_copy_matches_current_product": {
+      "pass": true,
+      "details": []
+    },
+    "runtime:pre-smoke-attempt-1": {
+      "pass": true,
+      "details": {
+        "checks": {
+          "native_exited_zero": true,
+          "inputs_plugin_unmodified": true,
+          "isolated_native_environment": true,
+          "root_command_dispatched": true,
+          "no_successful_file_reads_outside_isolated_roots": true,
+          "no_successful_shell_directory_transitions": true,
+          "actual_all_role_cwd_exactly_launch_or_audit_root": true,
+          "declared_native_cwd_deny_profile": true,
+          "bundled_protocol_called": true,
+          "real_report_and_contract_exist": true,
+          "independent_calibrator_called": true,
+          "independent_evidence_validator_called": true,
+          "calibrators_actually_spot_check_cited_sources": true,
+          "calibration_five_dimension_math_verified": true,
+          "actual_validator_record_exists": true,
+          "contract_real_fields": true,
+          "citation_gate_reports_actual_run": true,
+          "no_promotion": true,
+          "contract_confidence_matches_actual_calibration": true,
+          "mcp_absence_reported_honestly": true
+        },
+        "pass": true,
+        "roles": [
+          "sc:sc-requirements-analyst",
+          "sc:sc-root-cause-analyst",
+          "sc:confidence-calibrator",
+          "sc:evidence-validator"
+        ],
+        "skills": [
+          "sc:sc-reflect-protocol",
+          "sc:confidence-check"
+        ],
+        "contracts": [
+          {
+            "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/return-contract.yaml",
+            "value": {
+              "contract_version": "1.8.0",
+              "status": "success",
+              "mode": "pre",
+              "tier_reached": 1,
+              "report_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/REPORT.md",
+              "audit_log_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/audit.log",
+              "confidence_calibrated": 0.94,
+              "escalation_rule_matched": null,
+              "onboarding_ran": false,
+              "coverage_pct": 1.0,
+              "coverage_pct_union": 1.0,
+              "coverage_undefined": false,
+              "coverage_degraded": null,
+              "unmapped_requirements": [],
+              "unmapped_requirements_union": [],
+              "best_practice_grade": 3,
+              "implementation_coverage_pct": null,
+              "missing_implementations": [],
+              "hierarchy_slice_path": null,
+              "hierarchy_coverage_pct": null,
+              "tasklist_completion_pct": null,
+              "deviation_count_by_class": {
+                "authorized": 0,
+                "necessary": 0,
+                "drift": 0,
+                "regression": 0
+              },
+              "deviation_register_path": null,
+              "grounding_gaps_path": null,
+              "input_sha256": {
+                "tasklist": "5cad1bb43b079a08d06213ef6dce16a22f193769ab7b88b8a4ef7828a21876cc",
+                "spec": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548"
+              },
+              "input_tree_sha256": "1811526544b9260d4a11bcbd06ea9beff780681a29851e81c52dd8c85ed5fc09",
+              "input_tree_file_count": 2,
+              "input_tree_snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/input-snapshot.yaml",
+              "input_drift_detected": false,
+              "input_drift_diff": null,
+              "citations_total": 25,
+              "citations_revalidated": 25,
+              "citations_dropped": 0,
+              "citations_dropped_extrapolated": 0,
+              "citations_inferred": 1,
+              "citation_budget_policy": "full_reread",
+              "evidence_validator_ran": true,
+              "citation_revalidation_at_promotion": false,
+              "reviewer_cards": [],
+              "adversarial_artifacts_dir": null,
+              "adversarial_convergence_score": null,
+              "adversarial_unavailable": false,
+              "merge_method": null,
+              "merge_method_note": "Tier 1 only: no Wave 4, so no merge happened; neither legal merge value applies",
+              "t2_model_class_diversity": null,
+              "t2_vendor_diversity": null,
+              "t2_effective_diversity": null,
+              "calibrator_diversity": "full",
+              "remediation_offered": false,
+              "remediation_accepted": null,
+              "task_file_path": null,
+              "remediation_task_path": null,
+              "remediation_plan_path": null,
+              "handoff_memory_key": null,
+              "cannot_validate_without_user_input": false,
+              "regression_present": false,
+              "unauthorized_deviation_present": false,
+              "blocked_by_low_confidence": false,
+              "spec_is_wrong": false,
+              "user_decision_required": false,
+              "needs_human_decision": false,
+              "per_task_verdicts": [],
+              "interaction_effects_scanned": false,
+              "interaction_effects_findings": 0,
+              "budget_forced_tier_downgrade": false,
+              "budget_forced_stop": false,
+              "budget_check_skipped": true,
+              "forced_tier": null,
+              "promotion_action": "not-applicable",
+              "promotion_adapter": null,
+              "promotion_source": null,
+              "promotion_destination": null,
+              "promotion_log_path": null,
+              "promotion_gate_passed": null,
+              "promotion_skip_reason": "user-flag",
+              "promotion_fail_reason": null,
+              "promotion_override_used": null,
+              "promotion_rollback_command": null,
+              "promotion_checkpoint_path": null,
+              "promotion_cross_fs": false,
+              "promotion_pending": false,
+              "telemetry": {
+                "launch_cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+                "audit_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project",
+                "audit_repo_root_source": "git -C rev-parse --show-toplevel (git init only, no commits)",
+                "roles": [
+                  {
+                    "wave": "1B",
+                    "agent": "sc:sc-requirements-analyst",
+                    "requested_model_slot": "sonnet",
+                    "agent_id": "a67861b21c03eeff3",
+                    "artifact": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/coverage-matrix.yaml"
+                  },
+                  {
+                    "wave": "1C",
+                    "agent": "sc:sc-root-cause-analyst",
+                    "requested_model_slot": "sonnet",
+                    "agent_id": "a2ede104391abe269",
+                    "artifact": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/reflection-card.yaml"
+                  },
+                  {
+                    "wave": "1D",
+                    "agent": "sc:confidence-calibrator",
+                    "requested_model_slot": "opus",
+                    "agent_id": "a92d6d903927c63b9",
+                    "artifact": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/calibration.yaml"
+                  },
+                  {
+                    "wave": "5",
+                    "agent": "sc:evidence-validator",
+                    "requested_model_slot": "opus",
+                    "agent_id": "a864b836be8cca642",
+                    "artifact": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/evidence-validation.yaml"
+                  }
+                ],
+                "provider_models_returned": "not exposed by the Agent tool result; only requested slots are recorded",
+                "env_aliases_distinct": 3,
+                "tier_decision_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/tier_decision.yaml",
+                "degraded_components": [
+                  "mcp:--no-mcp",
+                  "serena",
+                  "auggie",
+                  "get_current_config",
+                  "serena:onboarding-parse",
+                  "think_about_checkpoints",
+                  "tech-research:unavailable-in-plugin",
+                  "reviewer-snapshot:not-provisioned(tier1)"
+                ],
+                "serena_version": "unknown",
+                "onboarding_status": "unknown",
+                "executor_class_source": "unknown",
+                "executor_class_resolved": false,
+                "zero_drop_flag": true,
+                "fallback_path": null,
+                "memory_persist": "skipped(--no-mcp)",
+                "warnings": [
+                  "executor class not resolved (UC-1 plan has no executor yet) \u2014 anti-self-confirmation partition weakened",
+                  "--no-mcp: native Read/Grep only; no symbolic/diagnostic verification claimed",
+                  "vendor heuristic: haiku-slot alias not classifiable by name (Tier 2 unused)"
+                ]
+              }
+            }
+          }
+        ],
+        "calibration_math": [
+          {
+            "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/calibration.yaml",
+            "scores": [
+              0.95,
+              1.0,
+              0.9,
+              0.92,
+              0.92
+            ],
+            "claimed": 0.94,
+            "pass": true
+          }
+        ],
+        "calibrator_spot_checks": [
+          {
+            "model": "opus",
+            "input_cards": [
+              "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/artifacts/reflection-card.yaml"
+            ],
+            "cited_source_keys": [
+              "proposed.md",
+              "spec.md"
+            ],
+            "source_reads": [
+              "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md",
+              "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md"
+            ],
+            "matched_cited_source_reads": [
+              "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md",
+              "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md"
+            ],
+            "pass": true
+          }
+        ],
+        "snapshot_verification": null,
+        "reviewer_tools": [],
+        "out_of_scope_reads": [],
+        "successful_cwd_transitions": [],
+        "actual_cwd_records": [
+          {
+            "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-wysmpguk/fe469acf-9e6d-4e29-832f-bf281215117a.jsonl",
+            "cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+            "pass": true
+          },
+          {
+            "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-wysmpguk/fe469acf-9e6d-4e29-832f-bf281215117a/subagents/agent-a92d6d903927c63b9.jsonl",
+            "cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+            "pass": true
+          },
+          {
+            "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-wysmpguk/fe469acf-9e6d-4e29-832f-bf281215117a/subagents/agent-a2ede104391abe269.jsonl",
+            "cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+            "pass": true
+          },
+          {
+            "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-wysmpguk/fe469acf-9e6d-4e29-832f-bf281215117a/subagents/agent-a864b836be8cca642.jsonl",
+            "cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+            "pass": true
+          },
+          {
+            "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-wysmpguk/fe469acf-9e6d-4e29-832f-bf281215117a/subagents/agent-a67861b21c03eeff3.jsonl",
+            "cwd": "/tmp/ironclaude-reflect-runtime-wysmpguk",
+            "pass": true
+          }
+        ],
+        "execution": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/execution.json"
+      }
+    }
+  },
+  "failed_checks": [],
+  "independent_review": "NOT CLAIMED; producer check only",
+  "positive_commit_range_runtime": "Not claimed: synthetic Git fixture has no commits; invalid range refusal and static alternatives tested",
+  "runtime_fixture": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1",
+  "checker_sha256": "1df2af812ac7de8cdc8a8f4478a2aa567442d1fe0bc6b7f64d99f690ae98ee82"
+}

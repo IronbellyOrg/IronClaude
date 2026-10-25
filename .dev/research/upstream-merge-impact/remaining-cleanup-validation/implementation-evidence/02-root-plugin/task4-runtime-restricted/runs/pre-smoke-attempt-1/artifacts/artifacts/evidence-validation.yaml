@@ -1,0 +1,21 @@
+{
+  "validator_agent": "sc:evidence-validator",
+  "requested_model_slot": "opus",
+  "agent_id": "a27431477f802f6aa",
+  "returned_provider_model": "not surfaced by Agent tool result",
+  "policy": "full_reread",
+  "citations_total": 22,
+  "citations_revalidated": 22,
+  "citations_dropped": 0,
+  "inferred_tagged_claims_count": 3,
+  "zero_drop_flag": true,
+  "orchestrator_notes": [
+    "Validator reported spec.md 13 / proposed.md 11 lines (Read-tool numbering includes post-newline line); wc -l gives 12/10. No citation affected.",
+    "22 > 20 would permit sampled mode; all 22 were re-read (stricter)."
+  ],
+  "uncited_claims_not_checked": [
+    "git root / no commits (orchestrator Bash evidence in audit.log)",
+    "degraded-mode statements",
+    "best-practice grade 3/5 (judgement)"
+  ]
+}

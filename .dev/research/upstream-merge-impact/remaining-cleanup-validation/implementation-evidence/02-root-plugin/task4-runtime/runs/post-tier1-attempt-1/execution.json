@@ -1,0 +1,210 @@
+{
+  "case": "post-tier1",
+  "attempt": "1",
+  "state": "exited",
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/plugin",
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--model",
+    "opus",
+    "--permission-mode",
+    "bypassPermissions",
+    "--no-session-persistence",
+    "--tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--append-system-prompt",
+    "This is an authorized isolated plugin-only audit. The synthetic audited repository is /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project, not your empty launch cwd. Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. Write only under the requested safe output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/artifacts; when the actual --output is forbidden, refuse without creating it. Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources. Never print provider credentials or credential environment values.",
+    "/sc:sc-reflect --mode post --diff /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/changes.patch --spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md --tasklist /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/completed.md --scope /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/src --tier 1 --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/artifacts"
+  ],
+  "cwd": "/tmp/ironclaude-reflect-runtime-ppye7osp",
+  "environment": {
+    "PATH": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin:/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier1-attempt-1/home/.config"
+  },
+  "provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "framework_executable_absent": true,
+  "runtime_tools_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin/uv\n/usr/bin/git\n",
+  "timeout_seconds": 1800,
+  "started_monotonic": 2163696.906568035,
+  "returncode": 0,
+  "duration_seconds": 409.8588322070427,
+  "changed_plugin_files": [],
+  "added_plugin_files": [],
+  "fixture_staged_files": [],
+  "fixture_head_created": false,
+  "changed_audit_inputs": [],
+  "native_result": {
+    "duration_api_ms": 445313,
+    "stop_reason": "end_turn",
+    "session_id": "8df0d5e3-235f-4e87-bd15-0c84f0fcd25e",
+    "total_cost_usd": 3.209597300000001,
+    "usage": {
+      "input_tokens": 40,
+      "cache_creation_input_tokens": 182241,
+      "cache_read_input_tokens": 2894695,
+      "output_tokens": 30941,
+      "output_tokens_details": {
+        "thinking_tokens": 5913
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 182241,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 1272,
+          "cache_read_input_tokens": 186532,
+          "cache_creation_input_tokens": 1519,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1519
+          },
+          "type": "message",
+          "model": null
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5-5[1m]": {
+        "inputTokens": 56,
+        "outputTokens": 39439,
+        "cacheReadInputTokens": 2961445,
+        "cacheCreationInputTokens": 213885,
+        "webSearchRequests": 0,
+        "costUSD": 2.9974410000000007,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 8110,
+        "canonicalModel": "claude-opus-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "grok-4.7[1m]": {
+        "inputTokens": 7818,
+        "outputTokens": 3482,
+        "cacheReadInputTokens": 15616,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.1040352,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 2163,
+        "canonicalModel": "grok-4.7[1m]",
+        "provider": "firstParty",
+        "costBasis": "unknown"
+      },
+      "claude-sonnet-5-5[1m]": {
+        "inputTokens": 6,
+        "outputTokens": 5026,
+        "cacheReadInputTokens": 32383,
+        "cacheCreationInputTokens": 20549,
+        "webSearchRequests": 0,
+        "costUSD": 0.1081211,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 653,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 4,
+      "requested": {
+        "background": 1,
+        "foreground": 3,
+        "unset": 0
+      },
+      "started_in_background": 1,
+      "max_depth": 1,
+      "spawned_by_subagents": 0,
+      "completed": 4,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {
+        "sc:reuse-auditor": 1,
+        "sc:sc-root-cause-analyst": 1,
+        "sc:confidence-calibrator": 1,
+        "sc:evidence-validator": 1
+      }
+    },
+    "is_error": false,
+    "num_turns": 24,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "The Tier-1 post-execution audit finished with **status `partial`**. The code matches the spec, but 2 evidence gaps need your decision.\n\n**Outputs** (under `runs/post-tier1-attempt-1/artifacts/`):\n- `REPORT.md`\n- `return-contract.yaml` (JSON, which is valid YAML; contract 1.8.0)\n- `audit.log` (41 step rows), plus the card, calibration, evidence-validation, tier-decision, reuse, ledger and snapshot files\n\n**Results**\n- **Mode / tier:** post, Tier 1, pinned by `--tier 1`. Waves 3\u20134 didn't run, so there was no adversarial merge and `merge_method` is null.\n- **Calibrated confidence: 0.91.** A blind `sc:confidence-calibrator` on opus scored the sonnet `sc:sc-root-cause-analyst` card. The card's own estimate was 0.80. The calibrator was a different model class from the card author.\n- **Deviations:** Authorized 0, Necessary 0, Drift 0, Regression 0. The diff is one new file, `src/greeting.py`, in one hunk. It covers R-001 (`greeting.py:4`) and R-002 (`greeting.py:2-3`).\n- **Tasks:** 2 of 3 tasks are evidenced in the diff (completion 0.67).\n- **Evidence gate:** `sc:evidence-validator` re-read 24 of 24 citations and dropped 0. Because nothing was dropped, the audit log carries the protocol's `zero-drop-flag`. I fixed or tagged `[INFERRED]` the 4 weak claims it flagged, which gives 3 inferred claims in the final report.\n- **Input drift:** none (tree hash unchanged at the end). The fixture repo is unchanged.\n\n**Grounding gaps** (these set `needs_human_decision: true`)\n1. **GG-1:** T-103's tests (`tests/test_greeting.py`) exist on disk, but they're not in `changes.patch` and are outside `--scope src`. From the inputs I can't tell whether the diff is just incomplete or T-103 wasn't actually met.\n2. **GG-2:** Nothing was executed. Serena's `execute_shell_command` wasn't available and no `--task-log` was passed, so pass/fail is unknown. I didn't use `execution.log` because it wasn't supplied.\n\n**Degraded parts**\n- Serena and auggie MCP weren't available, so I used only native Read/Grep/Glob.\n- The reuse search came back `distinct`, but it's capped at advisory because auggie was missing.\n- Both diversity measures are honest but limited. Model-class diversity is `full` (3 distinct aliases), but vendor diversity is `single` (all Anthropic). The executor's model class was unknown.\n\n**Recommendations: advisory only.** `sc:confidence-check` scored 0.65 because pytest isn't installed, so I couldn't check the pytest-specific advice (`blocked_by_low_confidence: true`).\n- Bring the tests into the audited diff/scope.\n- Make `src` importable. A plain `pytest` run may fail to import it; this is [UNVERIFIED].\n- Pin down what should happen for `None` and whitespace-only names.\n- Use `pytest.raises(match=...)` in the empty-name test.\n\n**Disposition**\n- **Promotion:** skipped because of `--no-promote`, with no moves or writes.\n- **Remediation:** not requested (null paths, `remediation_accepted: false`).\n- I didn't stage, commit, install anything or run the `superclaude` package.\n\n`REPORT.draft.md` is also in the output folder as the version the evidence validator checked.",
+    "ttft_ms": 3220,
+    "type": "result",
+    "duration_ms": 409268,
+    "uuid": "22543d8f-5262-413c-a4d7-ee91573f581a",
+    "ttft_stream_ms": 2847,
+    "time_to_request_ms": 95,
+    "first_content_frame_ms": 2847,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "artifact_files": [
+    "execution.json",
+    "stderr.txt",
+    "role-and-tool-calls.json",
+    "native-init.json",
+    "stdout.jsonl",
+    "artifacts/REPORT.md",
+    "artifacts/REPORT.draft.md",
+    "artifacts/deviation-ledger.yaml",
+    "artifacts/grounding-gaps.yaml",
+    "artifacts/audit.log",
+    "artifacts/return-contract.yaml",
+    "artifacts/artifacts/tier_decision.yaml",
+    "artifacts/artifacts/calibration-tier1.yaml",
+    "artifacts/artifacts/reuse-audit.yaml",
+    "artifacts/artifacts/task-to-work-map.yaml",
+    "artifacts/artifacts/confidence-check.yaml",
+    "artifacts/artifacts/evidence-validation.yaml",
+    "artifacts/artifacts/input-snapshot.yaml",
+    "artifacts/artifacts/runtime-surface.yaml",
+    "artifacts/cards/tier1-card.yaml"
+  ]
+}

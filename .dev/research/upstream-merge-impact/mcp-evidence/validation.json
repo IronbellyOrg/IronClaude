@@ -1,0 +1,21 @@
+{
+  "artifact": ".dev/research/upstream-merge-impact/mcp-installation.md",
+  "missing_commits": [],
+  "missing_paths": [],
+  "placeholder_count": 0,
+  "references_checked": 134,
+  "bad_references": [
+    {
+      "reference": {
+        "path": ".dev/research/upstream-merge-impact/mcp-evidence/negative-search.txt",
+        "start": "1",
+        "end": "22"
+      },
+      "error": "line exceeds source",
+      "line_count": 18
+    }
+  ],
+  "record_count": 9,
+  "path_count": 14,
+  "independent_review": "pending parent"
+}

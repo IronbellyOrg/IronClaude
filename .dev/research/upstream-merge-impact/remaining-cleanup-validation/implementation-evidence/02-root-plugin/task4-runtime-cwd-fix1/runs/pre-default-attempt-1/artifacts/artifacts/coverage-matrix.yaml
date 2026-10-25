@@ -1,0 +1,14 @@
+coverage_matrix:
+  - {requirement_id: R-001, spec: "spec.md:5-6", matched_task_ids: [T-101], task_ref: "proposed.md:3-4", match_method: exact, source: parsed, semantic: partial}
+  - {requirement_id: R-002, spec: "spec.md:8-9", matched_task_ids: [T-102], task_ref: "proposed.md:6-7", match_method: exact, source: parsed, semantic: full}
+  - {requirement_id: R-003, spec: "spec.md:11-12", matched_task_ids: [T-103], task_ref: "proposed.md:9-10", match_method: exact, source: parsed, semantic: partial}
+parsed_count: 3
+inferred_count: 0
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+coverage_undefined: false
+coverage_degraded: null
+best_practice_grade: 3

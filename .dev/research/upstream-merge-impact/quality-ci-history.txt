@@ -1,0 +1,978 @@
+Snapshot: 053b75664c8979bf223b8040f68310dce882d05b
+
+PATH: .github/workflows/publish-pypi.yml
+bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows
+32c0086d0f916362fd4899212e8e714511ca4524 2025-11-12T17:59:29+01:00 mithun50 fix: correct package paths in publish-pypi workflow
+7c14a31bc367ac4496d328159673ba6716870219 2025-10-15T18:32:27+05:30 habuchin Fix ModuleNotFoundError in PyPI publish workflow (#433)
+f973dc9ba7ccd402ea891bdfa65c7d320c807795 2025-10-14T15:01:36+05:30 Mithun Gowda B Update publish-pypi.yml
+385c96c9d453475a17288031786f3c23640dd38f 2025-10-14T14:57:45+05:30 Mithun Gowda B Update publish-pypi.yml
+fd1e5eda3f2cd7dad763d22a626a0e5e6350692c 2025-10-14T14:54:58+05:30 Mithun Gowda B Update publish-pypi.yml
+82b92a1ca15cb866c30995739b5bae1a0fa2f936 2025-09-05T16:02:59-05:00 markm-io fix: Add missing toml dependency to prevent release version skipping
+e8afb941639cc044384670124c2610c112857073 2025-08-15T15:15:51+02:00 NomenAK Add comprehensive PyPI publishing infrastructure
+
+PATH: .github/workflows/quick-check.yml
+bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows
+64b730a7208a71fb1cca2fb15d8a1e8b1c491342 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline — ruff pin + format sweep + dep allow-list + lint/arch (#216)
+f79b1bd54f65cf41a868a495a7c20820e078e2c3 2026-05-13T05:34:08+00:00 RyanW feat(workspace-rca): layered remediation for skill-creator workspace misplacement
+18c0e4e127dc352db19ae132a770019bf1f32d8a 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)
+8da05a172063d16e062a0bfabf583debc9be385c 2025-11-12T18:12:57+01:00 mithun50 fix: use direct commands instead of uv run with --system
+43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a 2025-11-12T18:09:37+01:00 mithun50 fix: add --system flag to uv pip install in workflows
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: .github/workflows/readme-quality-check.yml
+bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows
+fa2e6239b10ba6282088a25a94098b7f61a0677f 2026-09-25T05:47:50+00:00 Ryan wiancko ci: move artifacts to Artifact Keeper
+0994693b9376ab9d8e204ebab85d3adbcb1263ff 2026-02-21T14:22:01+00:00 RyanW Removed Chinese characters from workflow to prevent automatic chinese descriptions from being generated
+32c0086d0f916362fd4899212e8e714511ca4524 2025-11-12T17:59:29+01:00 mithun50 fix: correct package paths in publish-pypi workflow
+cd5727806937d9e0bb220d5a1bacdaf23915cab7 2025-09-09T20:31:56+05:30 sarosh added spec-panel, which transforms the project specs though the lens … (#346)
+494e9e6b1abb0cb92efb5ed08ecb6d4f7cca1f07 2025-08-28T16:24:29+09:00 SevenThRe feat: Add complete multilingual README support with quality automation
+
+PATH: .github/workflows/test.yml
+053b75664c8979bf223b8040f68310dce882d05b 2026-10-23T04:45:04+00:00 Ryan wiancko ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)
+bb66aa7ce3677e6fca44b415da62a807ba0e1fe8 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows
+f28ae4be41b6b3c0197f67c3bbd2e8c24c8afb22 2026-10-22T18:43:15+00:00 Ryan wiancko ci: install the Claude CLI in the doctor job
+025c1f7354f87b7c129b8ac42925ddc5bc1b9c9a 2026-09-24T21:39:43+00:00 Ryan wiancko fix(ci): install native components before doctor-check
+b0de1479267353fa77d56cf9d1b59ee57b27138d 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+525386a92568fff513afef8f6e5918ae7618cdaa 2026-05-27T13:21:37-04:00 Ironbelly fix(ci): restore master CI — dep baseline + mirror sync + path drift (#99)
+1ca25953b0ea948d557e9369d8638be5329320f6 2026-05-21T00:04:48-04:00 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)
+8da05a172063d16e062a0bfabf583debc9be385c 2025-11-12T18:12:57+01:00 mithun50 fix: use direct commands instead of uv run with --system
+43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a 2025-11-12T18:09:37+01:00 mithun50 fix: add --system flag to uv pip install in workflows
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: pyproject.toml
+08cbea9ea2948c33e26bd8d839f404b9912fd176 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+64b730a7208a71fb1cca2fb15d8a1e8b1c491342 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline — ruff pin + format sweep + dep allow-list + lint/arch (#216)
+921464b48de6d50c3ed18b7d064e39a32c2a6428 2026-06-19T10:49:10-04:00 Ironbelly fix(sprint): per-phase turn-budget model — fresh ledger per phase (R-1..R-10, TM-0..TM-14) (#187)
+2c5357c8531869fde21535887d194033566cc7ca 2026-06-12T17:32:43-04:00 Ironbelly feat(sc:pr-submit): PR review auto-remediation monitor (V1.0) (#162)
+b0de1479267353fa77d56cf9d1b59ee57b27138d 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+5d660ca9ab8adae4c26914acc4d61b51a7329d83 2026-06-04T06:57:31-04:00 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)
+1a00efb257601b3ccb0dc6b5392c228a36b21fbe 2026-06-03T22:07:35-04:00 Ironbelly Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)
+74bf717dc2e2cf8aecd51e7832e989277fa977cd 2026-05-30T00:46:05-04:00 Ironbelly feat(cli): add ic launcher script for model alias selection (#105)
+38ca920d4c820d62bdc2854414aedf29d65300f5 2026-05-25T15:46:10-04:00 Ironbelly fix(lint): resolve Issue #60 — eliminate pre-existing ruff debt (441 → 0) (#83)
+1ca25953b0ea948d557e9369d8638be5329320f6 2026-05-21T00:04:48-04:00 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)
+
+PATH: src/superclaude/__init__.py
+5d660ca9ab8adae4c26914acc4d61b51a7329d83 2026-06-04T06:57:31-04:00 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)
+1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5 2026-01-18T18:39:18+05:30 Sergei Frolov chore: bump version to 4.2.0 (#514)
+fd8c67f6f0be47371fe9fffce0be0ffad73b3c72 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages
+86a26333912b09a98fab1d9a81c0cd23e404f224 2025-11-13T12:45:17+01:00 mithun50 fix: update __version__ in __init__.py to 4.1.8
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+16caa49442f477febd4b2a8e32dd1ded705d02d3 2025-11-12T18:04:34+01:00 mithun50 fix: update package version and authors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/cli/doctor.py
+9749a959340995f614a972d3eb266f3fd1128e45 2026-09-24T17:00:26+00:00 Ryan wiancko fix: preserve ccsession install state across retries
+cbc9321c04b1078146c696a3229f15ac28a9f607 2026-09-24T13:54:23+00:00 Ryan wiancko feat: wire ccsession as a native install component
+263521c6312c6f1cae9b7754c7726da9857a721e 2026-07-25T10:24:28-04:00 RyanW Fixes hardcoded paths to Coder instancesZ
+8cc65e931e0d712c029fd8a7c524fbc65a8e5edc 2026-02-19T15:01:57+00:00 RyanW   ---   feat(v1.06): implement /sc:cleanup-audit skill — multi-pass repository audit
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/cli/install_commands.py
+051f39feaf2796e6f2bec1313dcfa9ce713055b6 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when
+2219545cc6cb5d3cfbd9e8f1d1c078b74adaa3a3 2026-05-20T13:17:19-04:00 Ironbelly fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)
+42946f8445f13f4444aa67ecb1f503ed6d91eb79 2025-11-13T15:37:56+01:00 mithun50 fix: prioritize package location for commands path resolution
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: src/superclaude/cli/install_skill.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/cli/main.py
+d594babb0a0f696c829c189631d0e589e8f37716 2026-10-22T18:43:15+00:00 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)
+38c20f88ba751976e7e2bd365748e201f647f4fa 2026-09-27T13:07:16-05:00 clayphi feat(install): ship shared Claude Code user setup
+cbc9321c04b1078146c696a3229f15ac28a9f607 2026-09-24T13:54:23+00:00 Ryan wiancko feat: wire ccsession as a native install component
+a5e9df4bc729a3602e55092aacb41e9a5d5f4743 2026-09-18T09:02:56-04:00 RyanW feat: install global bash batching policy
+263521c6312c6f1cae9b7754c7726da9857a721e 2026-07-25T10:24:28-04:00 RyanW Fixes hardcoded paths to Coder instancesZ
+bcad8852cbfd681181bf2019229e0b60ae5dc0c4 2026-06-10T14:57:32-04:00 Ironbelly feat(reflect): audit-only wrapper → bounded auto-fix engine (contract 1.4.0) (#159)
+b0de1479267353fa77d56cf9d1b59ee57b27138d 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+681a347fe417f8f924b8ed62ca5f047fc48e0b3c 2026-06-04T00:03:39-04:00 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)
+238d6583dc508f2dacff6cc978507c929609a2bb 2026-06-03T19:47:58-04:00 Ironbelly feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)
+38ca920d4c820d62bdc2854414aedf29d65300f5 2026-05-25T15:46:10-04:00 Ironbelly fix(lint): resolve Issue #60 — eliminate pre-existing ruff debt (441 → 0) (#83)
+
+PATH: src/superclaude/execution/__init__.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/execution/parallel.py
+37b83a26ac74e9aaad6cd4cf0fd1dbf9bd041bde 2026-06-19T10:49:26-04:00 Ironbelly feat(swarm): wire --tui dashboard (FR-1..FR-7) + FR-1 regression fix (#188)
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/execution/reflection.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/execution/self_correction.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/pm_agent/__init__.py
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/pm_agent/confidence.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/pm_agent/reflexion.py
+d36591ee2f79f8b10f886b77e9d1423fb23e3ca7 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/pm_agent/self_check.py
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: src/superclaude/pytest_plugin.py
+d36591ee2f79f8b10f886b77e9d1423fb23e3ca7 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+c733413d3c5dc0ea93822e93afbe3eae9a7f6fec 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)
+
+PATH: tests/conftest.py
+d36591ee2f79f8b10f886b77e9d1423fb23e3ca7 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)
+8b70fd58f83b58eb401c46494855553ed63490e6 2026-03-15T05:59:27+00:00 RyanW fix(executors): replace --file fallback with inline embedding
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: tests/integration/test_pytest_plugin.py
+08cbea9ea2948c33e26bd8d839f404b9912fd176 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: tests/unit/test_cli_install.py
+4865e94ca9d5fa508fa63187c0ce0f44f40f4559 2026-10-22T16:56:16+00:00 Ryan wiancko fix(implement): contain revert deletes, reject symlinked brief folders, bundle plugin adviser
+3ad7e2071e28b4582775b4ae5039cc9cb6d72846 2026-10-22T15:27:44+00:00 Ryan wiancko feat(implement): add escalating QA retry ladder and safe artifact recovery
+08cbea9ea2948c33e26bd8d839f404b9912fd176 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+051f39feaf2796e6f2bec1313dcfa9ce713055b6 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when
+3ae238b178fb7c67ca02809d24745de620c2bd50 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+263521c6312c6f1cae9b7754c7726da9857a721e 2026-07-25T10:24:28-04:00 RyanW Fixes hardcoded paths to Coder instancesZ
+0d3b99c84fbfc3efa4757343ebd9d4cf37228ab1 2026-07-06T10:27:37-04:00 Ironbelly feat(post-release): /sc:post-release command-backed refactor + sc-post-release-protocol skill (#218)
+681a347fe417f8f924b8ed62ca5f047fc48e0b3c 2026-06-04T00:03:39-04:00 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+
+PATH: tests/unit/test_confidence.py
+b00547ad535ee638952c5e38b2a139888e50f496 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: tests/unit/test_reflexion.py
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: tests/unit/test_self_check.py
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+PATH: tests/unit/test_token_budget.py
+e2896335ba82f83a0b1a271cb872ff04b7ea884b 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors
+8c0559ca9a99a14c7337b48e888959b47dc8acb8 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command
+
+FORK CHANGE: bb66aa7c
+commit bb66aa7ce3677e6fca44b415da62a807ba0e1fe8
+Author:     Ryan wiancko <ryan@ironbelly.com>
+AuthorDate: Thu Oct 22 20:41:38 2026 +0000
+Commit:     Ryan wiancko <ryan@ironbelly.com>
+CommitDate: Thu Oct 22 20:41:43 2026 +0000
+
+    ci: simplify GitHub Actions workflows
+    
+    - Delete readme-quality-check.yml (checked README translations and a Docs/
+      path that do not exist), publish-pypi.yml (fork installs from git), and
+      quick-check.yml (duplicated test.yml on every PR).
+    - test.yml: run on Python 3.10 only (requires-python floor) with a single
+      pytest run carrying coverage; replace the curl uv installer +
+      setup-python pairs with astral-sh/setup-uv@v10.3.2 and an activated venv;
+      merge lint, plugin-check and verify-deps into one lint job that also runs
+      make verify-sync and make lint-architecture; shrink test-summary to one
+      contains() condition.
+    - verify-deps keeps auditing a separate uv.lock-resolved env
+      (UV_PROJECT_ENVIRONMENT): `uv pip install -e ".[dev]"` ignores uv.lock and
+      resolves py-cpuinfo2, which is outside the dependency baseline.
+    - contract3: paths filter replaces the git-diff detect step.
+    - boundary-guard: three steps merged into one; warning first, git diff
+      outside the heredoc with a fallback, render verified identical.
+    - pull-sync-framework: drop the unused framework checkout and the missing
+      root plugin.json entry.
+    - README updated to match.
+    
+    Plan, ledger and evidence: .dev/tasks/done/TASK-WF-simplifyTheGitHu-20261022-185526/
+    
+    Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+
+ .../TASK-WF-simplifyTheGitHu-20261022-185526.md    | 224 +++++++++++++++
+ .../artifacts/t1-required-checks.txt               |  16 ++
+ .../artifacts/t11-render-diff.txt                  |  93 +++++++
+ .../artifacts/t6-setup-uv-docs.md                  |  72 +++++
+ .../artifacts/t7-lint-job-local.txt                |  36 +++
+ .../progress.md                                    |  31 +++
+ .../return-contract.yaml                           |  14 +
+ .../source.md                                      |  18 ++
+ .github/workflows/README.md                        | 100 +++----
+ .github/workflows/boundary-guard.yml               | 116 ++++----
+ .../contract3-generator-constraint-lint.yml        |  49 +---
+ .github/workflows/publish-pypi.yml                 | 172 ------------
+ .github/workflows/pull-sync-framework.yml          |  13 +-
+ .github/workflows/quick-check.yml                  |  68 -----
+ .github/workflows/readme-quality-check.yml         | 304 ---------------------
+ .github/workflows/test.yml                         | 161 +++--------
+ 16 files changed, 652 insertions(+), 835 deletions(-)
+
+FORK CHANGE: 053b7566
+commit 053b75664c8979bf223b8040f68310dce882d05b
+Author:     Ryan wiancko <ryan@ironbelly.com>
+AuthorDate: Fri Oct 23 04:45:04 2026 +0000
+Commit:     Ryan wiancko <ryan@ironbelly.com>
+CommitDate: Fri Oct 23 04:45:04 2026 +0000
+
+    ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)
+    
+    - pull-sync-framework: force-push sync/framework and open a pull request
+      into master (reusing an open one) instead of pushing to master; the job
+      gets pull-requests: write and the step sets GH_TOKEN.
+    - boundary-guard: describe the job as advisory and diff with three dots.
+    - test: Codecov step uses `files` and passes CODECOV_TOKEN.
+    - workflows/README.md: fork badge URLs, Codecov secret, advisory guard, PR-based sync.
+    - scripts/README.md: drop the removed publish-pypi workflow; the fork installs from git.
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+ .github/workflows/README.md               |  8 +++---
+ .github/workflows/boundary-guard.yml      | 12 ++++-----
+ .github/workflows/pull-sync-framework.yml | 11 +++++++-
+ .github/workflows/test.yml                |  3 ++-
+ scripts/README.md                         | 42 +++++--------------------------
+ 5 files changed, 28 insertions(+), 48 deletions(-)
+
+FORK CHANGE: 64b730a7
+commit 64b730a7208a71fb1cca2fb15d8a1e8b1c491342
+Author:     Ironbelly <ryan@ironbelly.com>
+AuthorDate: Sun Jul 5 08:47:19 2026 -0400
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Jul 5 08:47:19 2026 -0400
+
+    fix(ci): unblock master CI baseline — ruff pin + format sweep + dep allow-list + lint/arch (#216)
+    
+    Clears 5 mechanical baseline-CI layers that were red on master itself and inherited by every open PR: dependency allow-list (httpx + transitive closure incl. sniffio), ruff lint (127 errors), ruff format (pinned ruff==0.15.20 + one-time 104-file sweep so CI stops drifting), quick-check verify-sync (added missing sync-dev step), and lint-architecture Check 1 (accept the sc-recommend utility-skill naming). Addressed Augment review (sniffio defensive entry + accurate recipes import comment). Greens 9 checks fleet-wide. The Tests job's 48 pre-existing failures are a separate baseline issue, out of scope; reformat fixed 3 and regressed none (passed count unchanged at 11007).
+
+ .github/workflows/quick-check.yml                  |   4 +
+ .secrets.baseline                                  |  22 +-
+ Makefile                                           |  11 +-
+ pyproject.toml                                     |   6 +-
+ scripts/dependency_baseline.txt                    |  15 ++
+ src/superclaude/cli/install_mcp.py                 |   5 +-
+ src/superclaude/cli/pipeline/gates.py              |   3 +-
+ src/superclaude/cli/prd/prompts.py                 |   3 +-
+ src/superclaude/cli/roadmap/prompts.py             |   2 +-
+ src/superclaude/cli/swarm/lenses/_validate.py      |   5 +-
+ src/superclaude/cli/swarm/lenses/bare_review.py    |   7 +-
+ .../cli/swarm/lenses/doc_completeness.py           |   5 +-
+ src/superclaude/cli/swarm/lenses/edge_case_hunt.py |   8 +-
+ .../cli/swarm/lenses/feasibility_probe.py          |   5 +-
+ src/superclaude/cli/swarm/lenses/refactor_find.py  |   5 +-
+ .../cli/swarm/lenses/spec_completeness.py          |   5 +-
+ .../cli/swarm/lenses/troubleshoot_hypothesis.py    |   1 -
+ src/superclaude/cli/swarm/logging_.py              |   7 +-
+ src/superclaude/cli/swarm/models.py                |  41 ++--
+ src/superclaude/cli/swarm/normalize.py             |   5 +-
+ src/superclaude/cli/swarm/recipes/__init__.py      |  40 ++--
+ .../cli/swarm/recipes/bare_review_v1.py            |  47 +++--
+ src/superclaude/cli/swarm/recipes/custom.py        |  15 +-
+ .../cli/swarm/recipes/findings_table_v1.py         |  20 +-
+ .../cli/swarm/recipes/hypothesis_table_v1.py       |  21 +-
+ src/superclaude/cli/swarm/recipes/passthrough.py   |   5 +-
+ .../cli/swarm/recipes/verdict_only_v1.py           |  16 +-
+ src/superclaude/cli/swarm/reduce.py                |  14 +-
+ src/superclaude/cli/swarm/schema.py                |  23 +-
+ src/superclaude/cli/swarm/state.py                 |   1 -
+ src/superclaude/cli/swarm/tmux.py                  |   8 +-
+ src/superclaude/cli/swarm/transports/stub.py       |   5 +-
+ tests/cli/prd/test_e2e.py                          |   4 +-
+ tests/cli/prd/test_executor.py                     |   3 +-
+ ...st_claudeprocess_reflect_children_restricted.py |   1 -
+ tests/cli/reflect/test_reviewer_isolation_gate.py  |   1 -
+ tests/cli/test_install_mcp_tavily.py               |  37 +++-
+ tests/swarm/conftest.py                            |   1 -
+ tests/swarm/test_amalgamation_modes.py             |   2 -
+ tests/swarm/test_attach_cmd.py                     |   7 +-
+ tests/swarm/test_auto_inject_guard.py              |   9 +-
+ tests/swarm/test_bundled_lenses.py                 |  16 +-
+ tests/swarm/test_contract_emission.py              |  24 ++-
+ tests/swarm/test_contract_surface.py               |   8 +-
+ tests/swarm/test_crash_recovery_e2e.py             |  59 ++----
+ .../test_custom_prompt_dir_injection_guard.py      |  12 +-
+ tests/swarm/test_dispatch.py                       |   5 +-
+ tests/swarm/test_done_sentinel.py                  |   5 +-
+ tests/swarm/test_dual_log_emission.py              |   3 +-
+ tests/swarm/test_e2e_user_guide.py                 | 233 +++++++++++++++++----
+ tests/swarm/test_escape_hatch_guard_parity.py      |  58 ++---
+ tests/swarm/test_force_relens.py                   |   2 -
+ tests/swarm/test_imm4_empty_target.py              |  10 +-
+ tests/swarm/test_imm5_status.py                    |  32 +--
+ tests/swarm/test_imm6_atomic_write.py              |  13 +-
+ tests/swarm/test_injection_guard_all_paths.py      |  40 +---
+ tests/swarm/test_inv005_pool_guard.py              |  41 ++--
+ tests/swarm/test_inv007_empty_pool.py              |  23 +-
+ tests/swarm/test_inv_suite.py                      |   7 +-
+ tests/swarm/test_jobspec.py                        |   1 -
+ tests/swarm/test_kill_cmd.py                       |  15 +-
+ tests/swarm/test_lens_defaults.py                  |  11 +-
+ tests/swarm/test_lens_validator.py                 |   8 +-
+ tests/swarm/test_lensentry.py                      |   5 +-
+ tests/swarm/test_lenses_registry.py                |   1 -
+ tests/swarm/test_logging.py                        |  14 +-
+ tests/swarm/test_logs_cmd.py                       |  21 +-
+ tests/swarm/test_manifest_durable.py               |   8 +-
+ tests/swarm/test_manifest_emission.py              |   1 -
+ tests/swarm/test_merge_loc_ceiling.py              |  11 +-
+ tests/swarm/test_merge_mechanical_only.py          |  18 +-
+ tests/swarm/test_merge_no_transforms.py            |   5 +-
+ tests/swarm/test_models_round_trip.py              |  36 ++--
+ tests/swarm/test_module_shape.py                   |   4 +-
+ tests/swarm/test_nfr002_atomicity.py               |  18 +-
+ tests/swarm/test_no_anthropic_routing.py           |  11 +-
+ tests/swarm/test_no_claude_isms.py                 |   4 +-
+ tests/swarm/test_no_external_frameworks.py         |  40 ++--
+ tests/swarm/test_no_response_cache.py              |  22 +-
+ tests/swarm/test_no_scoring_engine.py              |  43 ++--
+ tests/swarm/test_non_claude_caller.py              |   9 +-
+ tests/swarm/test_normalizationspec.py              |   1 -
+ tests/swarm/test_normalize.py                      |   8 +-
+ tests/swarm/test_normalizer_strategy.py            |   3 +-
+ tests/swarm/test_outputspec.py                     |   1 -
+ tests/swarm/test_parallel_executor_routing.py      |  39 ++--
+ tests/swarm/test_parse_error_salvage.py            |  18 +-
+ tests/swarm/test_per_lens_templates.py             |  23 +-
+ tests/swarm/test_preflight.py                      |  19 +-
+ .../swarm/test_prompt_injection_neutralization.py  |  16 +-
+ tests/swarm/test_promptspec.py                     |   1 -
+ tests/swarm/test_recipe_custom_py.py               |  73 ++-----
+ tests/swarm/test_recipe_findings_table.py          |   5 +-
+ tests/swarm/test_recipe_hypothesis_table.py        |  28 +--
+ tests/swarm/test_recipe_no_judging.py              |  92 ++------
+ tests/swarm/test_recipe_passthrough.py             |  17 +-
+ tests/swarm/test_recipe_protocol.py                |  25 +--
+ tests/swarm/test_recipe_registry.py                |   9 +-
+ tests/swarm/test_recipe_verdict_only.py            |  17 +-
+ tests/swarm/test_reduce.py                         |  20 +-
+ tests/swarm/test_resolvedlens.py                   |   5 +-
+ tests/swarm/test_result_contract.py                |   1 -
+ tests/swarm/test_resume_regenerates_merge.py       |   7 +-
+ tests/swarm/test_resume_uses_manifest_lens.py      |   5 +-
+ tests/swarm/test_retry_policy.py                   |   1 -
+ tests/swarm/test_runtimespec.py                    |   1 -
+ tests/swarm/test_scaffold_cmd.py                   |  12 +-
+ tests/swarm/test_schema.py                         |  12 +-
+ tests/swarm/test_schema_forward_compat.py          |  18 +-
+ tests/swarm/test_schema_injection_substring.py     |  18 +-
+ tests/swarm/test_sentinel_artifacts_caller.py      |   1 -
+ tests/swarm/test_state.py                          |   8 +-
+ tests/swarm/test_statuspolicy.py                   |   1 -
+ tests/swarm/test_stub_transport.py                 |   1 -
+ tests/swarm/test_t2_env_contract.py                |   1 -
+ tests/swarm/test_targetspec.py                     |   1 -
+ tests/swarm/test_three_layer_artifacts.py          |  24 +--
+ tests/swarm/test_tmux_detached.py                  |   4 +-
+ tests/swarm/test_transport_protocol.py             |   4 +-
+ tests/swarm/test_transportspec.py                  |   1 -
+ tests/swarm/test_tui.py                            |   1 -
+ tests/swarm/test_validate_all_lenses.py            |  10 +-
+ tests/swarm/test_validate_cmd.py                   |  13 +-
+ tests/swarm/test_validate_lenses_ci.py             |  19 +-
+ tests/swarm/test_validate_lenses_cmd.py            |  22 +-
+ tests/swarm/test_worker_state_event.py             |   5 +-
+ tests/swarm/test_workerspec.py                     |   5 +-
+ tests/troubleshoot/test_hardening_h0.py            |   4 +-
+ tests/troubleshoot/test_hardening_h1.py            |   4 +-
+ tests/troubleshoot/test_hardening_h2.py            |   8 +-
+ tests/troubleshoot/test_hardening_h3.py            |  16 +-
+ tests/troubleshoot/test_hardening_h4.py            |   8 +-
+ .../troubleshoot/test_hardening_output_contract.py |   4 +-
+ tests/troubleshoot/test_hardening_verdict.py       |  16 +-
+ 134 files changed, 889 insertions(+), 1129 deletions(-)
+
+FORK CHANGE: 38ca920d
+commit 38ca920d4c820d62bdc2854414aedf29d65300f5
+Author:     Ironbelly <ryan@ironbelly.com>
+AuthorDate: Mon May 25 15:46:10 2026 -0400
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon May 25 15:46:10 2026 -0400
+
+    fix(lint): resolve Issue #60 — eliminate pre-existing ruff debt (441 → 0) (#83)
+    
+    * chore(ruff): exclude .dev/ artifact directories from lint (Issue #60)
+    
+    * fix(lint): auto-fix I001/F401/F541 via ruff --fix (Issue #60)
+    
+    * fix(lint): manual fixes for E402/E731/F841/E741/N806 (Issue #60)
+    
+    * fix(lint): naming convention noqa for N801/N999 with cross-reference rationale (Issue #60)
+    
+    * fix(bugs): resolve 5 F821 undefined-name errors (Issue #60)
+    
+    * refactor(imports): convert relative imports to absolute (TID252, Issue #60); fix test_nfr_005 to match new import style
+
+ pyproject.toml                                     |  2 ++
+ scripts/check-ref-staleness.py                     |  6 ++----
+ scripts/eval_1.py                                  |  5 ++---
+ scripts/eval_runner.py                             |  1 -
+ scripts/sync_from_framework.py                     | 14 ++++++-------
+ src/superclaude/cli/audit/dependency_graph.py      |  6 ++----
+ src/superclaude/cli/cleanup_audit/gates.py         |  2 +-
+ src/superclaude/cli/cli_portify/executor.py        |  4 ++--
+ src/superclaude/cli/cli_portify/gates.py           |  3 ++-
+ .../cli/cli_portify/steps/analyze_workflow.py      |  6 +++---
+ .../cli/cli_portify/steps/brainstorm_gaps.py       |  4 ++--
+ .../cli/cli_portify/steps/design_pipeline.py       |  8 ++++----
+ .../cli/cli_portify/steps/discover_components.py   |  4 ++--
+ .../cli/cli_portify/steps/synthesize_spec.py       |  4 ++--
+ .../cli/cli_portify/steps/validate_config.py       |  6 +++---
+ src/superclaude/cli/main.py                        | 14 ++++++-------
+ src/superclaude/cli/roadmap/convergence.py         |  9 ++++----
+ src/superclaude/cli/roadmap/executor.py            | 24 ++++++++++++----------
+ src/superclaude/cli/roadmap/gates.py               |  4 ++--
+ src/superclaude/cli/roadmap/models.py              |  2 +-
+ src/superclaude/cli/roadmap/obligation_scanner.py  |  2 +-
+ src/superclaude/cli/roadmap/prompts.py             |  3 ++-
+ src/superclaude/cli/roadmap/remediate_executor.py  |  5 +++--
+ src/superclaude/cli/roadmap/validate_executor.py   |  7 ++++---
+ src/superclaude/cli/roadmap/validate_gates.py      |  3 ++-
+ src/superclaude/cli/sprint/kpi.py                  |  8 ++++++--
+ src/superclaude/cli/tasklist/commands.py           |  2 +-
+ src/superclaude/cli/tasklist/executor.py           |  7 ++++---
+ src/superclaude/cli/tasklist/gates.py              |  7 +++++--
+ src/superclaude/cli/tasklist/models.py             |  2 +-
+ tests/audit/test_evidence_bound_tb_add_8.py        |  4 ++--
+ ...test_invariant_preservation_NFR_6_through_10.py |  1 +
+ tests/audit/test_monotonicity_halt_F_5_5_5.py      |  1 +
+ tests/audit/test_nfr_conv_9_zero_trust.py          |  1 +
+ tests/audit/test_sequencing_PR06_before_PR04.py    |  1 +
+ tests/cli/eval/test_artifact_layout.py             |  5 ++---
+ tests/cli/eval/test_artifact_reproducibility.py    |  1 -
+ tests/cli/eval/test_atomic_setup.py                |  1 -
+ tests/cli/eval/test_ban_import_rule.py             |  1 -
+ tests/cli/eval/test_capability_classifications.py  |  4 +---
+ tests/cli/eval/test_capability_gates.py            |  4 +---
+ tests/cli/eval/test_containment.py                 |  1 -
+ tests/cli/eval/test_coverage_gate.py               |  1 -
+ tests/cli/eval/test_coverage_gate_integration.py   |  1 -
+ tests/cli/eval/test_defense_in_depth.py            |  1 -
+ tests/cli/eval/test_eval_context.py                |  3 +--
+ tests/cli/eval/test_eval_id_regex.py               |  3 +--
+ tests/cli/eval/test_eval_lifecycle.py              |  1 -
+ tests/cli/eval/test_exit_codes.py                  |  1 -
+ tests/cli/eval/test_expect_duration.py             |  1 -
+ tests/cli/eval/test_expect_exit_code.py            |  2 --
+ tests/cli/eval/test_expect_file.py                 |  1 -
+ tests/cli/eval/test_expect_jsonl.py                |  1 -
+ tests/cli/eval/test_expect_primitives.py           |  1 -
+ tests/cli/eval/test_expect_settings_json.py        |  1 -
+ tests/cli/eval/test_expect_stdio.py                |  1 -
+ tests/cli/eval/test_home_isolation.py              |  9 ++++----
+ tests/cli/eval/test_isolation_layers_probe.py      |  1 -
+ tests/cli/eval/test_no_mcp_skip.py                 |  2 +-
+ tests/cli/eval/test_no_pty_exclusion.py            |  2 +-
+ tests/cli/eval/test_orchestrator.py                |  1 -
+ tests/cli/eval/test_parallel_15.py                 |  1 -
+ tests/cli/eval/test_path_containment.py            |  1 -
+ tests/cli/eval/test_path_traversal.py              |  1 -
+ tests/cli/eval/test_perf_home_setup.py             |  1 -
+ tests/cli/eval/test_perf_resource_bounds.py        |  1 -
+ tests/cli/eval/test_phase_report_probe.py          |  1 -
+ tests/cli/eval/test_pty_driver.py                  |  1 -
+ tests/cli/eval/test_pty_lifecycle.py               |  2 --
+ tests/cli/eval/test_pty_stream.py                  |  1 -
+ tests/cli/eval/test_reporter.py                    |  2 --
+ tests/cli/eval/test_reporter_contract.py           |  1 -
+ tests/cli/eval/test_retention_policy.py            |  2 --
+ tests/cli/eval/test_retry_policy.py                |  1 -
+ tests/cli/eval/test_run_report.py                  |  1 -
+ tests/cli/eval/test_run_summary.py                 |  4 ++++
+ tests/cli/eval/test_runner_class.py                |  1 -
+ tests/cli/eval/test_schema_load.py                 |  1 -
+ tests/cli/eval/test_scratch_root_allowlist.py      |  1 -
+ tests/cli/eval/test_scratch_root_policy.py         |  1 -
+ tests/cli/eval/test_signal_handling.py             |  3 +--
+ tests/cli/eval/test_single_command.py              |  1 -
+ tests/cli/eval/test_suite_runtime.py               |  1 -
+ tests/cli/eval/test_summary_schema.py              |  1 -
+ tests/cli/test_cli_registration.py                 |  1 -
+ tests/cli_portify/test_failures.py                 |  2 +-
+ tests/pipeline/test_full_flow.py                   | 14 ++++++-------
+ tests/roadmap/test_inline_fallback.py              |  5 +++--
+ tests/roadmap/test_models.py                       |  2 +-
+ tests/roadmap/test_nfr_compliance.py               |  7 +++++--
+ tests/sprint/diagnostic/test_instrumentation.py    |  4 +++-
+ tests/sprint/diagnostic/test_level_0.py            |  4 ++--
+ tests/sprint/diagnostic/test_level_1.py            |  4 ++--
+ tests/sprint/diagnostic/test_level_2.py            |  4 ++--
+ tests/sprint/diagnostic/test_level_3.py            |  4 ++--
+ tests/sprint/diagnostic/test_negative.py           |  4 ++--
+ tests/sprint/test_preflight.py                     | 10 ++++++---
+ 97 files changed, 153 insertions(+), 176 deletions(-)
+
+FORK CHANGE: ad72b1bb
+commit ad72b1bb3e020d6b6d0f59cd9b3edcfe04ce4703
+Author:     RyanW <ryan@ironbelly.com>
+AuthorDate: Sun May 17 04:20:36 2026 +0000
+Commit:     RyanW <ryan@ironbelly.com>
+CommitDate: Sun May 17 04:20:36 2026 +0000
+
+    fix(lint): ruff --fix sweep — F401 unused imports + I001 import order
+    
+    Mechanical bulk auto-fix across src/ and tests/ — clears the F401 + I001
+    rule classes (the auto-fixable subset of pre-existing master ruff failures)
+    in a single PR. PR1 of 5 in the CI rot remediation sequence.
+    
+    Baseline: 1037 ruff errors on master.
+    Fixed by ruff --fix:
+    - F401: 645 → 0 (635 auto-fix + 10 manual extension)
+    - I001: 243 → 0 (all auto-fix)
+    
+    F841 (45 unused locals) routed to PR3 at execution time — ruff could not
+    safely auto-fix without --unsafe-fixes (risk of deleting side-effect calls).
+    
+    Manual extensions inside this PR (handled in Step 3.1 HALT resolution):
+    - src/superclaude/cli/pipeline/__init__.py: added 9 re-export symbols to
+      __all__ (DiagnosticReport, DiagnosticStage, RemediationRetryResult,
+      RemediationRetryStatus, StageResult, attempt_remediation,
+      detect_file_overlap, review_conflicts, run_diagnostic_chain).
+    - src/superclaude/cli/prd/tui.py: removed unused `from rich.text import Text`.
+    - pyproject.toml: added `extend-exclude` for tests/audit/fixtures/syntax_error.py
+      (deliberate broken fixture used by graceful-degradation tests).
+    
+    No behavioral changes — pytest baseline (5330 passed, 66 failed, 104 skipped,
+    1 error) is identical pre- and post-fix. `make verify-sync` clean.
+    
+    Remaining ~102 violations on master (E402, N806, F541, E741, F821, E731,
+    N811, F811, E401, plus the 45 routed F841) handled by PR2-PR5.
+    
+    Refs: .dev/tasks/to-do/TASK-RF-track-1-20260517-032112/
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ pyproject.toml                                     |  3 ++
+ src/superclaude/cli/audit/anti_lazy.py             |  1 -
+ src/superclaude/cli/audit/batch_decomposer.py      |  2 -
+ src/superclaude/cli/audit/batch_retry.py           |  1 -
+ src/superclaude/cli/audit/dead_code.py             |  3 +-
+ src/superclaude/cli/audit/dir_assessment.py        |  1 -
+ src/superclaude/cli/audit/docs_audit.py            |  1 -
+ src/superclaude/cli/audit/dry_run.py               |  4 +-
+ src/superclaude/cli/audit/dynamic_imports.py       |  1 -
+ src/superclaude/cli/audit/env_matrix.py            |  2 -
+ src/superclaude/cli/audit/escalation.py            |  1 -
+ src/superclaude/cli/audit/profile_generator.py     |  7 ++-
+ src/superclaude/cli/audit/profiler.py              |  3 --
+ src/superclaude/cli/audit/report_completeness.py   |  1 -
+ src/superclaude/cli/audit/report_depth.py          |  3 +-
+ src/superclaude/cli/audit/resume.py                |  4 +-
+ src/superclaude/cli/audit/spot_check.py            |  2 +-
+ src/superclaude/cli/audit/tiered_keep.py           |  1 -
+ src/superclaude/cli/audit/validation.py            |  2 +-
+ src/superclaude/cli/audit/wiring_analyzer.py       |  1 -
+ src/superclaude/cli/audit/wiring_gate.py           |  4 +-
+ src/superclaude/cli/cleanup_audit/executor.py      |  2 -
+ src/superclaude/cli/cleanup_audit/gates.py         |  1 -
+ src/superclaude/cli/cleanup_audit/models.py        |  5 ---
+ src/superclaude/cli/cleanup_audit/prompts.py       |  2 -
+ src/superclaude/cli/cleanup_audit/tui.py           |  2 -
+ src/superclaude/cli/cli_portify/config.py          |  6 ---
+ src/superclaude/cli/cli_portify/contract.py        |  3 +-
+ src/superclaude/cli/cli_portify/convergence.py     |  1 -
+ src/superclaude/cli/cli_portify/diagnostics.py     |  1 -
+ src/superclaude/cli/cli_portify/executor.py        |  4 +-
+ src/superclaude/cli/cli_portify/gates.py           |  3 +-
+ src/superclaude/cli/cli_portify/logging_.py        |  1 -
+ src/superclaude/cli/cli_portify/models.py          |  1 -
+ src/superclaude/cli/cli_portify/monitor.py         |  1 -
+ src/superclaude/cli/cli_portify/process.py         |  2 +-
+ src/superclaude/cli/cli_portify/resolution.py      |  4 --
+ src/superclaude/cli/cli_portify/resume.py          |  3 +-
+ src/superclaude/cli/cli_portify/review.py          |  1 -
+ .../cli/cli_portify/steps/analyze_workflow.py      |  1 -
+ .../cli/cli_portify/steps/brainstorm_gaps.py       |  4 +-
+ .../cli/cli_portify/steps/design_pipeline.py       |  2 +-
+ .../cli/cli_portify/steps/discover_components.py   |  4 +-
+ .../cli/cli_portify/steps/panel_review.py          |  4 --
+ .../cli/cli_portify/steps/validate_config.py       |  1 -
+ src/superclaude/cli/cli_portify/tui.py             |  4 +-
+ src/superclaude/cli/pipeline/__init__.py           |  9 ++++
+ src/superclaude/cli/pipeline/combined_m2_pass.py   |  1 -
+ src/superclaude/cli/pipeline/conflict_detector.py  |  2 +-
+ src/superclaude/cli/pipeline/contract_extractor.py |  5 +--
+ src/superclaude/cli/pipeline/dataflow_graph.py     |  1 -
+ src/superclaude/cli/pipeline/dataflow_pass.py      |  5 +--
+ src/superclaude/cli/pipeline/diagnostic_chain.py   |  1 -
+ src/superclaude/cli/pipeline/fmea_classifier.py    |  4 +-
+ src/superclaude/cli/pipeline/fmea_domains.py       |  2 +-
+ src/superclaude/cli/pipeline/fmea_promotion.py     |  1 -
+ src/superclaude/cli/pipeline/gates.py              |  2 +-
+ src/superclaude/cli/pipeline/guard_analyzer.py     |  2 +-
+ src/superclaude/cli/pipeline/guard_pass.py         |  4 +-
+ src/superclaude/cli/pipeline/guard_resolution.py   |  2 +-
+ src/superclaude/cli/pipeline/invariant_pass.py     |  4 +-
+ src/superclaude/cli/pipeline/invariants.py         |  2 -
+ src/superclaude/cli/pipeline/mutation_inventory.py |  1 -
+ src/superclaude/cli/pipeline/trailing_gate.py      |  2 +-
+ .../cli/pipeline/verification_emitter.py           |  4 +-
+ src/superclaude/cli/prd/config.py                  |  1 -
+ src/superclaude/cli/prd/diagnostics.py             |  2 -
+ src/superclaude/cli/prd/executor.py                | 13 ++----
+ src/superclaude/cli/prd/filtering.py               |  1 -
+ src/superclaude/cli/prd/gates.py                   |  2 -
+ src/superclaude/cli/prd/inventory.py               |  1 -
+ src/superclaude/cli/prd/logging_.py                |  3 --
+ src/superclaude/cli/prd/models.py                  |  1 -
+ src/superclaude/cli/prd/monitor.py                 |  1 -
+ src/superclaude/cli/prd/tui.py                     |  2 -
+ src/superclaude/cli/roadmap/convergence.py         |  1 -
+ src/superclaude/cli/roadmap/executor.py            | 31 ++++++-------
+ src/superclaude/cli/roadmap/fidelity_checker.py    |  3 --
+ .../cli/roadmap/integration_contracts.py           |  1 -
+ src/superclaude/cli/roadmap/models.py              |  1 -
+ src/superclaude/cli/roadmap/remediate_executor.py  |  5 +--
+ src/superclaude/cli/roadmap/semantic_layer.py      |  1 -
+ .../cli/roadmap/spec_structural_audit.py           |  1 -
+ src/superclaude/cli/roadmap/structural_checkers.py | 11 -----
+ src/superclaude/cli/roadmap/validate_executor.py   |  1 -
+ src/superclaude/cli/sprint/executor.py             | 26 +++++------
+ src/superclaude/cli/sprint/kpi.py                  |  1 -
+ src/superclaude/cli/sprint/models.py               |  1 -
+ src/superclaude/cli/sprint/process.py              |  2 +-
+ src/superclaude/cli/tasklist/executor.py           |  1 -
+ src/superclaude/compression.py                     |  1 -
+ .../sc-crash-recovery/scripts/parse_session_log.py |  6 ++-
+ tests/audit-trail/conftest.py                      |  2 +-
+ tests/audit-trail/test_audit_writer.py             |  5 +--
+ tests/audit/test_ac_validation.py                  | 23 ++++------
+ tests/audit/test_already_tracked.py                |  3 --
+ tests/audit/test_anti_lazy.py                      |  4 +-
+ tests/audit/test_artifact_emitter.py               |  7 +--
+ tests/audit/test_auto_config.py                    |  4 +-
+ tests/audit/test_batch_decomposer.py               |  6 +--
+ tests/audit/test_benchmark.py                      | 14 ++----
+ tests/audit/test_budget.py                         |  2 -
+ tests/audit/test_budget_caveat.py                  |  4 --
+ tests/audit/test_checkpoint.py                     |  2 -
+ tests/audit/test_concurrent_isolation.py           |  8 +---
+ tests/audit/test_consolidation.py                  |  4 --
+ tests/audit/test_coverage.py                       |  2 -
+ tests/audit/test_credential_scanner.py             |  2 -
+ tests/audit/test_dead_code.py                      |  2 -
+ tests/audit/test_dependency_graph.py               |  2 -
+ tests/audit/test_dir_assessment.py                 |  2 -
+ tests/audit/test_docs_audit.py                     |  2 -
+ tests/audit/test_dry_run.py                        |  3 --
+ tests/audit/test_duplication.py                    |  2 -
+ tests/audit/test_dynamic_imports.py                |  3 --
+ tests/audit/test_env_matrix.py                     |  4 --
+ tests/audit/test_escalation.py                     |  3 --
+ tests/audit/test_eval_wiring_multifile.py          |  2 -
+ tests/audit/test_filetype_rules.py                 |  2 -
+ tests/audit/test_full_docs_audit.py                |  6 ---
+ tests/audit/test_known_issues.py                   |  3 --
+ tests/audit/test_known_issues_lifecycle.py         |  2 -
+ tests/audit/test_profile_generator.py              |  4 --
+ tests/audit/test_profiler.py                       |  3 --
+ tests/audit/test_report_completeness.py            |  1 -
+ tests/audit/test_report_limitations.py             |  2 -
+ tests/audit/test_resume.py                         |  4 +-
+ tests/audit/test_scanner_schema.py                 |  3 --
+ tests/audit/test_spot_check.py                     |  6 ---
+ tests/audit/test_tiered_keep.py                    |  2 -
+ tests/audit/test_tool_orchestrator.py              |  2 -
+ tests/audit/test_validation_output.py              |  3 --
+ tests/audit/test_wiring_analyzer.py                |  9 +++-
+ tests/audit/test_wiring_gate.py                    |  3 +-
+ tests/audit/test_wiring_integration.py             |  1 -
+ tests/cli/prd/test_e2e.py                          |  8 +---
+ tests/cli/prd/test_executor.py                     |  1 -
+ tests/cli/prd/test_filtering.py                    |  2 -
+ tests/cli/prd/test_gates.py                        |  4 --
+ tests/cli/prd/test_integration.py                  | 15 +------
+ tests/cli/prd/test_inventory.py                    |  2 -
+ tests/cli/prd/test_models.py                       |  5 ---
+ tests/cli/prd/test_prompts.py                      |  1 -
+ tests/cli/test_install_hooks.py                    |  4 +-
+ tests/cli/test_tdd_extract_prompt.py               | 15 +++++--
+ tests/cli_portify/fixtures/mock_harness.py         |  2 -
+ .../cli_portify/integration/test_orchestration.py  |  9 +---
+ tests/cli_portify/test_analyze_workflow.py         |  2 -
+ tests/cli_portify/test_brainstorm_gaps.py          |  1 -
+ tests/cli_portify/test_cli.py                      | 18 ++++----
+ tests/cli_portify/test_config.py                   |  4 +-
+ tests/cli_portify/test_contracts.py                |  6 +--
+ tests/cli_portify/test_design_pipeline.py          |  2 -
+ tests/cli_portify/test_diagnostics.py              |  6 ---
+ tests/cli_portify/test_discover_components.py      |  9 ++--
+ tests/cli_portify/test_executor.py                 |  6 ---
+ tests/cli_portify/test_failures.py                 |  2 -
+ tests/cli_portify/test_gate_policy.py              |  1 -
+ tests/cli_portify/test_logging.py                  |  4 --
+ tests/cli_portify/test_mock_harness.py             |  5 +--
+ tests/cli_portify/test_models.py                   | 24 +++++-----
+ tests/cli_portify/test_monitor.py                  | 10 ++---
+ tests/cli_portify/test_nfr006_module_order.py      |  1 -
+ tests/cli_portify/test_panel_report.py             |  4 --
+ tests/cli_portify/test_panel_review.py             |  8 ++--
+ tests/cli_portify/test_portify_gates.py            |  2 +-
+ tests/cli_portify/test_process.py                  |  3 +-
+ tests/cli_portify/test_prompts.py                  |  3 --
+ tests/cli_portify/test_resume.py                   |  1 -
+ tests/cli_portify/test_review.py                   |  3 --
+ tests/cli_portify/test_section_hashing.py          |  3 --
+ tests/cli_portify/test_semantic_checks.py          |  1 -
+ tests/cli_portify/test_synthesize_spec.py          |  4 +-
+ tests/cli_portify/test_tui.py                      |  5 ---
+ tests/cli_portify/test_validate_config.py          |  4 +-
+ tests/integration/test_sprint_wiring.py            |  2 -
+ tests/integration/test_wiring_e2e_shadow.py        |  1 -
+ tests/integration/test_wiring_pipeline.py          |  7 +--
+ tests/pipeline/conftest.py                         |  1 -
+ tests/pipeline/test_behavioral.py                  |  2 -
+ tests/pipeline/test_combined_m2_pass.py            |  4 --
+ tests/pipeline/test_conflict_detector.py           |  3 --
+ tests/pipeline/test_conflict_review.py             |  3 --
+ tests/pipeline/test_contract_extractor.py          |  2 -
+ tests/pipeline/test_dataflow_graph.py              |  4 +-
+ tests/pipeline/test_dataflow_pass.py               |  4 --
+ tests/pipeline/test_decompose.py                   |  2 -
+ tests/pipeline/test_diagnostic_chain.py            |  4 --
+ tests/pipeline/test_executor.py                    |  3 --
+ tests/pipeline/test_fmea_classifier.py             |  4 --
+ tests/pipeline/test_fmea_domains.py                |  2 -
+ tests/pipeline/test_fmea_promotion.py              |  1 -
+ tests/pipeline/test_full_flow.py                   |  9 ++--
+ tests/pipeline/test_gate_performance.py            |  2 -
+ tests/pipeline/test_gates.py                       |  2 -
+ tests/pipeline/test_guard_analyzer.py              |  3 --
+ tests/pipeline/test_guard_pass.py                  |  3 --
+ tests/pipeline/test_guard_resolution.py            |  6 ---
+ tests/pipeline/test_integration_decompose.py       |  2 -
+ tests/pipeline/test_invariant_pass.py              |  3 --
+ tests/pipeline/test_models.py                      |  2 -
+ tests/pipeline/test_mutation_inventory.py          |  3 --
+ tests/pipeline/test_parallel.py                    |  3 --
+ tests/pipeline/test_process.py                     |  5 ---
+ tests/pipeline/test_release_gate_validation.py     |  2 +-
+ tests/pipeline/test_state_detector.py              |  3 --
+ tests/pipeline/test_thread_safety.py               |  1 -
+ tests/pipeline/test_trailing_gate.py               |  6 ---
+ tests/pipeline/test_verification_emitter.py        |  2 -
+ tests/roadmap/conftest.py                          |  3 +-
+ tests/roadmap/test_anti_instinct_integration.py    | 15 +++----
+ tests/roadmap/test_backward_compat.py              |  4 +-
+ tests/roadmap/test_certify_gates.py                |  2 -
+ tests/roadmap/test_certify_prompts.py              |  4 +-
+ tests/roadmap/test_cli_contract.py                 | 14 +++---
+ tests/roadmap/test_compression_integration.py      |  1 -
+ tests/roadmap/test_convergence.py                  | 51 +++++++++++++---------
+ tests/roadmap/test_convergence_e2e.py              |  9 ++--
+ tests/roadmap/test_convergence_smoke.py            |  7 ++-
+ tests/roadmap/test_convergence_wiring.py           | 10 ++---
+ tests/roadmap/test_dry_run.py                      |  2 -
+ tests/roadmap/test_embed_inputs.py                 |  2 -
+ tests/roadmap/test_eval_convergence_multirun.py    |  4 --
+ tests/roadmap/test_eval_gate_ordering.py           |  4 +-
+ tests/roadmap/test_eval_gate_rejection.py          | 10 +----
+ tests/roadmap/test_executor.py                     |  8 +---
+ tests/roadmap/test_file_passing.py                 |  5 +--
+ tests/roadmap/test_fingerprint.py                  |  2 -
+ tests/roadmap/test_gates_data.py                   | 10 ++---
+ tests/roadmap/test_halt.py                         |  4 +-
+ tests/roadmap/test_inline_fallback.py              |  1 -
+ tests/roadmap/test_integration_contracts.py        |  3 --
+ tests/roadmap/test_integration_v5_pipeline.py      |  9 +---
+ tests/roadmap/test_models.py                       |  2 +-
+ tests/roadmap/test_nfr_compliance.py               |  9 ++--
+ tests/roadmap/test_obligation_scanner.py           |  3 --
+ .../test_obligation_scanner_meta_context.py        |  5 ++-
+ tests/roadmap/test_parallel.py                     |  2 -
+ tests/roadmap/test_phase7_hardening.py             | 13 +-----
+ tests/roadmap/test_pipeline_integration.py         | 13 +-----
+ tests/roadmap/test_prd_cli.py                      |  2 -
+ tests/roadmap/test_prd_prompts.py                  |  7 ++-
+ tests/roadmap/test_progress.py                     |  9 ++--
+ tests/roadmap/test_prompts.py                      |  2 -
+ tests/roadmap/test_remediate.py                    | 11 +++--
+ tests/roadmap/test_remediate_executor.py           | 13 ++----
+ tests/roadmap/test_remediate_parser.py             |  5 +--
+ tests/roadmap/test_remediate_prompts.py            |  2 -
+ tests/roadmap/test_remediation.py                  |  1 -
+ tests/roadmap/test_resume.py                       |  6 +--
+ tests/roadmap/test_resume_pipeline_states.py       |  6 ---
+ tests/roadmap/test_resume_restore.py               |  3 --
+ tests/roadmap/test_retrospective.py                |  2 -
+ tests/roadmap/test_semantic_layer.py               | 24 +++++-----
+ tests/roadmap/test_spec_fidelity.py                |  3 --
+ tests/roadmap/test_spec_parser.py                  |  6 ---
+ tests/roadmap/test_spec_structural_audit.py        |  1 -
+ tests/roadmap/test_state.py                        |  6 +--
+ tests/roadmap/test_structural_checkers.py          |  3 --
+ tests/roadmap/test_validate_cli.py                 |  7 +--
+ tests/roadmap/test_validate_defects.py             |  5 ---
+ tests/roadmap/test_validate_executor.py            |  3 --
+ tests/roadmap/test_validate_gates.py               |  4 +-
+ tests/roadmap/test_validate_resume_failure.py      |  3 +-
+ tests/roadmap/test_validate_sc001_sc003.py         |  2 -
+ tests/roadmap/test_validate_unit.py                |  2 -
+ .../compliance/test_critical_corrections.py        |  2 -
+ .../compliance/test_mcp_circuit_breakers.py        |  2 -
+ .../sc-roadmap/compliance/test_path_conventions.py |  1 -
+ .../sc-roadmap/compliance/test_todowrite_states.py |  3 --
+ tests/sc-roadmap/conftest.py                       |  1 -
+ .../integration/test_adversarial_pipeline.py       |  1 -
+ tests/sc-roadmap/integration/test_full_pipeline.py |  3 --
+ .../integration/test_return_contract_routing.py    |  1 -
+ .../sc-roadmap/integration/test_wave1_pipeline.py  |  2 -
+ .../sc-roadmap/integration/test_wave2_pipeline.py  |  1 -
+ .../sc-roadmap/integration/test_wave3_pipeline.py  |  3 --
+ .../integration/test_wave4_validation.py           |  1 -
+ .../integration/test_wave5_completion.py           |  2 -
+ tests/sc-roadmap/unit/test_artifact_generation.py  |  3 --
+ tests/sc-roadmap/unit/test_complexity_scoring.py   |  1 -
+ tests/sc-roadmap/unit/test_domain_analysis.py      |  2 -
+ tests/sc-roadmap/unit/test_extraction.py           |  2 -
+ tests/sc-roadmap/unit/test_milestone_generation.py |  2 -
+ tests/sc-roadmap/unit/test_persona_activation.py   |  1 -
+ tests/sc-roadmap/unit/test_spec_validation.py      |  2 -
+ tests/sc-roadmap/unit/test_template_discovery.py   |  2 -
+ tests/sprint/diagnostic/conftest.py                | 13 ------
+ tests/sprint/diagnostic/test_debug_logger.py       |  3 --
+ tests/sprint/diagnostic/test_diagnostics.py        |  3 --
+ tests/sprint/diagnostic/test_instrumentation.py    | 10 ++---
+ tests/sprint/diagnostic/test_level_0.py            |  4 --
+ tests/sprint/diagnostic/test_level_2.py            |  4 --
+ tests/sprint/diagnostic/test_level_3.py            |  4 --
+ tests/sprint/diagnostic/test_negative.py           |  1 -
+ tests/sprint/test_anti_instinct_sprint.py          |  2 -
+ tests/sprint/test_backward_compat_regression.py    |  7 ---
+ tests/sprint/test_config.py                        |  2 +-
+ tests/sprint/test_context_injection.py             |  2 -
+ tests/sprint/test_e2e_trailing.py                  |  7 +--
+ tests/sprint/test_execute_sprint_integration.py    | 11 +++--
+ tests/sprint/test_executor.py                      |  2 -
+ tests/sprint/test_gate_display_state.py            |  1 -
+ tests/sprint/test_kpi_report.py                    |  1 -
+ tests/sprint/test_nfr_benchmarks.py                |  4 +-
+ tests/sprint/test_phase5_negative_validation.py    |  3 --
+ tests/sprint/test_phase8_halt_fix.py               |  4 +-
+ tests/sprint/test_preflight.py                     | 14 +++---
+ tests/sprint/test_property_based.py                |  5 +--
+ tests/sprint/test_resume_semantics.py              |  2 -
+ tests/sprint/test_tui_gate_column.py               |  1 -
+ tests/sprint/test_tui_monitor.py                   |  4 +-
+ tests/sprint/test_wiring_budget_scenarios.py       | 14 +++---
+ tests/sprint/test_wiring_integration.py            | 13 +-----
+ tests/sprint/test_wiring_mode_resolution.py        |  4 +-
+ tests/tasklist/test_prd_cli.py                     |  2 -
+ tests/tasklist/test_prd_prompts.py                 |  3 --
+ tests/tasklist/test_tasklist_cli.py                |  5 +--
+ tests/tasklist/test_tasklist_fidelity.py           |  2 -
+ tests/test_cleanup_audit_structure.py              |  8 ++--
+ tests/unit/test_review_translation.py              |  3 +-
+ tests/v3.3/conftest.py                             |  2 +-
+ tests/v3.3/test_broken_wiring_detection.py         |  2 -
+ tests/v3.3/test_fidelity_checker.py                |  1 -
+ tests/v3.3/test_gate_rollout_modes.py              | 27 +++++-------
+ tests/v3.3/test_integration_regression.py          | 26 ++++-------
+ tests/v3.3/test_reachability_eval.py               |  1 -
+ tests/v3.3/test_session_summary.py                 |  2 +-
+ tests/v3.3/test_turnledger_lifecycle.py            | 38 ++++++++--------
+ tests/v3.3/test_wiring_points_e2e.py               | 43 ++++++++++--------
+ tests/v3.3/test_zero_files_analyzed.py             |  4 +-
+ 331 files changed, 402 insertions(+), 1094 deletions(-)
+
+FORK CHANGE: 08cbea9e
+commit 08cbea9ea2948c33e26bd8d839f404b9912fd176
+Author:     Ryan wiancko <ryan@ironbelly.com>
+AuthorDate: Tue Oct 20 17:41:56 2026 +0000
+Commit:     Ryan wiancko <ryan@ironbelly.com>
+CommitDate: Tue Oct 20 17:42:22 2026 +0000
+
+    refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+    
+    Remove disconnected and duplicated machinery without changing supported
+    behavior:
+    
+    - C01: drop unused Portify monitor helpers (EventRecord, EventLogger,
+      classify_failure, generate_diagnostic_report); requirement assertions
+      migrated to live ExecutionLog/DiagnosticsCollector/executor owners.
+    - C02: retire the orphan scripts/publish.sh wrapper; correct publishing docs.
+    - C03: share identical recipe primitives via swarm/recipes/_primitives.py;
+      recipe exports, clocks, defaults and caps unchanged.
+    - C04: retire unwired Portify failure helpers (get_failure_handler_name,
+      handle_non_writable_output, handle_missing_skills); registry unchanged.
+    - C05: remove inactive setup.py and MANIFEST.in (Hatchling payload unchanged).
+    - C06: share validation text helpers via pipeline/validation_text.py.
+    - C07: share the normalize/reduce atomic byte writer via swarm/atomic.py.
+    - C08: drop the Black dev dependency and [tool.black]; Ruff stays pinned.
+    - C09: registered-None recipes resolve to the concrete Passthrough.
+    - C10: drop the roadmap apply_decomposition_pass wrapper; tests retarget
+      decompose_deliverables.
+    
+    Adds characterization, migration and installed-resource tests. Full suite:
+    no new failures versus baseline.
+    
+    Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+
+ .../cleanup-debt-reduction-spec.md                 |  302 ++++++
+ .../cleanup-debt-reduction/spec-panel-review.md    |  374 +++++++
+ MANIFEST.in                                        |   33 -
+ pyproject.toml                                     |   20 +-
+ scripts/README.md                                  |  122 +--
+ scripts/cleanup.sh                                 |    2 +-
+ scripts/publish.sh                                 |   95 --
+ setup.py                                           |   11 -
+ src/superclaude/cli/cli_portify/failures.py        |   60 --
+ src/superclaude/cli/cli_portify/monitor.py         |  180 +---
+ src/superclaude/cli/pipeline/validation_text.py    |   48 +
+ src/superclaude/cli/roadmap/executor.py            |   17 -
+ src/superclaude/cli/roadmap/validate_executor.py   |   39 +-
+ src/superclaude/cli/swarm/__init__.py              |    3 +
+ src/superclaude/cli/swarm/atomic.py                |   39 +
+ src/superclaude/cli/swarm/normalize.py             |   61 +-
+ src/superclaude/cli/swarm/recipes/__init__.py      |   12 +-
+ src/superclaude/cli/swarm/recipes/_primitives.py   |   58 +
+ .../cli/swarm/recipes/bare_review_v1.py            |   33 +-
+ .../cli/swarm/recipes/findings_table_v1.py         |   32 +-
+ .../cli/swarm/recipes/hypothesis_table_v1.py       |   51 +-
+ .../cli/swarm/recipes/verdict_only_v1.py           |   61 +-
+ src/superclaude/cli/swarm/reduce.py                |   22 +-
+ src/superclaude/cli/tasklist/executor.py           |   38 +-
+ tests/cli_portify/test_config.py                   |   23 +
+ tests/cli_portify/test_diagnostics.py              |  141 +++
+ tests/cli_portify/test_executor.py                 |  630 +++++++++++
+ tests/cli_portify/test_failures.py                 |   81 +-
+ tests/cli_portify/test_logging.py                  |   73 ++
+ tests/cli_portify/test_monitor.py                  |  299 +-----
+ tests/cli_portify/test_validate_config.py          |  107 ++
+ tests/integration/test_pytest_plugin.py            |   86 ++
+ tests/pipeline/test_integration_decompose.py       |   28 +-
+ tests/roadmap/test_validate_executor.py            |  566 ++++++++++
+ tests/swarm/test_contract_emission.py              |  120 ++-
+ tests/swarm/test_imm6_atomic_write.py              |  114 +-
+ tests/swarm/test_module_shape.py                   |    1 +
+ tests/swarm/test_normalize.py                      | 1106 +++++++++++++++++++-
+ tests/swarm/test_recipe_bare_review.py             |  590 +++++++++++
+ tests/swarm/test_recipe_findings_table.py          |  355 +++++++
+ tests/swarm/test_recipe_hypothesis_table.py        |  583 +++++++++++
+ tests/swarm/test_recipe_verdict_only.py            |  486 +++++++++
+ tests/tasklist/test_tasklist_cli.py                |  410 ++++++++
+ tests/unit/test_cli_install.py                     |  767 +++++++++++++-
+ 44 files changed, 7066 insertions(+), 1213 deletions(-)

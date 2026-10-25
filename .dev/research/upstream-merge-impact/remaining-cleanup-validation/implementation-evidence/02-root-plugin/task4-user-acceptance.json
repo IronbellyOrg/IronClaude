@@ -1,0 +1,20 @@
+{
+  "schema": "implement-user-acceptance/1",
+  "date": "2026-10-25",
+  "task": "T4",
+  "user_statement_verbatim": "I authorize and accept task 4 as is",
+  "provenance": "Direct user message in this interactive conversation, after the current Task4 failed-review state was available; not inferred from another session or agent",
+  "accepted_state": "Current Task4 product tree and retained original/resumed cwd-fix1 runtime evidence, without further repair or revert",
+  "authoritative_review": "task4-fix1-independent-review.json",
+  "unchanged_verdict": "missing",
+  "unmet_criteria": ["T4.AC1", "T4.AC2", "T4.AC5"],
+  "accepted_findings": [
+    {"id": "F1", "severity": "IMPORTANT", "finding": "The isolated resumed merge worker installed previously absent PyYAML through uv run --with despite the no-install runtime-proof boundary; cached installation is still installation", "limits": "No network download, operator-global Python mutation or audit-input mutation is established"},
+    {"id": "F2", "severity": "MINOR", "finding": "The native audit report recommends bare python -m pytest and plain pytest contrary to the UV-only rule", "limits": "This is a recommendation, not evidence that bare Python was executed"}
+  ],
+  "reason": "The user explicitly accepts Task4 as delivered rather than continuing the opened retry ladder",
+  "cost_if_wrong": "The no-install plugin-only proof remains noncompliant and the preserved generated report includes an unsafe-for-this-project invocation recommendation; later consumers must not call the proof fully compliant or follow that recommendation as project guidance",
+  "retry_disposition": "Operator disputes the need for further revision and accepts the current failed-review state. Terminate the open retry before any adviser, brief, revert or new implementation; record a terminal dispute halt before the eligible Ruling. This does not dispute the findings or fabricate adviser work.",
+  "preserve": ["All failed/native evidence and review verdicts", "Unchanged task verdict and test:fail", "Current product bytes", "Required whole-list independent review"],
+  "not_authorized": ["Staging", "Commit", "Push", "Pull request", "Release", "Changing the failed verdict to compliant", "Retroactive edits of native evidence"]
+}

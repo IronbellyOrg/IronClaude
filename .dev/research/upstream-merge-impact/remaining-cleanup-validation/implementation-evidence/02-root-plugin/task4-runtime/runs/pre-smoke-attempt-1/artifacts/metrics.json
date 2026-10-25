@@ -1,0 +1,56 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-10-24T19:30:36+00:00-18115265",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 1,
+  "status": "success",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_initial": 0.93,
+    "calibrated_confidence_final": 0.93,
+    "calibration_delta": null
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 13,
+    "citations_revalidated": 13,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 0,
+    "regression": 0,
+    "total": 0
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "merge_method": null,
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "mcp:--no-mcp",
+    "serena",
+    "auggie",
+    "get_current_config",
+    "serena:onboarding-parse",
+    "think_about_checkpoints",
+    "memory_persist",
+    "external-best-practice-lookup",
+    "evidence-validator:structural-assertions-not-evaluated"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": false
+}

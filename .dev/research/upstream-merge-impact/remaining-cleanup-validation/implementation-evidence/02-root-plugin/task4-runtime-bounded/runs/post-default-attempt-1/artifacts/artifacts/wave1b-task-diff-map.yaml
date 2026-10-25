@@ -1,0 +1,42 @@
+# Wave 1B (UC-2) task/spec-to-work map — orchestrator inline, native Read/Grep only (Serena/auggie not exposed)
+# audit_repo_root: fixtures/project (paths below are relative to it)
+diff_source: changes.patch            # read as evidence, never applied
+diff_hunks:
+  - id: H1
+    file: src/greeting.py
+    patch_lines: "changes.patch:1-9"
+    target_lines: "src/greeting.py:1-4"
+    kind: new file (mode 100644), 4 added lines
+    disk_matches_patch: true          # src/greeting.py:1-4 byte-identical to the + lines changes.patch:6-9
+total_hunks: 1
+unmapped_hunks: 0
+tasks:
+  - task_id: T-101
+    tasklist_line: "completed.md:6"
+    requirement: R-001 (spec.md:5-6) "greet MUST return the exact string Hello, Ada! for Ada"
+    mapped_hunks: [H1]
+    evidence: "src/greeting.py:4 return f\"Hello, {name}!\" -> 'Hello, Ada!' for 'Ada'"
+  - task_id: T-102
+    tasklist_line: "completed.md:7"
+    requirement: R-002 (spec.md:8-9) "greet MUST reject an empty name with ValueError"
+    mapped_hunks: [H1]
+    evidence: "src/greeting.py:2-3 if not name: raise ValueError(\"name required\")"
+  - task_id: T-103
+    tasklist_line: "completed.md:8"
+    requirement: R-003 (spec.md:11-12) "Tests MUST exercise the ordinary greeting and empty-input rejection"
+    mapped_hunks: []                  # NOT present in changes.patch
+    evidence_on_disk_outside_scope: "tests/test_greeting.py:4-5 (test_ordinary), tests/test_greeting.py:8-13 (test_empty)"
+    note: "tests/ is outside --scope src and absent from the supplied diff; file is untracked on disk (repo has no commits), so provenance cannot be tied to the audited change set"
+structural_signals:
+  S_scope: 1                          # touched files in diff
+  S_domains: 1                        # code only (tests file is not in the diff)
+  S_dev_density: 0.0                  # 0 unmapped hunks / 1
+verification:
+  verification_ran: false
+  verification_skip_reason: tool-unavailable   # execute_shell_command not exposed; running pytest via Bash is not the sanctioned surface and would write __pycache__ into the audited repo
+runtime_surface:
+  runtime_surface_sweep_ran: false    # greet is a plain module function, no route/command decorator (refs/runtime-surface.md §1)
+reachability:
+  reachability_skip_reason: no-side-effect-requirements   # R-001..R-003 have no durable sink
+frontmatter: "completed.md:1-3 status: done"
+excluded_non_selected_files: [execution.log, proposed.md]  # not supplied as --task-log / inputs; not used as evidence

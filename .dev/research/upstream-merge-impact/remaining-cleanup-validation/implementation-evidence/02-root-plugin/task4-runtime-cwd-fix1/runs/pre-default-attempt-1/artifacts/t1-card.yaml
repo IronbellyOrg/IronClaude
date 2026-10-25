@@ -1,0 +1,64 @@
+# Tier-1 reflection card, persisted verbatim from the agent's return (author did not write files).
+# author_agent: sc:sc-requirements-analyst; requested_slot: sonnet; reported_model: claude-sonnet-5-5[1m]; agent_id: a88a23d0c347260e3
+# Citations are relative to audit_repo_root=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+card_id: t1-card
+mode: pre
+author_role: sc:sc-requirements-analyst
+findings:
+  - id: F-001
+    claim: "Pass 1 verified: R-001, R-002, R-003 each have exactly one task whose heading carries the same ID. ID coverage 3/3."
+    tag: grounded
+    citations: ["spec.md:5", "spec.md:8", "spec.md:11", "proposed.md:3", "proposed.md:6", "proposed.md:9"]
+    severity: info
+  - id: F-002
+    claim: "Pass 2 found no requirement-shaped content outside parsed spans; the only MUST statements (spec.md:6, 9, 12) each sit inside their own requirement's span."
+    tag: grounded
+    citations: ["spec.md:6", "spec.md:9", "spec.md:12"]
+    severity: info
+  - id: F-003
+    claim: "T-101 does not restate the exact literal. Spec requires exact string 'Hello, Ada!' for Ada; task says only 'the required greeting'."
+    tag: grounded
+    citations: ["spec.md:6", "proposed.md:4"]
+    severity: medium
+  - id: F-004
+    claim: "T-102 matches R-002 substance (empty name -> ValueError). Neither document says whether whitespace-only names count as empty, or whether None/non-str is in scope; the plan inherits the spec ambiguity."
+    tag: grounded
+    citations: ["spec.md:9", "proposed.md:7"]
+    severity: low
+  - id: F-005
+    claim: "T-103 covers both R-003 cases (ordinary + empty-name) but names neither the exact equality assertion nor the expected ValueError type, nor a test file/framework."
+    tag: grounded
+    citations: ["spec.md:12", "proposed.md:10"]
+    severity: medium
+  - id: F-006
+    claim: "spec.md:3 is a non-normative scope note (no MUST/SHALL), not a requirement."
+    tag: grounded
+    citations: ["spec.md:3"]
+    severity: info
+  - id: F-007
+    claim: "Plan declares no task ordering/dependency (T-103 depends on T-101/T-102) and no target module/file path for greet."
+    tag: inferred
+    citations: ["proposed.md:3", "proposed.md:6", "proposed.md:9"]
+    severity: low
+coverage_rows:
+  - {req: R-001, spec: "spec.md:5-7", task: T-101, task_ref: "proposed.md:3-4", match: exact, semantic: partial, note: "literal 'Hello, Ada!' and input Ada not restated"}
+  - {req: R-002, spec: "spec.md:8-10", task: T-102, task_ref: "proposed.md:6-7", match: exact, semantic: full, note: "empty -> ValueError restated; whitespace-only unspecified"}
+  - {req: R-003, spec: "spec.md:11-13", task: T-103, task_ref: "proposed.md:9-10", match: exact, semantic: partial, note: "both cases named; exact assertions/exception type not named"}
+inferred_requirements: []
+dropped_candidates:
+  - {quote: "The greet function MUST return the exact string Hello, Ada! for Ada.", cite: "spec.md:6", reason: "inside R-001 span 5-7"}
+  - {quote: "The greet function MUST reject an empty name with ValueError.", cite: "spec.md:9", reason: "inside R-002 span 8-10"}
+  - {quote: "Tests MUST exercise the ordinary greeting and empty-input rejection.", cite: "spec.md:12", reason: "inside R-003 span 11-13"}
+  - {quote: "This fixture is synthetic audit input, not shipped product code.", cite: "spec.md:3", reason: "non-normative scope note"}
+risks:
+  - {id: K-001, risk: "T-101 could be satisfied with a wrong greeting because the exact literal lives only in the spec.", cite: ["proposed.md:4", "spec.md:6"], severity: medium}
+  - {id: K-002, risk: "T-103 tests could pass without asserting the exact string or the ValueError type.", cite: ["proposed.md:10", "spec.md:12"], severity: medium}
+  - {id: K-003, risk: "Whitespace-only name handling undefined; implementation and tests may diverge.", cite: ["spec.md:9", "proposed.md:7"], severity: low}
+recommendations:
+  - {id: REC-001, file: proposed.md, change: "Reword T-101: greet('Ada') == 'Hello, Ada!' (exact string).", verifier: "literal 'Hello, Ada!' present in T-101 section of proposed.md", priority: high}
+  - {id: REC-002, file: proposed.md, change: "Reword T-103 to name assertions: greet('Ada') == 'Hello, Ada!' and greet('') raises ValueError (pytest.raises(ValueError)).", verifier: "ValueError and the literal present in T-103 section", priority: high}
+  - {id: REC-003, file: spec.md, change: "State whether whitespace-only names count as empty (or explicitly out of scope).", verifier: "spec.md contains explicit whitespace statement", priority: medium}
+  - {id: REC-004, file: proposed.md, change: "Add T-103 dependency on T-101/T-102 and target module path.", verifier: "T-103 section lists dependencies", priority: low}
+best_practice_grade: 3
+best_practice_rationale: "Complete 1:1 traceability, but thin task text: no exact literal, no assertion details, no whitespace policy, no dependency/file targets."
+self_reported_confidence: 0.9   # NOT used for routing; calibrated score governs

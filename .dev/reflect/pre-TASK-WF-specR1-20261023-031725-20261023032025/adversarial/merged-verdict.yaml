@@ -1,0 +1,386 @@
+# Provenance: /sc:adversarial; Base: Variant 1 (sonnet:analyzer); Merge date: 2026-10-23T03:44:24Z
+# Task numbers in findings refer to the CURRENT tasklist under review (before any renumbering recommended by M-03).
+merge_method: adversarial
+base_variant: "sonnet:analyzer (reviewer-1)"
+convergence_score: 1.0
+convergence_status: CONVERGED
+overall_verdict: not_ready
+verdict_meaning: "cycle-0 findings fixed except the items below; two medium acceptance defects, one medium structural miss and six medium probe warnings remain; scope and Fix 1-4 coverage sound"
+findings:
+  # ---- medium ----
+  - id: M-01
+    severity: medium
+    tasks: [1, 9]
+    # Provenance: base R1-1 (V1); fix per consensus; Constraints widening from INV-008
+    claim: >-
+      The Task 9 hash comparison (`cmp t1-hashes-before t9-hashes-after`) can fail a correct run. Task 1 hashes every
+      baseline-listed path outside the allowed folders, including files already present under `.dev/reflect/`,
+      `.dev/troubleshoot/` or `.dev/workflow/` (48 `.dev/reflect/` entries exist in the baseline today). The reflect and
+      implement tooling keeps rewriting files there, so a baseline hash can change while the run is correct. The
+      tooling-output exclusion (C1) is applied only to the status comparison, not to the hash `cmp`. Constraints line 25
+      exempts only new paths under the three roots, so it must also cover pre-existing tooling files or Task 1 contradicts it.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:37"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:25"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:183-184"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:70"
+      - "consensus-summary.md:6"
+      - "tasklist:25, :37, :178, :183"
+      - "source.md:39"
+    recommendation: >-
+      In Task 1, skip paths under the three tooling roots when writing t1-hashes-before.txt and list them in a separate,
+      named file that is not t1-hashes-before.txt (otherwise Task 9's recompute-then-`cmp` fails). Widen Constraints so the
+      exemption covers pre-existing tooling files as well as new ones. The exclusion cannot hide a real product edit
+      because those roots hold no product files.
+    sources: [R1-1, INV-008]
+
+  - id: M-02
+    severity: medium
+    tasks: [6]
+    # Provenance: base R1-2 (V1); fix per consensus; order assertion from INV-004
+    claim: >-
+      No Task 6 check fails a `gh pr list` that has lost its `--head sync/framework`, `--base master` or
+      `--repo "$GITHUB_REPOSITORY"` filter. The static checks only require `--repo` on every `gh pr` line, and
+      `--base master` and `--head sync/framework` only on `gh pr create`. The gh stub prints a scripted count whatever
+      arguments it gets, so all four stub runs pass. In production an unfiltered list would count any open PR and the
+      sync PR would silently never be created. Separately, nothing checks call order: the static checks count lines and
+      the stub runs count calls, so an edit that calls `gh pr list` or `gh pr create` before the `git push --force`
+      passes every check, and on GitHub its first run would fail or open the pull request against a stale branch.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:117"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:128-133"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:10-11"
+      - "tasklist:117 (\"Then capture...\")"
+      - "tasklist:128 (counts only)"
+      - "tasklist:130-133 (stub asserts counts, not sequence)"
+    recommendation: >-
+      Add a static check that the `gh pr list` line contains `--head sync/framework`, `--base master` and
+      `--repo "$GITHUB_REPOSITORY"`. In stub runs (a) and (b), assert that the logged `pr list` call contains
+      `--head sync/framework`. Also assert that the stub log order is push, then list, then create. The gh stub must log to
+      a file or stderr, not stdout.
+    sources: [R1-2, INV-004]
+
+  - id: M-03
+    severity: medium
+    tasks: [2, 8, 9]
+    # Provenance: V2 R2-1 (adopted over V1 R1-12 optional precondition); renumbering fixes per consensus; INV-001/002/003 follow-ups
+    claim: >-
+      Task 8 depends only on Task 7 and Task 9 only on Task 8, so Tasks 3, 4, 5 and 6 are not Depends-on ancestors. Source
+      requires the doc and final-scope tasks' single Depends on line to name a task that already has the earlier edits as
+      ancestors; "run in number order" does not make that chain. Runtime order is already safe (/sc:implement runs
+      sequentially in source order), so this is a structural miss against source:82, not a runtime failure. The
+      renumbering creates three follow-up hazards. (INV-001) Artifact names (`t2-codecov-v4.md`, `t3-github-prereqs.md`,
+      `t5-*`, `t6-*`) and prose task numbers ("checked in Task 3", "follows Task 5", "follows Task 6", "Tasks 5 and 6")
+      carry the old numbers; a partial rename lets the new Task 5 overwrite `t5-checks.log` that the new Task 4 kept, or
+      breaks `grep -c '^Decision:' ./artifacts/t2-codecov-v4.md` if only the file is renamed. (INV-002) The hash of the
+      Codecov research file belongs at the end of the Codecov research task itself, since the successor of the old Task 2
+      runs before the file exists. (INV-003) A single-parent Depends chain cannot satisfy every clause of source:82: one
+      task per Depends line, Task 9 having the GitHub-settings task as an ancestor, and the throwaway-repo proof naming the
+      baseline task cannot all hold.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:40"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:82"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:31"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:138"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:153"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:172"
+      - "consensus-summary.md:8"
+      - "tasklist:23, :90, :120, :122, :140, :145, :147, :176 (artifact names)"
+      - "tasklist:30, :114, :140, :155 (prose task numbers)"
+      - "consensus-summary.md:12 vs :8"
+      - "tasklist:48 (file created by the research task)"
+      - "source.md:40, :82"
+      - "round2-v2.md:44, :50"
+      - "tasklist:176 (Task 9 reads t3-github-prereqs)"
+    recommendation: >-
+      Renumber the tasks as 1 baseline, 2 GitHub settings and docs, 3 three-dot proof, 4 boundary-guard edit, 5 sync edit,
+      6 Codecov research, 7 Codecov edit, 8 workflows README, 9 scripts README plus scope, and chain each task's single
+      Depends on the one before it. State the chain in Tasks 8 and 9. After the renumber, rename artifacts and
+      cross-references consistently by new task number, or keep the old artifact names and say so explicitly; no partial
+      renaming. Hash `./artifacts/t2-codecov-v4.md` (or its renamed successor) at the end of the Codecov research task, not
+      at the end of the GitHub-settings task. Record the single-parent choice as a necessary deviation from source:82 in
+      Constraints.
+    sources: [R2-1, INV-001, INV-002, INV-003]
+
+  - id: M-04
+    severity: medium
+    tasks: [4, 6]
+    # Provenance: INV-005 (invariant probe)
+    claim: >-
+      The Task 6 stub runs have no guard against touching the real repository. Task 4 requires proof that `pwd` is outside
+      the repo; Task 6 does not. The worktree root holds `commands/`, `agents/`, `.claude-plugin/plugin.json` and
+      `docs/.framework-sync-commit`, and the git stub passes `config`, `add` and `commit` to real git. A run in the wrong
+      directory would write `user.name github-actions[bot]` into the shared `/config/workspace/IronClaude/.git/config`
+      (used by every worktree), stage the sync paths with `-f`, and make a real commit on the feature branch.
+    evidence:
+      - "tasklist:75 (Task 4 guard) vs tasklist:129 (no guard)"
+      - "pull-sync-framework.yml:89-108"
+      - "`ls` shows all four paths at the worktree root"
+      - "`git rev-parse --git-common-dir` = /config/workspace/IronClaude/.git"
+    recommendation: >-
+      Require the Task 6 stub runs to prove `pwd` is outside the repository, and to prove the shared `.git/config` is
+      unchanged afterwards by comparing `git config --get user.name` before and after.
+    sources: [INV-005]
+
+  - id: M-05
+    severity: medium
+    tasks: [5]
+    # Provenance: INV-006 (invariant probe)
+    claim: >-
+      The Task 5 header-block check passes a reword that still claims gating. It only bans `gates` and
+      `requiring this check` and requires `advisory`. Line 20 ("merge until a human acknowledges the boundary touch") sits
+      inside the anchored block, so a half-edit such as "is advisory... holds merge until a human acknowledges" passes. The
+      instruction says "cannot block a merge" but the check never requires `cannot block`, although the Task 8 README check
+      does. Summary item 3 has the same weakness: "branch protection should require" passes.
+    evidence:
+      - "tasklist:82 vs :94"
+      - "tasklist:97"
+      - "boundary-guard.yml:19-20, :66-67"
+      - "tasklist:166 (README requires `cannot block`)"
+    recommendation: >-
+      The header block must contain `cannot block` (or an equivalent fixed phrase) and must not contain
+      `until a human acknowledges`. Summary item 3 must not contain `must require` or `should require`.
+    sources: [INV-006]
+
+  # ---- low ----
+  - id: M-06
+    severity: low
+    tasks: [1, 9]
+    # Provenance: base R1-6 merged with V2 R2-3; byte evidence from round2-v2
+    claim: >-
+      Task 1 says only "one path per line" and records deleted paths as `MISSING`, with no rule for renames or copies.
+      Under `git status --porcelain -uall -z` a rename entry is `XY new\0old\0` (measured: new path first, then old), so
+      one entry carries two NUL-separated paths. Source asks for deleted or renamed paths to be recorded explicitly, and
+      Task 9 mentions `MISSING` only for deletions (the M-05 fix is partial).
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:37"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:70"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:178"
+    recommendation: >-
+      In Task 1, state that an `R` or `C` entry under `-z` is `XY new\0old\0` and that both paths are recorded, each as its
+      own line. The old path is hashed as `MISSING` if it no longer exists. In Task 9, a new path outside the allow-list
+      fails as a scope failure.
+    sources: [R1-6, R2-3]
+
+  - id: M-07
+    severity: low
+    tasks: [7]
+    # Provenance: V2 R2-5; hash point per M-03 (INV-002)
+    claim: >-
+      Task 7 says not to edit Task 2's file, but the only acceptance check is that the Decision line count is still 1.
+      Appending an UNVERIFIED note without a second Decision line still passes.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:69"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:140"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:147"
+    recommendation: >-
+      Task 7 must leave the Codecov research file unchanged. Hash `t2-codecov-v4.md` at the end of the Codecov research task
+      (hash point as in M-03) and require the same hash after Task 7, or `cmp` the file against a copy taken at the end of
+      that task.
+    sources: [R2-5, INV-002]
+
+  - id: M-08
+    severity: low
+    tasks: [5]
+    # Provenance: V2 R2-4
+    claim: >-
+      The Task 5 job-name check forbids the substring `required`, so a correct advisory name such as "not required" fails.
+      The spec requires the word `boundary` and advisory wording, and forbids `required` only on the warning line and the
+      header block, not on the job name.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:83"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:95"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:19"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:55"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/boundary-guard.yml:37"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/src/superclaude/pr_submit/ci.py:19"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/src/superclaude/pr_submit/ci.py:77"
+    recommendation: >-
+      Require `boundary` and `advisory` on the job name. Forbid the old phrase `human review required`, not the bare
+      substring `required`.
+    sources: [R2-4]
+
+  - id: M-09
+    severity: low
+    tasks: [2, 7]
+    # Provenance: base R1-5; regex per consensus and INV-014 (addressed)
+    claim: >-
+      The Decision-line format is machine-ambiguous. Task 2 requires the line to name "exactly one of `file` or `files`",
+      but `files` contains the substring `file`, and any natural sentence mentions both inputs. Task 7 reads F
+      "programmatically" from that line without a defined format. A parser can take the wrong input, or a correct line can
+      fail the check.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:48"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:52"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:145"
+    recommendation: >-
+      Fix the format, for example `Decision: file-input=files; token=secrets.CODECOV_TOKEN`, and specify the regex
+      `^Decision: file-input=(file|files);` for both the Task 2 check and the Task 7 lookup.
+    sources: [R1-5, INV-014]
+
+  - id: M-10
+    severity: low
+    tasks: [6]
+    # Provenance: base R1-10; ambiguity wording from V2 R2-6 (same defect, same fix)
+    claim: >-
+      The Task 6 check "the file contains no `<` placeholder" is ambiguous (no angle-bracket character, or no placeholder
+      token). The base pull-sync-framework.yml contains no `<` character (all 112 lines read), so a zero-`<` check is sound
+      and does not fail a correct edit. One residual risk: if the executor writes the PR body as a heredoc (`<<`), a
+      correct edit fails.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/pull-sync-framework.yml:1-112"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:117"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:128"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:75"
+    recommendation: >-
+      Reword the check to "the edited workflow contains zero `<` characters (base has 0), and a hit fails the task".
+      State that the PR body must be a quoted string, never a heredoc.
+    sources: [R1-10, R2-6, INV-012]
+
+  - id: M-11
+    severity: low
+    tasks: [5]
+    # Provenance: base R1-3, optional hardening (withdrawn from medium in round 2)
+    claim: >-
+      Optional hardening. Task 5 has no whole-document comparison for boundary-guard.yml, although Tasks 6 and 7 have one
+      (M-10 of cycle 0). Edits to `runs-on`, the `env:` BASE_SHA/HEAD_SHA mapping, the checkout step, or `fetch-depth: 0`
+      pass every Task 5 bullet. The local render sets those variables by hand, so it cannot catch them. `fetch-depth: 0` is
+      what makes the three-dot merge-base diff work on the runner.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:93-106"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/boundary-guard.yml:38-48"
+    recommendation: >-
+      Add the same parsed-document equality check as Task 6. Compare base and edited after removing the job `name` and the
+      run-body of step `Flag boundary touch and write job summary`. Runner, env, checkout step, step count and top-level
+      keys must match.
+    sources: [R1-3]
+
+  - id: M-12
+    severity: low
+    tasks: [9]
+    # Provenance: base R1-4, with V2 R2-2 (same defect); optional hardening per consensus
+    claim: >-
+      Optional hardening. The Task 9 final scope check accepts any change under `.github/workflows/`. The positive check
+      only confirms that five files show as modified, so an extra edit to another workflow passes, for example "fixing" the
+      3,000 versus 300 comment in contract3-generator-constraint-lint.yml that source marks as not in scope. Source scope
+      names exactly four workflow files plus the Codecov step.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:184-185"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:6"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:46-47"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:19"
+    recommendation: >-
+      Add a bullet requiring that the set of changed or new paths under `.github/workflows/` (compared with the baseline)
+      equals exactly the four named workflow files (pull-sync-framework.yml, boundary-guard.yml, the Codecov step of
+      test.yml, workflows/README.md). Any other path fails.
+    sources: [R1-4, R2-2]
+
+  - id: M-13
+    severity: low
+    tasks: [5]
+    # Provenance: base R1-7 reduced per V2 R2-7 and consensus (C3 is not a plan defect)
+    claim: >-
+      The Task 5 instruction for the `::warning` line says "advisory wording", while the acceptance check requires the
+      literal word `advisory`. The check is the spec (source requires `advisory` and forbids `before merge` on that line),
+      so this is a wording mismatch only; a correct reword without that word fails the check.
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:84"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:96"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:55"
+    recommendation: >-
+      Do not change the warning acceptance check. Change the instruction to say the `::warning` line must contain the word
+      `advisory`.
+    sources: [R1-7, R2-7]
+
+  - id: M-14
+    severity: low
+    tasks: [5]
+    # Provenance: INV-007 (invariant probe)
+    claim: >-
+      The Task 5 check "Both renders list the same guarded files, which must not be empty" does not prove the diff ran. The
+      step's `|| echo "(diff unavailable)"` writes a non-empty, identical line to both renders when a SHA is wrong. With the
+      chosen pair the lists are correct today (b0de1479 has one parent, f131592f, and the diff lists all five files).
+    evidence:
+      - "boundary-guard.yml:76-82"
+      - "tasklist:90, :100"
+      - "`git log -1 -- merge.py` -> b0de1479, parent f131592f, 5 paths"
+    recommendation: >-
+      Require both renders to list the five guarded path lines, and fail on the text `(diff unavailable)`.
+    sources: [INV-007]
+
+  - id: M-15
+    severity: low
+    tasks: [1, 9]
+    # Provenance: INV-009 (invariant probe)
+    claim: >-
+      Task 9's positive check `git status --porcelain -- src tests Makefile pyproject.toml .claude` cannot be compared with
+      `t1-status-before.txt`. That file came from `-uall -z`, while this command has no `-uall`, so untracked directories
+      collapse to `?? dir/`. Any pre-existing untracked file under src/ or tests/ would then show as new. No such file
+      exists today, so this is latent only.
+    evidence:
+      - "tasklist:37 vs :185"
+      - "`git status --porcelain -uall` lists only .dev/reflect, .dev/tasks, .dev/proposals"
+    recommendation: >-
+      Make the Task 9 positive check use the same status flags as Task 1 (`-uall -z`) before comparing with the baseline.
+    sources: [INV-009]
+
+  - id: M-16
+    severity: low
+    tasks: [9]
+    # Provenance: INV-010 (invariant probe)
+    claim: >-
+      The leftover line numbers in Task 9 (14, 34, 39, 64-66) are base numbers. Replacing lines 7-12 of scripts/README.md
+      shifts them, so a reviewer who checks `t9-leftovers.md` against the edited file finds mismatches.
+    evidence:
+      - "tasklist:174, :176"
+      - "scripts/README.md:7-14, :34, :39, :64-66"
+    recommendation: >-
+      State in Task 9 that leftover line numbers are line numbers on the base `t1-head`.
+    sources: [INV-010]
+
+invariant_warnings: [INV-001, INV-002, INV-003, INV-004, INV-005, INV-006]
+unmapped_row_verdicts:
+  - {row: INF-001, verdict: covered, where: "Task 6 and Goal"}
+  - {row: INF-003, verdict: covered, where: "Constraints (evidence under ./artifacts/)"}
+  - {row: INF-023, verdict: covered, where: "Task 5 fenced `grep -c -F` bullet"}
+  - {row: INF-037, verdict: partial, where: "CON-2, Tasks 5-9 (see M-02, M-11, M-12 for bullets that pass a wrong edit)"}
+  - {row: INF-040, verdict: covered, where: "Task 9 positive check plus per-task grep bullets"}
+  - {row: INF-042, verdict: covered, where: "tasklist uses '- ' bullets and headings only"}
+  - {row: INF-045, verdict: covered, where: "Task 3 quote plus Task 9 leftovers item"}
+  - {row: INF-050, verdict: covered, where: "Tasks 6 and 7 compare the whole document; the Task 5 gap is optional hardening only (M-11, R1-3)"}
+  - {row: INF-057, verdict: partial, where: "Task 7 writes ./artifacts/t7-codecov-note.md but acceptance does not fail an append to Task 2's file (M-07, R2-5)"}
+  - {row: INF-062, verdict: covered, where: "Task 5 fenced grep command"}
+matrix_corrections:
+  # Provenance: V2 R2-8. Correct the coverage matrix only; do not add tasks.
+  - action: repoint
+    row: INF-025
+    from: "Task 9"
+    to: "Task 4"
+    reason: "the proof is Task 4"
+  - action: repoint
+    row: INF-033
+    from: "Task 5"
+    to: "Task 8"
+    reason: "the README entry is Task 8"
+  - action: add_rows
+    covered_by: "Constraints"
+    rules:
+      - "YAML-parse-only rule"
+      - "ban on unscoped git diff --stat and master...HEAD"
+      - "uv run rule"
+    note: "The plan states all three, but the matrix has no rows for them."
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:38"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:39"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md:40"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/artifacts/coverage-matrix.yaml:247"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/artifacts/coverage-matrix.yaml:328"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:21"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:22"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:73"
+      - "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md:166"
+rejected:
+  - {id: R1-8, rationale: "Task 9 states the 3,000 conclusion because source:80 instructs it; dropped by both advocates."}
+  - {id: R1-9, rationale: "scripts/README.md line 30 is not a publish-workflow leftover per source:81; dropped by both advocates."}
+  - {id: R1-12-precondition, rationale: "The log-precondition bullet for Tasks 8 and 9 is superseded by the M-03 renumbering, which makes the ancestors real."}
+counts: {high: 0, medium: 5, low: 11}

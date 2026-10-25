@@ -1,0 +1,44 @@
+mode: pre
+auggie_ran: true
+script_overview_ran: true
+canonical_declaration: scripts/sync_from_framework.py:436-849
+symbol_bodies:
+- scripts/sync_from_framework.py:490-573
+- scripts/sync_from_framework.py:852-924
+references:
+- symbol: FrameworkSyncer
+  referrer: scripts/sync_from_framework.py:886
+- symbol: main
+  referrer: scripts/sync_from_framework.py:928
+find_implementations_ran: true
+find_implementations_error: 'textDocument/implementation: Unhandled method (-32601)'
+find_implementations_fallback: Named-class tracked grep; no other class consumers or tests found.
+references_extended_info_used: false
+references_extended_info_reason: Tool schema does not expose include_info; recorded actual tool output without inventing parameter.
+diagnostics: {}
+third_party_api_triggered: false
+hierarchy_invoked: false
+hierarchy_skip_reason: Flag not set; backend unknown.
+verification_ran: false
+verification_skip_reason: UC-1 pre-execution audit, no changed implementation.
+runtime_surface_sweep_ran: false
+reachability_gate_ran: false
+reuse_sweep_ran: false
+reuse_skip_reason: Removal-only plan, no proposed production components to reuse.
+tracked_reference_search:
+  command: "git grep -n -i -E 'pull-sync-framework|sync_from_framework|framework-sync-commit|codecov' -- . ':!.dev' ':!src/superclaude/templates/documents/readme_template.md'"
+  exit_code: 0
+  matched_files: [.github/workflows/README.md, .github/workflows/pull-sync-framework.yml, .github/workflows/test.yml, scripts/sync_from_framework.py]
+  interpretation: Expected positive matches before implementation; no non-target tracked reference found.
+consumer_search:
+  command: 'git grep -n -E FrameworkSyncer|ContentTransformer|FileSyncer|PluginJsonGenerator|McpMerger|ProtectionViolationError -- tests scripts .github'
+  exit_code: 0
+  matched_files: [scripts/sync_from_framework.py]
+  tests_matched: false
+workflow_inventory: [boundary-guard.yml, contract3-generator-constraint-lint.yml, pull-sync-framework.yml, test.yml]
+current_branch: chore/ci-followup-sync-guard-readme
+remote_checks_run: false
+remote_mutations_run: false
+sync_script_executed: false
+plan_modified: false
+source_modified: false

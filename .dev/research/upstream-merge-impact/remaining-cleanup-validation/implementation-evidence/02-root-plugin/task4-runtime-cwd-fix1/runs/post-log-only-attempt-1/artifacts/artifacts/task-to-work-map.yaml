@@ -1,0 +1,31 @@
+# Wave 1B UC-2 task-log-to-work map (native Read evidence; no git diff exists — repo has zero commits)
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+gold_standard_reference: ABSENT  # no --spec, no --tasklist supplied; requirement wording known only from executor log (narrative, not gold standard)
+tasks:
+  - task_id: T-101
+    requirement: R-001
+    log_claim: "execution.log:2 — T-101 R-001: created src/greeting.py."
+    work: "src/greeting.py:1-4 (file exists; defines greet(name))"
+    in_scope: true
+    mapped: true
+  - task_id: T-102
+    requirement: R-002
+    log_claim: "execution.log:3 — T-102 R-002: empty names raise ValueError."
+    work: "src/greeting.py:2-3 — `if not name:` / `raise ValueError(\"name required\")`"
+    in_scope: true
+    mapped: true
+  - task_id: T-103
+    requirement: R-003
+    log_claim: "execution.log:4 — T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases."
+    work: "tests/test_greeting.py:4-5 (test_ordinary), 8-13 (test_empty)"
+    in_scope: false   # log-declared path outside --scope src; read as linked evidence
+    mapped: true
+unmapped_work_files: []
+structural_signals:
+  S_scope: 2          # src/greeting.py + log-declared tests/test_greeting.py
+  S_domains: 2        # code, tests
+  S_dev_density: 0.0  # 0 unmapped work artifacts / 2
+verification:
+  ran: false
+  skip_reason: tool-unavailable   # --no-mcp: execute_shell_command unavailable
+  log_statement: "execution.log:5 — No test execution is claimed; inspect these files independently."

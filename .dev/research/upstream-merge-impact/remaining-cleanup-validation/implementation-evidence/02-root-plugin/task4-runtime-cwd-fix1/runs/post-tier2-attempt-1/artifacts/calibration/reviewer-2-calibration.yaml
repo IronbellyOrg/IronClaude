@@ -1,0 +1,16 @@
+# Wave 3C — persisted scores returned by sc:confidence-calibrator for reviewer-2 card
+card: reviewer-cards/reviewer-2-card.yaml
+calibrator_agent: sc:confidence-calibrator
+requested_model_slot: opus      # claude-opus-5-5[1m]
+reviewer_model_slot: haiku      # env -> grok-4.7[1m]
+calibrator_diversity: full
+formation_context_supplied: false
+citation_spot_check_summary: "All in-root citations resolve (spec, completed, changes.patch, execution.log, greeting.py, test file, task-diff-map 23-38, git-inventory 5-9, taxonomy 89-97/108/149-153); proposed.md confirmed absent from snapshot. Partial: absence of package markers (pyproject/pytest config not checked); T1-wording disagreement not verifiable blind."
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.93
+C: 0.92
+self_reported: 0.8

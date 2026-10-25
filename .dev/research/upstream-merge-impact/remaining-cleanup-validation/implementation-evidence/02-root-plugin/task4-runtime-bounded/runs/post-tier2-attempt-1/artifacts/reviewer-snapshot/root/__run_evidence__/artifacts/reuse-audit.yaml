@@ -1,0 +1,21 @@
+# Returned by sc:reuse-auditor (requested slot: sonnet; agentId aa391207b253c02c5); persisted verbatim by orchestrator.
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+findings:
+  - candidate: greet @ src/greeting.py:1-4
+    capability_tag: format a greeting string and reject an empty name with ValueError
+    neighbours: []   # none found; tests/test_greeting.py:1,5,10 is a caller, not prior art
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0       # degraded, Auggie unavailable
+    S_reuse: 0.0
+    confidence: 0.85  # capped below 1.0 because the substrate was native Grep/Glob only
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true

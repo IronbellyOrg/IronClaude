@@ -1,0 +1,100 @@
+PASS policy has no current-text 'Auto-Managed: true (internal'
+PASS policy has no current-text 'PM Agent Role: Automatically used on errors'
+PASS policy has no current-text 'Storage: docs/memory/reflexion.jsonl (local file)'
+PASS policy has no current-text 'Search: Keyword-based (50% overlap threshold)'
+PASS policy has no current-text 'Primary: Mindbase MCP (automatic)'
+PASS policy has no current-text 'Secondary: None (fully automated)'
+PASS policy has no current-text 'Mindbase auto-load (automatic)'
+PASS policy has no current-text 'Mindbase: Automatic save'
+PASS policy has no current-text 'Mindbase: Automatic (no explicit call)'
+PASS policy has no current-text 'Memory: Mindbase (automatic)'
+PASS policy has no current-text 'Falls back to ReflexionMemory'
+PASS policy has no current-text 'Automatically selected by Claude when available'
+PASS policy has no current-text 'SuperClaude works fully with ReflexionMemory alone'
+PASS policy has no current-text '❌ Mindbaseを明示的に操作'
+PASS policy has no current-text '❌ write_memory() / read_memory() 使用'
+PASS policy has no current-text '❌ docs/memory/ ディレクトリ作成'
+PASS policy has no current-text 'Reason: Mindbaseと重複'
+PASS reflection ref has no current-text 'docs/memory/reflexion.jsonl (ReflexionMemory'
+PASS reflection ref has no current-text '{"error":"...","solution":"...","date":"..."}'
+PASS reflection ref has no current-text 'mindbase_search (if airis-mcp-gateway installed)'
+PASS reflection ref has no current-text 'Claude automatically selects best available tool'
+PASS reflection ref has no current-text 'Store in ReflexionMemory for future sessions'
+PASS reflection ref has no current-text '(ReflexionMemory - ALWAYS)'
+PASS reflection ref has no current-text '(if airis-mcp-gateway installed, automatic storage)'
+PASS reflection ref has no current-text 'Applying solution now'
+PASS reflection ref has no current-text '30 seconds (vs 30 minutes'
+PASS reflection ref has no current-text 'Smart lookup: mindbase OR grep'
+PASS reflection ref has no current-text 'Apply solution immediately'
+PASS reflection ref has no current-text 'Cache lookup'
+PASS reflection ref has no current-text '同じエラーは**2回目から即座に解決**'
+PASS reflection ref has no current-text '過去の失敗から自動学習'
+PASS policy migration item 'Remove docs/memory/ references' is labelled (superseded)
+PASS policy migration item 'Remove write_memory() / read_memory() calls' is labelled (superseded)
+PASS policy states 'ReflexionPattern'
+PASS policy states 'src/superclaude/pm_agent/reflexion.py'
+PASS policy states 'solutions_learned.jsonl'
+PASS policy states '0.7'
+PASS policy states 'first'
+PASS policy states 'UNVERIFIED'
+PASS policy states 'stub'
+PASS policy states 'explicit'
+PASS policy states 'memory_dir argument > non-empty REFLEXION_OUTPUT_DIR > docs/memory/'
+PASS reflection ref states 'ReflexionPattern'
+PASS reflection ref states 'solutions_learned.jsonl'
+PASS reflection ref states '0.7'
+PASS reflection ref states 'first stored row'
+PASS reflection ref states 'NOT implemented'
+PASS reflection ref states 'stub'
+PASS reflection ref states 'UNVERIFIED'
+PASS reflection ref states '@pytest.mark.reflexion'
+PASS reflection ref states 'does not call'
+PASS reflection ref states 'Nothing is redacted'
+PASS reflection ref states 'docs/memory/reflexion.jsonl.example'
+PASS reflection ref 'Record fields' lists every sample-row field: error_type, error_message, test_name, traceback, solution, root_cause, prevention, timestamp
+PASS reflection ref storage format line uses the live field names
+PASS Example 4 returns sample row 1 solution/root_cause/prevention/timestamp
+PASS Example 4 uses the documented 9/10 = 0.90 pair
+PASS Example 4 pair recomputed from sample row 1: 9/10
+PASS Example 4 claims no time/token savings
+PASS reflection ref labels figures with 'unmeasured'
+PASS reflection ref labels figures with 'NOT measured'
+PASS reflection ref labels figures with 'UNVERIFIED'
+PASS reflection ref labels figures with 'target'
+PASS recurrence/savings figure line is qualified: · lower recurrence of a repeated error (earlier versions claimed "<10%
+PASS recurrence/savings figure line is qualified: Savings: unmeasured (earlier versions claimed 100% on repeated errors)
+PASS recurrence/savings figure line is qualified: With Reflexion: <10% (target)
+PASS recurrence/savings figure line is qualified: Result: 75% reduction in repeat errors (derived from the two numbers a
+PASS recurrence/savings figure line is qualified: - Error recurrence: <10% (target; no measurement exists)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Manual Override: --serena flag' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Manual Override: --c7 flag' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Manual Override: --tavily flag' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Serenaをタスク管理に使用' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Context7をプロジェクトドキュメントに使用' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Auto-Trigger Keywords' x3)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('## MCP Selection Matrix' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Complex (>10 files, architectural changes)' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('#### Serena MCP' x1)
+PASS docs/mcp/mcp-integration-policy.md: unrelated marker count unchanged ('Tavily' x8)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Layer 1: Confidence Check' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Layer 2' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Layer 4: Token-Budget-Aware Reflection' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Example 1' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Example 2' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Example 3' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Hallucination Detection' x4)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Budget: 2,500 tokens' x1)
+PASS docs/reference/pm-agent-autonomous-reflection.md: unrelated marker count unchanged ('Phase 0 (Bootstrap)' x1)
+PASS docs/mcp/mcp-integration-policy.md:13 link/path docs/user-guide/memory-system.md exists
+PASS docs/mcp/mcp-integration-policy.md:450 link/path docs/user-guide/memory-system.md exists
+PASS docs/mcp/mcp-integration-policy.md:493 link/path docs/architecture/pm-agent-responsibility-cleanup.md is marked historical
+PASS docs/mcp/mcp-integration-policy.md:494 link/path docs/user-guide/memory-system.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:192 link/path docs/user-guide/memory-system.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:293 link/path docs/research/llm-agent-token-efficiency-2025.md is marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:298 link/path docs/research/reflexion-integration-2025.md is marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:304 link/path docs/reference/pm-agent-autonomous-reflection.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:671 link/path plugins/superclaude/commands/pm.md exists
+PASS docs/reference/pm-agent-autonomous-reflection.md:672 link/path docs/research/reflexion-integration-2025.md is marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:672 link/path docs/research/llm-agent-token-efficiency-2025.md is marked historical
+PASS docs/reference/pm-agent-autonomous-reflection.md:672 link/path docs/user-guide/memory-system.md exists
+RESULT: ALL PASS (0 failures)

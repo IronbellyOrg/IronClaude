@@ -1,0 +1,20 @@
+# Wave 1B coverage matrix (UC-1). Pass 1 deterministic (orchestrator regex); Pass 2 by sc:sc-requirements-analyst (sonnet slot).
+parsed_count: 3
+inferred_count: 0
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_scope: 3            # tasklist items
+S_domains: 2          # code (T-101, T-102) + tests (T-103)
+S_dev_density: 0.0    # (0 unmapped + 0 missing_implementations) / 3
+matrix:
+  - {requirement_id: R-001, spec_ref: "spec.md:5", matched_task_ids: [T-101], match_method: exact, source: parsed, semantic_fidelity: partial}
+  - {requirement_id: R-002, spec_ref: "spec.md:8", matched_task_ids: [T-102], match_method: exact, source: parsed, semantic_fidelity: covered}
+  - {requirement_id: R-003, spec_ref: "spec.md:11", matched_task_ids: [T-103], match_method: exact, source: parsed, semantic_fidelity: covered-loosely}
+pass2_dropped_candidates:
+  - {quote: "The greet function MUST return the exact string Hello, Ada! for Ada.", citation: "spec.md:6", reason: "overlaps R-001 span spec.md:5-7"}
+  - {quote: "The greet function MUST reject an empty name with ValueError.", citation: "spec.md:9", reason: "overlaps R-002 span spec.md:8-10"}
+  - {quote: "Tests MUST exercise the ordinary greeting and empty-input rejection.", citation: "spec.md:12", reason: "overlaps R-003 span spec.md:11-12"}

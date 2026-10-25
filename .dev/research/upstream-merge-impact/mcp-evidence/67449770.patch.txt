@@ -1,0 +1,35 @@
+commit 67449770c0157372f276c16f99f0a935de1b1125
+Author:     Utakata <syouryuu1111@gmail.com>
+AuthorDate: Tue Oct 28 13:18:58 2025 +0900
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Oct 28 09:48:58 2025 +0530
+
+    docs: Confirm AIRIS MCP Gateway installation URL is correct (#463)
+    
+    * docs: Verify AIRIS MCP Gateway URL is correct
+    
+    This commit concludes the investigation into the incorrect AIRIS MCP Gateway installation URL.
+    
+    The issue reported that `setup/components/mcp.py` contained an outdated URL (`https://github.com/oraios/airis-mcp-gateway`).
+    
+    Upon inspection, it was found that the code has been refactored to use a constant, `AIRIS_MCP_GITHUB_REPO`, which already points to the correct URL (`https://github.com/agiletec-inc/airis-mcp-gateway`). A `grep` search confirmed that the old URL no longer exists in the codebase.
+    
+    Installation tests failed due to a missing `claude` CLI dependency in the execution environment, not due to the URL issue. The original problem appears to be resolved in the current version of the code.
+    
+    No code changes were necessary.
+    
+    * docs: Verify AIRIS MCP Gateway URL is correct
+    
+    This commit concludes the investigation into the incorrect AIRIS MCP Gateway installation URL.
+    
+    The issue reported that `setup/components/mcp.py` contained an outdated URL (`https://github.com/oraios/airis-mcp-gateway`).
+    
+    Upon inspection, it was found that the code has been refactored to use a constant, `AIRIS_MCP_GITHUB_REPO`, which already points to the correct URL (`https://github.com/agiletec-inc/airis-mcp-gateway`). A `grep` search confirmed that the old URL no longer exists in the codebase.
+    
+    Installation tests failed due to a missing `claude` CLI dependency in the execution environment, not due to the URL issue. The original problem appears to be resolved in the current version of the code.
+    
+    No code changes were necessary.
+    
+    ---------
+    
+    Co-authored-by: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>

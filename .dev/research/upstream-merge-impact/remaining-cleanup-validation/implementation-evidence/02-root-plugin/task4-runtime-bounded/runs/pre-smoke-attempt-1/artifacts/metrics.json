@@ -1,0 +1,49 @@
+{
+  "metrics_schema_version": "1.0",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 1,
+  "status": "success",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_final": 0.91
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 15,
+    "citations_revalidated": 15,
+    "citations_dropped": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 0,
+    "regression": 0,
+    "total": 0
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "merge_method": null,
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "mcp:--no-mcp",
+    "serena",
+    "auggie",
+    "get_current_config",
+    "think_about_checkpoints",
+    "tech-research:unavailable-plugin-only"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": false
+}

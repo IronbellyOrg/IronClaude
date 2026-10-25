@@ -1,0 +1,25 @@
+scores:
+  citation_grounding: 0.55
+  coverage_completeness: 0.78
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.58
+  recommendation_actionability: 0.48
+mean: 0.638
+rounded_mean: 0.64
+mean_sum: 3.19
+calibrator_slot: haiku
+calibrator_resolved_alias: grok-4.7[1m]
+blind: true
+citations_verified_against_source: false
+escalation:
+  recommendation: ESCALATE
+  reason: coverage_degraded_parsed_sparse
+  also_fires: ['rule4 domains=3', 'rule6 C=0.638']
+  stop_rows_blocked: true
+critique:
+  citation_grounding: Rejected candidates have paths and line references, but self-audit claims and positive best-practice grade lack individual evidence anchors; blind calibration does not re-read source.
+  coverage_completeness: Union coverage is 11/13 and below 0.90; lexical misses lack explicit gap-registry rows despite narrative semantic coverage.
+  deviation_classification_clarity: Rejected candidates have single defensible dispositions; UC-2 taxonomy not applied to unimplemented changes. Lexical misses not explicitly registered as non-defects.
+  risk_surface_coverage: Risk topics named, no blast-radius analysis; S_domains=3 not reasoned through in card.
+  recommendation_actionability: Only Tier 2 is concretely prescribed; investigate list lacks artifact targets and verifiers; report materialization blocker lacks absolute path in card.
+  independence: self_reported_confidence null; PASS did not inflate score; sparse prefilter forces Tier 2 regardless of C.

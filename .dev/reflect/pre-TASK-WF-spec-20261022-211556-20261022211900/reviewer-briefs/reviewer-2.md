@@ -1,0 +1,107 @@
+# Reviewer 2 brief (persona: qa, model class: haiku)
+
+You are a read-only reviewer in a pre-execution (UC-1) reflection. You audit a proposed tasklist against the spec that drives it. You do not run commands, edit files, or fix anything. Cite only file:line ranges you Read yourself. A claim you cannot cite is dropped. Assume the plan has defects; a zero-finding review must include a self-audit of what you checked.
+
+Inputs: spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-spec-20261022-211556/source.md ; tasklist /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-spec-20261022-211556/TASK-WF-spec-20261022-211556.md ; Tier-1 card /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/t1-card.md ; coverage matrix /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/artifacts/coverage-matrix.yaml ; target files under /config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/ (pull-sync-framework.yml, boundary-guard.yml, test.yml, README.md), /config/workspace/IronClaude/.dev/worktrees/ci-followup/scripts/README.md, /config/workspace/IronClaude/.dev/worktrees/ci-followup/src/superclaude/pr_submit/ci.py, /config/workspace/IronClaude/.dev/worktrees/ci-followup/tests/swarm/test_merge_boundary_guards.py.
+
+Your lens: coverage and acceptance. Audit the coverage matrix AGAINST the spec body in your grounding hunks; surface any requirement-bearing span absent from the matrix (parsed or inferred) as a finding. For each of the 7 unmapped rows decide covered | partial | gap. Check that every spec bullet in Fix 1-4 and Quality rules lands in some task's body or acceptance criteria, and flag unrequested scope.
+
+## T1 card excerpt
+
+- INF-001 (source.md:3, goal "sync job stops pushing unreviewed upstream content to master"): lexical miss. Task 6 replaces the push (tasklist line 99 onward); Goal line of the tasklist restates it.
+- INF-003 (source.md:7, "Evidence files go under ./artifacts/"): lexical miss. Constraint bullet 2 (tasklist line 20) and every task writes ./artifacts/.
+- INF-037 (source.md:38, "Every acceptance bullet must fail on a wrong edit"): plan-wide quality property, not a task. Partially met; see claims C2, C4, C5.
+- INF-040 (source.md:39, "positive greps showing the expected edits happened"): lexical miss. Task 9 positive-check bullet (tasklist line 158 area) plus per-task greps in Tasks 5, 6, 8.
+- INF-041 (source.md:40, "Depends on: lines name one task each; make real chains"): structural. Every Depends on names one task, but the chain is a single line 1 to 9; see C6.
+- INF-042 (source.md:40, "No numbered or checkbox lines"): structural; gate grep found none.
+- INF-045 (source.md:47, "Do not add a task; raise it to me as a question"): correctly has no task; the question belongs to the session report, not the plan.
+
+## Grounding hunks
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-spec-20261022-211556/source.md:1-47
+```markdown
+# Follow-up to PR 280: four workflow and doc fixes
+
+Goal: the sync job stops pushing unreviewed upstream content to master; the boundary guard stops claiming it blocks merges; the Codecov step is checked against its documentation; the docs describe what the workflows really do.
+
+## Scope
+- Edit only .github/workflows/pull-sync-framework.yml, .github/workflows/boundary-guard.yml, .github/workflows/test.yml (the Codecov step only), .github/workflows/README.md, and the one paragraph in scripts/README.md that describes publish-pypi.yml. Nothing under src/, tests/, Makefile, pyproject.toml or .claude/ changes.
+- Evidence files go under ./artifacts/ in the plan package.
+
+## Fix 1: pull-sync-framework.yml opens a pull request instead of pushing to master
+- In step `Commit and Push Changes`, replace `git push origin HEAD:master` with a force-push of the commit to the branch `sync/framework`, then open a pull request into master only if none is open from that branch (check with `gh pr list` or `gh pr view` first).
+- Every `gh pr` command passes `--repo "$GITHUB_REPOSITORY"`; the step sets `GH_TOKEN: ${{ github.token }}`; base is master, head is `sync/framework`.
+- Job permissions become `contents: write` and `pull-requests: write`, and nothing more.
+- The "no changes" path (no commit, no branch, no pull request), the protected-file check and the state-file handling stay unchanged.
+- State these consequences in the plan: the state file docs/.framework-sync-commit is committed on the sync branch, so until the pull request merges, master still holds the old value and every 6-hourly run re-syncs and force-replaces the branch; an open pull request is reused; commits pushed to `sync/framework` by hand are lost at the next run.
+- Prerequisites the plan cannot create: the repository setting "Allow GitHub Actions to create and approve pull requests" must be on (an earlier read said it already is; re-check with `gh api repos/IronbellyOrg/IronClaude/actions/permissions/workflow`). A pull request opened with the built-in token may not start the test workflows; this is unverified, so check it against current GitHub docs and note it as a known limitation, do not change the token.
+- This fix cannot be verified locally. Report it as unverified until a `workflow_dispatch` run after merge; name that run as a user step and say where the result is recorded.
+
+## Fix 2: boundary-guard.yml says what it does, and uses a three-dot diff
+- The job only writes a warning and a summary; it cannot block anything. Reword, as advisory, the header comment about gating (lines 19-20), the job name, the `::warning` text ("Human review is required before merge") and summary item 3 ("branch protection must require this check").
+- The job name must keep the word "boundary" (src/superclaude/pr_submit/ci.py matches on it). Re-read ci.py on the new base before choosing the name.
+- Change the diff to the three-dot form `"$BASE_SHA...$HEAD_SHA"` with the same pathspec after `--`.
+- The file name, the whole `on:` block and the five `paths:` entries stay byte-identical; tests/swarm/test_merge_boundary_guards.py must still pass (run it with `uv run pytest tests/swarm/test_merge_boundary_guards.py -v`).
+- Keep the "Required reviewer checks" checklist heading and items; a file-wide search for the word "required" must not be used as a check, because that heading legitimately contains it.
+- Render the merged step locally (script body with GITHUB_STEP_SUMMARY pointing at a temp file) before and after, and save both renders and their comparison; only the reworded sentences may differ and no backslash may appear before a backtick.
+- Prove the three-dot change in a throwaway git repository created outside this repo: a branch behind master where only master changed one of the five guarded files; the old command lists it, the new one does not. Save the exact commands and output.
+- Not included: turning the job into a real gate (a required label or CODEOWNERS); that is a repository-settings decision.
+
+## Fix 3: Codecov step matches the action's documentation
+- Before editing, read the official codecov/codecov-action v4 documentation (Context7 or the action's README) and record in ./artifacts/ whether the `file` input is deprecated in favor of `files` and whether a token is required for uploads from a push to master.
+- Default: pass `token: ${{ secrets.CODECOV_TOKEN }}` and the correct file input name, and keep `fail_ci_if_error: false`. Alternative if the fork does not use Codecov: delete the step and its README mentions. Add no coverage threshold.
+- Prerequisite the plan cannot create: a `CODECOV_TOKEN` repository secret. The upload is unverified until a run on GitHub.
+
+## Fix 4: documentation matches the workflows
+- .github/workflows/README.md: the status badge URLs point at IronbellyOrg/IronClaude (line 30); the Codecov troubleshooting bullet (line 124) matches Fix 3; the boundary-guard entry says the job is advisory; the pull-sync-framework entry says it opens a pull request from `sync/framework`.
+- scripts/README.md line 7: the paragraph describes the deleted publish-pypi.yml. Read it and its neighbors; replace it with accurate text (the workflow no longer exists; the fork installs from git as CLAUDE.md states) or remove it if it only describes that workflow. Change nothing else in that file.
+
+## Quality rules for every task in the plan
+- Every acceptance bullet must fail on a wrong edit, not only pass on a right one. A YAML-parse bullet is a syntax check only. Proof logs must contain the exact commands run and their output.
+- Do not use an unscoped `git diff --stat`, and do not use `master...HEAD`, as a scope check. Before the first task, save `git status --porcelain -uall` and a content hash of every changed file outside the allowed paths; at the end, only .github/workflows/, scripts/README.md and the plan package folder may differ from that baseline; also require positive greps showing the expected edits happened.
+- Run every Python or pytest command through `uv run`. `Depends on:` lines name one task each; make real chains where order matters. No numbered or checkbox lines in the tasklist.
+- Specific greps, not file-wide ones: for example check the header comment, the job `name:` line, the `::warning` line and summary item 3 separately.
+
+## Decisions taken as defaults
+- The boundary guard stays advisory. Codecov gets a token. scripts/README.md is in scope for its one paragraph. .dev/specs/pr-submit-ci-monitor.md mentions quick-check.yml (lines 18 and 28); it is a historical spec and is not edited; list it as an accepted leftover.
+
+## Noticed, not in scope
+- The Augment review bot said GitHub evaluates path filters against only the first 300 changed files, while the header comment in contract3-generator-constraint-lint.yml says 3,000. Do not add a task; raise it to me as a question after verifying against current GitHub docs.
+```
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/boundary-guard.yml:1-98 (read it yourself; lines 19-20 header, 37 job name, 50 ::warning, 66-67 summary item 3, 76 git diff)
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/pull-sync-framework.yml:1-112 (11-12 permissions, 85-112 Commit and Push Changes)
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/test.yml:42-48 (Upload coverage to Codecov)
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/scripts/README.md:1-39 (publish-pypi text at 3, 5-14, 16-28, 39)
+
+### /config/workspace/IronClaude/.dev/worktrees/ci-followup/src/superclaude/pr_submit/ci.py:19,70-77 (_HUMAN_NAME = "boundary")
+
+## Coverage slice
+
+Rows in /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/artifacts/coverage-matrix.yaml. Unmapped (containment < 0.6): INF-001, INF-003, INF-037, INF-040, INF-041, INF-042, INF-045. You own every row; verify matched rows are genuinely covered, not just lexically.
+
+## Output (your final message is ONLY this YAML)
+
+```yaml
+reviewer_id: <n>
+persona: <persona>
+model_class: <class>
+findings:
+  - id: R<n>-<k>
+    kind: coverage_gap | lexical_miss_confirmed | scope_creep | ordering | ambiguity | unworkable_check | card_claim_rejected | other
+    severity: high | medium | low
+    tasks: [<Task numbers or CON-n>]
+    claim: <one or two sentences>
+    evidence: [<file:line you Read>, ...]
+    card_ref: <C1..C9 or null>
+    recommendation: <concrete change to the tasklist>
+    confidence: <0.00-1.00>
+unmapped_row_verdicts:
+  - {row: INF-001, verdict: covered | partial | gap, where: <Task/CON or null>}
+overall_verdict: ready | ready_with_notes | not_ready
+self_confidence: <0.00-1.00>
+self_audit: <what you checked, required if findings is empty>
+```

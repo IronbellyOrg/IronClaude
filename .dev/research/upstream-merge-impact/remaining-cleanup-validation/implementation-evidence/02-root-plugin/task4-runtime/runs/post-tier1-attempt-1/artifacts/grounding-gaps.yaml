@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "GG-1",
+      "hunk_ref": "tests/test_greeting.py:1-13 (T-103/R-003; no hunk in changes.patch)",
+      "evidence_missing": "changes.patch has no tests/ hunk; file is untracked and outside --scope src; provenance and test results not supplied",
+      "why_not_classifiable": "inputs cannot distinguish an incomplete diff (no deviation) from an unmet T-103 (Drift/Regression candidate)",
+      "next_evidence_needed": "diff or git provenance including tests/test_greeting.py, plus a pytest run from project root",
+      "owner": "user",
+      "decision_needed_by_user": true
+    },
+    {
+      "id": "GG-2",
+      "hunk_ref": "src/greeting.py:1-4; tests/test_greeting.py:1-13 (R-001..R-003)",
+      "evidence_missing": "verification triangle unavailable (Serena execute_shell_command not exposed); no --task-log",
+      "why_not_classifiable": "\u00a710.4 Regression detection degraded to static reading; pass/fail state unknown",
+      "next_evidence_needed": "pytest run (python -m pytest and plain pytest) from project root, or a --task-log with results",
+      "owner": "user",
+      "decision_needed_by_user": false
+    }
+  ]
+}

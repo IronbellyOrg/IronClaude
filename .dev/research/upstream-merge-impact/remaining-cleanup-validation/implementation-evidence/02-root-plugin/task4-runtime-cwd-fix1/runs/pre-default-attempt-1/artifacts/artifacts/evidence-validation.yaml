@@ -1,0 +1,21 @@
+# Wave 5 evidence gate, persisted from the sc:evidence-validator return (agent wrote no files).
+validator_agent: sc:evidence-validator
+requested_slot: haiku
+reported_model: grok-4.7[1m]
+agent_id: a8924fca72cec429f
+draft_path: REPORT.draft.md
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+citations_total: 16          # validator's distinct count; draft header said 13 (omitted proposed.md:3/6/9) -> corrected
+citations_revalidated: 16
+citations_dropped: 0
+zero_drop_flag: true         # §11.2: zero-drop pass is audit-flagged, not treated as clean proof
+kept: ["spec.md:5-6","proposed.md:3-4","spec.md:8-9","proposed.md:6-7","spec.md:11-12","proposed.md:9-10","spec.md:6","spec.md:9","spec.md:12","spec.md:3","proposed.md:4","proposed.md:7","proposed.md:10","proposed.md:3","proposed.md:6","proposed.md:9"]
+dropped: []
+downgrades_applied:
+  - {claim: K-001, action: "tagged [INFERRED] — 'satisfiable with a wrong string' not entailed by cited lines"}
+  - {claim: K-002, action: "retargeted: literal source spec.md:6, ValueError source spec.md:9 (spec.md:12 only requires exercising both cases)"}
+orchestrator_corrections:
+  - "Validator stated spec.md ends at line 13 / proposed.md at 11; wc -l shows 12 / 10. No verdict depends on it (all ranges end <= line 12)."
+  - "Calibrator-found off-by-one (card R-003 span 11-13) corrected to 11-12 in REPORT.md."
+recompute: "No INF rows existed or were dropped; coverage_pct_union / unmapped_requirements_union / S_dev_density unchanged."

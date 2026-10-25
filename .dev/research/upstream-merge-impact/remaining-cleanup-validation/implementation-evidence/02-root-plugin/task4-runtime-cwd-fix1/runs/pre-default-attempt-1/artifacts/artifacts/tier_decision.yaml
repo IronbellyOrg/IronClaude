@@ -1,0 +1,26 @@
+selected_tier: 1
+fired_rule_number: 2
+coverage_degraded: null          # inferred_count 0 <= parsed_count 3
+coverage_undefined: false
+surface_unreached: null          # UC-1: runtime-surface sweep not applicable
+inputs:
+  C: 0.90                        # independent blind calibration (opus slot)
+  S_scope: 3                     # UC-1 tasklist-item count
+  S_domains: 2                   # conservative: planned work spans code (greet) + tests; input files themselves are docs only (would be 1)
+  S_dev_density: 0.0             # 0 unmapped / 3 union requirements; missing_implementations=0 (FR-1 not run: Serena absent)
+  coverage_pct: 1.0
+  coverage_floor: 0.90
+rule_evaluation:
+  rule_1: "no — S_domains==1 required; recorded S_domains=2 (conservative)"
+  rule_2: "YES — C 0.90>=0.85, S_scope 3<=10, S_domains 2<=2, S_dev_density 0.0<=0.10, no pre-filters -> STOP at T1 (no WARN: density <=0.05)"
+overrides: none                  # --tier auto, --depth standard
+composite_score: 1.5             # recording only
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0.5
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1           # literal/assertion under-specification + whitespace policy
+escalation_reason: "No escalation: calibrated C at 0.90, narrow 3-task scope, full ID coverage, zero unmapped requirements."
+t2_model_class_diversity: full   # would-be T2 pool (3 distinct aliases); T2 not reached
+t2_vendor_diversity: multi

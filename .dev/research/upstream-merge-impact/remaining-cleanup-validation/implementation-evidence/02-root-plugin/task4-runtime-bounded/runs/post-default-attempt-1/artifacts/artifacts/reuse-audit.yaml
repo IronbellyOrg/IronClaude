@@ -1,0 +1,22 @@
+# Persisted by orchestrator from Task(sc:reuse-auditor); requested slot sonnet, returned model claude-sonnet-5-5[1m] (self-report); agentId a306d3c1e5b7e26bf
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+neighbour_search_degraded: true
+sampled: false
+findings:
+  - candidate: "src/greeting.py::greet"
+    candidate_ref: "src/greeting.py:1-4"
+    capability_tag: "format a greeting string from a name, with a non-empty guard that raises ValueError"
+    neighbours: []
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    confidence: 0.9
+    tier: distinct
+    verdict: distinct
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    note: "only non-test source file in the project is the candidate itself; findings capped at advisory L2 (degraded)"

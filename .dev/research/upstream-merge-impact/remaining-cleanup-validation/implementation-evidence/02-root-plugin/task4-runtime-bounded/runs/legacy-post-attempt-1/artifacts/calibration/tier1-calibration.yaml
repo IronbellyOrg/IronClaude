@@ -1,0 +1,28 @@
+# Wave 1D — persisted verbatim-in-substance from sc:confidence-calibrator return (agent_id af9809d6680d85488)
+calibrator: sc:confidence-calibrator
+requested_model_slot: opus            # env-resolved alias claude-opus-5-5[1m]
+actual_returned_provider_model: not surfaced by the Agent tool result (unverified)
+card_author_model_slot: sonnet        # env-resolved alias claude-sonnet-5-5[1m]
+reviewer_model_classes: [sonnet]
+calibrator_model_class: opus
+calibrator_diversity: full            # opus not in {sonnet}
+calibration: independent-agent        # NOT inline-fallback
+formation_context_supplied: false
+citation_spot_checks_performed: 30
+citation_spot_checks_supporting: 30
+citation_spot_check_caveats:
+  - "'file glob of fixtures/project' is not a file:line anchor; calibrator confirmed absence of src/__init__.py, tests/__init__.py, conftest.py, tests/conftest.py, pyproject.toml, pytest.ini, setup.cfg by Read probes only (tox.ini etc. unverified)"
+  - "R-2 sub-premise 'None would otherwise raise TypeError' is uncited and inaccurate (f-string would return 'Hello, None!')"
+  - "REC-1 links GG-1/GG-2 but card grounding_gaps lacked ids"
+scores:
+  citation_grounding: 0.93
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.93
+  risk_surface_coverage: 0.88
+  recommendation_actionability: 0.88
+arithmetic_mean_unrounded: 0.914
+calibrated_confidence: 0.914
+self_reported_confidence_ignored: 0.8
+concerns:
+  - "No pass/fail evidence exists; all 'satisfied' verdicts rest on static inspection."
+  - "Card does not surface degraded grounding (serena/auggie unavailable; cross_task_scan/reuse_sweep not run) as audit-quality risk."

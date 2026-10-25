@@ -1,0 +1,407 @@
+=================== variant-1-original
+# Returned by Agent sc:reflect-reviewer (model slot sonnet), agentId aa979921928317098; persisted verbatim by orchestrator.
+# Citations are relative to the reviewer snapshot root (reviewer-snapshot/root), which mirrors the fixture project paths.
+reviewer_id: reviewer-1
+persona: analyzer
+model_class: sonnet
+findings:
+  - id: F-1
+    location: "src/greeting.py:2-3"
+    mapped_task: T-102
+    spec_ref: "spec.md:9 (R-002)"
+    class: none
+    rationale: >
+      The T1 card's DEV-1 is not a deviation. Under the taxonomy, Drift needs a change that maps to NO tasklist item.
+      This change maps to T-102 (completed.md:7) and implements R-002.
+      `if not name: raise ValueError` rejects "" as R-002 requires, so it conforms.
+      It also rejects None, 0, False and [], but R-002 does not forbid that.
+      No acceptance criterion or invariant is contradicted, so it is not a Regression.
+      Whitespace-only names are accepted, and R-002 does not require rejecting them. DEV-1 downgraded from Drift to none.
+    evidence: ["src/greeting.py:2-3", "changes.patch:7-8", "spec.md:8-9", "completed.md:7"]
+  - id: F-2
+    location: "src/greeting.py:4"
+    mapped_task: T-101
+    spec_ref: "spec.md:6 (R-001)"
+    class: none
+    rationale: 'f"Hello, {name}!" yields exactly "Hello, Ada!" for "Ada". Conformant, mapped.'
+    evidence: ["src/greeting.py:4", "changes.patch:8", "spec.md:6"]
+  - id: F-3
+    location: "tests/test_greeting.py:1-13"
+    mapped_task: T-103
+    spec_ref: "spec.md:12 (R-003)"
+    class: none
+    rationale: >
+      test_ordinary and test_empty cover both R-003 cases. Absence from changes.patch is an evidence-scope matter,
+      not a deviation. Passing behavior is still unobserved, since no verification ran.
+    evidence: ["tests/test_greeting.py:4-13", "spec.md:12", "completed.md:8", "execution.log:4"]
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+grounding_gaps:
+  - hunk_ref: "tests/test_greeting.py (not in changes.patch)"
+    evidence_missing: "No execution or verification results (execution.log:5); file outside the diff."
+    why_not_classifiable: "Static reading shows tests cover R-003 but pass/fail is unobserved. Not a deviation."
+    next_evidence_needed: "Run pytest from the project root, or include tests/ in the diff scope."
+    owner: user
+    decision_needed_by_user: false
+  - hunk_ref: "tests/test_greeting.py:1 (from src.greeting import greet)"
+    evidence_missing: "[INFERRED] No __init__.py/conftest/pytest config visible (from T1 card; not Globbed)."
+    why_not_classifiable: "Import resolution depends on run directory."
+    next_evidence_needed: "Run from the project root, or add pythonpath config."
+    owner: reviewer
+    decision_needed_by_user: false
+regression_present: false
+verdict_summary: "No deviations. T-101/T-102/T-103 map to conformant changes; DEV-1 Drift label rejected (maps to T-102, no contradiction of R-002). Residual: unobserved test execution and unconfirmed import path, both grounding gaps."
+recommendations:
+  - {id: REC-1, file: "tier1-card.yaml", change: "Remove DEV-1 or reclassify as none; optional informational note on non-string falsy rejection", verifier: orchestrator, priority: low}
+  - {id: REC-2, file: "tests/test_greeting.py", change: "Run pytest from the project root to confirm tests pass and import resolves", verifier: pytest, priority: medium}
+self_reported_confidence: 0.82
+inferred_claims:
+  - "Namespace-package import resolution of src.greeting is inferred, not verified."
+  - "The tests would pass (judged from reading only)."
+calibration:   # Wave 3C blind calibration, Agent sc:confidence-calibrator (opus), agentId a823f4d50c2efcbcc
+  dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.88, deviation_classification_clarity: 0.90, risk_surface_coverage: 0.78, recommendation_actionability: 0.85}
+  calibrated_confidence: 0.85   # unrounded 0.852
+  calibrator_model_class: opus
+  notes: ["spot_check_not_performed"]
+=================== variant-2-original
+# Returned by Agent sc:reflect-reviewer (model slot haiku -> grok-4.7), agentId a023d714e01433eca; persisted verbatim by orchestrator.
+# Citations are relative to the reviewer snapshot root (reviewer-snapshot/root), which mirrors the fixture project paths.
+reviewer_id: reviewer-2
+persona: qa
+model_class: haiku-slot
+findings:
+  - id: F-001
+    location: "src/greeting.py:4"
+    mapped_task: T-101
+    spec_ref: "spec.md:6"
+    class: none
+    rationale: "Static acceptance only. greet(\"Ada\") takes the return at src/greeting.py:4; the f-string is the exact R-001 text Hello, Ada!. Mapped to T-101 (completed.md:6), present in diff (changes.patch:6-9). Runtime pass unobserved (execution.log:5)."
+    evidence: ["src/greeting.py:1-4", "changes.patch:6-9", "spec.md:5-6", "completed.md:6", "execution.log:2", "execution.log:5"]
+  - id: F-002
+    location: "src/greeting.py:2"
+    mapped_task: T-102
+    spec_ref: "spec.md:9"
+    class: none
+    rationale: "Reclassification of T1 DEV-1. \"\" is falsy so src/greeting.py:2-3 raises ValueError(\"name required\"), satisfying spec.md:9; it is the T-102 change (changes.patch:7-8, completed.md:7). Drift does not apply (mapped). Not a regression: no criterion requires TypeError, rejection of only \"\", or rejection of whitespace. A conformant mapped change is not a deviation."
+    evidence: ["src/greeting.py:2-3", "changes.patch:7-8", "spec.md:8-9", "completed.md:7", "execution.log:3"]
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+grounding_gaps:
+  - hunk_ref: "T-103 / R-003: tests/test_greeting.py (whole file)"
+    evidence_missing: "changes.patch:1-9 adds only src/greeting.py. tests/test_greeting.py is on disk (tests/test_greeting.py:4-5 ordinary; 8-13 empty->ValueError) but outside the supplied diff. execution.log:5 claims no execution; verification unavailable. completed.md:2 status done and completed.md:8 checked without an execution record."
+    why_not_classifiable: "Evidence-insufficient: diff membership of the required T-103 deliverable cannot be shown from changes.patch, and passing behavior was not observed."
+    next_evidence_needed: "Include tests/test_greeting.py in the audited diff or scope and run the suite."
+    owner: user
+    decision_needed_by_user: true
+  - hunk_ref: "tests/test_greeting.py:1 (from src.greeting import greet)"
+    evidence_missing: "Snapshot contains no src/__init__.py, tests/__init__.py, conftest.py, or pytest/pythonpath config."
+    why_not_classifiable: "[INFERRED] Importability under plain pytest cannot be decided by reading; failure not observed, so not a regression."
+    next_evidence_needed: "Run the tests from the project root, or add a pythonpath / package marker."
+    owner: reviewer
+    decision_needed_by_user: false
+regression_present: false
+verdict_summary: "R-001/R-002 statically conformant mapped changes (none). DEV-1 Drift rejected. R-003 not accepted, not a clean ship: tests exist but are outside changes.patch and never executed -> grounding gap. No regression. completed.md:2 status done unverified."
+recommendations:
+  - {id: REC-1, file: "tests/test_greeting.py", change: "Bring into audited diff/scope and execute; do not treat completed.md status done as R-003 acceptance", verifier: "Recorded run from project root collecting test_ordinary and test_empty, exit 0 (or captured failure)", priority: high}
+  - {id: REC-2, file: "src/greeting.py:2", change: "No acceptance change required; optionally amend R-002 or narrow guard and add None/0/whitespace tests", verifier: "Spec text or new tests", priority: low}
+  - {id: REC-3, file: "tests/test_greeting.py:1", change: "Make src.greeting importable without implicit sys.path", verifier: "Plain pytest collects without ImportError", priority: medium}
+self_reported_confidence: 0.78
+inferred_claims:
+  - "[INFERRED] R-001 and R-002 hold at runtime; static reading only."
+  - "[INFERRED] `if not name` also raises ValueError for None, 0, False, empty containers; not executed."
+  - "[INFERRED] `from src.greeting import greet` resolves only when the project root is on sys.path."
+calibration:   # Wave 3C blind calibration, Agent sc:confidence-calibrator (opus), agentId a655e0daf2829a8bd
+  dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.88, deviation_classification_clarity: 0.90, risk_surface_coverage: 0.85, recommendation_actionability: 0.88}
+  calibrated_confidence: 0.87   # unrounded 0.872
+  calibrator_model_class: opus
+  notes: ["spot_check_not_performed"]
+=================== variant-3-original
+# Returned by Agent sc:reflect-reviewer (model slot opus), agentId afb9feb7b338cf0ad; persisted verbatim by orchestrator.
+# Citations are relative to the reviewer snapshot root (reviewer-snapshot/root), which mirrors the fixture project paths.
+reviewer_id: reviewer-3
+persona: refactorer
+model_class: opus
+findings:
+  - id: R3-F1
+    location: "src/greeting.py:2; changes.patch:7"
+    mapped_task: T-102
+    spec_ref: "spec.md:9"
+    class: none
+    rationale: >-
+      Reclassifies T1 DEV-1 (Drift) as a conforming change. `if not name:` (src/greeting.py:2, changes.patch:7) maps to
+      T-102 (completed.md:7) implementing R-002 (spec.md:9); raises ValueError on "" (src/greeting.py:3). Drift requires an
+      unmapped change; it is mapped. No rule broken: R-002 is silent on None/0/False/[]/whitespace. The wider falsy rejection
+      and whitespace acceptance are an advisory guard-meaning gap, not a deviation class.
+    evidence: ["src/greeting.py:2", "src/greeting.py:3", "changes.patch:7", "spec.md:9", "completed.md:7"]
+  - id: R3-F2
+    location: "src/greeting.py:4"
+    mapped_task: T-101
+    spec_ref: "spec.md:6"
+    class: none
+    rationale: "f\"Hello, {name}!\" gives exactly 'Hello, Ada!' for 'Ada' as R-001 requires."
+    evidence: ["src/greeting.py:4", "changes.patch:9", "spec.md:6", "completed.md:6"]
+  - id: R3-F3
+    location: "tests/test_greeting.py:4-13"
+    mapped_task: T-103
+    spec_ref: "spec.md:12"
+    class: none
+    rationale: >-
+      test_ordinary (line 5) and test_empty (lines 8-13) cover both R-003 cases in content; not in changes.patch and never
+      run (execution.log:5). try/except/return is weaker than pytest.raises (structural note, not a deviation).
+    evidence: ["tests/test_greeting.py:5", "tests/test_greeting.py:8-13", "execution.log:5", "spec.md:12", "completed.md:8"]
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+grounding_gaps:
+  - hunk_ref: "tests/test_greeting.py:1-13 (outside changes.patch)"
+    evidence_missing: "Any test-run result; execution.log:5 says none were run; verification NOT AVAILABLE."
+    why_not_classifiable: "Contents meet R-003 but pass/collection cannot be checked by reading."
+    next_evidence_needed: "`python -m pytest` from the project root: exit 0 with 2 tests collected"
+    owner: orchestrator
+    decision_needed_by_user: false
+  - hunk_ref: "tests/test_greeting.py:1 (`from src.greeting import greet`)"
+    evidence_missing: "No src/__init__.py, conftest.py, pytest.ini or pyproject.toml in the snapshot (Glob lists 11 files)."
+    why_not_classifiable: "No importability requirement in spec -> structural risk, not deviation. [INFERRED] Default rootdir-prepend puts tests/ on sys.path; plain pytest may ImportError; python -m pytest from root should work (namespace package)."
+    next_evidence_needed: "Plain `pytest` collection output, or add src/__init__.py / `pythonpath = .`"
+    owner: orchestrator
+    decision_needed_by_user: false
+regression_present: false
+verdict_summary: "No deviations (0/0/0/0). T-101/T-102 conform; DEV-1 reclassified Drift->none. T-103 meets R-003 in content but has no execution evidence; import setup fragile. Calling this verified clean would be a false PASS on R-003. completed.md:2 status done without an executed check."
+advisory_correctness_gaps:
+  - {id: CG-1, gap: "Falsy non-strings raise ValueError while whitespace-only strings pass and produce 'Hello,    !'", location: "src/greeting.py:2", evidence: ["src/greeting.py:2", "spec.md:9"], gating: false}
+recommendations:
+  - {id: REC-1, file: "tests/test_greeting.py + audit scope", change: "Bring tests/ into audited diff/scope, run `python -m pytest` from project root", verifier: "pytest exit 0 with 2 tests collected", priority: high}
+  - {id: REC-2, file: "project root", change: "Make src importable explicitly (src/__init__.py or pythonpath = .)", verifier: "Plain pytest collects without ImportError", priority: medium}
+  - {id: REC-3, file: "spec.md:9 / src/greeting.py:2", change: "Decide R-002 scope: document falsy/whitespace rejection or narrow guard to name == \"\"", verifier: "Spec amendment plus None/0/whitespace tests", priority: low}
+  - {id: REC-4, file: "tests/test_greeting.py:8-13", change: "Replace try/except/return with pytest.raises(ValueError)", verifier: "test_empty passes and fails if guard removed", priority: low}
+self_reported_confidence: 0.85
+inferred_claims:
+  - "[INFERRED] Plain pytest (rootdir-prepend) may fail to import src.greeting; not run."
+  - "[INFERRED] Both tests would pass under python -m pytest from root; not run."
+calibration:   # Wave 3C blind calibration, Agent sc:confidence-calibrator (sonnet), agentId a566e30c28767cd7a
+  dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.80, recommendation_actionability: 0.92}
+  calibrated_confidence: 0.82   # unrounded 0.824
+  calibrator_model_class: sonnet
+  notes: ["spot_check_not_performed"]
+=================== diff-analysis
+# Diff Analysis: Tier-2 Reflection Reviewer Card Comparison (UC-2 post-execution deviation audit)
+
+## Metadata
+- Generated: 2026-10-25T00:00:00Z
+- Pipeline: sc:sc-adversarial-protocol Mode A, Step 1 only (--depth standard, --focus correctness,coverage,deviation-classification)
+- Variants compared: 3
+  - V1 = variant-1-original.md (reviewer-1, analyzer, sonnet, calibrated 0.85)
+  - V2 = variant-2-original.md (reviewer-2, qa, haiku-slot, calibrated 0.87)
+  - V3 = variant-3-original.md (reviewer-3, refactorer, opus, calibrated 0.82)
+- Unit of comparison: top-level YAML keys plus per-finding, per-grounding-gap, per-recommendation and per-advisory-gap entries
+- Total differences found: 37 (S 8 + C 10 + X 6 + U 7, with 6 [SHARED-ASSUMPTION] points added separately)
+- Categories: structural (8), content (10), contradictions (6), unique (7), shared assumptions (6 promoted)
+- total_diff_points (S+C+X+A, convergence denominator): 30
+- Orchestrator stance: neutral. No variant is endorsed. Severity ratings describe how much each point affects the final reflection verdict, not which variant is right.
+
+## Structural Differences
+
+| # | Area | V1 | V2 | V3 | Severity | Taxonomy |
+|---|------|----|----|----|----------|----------|
+| S-001 | Top-level key set | 13 keys. No `advisory_correctness_gaps` | 13 keys. No `advisory_correctness_gaps` | 14 keys. Adds `advisory_correctness_gaps` (CG-1, `gating: false`) | Medium | L2 |
+| S-002 | Coverage of findings per task | 3 findings: T-102 (F-1), T-101 (F-2), T-103 (F-3) | 2 findings: T-101 (F-001), T-102 (F-002). T-103 has **no finding** and appears only as grounding gap 1 | 3 findings: T-102 (R3-F1), T-101 (R3-F2), T-103 (R3-F3) | High | L2 |
+| S-003 | Finding ID naming convention | `F-1..F-3` | `F-001..F-002` | `R3-F1..R3-F3` | Low | L1 |
+| S-004 | Recommendation count and ordering | 2 RECs. Leads with the tier1-card edit (low), then the test run (medium) | 3 RECs. Leads with the test run (high) | 4 RECs. Leads with the test run (high) | Low | L2 |
+| S-005 | Formatting of citation fields | `spec_ref` carries the R-ID label ("spec.md:9 (R-002)"). Location is a single ref | `spec_ref` has a bare line number ("spec.md:9") | Bare `spec_ref`. Location can hold several refs ("src/greeting.py:2; changes.patch:7") | Low | L1 |
+| S-006 | Calibrator model class | opus | opus | sonnet | Medium | L2 |
+| S-007 | Model-slot provenance header | sonnet slot | Header says "model slot haiku -> grok-4.7". `model_class: haiku-slot` | opus slot | Medium | L2 |
+| S-008 | `inferred_claims` formatting | 2 claims with **no** `[INFERRED]` prefix | 3 claims, all prefixed `[INFERRED]` | 2 claims, all prefixed `[INFERRED]` | Low | L1 |
+
+## Content Differences
+
+| # | Topic | V1 Approach | V2 Approach | V3 Approach | Severity | Taxonomy |
+|---|-------|-------------|-------------|-------------|----------|----------|
+| C-001 | Static-only caveat on R-001/R-002 acceptance | Accepts T-101/T-102 as conformant. No runtime caveat on those two | "Static acceptance only ... Runtime pass unobserved (execution.log:5)". Inferred claim: "R-001 and R-002 hold at runtime; static reading only" | Accepts T-101/T-102 as conformant. No runtime caveat on those two | Medium | L2 |
+| C-002 | How the falsy guard's breadth is handled (`if not name` also rejects None/0/False/[]) | Covered in the F-1 rationale. Only follow-up is REC-1: an "optional informational note on non-string falsy rejection" in the tier1 card | REC-2 (low): "optionally amend R-002 or narrow guard and add None/0/whitespace tests" | Separate advisory gap CG-1 (`gating: false`) plus REC-3 (low): "Decide R-002 scope: document falsy/whitespace rejection or narrow guard to name == \"\"" | Medium | L3 |
+| C-003 | Whitespace-only input boundary | "Whitespace-only names are accepted, and R-002 does not require rejecting them" | "no criterion requires ... rejection of whitespace". Proposes whitespace tests | Gives the concrete output: whitespace strings "produce 'Hello,    !'" | Low | L3 |
+| C-004 | How the package-marker claim was verified (gap 2) | "[INFERRED] No __init__.py/conftest/pytest config visible (from T1 card; **not Globbed**)" | Says "Snapshot contains no src/__init__.py, tests/__init__.py, conftest.py, or pytest/pythonpath config" but does not name the method | "No src/__init__.py, conftest.py, pytest.ini or pyproject.toml in the snapshot (**Glob lists 11 files**)" | High | L2 |
+| C-005 | Treatment of completed.md:2 "status done" | Not mentioned | "completed.md:2 status done unverified". REC-1: "do not treat completed.md status done as R-003 acceptance" | "completed.md:2 status done without an executed check" | Medium | L2 |
+| C-006 | Priority of the test-run recommendation | REC-2 priority **medium** | REC-1 priority **high** | REC-1 priority **high** | Medium | L2 |
+| C-007 | How specific the test-run verifier is | verifier: "pytest" | "Recorded run from project root collecting test_ordinary and test_empty, exit 0 (or captured failure)" | "pytest exit 0 with 2 tests collected" | Low | L2 |
+| C-008 | Owner of gap 2 (import resolution) | reviewer | reviewer | orchestrator | Low | L2 |
+| C-009 | Gap between self-reported and calibrated confidence, and calibrator dimension spread | 0.82 -> 0.85. risk_surface 0.78 is the lowest | 0.78 -> 0.87 (+0.09, largest upward move) | 0.85 -> 0.82 (only downward move). coverage 0.75 and classification 0.80 are the lowest of any card | Low | L2 |
+| C-010 | Next evidence needed for gap 1 (tests) | Either/or: "Run pytest from the project root, **or** include tests/ in the diff scope" | Both: "Include tests/test_greeting.py in the audited diff or scope **and** run the suite" | Run only, with stated pass criteria: "`python -m pytest` from the project root: exit 0 with 2 tests collected". Scope inclusion moves to REC-1 | Medium | L2 |
+
+## Contradictions
+
+| # | Point of Conflict | V1 Position | V2 Position | V3 Position | Impact | Taxonomy |
+|---|-------------------|-------------|-------------|-------------|--------|----------|
+| X-001 | Is R-003/T-103 accepted, and is the outcome a clean ship? | Verdict: "No deviations. T-101/T-102/T-103 map to conformant changes". F-3: "test_ordinary and test_empty cover both R-003 cases" | Verdict: "R-003 not accepted, not a clean ship: tests exist but are outside changes.patch and never executed -> grounding gap" | Verdict: "T-103 meets R-003 in content but has no execution evidence ... Calling this verified clean would be a false PASS on R-003" | High | L2 |
+| X-002 | Can T-103 be classified at all? | F-3 `class: none` ("Absence from changes.patch is an evidence-scope matter, not a deviation"). Note: V1's own gap 1 also carries a `why_not_classifiable` entry, which sits uneasily with F-3 | No T-103 finding. Gap 1: "Evidence-insufficient: diff membership of the required T-103 deliverable cannot be shown from changes.patch, and passing behavior was not observed" | R3-F3 `class: none` ("cover both R-003 cases in content"). Also files gap 1 with `why_not_classifiable` | High | L2 |
+| X-003 | Gap 1 `decision_needed_by_user` | `decision_needed_by_user: false` | `decision_needed_by_user: true` | `decision_needed_by_user: false` | High | L2 |
+| X-004 | Gap 1 `owner` | `owner: user` | `owner: user` | `owner: orchestrator` | Medium | L2 |
+| X-005 | Does running `pytest` from the project root resolve `from src.greeting import greet`? | Gap 2: "Run from the project root, or add pythonpath config". REC-2: "Run pytest from the project root to confirm tests pass and import resolves" | Gap 2: "Run the tests from the project root, or add a pythonpath / package marker". Inferred claim: "resolves only when the project root is on sys.path" | "[INFERRED] Default rootdir-prepend puts tests/ on sys.path; plain pytest may ImportError; python -m pytest from root should work (namespace package)" | Medium | L2 |
+| X-006 | Which changes.patch line holds the `return f"Hello, {name}!"` line (src/greeting.py:4)? | F-2 cites "changes.patch:8". F-1 also cites "changes.patch:7-8" for the guard, so line 8 is used for both the guard/raise and the return | F-001 cites the range "changes.patch:6-9" | R3-F2 cites "changes.patch:9". R3-F1 puts the guard at changes.patch:7 | Medium | L2 |
+
+## Unique Contributions
+
+| # | Variant | Contribution | Value Assessment |
+|---|---------|-------------|-----------------|
+| U-001 | V3 | Advisory correctness gap CG-1, kept separate from deviation classes and marked `gating: false`, with the concrete whitespace output 'Hello,    !' | Medium |
+| U-002 | V3 | REC-4: replace try/except/return in test_empty with `pytest.raises(ValueError)`. Its verifier, "fails if guard removed", suggests the current test may not catch removal of the guard (not verified by the card) | Medium |
+| U-003 | V3 | Separates plain `pytest` (rootdir-prepend, possible ImportError) from `python -m pytest` (namespace package resolves) when collecting from the project root | Medium |
+| U-004 | V3 | First-hand file-inventory evidence ("Glob lists 11 files") behind the package-marker claim | Medium |
+| U-005 | V1 | REC-1 targets the Tier-1 card itself (`tier1-card.yaml`): remove DEV-1 or reclassify it as none, verifier orchestrator | Low |
+| U-006 | V2 | Explicit rule against reading completed.md "status done" as R-003 acceptance. The verifier also accepts "(or captured failure)" as a valid recorded outcome | Medium |
+| U-007 | V2 | Hands the T-103 scope/diff-membership decision to the user (`decision_needed_by_user: true`), making R-003 acceptance a user decision | Medium |
+
+## Shared Assumptions
+
+### Agreement points (all three variants converge)
+- AG-1: DEV-1 is reclassified from Drift to `none` because the change maps to T-102 (completed.md:7) and implements R-002.
+- AG-2: T-101/R-001 conforms (f-string returns exactly "Hello, Ada!").
+- AG-3: `deviation_count_by_class` is 0/0/0/0 and `regression_present: false`.
+- AG-4: tests/test_greeting.py exists on disk, is outside changes.patch, covers both R-003 cases in content, and was never executed (execution.log:5).
+- AG-5: Import resolution of `src.greeting` is a grounding gap, not a deviation or regression. Every card recommends running the tests from the project root as closing evidence.
+- AG-6: The falsy-guard breadth is low priority and does not gate.
+- AG-7: All calibrations carry `spot_check_not_performed`.
+
+### Precondition enumeration
+
+| # | Agreement Source | Assumption | Classification | Promoted |
+|---|------------------|------------|----------------|----------|
+| P-01 | AG-1 | Drift requires a change that maps to no tasklist item | STATED (all three) | No |
+| P-02 | AG-1 | completed.md is an authoritative, faithful proxy for the planned tasklist, so mapping to completed.md:7 equals mapping to the planned T-102 | UNSTATED | A-001 |
+| P-03 | AG-1 / AG-6 | A mapped change whose guard rejects more inputs than the spec literally requires is class `none`, not Authorized expansion (the cards never consider the expansion class) | UNSTATED | A-002 |
+| P-04 | AG-1 | spec.md:9 is the full text of R-002 | STATED ("R-002 is silent", "no criterion requires") | No |
+| P-05 | AG-2 / AG-3 | spec.md lists the complete requirement set (R-001..R-003) and there is no implicit invariant or type contract on `name` | UNSTATED | A-003 |
+| P-06 | AG-2 / AG-3 | Static reading is enough for a `none` class without execution | STATED (V2 caveat, V1/V3 inferred_claims for tests) | No |
+| P-07 | AG-3 | A regression needs an observed broken criterion; unobserved failure is not a regression | STATED (V2 gap 2: "failure not observed, so not a regression") | No |
+| P-08 | AG-4 | execution.log:5 is a complete record (no out-of-band test run took place) | STATED (all cite execution.log:5) | No |
+| P-09 | AG-4 | tests/test_greeting.py on disk is the T-103 deliverable produced by this execution, not a pre-existing or externally modified file | UNSTATED (V2 questions diff membership but not provenance) | A-004 |
+| P-10 | AG-1..AG-4 | The reviewer snapshot's file contents match the audited post-execution working tree byte for byte (the header only says it "mirrors the fixture project paths") | UNSTATED | A-005 |
+| P-11 | AG-5 | Running from the project root is enough for import resolution | CONTRADICTED (V3 inference that plain pytest may ImportError conflicts with V1/V2; see X-005) | No (flagged for debate) |
+| P-12 | AG-6 | No caller of greet() passes non-string values or relies on non-ValueError behavior for falsy non-strings, so the guard's breadth is safe to leave non-gating | UNSTATED | A-006 |
+| P-13 | AG-7 | Calibrated confidence without a spot check is good enough for weighting | STATED (notes field) | No |
+
+### Promoted [SHARED-ASSUMPTION] diff points
+
+| A-NNN | Assumption | Source Agreement | Impact | Status | Taxonomy |
+|-------|-----------|------------------|--------|--------|----------|
+| A-001 | [SHARED-ASSUMPTION] completed.md is an authoritative, faithful proxy for the planned tasklist, so a change mapped to completed.md:7 is mapped to the planned T-102 | AG-1 | Medium | UNSTATED, promoted | L2 |
+| A-002 | [SHARED-ASSUMPTION] A mapped change whose guard rejects a wider input set (None/0/False/[]) than the spec literally requires is class `none` rather than Authorized expansion. The taxonomy boundary between "conformant" and "expansion" is assumed, never argued | AG-1, AG-6 | Medium | UNSTATED, promoted | L3 |
+| A-003 | [SHARED-ASSUMPTION] spec.md lists the complete requirement set (R-001..R-003) and there is no implicit invariant or type contract on `name` that the falsy guard could violate | AG-2, AG-3 | Medium | UNSTATED, promoted | L3 |
+| A-004 | [SHARED-ASSUMPTION] tests/test_greeting.py on disk is the T-103 deliverable produced by this execution, not a pre-existing or externally modified file, even though it is outside changes.patch | AG-4 | High | UNSTATED, promoted | L2 |
+| A-005 | [SHARED-ASSUMPTION] The reviewer snapshot's file contents are byte-identical to the audited post-execution working-tree state (the header only claims path mirroring) | AG-1..AG-4 | Medium | UNSTATED, promoted | L3 |
+| A-006 | [SHARED-ASSUMPTION] No caller of greet() passes non-string values or relies on non-ValueError behavior for falsy non-strings, so the guard's breadth can stay non-gating | AG-6 | Low | UNSTATED, promoted | L3 |
+
+CONTRADICTED precondition flagged for debate: P-11 (overlaps X-005).
+
+## Taxonomy Tagging Summary
+- L1 surface: S-003, S-005, S-008
+- L2 structural: S-001, S-002, S-004, S-006, S-007, C-001, C-004, C-005, C-006, C-007, C-008, C-009, C-010, X-001, X-002, X-003, X-004, X-005, X-006, A-001, A-004
+- L3 state-mechanics: C-002, C-003, A-002, A-003, A-005, A-006
+- Rule applied: guard/boundary/validation/invariant/state signal terms -> L3; L3 > L2 > L1; default L2. Every point carries exactly one level. L3 coverage is non-empty, so state-mechanics debate cannot be bypassed.
+
+## Similarity Check
+- Comparable items counted: 37 (14 top-level keys, 3 per-task finding slots, 2 grounding gaps x 6 fields = 12, 6 distinct recommendation intents, 2 calibration fields: model and calibrated value).
+- Differences on those items (S + C + X): 24, about 65%.
+- Threshold: <10%. **Not met. The variants are not substantially identical. Debate should proceed (Steps 2-3).**
+
+## Load-bearing points for the final reflection verdict (orchestrator note, neutral)
+- X-001 / X-002: whether R-003 is "satisfied in content" (V1, V3) or "not accepted / unclassifiable" (V2). V3 sits in between ("meets in content", but "false PASS" if called verified clean).
+- X-003 / X-004: gap 1 `decision_needed_by_user` (V2 true; V1, V3 false) and `owner` (user vs orchestrator). This decides whether the final report needs a user decision.
+- C-004: first-hand verification of the package-marker claim. V1 states it did not Glob and relied on the T1 card. V3 Globbed (11 files). V2 asserts contents without naming a method.
+- S-001 / U-001: the advisory correctness gap (CG-1) appears only in V3. C-002 shows that V1 and V2 relegate the same guard-breadth observation to low-priority REC text.
+- C-010: whether closing evidence for gap 1 is "run OR scope" (V1), "scope AND run" (V2), or "run with explicit pass criteria" (V3).
+
+## Summary
+- Total structural differences: 8
+- Total content differences: 10
+- Total contradictions: 6
+- Total unique contributions: 7
+- Total shared assumptions surfaced: 13 preconditions (UNSTATED: 6 promoted as A-001..A-006, STATED: 6, CONTRADICTED: 1)
+- total_diff_points (S+C+X+A): 30
+- Highest-severity items: S-002, C-004, X-001, X-002, X-003, A-004
+- Similarity verdict: ~65% differing (> 10%), so debate proceeds
+=================== round-1-statements
+# Round 1: Advocate Statements (parallel)
+
+Advocates: general-purpose Task workers, model opus (Mode A default: current model, no persona). agentIds: V1 a528a6763302809d9, V2 a9ce19a4552a50e39, V3 a0a5dbddb0cd64400.
+Persistence note: position summaries, concessions, shared-assumption responses and per-point tables are recorded in full; steelman/strength/weakness sections are condensed by the caller to their claims and cited evidence (condensation is labelled, no claims added).
+
+## Variant 1 Advocate (opus)
+**Position summary:** V1 gets the core classification right (DEV-1 Drift -> none, maps to T-102 completed.md:7; 0/0/0/0), and is the only card with a corrective REC-1 for the Tier-1 card. On evidence it is weaker than V3, and sometimes V2: wrong patch citation, likely-failing test command, unverified package-marker claim, and verdict wording that reads as acceptance of R-003.
+**Steelman V2 (condensed):** evidence discipline. No execution (execution.log:5), test file outside changes.patch:1-9, T1 marked R-003 unproven, so `class: none` on T-103 is unsupported and a grounding gap with decision_needed_by_user: true is the protocol route. Also right: the static-only caveat, the completed.md:2 non-acceptance rule, [INFERRED] prefixes, high-priority test run.
+**Steelman V3 (condensed):** precision. Correct line cites (return changes.patch:9, guard :7), first-hand Glob (11 files), plain pytest vs python -m pytest, CG-1 gating:false, whitespace output, and the "in content ... false PASS" nuance.
+**Weaknesses identified (condensed):** V2: no T-103 finding (S-002); vague "run from root"; range citation; haiku-slot vs grok label mismatch. V3: REC-4 premise false (without the guard, greet("") returns "Hello, !" and tests/test_greeting.py:13 raises AssertionError); gap-1 owner orchestrator / decision false despite scope being a user call; T-103 none+gap tension.
+**Concessions:** (1) X-006 V1's changes.patch:8 is wrong; the return is :9. (2) X-005 V1's REC-2 "run pytest from root" likely gives ModuleNotFoundError; python -m pytest should work [inferred]. (3) C-004 V1 did not Glob. (4) X-001 V1's verdict reads as R-003 acceptance. (5) X-002 F-3 none conflicts with its own gap 1. (6) C-006 test run should be high. (7) S-004 leading with housekeeping is the wrong order. (8) S-008 no [INFERRED] prefixes. (9) C-005 omits completed.md:2. (10) X-003 decision_needed_by_user:false conflicts with the protocol rule.
+**Shared assumptions:** A-001 QUALIFY (ok for mapping, not acceptance); A-002 QUALIFY (none because breadth is a side effect of T-102, no added scope; CG-1 is the right home); A-003 QUALIFY (holds within the snapshot); A-004 QUALIFY (provenance only via the execution.log:4 self-report; favours a gap for acceptance); A-005 QUALIFY (binding by designation; report as a limitation); A-006 ACCEPT within the snapshot (Grep: only tests call greet, with strings).
+**Per-point:** S-001 V3 | S-002 V3 | S-003 tie | S-004 V2 | S-005 V1 | S-006 tie | S-007 tie | S-008 V2 | C-001 V2 | C-002 V3 | C-003 V3 | C-004 V3 | C-005 V2 | C-006 V2/V3 | C-007 V3 | C-008 V3 | C-009 tie | C-010 V3 | X-001 V3 | X-002 V3 | X-003 V2 | X-004 V1/V2 | X-005 V3 | X-006 V3 | A-001 tie | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 tie
+**Merge recommendation:** V3 as base, plus V2's static caveat, completed.md rule, [INFERRED] prefixes and decision_needed_by_user:true, plus V1's REC-1; downgrade REC-4 to style.
+
+## Variant 2 Advocate (opus)
+**Position summary:** V2 alone handles R-003/T-103 consistently: it routes T-103 to a grounding gap with decision_needed_by_user: true, the taxonomy's requirement, rather than classifying it none and calling it unclassifiable at the same time. It alone scopes the R-001/R-002 acceptance as static. V3 beats V2 on import mechanics, line cites, Glob-backed evidence and the advisory gap; V1 is weakest.
+**Steelman V1 (condensed):** separates content conformance from execution evidence; tests/test_greeting.py:4-13 meets R-003 in content; only V1 cites execution.log:4 provenance; REC-1 is a real pipeline fix. Critique: double-booking F-3 none plus gap; verdict reads as clean ship; not Globbed.
+**Steelman V3 (condensed):** most precise (changes.patch:9, 11 files, prepend-mode import analysis, 'Hello,    !', CG-1, false-PASS warning). Critique: R3-F3 double-booking; gap-1 owner/decision conflicts with its own REC-1 scope request; REC-4 implication wrong (the test already fails at :13 without the guard).
+**Weaknesses identified (condensed):** V1/V3 double-book T-103 (X-002); V1/V3 decision flag inconsistent with the gap rule (X-003); V1 "run OR scope" (C-010); V1 changes.patch:8 wrong (X-006); V1 not Globbed; V1 medium priority; V3 REC-4; V3's calibrator class (sonnet) is lower than its reviewer's (opus).
+**Concessions:** (1) S-002 no T-103 finding row; a pointer finding would be better. (2) S-007 provenance label mismatch. (3) C-004 method of the marker check not stated. (4) X-005 "run from project root" ambiguous; V3 right. (5) X-006 6-9 coarse. (6) A-004 omits execution.log:4 self-reported provenance, which narrows the gap to "diff membership self-reported, not in patch". (7) CG-1 records guard breadth more cleanly.
+**Shared assumptions:** A-001 QUALIFY (mapping yes, acceptance no); A-002 QUALIFY (none, with an advisory gap); A-003 QUALIFY (within-snapshot scope); A-004 QUALIFY (self-reported provenance, needs a user decision); A-005 QUALIFY (state as an assumption, byte-identity not verified); A-006 QUALIFY (within snapshot only).
+**Per-point:** S-001 V3 | S-002 V2 | S-003 tie | S-004 V2 | S-005 V1 | S-006 tie | S-007 V1 | S-008 V2 | C-001 V2 | C-002 V3 | C-003 V3 | C-004 V3 | C-005 V2 | C-006 tie(V2=V3) | C-007 V2 | C-008 V3 | C-009 [OMISSION — no position given] | C-010 V2 | X-001 V2 | X-002 V2 | X-003 V2 | X-004 V2 | X-005 V3 | X-006 V3 | A-001 V2 | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 V3
+
+## Variant 3 Advocate (opus)
+**Position summary:** V3 is strongest on citation accuracy, self-checked evidence and keeping correctness separate from deviation classes (patch :7/:9, 11-file Glob, pytest vs python -m pytest, non-gating CG-1). It is weaker than V2 on T-103/R-003: `none` plus decision_needed_by_user:false is less consistent with the evidence-insufficient -> gap -> human-decision rule. Concedes those points to V2.
+**Steelman V1 (condensed):** simple, correct taxonomy (0/0/0/0); candid about method; REC-1 closes the loop. Critique: changes.patch:8 wrong; verdict implies R-003 pass; "or" closure; owner user with decision false.
+**Steelman V2 (condensed):** strictest protocol application (outside patch, outside --scope src/, never run -> gap, R-003 not accepted, human decides); static-only caveat; completed.md rule. Right on X-002, X-003, C-001, C-005. Critique: drops the T-103 finding; unstated marker method; ambiguous import guidance; coarse cite; model substitution.
+**Concessions:** (1) X-002/X-003/X-004 V2 is more faithful; V3's decision:false and owner orchestrator are wrong; T-103 none+gap tension. (2) C-001 should have marked static-only. (3) C-005 V2 stronger. (4) REC-4/U-002 overstated; the current test already fails without the guard; style only. (5) C-003 'Hello,    !' is correct only for three spaces. (6) REC-1/REC-2 verifiers near-copy the T1 card (less independent).
+**Shared assumptions:** A-001 QUALIFY (only tasklist artifact; say no separate plan was available); A-002 QUALIFY (not expansion if expansion means scope; record CG-1); A-003 ACCEPT (spec.md:1-12 complete, no type contract); A-004 QUALIFY (execution.log:4 self-report; gap stays open for the user); A-005 QUALIFY leaning ACCEPT (input-snapshot.yaml hashes exist; holds if the evidence-validator recomputes); A-006 QUALIFY (within snapshot).
+**Per-point:** S-001 V3 | S-002 V3 | S-003 tie | S-004 V3 | S-005 tie | S-006 tie | S-007 tie | S-008 tie(V2=V3) | C-001 V2 | C-002 V3 | C-003 V3 | C-004 V3 | C-005 V2 | C-006 tie(V2=V3) | C-007 tie | C-008 V3 | C-009 tie | C-010 V2 | X-001 tie(V2≈V3) | X-002 V2 | X-003 V2 | X-004 V2 | X-005 V3 | X-006 V3 | A-001 tie | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 tie
+**Merge recommendation:** V2's T-103/R-003 handling and static caveat; V3's citations, Glob evidence, pytest distinction and CG-1; V1's REC-1.
+
+## Omission check
+- Shared assumptions: all advocates answered A-001..A-006 (no [OMISSION]).
+- Per-point: [OMISSION] V2 advocate gave no position on C-009.
+=================== round-2-rebuttals
+# Round 2: Rebuttals (sequential, input order)
+Persistence note: responses to criticisms, new evidence and per-point tables recorded in full substance; prose condensed by the caller (labelled; no claims added).
+
+## Variant 1 Advocate rebuttal (opus, agentId a8b2448e3d830d098)
+**Responses to criticisms:** X-006 conceded (the return is changes.patch:9; F-1's 7-8 is correct). X-005 conceded (plain pytest in prepend mode puts tests/ on sys.path; python -m pytest adds the cwd; inferred). C-004 conceded on method (has now Globbed: 11 files, no __init__/conftest/pytest.ini/pyproject). X-001 conceded (spec.md:11 "R-003 Evidence"; tier1-card.yaml:24 unproven). X-002 conceded. X-003 conceded and worse: the T1 card had owner user and decision_needed_by_user true (tier1-card.yaml:38-39) and V1 flipped it without reason. C-010 conceded (the T1 card requires both, tier1-card.yaml:37). C-006 conceded. S-008 conceded on format (substance is disclosed).
+**Updated assessment:** V2 is right on every verdict-deciding point (X-001/X-002/X-003/C-001/C-005/C-010), but its gap 1 is near-verbatim from the T1 card (faithful, not independent). V3 leads on citations and its own Glob; its X-002/X-003/X-004 concessions and the REC-4 premise stand.
+**New evidence:** (1) V3's REC-1 verifier, REC-2/REC-3, the plain-vs-module pytest split and the completed.md:2 point are inherited from tier1-card.yaml:49,52,54-56; only its Glob is independent. (2) The T1 card already set gap 1 owner user / decision true (tier1-card.yaml:38-39). (3) execution.log:1 says the log is "not an execution claim about product code", which weakens execution.log:4 as provenance (counts against V1 on A-004). (4) input-snapshot.yaml has per-file hashes incl. tests/test_greeting.py (:15-16, file_count 6 :17) and its note (:3) classes tests/ as "evidence files read", not scoped change; this lets the evidence-validator check A-005. (5) reuse-audit.yaml:14 shows the only consumer is tests/test_greeting.py:5 (A-006). (6) tier1-card.yaml:61 "proposed.md not read"; a plan artifact existed but is not in the snapshot (A-001).
+**Split points:** C-007 -> V2 (names both tests, accepts a captured failure as evidence; V3's "2 collected" is copied from the T1 card). X-001 -> V2 (explicit "R-003 not accepted, not a clean ship").
+**Per-point:** S-001 V3 | S-002 V3 | S-003 tie | S-004 V2 | S-005 V1 | S-006 tie | S-007 tie(V1=V3) | S-008 V2 | C-001 V2 | C-002 V3 | C-003 V3 | C-004 V3 | C-005 V2 | C-006 tie(V2=V3) | C-007 V2 | C-008 V3 | C-009 tie | C-010 V2 | X-001 V2 | X-002 V2 | X-003 V2 | X-004 tie(V1=V2) | X-005 V3 | X-006 V3 | A-001 tie | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 tie
+**Merge rec:** V3 base (cites, Glob, pytest split, CG-1) + V2 verdict, T-103 gap-only (decision true, owner user), static caveat, completed.md rule, scope AND run, C-007 verifier + V1 REC-1; REC-4 becomes a style note.
+
+## Variant 2 Advocate rebuttal (opus, agentId a86090d680d02f927)
+**Process breach (self-reported):** ran one read-only shell command (ls/wc on AD) against the "no shell" instruction; wrote nothing; thereafter Read/Glob only. Recorded by the caller; integrity re-checked by snapshot/input hash verification at Wave 5.
+**Responses:** S-002 conceded on structure (the merged card needs a T-103 row pointing to gap 1 with no class; substance holds: tier1-card.yaml:20 partial, :24 unproven). S-007 conceded, minor (tier_decision.yaml:9 vendor multi; model_class should name the model that actually ran). C-004 method conceded, claim correct (own Glob: no markers; wording from tier1-card.yaml:41). X-005 conceded (gap-2 text copies tier1-card.yaml:43 and conflicts with V2's own REC-3/inferred claim). X-006 conceded on precision (6-9 includes :9; coarse, not wrong; same as tier1-card.yaml:11). A-004 mostly neutralised (execution.log:1 disclaimer; input-snapshot.yaml:3 "evidence files read"). Copied gap 1: conceded on independence, rejected as a correctness flaw (all cards copy; V3's REC-1 verifier is verbatim from :54; V1/V3 flipped the correct decision true at :39 without reason; V2-original additions: the captured-failure verifier, "not a clean ship", the completed.md rule). C-009 omission corrected (tie).
+**Updated assessment:** V1's concessions and new evidence hold; its only win is S-005. V3 still leads on cites/Glob/import/CG-1; REC-4 premise false; gap-1 owner orchestrator / decision false still wrong.
+**New evidence:** (1) Glob: 11 files (6 inputs + 5 __run_evidence__). (2) tier1-card.yaml:37 requires scope AND run, :39 decision true; only V2 keeps both. (3) tier1-card.yaml:12,16,60 mark R-001/R-002 static-only; only V2 carried it forward. (4) The sc:reflect-reviewer allowlist has no Bash, so gap 2 owner orchestrator (V3) is right (changes its R1 C-008 view). (5) tier1-calibration 0.55 on DEV-1; all cards fix it (non-differentiating).
+**Per-point:** S-001 V3 | S-002 V3 | S-003 tie | S-004 tie(V2=V3) | S-005 V1 | S-006 tie | S-007 tie(V1=V3) | S-008 V2 | C-001 V2 | C-002 V3 | C-003 V3 | C-004 V3 | C-005 V2 | C-006 tie(V2=V3) | C-007 V2 | C-008 V3 | C-009 tie | C-010 V2 | X-001 V2 | X-002 V2 | X-003 V2 | X-004 tie(V1=V2) | X-005 V3 | X-006 V3 | A-001 tie | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 tie   (tally V2 9, V3 9, V1 1, tie 11)
+**Merge rec:** V3 base (cites, Glob, pytest split, CG-1, gap-2 owner orchestrator) + V2 verdict/T-103 gap-only (owner user, decision true, scope and run) + T-103 pointer row with no class + static caveat + completed.md rule + C-007 verifier + V1 REC-1; REC-4 becomes a style note.
+
+## Variant 3 Advocate rebuttal (opus, agentId adad9c08290b8e928; Read/Glob only)
+**Responses:** REC-4 false premise conceded (without the guard greet("") returns "Hello, !" at src/greeting.py:4 and tests/test_greeting.py:13 raises; reduce to style or drop). Gap-1 owner/decision conceded fully (tier1-card.yaml:38-39 user/true reversed without reason; conflicts with V3's own REC-1). X-002 double-booking conceded (merged card: T-103 pointer row with no class). C-001 conceded (dropped the T1 static caveat at tier1-card.yaml:12,16,60). C-003 conceded as imprecise (literal true for three spaces only; substance shared with V1 and the T1 card) -> tie. Inheritance conceded on independence, contested on substance: independent and correct V3 content is the guard :7 / return :9 split, the first-hand 11-file Glob, the prepend mechanism for X-005, and the CG-1 restructuring. S-006 contested -> tie (every calibrator differs from its reviewer; the sonnet calibrator scored V3 lowest on coverage 0.75 / classification 0.80, not lenient).
+**Updated assessment:** V1's concessions hold; execution.log:1 undercuts V1's own A-004 claim; V1 wins S-005 and REC-1. V2 is right on every verdict-deciding point (X-001..X-003, C-010, C-001, C-005, C-007) and corrected C-008 (no Bash in the reviewer allowlist); lacks a T-103 row; slot-label mismatch; its shell breach is process-only.
+**New evidence:** tests/test_greeting.py:9-13 + src/greeting.py:4 (REC-4); tier1-card.yaml:38-39 vs variant-3:40-41 (unexplained flip); REC-1 verifier identical to tier1-card.yaml:54; V3 cites match changes.patch:7-9; calibrator classes opus/opus/sonnet vs reviewers sonnet/haiku-slot/opus; tier1-card.yaml:61 proposed.md skipped (A-001); input-snapshot.yaml:4-17 hashes (A-005); reuse-audit.yaml:14 (A-006).
+**Per-point:** S-001 V3 | S-002 V3 | S-003 tie | S-004 tie(V2=V3) | S-005 V1 | S-006 tie | S-007 tie(V1=V3) | S-008 tie(V2=V3) | C-001 V2 | C-002 V3 | C-003 tie(V1=V3) | C-004 V3 | C-005 V2 | C-006 tie(V2=V3) | C-007 V2 | C-008 V3 | C-009 tie | C-010 V2 | X-001 V2 | X-002 V2 | X-003 V2 | X-004 tie(V1=V2) | X-005 V3 | X-006 V3 | A-001 tie | A-002 V3 | A-003 tie | A-004 V2 | A-005 tie | A-006 tie   (tally V3 8, V2 8, V1 1, tie 13)
+**Merge rec:** V3 base + V2 verdict/T-103 gap-only (owner user, decision true, scope AND run) + T-103 pointer row with no class + static caveat + completed.md rule + C-007 verifier + V1 REC-1; REC-4 becomes style-only or is dropped.
+=================== invariant-probe
+# Invariant Probe Results
+
+## Round 2.5 — Fault-Finder Analysis
+Fault-finder: general-purpose Task worker, model sonnet (independent of the opus advocates), agentId a65ba8f4df080ff63, Read/Grep/Glob only. No branch-trace.md existed, so sufficiency findings use an inline source enumeration. Note: the fault-finder also read outside the snapshot (the live fixture directory and the ancestor worktree pyproject.toml), read-only.
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|----|----------|------------|--------|----------|----------|
+| INV-001 | sufficiency_challenge | "`python -m pytest` from the project root, exit 0, 2 collected" alone closes R-003; "root" is unambiguous with no ambient config | UNADDRESSED | MEDIUM | Gates G1 runner config/rootdir and G2 `src.greeting` import are never shown (execution.log:1,5; tier1-card.yaml:42); G3-G5 static only (tests/test_greeting.py:4-13; src/greeting.py:2-4). The fixture is nested in the IronClaude worktree, whose /config/workspace/IronClaude/.dev/worktrees/ci-followup/pyproject.toml has [tool.pytest.ini_options] (:107-116) and a pytest11 plugin superclaude.pytest_plugin (:75-76); ancestor ini discovery could load unrelated config/plugin; possible `src` namespace-portion merge [INFERRED] |
+| INV-002 | collection_boundaries | "2 tests collected" is stable and "no package markers" was verified for the real project | UNADDRESSED | MEDIUM | "Root" is ambiguous (fixture, snapshot, worktree); worktree testpaths=["tests"] (pyproject.toml:108) would collect the IronClaude suite; the verifier needs an explicit path/cwd. The C-004 Glob was of the curated snapshot (input-snapshot.yaml:17 file_count 6); a live fixtures/** Glob confirms no markers. proposed.md exists outside the snapshot (tier1-card.yaml:61; proposed.md:9-10 consistent); A-001 unresolved (tied) |
+| INV-003 | state_variables | A recorded run proves R-003 for the audited artefacts; scope inclusion does not invalidate audit state | UNADDRESSED | MEDIUM | Audit state pinned by input_tree_sha256/per-file hashes (input-snapshot.yaml:1,13-16); closure does not bind the run to those hashes; A-004/A-005 unresolved; tests untracked, no commits (tier1-card.yaml:35); scope change alters the hash set; the carry-over of static acceptance/confidence is unstated (tier_decision.yaml) |
+| INV-004 | guard_conditions | The `if not name` breadth is non-gating; test_empty is a faithful R-002 exercise | ADDRESSED (breadth via CG-1) / UNADDRESSED (secondary) | LOW | Whitespace accepted (variant-3 CG-1); None gets ValueError not TypeError (tier1-card.yaml:50), safe only under A-006, whose reuse evidence is degraded grep-level (reuse-audit.yaml); test_empty accepts any ValueError (tests/test_greeting.py:11) but is mutation-sensitive (line 13); pytest exit 5 on zero collected, so "2 collected" is required |
+| INV-005 | count_divergence | "0/0/0/0, regression_present false, all 30 agreed ≥2/3" is a coherent count basis | UNADDRESSED | MEDIUM | 0/0/0/0 beside two open gaps can read as clean; regression_present means "not observed", not "ruled out" (nothing executed); 3 tasks vs 2 classified rows + 1 pointer row; ties are not ≥2/3 agreement of a winner; adopted U-005/U-006 lie outside the 30 points; diff-analysis totals 37/30/24 differ by basis |
+| INV-006 | interaction_effects | The recommendations are independent and order-safe | UNADDRESSED | MEDIUM | Adding src/__init__.py / pythonpath is a new unmapped hunk (the Drift pattern) and changes namespace behaviour; run order before/after REC-2 differs; plain pytest vs python -m pytest verifiers test different import paths; narrowing to name == "" makes greet(None) return "Hello, None!"; editing the guard invalidates R-002 static acceptance and the hashes; the T1 DEV-1 reclassification must be explicit |
+| INV-007 | sufficiency_challenge | "Captured failure counts as evidence" and "scope AND run" are jointly decidable by the user | UNADDRESSED | LOW | The scope decision is the user's (tier1-card.yaml:37-39) but the run is an orchestrator action (reviewer allowlist has no Bash); no actor is defined for the combined closure; the post-failure state transition (regression/necessary re-evaluation, reopening 0/0/0/0) is undefined |
+| INV-008 | state_variables | completed.md `status: done` and the execution.log T-lines do not affect acceptance | ADDRESSED | LOW | completed.md:2,8 and execution.log:4 are claims; execution.log:1,5 disclaim execution; the consensus records the completed.md rule (U-006); residual: provenance unsupported rather than refuted (A-004 tie) |
+
+## Summary
+
+- **Total findings**: 8
+- **ADDRESSED**: 1 (INV-008) + 1 partial (INV-004 breadth)
+- **UNADDRESSED**: 7 (counting INV-004's secondary part)
+  - HIGH: 0
+  - MEDIUM: 5 (INV-001, INV-002, INV-003, INV-005, INV-006)
+  - LOW: 2 (INV-004 secondary, INV-007)
+
+Invariant probe gate: no HIGH+UNADDRESSED items, so convergence is not blocked. WARNING: 5 MEDIUM-severity UNADDRESSED invariant(s): INV-001, INV-002, INV-003, INV-005, INV-006. These do not block convergence but must be carried into the merge.

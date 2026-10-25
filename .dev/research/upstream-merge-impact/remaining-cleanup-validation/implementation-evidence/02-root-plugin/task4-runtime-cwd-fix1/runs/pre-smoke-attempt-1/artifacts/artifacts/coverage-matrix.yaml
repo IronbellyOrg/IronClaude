@@ -1,0 +1,56 @@
+# Wave 1B coverage map (UC-1). Produced by: orchestrator Pass 1 (deterministic regex) +
+# sc:sc-requirements-analyst (requested slot: sonnet; agentId a67861b21c03eeff3) Pass 2 + fidelity review.
+# Persisted by the orchestrator from the agent's returned text.
+producer:
+  pass1: orchestrator-inline-regex (artifacts/coverage-pass1.json)
+  pass2_and_fidelity: {agent: sc:sc-requirements-analyst, requested_model_slot: sonnet, provider_model_returned: not-reported-by-agent-tool}
+parsed_count: 3
+inferred_count: 0
+pass2_note: "All MUST statements (spec.md:6, 9, 12) lie inside parsed heading spans; spec.md:1-3 is title/disclaimer. Zero valid INF rows."
+spans:
+  R-001: "spec.md:5-7"
+  R-002: "spec.md:8-10"
+  R-003: "spec.md:11-12"   # corrected from 11-13 after card-author F-006; wc -l spec.md = 12
+coverage_matrix:
+  - {requirement_id: R-001, spec_ref: "spec.md:5-6", matched_task_ids: [T-101], task_ref: "proposed.md:3-4", match_method: exact, source: parsed}
+  - {requirement_id: R-002, spec_ref: "spec.md:8-9", matched_task_ids: [T-102], task_ref: "proposed.md:6-7", match_method: exact, source: parsed}
+  - {requirement_id: R-003, spec_ref: "spec.md:11-12", matched_task_ids: [T-103], task_ref: "proposed.md:9-10", match_method: exact, source: parsed}
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+missing_implementations_count: 0   # FR-1 find_implementations not run (--no-mcp; UC-1 spec cites no code modules)
+fidelity_observations:
+  - id: F-1
+    requirement: R-001
+    severity: medium
+    spec: "spec.md:6"
+    task: "proposed.md:4"
+    finding: "Spec requires the exact string 'Hello, Ada!' for input Ada; T-101 says only 'returning the required greeting' — literal string and example input not carried into the task."
+  - id: F-2
+    requirement: R-002
+    severity: low
+    spec: "spec.md:9"
+    task: "proposed.md:7"
+    finding: "ValueError and empty-name condition preserved verbatim in substance; whitespace-only names unspecified in both documents (not a missing requirement)."
+  - id: F-3
+    requirement: R-003
+    severity: medium
+    spec: "spec.md:12"
+    task: "proposed.md:10"
+    finding: "Both test categories present, but T-103 does not state the ordinary test asserts 'Hello, Ada!' nor that the empty-name test asserts ValueError; combined with F-1 the exact-output assertion appears nowhere in the tasklist."
+  - id: F-4
+    requirement: all
+    severity: low
+    spec: "spec.md:5,8,11"
+    task: "proposed.md:3,6,9"
+    finding: "Coverage credit comes from heading-line ID tokens; 1.0 is ID-level coverage, content-level coverage of R-001 is partial."
+  - id: F-5
+    requirement: none
+    severity: informational
+    spec: "spec.md:6,9"
+    task: "proposed.md:4"
+    finding: "T-101 introduces signature greet(name); spec names only 'the greet function'. Minor plan-level specification, not a gap."

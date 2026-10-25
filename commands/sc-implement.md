@@ -7,9 +7,9 @@ mcp-servers: [context7, magic, playwright]
 personas: [architect, frontend, backend, security, qa-specialist]
 ---
 
-# /sc:sc:sc:implement - Feature Implementation
+# /sc:sc-implement - Feature Implementation
 
-> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:sc:implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.
+> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:sc-implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.
 
 ## Triggers
 - Feature development requests for components, APIs, or complete functionality
@@ -19,7 +19,7 @@ personas: [architect, frontend, backend, security, qa-specialist]
 
 ## Context Trigger Pattern
 ```
-/sc:sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
+/sc:sc-implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
 ```
 **Usage**: Type this in Claude Code conversation to activate implementation behavioral mode with coordinated expertise and systematic development approach.
 
@@ -57,27 +57,27 @@ Key behaviors:
 
 ### React Component Implementation
 ```
-/sc:sc:implement user profile component --type component --framework react
+/sc:sc-implement user profile component --type component --framework react
 # Magic MCP generates UI component with design system integration
 # Frontend persona ensures best practices and accessibility
 ```
 
 ### API Service Implementation
 ```
-/sc:sc:implement user authentication API --type api --safe --with-tests
+/sc:sc-implement user authentication API --type api --safe --with-tests
 # Backend persona handles server-side logic and data processing
 # Security persona ensures authentication best practices
 ```
 
 ### Full-Stack Feature
 ```
-/sc:sc:implement payment processing system --type feature --with-tests
+/sc:sc-implement payment processing system --type feature --with-tests
 # Multi-persona coordination: architect, frontend, backend, security
 ```
 
 ### Framework-Specific Implementation
 ```
-/sc:sc:implement dashboard widget --framework vue
+/sc:sc-implement dashboard widget --framework vue
 # Context7 MCP provides Vue-specific patterns and documentation
 # Framework-appropriate implementation with official best practices
 ```
@@ -104,6 +104,6 @@ Key behaviors:
 **Post-Implementation Checklist**:
 1. Code compiles without errors
 2. Basic functionality works
-3. Ready for `/sc:sc:test`
+3. Ready for `/sc:sc-test`
 
-**Next Step**: After implementation, use `/sc:sc:test` to run tests, then `/sc:sc:git` to commit.
+**Next Step**: After implementation, use `/sc:sc-test` to run tests, then `/sc:sc-git` to commit.

@@ -1,0 +1,42 @@
+commit 323137a9df985c17f221f559ccede9860d40cb23
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Fri Nov 14 14:40:24 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Fri Nov 14 14:40:24 2025 +0100
+
+    feat: include src and plugins folders in wheel package
+    
+    - Use force-include to add src/ as superclaude/_src/
+    - Use force-include to add plugins/ as superclaude/_plugins/
+    - Total package now has 343 files:
+      - Core superclaude/: 85 files
+      - _src/: 148 files (full source structure)
+      - _plugins/: 110 files (plugin resources)
+    - No share/ folder needed - everything in package
+    - Maintains backward compatibility
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/pyproject.toml b/pyproject.toml
+index 56551af8..31b770f1 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -68,9 +68,14 @@ superclaude = "superclaude.pytest_plugin"
+ 
+ [tool.hatch.build.targets.wheel]
+ packages = ["src/superclaude"]
++include = [
++    "src/**",
++    "plugins/**",
++]
+ 
+-[tool.hatch.build.targets.wheel.shared-data]
+-"plugins" = "share/superclaude/plugins"
++[tool.hatch.build.targets.wheel.force-include]
++"src" = "superclaude/_src"
++"plugins" = "superclaude/_plugins"
+ 
+ [tool.hatch.build.targets.sdist]
+ include = [

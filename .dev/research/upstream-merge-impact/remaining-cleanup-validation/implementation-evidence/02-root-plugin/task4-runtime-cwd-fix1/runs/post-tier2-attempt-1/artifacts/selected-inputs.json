@@ -1,0 +1,14 @@
+{"enumeration_complete": true,
+ "coverage_basis": "--diff changes.patch (1 new file src/greeting.py) + --scope src (discovery) + explicit spec.md, completed.md, changes.patch + linked/log-declared evidence execution.log and tests/test_greeting.py (T-103, declared in execution.log:4) + this run's T1 card and Wave-1 ledgers; repo has no commits so all files are untracked and current working-tree bytes are captured",
+ "discovery": {"scopes": ["src"]},
+ "files": [
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md", "kind": "audit-input"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/completed.md", "kind": "audit-input"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/changes.patch", "kind": "audit-input"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/execution.log", "kind": "audit-input"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/tests/test_greeting.py", "kind": "audit-input"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/t1-card.md", "kind": "run-evidence"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/task-diff-map.yaml", "kind": "run-evidence"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/reuse-audit.yaml", "kind": "run-evidence"},
+  {"source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/git-inventory.txt", "kind": "run-evidence"}
+ ]}

@@ -1,0 +1,186 @@
+# Tier-1 reflection card, authored by Agent sc:sc-root-cause-analyst (requested slot: sonnet).
+# Persisted by the orchestrator without content changes. Card-relative paths: "artifacts/<x>" = <output>/<x>; repo paths are relative to audit_repo_root.
+card_author_role: sc:sc-root-cause-analyst
+card_author_model_slot: sonnet
+mode: post
+tier: 1
+reference_quality_note: >
+  No --spec and no --tasklist were supplied. The only "expected" reference is the
+  executor's own narrative (execution.log:1-5). It is a weak gold standard.
+  "Verified" below means "on-disk content matches what the executor said it did".
+  It does not mean "correct against an independent requirement". Divergence from
+  intent can only be detected where the log contradicts the disk. Omissions the
+  executor never mentioned are invisible to this audit, so they are reported as
+  risks and gaps, not as deviations. Zero deviations is a weak result. Its
+  strength is bounded by the log, and the log itself says it is "Synthetic ...
+  not an execution claim about product code" (execution.log:1).
+items:
+  - task_id: T-101
+    log_ref: "execution.log:2"
+    claim: "R-001: created src/greeting.py"
+    evidence: >
+      src/greeting.py:1-4 exists. It defines `def greet(name):` (src/greeting.py:1)
+      and returns `return f"Hello, {name}!"` (src/greeting.py:4). The file is
+      untracked, and the repo has no commits (work-map.yaml:8,3), so creation
+      time and authorship cannot be confirmed.
+    verdict: verified
+    deviation_class: none
+  - task_id: T-102
+    log_ref: "execution.log:3"
+    claim: "R-002: empty names raise ValueError"
+    evidence: >
+      src/greeting.py:2-3: `if not name:` / `raise ValueError("name required")`.
+      The empty string "" is falsy, so it raises. The guard is `not name`, which
+      is broader than "empty". It also rejects None, 0, [] and similar falsy
+      values with ValueError. Whitespace-only input like "   " is truthy and is
+      NOT rejected (it returns "Hello,    !"). The log claim "empty names" is
+      satisfied. The broader falsy rejection and the whitespace pass-through are
+      not claimed in the log. They are not deviations because the log makes no
+      claim about them. They appear under risks.
+    verdict: verified
+    deviation_class: none
+  - task_id: T-103
+    log_ref: "execution.log:4"
+    claim: "R-003: created tests/test_greeting.py with ordinary and empty-name cases"
+    evidence: >
+      tests/test_greeting.py:4-5 `def test_ordinary(): assert greet("Ada") == "Hello, Ada!"`
+      and tests/test_greeting.py:8-13 `def test_empty():` calls `greet("")`, returns
+      on ValueError, and otherwise `raise AssertionError("empty name accepted")`.
+      Both cases are present. The file sits outside --scope src. It is included
+      only because T-103 declares it (work-map.yaml:15). Existence and shape are
+      verified. Whether the tests pass is NOT verified. The log disclaims
+      execution (execution.log:5), and no verification was run
+      (invocations.yaml:1-3).
+    verdict: verified
+    deviation_class: none
+deviations: []
+deviation_notes: >
+  No log-versus-disk divergence was found, so the ledger is empty
+  (deviation-ledger.yaml:2). That result is bounded by the weak reference above.
+  All four classes (authorized, necessary, drift, regression) are
+  unpopulated. Regression detection is degraded: it relies on the task-log claim
+  only, and the log makes no pass/fail claim.
+grounding_gaps:
+  - gap_id: GG-1
+    hunk_ref: "tests/test_greeting.py:1-13"
+    gap: >
+      Test pass/fail is undecidable. No verification was run
+      (invocations.yaml:1-2, tool-unavailable). The log disclaims execution
+      (execution.log:5). Whether `from src.greeting import greet`
+      (tests/test_greeting.py:1) resolves cannot be determined without running.
+    why_not_a_deviation_class: "Evidence-insufficient; not classifiable as regression or any other class."
+    next_evidence_needed: "Run pytest from the project root in a disposable copy and record the exit code (matches grounding-gaps.yaml:4)."
+    owner: user
+  - gap_id: GG-2
+    hunk_ref: "src/greeting.py:1-4"
+    gap: >
+      No independent requirement defines "empty name" (None? whitespace?). With
+      no spec or tasklist, R-001..R-003 IDs in execution.log:2-4 cannot be traced
+      to any requirement text. Requirement coverage cannot be measured.
+      tasklist_completion_pct=1.0 is only log-self-consistency (work-map.yaml:22).
+    next_evidence_needed: "A spec or tasklist defining R-001..R-003 acceptance criteria."
+    owner: user
+  - gap_id: GG-3
+    hunk_ref: "repo state"
+    gap: >
+      Repo has no commits, so there is no diff baseline. Provenance and whether
+      files were changed after the log was written cannot be established
+      (work-map.yaml:3). The reuse sweep ran degraded (grep skeleton only, capped
+      at L2) (work-map.yaml:25-29).
+    next_evidence_needed: "A baseline commit or snapshot taken before execution."
+    owner: user
+risks:
+  - risk: >
+      Import path `from src.greeting import greet` has no package or rootdir
+      configuration. The Glob of the project showed no pyproject.toml, conftest.py,
+      pytest.ini, src/__init__.py or tests/__init__.py. Under pytest's default
+      prepend import mode, with no __init__.py in tests/, the tests/ directory is
+      put on sys.path, not the project root. So bare `pytest` may fail with
+      ModuleNotFoundError for `src`. `python -m pytest` from the root adds the cwd
+      and would likely work, since `src` resolves as a namespace package.
+      Outcome depends on invocation. Not tested.
+    tag: grounded
+    citation: "tests/test_greeting.py:1; Glob of project root (no config or __init__ files listed); grounding-gaps.yaml:3"
+  - risk: >
+      The pytest-invocation behaviour described above (prepend mode, cwd handling,
+      namespace package) is general pytest/Python semantics and was not executed
+      here.
+    tag: INFERRED
+    citation: "tests/test_greeting.py:1"
+  - risk: >
+      Whitespace-only names ("   ") pass the guard and yield a greeting with
+      blank content. There is no test for this.
+    tag: grounded
+    citation: "src/greeting.py:2-4; tests/test_greeting.py:4-13 (only 'Ada' and '' tested)"
+  - risk: >
+      None input raises ValueError("name required") through the falsy check. A
+      non-string truthy input (e.g. 5) is formatted without error. Neither
+      behaviour is tested or documented. `not name` conflates empty with falsy.
+    tag: grounded
+    citation: "src/greeting.py:2-4"
+  - risk: >
+      test_empty asserts only that ValueError is raised, not its message. A
+      different ValueError would also pass. It uses a manual try/except instead
+      of pytest.raises, which is weaker but functional.
+    tag: grounded
+    citation: "tests/test_greeting.py:8-13"
+  - risk: >
+      The tests file is outside --scope src and was reached only through the T-103
+      declaration. Scope-based findings do not cover it independently.
+    tag: grounded
+    citation: "work-map.yaml:15"
+  - risk: >
+      The log is explicitly synthetic and disclaims execution. Treating
+      "verified" as "working" would overstate the evidence.
+    tag: grounded
+    citation: "execution.log:1,5"
+  - risk: >
+      [INFERRED] The 1.0 completion figure may be read downstream as real
+      requirement coverage. It is only a self-consistency count against the
+      executor's own log.
+    tag: INFERRED
+    citation: "work-map.yaml:22"
+recommendations:
+  - id: REC-1
+    file: "tests/test_greeting.py (or project-root pyproject.toml / conftest.py, to be added in the audited project)"
+    change: >
+      Make the import path deterministic. Add a pytest config with
+      `[tool.pytest.ini_options] pythonpath = ["."]`, or add an empty
+      `src/__init__.py` plus a root `conftest.py`. Alternatively, document that
+      tests must be run as `python -m pytest` from the root.
+    verifier: "In a disposable copy, run both `pytest -q` and `python -m pytest -q` from the project root. Both must exit 0."
+    priority: high
+  - id: REC-2
+    file: "tests/test_greeting.py"
+    change: >
+      Record an actual test run (resolves GG-1). Execute
+      `uv run --no-project --with pytest python -m pytest tests -q` in a
+      disposable copy and store the exit code and output in the evidence
+      directory.
+    verifier: "invocations.yaml shows verification_ran: true with the exit code; GG-1 closed."
+    priority: high
+  - id: REC-3
+    file: "src/greeting.py:2"
+    change: >
+      Decide the intended semantics of "empty" with the requirement owner. If
+      whitespace-only and None should be rejected, use
+      `if not isinstance(name, str) or not name.strip():`. If current behaviour is
+      intended, document it.
+    verifier: "Add parametrized tests for '   ', None and '\\t'. They pass or fail according to the decided semantics."
+    priority: medium
+  - id: REC-4
+    file: "tests/test_greeting.py:8-13"
+    change: "Replace the manual try/except with `pytest.raises(ValueError, match='name required')` to pin the message."
+    verifier: "Mutating the message in src/greeting.py:3 makes test_empty fail."
+    priority: low
+  - id: REC-5
+    file: "audit inputs (spec/tasklist, outside the repo)"
+    change: "Supply a --spec or --tasklist defining R-001..R-003, plus a baseline commit, then re-run the audit (resolves GG-2 and GG-3)."
+    verifier: "The re-run reports non-degraded coverage and has a real git diff source."
+    priority: medium
+self_reported_confidence: 0.62   # NOT used for routing; calibrated score governs
+confidence_rationale: >
+  High confidence that the disk matches the log: three small files were read in
+  full. Capped because the reference is the executor's own narrative, the tests
+  were never run, there is no baseline commit, and the import-resolution risk is
+  inferred.

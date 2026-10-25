@@ -1,0 +1,22 @@
+selected_tier: 2
+fired_rule_number: null          # §5.3 table not consulted for the decision: §5.1 hard override applied
+hard_override: "--tier 2"
+rubric_would_fire: 1             # recorded for audit: C=0.90>=0.90, S_scope=1<=5, S_domains=1, S_dev_density=0.00<=0.05, no coverage_undefined/coverage_degraded/surface_unreached/reachability_unreachable -> STOP at T1 absent the override
+coverage_degraded: null
+surface_unreached: null
+inputs:
+  confidence_calibrated: 0.90
+  S_scope: 1
+  S_domains: 1
+  S_dev_density: 0.00
+  regression_candidate_count: 0
+composite_score: 0.5
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0.5          # 3 tasks
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 0     # ambiguity recorded as grounding gaps, not unmapped hunks
+escalation_reason: "explicit --tier 2 hard override (§5.1); rubric alone would STOP at T1 via rule 1"
+t2_model_class_diversity: full
+t2_vendor_diversity: multi

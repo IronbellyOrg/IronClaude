@@ -1,0 +1,46 @@
+mode: pre
+hypothesis_source: inline-orchestrator
+verdict: PASS
+plan_findings: []
+coverage_matrix_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/coverage-matrix.yaml
+coverage_pct: null
+coverage_pct_union: 0.8462
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+S_scope: 3
+S_domains: 3
+S_dev_density: 0.1538
+best_practice_grade: 5
+review_excerpt: |
+  Substantive source requirements are present in global Constraints and Tasks 1-3. Deterministic lexical coverage is 11/13, not a semantic omission: removing the entire empty upload subsection and preserving imported content are explicitly covered by Task 3 line 69 and Task 1 lines 34/39 plus Task 3 line 83. The spec has no labeled IDs, so parsed-sparse forces Tier 2 regardless of confidence. This is a pre-execution review, not implementation authorization.
+  Independently investigate possible defects in scope, exact upload-only byte comparison, feature-branch gating, reference-search correctness, preserved coverage, protected template, and remote non-mutation. No assertion of a hosted CI result or live PR state is permitted.
+rejected_candidate_findings:
+- candidate: Dedicated feature branch has no task owner.
+  rejected_because: Global Constraints line 20 explicitly requires a dedicated feature branch before implementation edits; Task 1 line 34 requires baseline recording; no source requires a particular branch base or duplicate per-task criterion.
+  citations: ['.dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/TASK-WF-ripOutTheFramewo-20261023-134610.md:20', '.dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/TASK-WF-ripOutTheFramewo-20261023-134610.md:34']
+- candidate: Removing the Non-blocking coverage best-practice bullet is unauthorized scope.
+  rejected_because: The retired-upload advice is in the explicitly editable workflow README, and removing it follows the requested removal of the upload integration; otherwise documentation would continue prescribing upload behavior.
+  citations: ['.github/workflows/README.md:151', '.dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/TASK-WF-ripOutTheFramewo-20261023-134610.md:70']
+- candidate: Exact step removal is ambiguous about one blank line.
+  rejected_because: Adjacent blank-line convention is implementation detail and does not prevent a precise test; the step boundary and only-change requirement are explicit.
+  citations: ['.github/workflows/test.yml:42-49', '.dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/TASK-WF-ripOutTheFramewo-20261023-134610.md:54-55']
+- candidate: Planning-time reference searches were unchecked.
+  rejected_because: Orchestrator ran the exact tracked-reference grep and named-class consumer search; all hits were in the five named files, no tests or surviving callers were found.
+self_audit:
+- Inspected entire source and plan, each YAML workflow, workflow README, marker file, package dependencies.
+- Verified current tracked-reference grep confines all non-template matches to the five affected files; exit 0 is expected before removal.
+- Verified script callers by symbol declaration, body, references and named-class grep. No test consumers found. FrameworkSyncer implementation lookup is unsupported, so no abstract-surface proof is claimed.
+- Matched preserved pytest command exactly; PyYAML is already a runtime dependency; coverage plugin remains in dev/test extras.
+- Verified final branch/PR cleanup approval language and exact local-only verification language.
+process_findings:
+- id: P-1
+  severity: important
+  finding: Subagent report-file write restriction blocked mandatory REPORT.md stub; requires main-context materialization or status partial.
+- id: P-2
+  severity: minor
+  finding: Tokenizer and stopword set are not pinned in the protocol reference; this run pins them on disk and preserves lexical false-match caveats.
+- id: P-3
+  severity: minor
+  finding: Initial deterministic matcher failed because YAML 1.1 parsed unquoted stopwords on/off as booleans; corrected with string-preserving BaseLoader and rerun successfully.
+calibration: pending
+self_reported_confidence: null

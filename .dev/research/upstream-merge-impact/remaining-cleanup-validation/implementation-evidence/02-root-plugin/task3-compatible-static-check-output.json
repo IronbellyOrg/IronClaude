@@ -1,0 +1,1026 @@
+{
+  "task": 3,
+  "verdict": "PASS",
+  "checks": {
+    "all_task2_exact_checks_retained": {
+      "pass": true,
+      "details": []
+    },
+    "exact_22_manifest_destinations": {
+      "pass": true,
+      "details": [
+        "agents/confidence-calibrator.md",
+        "agents/debate-orchestrator.md",
+        "agents/evidence-validator.md",
+        "agents/merge-executor.md",
+        "agents/reflect-reviewer.md",
+        "agents/reuse-auditor.md",
+        "skills/sc-adversarial-protocol/SKILL.md",
+        "skills/sc-adversarial-protocol/refs/agent-specs.md",
+        "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+        "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+        "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+        "skills/sc-reflect-protocol/SKILL.md",
+        "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+        "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+        "skills/sc-reflect-protocol/refs/input-resolution.md",
+        "skills/sc-reflect-protocol/refs/ops-integration.md",
+        "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+        "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+        "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+        "skills/sc-reflect-protocol/refs/report-template.md",
+        "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+        "skills/sc-reflect-protocol/refs/runtime-surface.md"
+      ]
+    },
+    "source_derived_reproducible_bytes_and_manifest": {
+      "pass": true,
+      "details": [
+        {
+          "path": "skills/sc-reflect-protocol/SKILL.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/input-resolution.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/report-template.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/runtime-surface.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/ops-integration.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-adversarial-protocol/SKILL.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-adversarial-protocol/refs/agent-specs.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+          "pass": true
+        },
+        {
+          "path": "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+          "pass": true
+        },
+        {
+          "path": "agents/confidence-calibrator.md",
+          "pass": true
+        },
+        {
+          "path": "agents/evidence-validator.md",
+          "pass": true
+        },
+        {
+          "path": "agents/reflect-reviewer.md",
+          "pass": true
+        },
+        {
+          "path": "agents/reuse-auditor.md",
+          "pass": true
+        },
+        {
+          "path": "agents/debate-orchestrator.md",
+          "pass": true
+        },
+        {
+          "path": "agents/merge-executor.md",
+          "pass": true
+        }
+      ]
+    },
+    "agent_readonly_frontmatter_byte_equality": {
+      "pass": true,
+      "details": [
+        {
+          "path": "agents/confidence-calibrator.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        },
+        {
+          "path": "agents/evidence-validator.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        },
+        {
+          "path": "agents/reflect-reviewer.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        },
+        {
+          "path": "agents/reuse-auditor.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        },
+        {
+          "path": "agents/debate-orchestrator.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        },
+        {
+          "path": "agents/merge-executor.md",
+          "fields": {
+            "name": true,
+            "category": true,
+            "tools": true,
+            "model": true,
+            "maxTurns": true,
+            "permissionMode": true
+          },
+          "full_header_except_approved_description": true
+        }
+      ]
+    },
+    "all_required_ref_and_qualified_call_edges_resolve": {
+      "pass": true,
+      "details": {
+        "unresolved": [],
+        "refs": [
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "reference": "refs/artifact-templates.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "reference": "refs/cost-profile.yaml",
+            "exists": false,
+            "excluded": "caller-only, not read by reflect"
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "reference": "refs/grader-extensions.md",
+            "exists": false,
+            "excluded": "maintainer-only eval"
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "reference": "refs/scoring-protocol.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/cost-profile.yaml",
+            "exists": false,
+            "excluded": "caller-only, not read by reflect"
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/coverage-mapping.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/deviation-taxonomy.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/grader-extensions.md",
+            "exists": false,
+            "excluded": "maintainer-only eval"
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/input-resolution.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/ops-integration.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/promotion-adapters.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/reflection-rubric.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/remediation-handoff.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/report-template.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/reviewer-spec.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "reference": "refs/runtime-surface.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/refs/input-resolution.md",
+            "reference": "refs/input-resolution.md",
+            "exists": true,
+            "excluded": null
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/refs/ops-integration.md",
+            "reference": "refs/cost-profile.yaml",
+            "exists": false,
+            "excluded": "caller-only, not read by reflect"
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+            "reference": "refs/model-capability-tiers.md",
+            "exists": false,
+            "excluded": "source Open Question proposes a future file, not a runtime read"
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/refs/report-template.md",
+            "reference": "refs/deviation-taxonomy.md",
+            "exists": true,
+            "excluded": null
+          }
+        ],
+        "calls": [
+          {
+            "caller": "agents/confidence-calibrator.md",
+            "kind": "agent",
+            "frontend": "sc:confidence-calibrator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "agents/debate-orchestrator.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-reflect-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:confidence-check",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:confidence-calibrator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:evidence-validator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:reflect-reviewer",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:reuse-auditor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:debate-orchestrator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:merge-executor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-root-cause-analyst",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-self-review",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-requirements-analyst",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-socratic-mentor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-reflect-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:confidence-check",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:confidence-calibrator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:evidence-validator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:reflect-reviewer",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:reuse-auditor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:debate-orchestrator",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:merge-executor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-root-cause-analyst",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-self-review",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-requirements-analyst",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:sc-socratic-mentor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-reflect-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:workflow-protocol",
+            "exists": false,
+            "unavailable_documentation": true
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "agent",
+            "frontend": "sc:reuse-auditor",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/SKILL.md",
+            "kind": "skill",
+            "frontend": "sc:sc-adversarial-protocol",
+            "exists": true,
+            "unavailable_documentation": false
+          },
+          {
+            "caller": "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+            "kind": "skill",
+            "frontend": "sc:workflow-protocol",
+            "exists": false,
+            "unavailable_documentation": true
+          }
+        ]
+      }
+    },
+    "all_concrete_plugin_root_lookups_exist": {
+      "pass": true,
+      "details": [
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "skills/sc-reflect-protocol/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "skills/sc-adversarial-protocol/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "skills/confidence-check/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/confidence-calibrator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/evidence-validator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/reflect-reviewer.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/reuse-auditor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/debate-orchestrator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/merge-executor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/sc-root-cause-analyst.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/sc-self-review.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/sc-requirements-analyst.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/sc-socratic-mentor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "skills/sc-adversarial-protocol/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/evidence-validator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-reflect-protocol/SKILL.md",
+          "lookup": "agents/confidence-calibrator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "skills/sc-reflect-protocol/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "skills/sc-adversarial-protocol/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "skills/confidence-check/SKILL.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/confidence-calibrator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/evidence-validator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/reflect-reviewer.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/reuse-auditor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/debate-orchestrator.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/merge-executor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/sc-root-cause-analyst.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/sc-self-review.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/sc-requirements-analyst.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/sc-socratic-mentor.md",
+          "exists": true
+        },
+        {
+          "caller": "skills/sc-adversarial-protocol/SKILL.md",
+          "lookup": "agents/merge-executor.md",
+          "exists": true
+        },
+        {
+          "caller": "agents/confidence-calibrator.md",
+          "lookup": "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+          "exists": true
+        }
+      ]
+    },
+    "real_merge_disk_guards": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "input_output_guards": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "real_debate_scoring_merge_preserved": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "independence_and_evidence_gates": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "honest_optional_unavailable": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "package_prerequisite_not_bundled": {
+      "pass": true,
+      "details": {
+        "missing": []
+      }
+    },
+    "no_unsafe_skill_help_probe": {
+      "pass": true,
+      "details": "local resource existence, no Skill execution"
+    },
+    "approved_rubric_categories_anchors_thresholds": {
+      "pass": true,
+      "details": "only native name mapping and two obsolete classification names changed"
+    },
+    "reflection_five_dimension_mean_no_active_old_gates": {
+      "pass": true,
+      "details": "independent reflection-only scoring; null on missing/incompatible rubric"
+    },
+    "post_diff_or_log_and_real_missing_input_guards": {
+      "pass": true,
+      "details": [
+        true,
+        true
+      ]
+    },
+    "scoring_scaffolds_match_existing_30_criterion_algorithm": {
+      "pass": true,
+      "details": "sixth dimension, /30 denominator and floor agree; actual scorer unchanged"
+    },
+    "real_native_snapshot_recipe_and_frozen_brief_contract": {
+      "pass": true,
+      "details": "delivered executable recipe, path rewrite, no live-root MCP escape and retained evidence"
+    },
+    "actual_snapshot_recipe_proof": {
+      "pass": true,
+      "details": {
+        "proof": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-compatible/snapshot-check-output.json",
+        "checks": {
+          "actual_dirty_untracked_and_run_evidence_frozen": true,
+          "real_distinct_readonly_root_and_equal_three_hashes": true,
+          "before_dispatch_verifier_passes": true,
+          "stale_snapshot_reuse_rejected": true,
+          "source_drift_detected_without_changing_frozen_copy": true,
+          "frozen_copy_tamper_detected": true,
+          "incomplete_selection_refused": true,
+          "missing_input_retains_failed_manifest_no_live_fallback": true,
+          "audited_tracked_input_never_mutated": true,
+          "all_snapshots_retained": true
+        },
+        "recipe_hash": "fcce34c761784e559f8cec6ff99fc765f6dd8a15329c51235c5fc941ef575e7a"
+      }
+    },
+    "native_inventory_observed_all_resources_isolated": {
+      "pass": true,
+      "details": {
+        "wanted_agents": [
+          "sc:confidence-calibrator",
+          "sc:debate-orchestrator",
+          "sc:evidence-validator",
+          "sc:merge-executor",
+          "sc:reflect-reviewer",
+          "sc:reuse-auditor",
+          "sc:sc-requirements-analyst",
+          "sc:sc-root-cause-analyst",
+          "sc:sc-self-review",
+          "sc:sc-socratic-mentor"
+        ],
+        "wanted_skills": [
+          "sc:confidence-check",
+          "sc:sc-adversarial-protocol",
+          "sc:sc-reflect-protocol"
+        ],
+        "probes": {
+          "cwd": "/tmp/ironclaude-root-plugin-orv9xbty",
+          "env": {
+            "PATH": "/usr/bin:/bin",
+            "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/home",
+            "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/config",
+            "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/home/.config"
+          },
+          "inherited_provider_variable_names_only": [
+            "ANTHROPIC_AUTH_TOKEN",
+            "ANTHROPIC_BASE_URL",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+            "ANTHROPIC_DEFAULT_OPUS_MODEL",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL",
+            "ANTHROPIC_MODEL"
+          ],
+          "probes": {
+            "validate": {
+              "command": [
+                "/usr/bin/claude",
+                "plugin",
+                "validate",
+                "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin"
+              ],
+              "returncode": 0
+            },
+            "session": {
+              "command": [
+                "/usr/bin/claude",
+                "--setting-sources",
+                "user",
+                "--strict-mcp-config",
+                "--mcp-config",
+                "{\"mcpServers\":{}}",
+                "--plugin-dir",
+                "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin",
+                "--print",
+                "--output-format",
+                "stream-json",
+                "--verbose",
+                "--tools",
+                "Agent,Skill,Read",
+                "--agent",
+                "sc:sc-root-cause-analyst",
+                "--no-session-persistence",
+                "Reply INVENTORY_ONLY. Do not invoke any skills or perform any actions."
+              ],
+              "returncode": 0
+            }
+          }
+        },
+        "fixture_hashes_match_current": true
+      }
+    }
+  },
+  "failed_checks": [],
+  "runtime_audits": "NOT RUN: Task 4; native inventory is not an audit"
+}

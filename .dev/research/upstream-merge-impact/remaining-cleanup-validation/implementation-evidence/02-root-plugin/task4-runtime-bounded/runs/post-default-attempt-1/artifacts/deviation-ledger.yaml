@@ -1,0 +1,3 @@
+# 4-class deviation ledger (authorized | necessary | drift | regression). Hunk H1 (src/greeting.py:1-4) fully maps to T-101/T-102.
+deviation_aggregation_mode: per-hunk
+deviations: []

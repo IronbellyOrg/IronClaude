@@ -1,0 +1,1656 @@
+{
+  "head": "053b75664c8979bf223b8040f68310dce882d05b",
+  "window_basis": "committer timestamp; author timestamp preserved",
+  "merges": [
+    {
+      "sha": "1e8c6e1622e157f36f44792e41f667399edb2a79",
+      "parents": [
+        "e60e844ed733069398516d00f4b0af5597fbf9ce",
+        "b061b2f7b00ca33d66c10b666c15016873b2e094"
+      ],
+      "authored": "2026-03-06T10:22:09-05:00",
+      "committed": "2026-03-06T10:22:09-05:00",
+      "author": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "introduced_commits": [
+        "b061b2f7b00ca33d66c10b666c15016873b2e094"
+      ],
+      "net_files": [
+        ".github/workflows/pull-sync-framework.yml",
+        "scripts/sync_from_framework.py"
+      ]
+    },
+    {
+      "sha": "0ceb29553c2ba42efc3c55d1ec9402f8087b7773",
+      "parents": [
+        "f3ba7c21cb3fb68d2fae4f1be13cffbe88312555",
+        "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+      ],
+      "authored": "2026-02-13T16:54:27-05:00",
+      "committed": "2026-02-13T16:54:27-05:00",
+      "author": "Ironbelly",
+      "email": "ryan@ironbelly.com",
+      "subject": "Merge branch 'SuperClaude-Org:master' into master",
+      "introduced_commits": [
+        "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+      ],
+      "net_files": [
+        "src/superclaude/cli/install_mcp.py"
+      ]
+    }
+  ],
+  "upstream_commits": [
+    {
+      "sha": "b061b2f7b00ca33d66c10b666c15016873b2e094",
+      "parents": [
+        "55c658c77f88c538cf9d90a3736c1b24f8f64f44"
+      ],
+      "authored": "2026-02-25T18:14:50+09:00",
+      "committed": "2026-02-25T14:44:50+05:30",
+      "author": "Utakata",
+      "email": "syouryuu1111@gmail.com",
+      "subject": "fix: correct pull-sync workflow protection rules (#530)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/pull-sync-framework.yml",
+        "scripts/sync_from_framework.py"
+      ]
+    },
+    {
+      "sha": "55c658c77f88c538cf9d90a3736c1b24f8f64f44",
+      "parents": [
+        "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8"
+      ],
+      "authored": "2026-02-11T12:32:47+08:00",
+      "committed": "2026-02-11T10:02:47+05:30",
+      "author": "Yuxin Liu",
+      "email": "shane_liuyx@hotmail.com",
+      "subject": "Fix AIRIS MCP Gateway installer bugs (#525)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/install_mcp.py"
+      ]
+    },
+    {
+      "sha": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+      "parents": [
+        "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5"
+      ],
+      "authored": "2026-01-18T15:20:16+01:00",
+      "committed": "2026-01-18T19:50:16+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "docs: update version references and fix CHANGELOG for v4.2.0 (#515)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CHANGELOG.md",
+        "CLAUDE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md"
+      ]
+    },
+    {
+      "sha": "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5",
+      "parents": [
+        "e61aaba771055f65dd7c4f5de4d0e3e91ac928ec"
+      ],
+      "authored": "2026-01-18T14:09:18+01:00",
+      "committed": "2026-01-18T18:39:18+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "chore: bump version to 4.2.0 (#514)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "VERSION",
+        "pyproject.toml",
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "e61aaba771055f65dd7c4f5de4d0e3e91ac928ec",
+      "parents": [
+        "208c66e1a781376a85132087b5a99767a9f13e31"
+      ],
+      "authored": "2026-01-18T13:53:50+01:00",
+      "committed": "2026-01-18T18:23:50+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "feat(commands): add explicit boundaries and handoff instructions (#513)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/user-guide/commands.md",
+        "src/superclaude/commands/analyze.md",
+        "src/superclaude/commands/brainstorm.md",
+        "src/superclaude/commands/business-panel.md",
+        "src/superclaude/commands/cleanup.md",
+        "src/superclaude/commands/design.md",
+        "src/superclaude/commands/estimate.md",
+        "src/superclaude/commands/implement.md",
+        "src/superclaude/commands/improve.md",
+        "src/superclaude/commands/research.md",
+        "src/superclaude/commands/spawn.md",
+        "src/superclaude/commands/spec-panel.md",
+        "src/superclaude/commands/task.md",
+        "src/superclaude/commands/troubleshoot.md",
+        "src/superclaude/commands/workflow.md"
+      ]
+    },
+    {
+      "sha": "208c66e1a781376a85132087b5a99767a9f13e31",
+      "parents": [
+        "3294a0ad941f299e8c997bbe88a718694e173a8f"
+      ],
+      "authored": "2026-01-18T04:37:51+01:00",
+      "committed": "2026-01-18T09:07:51+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "docs: update commands.md - complete command reference (#512)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/user-guide/commands.md"
+      ]
+    },
+    {
+      "sha": "3294a0ad941f299e8c997bbe88a718694e173a8f",
+      "parents": [
+        "04c9b85cd0c2ed774f397bcc39f21a56178c7d49"
+      ],
+      "authored": "2026-01-10T21:45:12+09:00",
+      "committed": "2026-01-10T18:15:12+05:30",
+      "author": "kazuki nakai",
+      "email": "48890992+kazukinakai@users.noreply.github.com",
+      "subject": "feat(mcp): add AIRIS MCP Gateway as default installation option (#509)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "docs/capability-mapping-v5.md",
+        "src/superclaude/cli/install_mcp.py"
+      ]
+    },
+    {
+      "sha": "04c9b85cd0c2ed774f397bcc39f21a56178c7d49",
+      "parents": [
+        "6ae5e9987736dab9908260d392f1a6c89b2dcde4"
+      ],
+      "authored": "2026-01-09T13:33:41+08:00",
+      "committed": "2026-01-09T11:03:41+05:30",
+      "author": "smartdddlab",
+      "email": "lihejia1104@gmail.com",
+      "subject": "fix: ensure UTF-8 encoding handling for MCP command output (#507)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/install_mcp.py"
+      ]
+    },
+    {
+      "sha": "6ae5e9987736dab9908260d392f1a6c89b2dcde4",
+      "parents": [
+        "202660b52451d0680969c3fbb1042cb52539d35a"
+      ],
+      "authored": "2025-12-16T00:48:01+09:00",
+      "committed": "2025-12-15T21:18:01+05:30",
+      "author": "kazuki nakai",
+      "email": "48890992+kazukinakai@users.noreply.github.com",
+      "subject": "docs: add AIRIS MCP Gateway as unified installation option (#499)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/user-guide/mcp-servers.md",
+        "src/superclaude/mcp/MCP_Airis-Agent.md",
+        "src/superclaude/mcp/MCP_Mindbase.md",
+        "src/superclaude/mcp/configs/airis-agent.json",
+        "src/superclaude/mcp/configs/mindbase.json"
+      ]
+    },
+    {
+      "sha": "202660b52451d0680969c3fbb1042cb52539d35a",
+      "parents": [
+        "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211"
+      ],
+      "authored": "2025-12-13T11:00:18+09:00",
+      "committed": "2025-12-13T07:30:18+05:30",
+      "author": "kazuki nakai",
+      "email": "48890992+kazukinakai@users.noreply.github.com",
+      "subject": "feat(mcp): add Airis Agent and MindBase MCP servers (#497)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/mcp/MCP_Airis-Agent.md",
+        "src/superclaude/mcp/MCP_Mindbase.md",
+        "src/superclaude/mcp/configs/airis-agent.json",
+        "src/superclaude/mcp/configs/mindbase.json"
+      ]
+    },
+    {
+      "sha": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+      "parents": [
+        "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6"
+      ],
+      "authored": "2025-12-12T22:09:50+07:00",
+      "committed": "2025-12-12T22:09:50+07:00",
+      "author": "kazuki",
+      "email": "kazuki@kazukinoMacBook-Air.local",
+      "subject": "fix: remove duplicate uppercase docs paths for macOS compatibility",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/Developer-Guide/README.md",
+        "docs/Developer-Guide/contributing-code.md",
+        "docs/Developer-Guide/documentation-index.md",
+        "docs/Developer-Guide/technical-architecture.md",
+        "docs/Developer-Guide/testing-debugging.md",
+        "docs/Getting-Started/installation.md",
+        "docs/Getting-Started/quick-start.md",
+        "docs/Reference/README.md",
+        "docs/Reference/advanced-patterns.md",
+        "docs/Reference/advanced-workflows.md",
+        "docs/Reference/basic-examples.md",
+        "docs/Reference/claude-code-history-management.md",
+        "docs/Reference/common-issues.md",
+        "docs/Reference/diagnostic-reference.md",
+        "docs/Reference/examples-cookbook.md",
+        "docs/Reference/integration-patterns.md",
+        "docs/Reference/mcp-server-guide.md",
+        "docs/Reference/troubleshooting.md",
+        "docs/User-Guide-jp/agents.md",
+        "docs/User-Guide-jp/commands.md",
+        "docs/User-Guide-jp/flags.md",
+        "docs/User-Guide-jp/mcp-servers.md",
+        "docs/User-Guide-jp/modes.md",
+        "docs/User-Guide-jp/session-management.md",
+        "docs/User-Guide-kr/agents.md",
+        "docs/User-Guide-kr/commands.md",
+        "docs/User-Guide-kr/flags.md",
+        "docs/User-Guide-kr/mcp-servers.md",
+        "docs/User-Guide-kr/modes.md",
+        "docs/User-Guide-kr/session-management.md",
+        "docs/User-Guide-zh/agents.md",
+        "docs/User-Guide-zh/commands.md",
+        "docs/User-Guide-zh/flags.md",
+        "docs/User-Guide-zh/mcp-servers.md",
+        "docs/User-Guide-zh/modes.md",
+        "docs/User-Guide-zh/session-management.md",
+        "docs/User-Guide/agents.md",
+        "docs/User-Guide/commands.md",
+        "docs/User-Guide/flags.md",
+        "docs/User-Guide/mcp-installation.md",
+        "docs/User-Guide/mcp-servers.md",
+        "docs/User-Guide/modes.md",
+        "docs/User-Guide/session-management.md",
+        "docs/user-guide/mcp-installation.md"
+      ]
+    },
+    {
+      "sha": "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6",
+      "parents": [
+        "43ca81d1693b1ecfc6648531798e29224cb305c3"
+      ],
+      "authored": "2025-12-02T16:57:20-08:00",
+      "committed": "2025-12-03T06:27:20+05:30",
+      "author": "Gurdas Nijor",
+      "email": "gurdas@smithery.ai",
+      "subject": "Add \"Run in Smithery\" badge (#490)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md"
+      ]
+    },
+    {
+      "sha": "43ca81d1693b1ecfc6648531798e29224cb305c3",
+      "parents": [
+        "323137a9df985c17f221f559ccede9860d40cb23"
+      ],
+      "authored": "2025-11-14T14:45:58+01:00",
+      "committed": "2025-11-14T14:45:58+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: update test solutions and mistake logs",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/memory/solutions_learned.jsonl",
+        "docs/mistakes/test_database_connection-2025-11-14.md",
+        "docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md",
+        "docs/mistakes/unknown-2025-11-14.md"
+      ]
+    },
+    {
+      "sha": "323137a9df985c17f221f559ccede9860d40cb23",
+      "parents": [
+        "074b99480db9ffe7f2f86a5cbd7a96f13843410c"
+      ],
+      "authored": "2025-11-14T14:40:24+01:00",
+      "committed": "2025-11-14T14:40:24+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: include src and plugins folders in wheel package",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "074b99480db9ffe7f2f86a5cbd7a96f13843410c",
+      "parents": [
+        "9ca48494021325defc117145a7f38634852b27b6"
+      ],
+      "authored": "2025-11-14T14:34:23+01:00",
+      "committed": "2025-11-14T14:34:23+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: include plugins directory in wheel distribution",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "9ca48494021325defc117145a7f38634852b27b6",
+      "parents": [
+        "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72"
+      ],
+      "authored": "2025-11-14T14:22:48+01:00",
+      "committed": "2025-11-14T14:22:48+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: simplify wheel build configuration to prevent ZIP archive errors",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72",
+      "parents": [
+        "18c0e4e127dc352db19ae132a770019bf1f32d8a"
+      ],
+      "authored": "2025-11-14T14:15:44+01:00",
+      "committed": "2025-11-14T14:16:19+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "chore: bump version to 4.1.9 and add __init__.py to all packages",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "KNOWLEDGE.md",
+        "MANIFEST.in",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "VERSION",
+        "docs/reference/commands-list.md",
+        "docs/reference/comprehensive-features.md",
+        "plugins/superclaude/__init__.py",
+        "plugins/superclaude/agents/__init__.py",
+        "plugins/superclaude/commands/__init__.py",
+        "plugins/superclaude/examples/__init__.py",
+        "plugins/superclaude/hooks/__init__.py",
+        "plugins/superclaude/mcp/configs/__init__.py",
+        "plugins/superclaude/scripts/__init__.py",
+        "plugins/superclaude/skills/__init__.py",
+        "plugins/superclaude/skills/confidence-check/__init__.py",
+        "pyproject.toml",
+        "src/superclaude/__init__.py",
+        "src/superclaude/agents/__init__.py",
+        "src/superclaude/commands/__init__.py",
+        "src/superclaude/examples/__init__.py",
+        "src/superclaude/hooks/__init__.py",
+        "src/superclaude/mcp/configs/__init__.py",
+        "src/superclaude/scripts/__init__.py",
+        "src/superclaude/skills/__init__.py",
+        "src/superclaude/skills/confidence-check/__init__.py"
+      ]
+    },
+    {
+      "sha": "18c0e4e127dc352db19ae132a770019bf1f32d8a",
+      "parents": [
+        "1b14d065378163809c027873454eaa38cc6a108b"
+      ],
+      "authored": "2025-11-14T11:33:04+09:00",
+      "committed": "2025-11-14T08:03:04+05:30",
+      "author": "BlackBear",
+      "email": "zerodice0@gmail.com",
+      "subject": "Add missing install.sh script (#483)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/quick-check.yml",
+        "install.sh",
+        "plugins/superclaude/scripts/clean_command_names.py",
+        "pyproject.toml",
+        "scripts/ab_test_workflows.py",
+        "scripts/analyze_workflow_metrics.py",
+        "scripts/build_superclaude_plugin.py",
+        "setup.py",
+        "src/superclaude/cli/install_mcp.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/scripts/clean_command_names.py"
+      ]
+    },
+    {
+      "sha": "1b14d065378163809c027873454eaa38cc6a108b",
+      "parents": [
+        "3762d6ab24508107dc794811d9b6b0c9def84707"
+      ],
+      "authored": "2025-11-13T16:29:10+01:00",
+      "committed": "2025-11-13T16:29:10+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "added mcp command fixed some issues",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/User-Guide/mcp-installation.md",
+        "docs/reference/comprehensive-features.md",
+        "src/superclaude/cli/install_mcp.py",
+        "src/superclaude/cli/main.py"
+      ]
+    },
+    {
+      "sha": "3762d6ab24508107dc794811d9b6b0c9def84707",
+      "parents": [
+        "ab8904bc8cc2291b347a8641b913099f699f0c91"
+      ],
+      "authored": "2025-11-13T16:16:05+01:00",
+      "committed": "2025-11-13T16:16:05+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: restore complete SuperClaude framework from commit d4a17fc",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "MANIFEST.in",
+        "docs/Developer-Guide/README.md",
+        "docs/Developer-Guide/contributing-code.md",
+        "docs/Developer-Guide/documentation-index.md",
+        "docs/Developer-Guide/technical-architecture.md",
+        "docs/Developer-Guide/testing-debugging.md",
+        "docs/Development/ARCHITECTURE.md",
+        "docs/Development/PROJECT_STATUS.md",
+        "docs/Development/ROADMAP.md",
+        "docs/Development/TASKS.md",
+        "docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md",
+        "docs/Development/installation-flow-understanding.md",
+        "docs/Development/pm-agent-ideal-workflow.md",
+        "docs/Development/pm-agent-integration.md",
+        "docs/Development/project-structure-understanding.md",
+        "docs/Development/tasks/current-tasks.md",
+        "docs/Getting-Started/installation.md",
+        "docs/Getting-Started/quick-start.md",
+        "docs/README.md",
+        "docs/Reference/README.md",
+        "docs/Reference/advanced-patterns.md",
+        "docs/Reference/advanced-workflows.md",
+        "docs/Reference/basic-examples.md",
+        "docs/Reference/claude-code-history-management.md",
+        "docs/Reference/common-issues.md",
+        "docs/Reference/diagnostic-reference.md",
+        "docs/Reference/examples-cookbook.md",
+        "docs/Reference/integration-patterns.md",
+        "docs/Reference/mcp-server-guide.md",
+        "docs/Reference/troubleshooting.md",
+        "docs/Templates/__init__.py",
+        "docs/User-Guide-jp/agents.md",
+        "docs/User-Guide-jp/commands.md",
+        "docs/User-Guide-jp/flags.md",
+        "docs/User-Guide-jp/mcp-servers.md",
+        "docs/User-Guide-jp/modes.md",
+        "docs/User-Guide-jp/session-management.md",
+        "docs/User-Guide-kr/agents.md",
+        "docs/User-Guide-kr/commands.md",
+        "docs/User-Guide-kr/flags.md",
+        "docs/User-Guide-kr/mcp-servers.md",
+        "docs/User-Guide-kr/modes.md",
+        "docs/User-Guide-kr/session-management.md",
+        "docs/User-Guide-zh/agents.md",
+        "docs/User-Guide-zh/commands.md",
+        "docs/User-Guide-zh/flags.md",
+        "docs/User-Guide-zh/mcp-servers.md",
+        "docs/User-Guide-zh/modes.md",
+        "docs/User-Guide-zh/session-management.md",
+        "docs/User-Guide/agents.md",
+        "docs/User-Guide/commands.md",
+        "docs/User-Guide/flags.md",
+        "docs/User-Guide/mcp-servers.md",
+        "docs/User-Guide/modes.md",
+        "docs/User-Guide/session-management.md",
+        "docs/pm-agent-implementation-status.md",
+        "docs/reference/comprehensive-features.md",
+        "plugins/superclaude/agents/backend-architect.md",
+        "plugins/superclaude/agents/business-panel-experts.md",
+        "plugins/superclaude/agents/deep-research-agent.md",
+        "plugins/superclaude/agents/devops-architect.md",
+        "plugins/superclaude/agents/frontend-architect.md",
+        "plugins/superclaude/agents/learning-guide.md",
+        "plugins/superclaude/agents/performance-engineer.md",
+        "plugins/superclaude/agents/pm-agent.md",
+        "plugins/superclaude/agents/python-expert.md",
+        "plugins/superclaude/agents/quality-engineer.md",
+        "plugins/superclaude/agents/refactoring-expert.md",
+        "plugins/superclaude/agents/requirements-analyst.md",
+        "plugins/superclaude/agents/root-cause-analyst.md",
+        "plugins/superclaude/agents/security-engineer.md",
+        "plugins/superclaude/agents/socratic-mentor.md",
+        "plugins/superclaude/agents/system-architect.md",
+        "plugins/superclaude/agents/technical-writer.md",
+        "plugins/superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+        "plugins/superclaude/core/BUSINESS_SYMBOLS.md",
+        "plugins/superclaude/core/FLAGS.md",
+        "plugins/superclaude/core/PRINCIPLES.md",
+        "plugins/superclaude/core/RESEARCH_CONFIG.md",
+        "plugins/superclaude/core/RULES.md",
+        "plugins/superclaude/core/__init__.py",
+        "plugins/superclaude/examples/deep_research_workflows.md",
+        "plugins/superclaude/mcp/MCP_Chrome-DevTools.md",
+        "plugins/superclaude/mcp/MCP_Context7.md",
+        "plugins/superclaude/mcp/MCP_Magic.md",
+        "plugins/superclaude/mcp/MCP_Morphllm.md",
+        "plugins/superclaude/mcp/MCP_Playwright.md",
+        "plugins/superclaude/mcp/MCP_Sequential.md",
+        "plugins/superclaude/mcp/MCP_Serena.md",
+        "plugins/superclaude/mcp/MCP_Tavily.md",
+        "plugins/superclaude/mcp/__init__.py",
+        "plugins/superclaude/mcp/configs/context7.json",
+        "plugins/superclaude/mcp/configs/magic.json",
+        "plugins/superclaude/mcp/configs/morphllm.json",
+        "plugins/superclaude/mcp/configs/playwright.json",
+        "plugins/superclaude/mcp/configs/sequential.json",
+        "plugins/superclaude/mcp/configs/serena-docker.json",
+        "plugins/superclaude/mcp/configs/serena.json",
+        "plugins/superclaude/mcp/configs/tavily.json",
+        "plugins/superclaude/modes/MODE_Brainstorming.md",
+        "plugins/superclaude/modes/MODE_Business_Panel.md",
+        "plugins/superclaude/modes/MODE_DeepResearch.md",
+        "plugins/superclaude/modes/MODE_Introspection.md",
+        "plugins/superclaude/modes/MODE_Orchestration.md",
+        "plugins/superclaude/modes/MODE_Task_Management.md",
+        "plugins/superclaude/modes/MODE_Token_Efficiency.md",
+        "plugins/superclaude/modes/__init__.py",
+        "pyproject.toml",
+        "src/superclaude/agents/backend-architect.md",
+        "src/superclaude/agents/business-panel-experts.md",
+        "src/superclaude/agents/deep-research-agent.md",
+        "src/superclaude/agents/devops-architect.md",
+        "src/superclaude/agents/frontend-architect.md",
+        "src/superclaude/agents/learning-guide.md",
+        "src/superclaude/agents/performance-engineer.md",
+        "src/superclaude/agents/pm-agent.md",
+        "src/superclaude/agents/python-expert.md",
+        "src/superclaude/agents/quality-engineer.md",
+        "src/superclaude/agents/refactoring-expert.md",
+        "src/superclaude/agents/requirements-analyst.md",
+        "src/superclaude/agents/root-cause-analyst.md",
+        "src/superclaude/agents/security-engineer.md",
+        "src/superclaude/agents/socratic-mentor.md",
+        "src/superclaude/agents/system-architect.md",
+        "src/superclaude/agents/technical-writer.md",
+        "src/superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+        "src/superclaude/core/BUSINESS_SYMBOLS.md",
+        "src/superclaude/core/FLAGS.md",
+        "src/superclaude/core/PRINCIPLES.md",
+        "src/superclaude/core/RESEARCH_CONFIG.md",
+        "src/superclaude/core/RULES.md",
+        "src/superclaude/core/__init__.py",
+        "src/superclaude/examples/deep_research_workflows.md",
+        "src/superclaude/mcp/MCP_Chrome-DevTools.md",
+        "src/superclaude/mcp/MCP_Context7.md",
+        "src/superclaude/mcp/MCP_Magic.md",
+        "src/superclaude/mcp/MCP_Morphllm.md",
+        "src/superclaude/mcp/MCP_Playwright.md",
+        "src/superclaude/mcp/MCP_Sequential.md",
+        "src/superclaude/mcp/MCP_Serena.md",
+        "src/superclaude/mcp/MCP_Tavily.md",
+        "src/superclaude/mcp/__init__.py",
+        "src/superclaude/mcp/configs/context7.json",
+        "src/superclaude/mcp/configs/magic.json",
+        "src/superclaude/mcp/configs/morphllm.json",
+        "src/superclaude/mcp/configs/playwright.json",
+        "src/superclaude/mcp/configs/sequential.json",
+        "src/superclaude/mcp/configs/serena-docker.json",
+        "src/superclaude/mcp/configs/serena.json",
+        "src/superclaude/mcp/configs/tavily.json",
+        "src/superclaude/modes/MODE_Brainstorming.md",
+        "src/superclaude/modes/MODE_Business_Panel.md",
+        "src/superclaude/modes/MODE_DeepResearch.md",
+        "src/superclaude/modes/MODE_Introspection.md",
+        "src/superclaude/modes/MODE_Orchestration.md",
+        "src/superclaude/modes/MODE_Task_Management.md",
+        "src/superclaude/modes/MODE_Token_Efficiency.md",
+        "src/superclaude/modes/__init__.py"
+      ]
+    },
+    {
+      "sha": "ab8904bc8cc2291b347a8641b913099f699f0c91",
+      "parents": [
+        "42946f8445f13f4444aa67ecb1f503ed6d91eb79"
+      ],
+      "authored": "2025-11-13T15:54:16+01:00",
+      "committed": "2025-11-13T16:08:56+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: restore all 30 slash commands with comprehensive documentation",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "docs/reference/commands-list.md",
+        "plugins/superclaude/commands/analyze.md",
+        "plugins/superclaude/commands/brainstorm.md",
+        "plugins/superclaude/commands/build.md",
+        "plugins/superclaude/commands/business-panel.md",
+        "plugins/superclaude/commands/cleanup.md",
+        "plugins/superclaude/commands/design.md",
+        "plugins/superclaude/commands/document.md",
+        "plugins/superclaude/commands/estimate.md",
+        "plugins/superclaude/commands/explain.md",
+        "plugins/superclaude/commands/git.md",
+        "plugins/superclaude/commands/help.md",
+        "plugins/superclaude/commands/implement.md",
+        "plugins/superclaude/commands/improve.md",
+        "plugins/superclaude/commands/index.md",
+        "plugins/superclaude/commands/load.md",
+        "plugins/superclaude/commands/pm.md",
+        "plugins/superclaude/commands/reflect.md",
+        "plugins/superclaude/commands/research.md",
+        "plugins/superclaude/commands/save.md",
+        "plugins/superclaude/commands/select-tool.md",
+        "plugins/superclaude/commands/spawn.md",
+        "plugins/superclaude/commands/spec-panel.md",
+        "plugins/superclaude/commands/task.md",
+        "plugins/superclaude/commands/test.md",
+        "plugins/superclaude/commands/troubleshoot.md",
+        "plugins/superclaude/commands/workflow.md",
+        "src/superclaude/commands/analyze.md",
+        "src/superclaude/commands/brainstorm.md",
+        "src/superclaude/commands/build.md",
+        "src/superclaude/commands/business-panel.md",
+        "src/superclaude/commands/cleanup.md",
+        "src/superclaude/commands/design.md",
+        "src/superclaude/commands/document.md",
+        "src/superclaude/commands/estimate.md",
+        "src/superclaude/commands/explain.md",
+        "src/superclaude/commands/git.md",
+        "src/superclaude/commands/help.md",
+        "src/superclaude/commands/implement.md",
+        "src/superclaude/commands/improve.md",
+        "src/superclaude/commands/index.md",
+        "src/superclaude/commands/load.md",
+        "src/superclaude/commands/pm.md",
+        "src/superclaude/commands/reflect.md",
+        "src/superclaude/commands/research.md",
+        "src/superclaude/commands/save.md",
+        "src/superclaude/commands/select-tool.md",
+        "src/superclaude/commands/spawn.md",
+        "src/superclaude/commands/spec-panel.md",
+        "src/superclaude/commands/task.md",
+        "src/superclaude/commands/test.md",
+        "src/superclaude/commands/troubleshoot.md",
+        "src/superclaude/commands/workflow.md"
+      ]
+    },
+    {
+      "sha": "42946f8445f13f4444aa67ecb1f503ed6d91eb79",
+      "parents": [
+        "81343a678bc6011ac8410b95b4f29a6d91749b3d"
+      ],
+      "authored": "2025-11-13T15:37:56+01:00",
+      "committed": "2025-11-13T15:37:56+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: prioritize package location for commands path resolution",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/install_commands.py"
+      ]
+    },
+    {
+      "sha": "81343a678bc6011ac8410b95b4f29a6d91749b3d",
+      "parents": [
+        "2847f7551871eb17d2821730be0adc39cba9666a"
+      ],
+      "authored": "2025-11-13T15:35:03+01:00",
+      "committed": "2025-11-13T15:35:03+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: include all plugin resources in package distribution",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "MANIFEST.in",
+        "pyproject.toml",
+        "src/superclaude/agents/README.md",
+        "src/superclaude/agents/deep-research.md",
+        "src/superclaude/agents/repo-index.md",
+        "src/superclaude/agents/self-review.md",
+        "src/superclaude/hooks/README.md",
+        "src/superclaude/hooks/hooks.json",
+        "src/superclaude/scripts/README.md",
+        "src/superclaude/scripts/clean_command_names.py",
+        "src/superclaude/scripts/session-init.sh"
+      ]
+    },
+    {
+      "sha": "2847f7551871eb17d2821730be0adc39cba9666a",
+      "parents": [
+        "c6e72825b4feb6ba37facabef868865e11c5ae45"
+      ],
+      "authored": "2025-11-13T15:05:53+01:00",
+      "committed": "2025-11-13T15:05:53+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: explicitly include commands and skills in MANIFEST.in",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "MANIFEST.in"
+      ]
+    },
+    {
+      "sha": "c6e72825b4feb6ba37facabef868865e11c5ae45",
+      "parents": [
+        "d11abead403e4de8438f008a468f98ca10e5472e"
+      ],
+      "authored": "2025-11-13T15:03:11+01:00",
+      "committed": "2025-11-13T15:03:11+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: include commands in package distribution",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml",
+        "src/superclaude/commands/README.md",
+        "src/superclaude/commands/agent.md",
+        "src/superclaude/commands/index-repo.md",
+        "src/superclaude/commands/recommend.md",
+        "src/superclaude/commands/research.md",
+        "src/superclaude/commands/sc.md"
+      ]
+    },
+    {
+      "sha": "d11abead403e4de8438f008a468f98ca10e5472e",
+      "parents": [
+        "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d"
+      ],
+      "authored": "2025-11-13T14:24:00+01:00",
+      "committed": "2025-11-13T14:24:00+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: sync translated READMEs with main README structure",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md"
+      ]
+    },
+    {
+      "sha": "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d",
+      "parents": [
+        "86a26333912b09a98fab1d9a81c0cd23e404f224"
+      ],
+      "authored": "2025-11-13T12:46:52+01:00",
+      "committed": "2025-11-13T12:46:52+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "chore: update VERSION file to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "VERSION"
+      ]
+    },
+    {
+      "sha": "86a26333912b09a98fab1d9a81c0cd23e404f224",
+      "parents": [
+        "61591211ae99847130aed3e84737bfa63b3b6520"
+      ],
+      "authored": "2025-11-13T12:45:17+01:00",
+      "committed": "2025-11-13T12:45:17+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: update __version__ in __init__.py to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "61591211ae99847130aed3e84737bfa63b3b6520",
+      "parents": [
+        "25785363af21849898ca77624aac0b05fc780b94"
+      ],
+      "authored": "2025-11-13T12:36:38+01:00",
+      "committed": "2025-11-13T12:36:38+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "chore: bump version to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "KNOWLEDGE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "25785363af21849898ca77624aac0b05fc780b94",
+      "parents": [
+        "58008c94446386718f036cc402f2dc4e99b3f007"
+      ],
+      "authored": "2025-11-13T12:21:47+01:00",
+      "committed": "2025-11-13T12:21:47+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: add update command to CLI",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/main.py"
+      ]
+    },
+    {
+      "sha": "58008c94446386718f036cc402f2dc4e99b3f007",
+      "parents": [
+        "b00547ad535ee638952c5e38b2a139888e50f496"
+      ],
+      "authored": "2025-11-12T18:25:34+01:00",
+      "committed": "2025-11-12T18:25:34+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: fix broken links in translated READMEs",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md"
+      ]
+    },
+    {
+      "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+      "parents": [
+        "e2896335ba82f83a0b1a271cb872ff04b7ea884b"
+      ],
+      "authored": "2025-11-12T18:19:45+01:00",
+      "committed": "2025-11-12T18:19:45+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "style: apply ruff formatting to all files",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_skill.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/execution/__init__.py",
+        "src/superclaude/execution/parallel.py",
+        "src/superclaude/execution/reflection.py",
+        "src/superclaude/execution/self_correction.py",
+        "src/superclaude/pm_agent/confidence.py",
+        "src/superclaude/pm_agent/reflexion.py",
+        "src/superclaude/pytest_plugin.py",
+        "tests/conftest.py",
+        "tests/unit/test_cli_install.py",
+        "tests/unit/test_confidence.py"
+      ]
+    },
+    {
+      "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+      "parents": [
+        "8da05a172063d16e062a0bfabf583debc9be385c"
+      ],
+      "authored": "2025-11-12T18:17:39+01:00",
+      "committed": "2025-11-12T18:17:39+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: resolve all ruff linting errors",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "pyproject.toml",
+        "src/superclaude/__init__.py",
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/install_skill.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/execution/__init__.py",
+        "src/superclaude/execution/parallel.py",
+        "src/superclaude/execution/reflection.py",
+        "src/superclaude/execution/self_correction.py",
+        "src/superclaude/pm_agent/__init__.py",
+        "src/superclaude/pm_agent/confidence.py",
+        "src/superclaude/pm_agent/reflexion.py",
+        "src/superclaude/pm_agent/self_check.py",
+        "src/superclaude/pytest_plugin.py",
+        "tests/conftest.py",
+        "tests/integration/test_pytest_plugin.py",
+        "tests/unit/test_cli_install.py",
+        "tests/unit/test_confidence.py",
+        "tests/unit/test_reflexion.py",
+        "tests/unit/test_self_check.py",
+        "tests/unit/test_token_budget.py"
+      ]
+    },
+    {
+      "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+      "parents": [
+        "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a"
+      ],
+      "authored": "2025-11-12T18:12:57+01:00",
+      "committed": "2025-11-12T18:12:57+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: use direct commands instead of uv run with --system",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/quick-check.yml",
+        ".github/workflows/test.yml"
+      ]
+    },
+    {
+      "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+      "parents": [
+        "16caa49442f477febd4b2a8e32dd1ded705d02d3"
+      ],
+      "authored": "2025-11-12T18:09:37+01:00",
+      "committed": "2025-11-12T18:09:37+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: add --system flag to uv pip install in workflows",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/quick-check.yml",
+        ".github/workflows/test.yml"
+      ]
+    },
+    {
+      "sha": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+      "parents": [
+        "32c0086d0f916362fd4899212e8e714511ca4524"
+      ],
+      "authored": "2025-11-12T18:04:34+01:00",
+      "committed": "2025-11-12T18:04:34+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: update package version and authors",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+      "parents": [
+        "a3541f43c5e95cae669c0d666a6fc68808de8fde"
+      ],
+      "authored": "2025-11-12T17:59:29+01:00",
+      "committed": "2025-11-12T17:59:29+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: correct package paths in publish-pypi workflow",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/publish-pypi.yml",
+        ".github/workflows/readme-quality-check.yml"
+      ]
+    },
+    {
+      "sha": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+      "parents": [
+        "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0"
+      ],
+      "authored": "2025-11-12T17:37:27+01:00",
+      "committed": "2025-11-12T17:37:27+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: bump version to 4.1.7 across all files",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "KNOWLEDGE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "TASK.md",
+        "VERSION",
+        "docs/research/task-tool-parallel-execution-results.md",
+        "package.json",
+        "plugins/superclaude/commands/sc.md",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0",
+      "parents": [
+        "8c0559ca9a99a14c7337b48e888959b47dc8acb8"
+      ],
+      "authored": "2025-11-11T18:37:03+01:00",
+      "committed": "2025-11-11T18:37:03+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: Change installation directory to ~/.claude/commands/sc/",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/memory/solutions_learned.jsonl",
+        "docs/mistakes/test_database_connection-2025-11-11.md",
+        "docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md",
+        "docs/mistakes/unknown-2025-11-11.md",
+        "plugins/superclaude/commands/sc.md",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/main.py"
+      ]
+    },
+    {
+      "sha": "8c0559ca9a99a14c7337b48e888959b47dc8acb8",
+      "parents": [
+        "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5"
+      ],
+      "authored": "2025-11-11T18:21:22+01:00",
+      "committed": "2025-11-11T18:21:22+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: add comprehensive test suite, CI/CD workflows, and install command",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".github/workflows/README.md",
+        ".github/workflows/quick-check.yml",
+        ".github/workflows/test.yml",
+        ".gitignore",
+        "KNOWLEDGE.md",
+        "PLANNING.md",
+        "README.md",
+        "TASK.md",
+        "package.json",
+        "src/superclaude/cli/install_commands.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/pm_agent/token_budget.py",
+        "tests/__init__.py",
+        "tests/conftest.py",
+        "tests/integration/__init__.py",
+        "tests/integration/test_pytest_plugin.py",
+        "tests/unit/__init__.py",
+        "tests/unit/test_cli_install.py",
+        "tests/unit/test_confidence.py",
+        "tests/unit/test_reflexion.py",
+        "tests/unit/test_self_check.py",
+        "tests/unit/test_token_budget.py"
+      ]
+    },
+    {
+      "sha": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+      "parents": [
+        "0ef8ea8139202acb17c5ffc938619f331c7184ab"
+      ],
+      "authored": "2025-11-12T01:30:49+09:00",
+      "committed": "2025-11-11T22:00:49+05:30",
+      "author": "Utakata",
+      "email": "syouryuu1111@gmail.com",
+      "subject": "Claude/fix readme plugin docs 011 cv2 lk n gko6wzm tfn dmnrm (#478)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md"
+      ]
+    },
+    {
+      "sha": "0ef8ea8139202acb17c5ffc938619f331c7184ab",
+      "parents": [
+        "10844490e2609a61ec201e073872428bac9f9470"
+      ],
+      "authored": "2025-11-09T16:37:20+03:00",
+      "committed": "2025-11-09T19:07:20+05:30",
+      "author": "Baran Acar",
+      "email": "baranacr98@outlook.com",
+      "subject": "feat: new command sc:recommend add. (#477)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "plugins/superclaude/commands/recommend.md"
+      ]
+    },
+    {
+      "sha": "10844490e2609a61ec201e073872428bac9f9470",
+      "parents": [
+        "bea4bfe289f298e790da4746212474d3ed2b0ed8"
+      ],
+      "authored": "2025-11-09T14:41:29+09:00",
+      "committed": "2025-11-09T14:41:29+09:00",
+      "author": "kazuki",
+      "email": "kazuki@kazukinoMacBook-Air.local",
+      "subject": "Update Makefile and add uninstall script",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "Makefile",
+        "scripts/uninstall_legacy.sh"
+      ]
+    },
+    {
+      "sha": "bea4bfe289f298e790da4746212474d3ed2b0ed8",
+      "parents": [
+        "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec"
+      ],
+      "authored": "2025-10-30T22:14:35-05:00",
+      "committed": "2025-10-31T08:44:35+05:30",
+      "author": "Cedric Hurst",
+      "email": "cedric@spantree.net",
+      "subject": "docs: Replace Mindbase References with ReflexionMemory (#464)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/mcp/mcp-integration-policy.md",
+        "docs/memory/README.md",
+        "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+        "docs/memory/pm_context.md",
+        "docs/memory/reflexion.jsonl.example",
+        "docs/memory/token_efficiency_validation.md",
+        "docs/reference/pm-agent-autonomous-reflection.md",
+        "docs/research/llm-agent-token-efficiency-2025.md",
+        "docs/research/reflexion-integration-2025.md",
+        "docs/user-guide/memory-system.md"
+      ]
+    },
+    {
+      "sha": "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec",
+      "parents": [
+        "67449770c0157372f276c16f99f0a935de1b1125"
+      ],
+      "authored": "2025-10-29T13:45:15+09:00",
+      "committed": "2025-10-29T10:15:15+05:30",
+      "author": "kazuki nakai",
+      "email": "48890992+kazukinakai@users.noreply.github.com",
+      "subject": "Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        ".claude/settings.json",
+        ".claude/skills/confidence-check/SKILL.md",
+        ".claude/skills/confidence-check/confidence.ts",
+        ".gitignore",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "DELETION_RATIONALE.md",
+        "MANIFEST.in",
+        "Makefile",
+        "PARALLEL_INDEXING_PLAN.md",
+        "PLUGIN_INSTALL.md",
+        "PROJECT_INDEX.json",
+        "PROJECT_INDEX.md",
+        "PR_DOCUMENTATION.md",
+        "QUALITY_COMPARISON.md",
+        "README.md",
+        "TEST_PLUGIN.md",
+        "bin/check_env.js",
+        "bin/check_update.js",
+        "bin/cli.js",
+        "bin/install.js",
+        "bin/update.js",
+        "docs/Development/ARCHITECTURE.md",
+        "docs/Development/PROJECT_STATUS.md",
+        "docs/Development/ROADMAP.md",
+        "docs/Development/TASKS.md",
+        "docs/Development/architecture-overview.md",
+        "docs/Development/cli-install-improvements.md",
+        "docs/Development/code-style.md",
+        "docs/Development/hypothesis-pm-autonomous-enhancement-2025-10-14.md",
+        "docs/Development/install-process-analysis.md",
+        "docs/Development/installation-flow-understanding.md",
+        "docs/Development/pm-agent-ideal-workflow.md",
+        "docs/Development/pm-agent-improvements.md",
+        "docs/Development/pm-agent-integration.md",
+        "docs/Development/pm-agent-parallel-architecture.md",
+        "docs/Development/pm-agent-parallel-execution-complete.md",
+        "docs/Development/project-overview.md",
+        "docs/Development/project-structure-understanding.md",
+        "docs/Development/tasks/current-tasks.md",
+        "docs/PM_AGENT.md",
+        "docs/PR_STRATEGY.md",
+        "docs/architecture/CONTEXT_WINDOW_ANALYSIS.md",
+        "docs/architecture/MIGRATION_TO_CLEAN_ARCHITECTURE.md",
+        "docs/architecture/PHASE_1_COMPLETE.md",
+        "docs/architecture/PHASE_2_COMPLETE.md",
+        "docs/architecture/PHASE_3_COMPLETE.md",
+        "docs/architecture/PM_AGENT_COMPARISON.md",
+        "docs/architecture/SKILLS_CLEANUP.md",
+        "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+        "docs/memory/pm_context.md",
+        "docs/memory/token_efficiency_validation.md",
+        "docs/next-refactor-plan.md",
+        "docs/plugin-reorg.md",
+        "docs/pm-agent-implementation-status.md",
+        "docs/reference/pm-agent-autonomous-reflection.md",
+        "docs/research/complete-python-skills-migration.md",
+        "docs/research/intelligent-execution-architecture.md",
+        "docs/research/markdown-to-python-migration-plan.md",
+        "docs/research/parallel-execution-complete-findings.md",
+        "docs/research/parallel-execution-findings.md",
+        "docs/research/phase1-implementation-strategy.md",
+        "docs/research/pm-mode-validation-methodology.md",
+        "docs/research/pm-skills-migration-results.md",
+        "docs/research/pm_agent_roi_analysis_2025-10-21.md",
+        "docs/research/python_src_layout_research_20251021.md",
+        "docs/research/repository-understanding-proposal.md",
+        "docs/research/research_serena_mcp_2025-01-16.md",
+        "docs/research/skills-migration-test.md",
+        "docs/research/task-tool-parallel-execution-results.md",
+        "docs/sessions/2025-10-14-summary.md",
+        "docs/templates/__init__.py",
+        "plugins/superclaude/agents/deep-research.md",
+        "plugins/superclaude/agents/repo-index.md",
+        "plugins/superclaude/agents/self-review.md",
+        "plugins/superclaude/commands/agent.md",
+        "plugins/superclaude/commands/index-repo.md",
+        "plugins/superclaude/commands/research.md",
+        "plugins/superclaude/hooks/hooks.json",
+        "plugins/superclaude/scripts/clean_command_names.py",
+        "plugins/superclaude/scripts/session-init.sh",
+        "plugins/superclaude/skills/confidence-check/SKILL.md",
+        "plugins/superclaude/skills/confidence-check/confidence.ts",
+        "pyproject.toml",
+        "scripts/build_and_upload.py",
+        "scripts/build_superclaude_plugin.py",
+        "scripts/validate_pypi_ready.py",
+        "scripts/verify_research_integration.sh",
+        "setup/__init__.py",
+        "setup/cli/__init__.py",
+        "setup/cli/base.py",
+        "setup/cli/commands/__init__.py",
+        "setup/cli/commands/backup.py",
+        "setup/cli/commands/install.py",
+        "setup/cli/commands/uninstall.py",
+        "setup/cli/commands/update.py",
+        "setup/components/__init__.py",
+        "setup/components/agents.py",
+        "setup/components/commands.py",
+        "setup/components/framework_docs.py",
+        "setup/components/mcp.py",
+        "setup/components/modes.py",
+        "setup/core/__init__.py",
+        "setup/core/base.py",
+        "setup/core/installer.py",
+        "setup/core/registry.py",
+        "setup/core/validator.py",
+        "setup/data/__init__.py",
+        "setup/data/features.json",
+        "setup/data/requirements.json",
+        "setup/services/__init__.py",
+        "setup/services/claude_md.py",
+        "setup/services/config.py",
+        "setup/services/files.py",
+        "setup/services/settings.py",
+        "setup/utils/__init__.py",
+        "setup/utils/environment.py",
+        "setup/utils/logger.py",
+        "setup/utils/paths.py",
+        "setup/utils/security.py",
+        "setup/utils/symbols.py",
+        "setup/utils/ui.py",
+        "setup/utils/updater.py",
+        "skills/confidence-check/SKILL.md",
+        "skills/confidence-check/confidence.ts",
+        "src/superclaude/__init__.py",
+        "src/superclaude/__version__.py",
+        "src/superclaude/cli/__init__.py",
+        "src/superclaude/cli/doctor.py",
+        "src/superclaude/cli/install_skill.py",
+        "src/superclaude/cli/main.py",
+        "src/superclaude/execution/__init__.py",
+        "src/superclaude/execution/parallel.py",
+        "src/superclaude/execution/reflection.py",
+        "src/superclaude/execution/self_correction.py",
+        "src/superclaude/pm_agent/__init__.py",
+        "src/superclaude/pm_agent/confidence.py",
+        "src/superclaude/pm_agent/reflexion.py",
+        "src/superclaude/pm_agent/self_check.py",
+        "src/superclaude/pm_agent/token_budget.py",
+        "src/superclaude/pytest_plugin.py",
+        "src/superclaude/skills/confidence-check/SKILL.md",
+        "src/superclaude/skills/confidence-check/confidence.ts",
+        "superclaude/__init__.py",
+        "superclaude/__main__.py",
+        "superclaude/agents/__init__.py",
+        "superclaude/agents/backend-architect.md",
+        "superclaude/agents/business-panel-experts.md",
+        "superclaude/agents/deep-research-agent.md",
+        "superclaude/agents/devops-architect.md",
+        "superclaude/agents/frontend-architect.md",
+        "superclaude/agents/learning-guide.md",
+        "superclaude/agents/performance-engineer.md",
+        "superclaude/agents/pm-agent.md",
+        "superclaude/agents/python-expert.md",
+        "superclaude/agents/quality-engineer.md",
+        "superclaude/agents/refactoring-expert.md",
+        "superclaude/agents/requirements-analyst.md",
+        "superclaude/agents/root-cause-analyst.md",
+        "superclaude/agents/security-engineer.md",
+        "superclaude/agents/socratic-mentor.md",
+        "superclaude/agents/system-architect.md",
+        "superclaude/agents/technical-writer.md",
+        "superclaude/cli/__init__.py",
+        "superclaude/cli/_console.py",
+        "superclaude/cli/app.py",
+        "superclaude/cli/commands/__init__.py",
+        "superclaude/cli/commands/config.py",
+        "superclaude/cli/commands/doctor.py",
+        "superclaude/cli/commands/install.py",
+        "superclaude/commands/__init__.py",
+        "superclaude/commands/analyze.md",
+        "superclaude/commands/brainstorm.md",
+        "superclaude/commands/build.md",
+        "superclaude/commands/business-panel.md",
+        "superclaude/commands/cleanup.md",
+        "superclaude/commands/design.md",
+        "superclaude/commands/document.md",
+        "superclaude/commands/estimate.md",
+        "superclaude/commands/explain.md",
+        "superclaude/commands/git.md",
+        "superclaude/commands/help.md",
+        "superclaude/commands/implement.md",
+        "superclaude/commands/improve.md",
+        "superclaude/commands/index.md",
+        "superclaude/commands/load.md",
+        "superclaude/commands/pm.md",
+        "superclaude/commands/reflect.md",
+        "superclaude/commands/research.md",
+        "superclaude/commands/save.md",
+        "superclaude/commands/select-tool.md",
+        "superclaude/commands/spawn.md",
+        "superclaude/commands/spec-panel.md",
+        "superclaude/commands/task.md",
+        "superclaude/commands/test.md",
+        "superclaude/commands/troubleshoot.md",
+        "superclaude/commands/workflow.md",
+        "superclaude/core/BUSINESS_PANEL_EXAMPLES.md",
+        "superclaude/core/BUSINESS_SYMBOLS.md",
+        "superclaude/core/FLAGS.md",
+        "superclaude/core/PRINCIPLES.md",
+        "superclaude/core/RESEARCH_CONFIG.md",
+        "superclaude/core/RULES.md",
+        "superclaude/core/__init__.py",
+        "superclaude/core/pm_init/__init__.py",
+        "superclaude/core/pm_init/context_contract.py",
+        "superclaude/core/pm_init/init_hook.py",
+        "superclaude/core/pm_init/reflexion_memory.py",
+        "superclaude/examples/deep_research_workflows.md",
+        "superclaude/modes/MODE_Brainstorming.md",
+        "superclaude/modes/MODE_Business_Panel.md",
+        "superclaude/modes/MODE_DeepResearch.md",
+        "superclaude/modes/MODE_Introspection.md",
+        "superclaude/modes/MODE_Orchestration.md",
+        "superclaude/modes/MODE_Task_Management.md",
+        "superclaude/modes/MODE_Token_Efficiency.md",
+        "superclaude/modes/__init__.py",
+        "tests/test_cli_smoke.py",
+        "tests/test_get_components.py",
+        "tests/test_install_command.py",
+        "tests/test_installer.py",
+        "tests/test_mcp_component.py",
+        "tests/test_mcp_docs_component.py",
+        "tests/test_ui.py"
+      ]
+    },
+    {
+      "sha": "67449770c0157372f276c16f99f0a935de1b1125",
+      "parents": [
+        "5a68595835256815c19b8fde256722f4dc687dd5"
+      ],
+      "authored": "2025-10-28T13:18:58+09:00",
+      "committed": "2025-10-28T09:48:58+05:30",
+      "author": "Utakata",
+      "email": "syouryuu1111@gmail.com",
+      "subject": "docs: Confirm AIRIS MCP Gateway installation URL is correct (#463)",
+      "provenance": "upstream-parent-ancestry",
+      "files": []
+    },
+    {
+      "sha": "5a68595835256815c19b8fde256722f4dc687dd5",
+      "parents": [
+        "faa53f27da2380cb48f4a289d51d702acc1e68c5"
+      ],
+      "authored": "2025-10-25T19:42:47+09:00",
+      "committed": "2025-10-25T16:12:47+05:30",
+      "author": "kazuki nakai",
+      "email": "48890992+kazukinakai@users.noreply.github.com",
+      "subject": "fix: update airis mcp gateway installer (#460)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/Development/install-process-analysis.md",
+        "setup/components/mcp.py"
+      ]
+    }
+  ],
+  "sync_commits": [
+    {
+      "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+      "parents": [
+        "c13a3dde7040336087fea5ada7e79dd4599d024f"
+      ],
+      "authored": "2026-09-27T16:29:46+00:00",
+      "committed": "2026-09-27T16:29:46+00:00",
+      "author": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-27 16:29]",
+      "provenance": "framework-sync-message",
+      "files": [
+        "docs/.framework-sync-commit"
+      ]
+    },
+    {
+      "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+      "parents": [
+        "64b1bb4483397f2aee1f8a9b15205644c57b87ea"
+      ],
+      "authored": "2026-09-15T03:37:59+00:00",
+      "committed": "2026-09-15T03:37:59+00:00",
+      "author": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-09-15 03:37]",
+      "provenance": "framework-sync-message",
+      "files": [
+        "commands/sc-brainstorm.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-estimate.md",
+        "commands/sc-explain.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index.md",
+        "commands/sc-recommend.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-workflow.md",
+        "docs/.framework-sync-commit"
+      ]
+    },
+    {
+      "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+      "parents": [
+        "c1621ae663af3ed4abff1b56f6dfaf83e9137040"
+      ],
+      "authored": "2026-08-21T06:44:16+00:00",
+      "committed": "2026-08-21T06:44:16+00:00",
+      "author": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-08-21 06:44]",
+      "provenance": "framework-sync-message",
+      "files": [
+        "docs/.framework-sync-commit"
+      ]
+    },
+    {
+      "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+      "parents": [
+        "70a7bc592b128d05971b0b7fe2c41df33d522cd3"
+      ],
+      "authored": "2026-07-22T08:28:18+00:00",
+      "committed": "2026-07-22T08:28:18+00:00",
+      "author": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-07-22 08:28]",
+      "provenance": "framework-sync-message",
+      "files": [
+        "agents/sc-README.md",
+        "agents/sc-backend-architect.md",
+        "agents/sc-business-panel-experts.md",
+        "agents/sc-deep-research-agent.md",
+        "agents/sc-deep-research.md",
+        "agents/sc-devops-architect.md",
+        "agents/sc-frontend-architect.md",
+        "agents/sc-learning-guide.md",
+        "agents/sc-performance-engineer.md",
+        "agents/sc-pm-agent.md",
+        "agents/sc-python-expert.md",
+        "agents/sc-quality-engineer.md",
+        "agents/sc-refactoring-expert.md",
+        "agents/sc-repo-index.md",
+        "agents/sc-requirements-analyst.md",
+        "agents/sc-root-cause-analyst.md",
+        "agents/sc-security-engineer.md",
+        "agents/sc-self-review.md",
+        "agents/sc-socratic-mentor.md",
+        "agents/sc-system-architect.md",
+        "agents/sc-technical-writer.md",
+        "commands/sc-README.md",
+        "commands/sc-agent.md",
+        "commands/sc-analyze.md",
+        "commands/sc-brainstorm.md",
+        "commands/sc-build.md",
+        "commands/sc-business-panel.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-design.md",
+        "commands/sc-document.md",
+        "commands/sc-estimate.md",
+        "commands/sc-explain.md",
+        "commands/sc-git.md",
+        "commands/sc-help.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index-repo.md",
+        "commands/sc-index.md",
+        "commands/sc-load.md",
+        "commands/sc-pm.md",
+        "commands/sc-recommend.md",
+        "commands/sc-reflect.md",
+        "commands/sc-research.md",
+        "commands/sc-save.md",
+        "commands/sc-sc.md",
+        "commands/sc-select-tool.md",
+        "commands/sc-spawn.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-test.md",
+        "commands/sc-troubleshoot.md",
+        "commands/sc-workflow.md",
+        "docs/.framework-sync-commit"
+      ]
+    },
+    {
+      "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+      "parents": [
+        "abdc4cdf4599c177d1a1a1fd20f3af837abd9bd4"
+      ],
+      "authored": "2026-05-17T08:21:23+00:00",
+      "committed": "2026-05-17T08:21:23+00:00",
+      "author": "github-actions[bot]",
+      "email": "github-actions[bot]@users.noreply.github.com",
+      "subject": "chore: automated sync and namespace isolation from framework [2026-05-17 08:21]",
+      "provenance": "framework-sync-message",
+      "files": [
+        ".claude-plugin/plugin.json",
+        "agents/sc-README.md",
+        "agents/sc-backend-architect.md",
+        "agents/sc-business-panel-experts.md",
+        "agents/sc-deep-research-agent.md",
+        "agents/sc-deep-research.md",
+        "agents/sc-devops-architect.md",
+        "agents/sc-frontend-architect.md",
+        "agents/sc-learning-guide.md",
+        "agents/sc-performance-engineer.md",
+        "agents/sc-pm-agent.md",
+        "agents/sc-python-expert.md",
+        "agents/sc-quality-engineer.md",
+        "agents/sc-refactoring-expert.md",
+        "agents/sc-repo-index.md",
+        "agents/sc-requirements-analyst.md",
+        "agents/sc-root-cause-analyst.md",
+        "agents/sc-security-engineer.md",
+        "agents/sc-self-review.md",
+        "agents/sc-socratic-mentor.md",
+        "agents/sc-system-architect.md",
+        "agents/sc-technical-writer.md",
+        "commands/sc-README.md",
+        "commands/sc-agent.md",
+        "commands/sc-analyze.md",
+        "commands/sc-brainstorm.md",
+        "commands/sc-build.md",
+        "commands/sc-business-panel.md",
+        "commands/sc-cleanup.md",
+        "commands/sc-design.md",
+        "commands/sc-document.md",
+        "commands/sc-estimate.md",
+        "commands/sc-explain.md",
+        "commands/sc-git.md",
+        "commands/sc-help.md",
+        "commands/sc-implement.md",
+        "commands/sc-improve.md",
+        "commands/sc-index-repo.md",
+        "commands/sc-index.md",
+        "commands/sc-load.md",
+        "commands/sc-pm.md",
+        "commands/sc-recommend.md",
+        "commands/sc-reflect.md",
+        "commands/sc-research.md",
+        "commands/sc-save.md",
+        "commands/sc-sc.md",
+        "commands/sc-select-tool.md",
+        "commands/sc-spawn.md",
+        "commands/sc-spec-panel.md",
+        "commands/sc-task.md",
+        "commands/sc-test.md",
+        "commands/sc-troubleshoot.md",
+        "commands/sc-workflow.md",
+        "docs/.framework-sync-commit"
+      ]
+    }
+  ],
+  "external_candidates": [
+    {
+      "sha": "51a8e11840bdce59a41379bc0159ecc4f3765469",
+      "parents": [
+        "f64ea624546e808801f62d0558f24ca6a9218a7b"
+      ],
+      "authored": "2026-05-17T02:58:39+00:00",
+      "committed": "2026-05-17T02:58:39+00:00",
+      "author": "Claude",
+      "email": "noreply@anthropic.com",
+      "subject": "feat(skills): add sc-crash-recovery for post-crash work-state diagnosis",
+      "files": [
+        "src/superclaude/skills/sc-crash-recovery/SKILL.md",
+        "src/superclaude/skills/sc-crash-recovery/refs/investigators.md",
+        "src/superclaude/skills/sc-crash-recovery/refs/pipelines.md",
+        "src/superclaude/skills/sc-crash-recovery/refs/report-template.md",
+        "src/superclaude/skills/sc-crash-recovery/scripts/bootstrap_scan.sh",
+        "src/superclaude/skills/sc-crash-recovery/scripts/parse_session_log.py"
+      ]
+    },
+    {
+      "sha": "93cb9758e3638fe395663bcef255f6151bed0779",
+      "parents": [
+        "ef4dfd5fb8409438c01b08c180be6c4af51f4f58"
+      ],
+      "authored": "2026-02-01T04:52:16+00:00",
+      "committed": "2026-02-01T04:52:16+00:00",
+      "author": "Claude",
+      "email": "noreply@anthropic.com",
+      "subject": "feat(commands): add review-translation command for localization QA",
+      "files": [
+        "src/superclaude/commands/review-translation.md"
+      ]
+    }
+  ],
+  "refs": "refs/remotes/origin/HEAD b0bd8c8b8bbefbd6b9ca36fadc8ec9cba8f244d3\nrefs/remotes/origin/ReflectInTaskList e6ebacc5241e548dee38cbabca978772abb5b80e\nrefs/remotes/origin/brainstorm/t2-bare-reviewer-adjunct 757a382493440e77f71608dd135fbc48061614db\nrefs/remotes/origin/chore/ci-followup-sync-guard-readme 053b75664c8979bf223b8040f68310dce882d05b\nrefs/remotes/origin/chore/preserve-retired-worktree-artifacts 58b80aaeda3be4894c46780854652b39b30a7cf7\nrefs/remotes/origin/chore/sprint-progress-report-template 99bdf77d588a73dbf4cb84ec02095ec945e80f0b\nrefs/remotes/origin/claude/task-builder-template-review-rqaq63 ea581323a07a76b35656caa00aa0c0770c0ded0f\nrefs/remotes/origin/docs/ataraxy-labs-eval-plan-remediation 4f4a2134c82e032b1bdae789f4fca2676bfd17d1\nrefs/remotes/origin/docs/auggie-review-workflow-implement-plan afa3e16469cb932db7c4219dda2e303d7db1b77f\nrefs/remotes/origin/docs/ccsession-model-tiers 13d246ec9e0d5aad4b6ea70529bebd9496a776e5\nrefs/remotes/origin/docs/pr-submit-command-ci-preflight cd031eda272681c40f34db268dc93b5dd3b09a4b\nrefs/remotes/origin/docs/routing-consolidation 8694e3f19ed6a3454dfb4db662187113938841a1\nrefs/remotes/origin/feature/artifact-keeper f997863ea8ba0b902cf6d95e1955cd7760e6d1a4\nrefs/remotes/origin/feature/auggie-review-revagent 417d1ca21869464a6de9ddf8bc63fa5786caa9fb\nrefs/remotes/origin/feature/ccsession-native-install 06585002af47df46b31a5e81c5ffd644f05839a3\nrefs/remotes/origin/feature/implement-retry-ladder b542a9ff71cd4a73dfbd62aae6d4098aefe58db0\nrefs/remotes/origin/feature/pr-submit-ci-monitor 2bbb910d43b28897b303ca80e85663d0b9c00607\nrefs/remotes/origin/feature/prd-spec-flag ff1a3f10d864d8404807b44ee95295f988f671d7\nrefs/remotes/origin/fix/ccsession-auth-token c09a61c6c0442cf3ddbb2ab92cf465910f14c6e3\nrefs/remotes/origin/fix/ccsession-grok-4-7 123d8c1ea4d14417da44d96974932504c42a949e\nrefs/remotes/origin/fix/claude-process-stdin-large-prompts 2c2127940bdc6456dc881cde9522b034dd5ef0cb\nrefs/remotes/origin/fix/eval-doc-tests 9d62a723c98dc3b856ee04a9d319c8f4594abeea\nrefs/remotes/origin/fix/implement-session-confirmation 2a94c921d8b9bc2a7760ba0e62414b8d6904c5aa\nrefs/remotes/origin/fix/pr-submit-attended-ci-monitor d5200729eefd055467750dfa4a41b8c7a5aa09d1\nrefs/remotes/origin/fix/pr-submit-augment-no-response 4d383c9d6cf85656626ec3dc13a8cf7fe7a9961b\nrefs/remotes/origin/fix/restore-eval-docs 8b2cc3053629aa34d1bc097e7cd4650ffd4aba43\nrefs/remotes/origin/fix/troubleshoot-readonly-analysts 04e191962da52fd95c9532e173ea0cb462f4264e\nrefs/remotes/origin/master b0bd8c8b8bbefbd6b9ca36fadc8ec9cba8f244d3\nrefs/remotes/origin/reflectWrapper 879bb64f635b4244352549ec4cf9a19ab7326de0\nrefs/remotes/origin/sync/framework d3cf593808f5e5df12da7f0c3e506556fdc34e01\nrefs/remotes/pr270 74ead45033e02a98727d34b887d4f5599ad454f4\n",
+  "shallow": "false"
+}

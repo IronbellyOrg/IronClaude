@@ -1,0 +1,223 @@
+# Wave 1C Tier-1 reflection card. Authored by sc:sc-root-cause-analyst (requested slot: sonnet;
+# agentId a2ede104391abe269; provider model not reported by the Agent tool). Persisted verbatim by
+# the orchestrator BEFORE calibration. self_reported_confidence is NOT used by any gate.
+card_id: uc1-t1-pre-smoke-attempt-1-wave1c
+mode: pre
+author_role: sc:sc-root-cause-analyst
+summary: >
+  The plan maps all three spec requirements (R-001..R-003) to one task each
+  (T-101..T-103), with no orphan tasks and no unmapped requirements. Coverage is
+  complete only at the ID level. The tasks paraphrase the spec and drop the exact
+  literal "Hello, Ada!" and the ValueError and exact-output assertions, so the
+  plan has a specificity-loss risk on R-001 and R-003. This is a small,
+  low-scope plan: 3 requirements, 3 tasks, one domain.
+coverage:
+  coverage_pct: 1.0
+  coverage_pct_union: 1.0
+  unmapped: []
+  parsed_count: 3
+  inferred_count: 0
+  # S_scope=3, S_domains=1 (code+tests; treated as single-domain for this fixture), S_dev_density=0.0
+findings:
+  - id: F-001
+    title: R-001 exact greeting literal not carried into T-101
+    severity: medium
+    deviation_class: n/a
+    category: specificity-loss risk
+    claim: >
+      spec.md:6 requires the exact string "Hello, Ada!" for input Ada.
+      proposed.md:4 says only "returning the required greeting", with no literal
+      and no example input. An implementer could pick a different format (for
+      example "Hello, Ada" without the "!") and still satisfy the task text.
+    citations: ["spec.md:6", "proposed.md:4"]
+    tag: grounded
+    hypothesis_or_root_cause: >
+      The task was written by reference to the requirement ID (the heading token
+      "R-001" at proposed.md:3) rather than restating the acceptance literal.
+      The mapping is by ID, so the content was never required to be copied. This
+      cause is INFERRED, since the plan does not state its authoring method.
+  - id: F-002
+    title: R-003 test tasks do not state assertions, so exact-output check is unanchored
+    severity: medium
+    deviation_class: n/a
+    category: specificity-loss risk
+    claim: >
+      spec.md:12 requires tests that exercise the ordinary greeting and the
+      empty-input rejection. proposed.md:10 names both test categories but does
+      not say the ordinary test asserts "Hello, Ada!" or that the empty-name test
+      asserts ValueError. Together with F-001, the exact-output assertion
+      appears nowhere in the tasklist. A test that calls greet("Ada") without
+      checking the result would satisfy T-103 as worded.
+    citations: ["spec.md:12", "proposed.md:10", "proposed.md:4"]
+    tag: grounded
+    hypothesis_or_root_cause: >
+      Same ID-level authoring pattern as F-001. The spec's own wording at
+      spec.md:12 ("exercise") is also weak, because it does not say "assert".
+      The weakness is inherited upstream, so the plan cannot be fully blamed.
+  - id: F-003
+    title: Coverage 1.0 is ID-level only, not content-level
+    severity: low
+    deviation_class: n/a
+    category: informational
+    claim: >
+      Each mapping rests on the "R-00N" token in the task heading
+      (proposed.md:3, 6, 9) matching the spec heading (spec.md:5, 8, 11). The
+      1.0 figure is therefore a lower bound on ID traceability, not on semantic
+      fidelity. R-001 and R-003 are partial at content level (see F-001, F-002).
+    citations: ["spec.md:5", "spec.md:8", "spec.md:11", "proposed.md:3", "proposed.md:6", "proposed.md:9"]
+    tag: grounded
+    hypothesis_or_root_cause: >
+      The coverage metric (heading ID match) is coarser than the audit question
+      (faithful coverage). A gap of this kind cannot lower coverage_pct, so it
+      has to be reported as a finding.
+  - id: F-004
+    title: R-002 is faithfully carried
+    severity: info
+    deviation_class: n/a
+    category: informational
+    claim: >
+      T-102 preserves ValueError and the empty-name condition. Whitespace-only
+      names are unspecified in both documents, so this is a shared spec
+      ambiguity and not a plan gap.
+    citations: ["spec.md:9", "proposed.md:7"]
+    tag: grounded
+    hypothesis_or_root_cause: >
+      Spec says "empty name"; neither document defines whether "   " counts as
+      empty.
+  - id: F-005
+    title: Plan introduces signature greet(name) not named in spec
+    severity: info
+    deviation_class: n/a
+    category: informational
+    claim: >
+      proposed.md:4 fixes the parameter shape greet(name). The spec names only
+      "the greet function" (spec.md:6). This is a harmless plan-level
+      specification, not an unauthorized expansion.
+    citations: ["spec.md:6", "proposed.md:4"]
+    tag: grounded
+    hypothesis_or_root_cause: >
+      The spec's "for Ada" and "empty name" language implies a single name
+      parameter, so the plan's signature is a reasonable reading.
+  - id: F-006
+    title: Matrix span R-003 overruns the spec file length
+    severity: info
+    deviation_class: n/a
+    category: informational
+    claim: >
+      The coverage matrix lists the R-003 span as "spec.md:11-13", but spec.md
+      has 12 lines (line 12 is the last with content). The matrix cites a
+      nonexistent line 13. The matrix row spec_ref ("spec.md:11-12") is correct,
+      so there is no coverage impact. Any citation validator that checks span
+      bounds could flag it.
+    citations: ["spec.md:11", "spec.md:12"]
+    tag: INFERRED
+    hypothesis_or_root_cause: >
+      The span was probably computed as "next heading line minus one" with an
+      assumed trailing line. The 12-line count comes from the Read output; the
+      cause of the overrun is inferred.
+  - id: F-007
+    title: Spec framing line (synthetic fixture) has no requirement
+    severity: info
+    deviation_class: n/a
+    category: informational
+    claim: >
+      spec.md:1-3 is a title and a synthetic-fixture disclaimer with no MUST
+      statement, so it correctly produces no requirement row. Every MUST
+      (spec.md:6, 9, 12) falls inside a parsed span.
+    citations: ["spec.md:1", "spec.md:3", "spec.md:6", "spec.md:9", "spec.md:12"]
+    tag: grounded
+    hypothesis_or_root_cause: n/a
+risks:
+  - >
+    Silent acceptance of a wrong greeting format: a literal-free T-101 plus an
+    assertion-free T-103 can pass review and tests while violating R-001
+    (F-001, F-002). This is the primary load-bearing risk.
+  - >
+    False-positive green test run: tests that call greet without asserting the
+    result or the raised exception would pass while not evidencing R-002/R-003
+    (F-002, untested invariant).
+  - >
+    Edge-case drift on R-002: whitespace-only or None names are undefined, so
+    different implementers could diverge. Blast radius is small (one function).
+  - >
+    Metric over-trust: a downstream gate reading coverage_pct=1.0 and
+    S_dev_density=0.0 may treat the plan as fully faithful and skip content
+    review (F-003).
+  - >
+    src/ and tests/ exist in the fixture. They were not read and are not
+    treated as completed work. No claim here depends on them.
+recommendations:
+  - id: REC-1
+    file: proposed.md
+    change: >
+      At proposed.md:4 (T-101), restate the literal: greet("Ada") returns exactly
+      "Hello, Ada!".
+    verifier: >
+      Grep proposed.md for the literal "Hello, Ada!" inside the T-101 block; at
+      least 1 match.
+    priority: high
+  - id: REC-2
+    file: proposed.md
+    change: >
+      At proposed.md:10 (T-103), state the assertions: the ordinary test asserts
+      the return value equals "Hello, Ada!", and the empty-name test asserts
+      ValueError is raised, for example via pytest.raises(ValueError).
+    verifier: >
+      Grep the T-103 block for both "Hello, Ada!" and "ValueError"; both must be
+      present.
+    priority: high
+  - id: REC-3
+    file: spec.md
+    change: >
+      Optionally state whether whitespace-only names count as empty under R-002
+      (spec.md:9), or record that they are out of scope.
+    verifier: >
+      The R-002 text contains an explicit whitespace statement, and T-102 at
+      proposed.md:7 matches it.
+    priority: low
+  - id: REC-4
+    file: artifacts/artifacts/coverage-matrix.yaml
+    change: >
+      Correct the R-003 span from "spec.md:11-13" to "spec.md:11-12". Add a
+      content_fidelity field per row (R-001 partial, R-002 full, R-003 partial)
+      so the 1.0 figure is not read as semantic coverage.
+    verifier: >
+      The span matches the 12-line file length, and each of the 3 matrix rows
+      has a content_fidelity value.
+    priority: low
+best_practice_grade: 3
+best_practice_grade_rationale: >
+  Traceability is clean (one task per requirement, IDs in headings, no orphans),
+  but the acceptance literal and test assertions are not carried into the tasks,
+  which weakens verifiability.
+self_reported_confidence: 0.85
+grounding_gaps:
+  - >
+    The coverage matrix was not at the path given in the brief
+    (artifacts/coverage-matrix.yaml). It was at
+    artifacts/artifacts/coverage-matrix.yaml under the output root, and I read it
+    there. I found that path by listing the run directory (read-only). The
+    persisted location is therefore doubled, and the orchestrator may want to
+    check it.
+  - >
+    The matrix's producer metadata (model slot, agent ID, and the Pass 1 file
+    coverage-pass1.json) was not verified. I checked the matrix's coverage and
+    fidelity claims only against spec.md and proposed.md.
+  - >
+    src/ and tests/ in the fixture were intentionally not read. I cannot say
+    whether they already contain a greet implementation or tests that would
+    reveal the plan's intended assertions.
+  - >
+    The root causes in F-001, F-002 and F-006 are hypotheses about authoring
+    process. The plan documents do not state how the tasks were written.
+  - >
+    S_domains=1 is my own assumption (a single code-plus-test fixture).
+    Rubric S_domains counts code and tests as separate domains, which would make
+    it 2. Either value stays within the non-escalating range (below 3).
+  - >
+    No Serena or FR-1 implementor checks were run (--no-mcp). The matrix's
+    missing_implementations_count of 0 is a degenerate no-op, not a verified
+    result.
+# Orchestrator post-persist note (not part of the card as authored): REC-4's span fix was applied to
+# the orchestrator-owned artifacts/coverage-matrix.yaml after persisting this card; the doubled
+# artifacts/artifacts path is the protocol's <output>/artifacts/ convention with --output ending in "artifacts".

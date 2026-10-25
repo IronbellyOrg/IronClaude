@@ -1,0 +1,15 @@
+# §10.6 Grounding Gaps — persisted from Tier-1 card (reflection-card.yaml). Non-empty -> status: partial, needs_human_decision: true
+- id: G-001
+  hunk_ref: "completed.md:8 (T-103) vs changes.patch:1-9 (no tests/ hunk); on-disk candidate tests/test_greeting.py:4-13"
+  evidence_missing: "no diff hunk adding tests; no task-log/commit evidence that tests/test_greeting.py was created in this work; no test-run result; tests/ is outside --scope src/"
+  why_not_classifiable: "claimed-but-absent-from-diff test could be drift/coverage or an out-of-scope untracked file; no commit, task-log or run result confirms either; no unmapped hunk and no spec contradiction"
+  next_evidence_needed: "a diff including tests/test_greeting.py or owner confirmation it was authored under T-103; a pytest run result for it"
+  owner: user
+  decision_needed_by_user: true
+- id: G-002
+  hunk_ref: "changes.patch:5-9 -> src/greeting.py:1-4 (H1, T-101/T-102)"
+  evidence_missing: "no verification-triangle result (serena execute_shell_command unavailable; pytest not run to keep audit root read-only); no --task-log supplied"
+  why_not_classifiable: "primary Regression signal (verified test exit) and its task-log fallback are both absent; absence of regression is unproven, not confirmed"
+  next_evidence_needed: "pytest run of tests/test_greeting.py in a writable copy with recorded exit code, or a supplied task log"
+  owner: user
+  decision_needed_by_user: true

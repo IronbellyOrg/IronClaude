@@ -1,0 +1,16 @@
+# Wave 5 — returned by Agent(sc:evidence-validator, model slot: haiku), agentId aaee926322dd7ebbe; persisted by orchestrator.
+validator_agent: sc:evidence-validator
+validator_model_slot: haiku
+evidence_validator_ran: true
+citations_total: 13
+citations_revalidated: 13
+citations_dropped: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+zero_drop_flag: true
+verified: [R/execution.log:2, R/src/greeting.py:1, R/execution.log:3, R/src/greeting.py:2-3, R/execution.log:4, R/tests/test_greeting.py:4-5, R/tests/test_greeting.py:8-13, R/execution.log:5, R/src/greeting.py:4, R/execution.log:2-4, R/tests/test_greeting.py:1-13, R/tests/test_greeting.py:1, R/tests/test_greeting.py:4-13]
+dropped: []
+validator_notes:
+  - "Draft citations_total 10 under-counted distinct ranges; corrected to 13 in REPORT.md."
+  - "Absence of src/__init__.py confirmed via Glob."
+  - "spec.md in the fixture states R-001..R-003, but was not supplied as --spec; not used as gold standard (invocation claim, not a citation)."

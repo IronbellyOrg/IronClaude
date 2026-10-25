@@ -1,0 +1,3 @@
+# 4-category ledger (authorized/necessary/drift/regression). Source: reflection-card.yaml deviations: [] (calibrated).
+deviation_aggregation_mode: per-hunk
+deviations: []

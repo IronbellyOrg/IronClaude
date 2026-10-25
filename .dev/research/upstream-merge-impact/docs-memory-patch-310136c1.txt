@@ -1,0 +1,16 @@
+COMMAND git diff --no-ext-diff --find-renames 43ca81d1693b1ecfc6648531798e29224cb305c3 310136c16b95c9dd5c412c5e7b5d4ae76362dbf6 -- README.md
+RETURN 0
+diff --git a/README.md b/README.md
+index 1e6b3207..54e5cc62 100644
+--- a/README.md
++++ b/README.md
+@@ -2,6 +2,9 @@
+ 
+ # 🚀 SuperClaude Framework
+ 
++[![Run in Smithery](https://smithery.ai/badge/skills/SuperClaude-Org)](https://smithery.ai/skills?ns=SuperClaude-Org&utm_source=github&utm_medium=badge)
++
++
+ ### **Transform Claude Code into a Structured Development Platform**
+ 
+ <p align="center">

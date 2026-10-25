@@ -1,0 +1,100 @@
+PASS file ends with one newline and has no blank lines
+PASS line 1 is one JSON object
+PASS line 2 is one JSON object
+PASS line 3 is one JSON object
+PASS line 4 is one JSON object
+PASS line 5 is one JSON object
+PASS line 6 is one JSON object
+PASS six rows (found 6)
+PASS row 1 has non-empty string error_type
+PASS row 1 has non-empty string error_message
+PASS row 1 has non-empty string test_name
+PASS row 1 has non-empty string solution
+PASS row 1 solution is useful (>= 20 chars)
+PASS row 1 has non-empty string root_cause
+PASS row 1 has non-empty string prevention
+PASS row 1 has non-empty string traceback
+PASS row 1 timestamp parses as ISO
+PASS row 1 is marked synthetic
+PASS row 1 has no old-layout keys
+PASS row 1 has no credential/personal-data pattern
+PASS row 2 has non-empty string error_type
+PASS row 2 has non-empty string error_message
+PASS row 2 has non-empty string test_name
+PASS row 2 has non-empty string solution
+PASS row 2 solution is useful (>= 20 chars)
+PASS row 2 has non-empty string root_cause
+PASS row 2 has non-empty string prevention
+PASS row 2 has non-empty string traceback
+PASS row 2 timestamp parses as ISO
+PASS row 2 is marked synthetic
+PASS row 2 has no old-layout keys
+PASS row 2 has no credential/personal-data pattern
+PASS row 3 has non-empty string error_type
+PASS row 3 has non-empty string error_message
+PASS row 3 has non-empty string test_name
+PASS row 3 has non-empty string solution
+PASS row 3 solution is useful (>= 20 chars)
+PASS row 3 has non-empty string root_cause
+PASS row 3 has non-empty string prevention
+PASS row 3 has non-empty string traceback
+PASS row 3 timestamp parses as ISO
+PASS row 3 is marked synthetic
+PASS row 3 has no old-layout keys
+PASS row 3 has no credential/personal-data pattern
+PASS row 4 has non-empty string error_type
+PASS row 4 has non-empty string error_message
+PASS row 4 has non-empty string test_name
+PASS row 4 has non-empty string solution
+PASS row 4 solution is useful (>= 20 chars)
+PASS row 4 has non-empty string root_cause
+PASS row 4 has non-empty string prevention
+PASS row 4 has non-empty string traceback
+PASS row 4 timestamp parses as ISO
+PASS row 4 is marked synthetic
+PASS row 4 has no old-layout keys
+PASS row 4 has no credential/personal-data pattern
+PASS row 5 has non-empty string error_type
+PASS row 5 has non-empty string error_message
+PASS row 5 has non-empty string test_name
+PASS row 5 has non-empty string solution
+PASS row 5 solution is useful (>= 20 chars)
+PASS row 5 has non-empty string root_cause
+PASS row 5 has non-empty string prevention
+PASS row 5 has non-empty string traceback
+PASS row 5 timestamp parses as ISO
+PASS row 5 is marked synthetic
+PASS row 5 has no old-layout keys
+PASS row 5 has no credential/personal-data pattern
+PASS row 6 has non-empty string error_type
+PASS row 6 has non-empty string error_message
+PASS row 6 has non-empty string test_name
+PASS row 6 has non-empty string solution
+PASS row 6 solution is useful (>= 20 chars)
+PASS row 6 has non-empty string root_cause
+PASS row 6 has non-empty string prevention
+PASS row 6 has non-empty string traceback
+PASS row 6 timestamp parses as ISO
+PASS row 6 is marked synthetic
+PASS row 6 has no old-layout keys
+PASS row 6 has no credential/personal-data pattern
+PASS no two sample rows match each other at 0.7
+PASS docs/user-guide/memory-system.md: example row equals sample row 1 minus synthetic
+PASS docs/user-guide/memory-system.md: no old-layout wording
+PASS docs/user-guide/memory-system.md: describes the synthetic marker and names the sample file
+PASS docs/user-guide/memory-system.md: says the recorder does not validate (no schema-validation claim)
+PASS docs/user-guide/memory-system.md: no claim that status affects matching
+PASS docs/user-guide/memory-system.md: says not to copy the sample into solutions_learned.jsonl
+PASS docs/memory/README.md: example row equals sample row 1 minus synthetic
+PASS docs/memory/README.md: no old-layout wording
+PASS docs/memory/README.md: describes the synthetic marker and names the sample file
+PASS docs/memory/README.md: says the recorder does not validate (no schema-validation claim)
+PASS docs/memory/README.md: no claim that status affects matching
+PASS docs/memory/README.md: says not to copy the sample into solutions_learned.jsonl
+PASS worked example 9/10 = 0.90 recomputed from sample row 1 -> (9, 10, 0.9)
+PASS guide states 'Shared 9 words / 10 distinct words = 0.90'
+PASS worked example 7/10 = 0.70 recomputed from sample row 1 -> (7, 10, 0.7)
+PASS guide states 'Shared 7 words / 10 distinct words = 0.70'
+PASS worked example 6/12 = 0.50 recomputed from sample row 1 -> (6, 12, 0.5)
+PASS guide states 'Shared 6 words / 12 distinct words = 0.50'
+RESULT: ALL PASS (0 failures)

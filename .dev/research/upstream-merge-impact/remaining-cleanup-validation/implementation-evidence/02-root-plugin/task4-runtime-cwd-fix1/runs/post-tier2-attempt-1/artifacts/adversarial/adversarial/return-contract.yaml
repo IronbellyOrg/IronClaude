@@ -1,0 +1,20 @@
+# Return contract — Skill sc:sc-adversarial-protocol (Mode A, --depth standard, --convergence 0.80, non-interactive)
+# Resumed run: Step 1 + Round 1 retained from the interrupted attempt-1 session (evidence preserved read-only in attempt-1-interrupted/);
+# Round 2, Round 2.5, Steps 3-5 executed by the resumed sc:debate-orchestrator on 2026-10-25.
+# Debate gate status: BLOCKED_BY_INVARIANTS. Diff-point alignment 17/17 = 1.00 and taxonomy coverage PASS, but there is 1 HIGH UNADDRESSED invariant (INV-006).
+# Convergence was NOT declared. Base was force-selected by score (error-handling no_convergence row), hence fallback_mode true and status partial.
+# failure_stage names the stage whose gate prevented success (debate convergence gate). The merge itself completed, and its post-merge validation passed.
+merged_output_path: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/merged-card.yaml"
+convergence_score: 1.0   # diff-point agreement only; invariant gate BLOCKED
+artifacts_dir: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial"
+status: "partial"
+base_variant: "haiku:qa"   # Variant 2, reviewer-2 (env alias grok-4.7[1m]); combined score 0.944 vs 0.819
+unresolved_conflicts: 0    # unresolved diff points; the blocking invariant is reported below
+fallback_mode: true
+failure_stage: "debate"
+invocation_method: "skill-direct"
+unaddressed_invariants:
+  - id: "INV-006"
+    category: "guard_conditions"
+    assumption: "V1's pytest verifier map (0 clears / 1 = Regression / 2-3 = Grounding Gap), agreed for grafting, is a complete and correct guard. It omits deviation-taxonomy.md:109/111/112/113 and the 'Regression candidate' qualifier, so a tool or environment exit 1 could falsely set regression_present: true."
+    severity: "HIGH"

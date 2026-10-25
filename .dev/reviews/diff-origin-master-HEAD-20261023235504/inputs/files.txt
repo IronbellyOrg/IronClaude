@@ -1,0 +1,8 @@
+.github/workflows/README.md
+.github/workflows/pull-sync-framework.yml
+.github/workflows/test.yml
+Makefile
+docs/.framework-sync-commit
+docs/getting-started/installation.md
+scripts/sync_from_framework.py
+scripts/uninstall_legacy.sh

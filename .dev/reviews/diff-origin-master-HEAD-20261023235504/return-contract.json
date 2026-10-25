@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "report_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reviews/diff-origin-master-HEAD-20261023235504/REVIEW.md",
+  "audit_log_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reviews/diff-origin-master-HEAD-20261023235504/audit.log",
+  "pr_review_url": "",
+  "findings_count": {"critical": 0, "high": 0, "medium": 0, "low": 0, "nit": 0},
+  "dropped_count": 0,
+  "remediation_offered": false,
+  "remediation_accepted": false
+}

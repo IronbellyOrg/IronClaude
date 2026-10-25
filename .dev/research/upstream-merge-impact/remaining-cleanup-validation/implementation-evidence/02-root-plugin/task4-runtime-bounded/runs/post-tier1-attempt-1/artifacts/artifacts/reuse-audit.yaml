@@ -1,0 +1,28 @@
+# Persisted by orchestrator from Task(sc:reuse-auditor) return (agentId acb6fac85c5cd57f6).
+# requested_model_slot: sonnet ; agent-reported model: claude-sonnet-5-5[1m]
+stage: post
+degraded: true
+degraded_components: ["neighbour-search:auggie_unavailable"]
+sampled: false
+max_overlap: null
+candidates_scanned: 1
+neighbours_found: 0
+candidates:
+  - symbol: greet
+    location: src/greeting.py:1-4
+    neighbours: []
+    verdict: distinct
+    tier: none
+    confidence: 0.9
+    rung: L2   # advisory cap (auggie-unavailable fallback)
+    capability_tag: "format 'Hello, {name}!' greeting; raise ValueError on falsy name"
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+files_searched:
+  - src/greeting.py (candidate; excluded as neighbour)
+  - tests/test_greeting.py (consumer)
+  - changes.patch (diff; excluded)
+  - spec.md, proposed.md, completed.md, execution.log (prose only)

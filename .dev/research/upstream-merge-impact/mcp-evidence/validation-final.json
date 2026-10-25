@@ -1,0 +1,11 @@
+{
+  "record_count": 9,
+  "path_count": 14,
+  "references_checked": 134,
+  "missing": [],
+  "bad_references": [],
+  "placeholder_count": 0,
+  "runtime_tests": "not run",
+  "actual_git_revert": "UNVERIFIED",
+  "independent_review": "pending parent"
+}

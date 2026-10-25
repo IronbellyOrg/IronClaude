@@ -1,0 +1,57 @@
+# Research: Independent review of quality and MCP impact analyses
+
+- **Topic type:** Adversarial source and history verification
+- **Scope:** quality-ci.md and mcp-installation.md at snapshot 053b75664c8979bf223b8040f68310dce882d05b
+- **Status:** Complete independent review and correction recheck; both initial findings resolved
+- **Date:** 2026-10-23
+- **Template:** src/superclaude/templates/modularization-template-review/codebase-research_template.md
+- **Verdict:** PASS
+
+---
+
+## Findings
+
+### Review verdict: PASS after correction recheck
+
+The quality/CI report passes this review. The MCP report initially failed on two factual-precision defects; both have now been corrected and independently rechecked against live source and Git. The original findings are preserved below as resolved history, not current defects.
+
+### Resolved correction history (initial review)
+
+The report line numbers in these two historical findings refer to the pre-correction artifact. Current corrected locations and source checks are recorded in the recheck section below.
+
+1. **Minor: manual gateway instructions are labeled as code-contradicted without a shared deployment premise.** `.dev/research/upstream-merge-impact/mcp-installation.md:43` and its takeaway at line 106 label the two resource guides [CODE-CONTRADICTED] because the built-in installer disables Airis Agent/MindBase. The guides explicitly show cloning the external gateway repository and running its Compose setup (`src/superclaude/mcp/MCP_Airis-Agent.md:15-21`, `src/superclaude/mcp/MCP_Mindbase.md:20-26`), whereas the automatic installer downloads `docker-compose.dist.yml` and a template (`src/superclaude/cli/install_mcp.py:24-31`, `:268-305`) and disables entries in that new template (`:334-346`). No guide sentence says that this separate manual setup is the built-in installer. The report itself acknowledges the distinction, so the contradiction tag and claim of a proven guide defect overstate the evidence. **Correction:** describe a verified automatic/manual distinction and an optional clarity improvement, with the manual deployment's actual service availability UNVERIFIED. If keeping a definite documentation mismatch, anchor it instead to repository `CLAUDE.md:353-368`, which directly recommends `superclaude mcp` and then lists MindBase as included; do not transfer that stronger premise to the separate manual guides. Preserve the narrow clarification proposal and executable keep decisions, but revise the tag, severity explanation and takeaway accordingly.
+
+2. **Minor: the MCP documentation source endpoint is a rename, not a deleted duplicate.** `.dev/research/upstream-merge-impact/mcp-installation.md:72` calls `docs/User-Guide/mcp-installation.md` an uppercase duplicate removed by cleanup. An independent Git summary proves `ab0bb0f5` performed a **100% rename** to `docs/user-guide/mcp-installation.md`, not deletion of that guide while a separate equivalent guide remained. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-evidence.json:2498`. The report's `renames.txt:7-9` uses a path-limited deletion view and does not show the surviving destination, which caused the misclassification. **Correction:** say that the historical source path was renamed to the live lowercase guide, retain both endpoints in the cross-unit accounting, and explain that reversing the case-normalization could move the current guide away from its linked lowercase path. Do not describe this specific guide as a discarded duplicate.
+
+### Independently verified results
+
+[CODE-VERIFIED] All five quality records and all nine MCP records are named, have no unfilled placeholders, and exactly match the independent no-renames endpoint sets: **26** quality paths and **14** MCP paths. Every one of the 14 strict reverse checks was rerun in check-only mode and matched the centrally stored return code. Source patches were read from Git, not inferred from subjects. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-evidence.json:3-159`.
+
+[CODE-VERIFIED] The source commit `67449770` has the same tree as its parent; its rc 128 is empty patch input, not a source conflict. The February incoming commit and importing merge have byte-identical one-file net patches; their checks and removal cost must not be counted twice. The UTF-8/result guards genuinely survive and their exact inverse passes, but removing them would remove the guarded handling. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-evidence.json:77-85,117-155,2499-2500`; `src/superclaude/cli/install_mcp.py:123-127,587-603`; `.dev/research/upstream-merge-impact/mcp-evidence/04c9b85c.patch.txt:17-46`.
+
+[CODE-VERIFIED] The formatting commit has **14/14 identical parsed syntax trees** before and after, independently recomputed without importing project code. The lint commit is correctly distinguished: it adds four wildcard-export names, removes an unused task map and removes non-asserting marker introspection. The marker test is still a no-op; restoring its original introspection would not add an assertion. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-evidence.json:161-217`; `.dev/research/upstream-merge-impact/quality-ci-e2896335.patch:89-148,306-321`; `src/superclaude/execution/__init__.py:22-38`; `tests/integration/test_pytest_plugin.py:178-184`.
+
+[CODE-VERIFIED] Current CI really activates an environment, uses direct executables, retains swarm lanes, verifies mirrors and architecture, and checks formatting with the pinned formatter. Historical publication, README and quick-check workflow retirement is documented by the later fork commit and agrees with current source. This supports the quality report's keep decisions rather than pretending whitespace is a runtime dependency. Evidence: `.github/workflows/test.yml:19-40,51-82,92-137,153-180`; `pyproject.toml:45-55,173-206`; `.dev/research/upstream-merge-impact/quality-ci-history.txt:185-275`.
+
+[CODE-VERIFIED] MCP removal impacts are supported by real imports and test contracts: framework install requires native setup from the shared module; the MCP command dispatches through it; recommendation preconditions import it; tests explicitly preserve gateway-default and mixed native/gateway behavior. The four Airis/MindBase examples are declared package resources but not current Python registry entries, and the PM MindBase search remains a placeholder. Evidence: `src/superclaude/cli/main.py:78-83,254-275,310-343`; `src/superclaude/cli/recommend/plugin_eval.py:24-27,41-71`; `src/superclaude/cli/install_mcp.py:40-109,815-913,1243-1373`; `tests/cli/test_install_codebase_memory.py:1023-1031,1096-1111,1229-1238`; `tests/unit/test_cli_install.py:147-154,885-895`; `src/superclaude/pm_agent/reflexion.py:172-184`.
+
+[CODE-VERIFIED] All fully qualified source/evidence citation ranges recognized by the independent checker resolve within existing files. This is a range/existence check only; direct reads of the decision-changing content were performed separately. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-evidence.json:219-2495,2501`.
+
+### Correction recheck and Self-Audit
+
+[CODE-VERIFIED] **First finding resolved.** The revised report explicitly says that the automatic installer does not contradict the separate manual clone/Compose guides, marks external manual service availability UNVERIFIED, and makes guide clarification optional (`.dev/research/upstream-merge-impact/mcp-installation.md:43`). Its definite mismatch is now correctly anchored to the repository instructions that directly recommend the built-in command and list MindBase as included (`:45`; `CLAUDE.md:353-368`; `src/superclaude/cli/install_mcp.py:293-346`). The December manual-guidance commit is now keep (`mcp-installation.md:59`); the January commit's partial recommendation is confined to repository instruction correction while retaining executable gateway behavior (`:61`). The reversal prerequisites and takeaway agree with those boundaries (`:88-95,107-109`). Direct source re-reads confirmed that the manual guides still describe their separate deployment and that automatic fresh-template disabling is unchanged.
+
+[CODE-VERIFIED] **Second finding resolved.** The path row now identifies a 100% rename from the original uppercase-directory endpoint to the live lowercase guide, not a deleted duplicate (`.dev/research/upstream-merge-impact/mcp-installation.md:74`). The gaps note also warns that the path-limited deletion view omitted the destination (`:103`). A fresh Git summary again reports the exact 100% rename; both endpoint accounting and current-source retention are described consistently. Recheck evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-recheck.json:10-14`.
+
+[CODE-VERIFIED] **Self-Audit:** independently re-read the entire revised MCP report, the manual guide procedures, repository command recommendation and automatic template-disabling source; inspected all affected ledger rows, coverage rows, reversal order and takeaways; reran the exact rename summary and a tracked-source difference check. The recheck asserts no placeholders, all nine records still named, corrected deployment premise and tags, corrected per-commit boundaries, corrected rename classification, and unchanged primary sources. All assertions passed. Evidence: `.dev/research/upstream-merge-impact/review-quality-mcp-recheck.json:2-14`. The initial quality report PASS, 26/14 endpoint checks, 14 strict-check outcomes and 14/14 formatting equivalence remain supported by the retained original evidence; no source was changed and no runtime result was invented.
+
+## Gaps
+
+- [UNVERIFIED] True three-way Git revert results, post-reversal runtime behavior, live GitHub workflows, external gateway service availability and actual effort remain untested. No real revert, source/index change, installer, project import, test suite, build, network request or registration was executed.
+- [UNVERIFIED] User installations outside this checkout and unmarked external callers cannot be ruled out by the bounded repository searches. The reports appropriately retain this limitation.
+- [CODE-VERIFIED] Coverage metadata for 19 relied-on live paths returned `metadata_match` with no recorded issue. This is best-effort metadata, not proof of semantic completeness; primary source reads and exact Git comparisons ground this review.
+- [CODE-VERIFIED] The independent static checker creates only this review's evidence under the authorized output directory. Existing unrelated planning artifacts were not edited. Its assertions establish assignment/path/check equality and formatting equivalence, not product test success.
+
+## Key Takeaways
+
+**PASS after recheck: both initial minor findings are resolved.** The quality-ci.md report's five keep verdicts and distinction between formatting, lint semantics and obsolete CI workarounds are supported. The revised mcp-installation.md report preserves its supported executable keep decisions, confines its partial correction to the direct built-in-installation assurance in repository instructions, distinguishes the separate manual deployment, correctly records the guide rename, and retains accurate empty-commit, shared-February-patch and strict-check accounting. Actual reverts, runtime outcomes, external services and effort estimates remain UNVERIFIED. No producer report or source file was changed by this reviewer.

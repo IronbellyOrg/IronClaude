@@ -1,0 +1,34 @@
+# Wave 1C Tier-1 card. Author: sc:sc-root-cause-analyst, requested slot sonnet (agentId ad706193d3ad21fae).
+# Persisted verbatim in substance by orchestrator. <root> = audit_repo_root.
+# ORCHESTRATOR NOTE: R-risk-5 / recommendation 4 ("doubled artifacts/artifacts") is a misreading — the protocol path
+# <output>/artifacts/ under an output root itself named "artifacts" is intentional; it is NOT carried into the report.
+reflection_card:
+  mode: post
+  tier: 1
+  audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+  per_requirement:
+    - {id: R-001, verdict: unverified, citations: ["<root>/spec.md:5-6", "<root>/src/greeting.py:4", "<root>/tests/test_greeting.py:4-5", "<root>/execution.log:2"], note: "static match greet('Ada') -> 'Hello, Ada!'; not executed"}
+    - {id: R-002, verdict: unverified, citations: ["<root>/spec.md:8-9", "<root>/src/greeting.py:2-3", "<root>/tests/test_greeting.py:8-13", "<root>/execution.log:3"], note: "if not name raises ValueError; broader than empty but not contradictory"}
+    - {id: R-003, verdict: unverified, citations: ["<root>/spec.md:11-12", "<root>/tests/test_greeting.py:4-5", "<root>/tests/test_greeting.py:8-13", "<root>/execution.log:4"], note: "both cases present; pass/runnability unverified"}
+  per_task:
+    - {task_id: T-101, deviation_class: none, evidence_anchor: ["<root>/completed.md:6", "<root>/execution.log:2", "<root>/src/greeting.py:1", "<root>/src/greeting.py:4"]}
+    - {task_id: T-102, deviation_class: none, evidence_anchor: ["<root>/completed.md:7", "<root>/execution.log:3", "<root>/src/greeting.py:2-3"]}
+    - {task_id: T-103, deviation_class: none, evidence_anchor: ["<root>/completed.md:8", "<root>/execution.log:4", "<root>/tests/test_greeting.py:4-5", "<root>/tests/test_greeting.py:8-13"]}
+  deviations: []
+  deviations_rationale: "All hunks map to tasks/requirements; tests/test_greeting.py is outside --scope but declared at execution.log:4 and required by spec.md:11-12; no contradiction observable statically; no Regression asserted because test-pass unverifiable."
+  grounding_gaps:
+    - {id: GG-1, hunk_ref: "<root>/src/greeting.py:1-4; <root>/tests/test_greeting.py:1-13", evidence_missing: "any test execution result; execution.log:5 claims none; verification tool unavailable", why_not_classifiable: "Regression detection degraded to task-log claim which claims no pass; neither Regression nor clean pass assertable", next_evidence_needed: "pytest run of tests/test_greeting.py from project root with captured output", owner: user, decision_needed_by_user: true}
+    - {id: GG-2, hunk_ref: "<root>/tests/test_greeting.py:1", evidence_missing: "invocation/sys.path config; no __init__.py, conftest.py or pytest config in project", why_not_classifiable: "from src.greeting import greet resolves only if project root on sys.path; depends on invocation", next_evidence_needed: "actual collection result or intended invocation command", owner: user, decision_needed_by_user: true}
+    - {id: GG-3, hunk_ref: "<root>/execution.log:2-5 vs <root>/completed.md:6-8", note: "done marks describe file creation only; same next evidence as GG-1 (duplicate of GG-1)"}
+  risks:
+    - {id: R-risk-1, severity: low, claim: "not name check is broader than empty (None/0/[] raise); whitespace-only accepted", grounding: "<root>/src/greeting.py:2; <root>/spec.md:9; interpretation [INFERRED]"}
+    - {id: R-risk-2, severity: low, claim: "test_empty hand-rolled try/except; only exercises ''", grounding: "<root>/tests/test_greeting.py:8-13"}
+    - {id: R-risk-3, severity: medium, claim: "[INFERRED] bare pytest rootdir insertion may not put project root on sys.path -> import error at collection", grounding: "<root>/tests/test_greeting.py:1"}
+    - {id: R-risk-4, severity: info, claim: "ValueError message unspecified/untested; harmless", grounding: "<root>/src/greeting.py:3"}
+    - {id: R-risk-5, severity: process, claim: "doubled artifacts path", orchestrator_disposition: "rejected — intended layout"}
+    - {id: R-risk-6, severity: info, claim: "fixture is synthetic", grounding: "<root>/execution.log:1; <root>/spec.md:3"}
+  recommendations:
+    - {file: "<root>/tests/test_greeting.py", change: "run python -m pytest tests/test_greeting.py from project root; if bare pytest intended add conftest.py or pythonpath config", verifier: "captured pytest exit code/output (closes GG-1, GG-2)"}
+    - {file: "<root>/src/greeting.py", change: "spec owner decides whether R-002 means falsy or empty/whitespace string; only then tighten check", verifier: "added whitespace/None test matching clarified spec"}
+    - {file: "<root>/tests/test_greeting.py", change: "optional: use pytest.raises(ValueError)", verifier: "pytest run + mutation check"}
+  self_reported_confidence: 0.78

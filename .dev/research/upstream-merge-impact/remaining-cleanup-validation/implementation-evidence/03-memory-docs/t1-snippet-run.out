@@ -1,0 +1,2 @@
+$ uv run python t1-snippet-run.py
+snippet-ok known= None

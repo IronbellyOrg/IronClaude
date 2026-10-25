@@ -1,0 +1,458 @@
+[
+  {
+    "path": ".github/workflows/README.md",
+    "exists": true,
+    "current_bytes": 5414,
+    "recent_history": "053b7566 2026-10-23T04:45:04+00:00 Ryan wiancko ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)\nbb66aa7c 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": ".github/workflows/quick-check.yml",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "bb66aa7c 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows\n64b730a7 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline \u2014 ruff pin + format sweep + dep allow-list + lint/arch (#216)\nf79b1bd5 2026-05-13T05:34:08+00:00 RyanW feat(workspace-rca): layered remediation for skill-creator workspace misplacement\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n8da05a17 2025-11-12T18:12:57+01:00 mithun50 fix: use direct commands instead of uv run with --system\n43bfa0aa 2025-11-12T18:09:37+01:00 mithun50 fix: add --system flag to uv pip install in workflows\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": ".github/workflows/test.yml",
+    "exists": true,
+    "current_bytes": 5402,
+    "recent_history": "053b7566 2026-10-23T04:45:04+00:00 Ryan wiancko ci: follow up PR 280 (sync PR flow, advisory boundary guard, Codecov token, docs)\nbb66aa7c 2026-10-22T20:41:43+00:00 Ryan wiancko ci: simplify GitHub Actions workflows\nf28ae4be 2026-10-22T18:43:15+00:00 Ryan wiancko ci: install the Claude CLI in the doctor job\n025c1f73 2026-09-24T21:39:43+00:00 Ryan wiancko fix(ci): install native components before doctor-check\nb0de1479 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n525386a9 2026-05-27T13:21:37-04:00 Ironbelly fix(ci): restore master CI \u2014 dep baseline + mirror sync + path drift (#99)\n1ca25953 2026-05-21T00:04:48-04:00 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)\n8da05a17 2025-11-12T18:12:57+01:00 mithun50 fix: use direct commands instead of uv run with --system\n"
+  },
+  {
+    "path": ".gitignore",
+    "exists": true,
+    "current_bytes": 5255,
+    "recent_history": "b97b633c 2026-06-18T23:39:23-04:00 Ironbelly chore(repo): worktree-location rule, archive Reflect releases, add git-standards doc (#186)\n2c5357c8 2026-06-12T17:32:43-04:00 Ironbelly feat(sc:pr-submit): PR review auto-remediation monitor (V1.0) (#162)\nfa4dc74c 2026-06-12T10:11:03-04:00 Ironbelly feat(reflect): O1/O2 POST-gate wiring + \u00a76.1.1 verification marker-leak fix (#165)\n3a552d24 2026-06-07T20:46:24-04:00 Ironbelly fix(reflect): F3a/F3b guard hygiene + Stage 10.5/post-reflect e2e evidence (#142)\n02949fb3 2026-06-04T06:58:05-04:00 Ironbelly fix(ci): hermetic canonical fixtures + brainstorm skill-availability test (#136)\n238d6583 2026-06-03T19:47:58-04:00 Ironbelly feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)\n3c64db96 2026-05-27T23:49:40-04:00 Ironbelly chore(tasks): graduate 5 completed RF tasks + converge sprint (#104)\nffa35fc5 2026-05-20T23:09:43-04:00 Ironbelly feat(skills): add sc-auggie-review-protocol \u2014 Auggie-powered code review (#64)\n"
+  },
+  {
+    "path": "CLAUDE.md",
+    "exists": true,
+    "current_bytes": 21888,
+    "recent_history": "2d5f2d9c 2026-10-22T16:45:38+00:00 Ryan wiancko docs: forbid hardcoded src/superclaude paths in installed primitives\n051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\nb97b633c 2026-06-18T23:39:23-04:00 Ironbelly chore(repo): worktree-location rule, archive Reflect releases, add git-standards doc (#186)\nd9901d87 2026-05-26T14:54:06-04:00 Ironbelly fix(roadmap): mechanism-signature refactor for anti-instinct integration_contracts (#86)\n70150fe2 2026-05-20T23:53:15-04:00 Ironbelly chore(sc-auggie-review-protocol): markdownlint fixes + PR #64 artifact archive (#65)\nffa35fc5 2026-05-20T23:09:43-04:00 Ironbelly feat(skills): add sc-auggie-review-protocol \u2014 Auggie-powered code review (#64)\nf79b1bd5 2026-05-13T05:34:08+00:00 RyanW feat(workspace-rca): layered remediation for skill-creator workspace misplacement\n"
+  },
+  {
+    "path": "KNOWLEDGE.md",
+    "exists": true,
+    "current_bytes": 21848,
+    "recent_history": "33cc85ab 2026-06-18T10:13:08-04:00 Ironbelly feat(sprint): Sprint Run 429 / account-exhaustion recovery (P1-P6) (#183)\n93cda9c9 2026-06-02T15:05:06-04:00 Ironbelly fix(roadmap): honor M{n}-D{nn} milestone-prefixed IDs in tokenizer + canonicalizer (#111)\n91095144 2026-05-30T01:35:31-04:00 Ironbelly feat(roadmap/scanner): Layer 5 H3 subsection-context detector (#110)\nd9901d87 2026-05-26T14:54:06-04:00 Ironbelly fix(roadmap): mechanism-signature refactor for anti-instinct integration_contracts (#86)\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nd90bed68 2026-05-13T03:04:01+00:00 RyanW feat(freshness-system): ship v1 context freshness hooks\n4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "MANIFEST.in",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "08cbea9e 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n3762d6ab 2025-11-13T16:16:05+01:00 mithun50 feat: restore complete SuperClaude framework from commit d4a17fc\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n2847f755 2025-11-13T15:05:53+01:00 mithun50 docs: explicitly include commands and skills in MANIFEST.in\nc733413d 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\nc0a4dcba 2025-10-14T08:56:00+05:30 Mithun Gowda B Update MANIFEST.in\n40840dae 2025-08-15T21:30:29+02:00 NomenAK Restructure documentation: Create focused guide ecosystem from oversized user guide\n"
+  },
+  {
+    "path": "PLANNING.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\n147a5f74 2026-03-09T19:01:21+00:00 RyanW Quick update to sc:tasklist to validate Planning docs and updated tests\nad6b2e99 2026-01-18T19:50:16+05:30 Sergei Frolov docs: update version references and fix CHANGELOG for v4.2.0 (#515)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n61591211 2025-11-13T12:36:38+01:00 mithun50 chore: bump version to 4.1.8\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\nfaa53f27 2025-10-21T09:48:41+05:30 Mithun Gowda B Revert \"feat: comprehensive framework improvements (#447)\" (#453)\n"
+  },
+  {
+    "path": "README-ja.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\nad6b2e99 2026-01-18T19:50:16+05:30 Sergei Frolov docs: update version references and fix CHANGELOG for v4.2.0 (#515)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\nab8904bc 2025-11-13T16:08:56+01:00 mithun50 feat: restore all 30 slash commands with comprehensive documentation\nd11abead 2025-11-13T14:24:00+01:00 mithun50 docs: sync translated READMEs with main README structure\n61591211 2025-11-13T12:36:38+01:00 mithun50 chore: bump version to 4.1.8\n58008c94 2025-11-12T18:25:34+01:00 mithun50 docs: fix broken links in translated READMEs\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n"
+  },
+  {
+    "path": "README-kr.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\nad6b2e99 2026-01-18T19:50:16+05:30 Sergei Frolov docs: update version references and fix CHANGELOG for v4.2.0 (#515)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\nab8904bc 2025-11-13T16:08:56+01:00 mithun50 feat: restore all 30 slash commands with comprehensive documentation\nd11abead 2025-11-13T14:24:00+01:00 mithun50 docs: sync translated READMEs with main README structure\n61591211 2025-11-13T12:36:38+01:00 mithun50 chore: bump version to 4.1.8\n58008c94 2025-11-12T18:25:34+01:00 mithun50 docs: fix broken links in translated READMEs\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n"
+  },
+  {
+    "path": "README-zh.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\nad6b2e99 2026-01-18T19:50:16+05:30 Sergei Frolov docs: update version references and fix CHANGELOG for v4.2.0 (#515)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\nab8904bc 2025-11-13T16:08:56+01:00 mithun50 feat: restore all 30 slash commands with comprehensive documentation\nd11abead 2025-11-13T14:24:00+01:00 mithun50 docs: sync translated READMEs with main README structure\n61591211 2025-11-13T12:36:38+01:00 mithun50 chore: bump version to 4.1.8\n58008c94 2025-11-12T18:25:34+01:00 mithun50 docs: fix broken links in translated READMEs\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n"
+  },
+  {
+    "path": "README.md",
+    "exists": true,
+    "current_bytes": 10485,
+    "recent_history": "d594babb 2026-10-22T18:43:15+00:00 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)\n051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\ne9dd964c 2026-06-10T19:48:18-04:00 Ironbelly docs(reflect): document superclaude reflect run CLI auto-fix engine (#160)\n1ca25953 2026-05-21T00:04:48-04:00 Ironbelly feat(cliEval): land cliEval CLI module + task track + supporting infra changes (#66)\nd90bed68 2026-05-13T03:04:01+00:00 RyanW feat(freshness-system): ship v1 context freshness hooks\n4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\n60bfbb95 2026-03-04T11:11:06+00:00 RyanW Move skill-creator symlink to .claude/skills/ for Claude Code access\n5b6d46c8 2026-03-04T11:07:15+00:00 RyanW Add Anthropic skill-creator as git submodule with symlink\n"
+  },
+  {
+    "path": "TASK.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "8ac5eb72 2026-03-07T06:04:55+00:00 RyanW 2.16 complete and cleanup\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\nfaa53f27 2025-10-21T09:48:41+05:30 Mithun Gowda B Revert \"feat: comprehensive framework improvements (#447)\" (#453)\n00706f0e 2025-10-18T20:28:10+05:30 kazuki nakai feat: comprehensive framework improvements (#447)\n"
+  },
+  {
+    "path": "VERSION",
+    "exists": true,
+    "current_bytes": 4,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\n1bd92c91 2026-01-18T18:39:18+05:30 Sergei Frolov chore: bump version to 4.2.0 (#514)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\nd2a3b58b 2025-11-13T12:46:52+01:00 mithun50 chore: update VERSION file to 4.1.8\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\nd4a17fc3 2025-10-14T15:04:44+05:30 Mithun Gowda B Update VERSION\nfdfb05e9 2025-09-26T19:37:34+05:30 Mithun Gowda B Version bump (#394)\nf7cb0f7e 2025-09-21T07:24:42+05:30 Moshe Anconina feat: Add Deep Research System v4.2.0 (#380)\n"
+  },
+  {
+    "path": "docs/memory/solutions_learned.jsonl",
+    "exists": true,
+    "current_bytes": 4207,
+    "recent_history": "d36591ee 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\nb3fdfb60 2026-05-15T19:36:47+00:00 RyanW chore(memory+tasks): capture solutions-learned, mistakes log, and PRD/TDD task drafts\n625a735f 2026-04-05T21:09:32+00:00 RyanW chore: update solutions log and add v3.7 release-split specs\n6345ad9c 2026-04-04T03:05:31+00:00 RyanW further updates and fixes\n9dd587dc 2026-04-03T18:01:42+00:00 RyanW chore: update learned-solutions log, mistake   records, and vendor pointer\n96ca649b 2026-04-02T09:46:31-05:00 clayphi merge: integrate remote changes + add templates and updated RF agents\na9cf7ee3 2026-04-02T09:42:02-05:00 clayphi feat: add --prd-file supplementary input to roadmap and tasklist pipelines\n8eda3cef 2026-03-27T00:18:22+00:00 RyanW CLI Patche with some fixes and doc reorg\n"
+  },
+  {
+    "path": "docs/mistakes/test_database_connection-2025-11-11.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "d36591ee 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\nad80f57f 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/\n"
+  },
+  {
+    "path": "docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "d36591ee 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\nad80f57f 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/\n"
+  },
+  {
+    "path": "docs/mistakes/unknown-2025-11-11.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "d36591ee 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\nad80f57f 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/\n"
+  },
+  {
+    "path": "docs/reference/commands-list.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\nab8904bc 2025-11-13T16:08:56+01:00 mithun50 feat: restore all 30 slash commands with comprehensive documentation\n"
+  },
+  {
+    "path": "docs/reference/comprehensive-features.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\nb3ebeab0 2026-06-25T12:24:17-04:00 Ironbelly feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters (#202)\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n1b14d065 2025-11-13T16:29:10+01:00 mithun50 added mcp command fixed some issues\n3762d6ab 2025-11-13T16:16:05+01:00 mithun50 feat: restore complete SuperClaude framework from commit d4a17fc\n"
+  },
+  {
+    "path": "install.sh",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "4e5e3759 2026-03-23T21:00:26+00:00 RyanW   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045\u2013D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION\nde177847 2026-02-13T20:50:26+00:00 RyanW feat(v1.05): add core framework file installation to superclaude install\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n"
+  },
+  {
+    "path": "package.json",
+    "exists": true,
+    "current_bytes": 1340,
+    "recent_history": "a3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\nfdfb05e9 2025-09-26T19:37:34+05:30 Mithun Gowda B Version bump (#394)\n60b4563f 2025-09-22T07:34:18+05:30 reon nishimura fix: Add missing quote and comma to package.json version field (#382)\ne4f2f82a 2025-09-20T14:30:38+05:30 Mithun Gowda B Fixes (#379)\n89a5cf33 2025-09-20T14:08:42+05:30 Mithun Gowda B Fixes and improvement  (#378)\nb9f58009 2025-09-19T19:17:06+05:30 Mithun Gowda B Bump version  (#374)\n3ba17b6c 2025-09-19T19:09:27+05:30 Mithun Gowda B Bump version  (#373)\n"
+  },
+  {
+    "path": "plugins/superclaude/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/agents/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/commands/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/commands/sc.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\na3541f43 2025-11-12T17:37:27+01:00 mithun50 feat: bump version to 4.1.7 across all files\nad80f57f 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/\n"
+  },
+  {
+    "path": "plugins/superclaude/examples/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/hooks/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/mcp/configs/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/scripts/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/scripts/clean_command_names.py",
+    "exists": true,
+    "current_bytes": 4654,
+    "recent_history": "f7ea213a 2026-03-18T03:05:10+00:00 RyanW Roadmap gaps\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\nc733413d 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\n"
+  },
+  {
+    "path": "plugins/superclaude/skills/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "plugins/superclaude/skills/confidence-check/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "pyproject.toml",
+    "exists": true,
+    "current_bytes": 7694,
+    "recent_history": "08cbea9e 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n64b730a7 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline \u2014 ruff pin + format sweep + dep allow-list + lint/arch (#216)\n921464b4 2026-06-19T10:49:10-04:00 Ironbelly fix(sprint): per-phase turn-budget model \u2014 fresh ledger per phase (R-1..R-10, TM-0..TM-14) (#187)\n2c5357c8 2026-06-12T17:32:43-04:00 Ironbelly feat(sc:pr-submit): PR review auto-remediation monitor (V1.0) (#162)\nb0de1479 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n5d660ca9 2026-06-04T06:57:31-04:00 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)\n1a00efb2 2026-06-03T22:07:35-04:00 Ironbelly Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)\n74bf717d 2026-05-30T00:46:05-04:00 Ironbelly feat(cli): add ic launcher script for model alias selection (#105)\n"
+  },
+  {
+    "path": "scripts/ab_test_workflows.py",
+    "exists": true,
+    "current_bytes": 10190,
+    "recent_history": "f7ea213a 2026-03-18T03:05:10+00:00 RyanW Roadmap gaps\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n882a0d83 2025-10-17T05:43:06+05:30 kazuki nakai refactor: PM Agent complete independence from external MCP servers (#439)\n"
+  },
+  {
+    "path": "scripts/analyze_workflow_metrics.py",
+    "exists": true,
+    "current_bytes": 12214,
+    "recent_history": "f7ea213a 2026-03-18T03:05:10+00:00 RyanW Roadmap gaps\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n882a0d83 2025-10-17T05:43:06+05:30 kazuki nakai refactor: PM Agent complete independence from external MCP servers (#439)\n"
+  },
+  {
+    "path": "scripts/build_superclaude_plugin.py",
+    "exists": true,
+    "current_bytes": 3069,
+    "recent_history": "f7ea213a 2026-03-18T03:05:10+00:00 RyanW Roadmap gaps\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\nc733413d 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\n"
+  },
+  {
+    "path": "setup.py",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "08cbea9e 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n55a150fe 2025-08-14T22:03:34+02:00 NomenAK Refactor setup/ directory structure and modernize packaging\n41b59249 2025-08-14T08:56:04+05:30 mithun50 Added the Setup implimentation\n1d03832f 2025-08-05T13:59:17+02:00 NomenAK SuperClaude V4 Beta: Major framework restructuring\n0d05e2a0 2025-07-17T13:31:17+05:30 Mithun Gowda B Update setup.py\n96a39548 2025-07-15T17:59:01+05:30 Mithun Gowda B Update setup.py\nd253e048 2025-07-15T17:32:39+05:30 mithun50 Added PyPI v3 setup and readme updates\n"
+  },
+  {
+    "path": "src/superclaude/__init__.py",
+    "exists": true,
+    "current_bytes": 501,
+    "recent_history": "5d660ca9 2026-06-04T06:57:31-04:00 Ironbelly feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)\n1bd92c91 2026-01-18T18:39:18+05:30 Sergei Frolov chore: bump version to 4.2.0 (#514)\nfd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n86a26333 2025-11-13T12:45:17+01:00 mithun50 fix: update __version__ in __init__.py to 4.1.8\ne2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n16caa494 2025-11-12T18:04:34+01:00 mithun50 fix: update package version and authors\nc733413d 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\n"
+  },
+  {
+    "path": "src/superclaude/agents/README.md",
+    "exists": true,
+    "current_bytes": 989,
+    "recent_history": "2d5f2d9c 2026-10-22T16:45:38+00:00 Ryan wiancko docs: forbid hardcoded src/superclaude paths in installed primitives\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/agents/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/agents/deep-research.md",
+    "exists": true,
+    "current_bytes": 5047,
+    "recent_history": "3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n156f2829 2026-07-01T12:45:13-04:00 Ironbelly fix: normalize Tavily MCP tool names (#208)\nb3ebeab0 2026-06-25T12:24:17-04:00 Ironbelly feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters (#202)\nf8fce9c7 2026-05-25T15:45:46-04:00 Ironbelly feat(agents): Tavily-first web search precedence across 9 RF agents + legacy .claude/ untrack (#82)\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/agents/repo-index.md",
+    "exists": true,
+    "current_bytes": 1458,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/agents/self-review.md",
+    "exists": true,
+    "current_bytes": 1416,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/cli/install_commands.py",
+    "exists": true,
+    "current_bytes": 4962,
+    "recent_history": "051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n2219545c 2026-05-20T13:17:19-04:00 Ironbelly fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)\n42946f84 2025-11-13T15:37:56+01:00 mithun50 fix: prioritize package location for commands path resolution\nb00547ad 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files\ne2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\nad80f57f 2025-11-11T18:37:03+01:00 mithun50 feat: Change installation directory to ~/.claude/commands/sc/\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "src/superclaude/cli/install_mcp.py",
+    "exists": true,
+    "current_bytes": 54356,
+    "recent_history": "a26172ae 2026-10-22T18:43:15+00:00 Ryan wiancko fix(mcp): refuse to replace a stale native entry that carries env or headers\nd23c161a 2026-10-22T18:43:15+00:00 Ryan wiancko fix(mcp): restore registration after failed remove; re-acquire after partial upstream install\nd594babb 2026-10-22T18:43:15+00:00 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n928482cd 2026-09-11T18:09:17+00:00 Ryan wiancko fix(mcp): require Auggie Node runtime\n2a436d1e 2026-09-11T17:51:24+00:00 Ryan wiancko fix(mcp): enforce pinned Auggie binary\n0e7bc31f 2026-09-11T13:46:58+00:00 Ryan wiancko fix(mcp): pin supported server launchers\n64b730a7 2026-07-05T08:47:19-04:00 Ironbelly fix(ci): unblock master CI baseline \u2014 ruff pin + format sweep + dep allow-list + lint/arch (#216)\n"
+  },
+  {
+    "path": "src/superclaude/cli/main.py",
+    "exists": true,
+    "current_bytes": 18382,
+    "recent_history": "d594babb 2026-10-22T18:43:15+00:00 Ryan wiancko feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)\n38c20f88 2026-09-27T13:07:16-05:00 clayphi feat(install): ship shared Claude Code user setup\ncbc9321c 2026-09-24T13:54:23+00:00 Ryan wiancko feat: wire ccsession as a native install component\na5e9df4b 2026-09-18T09:02:56-04:00 RyanW feat: install global bash batching policy\n263521c6 2026-07-25T10:24:28-04:00 RyanW Fixes hardcoded paths to Coder instancesZ\nbcad8852 2026-06-10T14:57:32-04:00 Ironbelly feat(reflect): audit-only wrapper \u2192 bounded auto-fix engine (contract 1.4.0) (#159)\nb0de1479 2026-06-08T14:51:36-04:00 Ironbelly feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)\n681a347f 2026-06-04T00:03:39-04:00 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)\n"
+  },
+  {
+    "path": "src/superclaude/commands/README.md",
+    "exists": true,
+    "current_bytes": 1227,
+    "recent_history": "2d5f2d9c 2026-10-22T16:45:38+00:00 Ryan wiancko docs: forbid hardcoded src/superclaude paths in installed primitives\n051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/commands/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/commands/agent.md",
+    "exists": true,
+    "current_bytes": 2803,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/commands/index-repo.md",
+    "exists": true,
+    "current_bytes": 2757,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/commands/recommend.md",
+    "exists": true,
+    "current_bytes": 8301,
+    "recent_history": "051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3dfac2c0 2026-06-20T18:43:21-04:00 Ironbelly feat(recommend): add --minstar popularity floor to /sc:recommend --plugin (#195)\n238d6583 2026-06-03T19:47:58-04:00 Ironbelly feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\ndf14beeb 2026-04-15T22:58:17+00:00 RyanW Compression stuff and recommended update\n371353f9 2026-02-24T14:47:18+00:00 RyanW P03\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/commands/research.md",
+    "exists": true,
+    "current_bytes": 4066,
+    "recent_history": "782621f4 2026-10-01T05:20:01+00:00 Ryan wiancko fix: remove remaining Sequential MCP references\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\nb3ebeab0 2026-06-25T12:24:17-04:00 Ironbelly feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters (#202)\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\ne61aaba7 2026-01-18T18:23:50+05:30 Sergei Frolov feat(commands): add explicit boundaries and handoff instructions (#513)\nab8904bc 2025-11-13T16:08:56+01:00 mithun50 feat: restore all 30 slash commands with comprehensive documentation\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/commands/sc.md",
+    "exists": false,
+    "current_bytes": null,
+    "recent_history": "3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\nc6e72825 2025-11-13T15:03:11+01:00 mithun50 fix: include commands in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/examples/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/hooks/README.md",
+    "exists": true,
+    "current_bytes": 451,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/hooks/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/hooks/hooks.json",
+    "exists": true,
+    "current_bytes": 2529,
+    "recent_history": "38c20f88 2026-09-27T13:07:16-05:00 clayphi feat(install): ship shared Claude Code user setup\ncbc9321c 2026-09-24T13:54:23+00:00 Ryan wiancko feat: wire ccsession as a native install component\na5e9df4b 2026-09-18T09:02:56-04:00 RyanW feat: install global bash batching policy\n95747884 2026-05-17T15:30:55-04:00 Ironbelly fix(hooks): widen auggie-flag-clear matcher to include mcp__auggie-mcp__* (#47)\nf64ea624 2026-05-16T22:54:47-04:00 Ironbelly chore(release): close out freshness-hook-fix + auggie-first (#35)\n184edf71 2026-05-15T19:35:41+00:00 RyanW feat(hooks): extend freshness + auggie workspace-rca remediation\nd90bed68 2026-05-13T03:04:01+00:00 RyanW feat(freshness-system): ship v1 context freshness hooks\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/mcp/configs/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/pm_agent/token_budget.py",
+    "exists": true,
+    "current_bytes": 2263,
+    "recent_history": "8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\nc733413d 2025-10-29T10:15:15+05:30 kazuki nakai Proposal: Create `next` Branch for Testing Ground (89 commits) (#459)\n"
+  },
+  {
+    "path": "src/superclaude/scripts/README.md",
+    "exists": true,
+    "current_bytes": 505,
+    "recent_history": "89df2c11 2026-05-22T15:47:02-04:00 Ironbelly chore: apply markdownlint MD022/MD031/MD032/MD034 auto-format repo-wide (#74)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/scripts/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/scripts/clean_command_names.py",
+    "exists": true,
+    "current_bytes": 4654,
+    "recent_history": "18c0e4e1 2025-11-14T08:03:04+05:30 BlackBear Add missing install.sh script (#483)\n81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/scripts/session-init.sh",
+    "exists": true,
+    "current_bytes": 817,
+    "recent_history": "81343a67 2025-11-13T15:35:03+01:00 mithun50 feat: include all plugin resources in package distribution\n"
+  },
+  {
+    "path": "src/superclaude/skills/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "src/superclaude/skills/confidence-check/__init__.py",
+    "exists": true,
+    "current_bytes": 0,
+    "recent_history": "fd8c67f6 2025-11-14T14:16:19+01:00 mithun50 chore: bump version to 4.1.9 and add __init__.py to all packages\n"
+  },
+  {
+    "path": "tests/__init__.py",
+    "exists": true,
+    "current_bytes": 240,
+    "recent_history": "8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/conftest.py",
+    "exists": true,
+    "current_bytes": 8033,
+    "recent_history": "d36591ee 2026-05-19T06:48:05-04:00 Ironbelly fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)\n8b70fd58 2026-03-15T05:59:27+00:00 RyanW fix(executors): replace --file fallback with inline embedding\nb00547ad 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files\ne2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/integration/__init__.py",
+    "exists": true,
+    "current_bytes": 113,
+    "recent_history": "8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/integration/test_pytest_plugin.py",
+    "exists": true,
+    "current_bytes": 8725,
+    "recent_history": "08cbea9e 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\ne2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/unit/__init__.py",
+    "exists": true,
+    "current_bytes": 129,
+    "recent_history": "8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/unit/test_cli_install.py",
+    "exists": true,
+    "current_bytes": 46866,
+    "recent_history": "4865e94c 2026-10-22T16:56:16+00:00 Ryan wiancko fix(implement): contain revert deletes, reject symlinked brief folders, bundle plugin adviser\n3ad7e207 2026-10-22T15:27:44+00:00 Ryan wiancko feat(implement): add escalating QA retry ladder and safe artifact recovery\n08cbea9e 2026-10-20T17:42:22+00:00 Ryan wiancko refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)\n051f39fe 2026-10-14T08:07:04-05:00 clayphi feat(routing): one HOW-WE-WORK guide for which tool to use when\n3ae238b1 2026-09-30T18:36:39+00:00 Ryan wiancko chore: drop unused commands and sequential/magic/chrome-devtools MCPs\n263521c6 2026-07-25T10:24:28-04:00 RyanW Fixes hardcoded paths to Coder instancesZ\n0d3b99c8 2026-07-06T10:27:37-04:00 Ironbelly feat(post-release): /sc:post-release command-backed refactor + sc-post-release-protocol skill (#218)\n681a347f 2026-06-04T00:03:39-04:00 Ironbelly feat(cli): add superclaude init-lite --context-optimized (#128)\n"
+  },
+  {
+    "path": "tests/unit/test_confidence.py",
+    "exists": true,
+    "current_bytes": 6159,
+    "recent_history": "b00547ad 2025-11-12T18:19:45+01:00 mithun50 style: apply ruff formatting to all files\ne2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/unit/test_reflexion.py",
+    "exists": true,
+    "current_bytes": 5772,
+    "recent_history": "e2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/unit/test_self_check.py",
+    "exists": true,
+    "current_bytes": 7900,
+    "recent_history": "e2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  },
+  {
+    "path": "tests/unit/test_token_budget.py",
+    "exists": true,
+    "current_bytes": 4086,
+    "recent_history": "e2896335 2025-11-12T18:17:39+01:00 mithun50 fix: resolve all ruff linting errors\n8c0559ca 2025-11-11T18:21:22+01:00 mithun50 feat: add comprehensive test suite, CI/CD workflows, and install command\n"
+  }
+]

@@ -1,0 +1,26 @@
+# Wave 5 final evidence gate — Task(sc:evidence-validator), requested slot: opus, agent_id: a44a619f3bc64e791
+# actual_provider_model: "claude-opus-5-5[1m] (slot alias; not self-reported)"
+draft: REPORT.draft.md (preserved)
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 2
+validated: [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12]
+dropped:
+  - {id: C13, citation: "<out>/artifacts/coverage-matrix.yaml:34", reason: "orphaned citation; quote matches but no claim attached (residue of card F-004 omitted from draft)"}
+  - {id: uncounted-cm27, citation: "<out>/artifacts/coverage-matrix.yaml:27", reason: "line supports only coverage_pct: 1.0; attached to broader bullet (union, unmapped, inferred, Pass-2) it does not support"}
+header_issues:
+  - "citations_total was 13; actual 14"
+  - "citations_inferred counted tagged claims (3); validator notes only C12 is a citation on an [INFERRED] claim. Final report keeps the template definition (count of [INFERRED]-tagged claims) and states both."
+untagged_uncited_claims_flagged:
+  - "coverage table fidelity grades (sourced from coverage-matrix.yaml:21-23, uncited)"
+  - "best-practice grade 3/5 untagged"
+  - "RK-1..RK-3 predictive, untagged"
+  - "degradation section uncited"
+  - "Pass-2 'no requirement-shaped content' sub-claim uncited"
+  - "confidence_calibrated header value uncited (supported by calibration.yaml)"
+orchestrator_disposition:
+  - "Dropped C13 and cm27 from REPORT.md; no replacement citations added post-gate (would be unvalidated)."
+  - "Coverage numbers retained as deterministic Wave-1B contract fields (artifact coverage-matrix.yaml), not as report citations; coverage_pct/coverage_pct_union unchanged (no INF rows; no requirement row affected)."
+  - "Tagged RK-1, RK-2, RK-3 and the best-practice grade [INFERRED]; fidelity grades and degradation notes labelled as Wave-1B artifact / run telemetry (audit.log) references."
+  - "status forced to partial per §11.2 (>=1 dropped)."
+zero_drop_flag: false

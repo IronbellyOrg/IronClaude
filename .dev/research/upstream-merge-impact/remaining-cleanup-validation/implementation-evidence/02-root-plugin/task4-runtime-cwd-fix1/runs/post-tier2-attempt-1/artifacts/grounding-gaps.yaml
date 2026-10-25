@@ -1,0 +1,24 @@
+# §10.6 Grounding Gaps — rows lifted from the adversarially merged verdict (adversarial/merged-card.yaml grounding_gaps[0..2]).
+# Paths relative to audit_repo_root=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+findings:
+  - id: G1
+    hunk_ref: "completed.md:8 (T-103) / tests/test_greeting.py:1-13 (no changes.patch hunk)"
+    evidence_missing: "changes.patch contains only src/greeting.py; the test file exists on disk but has no hunk; execution.log:4 is a self-report and execution.log:5 disclaims execution. Untracked status is not distinctive (the repo has no commits, every file is untracked)."
+    why_not_classifiable: "R-003 is not contradicted and there is no unmapped hunk to class as Drift; the missing hunk is explained by audit scope (test file outside --scope src), so this is an evidence-supply gap, not proof of non-delivery."
+    next_evidence_needed: "A regenerated diff with scope widened beyond src/ that contains a tests/test_greeting.py hunk, or explicit user confirmation that the untracked file is the delivered T-103 artifact."
+    owner: user
+    decision_needed_by_user: true
+  - id: G2
+    hunk_ref: "tests/test_greeting.py:1 (from src.greeting import greet) / src/greeting.py:1-4 (no package marker)"
+    evidence_missing: "No test was executed by anyone (verification triangle unavailable; execution.log:5). No src/__init__.py, tests/__init__.py, conftest.py, pyproject.toml or pytest config exists in the audit root (artifacts/git-inventory.txt:2-8)."
+    why_not_classifiable: "[INFERRED] The import resolves under `python -m pytest` from the root but may fail collection under plain pytest; a collection error maps to a Grounding Gap, not a Regression. Not observed."
+    next_evidence_needed: "Outputs of `python -m pytest tests -q` and plain `pytest tests -q` from the audit root, classified per deviation-taxonomy.md:105-113."
+    owner: user
+    decision_needed_by_user: true
+  - id: G3
+    hunk_ref: "src/greeting.py:2-3 (R-002, spec.md:9)"
+    evidence_missing: "spec.md:9 does not define 'empty' for None, 0, whitespace-only, or non-str input."
+    why_not_classifiable: "No spec sentence is contradicted and the line maps to T-102; `if not name` rejecting other falsy values and accepting whitespace is neither authorized nor forbidden. Reviewer-1 preferred the advisory correctness-gaps channel; the merged verdict keeps it here because that channel requires two disagreeing sibling symbols."
+    next_evidence_needed: "Spec text stating whether None/non-str should raise TypeError or ValueError and whether whitespace-only names count as empty."
+    owner: user
+    decision_needed_by_user: false

@@ -1,0 +1,86 @@
+{
+  "calibrator_agent": "sc:confidence-calibrator",
+  "requested_model_slot": "opus",
+  "calibrator_model_self_reported": "claude-opus-5-5[1m]",
+  "agent_id": "a20f390328f85d475",
+  "card_author_slot": "sonnet",
+  "card_author_model_self_reported": "claude-sonnet-5-5[1m]",
+  "calibrator_diversity": "full",
+  "calibrator_diversity_basis": "T1: card author class {sonnet}; calibrator class opus is disjoint. No T2 reviewer set.",
+  "input_card": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/pre-smoke-attempt-1/artifacts/artifacts/calibration/card-for-calibration.yaml",
+  "formation_context_supplied": false,
+  "citation_spot_checks": [
+    {
+      "citation": "spec.md:5, :8, :11",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md:3, :6, :9",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:9",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md:7",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:6",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md:4",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:12",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md:10",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md:1-10",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:1-12",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:9, proposed.md:7",
+      "result": "verified"
+    },
+    {
+      "citation": "spec.md:3",
+      "result": "verified"
+    },
+    {
+      "citation": "proposed.md line 4/7/10 (rec targets)",
+      "result": "verified"
+    },
+    {
+      "citation": "artifacts/coverage-matrix.yaml",
+      "result": "unreadable (calibrator-reported, apparently based on the card's statement)",
+      "orchestrator_note": "file exists at <output>/artifacts/coverage-matrix.yaml per ls; card brief path was ambiguous; not load-bearing (both card and calibrator re-derived 3/3 independently)"
+    }
+  ],
+  "scores": {
+    "citation_grounding": 0.92,
+    "coverage_completeness": 1.0,
+    "deviation_classification_clarity": 0.85,
+    "risk_surface_coverage": 0.9,
+    "recommendation_actionability": 0.9
+  },
+  "confidence_calibrated": 0.91,
+  "arithmetic": "(0.92+1.00+0.85+0.90+0.90)/5 = 4.57/5 = 0.914 -> 0.91",
+  "concerns": [
+    "F-3 dropped MUST literal could be framed as Drift candidate / grounding gap rather than out of classification",
+    "R-1 partly misreads proposed.md:4 (greet(name) already present; only module/file target missing)",
+    "R-4 verifier does not name the command",
+    "C=0.91 narrowly clears 0.90; margin driven by trivial 3/3 coverage"
+  ]
+}

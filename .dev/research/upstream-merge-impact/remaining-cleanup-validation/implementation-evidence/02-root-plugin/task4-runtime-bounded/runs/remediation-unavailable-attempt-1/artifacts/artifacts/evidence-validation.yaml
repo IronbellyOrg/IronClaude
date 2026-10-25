@@ -1,0 +1,17 @@
+{
+  "validator_role": "sc:evidence-validator",
+  "validator_model_slot": "haiku",
+  "ran": true,
+  "draft": "REPORT.draft.md",
+  "citations_grounded_occurrences": 22,
+  "citations_revalidated": 22,
+  "citations_inferred_counted": 2,
+  "validator_reported_total_incl_inferred": 24,
+  "citations_dropped": 0,
+  "zero_drop_flag": true,
+  "absence_check": {
+    "result": "confirmed",
+    "files_found": []
+  },
+  "note": "all 22 grounded occurrences verified; 2 [INFERRED] counted not re-read; draft header 12 superseded by validator count"
+}

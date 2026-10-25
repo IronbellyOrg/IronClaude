@@ -1,0 +1,2 @@
+deviation_aggregation_mode: per-hunk
+deviations: []    # no Authorized/Necessary/Drift/Regression divergence observed between task-log claims and on-disk files

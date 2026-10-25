@@ -1,0 +1,33 @@
+# Wave 1D blind calibration, returned by Agent sc:confidence-calibrator (requested slot: opus). Persisted by orchestrator.
+calibrator_role: sc:confidence-calibrator
+calibrator_model_slot: opus
+card_author_model_slot: sonnet
+calibrator_diversity: full          # opus not in {sonnet} card-author class set
+formation_context_supplied: false
+citation_spot_checks:
+  - {citation: "execution.log:1-5", status: verified}
+  - {citation: "src/greeting.py:1-4", status: verified}
+  - {citation: "tests/test_greeting.py:1-13", status: verified}
+  - {citation: "work-map.yaml:3", status: verified}
+  - {citation: "work-map.yaml:8", status: verified}
+  - {citation: "work-map.yaml:15", status: verified}
+  - {citation: "work-map.yaml:22", status: verified}
+  - {citation: "work-map.yaml:25-29", status: verified}
+  - {citation: "deviation-ledger.yaml:2", status: verified}
+  - {citation: "grounding-gaps.yaml:3", status: verified}
+  - {citation: "grounding-gaps.yaml:4", status: verified}
+  - {citation: "invocations.yaml:1-3", status: verified}
+  - {citation: "Glob of project root (no pyproject/conftest/pytest.ini/__init__)", status: verified, note: "checked by Read of each named path (all absent); no Glob tool; unlisted files not ruled out; no persisted anchor"}
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.90
+  deviation_classification_clarity: 0.92
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.90
+unrounded_mean: 0.908
+calibrated_confidence: 0.91
+self_reported_confidence: 0.62
+notes:
+  - "Risk 1 tagged grounded but its pytest import-mode claim is unexecuted inference (only the missing files and the import line are grounded)."
+  - "Zero-deviation clarity score is partly vacuous."
+  - "Card header path note ('artifacts/<x> = <output>/<x>') is ambiguous; work-map resolves at <output>/artifacts/work-map.yaml; no mismatch resulted."

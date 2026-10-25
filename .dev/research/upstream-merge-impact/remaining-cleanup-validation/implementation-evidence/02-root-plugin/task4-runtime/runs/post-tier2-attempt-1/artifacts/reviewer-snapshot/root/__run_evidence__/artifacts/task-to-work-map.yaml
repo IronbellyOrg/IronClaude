@@ -1,0 +1,36 @@
+# Wave 1B UC-2 tasklist-vs-work map (inline orchestrator; bipartite task<->hunk/file match)
+diff_source: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/changes.patch
+diff_hunks:
+  - id: H1
+    file: src/greeting.py
+    hunk: "@@ -0,0 +1,4 @@ (new file)"
+    patch_lines: "changes.patch:5-9"
+    maps_to: [T-101, T-102]
+total_hunks: 1
+unmapped_hunks: 0
+S_scope: 1          # files in supplied diff
+S_scope_with_task_declared_new_files: 2
+S_domains: 2        # code (src/), tests (tests/) -- tests counted because T-103 evidence is inspected
+S_dev_density: 0.0
+tasks:
+  - id: T-101
+    tasklist_ref: completed.md:6
+    spec_ref: spec.md:5-6   # R-001: MUST return exact string "Hello, Ada!" for Ada
+    work_evidence: ["src/greeting.py:4", "changes.patch:9"]
+    static_verdict: implemented  # f"Hello, {name}!" with name="Ada" -> "Hello, Ada!"
+  - id: T-102
+    tasklist_ref: completed.md:7
+    spec_ref: spec.md:8-9   # R-002: MUST reject empty name with ValueError
+    work_evidence: ["src/greeting.py:2-3", "changes.patch:7-8"]
+    static_verdict: implemented  # "if not name: raise ValueError" -> "" raises
+  - id: T-103
+    tasklist_ref: completed.md:8
+    spec_ref: spec.md:11-12 # R-003: tests MUST exercise ordinary greeting and empty-input rejection
+    work_evidence: ["tests/test_greeting.py:4-5", "tests/test_greeting.py:8-13", "execution.log:4"]
+    in_supplied_diff: false
+    in_scope_flag: false     # --scope is src/; file is task-declared new (untracked) evidence
+    static_verdict: implemented_statically  # both cases present; execution NOT verified
+tasklist_completion_pct: 1.0   # 3/3 statically verified on disk
+notes:
+  - "Supplied diff omits tests/test_greeting.py; it is an untracked new file (git ls-files --others) declared by execution.log:4. Included per Step 0.5e new/log-declared path rule."
+  - "Repository has git init only: no HEAD, no index entries; all fixture files untracked."

@@ -1,0 +1,69 @@
+sc 4.3.0
+  Description: SuperClaude Plugin
+  Source: sc@inline
+
+Component inventory
+  Skills (29)  confidence-check, sc-README, sc-agent, sc-analyze, sc-brainstorm, sc-build, sc-business-panel, sc-cleanup, sc-design, sc-document, sc-explain, sc-git, sc-help, sc-implement, sc-improve, sc-index, sc-index-repo, sc-load, sc-pm, sc-recommend, sc-reflect, sc-research, sc-save, sc-spawn, sc-spec-panel, sc-task, sc-test, sc-troubleshoot, sc-workflow
+  Agents (21)  sc-refactoring-expert, sc-requirements-analyst, sc-quality-engineer, sc-performance-engineer, sc-root-cause-analyst, sc-README, sc-deep-research, sc-technical-writer, sc-repo-index, sc-security-engineer, sc-self-review, sc-pm-agent, sc-learning-guide, sc-business-panel-experts, sc-deep-research-agent, sc-socratic-mentor, sc-backend-architect, sc-frontend-architect, sc-devops-architect, sc-system-architect, sc-python-expert
+  Hooks (0)
+  MCP servers (0)
+  LSP servers (0)
+
+Projected token cost
+  Always-on:   ~1,329 tok   added to every session
+
+Per-component (rounded)
+  component                  always-on  on-invoke
+  confidence-check                 ~70        ~1k
+  sc-refactoring-expert            ~30       ~690
+  sc-requirements-analyst          ~40       ~700
+  sc-quality-engineer              ~30       ~660
+  sc-performance-engineer          ~30       ~640
+  sc-root-cause-analyst            ~40       ~710
+  sc-README                       < 20       ~150
+  sc-deep-research                 ~20       ~310
+  sc-technical-writer              ~40       ~660
+  sc-repo-index                   < 20       ~340
+  sc-security-engineer             ~30       ~730
+  sc-self-review                  < 20       ~320
+  sc-pm-agent                      ~40      ~5.5k
+  sc-learning-guide                ~40       ~700
+  sc-business-panel-experts        ~50      ~2.4k
+  sc-deep-research-agent           ~30      ~1.1k
+  sc-socratic-mentor               ~40      ~2.9k
+  sc-backend-architect             ~30       ~550
+  sc-frontend-architect            ~30       ~560
+  sc-devops-architect              ~30       ~590
+  sc-system-architect              ~30       ~600
+  sc-python-expert                 ~30       ~740
+  sc-research                      ~20       ~880
+  sc-analyze                       ~30       ~840
+  sc-test                          ~20       ~730
+  sc-save                          ~30       ~870
+  sc-business-panel                ~20       ~930
+  sc-implement                     ~30      ~1.2k
+  sc-task                          ~20      ~1.2k
+  sc-spawn                         ~20        ~1k
+  sc-load                          ~20       ~850
+  sc-README                       < 20       ~180
+  sc-design                        ~30       ~850
+  sc-cleanup                       ~20       ~990
+  sc-document                      ~20       ~780
+  sc-workflow                      ~20      ~1.2k
+  sc-explain                       ~30       ~900
+  sc-reflect                       ~20       ~940
+  sc-agent                        < 20       ~700
+  sc-pm                            ~30      ~5.1k
+  sc-improve                       ~20      ~1.1k
+  sc-index-repo                   < 20       ~660
+  sc-build                         ~20       ~800
+  sc-troubleshoot                  ~20        ~1k
+  sc-spec-panel                    ~30      ~4.5k
+  sc-recommend                     ~30        ~8k
+  sc-help                         < 20        ~2k
+  sc-git                           ~20       ~580
+  sc-index                         ~30       ~920
+  sc-brainstorm                    ~30      ~1.4k
+
+  On-invoke cost is paid each time a skill or agent fires.
+  Token counts are estimates and may differ from actual usage.

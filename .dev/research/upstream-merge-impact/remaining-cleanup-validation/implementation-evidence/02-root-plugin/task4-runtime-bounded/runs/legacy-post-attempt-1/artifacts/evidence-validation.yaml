@@ -1,0 +1,15 @@
+# Wave 5 — persisted from sc:evidence-validator return (agent_id a75152e5986f67785)
+validator: sc:evidence-validator
+requested_model_slot: opus   # env-resolved claude-opus-5-5[1m]; actual provider model not surfaced (unverified)
+draft: REPORT.draft.md
+citations_total: 18
+citations_revalidated: 18
+dropped: []
+citations_dropped: 0
+citations_inferred: 1
+verified_ids: [C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18]
+absence_check: {claim: "GG-2 no __init__/conftest/pyproject/pytest.ini/setup.cfg", result: confirmed_absent, method: Glob, files_found: []}
+zero_drop_flag: true   # §11.2: zero-drop pass is audit-flagged, not treated as clean signal
+notes:
+  - "GG-2 wording corrected: absence confirmed by calibrator Read probes AND validator Glob."
+  - "Suggested status from citations alone: success; overall status partial due to non-empty grounding gaps."

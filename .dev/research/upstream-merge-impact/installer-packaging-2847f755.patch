@@ -1,0 +1,32 @@
+commit 2847f7551871eb17d2821730be0adc39cba9666a
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Thu Nov 13 15:05:53 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Thu Nov 13 15:05:53 2025 +0100
+
+    docs: explicitly include commands and skills in MANIFEST.in
+    
+    Added explicit entries for commands and skills directories to make it
+    clear these are included in the source distribution.
+    
+    While these were already covered by the recursive-include for
+    src/superclaude/*.md, explicit entries improve maintainability
+    and documentation.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/MANIFEST.in b/MANIFEST.in
+index a3388db1..ddb8a37c 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -8,6 +8,8 @@ include pyproject.toml
+ recursive-include docs *.md
+ recursive-include tests *.py
+ recursive-include src/superclaude *.py *.md *.ts *.json
++recursive-include src/superclaude/commands *.md
++recursive-include src/superclaude/skills *.md *.json
+ global-exclude __pycache__
+ global-exclude *.py[co]
+ global-exclude .DS_Store

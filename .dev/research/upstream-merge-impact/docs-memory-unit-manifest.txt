@@ -1,0 +1,298 @@
+{
+  "id": "docs-memory-releases",
+  "title": "Memory documentation, translations, reference docs and release metadata",
+  "commits": [
+    {
+      "sha": "bea4bfe289f298e790da4746212474d3ed2b0ed8",
+      "parents": [
+        "c733413d3c5dc0ea93822e93afbe3eae9a7f6fec"
+      ],
+      "authored": "2025-10-30T22:14:35-05:00",
+      "committed": "2025-10-31T08:44:35+05:30",
+      "author": "Cedric Hurst",
+      "email": "cedric@spantree.net",
+      "subject": "docs: Replace Mindbase References with ReflexionMemory (#464)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/mcp/mcp-integration-policy.md",
+        "docs/memory/README.md",
+        "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+        "docs/memory/pm_context.md",
+        "docs/memory/reflexion.jsonl.example",
+        "docs/memory/token_efficiency_validation.md",
+        "docs/reference/pm-agent-autonomous-reflection.md",
+        "docs/research/llm-agent-token-efficiency-2025.md",
+        "docs/research/reflexion-integration-2025.md",
+        "docs/user-guide/memory-system.md"
+      ]
+    },
+    {
+      "sha": "bec0b0c3e393cb5bc244e83b95fb2b006745eeb5",
+      "parents": [
+        "0ef8ea8139202acb17c5ffc938619f331c7184ab"
+      ],
+      "authored": "2025-11-12T01:30:49+09:00",
+      "committed": "2025-11-11T22:00:49+05:30",
+      "author": "Utakata",
+      "email": "syouryuu1111@gmail.com",
+      "subject": "Claude/fix readme plugin docs 011 cv2 lk n gko6wzm tfn dmnrm (#478)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md"
+      ]
+    },
+    {
+      "sha": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+      "parents": [
+        "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0"
+      ],
+      "authored": "2025-11-12T17:37:27+01:00",
+      "committed": "2025-11-12T17:37:27+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "feat: bump version to 4.1.7 across all files",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "KNOWLEDGE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "TASK.md",
+        "VERSION",
+        "docs/research/task-tool-parallel-execution-results.md",
+        "package.json",
+        "plugins/superclaude/commands/sc.md",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+      "parents": [
+        "32c0086d0f916362fd4899212e8e714511ca4524"
+      ],
+      "authored": "2025-11-12T18:04:34+01:00",
+      "committed": "2025-11-12T18:04:34+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: update package version and authors",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "58008c94446386718f036cc402f2dc4e99b3f007",
+      "parents": [
+        "b00547ad535ee638952c5e38b2a139888e50f496"
+      ],
+      "authored": "2025-11-12T18:25:34+01:00",
+      "committed": "2025-11-12T18:25:34+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: fix broken links in translated READMEs",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md"
+      ]
+    },
+    {
+      "sha": "61591211ae99847130aed3e84737bfa63b3b6520",
+      "parents": [
+        "25785363af21849898ca77624aac0b05fc780b94"
+      ],
+      "authored": "2025-11-13T12:36:38+01:00",
+      "committed": "2025-11-13T12:36:38+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "chore: bump version to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CLAUDE.md",
+        "KNOWLEDGE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "sha": "86a26333912b09a98fab1d9a81c0cd23e404f224",
+      "parents": [
+        "61591211ae99847130aed3e84737bfa63b3b6520"
+      ],
+      "authored": "2025-11-13T12:45:17+01:00",
+      "committed": "2025-11-13T12:45:17+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "fix: update __version__ in __init__.py to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d",
+      "parents": [
+        "86a26333912b09a98fab1d9a81c0cd23e404f224"
+      ],
+      "authored": "2025-11-13T12:46:52+01:00",
+      "committed": "2025-11-13T12:46:52+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "chore: update VERSION file to 4.1.8",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "VERSION"
+      ]
+    },
+    {
+      "sha": "d11abead403e4de8438f008a468f98ca10e5472e",
+      "parents": [
+        "d2a3b58b6f62302a9d3e4c09d3d8cb26bd209d8d"
+      ],
+      "authored": "2025-11-13T14:24:00+01:00",
+      "committed": "2025-11-13T14:24:00+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: sync translated READMEs with main README structure",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md"
+      ]
+    },
+    {
+      "sha": "43ca81d1693b1ecfc6648531798e29224cb305c3",
+      "parents": [
+        "323137a9df985c17f221f559ccede9860d40cb23"
+      ],
+      "authored": "2025-11-14T14:45:58+01:00",
+      "committed": "2025-11-14T14:45:58+01:00",
+      "author": "mithun50",
+      "email": "mithungowda.b7411@gmail.com",
+      "subject": "docs: update test solutions and mistake logs",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "docs/memory/solutions_learned.jsonl",
+        "docs/mistakes/test_database_connection-2025-11-14.md",
+        "docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md",
+        "docs/mistakes/unknown-2025-11-14.md"
+      ]
+    },
+    {
+      "sha": "310136c16b95c9dd5c412c5e7b5d4ae76362dbf6",
+      "parents": [
+        "43ca81d1693b1ecfc6648531798e29224cb305c3"
+      ],
+      "authored": "2025-12-02T16:57:20-08:00",
+      "committed": "2025-12-03T06:27:20+05:30",
+      "author": "Gurdas Nijor",
+      "email": "gurdas@smithery.ai",
+      "subject": "Add \"Run in Smithery\" badge (#490)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md"
+      ]
+    },
+    {
+      "sha": "208c66e1a781376a85132087b5a99767a9f13e31",
+      "parents": [
+        "3294a0ad941f299e8c997bbe88a718694e173a8f"
+      ],
+      "authored": "2026-01-18T04:37:51+01:00",
+      "committed": "2026-01-18T09:07:51+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "docs: update commands.md - complete command reference (#512)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "README.md",
+        "docs/user-guide/commands.md"
+      ]
+    },
+    {
+      "sha": "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5",
+      "parents": [
+        "e61aaba771055f65dd7c4f5de4d0e3e91ac928ec"
+      ],
+      "authored": "2026-01-18T14:09:18+01:00",
+      "committed": "2026-01-18T18:39:18+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "chore: bump version to 4.2.0 (#514)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "VERSION",
+        "pyproject.toml",
+        "src/superclaude/__init__.py"
+      ]
+    },
+    {
+      "sha": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+      "parents": [
+        "1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5"
+      ],
+      "authored": "2026-01-18T15:20:16+01:00",
+      "committed": "2026-01-18T19:50:16+05:30",
+      "author": "Sergei Frolov",
+      "email": "135062497+mrsergeifrolov@users.noreply.github.com",
+      "subject": "docs: update version references and fix CHANGELOG for v4.2.0 (#515)",
+      "provenance": "upstream-parent-ancestry",
+      "files": [
+        "CHANGELOG.md",
+        "CLAUDE.md",
+        "PLANNING.md",
+        "README-ja.md",
+        "README-kr.md",
+        "README-zh.md",
+        "README.md"
+      ]
+    }
+  ],
+  "files": [
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "KNOWLEDGE.md",
+    "PLANNING.md",
+    "README-ja.md",
+    "README-kr.md",
+    "README-zh.md",
+    "README.md",
+    "TASK.md",
+    "VERSION",
+    "docs/mcp/mcp-integration-policy.md",
+    "docs/memory/README.md",
+    "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+    "docs/memory/pm_context.md",
+    "docs/memory/reflexion.jsonl.example",
+    "docs/memory/solutions_learned.jsonl",
+    "docs/memory/token_efficiency_validation.md",
+    "docs/mistakes/test_database_connection-2025-11-14.md",
+    "docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md",
+    "docs/mistakes/unknown-2025-11-14.md",
+    "docs/reference/pm-agent-autonomous-reflection.md",
+    "docs/research/llm-agent-token-efficiency-2025.md",
+    "docs/research/reflexion-integration-2025.md",
+    "docs/research/task-tool-parallel-execution-results.md",
+    "docs/user-guide/commands.md",
+    "docs/user-guide/memory-system.md",
+    "package.json",
+    "plugins/superclaude/commands/sc.md",
+    "pyproject.toml",
+    "src/superclaude/__init__.py"
+  ],
+  "file_count": 30
+}

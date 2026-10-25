@@ -1,0 +1,36 @@
+backend: none
+execute_shell_command_available: false
+onboarding_available: true
+read_only: true
+read_only_confirmed: false
+serena_version: unknown
+serena_active_context: unknown
+serena_active_modes: []
+serena_config_snapshot_path: null
+activation_available: false
+get_current_config_available: false
+onboarding_ran: false
+onboarding_skipped_reason: flag-not-set
+onboarding_status: bootstrapped
+onboarding_status_source: list_memories_proxy
+memory_hits: 0
+memory_misses: 2
+memory_persistence_skipped: Only reflection output files may be written.
+reviewer_isolation: disabled
+executor_class_source: unknown
+executor_class_resolved: false
+resolved_aliases:
+  opus: claude-opus-5-5[1m]
+  sonnet: claude-sonnet-5-5[1m]
+  haiku: grok-4.7[1m]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+budget_check_skipped: true
+degraded_components:
+- serena:activate_project-unavailable
+- get_current_config
+- serena:read-only-unconfirmed
+- serena:checkpoints-unavailable
+- memory-persistence-prohibited
+- executor-class-unknown
+- report-write-prohibited

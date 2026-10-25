@@ -1,0 +1,13 @@
+# sc:confidence-check (bundled skill) applied before chat recommendations
+checks:
+  no_duplicate_implementations: {pass: true, weight: 0.25, basis: "reuse-audit.yaml: 0 neighbours; Glob shows no pytest config"}
+  architecture_compliance: {pass: true, weight: 0.25, basis: "pytest already the implied runner (test_* functions); no CLAUDE.md in fixture"}
+  official_docs_verified: {pass: false, weight: 0.20, basis: "pytest not installed (python3 -m pytest: No module named pytest); Context7/web unavailable"}
+  oss_reference: {pass: false, weight: 0.15, basis: "no Tavily/WebSearch available"}
+  root_cause_identified: {pass: partial, weight: 0.15, score: 0.075, basis: "RK-1 import failure is [INFERRED], never observed"}
+confidence: 0.575
+decision: "<0.70: do not present the config fix as a confirmed remedy; lead with evidence-gathering, mark pytest ini key [UNVERIFIED], present alternatives"
+blocked_by_low_confidence: true
+recommendations:
+  - {id: R-001, decision: reframed, note: "run tests first (evidence); config options presented as alternatives, pythonpath key [UNVERIFIED]"}
+  - {id: R-002, decision: kept, note: "spec clarification; no unverified tokens"}

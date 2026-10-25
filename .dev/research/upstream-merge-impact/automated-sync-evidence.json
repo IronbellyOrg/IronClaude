@@ -1,0 +1,1245 @@
+{
+  "unit": "automated-sync-copies",
+  "snapshot": "053b75664c8979bf223b8040f68310dce882d05b",
+  "file_count": 54,
+  "current_file_count": 51,
+  "records": [
+    {
+      "path": ".claude-plugin/plugin.json",
+      "exists": true,
+      "lines": 12,
+      "sha256": "a7b2b9faed0731e969e3f0d4ce80aaf32eb978baa74063e3742791687e1d59ae",
+      "changes": [
+        "465797ad"
+      ],
+      "canonical_path": null,
+      "canonical_exists": false,
+      "canonical_identical": false,
+      "heading": "",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-README.md",
+      "exists": true,
+      "lines": 20,
+      "sha256": "cdf0e6d6419bfb937212c06da55cbac07647ddd2aafe965212198233d4d684c3",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/README.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "1:# SuperClaude Agents",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-backend-architect.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "0868f2680e4f9ccdc9fc3c75ebff7908e1f6adc06e101c2ac067f7f4834fc2c1",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/backend-architect.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Backend Architect",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-business-panel-experts.md",
+      "exists": true,
+      "lines": 247,
+      "sha256": "c0995f5cc06160c5fdcefa07040f90031cef7d09db0c8abf8926ab60feeed85f",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/business-panel-experts.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "8:# Business Panel Expert Personas",
+      "namespace_duplication_lines": [
+        "3:description: Multi-expert business strategy panel synthesizing Christensen, Porter, Drucker, Godin, Kim & Mauborgne, Collins, Taleb, Meadows, and Doumont; supports sequential, debate, and Socratic modes.",
+        "232:- **Sequential Analysis**: Each expert provides framework-specific insights"
+      ]
+    },
+    {
+      "path": "agents/sc-deep-research-agent.md",
+      "exists": true,
+      "lines": 185,
+      "sha256": "e38e42f5925eb293b995065425d49416d8ddae223005faca5e5dc81d1ab5fa7a",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/deep-research-agent.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Deep Research Agent",
+      "namespace_duplication_lines": [
+        "113:- Never sequential without reason"
+      ]
+    },
+    {
+      "path": "agents/sc-deep-research.md",
+      "exists": true,
+      "lines": 31,
+      "sha256": "08be0270501898fc7c2b1b10886038677018b0fb215a8feae8bdd29971bb02eb",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/deep-research.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Deep Research Agent",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-devops-architect.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "1f83a22ba257703cff60d058b2cf603346ace049a208441c866502bfea34de79",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/devops-architect.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# DevOps Architect",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-frontend-architect.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "d0bb81bac89ca8cc1f8294edb99b54f47849cd680e629eb1c62f0186a0d2232d",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/frontend-architect.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Frontend Architect",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-learning-guide.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "d0edca8ce918fc9bb44b3339f1d7e95e5099849546af32a5f44f37a739e8fbf8",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/learning-guide.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Learning Guide",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-performance-engineer.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "07cf4d34ea24d4d1bc5e3070d63ec50d5f91e1c8fcf3fbc918729e0ad538c78a",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/performance-engineer.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Performance Engineer",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-pm-agent.md",
+      "exists": true,
+      "lines": 692,
+      "sha256": "1f396c73985203547a6dc9c3dfcea4450b9308fbff7243c110f2605f26d6a27c",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/pm-agent.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# PM Agent (Project Management Agent)",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-python-expert.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "6f4229bb6e4dac788ccea2fbdde520d85f593ff4f326fc6328897472542f9987",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/python-expert.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Python Expert",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-quality-engineer.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "5e92b0e91a4ea0c7c24275af3da305d01a4d049c488d286de32a67ce19c8be72",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/quality-engineer.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Quality Engineer",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-refactoring-expert.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "7100a3645592da3fa7ac9886c845f2bb2f4ea4fe155595b6815364e37ec808b2",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/refactoring-expert.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Refactoring Expert",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-repo-index.md",
+      "exists": true,
+      "lines": 30,
+      "sha256": "320b6f5479a35eed74db24d395cc2c3002439f21383e12ea631eb0f5dd9e84ec",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/repo-index.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Repository Index Agent",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-requirements-analyst.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "adc9adbdefd92b70c0083c5bd7c70708f6d3145b365cdabe698f25423b244370",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/requirements-analyst.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Requirements Analyst",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-root-cause-analyst.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "0a78c9eb4ccf992cae6f7252e198e4f650a2e36d576405459aac6f19e34139d9",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/root-cause-analyst.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Root Cause Analyst",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-security-engineer.md",
+      "exists": true,
+      "lines": 50,
+      "sha256": "6c3c64149ce5d4b41b687e1b17d2e3554a86abb2910d3d4a7fd6784332b43fe7",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/security-engineer.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Security Engineer",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-self-review.md",
+      "exists": true,
+      "lines": 33,
+      "sha256": "99c9012de1608b047401d1f26dcb0e55b0042a8fce763966a67b05f39f47ce7d",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/self-review.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Self Review Agent",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-socratic-mentor.md",
+      "exists": true,
+      "lines": 280,
+      "sha256": "9fb9fc973784d2708615fbf4e2108a392a575493779963137804f7abb0c23789",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/socratic-mentor.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Socratic Mentor",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-system-architect.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "9dbd182ce087f42736423ff32346cc6965c3b901abc5938628c5450ae7862ed7",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/system-architect.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# System Architect",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "agents/sc-technical-writer.md",
+      "exists": true,
+      "lines": 48,
+      "sha256": "140686663f8d2fbf1a5705c4d8a8bdd888b5042e21c8bae0d788f123c64fd4e5",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/agents/technical-writer.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# Technical Writer",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "commands/sc-README.md",
+      "exists": true,
+      "lines": 21,
+      "sha256": "fdeaa6dd0094c155ea5d15dee78916a9a39d6d952a3b7cfd8eb7aa6c9c33c62a",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/README.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "1:# SuperClaude Commands",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "commands/sc-agent.md",
+      "exists": true,
+      "lines": 71,
+      "sha256": "1c37a0992dd8b834ea84f2a35eb12ca59eb5d2a9fec7f51927c804d4ffe159cf",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/agent.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# SC Agent Activation",
+      "namespace_duplication_lines": [
+        "9:\ud83d\ude80 **SC Agent online** \u2014 this plugin launches `/sc:sc:agent` automatically at session start."
+      ]
+    },
+    {
+      "path": "commands/sc-analyze.md",
+      "exists": true,
+      "lines": 98,
+      "sha256": "f03613e5a2fa2cf8f7b8b998c76d32114014aea6a6409a47196296fd28edc9fc",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/analyze.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:analyze - Code Analysis and Quality Assessment",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:analyze - Code Analysis and Quality Assessment",
+        "20:/sc:sc:analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]",
+        "53:/sc:sc:analyze",
+        "60:/sc:sc:analyze src/auth --focus security --depth deep",
+        "67:/sc:sc:analyze --focus performance --format report",
+        "74:/sc:sc:analyze src/components --focus quality --depth quick",
+        "98:**Next Step**: After review, use `/sc:sc:improve` to apply recommended fixes or `/sc:sc:cleanup` for dead code removal."
+      ]
+    },
+    {
+      "path": "commands/sc-brainstorm.md",
+      "exists": true,
+      "lines": 120,
+      "sha256": "553ab63b9e65ac052c1ae682e44283f64f20a7fb81b33ea544fc045f02b5f912",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/brainstorm.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:brainstorm - Interactive Requirements Discovery",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:brainstorm - Interactive Requirements Discovery",
+        "12:> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:sc:brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.",
+        "22:/sc:sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]",
+        "63:/sc:sc:brainstorm \"AI-powered project management tool\" --strategy systematic --depth deep",
+        "69:/sc:sc:brainstorm \"real-time collaboration features\" --strategy agile --parallel",
+        "76:/sc:sc:brainstorm \"enterprise data analytics platform\" --strategy enterprise --validate",
+        "83:/sc:sc:brainstorm \"mobile app monetization strategy\" --depth normal",
+        "107:- Create architecture diagrams or system designs (use `/sc:sc:design`)",
+        "108:- Generate implementation code (use `/sc:sc:implement`)",
+        "120:**Next Step**: After brainstorm completes, use `/sc:sc:design` for architecture or `/sc:sc:workflow` for implementation planning."
+      ]
+    },
+    {
+      "path": "commands/sc-build.md",
+      "exists": true,
+      "lines": 94,
+      "sha256": "bd6352c7ecd028bc6c10e108bd7542e3bd0c71f7fe52ce03785fda1bc2ef8407",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/build.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:build - Project Building and Packaging",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:build - Project Building and Packaging",
+        "20:/sc:sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]",
+        "58:/sc:sc:build",
+        "65:/sc:sc:build --type prod --clean --optimize",
+        "72:/sc:sc:build frontend --verbose",
+        "79:/sc:sc:build --type dev --validate"
+      ]
+    },
+    {
+      "path": "commands/sc-business-panel.md",
+      "exists": true,
+      "lines": 113,
+      "sha256": "1f50cf7de4a715dab45cc6201e865cc5789260a1720552d8326ba2c5687419b8",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/business-panel.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "1:# /sc:sc:sc:business-panel - Business Panel Analysis System",
+      "namespace_duplication_lines": [
+        "1:# /sc:sc:sc:business-panel - Business Panel Analysis System",
+        "5:command: \"/sc:sc:business-panel\"",
+        "45:/sc:sc:business-panel [document_path_or_content]",
+        "50:/sc:sc:business-panel [content] --experts \"porter,christensen,meadows\"",
+        "51:/sc:sc:business-panel [content] --mode debate",
+        "52:/sc:sc:business-panel [content] --focus \"competitive-analysis\"",
+        "53:/sc:sc:business-panel [content] --synthesis-only",
+        "111:- Use `/sc:sc:design` for architectural changes",
+        "112:- Use `/sc:sc:implement` for feature development",
+        "113:- Use `/sc:sc:workflow` for planning"
+      ]
+    },
+    {
+      "path": "commands/sc-cleanup.md",
+      "exists": true,
+      "lines": 110,
+      "sha256": "6ff44f9b7539902ebee02372a7b9baf0550d7291491403b3b8fc743f6b16839e",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/cleanup.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:cleanup - Code and Project Cleanup",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:cleanup - Code and Project Cleanup",
+        "20:/sc:sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]",
+        "56:/sc:sc:cleanup src/ --type code --safe",
+        "63:/sc:sc:cleanup --type imports --preview",
+        "70:/sc:sc:cleanup --type all --interactive",
+        "77:/sc:sc:cleanup components/ --aggressive"
+      ]
+    },
+    {
+      "path": "commands/sc-design.md",
+      "exists": true,
+      "lines": 96,
+      "sha256": "fdbad6a1ed968367712a57b7b7dbce977eed4d27da7aac134b0628620d075f6b",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/design.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:design - System and Component Design",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:design - System and Component Design",
+        "20:/sc:sc:design [target] [--type architecture|api|component|database] [--format diagram|spec|code]",
+        "52:/sc:sc:design user-management-system --type architecture --format diagram",
+        "59:/sc:sc:design payment-api --type api --format spec",
+        "66:/sc:sc:design notification-service --type component --format code",
+        "73:/sc:sc:design e-commerce-db --type database --format diagram",
+        "86:- Generate actual implementation code (use /sc:sc:implement for implementation)",
+        "96:**Next Step**: After design is approved, use `/sc:sc:implement` to build the designed components."
+      ]
+    },
+    {
+      "path": "commands/sc-document.md",
+      "exists": true,
+      "lines": 88,
+      "sha256": "c18fc3f1852e2a91b077dcf955370994978610b5888f161e91a6523dac8f0272",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/document.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:document - Focused Documentation Generation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:document - Focused Documentation Generation",
+        "20:/sc:sc:document [target] [--type inline|external|api|guide] [--style brief|detailed]",
+        "52:/sc:sc:document src/auth/login.js --type inline",
+        "59:/sc:sc:document src/api --type api --style detailed",
+        "66:/sc:sc:document payment-module --type guide --style brief",
+        "73:/sc:sc:document components/ --type external"
+      ]
+    },
+    {
+      "path": "commands/sc-estimate.md",
+      "exists": false,
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ]
+    },
+    {
+      "path": "commands/sc-explain.md",
+      "exists": true,
+      "lines": 90,
+      "sha256": "175a69ecc8e1e9601a599ba27802fbea6882fd4042e77ee483512a077449cc82",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/explain.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:explain - Code and Concept Explanation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:explain - Code and Concept Explanation",
+        "20:/sc:sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]",
+        "55:/sc:sc:explain authentication.js --level basic",
+        "62:/sc:sc:explain react-hooks --level intermediate --context react",
+        "69:/sc:sc:explain microservices-system --level advanced --format interactive",
+        "75:/sc:sc:explain jwt-authentication --context security --level basic"
+      ]
+    },
+    {
+      "path": "commands/sc-git.md",
+      "exists": true,
+      "lines": 80,
+      "sha256": "4e6d92aac61a930202cd293b2a8a9afac85da3690ae5431737ab384bc3afd14d",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/git.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:git - Git Operations",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:git - Git Operations",
+        "20:/sc:sc:git [operation] [args] [--smart-commit] [--interactive]",
+        "52:/sc:sc:git status",
+        "59:/sc:sc:git commit --smart-commit",
+        "66:/sc:sc:git merge feature-branch --interactive"
+      ]
+    },
+    {
+      "path": "commands/sc-help.md",
+      "exists": true,
+      "lines": 147,
+      "sha256": "4e3a06f7d5dc31626e61f8dc5ec3cd149496b6c48c2a5efc3d5c62dbf5dd7e3a",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/help.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:help - Command Reference Documentation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:help - Command Reference Documentation",
+        "29:| `/sc:sc:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |",
+        "30:| `/sc:sc:brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |",
+        "31:| `/sc:sc:build` | Build, compile, and package projects with intelligent error handling and optimization |",
+        "32:| `/sc:sc:business-panel` | Multi-expert business analysis with adaptive interaction modes |",
+        "33:| `/sc:sc:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |",
+        "34:| `/sc:sc:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |",
+        "35:| `/sc:sc:document` | Generate focused documentation for components, functions, APIs, and features |",
+        "36:| `/sc:sc:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |",
+        "37:| `/sc:sc:explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |",
+        "38:| `/sc:sc:git` | Git operations with intelligent commit messages and workflow optimization |",
+        "39:| `/sc:sc:help` | List all available /sc:sc commands and their functionality |",
+        "40:| `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |",
+        "41:| `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |",
+        "42:| `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |",
+        "43:| `/sc:sc:load` | Session lifecycle management with Serena MCP integration for project context loading |",
+        "44:| `/sc:sc:reflect` | Task reflection and validation using Serena MCP analysis capabilities |",
+        "45:| `/sc:sc:save` | Session lifecycle management with Serena MCP integration for session context persistence |",
+        "46:| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |",
+        "47:| `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |",
+        "48:| `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |",
+        "49:| `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |",
+        "50:| `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |",
+        "51:| `/sc:sc:troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |",
+        "52:| `/sc:sc:workflow` | Generate structured implementation workflows from PRDs and feature requirements |",
+        "119:/sc:sc:analyze --think-hard --context7 src/",
+        "122:/sc:sc:implement --magic --validate \"Add user dashboard\"",
+        "125:/sc:sc:task --token-efficient --delegate auto \"Refactor authentication system\"",
+        "128:/sc:sc:build --safe-mode --validate --focus security"
+      ]
+    },
+    {
+      "path": "commands/sc-implement.md",
+      "exists": true,
+      "lines": 109,
+      "sha256": "e693f85db40ebd2776d09f7127f66875463d8596e18014a846a026928c2485fb",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/implement.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:implement - Feature Implementation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:implement - Feature Implementation",
+        "12:> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:sc:implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.",
+        "22:/sc:sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]",
+        "60:/sc:sc:implement user profile component --type component --framework react",
+        "67:/sc:sc:implement user authentication API --type api --safe --with-tests",
+        "74:/sc:sc:implement payment processing system --type feature --with-tests",
+        "80:/sc:sc:implement dashboard widget --framework vue",
+        "107:3. Ready for `/sc:sc:test`",
+        "109:**Next Step**: After implementation, use `/sc:sc:test` to run tests, then `/sc:sc:git` to commit."
+      ]
+    },
+    {
+      "path": "commands/sc-improve.md",
+      "exists": true,
+      "lines": 112,
+      "sha256": "a781245ace321da730a789d31b40a77e5837cb8297cb19e20c7d7fd3cd4a5955",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/improve.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:improve - Code Improvement",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:improve - Code Improvement",
+        "20:/sc:sc:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]",
+        "56:/sc:sc:improve src/ --type quality --safe",
+        "63:/sc:sc:improve api-endpoints --type performance --interactive",
+        "70:/sc:sc:improve legacy-modules --type maintainability --preview",
+        "77:/sc:sc:improve auth-service --type security --validate"
+      ]
+    },
+    {
+      "path": "commands/sc-index-repo.md",
+      "exists": true,
+      "lines": 165,
+      "sha256": "fc4e204a2f5229802e3d4c16572047ae08ae9a7e11680429fcf764e3440f4faf",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/index-repo.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "6:# Repository Index Creator",
+      "namespace_duplication_lines": []
+    },
+    {
+      "path": "commands/sc-index.md",
+      "exists": true,
+      "lines": 85,
+      "sha256": "b5e280ff98c7c4c47641743872fe75b998242dd34f9bd686d236084fcad7ee5c",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/index.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:index - Project Documentation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:index - Project Documentation",
+        "20:/sc:sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]",
+        "56:/sc:sc:index project-root --type structure --format md",
+        "63:/sc:sc:index src/api --type api --format json",
+        "70:/sc:sc:index . --type docs"
+      ]
+    },
+    {
+      "path": "commands/sc-load.md",
+      "exists": true,
+      "lines": 93,
+      "sha256": "768d62092b91b93fb1082c6b5fd355dffad4447247bee62d9f7647e7dd4ced83",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/load.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:load - Project Context Loading",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:load - Project Context Loading",
+        "20:/sc:sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]",
+        "57:/sc:sc:load",
+        "64:/sc:sc:load /path/to/project --type project --analyze",
+        "71:/sc:sc:load --type checkpoint --checkpoint session_123",
+        "78:/sc:sc:load --type deps --refresh"
+      ]
+    },
+    {
+      "path": "commands/sc-pm.md",
+      "exists": true,
+      "lines": 591,
+      "sha256": "3bb9e21b83cde46a33bbf34966af7273a0be16b5f9a1d040728dfbb6c8954371",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/pm.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:pm - Project Manager Agent (Always Active)",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:pm - Project Manager Agent (Always Active)",
+        "28:/sc:sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]",
+        "31:/sc:sc:implement \"user profile\" --agent backend",
+        "120:- **Cache**: Strategic tool retention for sequential phases",
+        "203:  5. Phase 3 (Sequential):",
+        "249:/sc:sc:pm \"Improve application security\" --strategy wave",
+        "280:/sc:sc:implement \"responsive navbar\" --agent frontend"
+      ]
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "exists": true,
+      "lines": 1011,
+      "sha256": "74221917ff88add8e183a74d4c504d16a4c31099b8e884e9b4ff62f33230e669",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/recommend.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "7:# SuperClaude Intelligent Command Recommender",
+      "namespace_duplication_lines": [
+        "14:/sc:sc:recommend [user request] --options [flags]",
+        "74:/sc:sc:recommend \"makine \u00f6\u011frenmesi algoritmas\u0131 ba\u015flat\"",
+        "75:/sc:sc:recommend \"sitem yava\u015f a\u00e7\u0131l\u0131yor, ne yapay\u0131m?\"",
+        "76:/sc:sc:recommend \"yeni bir \u00f6zellik eklemeliyim\"",
+        "77:/sc:sc:recommend \"hata al\u0131yorum, \u00e7\u00f6z\u00fcm bul\"",
+        "80:/sc:sc:recommend \"I want to build ML algorithm\"",
+        "81:/sc:sc:recommend \"my website is slow, help me optimize\"",
+        "82:/sc:sc:recommend \"I need to add a new feature\"",
+        "83:/sc:sc:recommend \"getting errors, need debugging\"",
+        "86:/sc:sc:recommend \"makine learning projesi yapmak istiyorum\"",
+        "130:    primary_commands: [\"/sc:sc:analyze --c7\", \"/sc:sc:design --ultrathink\"]",
+        "131:    secondary_commands: [\"/sc:sc:build --feature --tdd\", \"/sc:sc:improve --performance\"]",
+        "137:    primary_commands: [\"/sc:sc:build --feature --magic\", \"/sc:sc:design --api\"]",
+        "138:    secondary_commands: [\"/sc:sc:test --coverage --e2e --pup\", \"/sc:sc:analyze --code\"]",
+        "144:    primary_commands: [\"/sc:sc:design --api --ddd\", \"/sc:sc:build --feature --tdd\"]",
+        "145:    secondary_commands: [\"/sc:sc:scan --security --owasp\", \"/sc:sc:analyze --performance --pup\"]",
+        "151:    primary_commands: [\"/sc:sc:troubleshoot --investigate\", \"/sc:sc:analyze --code\"]",
+        "152:    secondary_commands: [\"/sc:sc:scan --security\", \"/sc:sc:improve --quality\"]",
+        "158:    primary_commands: [\"/sc:sc:analyze --performance --pup --profile\", \"/sc:sc:troubleshoot\"]",
+        "159:    secondary_commands: [\"/sc:sc:improve --performance --iterate\", \"/sc:sc:build --optimize\"]",
+        "165:    primary_commands: [\"/sc:sc:scan --security --owasp --deps\", \"/sc:sc:analyze --security\"]",
+        "166:    secondary_commands: [\"/sc:sc:improve --security --harden\", \"/sc:sc:troubleshoot --investigate\"]",
+        "171:    primary_commands: [\"/sc:sc:build --feature --tdd\", \"/sc:sc:design --ultrathink\"]",
+        "172:    secondary_commands: [\"/sc:sc:analyze --code --c7\", \"/sc:sc:test --coverage --e2e\"]",
+        "178:    primary_commands: [\"/sc:sc:test --coverage --e2e --pup\", \"/sc:sc:scan --validate\"]",
+        "179:    secondary_commands: [\"/sc:sc:improve --quality\", \"/sc:sc:troubleshoot --investigate\"]",
+        "185:    primary_commands: [\"/sc:sc:improve --quality --iterate\", \"/sc:sc:cleanup --code --all\"]",
+        "186:    secondary_commands: [\"/sc:sc:analyze --code\", \"/sc:sc:refactor --quality\"]",
+        "191:    primary_commands: [\"/sc:sc:document --user --examples\", \"/sc:sc:analyze --code --c7\"]",
+        "192:    secondary_commands: [\"/sc:sc:brainstorm --interactive\", \"/sc:sc:help --specific\"]",
+        "203:    recommended_commands: [\"/sc:sc:brainstorm --educational\", \"/sc:sc:help --interactive\"]",
+        "209:    recommended_commands: [\"/sc:sc:implement --guided\", \"/sc:sc:design --template\"]",
+        "214:    recommended_commands: [\"/sc:sc:implement --advanced\", \"/sc:sc:analyze --deep\"]",
+        "222:User: /sc:sc:recommend \"I'm new, I want to do machine learning\"",
+        "230:1. /sc:sc:analyze --c7 --persona-mentor",
+        "233:2. /sc:sc:design --ultrathink --persona-architect",
+        "236:3. /sc:sc:build --feature --tdd --persona-frontend",
+        "239:4. /sc:sc:test --coverage --e2e --pup --persona-qa",
+        "244:- Learning mode: /sc:sc:document --user --examples --persona-mentor",
+        "245:- Security: /sc:sc:scan --security --owasp (next phase)",
+        "246:- Performance: /sc:sc:analyze --performance --pup (after model training)",
+        "249:/sc:sc:build --feature --magic --react --persona-frontend",
+        "254:User: /sc:sc:recommend \"my site is very slow, what should I do?\"",
+        "262:1. /sc:sc:analyze --performance --pup --profile --persona-performance",
+        "265:2. /sc:sc:troubleshoot --investigate --persona-analyzer",
+        "268:3. /sc:sc:improve --performance --iterate --persona-performance",
+        "271:4. /sc:sc:test --coverage --e2e --pup --persona-qa",
+        "286:User: /sc:sc:recommend \"Need to secure API with authentication and authorization\"",
+        "294:1. /sc:sc:analyze --security --persona-security",
+        "297:2. /sc:sc:scan --security --owasp --deps --strict --persona-security",
+        "300:3. /sc:sc:design --api --ddd --ultrathink --persona-architect",
+        "303:4. /sc:sc:build --feature --tdd --persona-backend",
+        "306:5. /sc:sc:improve --security --harden --persona-security",
+        "319:User: /sc:sc:recommend \"I'm going to create a new user profile component\"",
+        "327:1. /sc:sc:design --api --persona-architect",
+        "330:2. /sc:sc:build --feature --magic --react --persona-frontend",
+        "333:3. /sc:sc:test --coverage --e2e --pup --persona-qa",
+        "336:4. /sc:sc:analyze --code --c7 --persona-frontend",
+        "379:        primary: [\"/sc:sc:build --feature --magic --react\", \"/sc:sc:test --coverage --e2e --pup\"]",
+        "386:        primary: [\"/sc:sc:build --feature --magic\", \"/sc:sc:analyze --code --c7\"]",
+        "393:        primary: [\"/sc:sc:design --api --ddd\", \"/sc:sc:build --feature --tdd\"]",
+        "400:        primary: [\"/sc:sc:analyze --code\", \"/sc:sc:design --ultrathink\"]",
+        "406:        primary: [\"/sc:sc:migrate --database --validate\", \"/sc:sc:analyze --security\"]",
+        "429:/sc:sc:recommend \"I need to add a new feature\"",
+        "436:1. /sc:sc:build --feature --magic --react --persona-frontend",
+        "439:2. /sc:sc:test --coverage --e2e --pup --persona-qa",
+        "442:3. /sc:sc:analyze --code --c7 --persona-frontend",
+        "452:/sc:sc:recommend \"I need to do a security audit\"",
+        "459:1. /sc:sc:scan --security --owasp --deps --strict --persona-security",
+        "462:2. /sc:sc:analyze --security --persona-security",
+        "465:3. /sc:sc:improve --security --harden --persona-backend",
+        "481:    command: \"/sc:sc:recommend --stream [project description]\"",
+        "486:      commands: [\"/sc:sc:analyze\", \"/sc:sc:design\"]",
+        "490:      commands: [\"/sc:sc:build\", \"/sc:sc:implement\"]",
+        "494:      commands: [\"/sc:sc:test\", \"/sc:sc:scan\"]",
+        "498:      commands: [\"/sc:sc:deploy\", \"/sc:sc:improve\"]",
+        "505:/sc:sc:recommend --stream \"I'm building a new e-commerce site\"",
+        "512:\u2705 Current: /sc:sc:analyze --c7 --persona-architect",
+        "516:1. /sc:sc:design --api --ddd --ultrathink --persona-architect",
+        "517:2. /sc:sc:build --feature --magic --react --persona-frontend",
+        "549:/sc:sc:recommend --alternatives \"new blog site\"",
+        "554:/sc:sc:build --feature --magic --nextjs --persona-frontend",
+        "558:1. /sc:sc:build --feature --react --static --persona-frontend",
+        "563:2. /sc:sc:build --feature --vue --nuxt --persona-frontend",
+        "568:3. /sc:sc:build --feature --gatsby --static --persona-frontend",
+        "629:/sc:sc:recommend \"I'm developing a classification model\" --estimate",
+        "662:/sc:sc:recommend \"corporate website\" --estimate",
+        "741:/sc:sc:recommend \"performance improvement\"",
+        "757:/sc:sc:improve --performance --optimize --profile --monitoring --validate",
+        "766:/sc:sc:recommend \"my first React component\"",
+        "780:/sc:sc:build --feature --magic --react --tutorial --examples --persona-frontend",
+        "797:        - \"/sc:sc:analyze --code --c7\"",
+        "798:        - \"/sc:sc:design --api\"",
+        "799:        - \"/sc:sc:build --feature --magic --tdd\"",
+        "800:        - \"/sc:sc:test --coverage --e2e --pup\"",
+        "806:        - \"/sc:sc:analyze --c7 --persona-mentor\"",
+        "807:        - \"/sc:sc:design --ultrathink --persona-architect\"",
+        "808:        - \"/sc:sc:build --feature --tdd --persona-frontend\"",
+        "809:        - \"/sc:sc:improve --performance --iterate\"",
+        "815:      - \"/sc:sc:scan --security --owasp\"",
+        "816:      - \"/sc:sc:analyze --security\"",
+        "817:      - \"/sc:sc:improve --security --harden\"",
+        "821:      - \"/sc:sc:analyze --performance --pup --profile\"",
+        "822:      - \"/sc:sc:improve --performance --iterate\"",
+        "823:      - \"/sc:sc:test --coverage --benchmark\"",
+        "843:  command_structure: \"/sc:sc:recommend [query] --options [flags]\"",
+        "877:/sc:sc:recommend \"I'm building an e-commerce site\" --estimate --alternatives --community",
+        "892:   /sc:sc:design --api --ddd --ultrathink --persona-architect",
+        "896:   /sc:sc:build --feature --magic --nextjs --persona-frontend",
+        "900:   /sc:sc:build --feature --tdd --persona-security",
+        "945:/sc:sc:analyze \u2192 /sc:sc:design \u2192 /sc:sc:build \u2192 /sc:sc:test \u2192 /sc:sc:deploy",
+        "984:/sc:sc:recommend --stream \"track my e-commerce project\"",
+        "1004:/sc:sc:recommend \"I want to do something\"",
+        "1005:/sc:sc:recommend \"new React project\" --estimate --alternatives",
+        "1006:/sc:sc:recommend --stream \"I'm developing my e-commerce site\"",
+        "1007:/sc:sc:recommend \"I want to learn React\" --expertise beginner",
+        "1008:/sc:sc:recommend \"blog site\" --community"
+      ]
+    },
+    {
+      "path": "commands/sc-reflect.md",
+      "exists": true,
+      "lines": 88,
+      "sha256": "b4e213e4eeb457093eb1d5e96ec4edb48efb7b92ccb23ee357df98cd90b15861",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/reflect.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:reflect - Task Reflection and Validation",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:reflect - Task Reflection and Validation",
+        "20:/sc:sc:reflect [--type task|session|completion] [--analyze] [--validate]",
+        "58:/sc:sc:reflect --type task --analyze",
+        "65:/sc:sc:reflect --type session --validate",
+        "72:/sc:sc:reflect --type completion"
+      ]
+    },
+    {
+      "path": "commands/sc-research.md",
+      "exists": true,
+      "lines": 122,
+      "sha256": "896e428a0485f4f01f28cd8e627f73f34cebabbdc30b5831224dd880f7f5613b",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/research.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:research - Deep Research Command",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:research - Deep Research Command",
+        "23:/sc:sc:research \"[query]\" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]",
+        "69:- Only sequential for dependencies",
+        "95:/sc:sc:research \"latest developments in quantum computing 2024\"",
+        "96:/sc:sc:research \"competitive analysis of AI coding assistants\" --depth deep",
+        "97:/sc:sc:research \"best practices for distributed systems\" --strategy unified",
+        "122:**Next Step**: After research completes, user decides next action. Use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding."
+      ]
+    },
+    {
+      "path": "commands/sc-save.md",
+      "exists": true,
+      "lines": 93,
+      "sha256": "d360a611050f12c7f7719f15a264130aa0c5ecf660d2eba508cb576c5e0460da",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/save.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:save - Session Context Persistence",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:save - Session Context Persistence",
+        "20:/sc:sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]",
+        "57:/sc:sc:save",
+        "64:/sc:sc:save --type all --checkpoint",
+        "71:/sc:sc:save --summarize",
+        "78:/sc:sc:save --type learnings"
+      ]
+    },
+    {
+      "path": "commands/sc-sc.md",
+      "exists": false,
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ]
+    },
+    {
+      "path": "commands/sc-select-tool.md",
+      "exists": false,
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ]
+    },
+    {
+      "path": "commands/sc-spawn.md",
+      "exists": true,
+      "lines": 105,
+      "sha256": "fe0d65bee5abeab16e5b7ed335236825c369c1eebea39b109c5a946adcbf283d",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/spawn.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:spawn - Meta-System Task Orchestration",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:spawn - Meta-System Task Orchestration",
+        "20:/sc:sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]",
+        "26:3. **Orchestrate**: Execute tasks using optimal coordination strategy (parallel/sequential)",
+        "33:- Cross-domain operation management with parallel and sequential execution patterns",
+        "43:- **Edit/MultiEdit/Write**: Coordinated file operations with parallel and sequential execution",
+        "48:- **Strategy Selection**: Sequential (dependency-ordered) \u2192 Parallel (independent) \u2192 Adaptive (dynamic)",
+        "56:/sc:sc:spawn \"implement user authentication system\"",
+        "63:/sc:sc:spawn \"migrate legacy monolith to microservices\" --strategy adaptive --depth deep",
+        "70:/sc:sc:spawn \"establish CI/CD pipeline with security scanning\"",
+        "79:- Provide intelligent orchestration with parallel and sequential coordination strategies",
+        "102:- Delegation assignments (which `/sc:sc:*` command handles each task)",
+        "105:**Next Step**: Execute individual tasks using delegated commands (`/sc:sc:implement`, `/sc:sc:design`, `/sc:sc:test`, etc.)"
+      ]
+    },
+    {
+      "path": "commands/sc-spec-panel.md",
+      "exists": true,
+      "lines": 435,
+      "sha256": "3beea2889c80bcaadbec39ab8c56a830df98bc9d8ae9cc52817d22d51d922cf4",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/spec-panel.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:spec-panel - Expert Specification Review Panel",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:spec-panel - Expert Specification Review Panel",
+        "20:/sc:sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts \"name1,name2\"] [--focus requirements|architecture|testing|compliance] [--iterations N] [--format standard|structured|detailed]",
+        "110:- Sequential expert commentary building upon previous insights",
+        "311:/sc:sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture",
+        "319:/sc:sc:spec-panel \"user story content\" --mode discussion --experts \"wiegers,adzic,cockburn\"",
+        "327:/sc:sc:spec-panel @microservice.spec.yml --mode socratic --focus architecture",
+        "335:/sc:sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed",
+        "343:/sc:sc:spec-panel @security_requirements.yml --focus compliance --experts \"wiegers,nygard\"",
+        "351:### Workflow Integration with /sc:sc:code-to-spec",
+        "354:/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml",
+        "357:/sc:sc:spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing",
+        "360:/sc:sc:spec-panel @improved_auth_spec.yml --mode discussion --iterations 2",
+        "366:/sc:sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2",
+        "369:/sc:sc:spec-panel @revised_spec.yml --mode discussion --focus requirements",
+        "372:/sc:sc:spec-panel @final_spec.yml --mode critique --format detailed",
+        "435:**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding."
+      ]
+    },
+    {
+      "path": "commands/sc-task.md",
+      "exists": true,
+      "lines": 115,
+      "sha256": "584c66084960c95149ae2e6dfbf4f561f5e8076ee496df3dfa5fb8f1509bc622",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/task.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:task - Enhanced Task Management",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:task - Enhanced Task Management",
+        "20:/sc:sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]",
+        "59:/sc:sc:task create \"enterprise authentication system\" --strategy systematic --parallel",
+        "66:/sc:sc:task execute \"feature backlog\" --strategy agile --delegate",
+        "73:/sc:sc:task execute \"microservices platform\" --strategy enterprise --parallel",
+        "96:**Difference from /sc:sc:pm**:",
+        "97:- `/sc:sc:pm` = session-level orchestration (background monitoring, continuous)",
+        "98:- `/sc:sc:task` = user-invoked discrete execution (explicit start/end)",
+        "101:- User invokes `/sc:sc:task [description]`",
+        "115:**Next Step**: User decides next action. May invoke another `/sc:sc:task` or use specific commands."
+      ]
+    },
+    {
+      "path": "commands/sc-test.md",
+      "exists": true,
+      "lines": 93,
+      "sha256": "a3659fff35e4fb7d1ccd06793e62dcac6a671e4613fbe1087fcfb4c06652882b",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/test.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:test - Testing and Quality Assurance",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:test - Testing and Quality Assurance",
+        "20:/sc:sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]",
+        "58:/sc:sc:test",
+        "65:/sc:sc:test src/components --type unit --coverage",
+        "71:/sc:sc:test --type e2e",
+        "78:/sc:sc:test --watch --fix"
+      ]
+    },
+    {
+      "path": "commands/sc-troubleshoot.md",
+      "exists": true,
+      "lines": 120,
+      "sha256": "1b12a7616b829d0e398750746c00ddb57512b6c5c88666492e0e9bcaf360549a",
+      "changes": [
+        "465797ad",
+        "ff5f73ad"
+      ],
+      "canonical_path": "src/superclaude/commands/troubleshoot.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:troubleshoot - Issue Diagnosis and Resolution",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:troubleshoot - Issue Diagnosis and Resolution",
+        "20:/sc:sc:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]",
+        "52:/sc:sc:troubleshoot \"Null pointer exception in user service\" --type bug --trace",
+        "59:/sc:sc:troubleshoot \"TypeScript compilation errors\" --type build --fix",
+        "66:/sc:sc:troubleshoot \"API response times degraded\" --type performance",
+        "73:/sc:sc:troubleshoot \"Service not starting in production\" --type deployment --trace",
+        "120:- Use `/sc:sc:improve` for broader refactoring"
+      ]
+    },
+    {
+      "path": "commands/sc-workflow.md",
+      "exists": true,
+      "lines": 117,
+      "sha256": "9ef384bec4017423df08702de25f206bdbdbf39b060f7ed6a771584d3ed1119b",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "66d54204"
+      ],
+      "canonical_path": "src/superclaude/commands/workflow.md",
+      "canonical_exists": true,
+      "canonical_identical": false,
+      "heading": "10:# /sc:sc:sc:workflow - Implementation Workflow Generator",
+      "namespace_duplication_lines": [
+        "10:# /sc:sc:sc:workflow - Implementation Workflow Generator",
+        "20:/sc:sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]",
+        "60:/sc:sc:workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep",
+        "67:/sc:sc:workflow \"user authentication system\" --strategy agile --parallel",
+        "74:/sc:sc:workflow enterprise-prd.md --strategy enterprise --validate",
+        "81:/sc:sc:workflow project-brief.md --depth normal",
+        "117:**Next Step**: After workflow completes, use `/sc:sc:implement` to execute the plan step by step."
+      ]
+    },
+    {
+      "path": "docs/.framework-sync-commit",
+      "exists": true,
+      "lines": 1,
+      "sha256": "40e57ee467a2072cf2507716bc26581835a74f1a390271daa946bff1f69ac0fa",
+      "changes": [
+        "465797ad",
+        "ff5f73ad",
+        "ec9f066f",
+        "66d54204",
+        "f14f0cca"
+      ],
+      "canonical_path": null,
+      "canonical_exists": false,
+      "canonical_identical": false,
+      "heading": "",
+      "namespace_duplication_lines": []
+    }
+  ],
+  "searches": [
+    {
+      "pattern": "sc-backend-architect",
+      "returncode": 0,
+      "stdout": "scripts/sync_from_framework.py:112:        - name: backend-architect \u2192 name: sc-backend-architect\n"
+    },
+    {
+      "pattern": "commands/sc-",
+      "returncode": 1,
+      "stdout": ""
+    },
+    {
+      "pattern": "agents/sc-",
+      "returncode": 1,
+      "stdout": ""
+    },
+    {
+      "pattern": ".framework-sync-commit",
+      "returncode": 0,
+      "stdout": ".github/workflows/pull-sync-framework.yml:29:          if [ -f \"plugin-repo/docs/.framework-sync-commit\" ]; then\n.github/workflows/pull-sync-framework.yml:30:            LAST_SYNCED=$(cat plugin-repo/docs/.framework-sync-commit)\n.github/workflows/pull-sync-framework.yml:83:          echo \"${{ steps.check-updates.outputs.framework-head }}\" > plugin-repo/docs/.framework-sync-commit\n.github/workflows/pull-sync-framework.yml:106:          if [ -f \"docs/.framework-sync-commit\" ]; then\n.github/workflows/pull-sync-framework.yml:107:            git add -f docs/.framework-sync-commit\n"
+    },
+    {
+      "pattern": "resolve_target(",
+      "returncode": 0,
+      "stdout": "src/superclaude/cli/cli_portify/resolution.py:54:def resolve_target(\ntests/cli_portify/test_resolution.py:1:\"\"\"Comprehensive tests for resolve_target() covering all 6 input forms.\ntests/cli_portify/test_resolution.py:103:            resolve_target(target)\ntests/cli_portify/test_resolution.py:108:            resolve_target(\"sc:\")\ntests/cli_portify/test_resolution.py:113:            resolve_target(\"sc:   \")\ntests/cli_portify/test_resolution.py:118:            resolve_target(\ntests/cli_portify/test_resolution.py:133:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:145:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:160:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:176:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:192:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:210:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:226:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:243:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:254:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:268:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:279:        rt = resolve_target(\ntests/cli_portify/test_resolution.py:297:        resolve_target(\n"
+    },
+    {
+      "pattern": "clean_command_names",
+      "returncode": 0,
+      "stdout": "plugins/superclaude/scripts/clean_command_names.py:10:    python scripts/clean_command_names.py\nsrc/superclaude/scripts/README.md:7:- **clean_command_names.py** - Command name cleaning utility\nsrc/superclaude/scripts/clean_command_names.py:10:    python scripts/clean_command_names.py\ntests/unit/test_cli_install.py:184:README.md __init__.py clean_command_names.py ic session-init.sh\ntests/unit/test_cli_install.py:437:__init__.py clean_command_names.py session-init.sh\n"
+    },
+    {
+      "pattern": "PluginJsonGenerator",
+      "returncode": 0,
+      "stdout": "scripts/sync_from_framework.py:303:class PluginJsonGenerator:\nscripts/sync_from_framework.py:772:        generator = PluginJsonGenerator(self.plugin_root)\n"
+    }
+  ],
+  "checks": [
+    {
+      "unit": "automated-sync-copies",
+      "sha": "465797ad0d6157a3bb2ffc4a7e902f66f07ae942",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:1\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:1\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:1\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:1\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-recommend.md:1\nerror: commands/sc-recommend.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:1\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:1\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:1\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:1\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-help.md:1\nerror: commands/sc-help.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:1\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:1\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:1\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:1\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: commands/sc-README.md:1\nerror: commands/sc-README.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:1\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:1\nerror: agents/sc-deep-research.md: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "automated-sync-copies",
+      "sha": "ff5f73adf5d9a143228a02516b8ba7ae466acfdc",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:28\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:28\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:90\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: commands/sc-select-tool.md: No such file or directory\nerror: commands/sc-sc.md: No such file or directory\nerror: patch failed: commands/sc-research.md:64\nerror: commands/sc-research.md: patch does not apply\nerror: patch failed: commands/sc-pm.md:114\nerror: commands/sc-pm.md: patch does not apply\nerror: patch failed: commands/sc-index.md:28\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:28\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:31\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:28\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:28\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-business-panel.md:54\nerror: commands/sc-business-panel.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:31\nerror: commands/sc-brainstorm.md: patch does not apply\nerror: patch failed: agents/sc-socratic-mentor.md:165\nerror: agents/sc-socratic-mentor.md: patch does not apply\nerror: patch failed: agents/sc-deep-research.md:9\nerror: agents/sc-deep-research.md: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "automated-sync-copies",
+      "sha": "ec9f066f2ebcf7511b28bac59182329b17b36f17",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "automated-sync-copies",
+      "sha": "66d54204c24b65e4bf96e039a37ada94a761a7a3",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: patch failed: docs/.framework-sync-commit:1\nerror: docs/.framework-sync-commit: patch does not apply\nerror: patch failed: commands/sc-workflow.md:40\nerror: commands/sc-workflow.md: patch does not apply\nerror: patch failed: commands/sc-task.md:40\nerror: commands/sc-task.md: patch does not apply\nerror: patch failed: commands/sc-spec-panel.md:100\nerror: commands/sc-spec-panel.md: patch does not apply\nerror: patch failed: commands/sc-index.md:37\nerror: commands/sc-index.md: patch does not apply\nerror: patch failed: commands/sc-improve.md:37\nerror: commands/sc-improve.md: patch does not apply\nerror: patch failed: commands/sc-implement.md:41\nerror: commands/sc-implement.md: patch does not apply\nerror: patch failed: commands/sc-explain.md:37\nerror: commands/sc-explain.md: patch does not apply\nerror: commands/sc-estimate.md: No such file or directory\nerror: patch failed: commands/sc-cleanup.md:37\nerror: commands/sc-cleanup.md: patch does not apply\nerror: patch failed: commands/sc-brainstorm.md:43\nerror: commands/sc-brainstorm.md: patch does not apply\n",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    },
+    {
+      "unit": "automated-sync-copies",
+      "sha": "f14f0ccafe8d86da2d32b3ce06d225c3c3f480a3",
+      "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+    }
+  ]
+}

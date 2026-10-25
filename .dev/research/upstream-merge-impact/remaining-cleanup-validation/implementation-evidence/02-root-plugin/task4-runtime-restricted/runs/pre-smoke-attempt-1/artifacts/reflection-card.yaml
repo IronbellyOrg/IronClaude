@@ -1,0 +1,70 @@
+# Wave 1C Tier-1 reflection card — produced by sc:sc-self-review (requested slot: sonnet; agent_id ab8ae875473b8ca7c; returned provider model not surfaced by Agent tool)
+# Persisted verbatim by orchestrator before calibration.
+reflection_card:
+  tier: 1
+  use_case: UC-1
+  verdict: proceed-with-amendments
+  coverage:
+    coverage_pct: 1.0
+    coverage_pct_union: 1.0
+    unmapped: []
+    pairs:
+      - "R-001 (spec.md:5-6) -> T-101 (proposed.md:3-4): mapped, fidelity WEAK"
+      - "R-002 (spec.md:8-9) -> T-102 (proposed.md:6-7): mapped, fidelity faithful"
+      - "R-003 (spec.md:11-12) -> T-103 (proposed.md:9-10): mapped, fidelity mostly faithful, see F-3"
+  findings:
+    - id: F-1
+      claim: "T-101 omits the acceptance value: spec fixes the exact string 'Hello, Ada!' for input Ada; task says only 'the required greeting'."
+      evidence:
+        - 'spec.md:6 "The greet function MUST return the exact string Hello, Ada! for Ada."'
+        - 'proposed.md:4 "Implement greet(name) returning the required greeting."'
+      severity: P1
+      tag: Grounded
+    - id: F-2
+      claim: "T-102 carries trigger (empty name) and exception type (ValueError); does not name greet explicitly (negligible, T-101 defines greet)."
+      evidence:
+        - 'spec.md:9 "The greet function MUST reject an empty name with ValueError."'
+        - 'proposed.md:7 "Reject an empty name using ValueError."'
+      severity: P2
+      tag: Grounded
+    - id: F-3
+      claim: "T-103 names both required test cases but not their assertions; a 'no crash' test would satisfy the task text."
+      evidence:
+        - 'spec.md:12 "Tests MUST exercise the ordinary greeting and empty-input rejection."'
+        - 'proposed.md:10 "Add ordinary and empty-name test cases."'
+      severity: P2
+      tag: "Grounded (task text); assertion-weakness consequence [INFERRED]"
+    - id: F-4
+      claim: "Plan has no verification step (run tests) and no explicit ordering; spec requires tests to exercise behaviours, not to pass, so this is a plan gap, not a spec violation."
+      evidence:
+        - 'proposed.md:3-10 (three tasks, no run/verify task, no dependencies)'
+        - 'spec.md:12'
+      severity: P2
+      tag: "Grounded (absence); gap judgement [INFERRED]"
+    - id: F-5
+      claim: "No scope expansion: each task maps 1:1 to a spec requirement; no extra or unmapped tasks."
+      evidence:
+        - 'proposed.md:3,6,9 (T-101, T-102, T-103 only)'
+        - 'artifacts/coverage-matrix.yaml summary total_tasks=3, S_dev_density=0.0'
+      severity: P2
+      tag: Grounded
+    - id: F-6
+      claim: "Coverage-matrix R-003 span '11-13' exceeds spec.md's 12 lines (harmless off-by-one in run artifact; orchestrator confirmed via wc -l = 12)."
+      evidence:
+        - 'artifacts/coverage-matrix.yaml R-003 span "spec.md:11-13"'
+        - 'spec.md:12 is the last line'
+      severity: P2
+      tag: Grounded
+  best_practice_grade: 3
+  best_practice_rationale: "Traceability clean (1:1 IDs, nothing unmapped/out of scope); task acceptance criteria underspecified (F-1, F-3); no verification/ordering step (F-4)."
+  risks:
+    - "T-101 lacks the literal: implementer could produce 'Hello, Ada' (no '!') or another format; caught only if T-103 pins the exact value."
+    - "T-103 could pass for the wrong reason (generic Exception check, no equality assertion)."
+    - "Empty-input scope: whitespace-only/None unspecified by spec; implementer may add unrequested handling or silently omit."
+    - "Run-artifact citation drift (F-6)."
+  recommendations:
+    - {file: proposed.md, change: "Amend T-101 to: greet(\"Ada\") returns exactly \"Hello, Ada!\"", verifier: "proposed.md T-101 text contains literal 'Hello, Ada!' and 'Ada'", priority: P1}
+    - {file: proposed.md, change: "Amend T-102 to: greet(\"\") raises ValueError", verifier: "T-102 text names greet and ValueError", priority: P2}
+    - {file: proposed.md, change: "Amend T-103 to: assert greet(\"Ada\") == \"Hello, Ada!\" and pytest.raises(ValueError) for greet(\"\")", verifier: "both assertions appear in T-103 text", priority: P2}
+    - {file: proposed.md, change: "Add ordering (T-103 after T-101/T-102) and a final run-tests step", verifier: "plan lists the test command and expected pass outcome", priority: P2}
+  self_reported_confidence: 0.82

@@ -1,0 +1,233 @@
+[
+  {
+    "path": "commands/sc-agent.md",
+    "line": 13,
+    "token": "/sc:context",
+    "name": "context",
+    "text": "2. Remind the user: `\ud83d\udca1 Use /sc:context to confirm token budget.`  "
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 3,
+    "token": "/sc:sc",
+    "name": "sc",
+    "text": "description: \"List all available /sc:sc commands and their functionality\""
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 25,
+    "token": "/sc:sc",
+    "name": "sc",
+    "text": "Here is a complete list of all available SuperClaude (`/sc:sc`) commands."
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 36,
+    "token": "/sc:sc:estimate",
+    "name": "estimate",
+    "text": "| `/sc:sc:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |"
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 39,
+    "token": "/sc:sc",
+    "name": "sc",
+    "text": "| `/sc:sc:help` | List all available /sc:sc commands and their functionality |"
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 46,
+    "token": "/sc:sc:select-tool",
+    "name": "select-tool",
+    "text": "| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |"
+  },
+  {
+    "path": "commands/sc-help.md",
+    "line": 56,
+    "token": "/sc:sc",
+    "name": "sc",
+    "text": "SuperClaude supports behavioral flags to enable specific execution modes and tool selection patterns. Use these flags with any `/sc:sc` command to customize behavior."
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 398,
+    "token": "/sc:hypothesis",
+    "name": "hypothesis",
+    "text": "  plan/[feature]/sc:hypothesis     # Plan phase: hypothesis and design"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 399,
+    "token": "/sc:architecture",
+    "name": "architecture",
+    "text": "  plan/[feature]/sc:architecture   # Architecture decisions"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 400,
+    "token": "/sc:rationale",
+    "name": "rationale",
+    "text": "  plan/[feature]/sc:rationale      # Why this approach chosen"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 403,
+    "token": "/sc:do",
+    "name": "do",
+    "text": "  execution/[feature]/sc:do        # Do phase: experimentation and trial-and-error"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 404,
+    "token": "/sc:errors",
+    "name": "errors",
+    "text": "  execution/[feature]/sc:errors    # Error log with timestamps"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 405,
+    "token": "/sc:solutions",
+    "name": "solutions",
+    "text": "  execution/[feature]/sc:solutions # Solution attempts log"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 408,
+    "token": "/sc:check",
+    "name": "check",
+    "text": "  evaluation/[feature]/sc:check    # Check phase: evaluation and analysis"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 409,
+    "token": "/sc:metrics",
+    "name": "metrics",
+    "text": "  evaluation/[feature]/sc:metrics  # Quality metrics (coverage, performance)"
+  },
+  {
+    "path": "commands/sc-pm.md",
+    "line": 410,
+    "token": "/sc:lessons",
+    "name": "lessons",
+    "text": "  evaluation/[feature]/sc:lessons  # What worked, what failed"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 145,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "    secondary_commands: [\"/sc:sc:scan --security --owasp\", \"/sc:sc:analyze --performance --pup\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 152,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "    secondary_commands: [\"/sc:sc:scan --security\", \"/sc:sc:improve --quality\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 165,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "    primary_commands: [\"/sc:sc:scan --security --owasp --deps\", \"/sc:sc:analyze --security\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 178,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "    primary_commands: [\"/sc:sc:test --coverage --e2e --pup\", \"/sc:sc:scan --validate\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 186,
+    "token": "/sc:sc:refactor",
+    "name": "refactor",
+    "text": "    secondary_commands: [\"/sc:sc:analyze --code\", \"/sc:sc:refactor --quality\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 245,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "- Security: /sc:sc:scan --security --owasp (next phase)"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 297,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "2. /sc:sc:scan --security --owasp --deps --strict --persona-security"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 406,
+    "token": "/sc:sc:migrate",
+    "name": "migrate",
+    "text": "        primary: [\"/sc:sc:migrate --database --validate\", \"/sc:sc:analyze --security\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 459,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "1. /sc:sc:scan --security --owasp --deps --strict --persona-security"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 494,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "      commands: [\"/sc:sc:test\", \"/sc:sc:scan\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 498,
+    "token": "/sc:sc:deploy",
+    "name": "deploy",
+    "text": "      commands: [\"/sc:sc:deploy\", \"/sc:sc:improve\"]"
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 815,
+    "token": "/sc:sc:scan",
+    "name": "scan",
+    "text": "      - \"/sc:sc:scan --security --owasp\""
+  },
+  {
+    "path": "commands/sc-recommend.md",
+    "line": 945,
+    "token": "/sc:sc:deploy",
+    "name": "deploy",
+    "text": "/sc:sc:analyze \u2192 /sc:sc:design \u2192 /sc:sc:build \u2192 /sc:sc:test \u2192 /sc:sc:deploy"
+  },
+  {
+    "path": "commands/sc-spawn.md",
+    "line": 102,
+    "token": "/sc:sc",
+    "name": "sc",
+    "text": "- Delegation assignments (which `/sc:sc:*` command handles each task)"
+  },
+  {
+    "path": "commands/sc-spec-panel.md",
+    "line": 351,
+    "token": "/sc:sc:code-to-spec",
+    "name": "code-to-spec",
+    "text": "### Workflow Integration with /sc:sc:code-to-spec"
+  },
+  {
+    "path": "commands/sc-spec-panel.md",
+    "line": 354,
+    "token": "/sc:sc:code-to-spec",
+    "name": "code-to-spec",
+    "text": "/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml"
+  },
+  {
+    "path": "commands/sc-spec-panel.md",
+    "line": 354,
+    "token": "/sc:authentication",
+    "name": "authentication",
+    "text": "/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml"
+  }
+]

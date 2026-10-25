@@ -1,0 +1,12 @@
+# Returned by Task(sc:evidence-validator, model=opus) on the real draft REPORT.md; persisted by orchestrator.
+evidence_validator_ran: true
+citations_total: 12
+citations_revalidated: 12
+citations_dropped: 0
+dropped: []
+citations_inferred: 2
+zero_drop_flag: true
+verified: [execution.log:2, src/greeting.py:1, execution.log:3, src/greeting.py:2-3, src/greeting.py:4, execution.log:4, tests/test_greeting.py:4-5, tests/test_greeting.py:8-13, tests/test_greeting.py:1, execution.log:5, tests/test_greeting.py:1-13, execution.log:2-4]
+validator_notes:
+  - "Draft header said citations_total 10; validator counted 12 distinct (two grounding-gap ranges). Orchestrator adopts 12 and recomputes inferred fraction 2/12."
+  - "Header status needs_human_decision vs contract partial: orchestrator resolution — report header uses the template's needs_human_decision value; return-contract status is partial (§9.1 enum, §10.6)."

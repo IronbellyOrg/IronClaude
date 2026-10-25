@@ -1,0 +1,23 @@
+{
+  "captures": [
+    {
+      "case": "post-default-attempt-1",
+      "original_transient_tool_input": "/tmp/ironclaude-reflect-runtime-dydm68a8/finalize.py",
+      "retained_copy": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-default-attempt-1/captured-tool-inputs/finalize.py",
+      "sha256": "e3cb914f226e7bafc11d391adb28a07cb487cf623354f64d9def13e41bd52bdd"
+    },
+    {
+      "case": "post-default-attempt-1",
+      "original_transient_tool_input": "/tmp/ironclaude-reflect-runtime-dydm68a8/wave0.py",
+      "retained_copy": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-default-attempt-1/captured-tool-inputs/wave0.py",
+      "sha256": "0b05d57095ffc20a94fa6496b8c63be985ea3b5b0c98783a9f6d332e1b2876a5"
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "original_transient_tool_input": "/tmp/snapshot_recipe.py",
+      "retained_copy": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/captured-tool-inputs/snapshot_recipe.py",
+      "sha256": "45a4cd7f9240767cc21934243aafd8e48215f02c80e5cf1505a24a0e775a433c"
+    }
+  ],
+  "note": "Native-created transient interpreter inputs retained without altering native outputs or deleting originals"
+}

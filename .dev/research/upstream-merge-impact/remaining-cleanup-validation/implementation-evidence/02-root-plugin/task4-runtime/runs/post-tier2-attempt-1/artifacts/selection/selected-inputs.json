@@ -1,0 +1,60 @@
+{
+  "enumeration_complete": true,
+  "coverage_basis": "--diff changes.patch (new file src/greeting.py) + --scope src/ + task-log-declared untracked new file tests/test_greeting.py (execution.log:4, git ls-files --others) + explicit spec/tasklist + linked task log; repo has no HEAD so no deletions/base evidence",
+  "discovery": {
+    "scopes": [
+      "src",
+      "tests"
+    ]
+  },
+  "files": [
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md",
+      "kind": "audit-input"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/completed.md",
+      "kind": "audit-input"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/changes.patch",
+      "kind": "audit-input"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/execution.log",
+      "kind": "audit-input"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/t1-card.md",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/calibration/t1-calibration.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/artifacts/task-to-work-map.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/artifacts/reuse-audit.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/artifacts/interaction-effects.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/artifacts/runtime-surface-ledger.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/artifacts/reachability.yaml",
+      "kind": "run-evidence"
+    },
+    {
+      "source": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/post-tier2-attempt-1/artifacts/verify-logs/invocations.yaml",
+      "kind": "run-evidence"
+    }
+  ]
+}

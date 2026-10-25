@@ -1,0 +1,25 @@
+# Wave 1D blind calibration, persisted from the sc:confidence-calibrator return (agent wrote no files).
+calibrator_agent: sc:confidence-calibrator
+requested_slot: opus
+reported_model: claude-opus-5-5[1m]
+agent_id: ac49b3a076b4ae7dd
+card_author_slot: sonnet
+card_author_reported_model: claude-sonnet-5-5[1m]
+calibrator_diversity: full          # calibrator class (opus) disjoint from card-author class (sonnet); no T2 reviewers
+blind: true                         # given card + rubric only; formation trail and other scores withheld
+evidence_reads_performed: [spec.md, proposed.md]   # independently Read cited artifacts
+citation_spot_check:
+  verified: [spec.md:3, spec.md:5, spec.md:6, spec.md:8, spec.md:9, spec.md:11, spec.md:12, proposed.md:3, proposed.md:4, proposed.md:6, proposed.md:7, proposed.md:9, proposed.md:10, "spec.md:5-7", "spec.md:8-10", "proposed.md:3-4", "proposed.md:6-7", "proposed.md:9-10"]
+  mismatch:
+    - {citation: "spec.md:11-13", where: "coverage_rows R-003 + dropped_candidates R-003 reason", note: "spec.md has 12 lines; line 13 does not exist; cosmetic off-by-one, substance unaffected"}
+  unreadable: []
+scores:
+  citation_grounding: 0.95
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.90   # UC-1 interpretation: clarity of coverage-row/gap labeling
+  risk_surface_coverage: 0.80
+  recommendation_actionability: 0.90
+arithmetic_mean_C: 0.90                    # 4.50/5
+self_reported_confidence_ignored: 0.9
+calibrator_recommendation: ORCHESTRATOR_DECIDES
+calibration: independent                   # not inline-fallback

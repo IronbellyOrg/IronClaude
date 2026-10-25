@@ -1,0 +1,34 @@
+# Wave 1B (UC-2) mechanical tasklist-vs-diff map. Orchestrator-produced; facts only, no classification.
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+git_state: "git init only; zero commits; zero index entries; every file untracked"
+diff_source: changes.patch (supplied file; read as evidence, not applied)
+diff_files: [src/greeting.py]
+diff_hunks:
+  - id: H-1
+    ref: changes.patch:5-9  # @@ -0,0 +1,4 @@ new file src/greeting.py
+    working_tree_match: "src/greeting.py:1-4 byte-identical to the + lines of changes.patch:6-9"
+scope: src
+scoped_untracked_files: [src/greeting.py]   # git ls-files --others --exclude-standard -- src
+present_outside_scope_and_outside_diff:
+  - tests/test_greeting.py   # untracked; not in changes.patch; outside --scope src
+  - execution.log            # not supplied as --task-log; not a selected input
+  - proposed.md              # not a selected input
+spec_requirements: [R-001 (spec.md:5-6), R-002 (spec.md:8-9), R-003 (spec.md:11-12)]
+tasklist_items:
+  - {id: T-101, line: "completed.md:6", claims: R-001, checked: true}
+  - {id: T-102, line: "completed.md:7", claims: R-002, checked: true}
+  - {id: T-103, line: "completed.md:8", claims: R-003, checked: true}
+tasklist_frontmatter_status: done   # completed.md:2
+structural_signals:
+  S_scope: 1          # touched files in supplied diff
+  S_domains: 1        # code
+  total_hunks: 1
+  unmapped_hunks: 0
+  S_dev_density: 0.0
+cross_task_scan_1B3:
+  ran: true
+  method: native Grep fallback (serena unavailable; degraded)
+  note: "greet (src/greeting.py:1) is the only touched symbol; claimed by T-101 and T-102; neither task line cites the other; the single hunk H-1 cannot be split per task. Referencing call sites found by Grep: tests/test_greeting.py:5, tests/test_greeting.py:10 (2 sites, outside scope) -> MEDIUM by the call-site rule."
+  findings:
+    - {category: cross_task, symbol: greet, tasks: [T-101, T-102], severity: MEDIUM, kind: invariant-probe}
+verification_triangle: {ran: false, skip_reason: tool-unavailable}

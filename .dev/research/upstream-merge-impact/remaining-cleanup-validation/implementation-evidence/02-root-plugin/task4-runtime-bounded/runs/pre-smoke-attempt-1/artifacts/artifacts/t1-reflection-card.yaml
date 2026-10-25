@@ -1,0 +1,162 @@
+# Wave 1C Tier-1 reflection card — persisted verbatim by orchestrator from sc:sc-root-cause-analyst
+# requested_model_slot: sonnet ; agent self-reported model: claude-sonnet-5-5[1m] ; agentId: aa3afd307f3c73fdf
+# Orchestrator note: the card's "coverage-matrix.yaml not found" uncertainty is an ambiguity in the orchestrator's brief path;
+# the file exists at <output>/artifacts/coverage-matrix.yaml (verified via ls). The card's independent mapping agrees with it.
+# Orchestrator note: S_domains: card infers 2 (code, tests) [INFERRED]; orchestrator counted 1 from the input paths (docs). Not load-bearing: --tier 1 pinned.
+card_id: t1-card
+mode: pre
+author_agent: sc:sc-root-cause-analyst
+author_model_self_reported: Sonnet 5.5 (claude-sonnet-5-5[1m])
+inputs: [spec.md, proposed.md]
+coverage_summary:
+  coverage_pct: 1.00
+  parsed: 3   # R-001, R-002, R-003 (spec.md:5, :8, :11), each mapped to exactly one task (proposed.md:3, :6, :9)
+  inferred: 0
+  unmapped: []
+  notes: >
+    Mapping is by explicit R-id in the proposed.md task headings, so no inference was needed.
+    S_scope = 3 tasklist items. S_domains = 2 (code and tests) [INFERRED, because neither file names paths].
+    S_dev_density = 0/3 = 0.00.
+    The orchestrator's artifacts/coverage-matrix.yaml was NOT found at the stated path (Read returned "File does not exist"),
+    so the matrix was not used as evidence. Coverage here is my own mapping from spec.md and proposed.md.
+    Coverage is structural. T-101 is only loosely tied to the exact-string requirement (see F-3).
+findings:
+  - id: F-1
+    claim: >
+      Every spec requirement has a one-to-one task. R-001 maps to T-101, R-002 to T-102, R-003 to T-103.
+      No spec requirement is missing a task, and no task lacks a spec requirement.
+    tag: grounded
+    citations: [spec.md:5, spec.md:8, spec.md:11, proposed.md:3, proposed.md:6, proposed.md:9]
+    severity: low
+  - id: F-2
+    claim: >
+      T-102 restates the R-002 behavior faithfully. Both say an empty name is rejected with ValueError.
+    tag: grounded
+    citations: [spec.md:9, proposed.md:7]
+    severity: low
+  - id: F-3
+    claim: >
+      T-101 says "returning the required greeting" and never states the exact literal "Hello, Ada!" from R-001.
+      An implementer could hard-code the Ada case, or pick a different template for other names.
+      The task gives no acceptance string, so its fidelity to the MUST is unverifiable from the plan alone.
+    tag: grounded
+    citations: [spec.md:6, proposed.md:4]
+    severity: medium
+  - id: F-4
+    claim: >
+      R-001 pins the output only for the input Ada. The generic format ("Hello, <name>!") is implied but not specified,
+      and the plan does not resolve the ambiguity.
+    tag: grounded
+    citations: [spec.md:6, proposed.md:4]
+    severity: low
+  - id: F-5
+    claim: >
+      T-103 requires "ordinary and empty-name test cases", which matches the R-003 wording. It does not require the tests to assert
+      the exact string "Hello, Ada!" or to assert the ValueError type (for example with pytest.raises(ValueError)).
+      A test that only checks "no crash" or "some exception" would satisfy the task text.
+    tag: grounded
+    citations: [spec.md:12, proposed.md:10]
+    severity: medium
+  - id: F-6
+    claim: >
+      The plan names no target file, module, or test path, and has no verification command, acceptance criteria, or task ordering.
+      The spec likewise names no module or signature beyond "greet function", so the plan cannot be checked for placement or run.
+    tag: grounded
+    citations: [proposed.md:1-10, spec.md:1-12]
+    severity: medium
+  - id: F-7
+    claim: >
+      Edge cases are unaddressed by both spec and plan. "Empty" is not defined, so whitespace-only input is open.
+      Non-string or None input is also open. The plan does not decide these, which leaves room for divergent implementations.
+    tag: grounded
+    citations: [spec.md:9, proposed.md:7]
+    severity: low
+  - id: F-8
+    claim: >
+      No requirement carries a durable_sink or @sink annotation, so the contracted-sink reachability ledger is not applicable.
+    tag: INFERRED
+    citations: [spec.md:1-12]
+    severity: low
+plan_vs_spec_deviations: []   # none: no task contradicts or expands its requirement. The gaps are under-specification, not divergence.
+risks:
+  - id: K-1
+    risk: >
+      Hard-coded or under-generalized greeting. T-101 lacks the exact-string acceptance, so a weak implementation could pass a
+      loose reading of the task while missing R-001.
+    tag: grounded
+    citations: [spec.md:6, proposed.md:4]
+  - id: K-2
+    risk: >
+      Weak tests give false assurance for R-002 and R-003. Without a pinned exception type and expected string, the tests may not
+      protect R-001 and R-002 against later regression.
+    tag: grounded
+    citations: [spec.md:9, spec.md:12, proposed.md:10]
+  - id: K-3
+    risk: >
+      Unspecified empty-input semantics (whitespace, None) may lead to inconsistent behavior or a post-hoc dispute during the
+      later audit.
+    tag: INFERRED
+    citations: [spec.md:9, proposed.md:7]
+  - id: K-4
+    risk: >
+      With no file targets or run command, execution evidence may not be reproducible. A later UC-2 audit would have trouble
+      confirming that the tests ran and passed.
+    tag: INFERRED
+    citations: [proposed.md:1-10]
+  - id: K-5
+    risk: >
+      Blast radius is minimal. Three small tasks on a synthetic fixture have no cross-module impact, and no regression candidates
+      exist because no prior code is in scope.
+    tag: grounded
+    citations: [spec.md:3, proposed.md:1-10]
+best_practice_grade: >
+  3/5. Strengths: complete one-to-one traceability with explicit R-ids, no scope creep, and a test task that matches R-003 (F-1, F-2).
+  Weaknesses: no exact acceptance literal (F-3), no assertion-level test requirements (F-5), and no file targets,
+  verifier commands, or ordering (F-6). The plan is adequate in coverage but thin in verifiability.
+recommendations:
+  - id: R-1
+    file: proposed.md (T-101, line 4)
+    change: >
+      Reword to say greet("Ada") must return exactly "Hello, Ada!". State the general template (for example "Hello, <name>!").
+      Name the target module and function signature.
+    verifier: >
+      After execution, a test asserts greet("Ada") == "Hello, Ada!". A grep of the module and tests shows the literal, and a
+      pytest run exits 0.
+    priority: P1
+    linked_findings: [F-3, F-4, F-6]
+  - id: R-2
+    file: proposed.md (T-103, line 10)
+    change: >
+      Require tests that (a) assert equality with "Hello, Ada!" and (b) use pytest.raises(ValueError) on greet(""). Name the test file path.
+    verifier: >
+      pytest -q on that file passes. Mutating the greeting string or the exception type makes a test fail.
+    priority: P1
+    linked_findings: [F-5, F-6]
+  - id: R-3
+    file: proposed.md (T-102, line 7)
+    change: >
+      Decide and state whether whitespace-only and None inputs are in scope. If not, add a one-line "out of scope" note;
+      if so, add a matching spec clause and test.
+    verifier: >
+      proposed.md contains an explicit statement on the edge cases. If they are in scope, the tests cover them and pass.
+    priority: P2
+    linked_findings: [F-7]
+  - id: R-4
+    file: proposed.md (new trailing section)
+    change: >
+      Add task ordering (T-101 and T-102 before T-103) and a single verification command with its expected result.
+    verifier: >
+      The command listed in proposed.md is runnable as written and exits 0 after execution.
+    priority: P2
+    linked_findings: [F-6]
+uncertainties:
+  - >
+    coverage-matrix.yaml was not found at the stated path, so I could not cross-check my mapping against the orchestrator's matrix.
+    It may be written later, or the path may be wrong.
+  - >
+    The fixture is synthetic and the spec names no module or file paths. I am unsure whether the missing file targets are a real gap
+    or an intentional simplification of the fixture.
+  - >
+    The domain count (code and tests) is inferred from the task wording, because no file paths exist to classify.
+  - >
+    I treated "Hello, Ada!" as the only pinned output. The intended general template for other names is unknown.

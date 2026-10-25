@@ -1,0 +1,15 @@
+{
+  "protected_hash_count": 2260,
+  "changed_protected": [],
+  "retired_restored": [],
+  "candidate_resources_added": [],
+  "tracked_diff_paths": [],
+  "index_diff_paths": [],
+  "preservation": "PASS",
+  "plugin_loaded": false,
+  "registered_plugin_commands": [],
+  "registered_plugin_agents": [],
+  "registered_plugin_skills": [],
+  "compatibility_gate": "FAIL",
+  "runtime_audit_proofs": "NOT RUN: compatibility prerequisite failed"
+}

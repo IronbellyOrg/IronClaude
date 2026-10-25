@@ -1,0 +1,17 @@
+COMMAND git diff --no-ext-diff --find-renames 32c0086d0f916362fd4899212e8e714511ca4524 16caa49442f477febd4b2a8e32dd1ded705d02d3 -- src/superclaude/__init__.py
+RETURN 0
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index c7eae825..8073d24a 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -5,8 +5,8 @@ AI-enhanced development framework for Claude Code.
+ Provides pytest plugin for enhanced testing and optional skills system.
+ """
+ 
+-__version__ = "0.4.0"
+-__author__ = "Kazuki Nakai"
++__version__ = "4.1.7"
++__author__ = "NomenAK, Mithun Gowda B"
+ 
+ # Expose main components
+ from .pm_agent.confidence import ConfidenceChecker

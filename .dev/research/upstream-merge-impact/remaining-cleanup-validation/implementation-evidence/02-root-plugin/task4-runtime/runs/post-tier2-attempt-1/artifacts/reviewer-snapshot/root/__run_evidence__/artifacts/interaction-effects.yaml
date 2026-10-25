@@ -1,0 +1,13 @@
+# Step 1B.3 cross-task interaction scan (>=3 completed tasks). Serena unavailable -> grep-degraded.
+degraded: ["serena"]
+symbols_considered: 1
+edges:
+  - symbol: greet (src/greeting.py:1)
+    tasks: [T-101, T-102]
+    genuinely_shared: true     # same function body implements both requirements
+    cross_cited: false         # neither task line cites the other task ID (completed.md:6-7)
+    referencing_call_sites: 2  # tests/test_greeting.py:5, tests/test_greeting.py:10 (grep)
+    severity: MEDIUM           # 2-5 call sites per §4.1 step 1B.3 rule 5
+    category: cross_task
+    note: "Overlap is structural by design (one 4-line function serves both requirements); risk is that changing the guard at line 2 affects the R-001 path. Both paths are covered by the T-103 tests (statically)."
+interaction_effects_findings: 1

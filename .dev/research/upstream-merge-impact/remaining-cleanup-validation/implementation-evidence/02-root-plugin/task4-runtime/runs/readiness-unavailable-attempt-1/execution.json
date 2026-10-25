@@ -1,0 +1,163 @@
+{
+  "case": "readiness-unavailable",
+  "attempt": "1",
+  "state": "exited",
+  "command": [
+    "/usr/bin/claude",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--plugin-dir",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/plugin",
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--model",
+    "opus",
+    "--permission-mode",
+    "bypassPermissions",
+    "--no-session-persistence",
+    "--tools",
+    "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
+    "--append-system-prompt",
+    "This is an authorized isolated plugin-only audit. The synthetic audited repository is /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project, not your empty launch cwd. Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. Write only under the requested safe output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/artifacts; when the actual --output is forbidden, refuse without creating it. Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources. Never print provider credentials or credential environment values.",
+    "/sc:sc-reflect detection-contract readiness --repo synthetic/example --pr 1 --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/artifacts"
+  ],
+  "cwd": "/tmp/ironclaude-reflect-runtime-f_bfqmf3",
+  "environment": {
+    "PATH": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin:/usr/bin:/bin",
+    "HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/home",
+    "CLAUDE_CONFIG_DIR": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/config",
+    "XDG_CONFIG_HOME": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/readiness-unavailable-attempt-1/home/.config"
+  },
+  "provider_variable_names_only": [
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_MODEL"
+  ],
+  "framework_executable_absent": true,
+  "runtime_tools_probe": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runtime-bin/uv\n/usr/bin/git\n",
+  "timeout_seconds": 600,
+  "started_monotonic": 2163754.607962474,
+  "returncode": 0,
+  "duration_seconds": 20.60115370899439,
+  "changed_plugin_files": [],
+  "added_plugin_files": [],
+  "fixture_staged_files": [],
+  "fixture_head_created": false,
+  "changed_audit_inputs": [],
+  "native_result": {
+    "duration_api_ms": 19779,
+    "stop_reason": "end_turn",
+    "session_id": "1396ca10-86f5-470f-81e1-24f470191d80",
+    "total_cost_usd": 0.1756664,
+    "usage": {
+      "input_tokens": 6,
+      "cache_creation_input_tokens": 15869,
+      "cache_read_input_tokens": 46352,
+      "output_tokens": 1971,
+      "output_tokens_details": {
+        "thinking_tokens": 418
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 15869,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 467,
+          "cache_read_input_tokens": 20689,
+          "cache_creation_input_tokens": 990,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 990
+          },
+          "type": "message",
+          "model": null
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-opus-5-5[1m]": {
+        "inputTokens": 6,
+        "outputTokens": 1971,
+        "cacheReadInputTokens": 46352,
+        "cacheCreationInputTokens": 15869,
+        "webSearchRequests": 0,
+        "costUSD": 0.1756664,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 418,
+        "canonicalModel": "claude-opus-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 0,
+      "requested": {
+        "background": 0,
+        "foreground": 0,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 0,
+      "spawned_by_subagents": 0,
+      "completed": 0,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {}
+    },
+    "is_error": false,
+    "num_turns": 3,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "The readiness check is **UNAVAILABLE**: the `superclaude` package executable isn't installed on this system, and the plugin doesn't include it. The run stopped at that check, and no audit was performed.\n\n- **What was asked:** a readiness check, which is separate from the pre- and post-work audits. It needs the `superclaude reflect contract-status --repo synthetic/example --pr 1` command, which comes from that package.\n- **What happened:** a PATH lookup (`command -v superclaude`) returned nothing. I didn't install it, run it, import its code, or imitate its output.\n- **No audit:** because no audit ran, there is no mode, tier, confidence score, reviewers or merge, and no `REPORT.md`.\n- **Output path:** it passed the safety checks. It is outside the plugin directories and the fixture repo, has no `..`, and escapes through no symlinks.\n- **Contract:** the only file written is `.../runs/readiness-unavailable-attempt-1/artifacts/return-contract.yaml`, in JSON form. It records `status: stopped-precondition` and `readiness: UNAVAILABLE`.\n- **Nothing else changed:** because of `--no-promote`, nothing was moved, archived or promoted. No PR state, monitor, git state or input files were changed, and no remediation was requested.\n\nTo actually run the readiness check, the `superclaude` package has to be installed separately.",
+    "ttft_ms": 3848,
+    "type": "result",
+    "duration_ms": 19999,
+    "uuid": "cd8e3d57-535c-4241-be00-b7a608c78dd1",
+    "ttft_stream_ms": 1456,
+    "time_to_request_ms": 131,
+    "first_content_frame_ms": 1456,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "artifact_files": [
+    "execution.json",
+    "stderr.txt",
+    "role-and-tool-calls.json",
+    "native-init.json",
+    "stdout.jsonl",
+    "artifacts/return-contract.yaml"
+  ]
+}

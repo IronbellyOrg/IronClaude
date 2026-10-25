@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 4.0
+per_signal_breakdown:
+  scope_size: 1      # 4 files edited
+  task_count: 1      # 9 tasks
+  blast_radius: 1    # CI workflows on master
+  spec_density: 1    # 45 inferred rows, 0 parsed
+  ambiguity_signals: 0
+escalation_reason: "parsed-sparse pre-filter forbids a Tier-1 stop; calibrated C 0.75 < 0.85 (rule 6). S_scope 4, S_domains 2 (config, docs), S_dev_density 0.1556."

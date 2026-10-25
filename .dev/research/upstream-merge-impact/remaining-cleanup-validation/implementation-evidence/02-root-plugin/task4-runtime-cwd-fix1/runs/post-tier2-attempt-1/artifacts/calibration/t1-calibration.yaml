@@ -1,0 +1,26 @@
+# Wave 1D — persisted verbatim scores from sc:confidence-calibrator
+card: t1-card.md
+calibrator_agent: sc:confidence-calibrator
+requested_model_slot: opus   # ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-5-5[1m]; Agent tool did not report a separate provider model
+card_author_slot: sonnet
+calibrator_diversity: full    # opus ∉ planned reviewer classes {sonnet, haiku-slot(grok-4.7)}
+formation_context_supplied: false
+citation_spot_check:
+  - {citation: "changes.patch:1-9 / 5-9", resolves: yes}
+  - {citation: "src/greeting.py:1-4, 2-3, 4", resolves: yes}
+  - {citation: "tests/test_greeting.py:1, 4-5, 8-13, 1-13", resolves: yes}
+  - {citation: "execution.log:2-5", resolves: yes}
+  - {citation: "completed.md:2, 6, 7, 8", resolves: yes}
+  - {citation: "spec.md:5-6, 8-9, 9, 11-12", resolves: yes}
+  - {citation: "task-diff-map.yaml:29, 34, 36", resolves: partial, note: "content matches at <output>/artifacts/task-diff-map.yaml; path ambiguity only"}
+  - {citation: "deviation-taxonomy.md:108, 149-153", resolves: yes}
+  - {citation: "G2 absence of src/__init__.py, tests/__init__.py, conftest.py, pyproject.toml", resolves: yes, note: "pytest.ini/setup.cfg/tox.ini not checked by calibrator (Read-only tool)"}
+  - {citation: "untracked, outside --scope src", resolves: unverifiable, note: "calibrator has no git; orchestrator later captured artifacts/git-inventory.txt showing '?? tests/test_greeting.py'"}
+scores:
+  citation_grounding: 0.92
+  coverage_completeness: 0.97
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.93
+  recommendation_actionability: 0.93
+C: 0.93
+self_reported: 0.82

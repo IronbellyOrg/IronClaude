@@ -1,0 +1,220 @@
+commit 66d54204c24b65e4bf96e039a37ada94a761a7a3
+Author:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+AuthorDate: Tue Sep 15 03:37:59 2026 +0000
+Commit:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+CommitDate: Tue Sep 15 03:37:59 2026 +0000
+
+    chore: automated sync and namespace isolation from framework [2026-09-15 03:37]
+
+diff --git a/commands/sc-brainstorm.md b/commands/sc-brainstorm.md
+index 46c10212..af8240c5 100644
+--- a/commands/sc-brainstorm.md
++++ b/commands/sc-brainstorm.md
+@@ -43,6 +43,7 @@ Key behaviors:
+ - **Playwright MCP**: User experience validation and interaction pattern testing
+ - **Morphllm MCP**: Large-scale content analysis and pattern-based transformation
+ - **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Write/Edit**: Requirements documentation and specification generation
+@@ -119,4 +120,4 @@ This command produces a REQUIREMENTS SPECIFICATION ONLY.
+ - User stories / acceptance criteria
+ - Open questions for user
+ 
+-**Next Step**: After brainstorm completes, use `/sc:sc:design` for architecture or `/sc:sc:workflow` for implementation planning.
+\ No newline at end of file
++**Next Step**: After brainstorm completes, use `/sc:sc:design` for architecture or `/sc:sc:workflow` for implementation planning.
+diff --git a/commands/sc-cleanup.md b/commands/sc-cleanup.md
+index 2a128cc4..66342d76 100644
+--- a/commands/sc-cleanup.md
++++ b/commands/sc-cleanup.md
+@@ -37,6 +37,7 @@ Key behaviors:
+ - **Sequential MCP**: Auto-activated for complex multi-step cleanup analysis and planning
+ - **Context7 MCP**: Framework-specific cleanup patterns and best practices
+ - **Persona Coordination**: Architect (structure), Quality (debt), Security (credentials)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and pattern detection for cleanup opportunities
+@@ -109,4 +110,4 @@ Key behaviors:
+ **Safety Threshold**:
+ - If code has ANY usage path, prompt user
+ - If code affects public API, prompt user
+-- If unsure, prompt user
+\ No newline at end of file
++- If unsure, prompt user
+diff --git a/commands/sc-estimate.md b/commands/sc-estimate.md
+index a949fd68..4beb342f 100644
+--- a/commands/sc-estimate.md
++++ b/commands/sc-estimate.md
+@@ -37,6 +37,7 @@ Key behaviors:
+ - **Sequential MCP**: Complex multi-step estimation analysis and systematic complexity assessment
+ - **Context7 MCP**: Framework-specific estimation patterns and historical benchmark data
+ - **Persona Coordination**: Architect (design complexity), Performance (optimization effort), Project Manager (timeline)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Codebase analysis for complexity assessment and scope evaluation
+diff --git a/commands/sc-explain.md b/commands/sc-explain.md
+index b7f4dea2..74c7956f 100644
+--- a/commands/sc-explain.md
++++ b/commands/sc-explain.md
+@@ -37,6 +37,7 @@ Key behaviors:
+ - **Sequential MCP**: Auto-activated for complex multi-component analysis and structured reasoning
+ - **Context7 MCP**: Framework documentation and official pattern explanations
+ - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
+@@ -89,4 +90,4 @@ Key behaviors:
+ **Will Not:**
+ - Generate explanations without thorough analysis and accuracy verification
+ - Override project-specific documentation standards or reveal sensitive details
+-- Bypass established explanation validation or educational quality requirements
+\ No newline at end of file
++- Bypass established explanation validation or educational quality requirements
+diff --git a/commands/sc-implement.md b/commands/sc-implement.md
+index 303b36f6..22fbb1dd 100644
+--- a/commands/sc-implement.md
++++ b/commands/sc-implement.md
+@@ -41,6 +41,7 @@ Key behaviors:
+ - **Magic MCP**: Auto-activated for UI component generation and design system integration
+ - **Sequential MCP**: Complex multi-step analysis and implementation planning
+ - **Playwright MCP**: Testing validation and quality assurance integration
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Write/Edit/MultiEdit**: Code generation and modification for implementation
+@@ -108,4 +109,4 @@ Key behaviors:
+ 2. Basic functionality works
+ 3. Ready for `/sc:sc:test`
+ 
+-**Next Step**: After implementation, use `/sc:sc:test` to run tests, then `/sc:sc:git` to commit.
+\ No newline at end of file
++**Next Step**: After implementation, use `/sc:sc:test` to run tests, then `/sc:sc:git` to commit.
+diff --git a/commands/sc-improve.md b/commands/sc-improve.md
+index 8b67e2e6..ecf164b8 100644
+--- a/commands/sc-improve.md
++++ b/commands/sc-improve.md
+@@ -37,6 +37,7 @@ Key behaviors:
+ - **Sequential MCP**: Auto-activated for complex multi-step improvement analysis and planning
+ - **Context7 MCP**: Framework-specific best practices and optimization patterns
+ - **Persona Coordination**: Architect (structure), Performance (speed), Quality (maintainability), Security (safety)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and improvement opportunity identification
+diff --git a/commands/sc-index.md b/commands/sc-index.md
+index 2777acd3..e5b5e976 100644
+--- a/commands/sc-index.md
++++ b/commands/sc-index.md
+@@ -37,6 +37,7 @@ Key behaviors:
+ - **Sequential MCP**: Complex multi-step project analysis and systematic documentation generation
+ - **Context7 MCP**: Framework-specific documentation patterns and established standards
+ - **Persona Coordination**: Architect (structure), Scribe (content), Quality (validation)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Project structure analysis and content extraction for documentation generation
+@@ -83,4 +84,4 @@ Key behaviors:
+ **Will Not:**
+ - Override existing manual documentation without explicit update permission
+ - Generate documentation without appropriate project structure analysis and validation
+-- Bypass established documentation standards or quality requirements
+\ No newline at end of file
++- Bypass established documentation standards or quality requirements
+diff --git a/commands/sc-recommend.md b/commands/sc-recommend.md
+index 493603cf..dff0674f 100644
+--- a/commands/sc-recommend.md
++++ b/commands/sc-recommend.md
+@@ -45,11 +45,22 @@ language_mapping:
+ 
+ ```python
+ def detect_language_and_translate(input_text):
+-    turkish_chars = ['ç', 'ğ', 'ı', 'ö', 'ş', 'ü']
++    turkish_chars = ["ç", "ğ", "ı", "ö", "ş", "ü"]
+     if any(char in input_text.lower() for char in turkish_chars):
+         return "tr"
+ 
+-    english_common = ["the", "and", "is", "are", "was", "were", "will", "would", "could", "should"]
++    english_common = [
++        "the",
++        "and",
++        "is",
++        "are",
++        "was",
++        "were",
++        "will",
++        "would",
++        "could",
++        "should",
++    ]
+     if any(word in input_text.lower().split() for word in english_common):
+         return "en"
+ 
+diff --git a/commands/sc-spec-panel.md b/commands/sc-spec-panel.md
+index eab28ae7..1c737ab3 100644
+--- a/commands/sc-spec-panel.md
++++ b/commands/sc-spec-panel.md
+@@ -100,6 +100,7 @@ Key behaviors:
+ - **Technical Writer Persona**: Activated for professional specification writing and documentation quality
+ - **System Architect Persona**: Activated for architectural analysis and system design validation
+ - **Quality Engineer Persona**: Activated for quality assessment and testing strategy validation
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Analysis Modes
+ 
+@@ -433,4 +434,4 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ - Consensus points and disagreements
+ - Priority-ranked improvements
+ 
+-**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
+\ No newline at end of file
++**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
+diff --git a/commands/sc-task.md b/commands/sc-task.md
+index a0252d19..2f4ceb36 100644
+--- a/commands/sc-task.md
++++ b/commands/sc-task.md
+@@ -40,6 +40,7 @@ Key behaviors:
+ - **Playwright MCP**: Testing workflow integration and validation automation
+ - **Morphllm MCP**: Large-scale task transformation and pattern-based optimization
+ - **Serena MCP**: Cross-session task persistence and project memory management
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
+@@ -113,4 +114,4 @@ This command executes specific tasks when explicitly invoked by user.
+ - Files modified
+ - Tests status (if applicable)
+ 
+-**Next Step**: User decides next action. May invoke another `/sc:sc:task` or use specific commands.
+\ No newline at end of file
++**Next Step**: User decides next action. May invoke another `/sc:sc:task` or use specific commands.
+diff --git a/commands/sc-workflow.md b/commands/sc-workflow.md
+index 66442e17..cd7ce073 100644
+--- a/commands/sc-workflow.md
++++ b/commands/sc-workflow.md
+@@ -40,6 +40,7 @@ Key behaviors:
+ - **Playwright MCP**: Testing workflow integration and quality assurance automation
+ - **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
+ - **Serena MCP**: Cross-session workflow persistence, memory management, and project context
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Write/Edit**: PRD analysis and workflow documentation generation
+@@ -115,4 +116,4 @@ This command produces an IMPLEMENTATION PLAN ONLY - no code execution.
+ - Execution order
+ - Checkpoints and validation steps
+ 
+-**Next Step**: After workflow completes, use `/sc:sc:implement` to execute the plan step by step.
+\ No newline at end of file
++**Next Step**: After workflow completes, use `/sc:sc:implement` to execute the plan step by step.
+diff --git a/docs/.framework-sync-commit b/docs/.framework-sync-commit
+index f1158b38..e76151ea 100644
+--- a/docs/.framework-sync-commit
++++ b/docs/.framework-sync-commit
+@@ -1 +1 @@
+-1b81e51db955126ec8983769b96dec575d730c05
++2d0fda08f2eed9951794dc9c54a6289454961075

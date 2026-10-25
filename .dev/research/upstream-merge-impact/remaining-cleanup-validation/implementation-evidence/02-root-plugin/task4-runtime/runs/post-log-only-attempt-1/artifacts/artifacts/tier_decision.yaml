@@ -1,0 +1,20 @@
+selected_tier: 1
+hard_override: "--tier 1"       # §5.1: STOP at T1 (skip Wave 3+)
+fired_rule_number: 2            # rubric evaluated for the record; §5.3 rule 2 would also STOP at T1 (C>=0.85, S_scope<=10, S_domains<=2, S_dev_density<=0.10)
+rubric_inputs:
+  C: 0.882
+  S_scope: 2                    # src/greeting.py, tests/test_greeting.py (log-declared work; no diff exists)
+  S_domains: 2                  # code, tests
+  S_dev_density: 0.0            # 0 unmapped work units / 3 log-declared claims (format/message detail attributed to T-101/T-102)
+  regression_candidate_count: 0
+coverage_degraded: null
+surface_unreached: null
+composite_score: 3              # recording only
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 2               # no driving spec supplied
+  ambiguity_signals: 1          # two grounding gaps
+escalation_reason: "Explicit --tier 1 pin; independently, rule 2 STOP conditions hold. Rule 1 not met (S_domains=2)."
+t2_model_class_diversity: degraded   # not exercised (T2 not run); single vendor

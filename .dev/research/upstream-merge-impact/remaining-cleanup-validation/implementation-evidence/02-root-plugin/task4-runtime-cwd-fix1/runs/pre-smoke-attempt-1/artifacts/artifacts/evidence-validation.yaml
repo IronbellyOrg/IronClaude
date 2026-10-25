@@ -1,0 +1,20 @@
+# Wave 5 evidence gate. Agent: sc:evidence-validator (requested slot: opus; agentId a864b836be8cca642;
+# provider model not reported). Validated REPORT.draft.md; persisted by orchestrator from returned text.
+evidence_validator_ran: true
+draft_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-smoke-attempt-1/artifacts/REPORT.draft.md
+citations_total: 25
+citations_revalidated: 25
+citations_dropped: 0
+dropped: []
+citations_inferred: 1
+citation_budget_policy: full_reread
+zero_drop_flag: true        # §11.2: zero-drop pass audit-logged as suspect, not treated as clean
+validator_notes:
+  - "Every quote checked verbatim; #19 differs only in case ('The greet function' vs 'the greet function')."
+  - "Validator reported spec.md=13 / proposed.md=11 lines via Read display; wc -l gives 12 / 10 (trailing-newline display difference, no citation affected)."
+uncited_factual_claims_flagged:
+  - "Whitespace-only names undefined in both documents -> final report now cites spec.md:9, proposed.md:7"
+  - "No exact-output/ValueError assertion in tasklist -> final report now cites proposed.md:4, proposed.md:7, proposed.md:10"
+  - "Summary mapping/coverage -> supported by matrix rows"
+  - "S_scope/S_domains, best_practice_grade -> scoring judgements, disclosed as such"
+recompute_after_drops: "not needed (0 drops; no INF rows)"

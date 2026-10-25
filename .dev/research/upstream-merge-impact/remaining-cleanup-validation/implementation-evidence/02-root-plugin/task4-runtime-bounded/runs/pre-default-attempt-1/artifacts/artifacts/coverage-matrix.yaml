@@ -1,0 +1,35 @@
+# Wave 1B coverage matrix (UC-1). Pass 1 computed by orchestrator (deterministic, artifacts/coverage-pass1.json);
+# Pass 2 + semantic gaps returned by sc:sc-requirements-analyst (requested slot: sonnet; agentId ab1551fb784cb7028),
+# persisted verbatim-in-substance by the orchestrator.
+producer:
+  pass1: orchestrator-deterministic
+  pass2: sc:sc-requirements-analyst
+  requested_model_slot: sonnet   # actual provider model not echoed by Agent tool; slot alias -> claude-sonnet-5-5[1m]
+matrix:
+  - {requirement_id: R-001, spec_cite: "spec.md:5", matched_task_ids: [T-101], match_method: exact, source: parsed}
+  - {requirement_id: R-002, spec_cite: "spec.md:8", matched_task_ids: [T-102], match_method: exact, source: parsed}
+  - {requirement_id: R-003, spec_cite: "spec.md:11", matched_task_ids: [T-103], match_method: exact, source: parsed}
+parsed_count: 3
+inferred_count: 0
+total_tasks: 3
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+unmapped_requirements_union: []
+coverage_undefined: false
+coverage_degraded: null
+S_dev_density: 0.0
+dropped_pass2_candidates:
+  - {quote: "The greet function MUST return the exact string Hello, Ada! for Ada.", cite: "spec.md:6", reason: "inside R-001 span 5-7"}
+  - {quote: "The greet function MUST reject an empty name with ValueError.", cite: "spec.md:9", reason: "inside R-002 span 8-10"}
+  - {quote: "Tests MUST exercise the ordinary greeting and empty-input rejection.", cite: "spec.md:12", reason: "inside R-003 span 11-12"}
+  - {quote: "This fixture is synthetic audit input, not shipped product code.", cite: "spec.md:3", reason: "not requirement-shaped"}
+semantic_gaps:
+  - {id: GAP-001, severity: medium, tag: grounded, citations: ["proposed.md:4", "spec.md:6"], claim: "T-101 says 'the required greeting' and does not restate the exact string 'Hello, Ada!' / Ada input; acceptance detail only reachable by indirection."}
+  - {id: GAP-002, severity: medium, tag: grounded, citations: ["proposed.md:10", "spec.md:12", "spec.md:6", "spec.md:9"], claim: "T-103 names both test cases but not their assertions (exact 'Hello, Ada!' equality for 'Ada'; ValueError specifically)."}
+  - {id: GAP-003, severity: medium, tag: INFERRED, citations: ["spec.md:9", "proposed.md:7"], claim: "'Empty name' undefined in spec and plan ('' only vs None/whitespace/non-str)."}
+  - {id: GAP-004, severity: low, tag: INFERRED, citations: ["spec.md:6", "proposed.md:4"], claim: "Spec only defines output for Ada; generalization to other names is an assumption."}
+  - {id: GAP-005, severity: low, tag: INFERRED, citations: ["proposed.md:3", "proposed.md:6", "proposed.md:9"], claim: "No task runs tests / defines done; no file targets; no ordering dependency of T-103 on T-101/T-102."}
+  - {id: GAP-006, severity: low, tag: grounded, citations: ["spec.md:12", "spec.md:6"], claim: "R-003 names no framework/location/assertion style; 'ordinary greeting' undefined."}
+best_practice_grade: 3
+best_practice_rationale: "Full 1:1 traceability; tasks paraphrase rather than carry acceptance details; no verification step or ordering; 'empty' undefined."

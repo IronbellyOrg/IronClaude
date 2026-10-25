@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-24",
+  "user_answer": "Allow compatibility fix (Recommended)",
+  "authorized_paths": ["agents/confidence-calibrator.md", "skills/sc-reflect-protocol/refs/reflection-rubric.md"],
+  "source_conflict": "Six-dimension troubleshooting agent contract versus five-dimension reflection rubric; rubric also has obsolete Aligned/Refinement names instead of current Authorized/Necessary categories",
+  "authorized_resolution": "Adapt only these bundled resources so independent calibration uses reflection's five-dimension arithmetic mean and current Authorized/Necessary/Drift/Regression categories",
+  "preserve": ["read-only tools and permissionMode", "independence", "citation spot checks", "reflection rubric thresholds", "canonical src and alternate build files"],
+  "gate_waiver": false,
+  "prior_failed_review": "task1-final-review.md",
+  "implementation_status": "Not built; Task3",
+  "runtime_status": "Unverified; Task4"
+}

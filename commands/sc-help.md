@@ -1,13 +1,13 @@
 ---
 name: help
-description: "List all available /sc:sc commands and their functionality"
+description: "List all available /sc:sc-* commands and their functionality"
 category: utility
 complexity: low
 mcp-servers: []
 personas: []
 ---
 
-# /sc:sc:sc:help - Command Reference Documentation
+# /sc:sc-help - Command Reference Documentation
 
 ## Triggers
 - Command discovery and reference lookup requests
@@ -22,38 +22,36 @@ Key behaviors:
 - Information display only - no execution or implementation
 - Reference documentation mode without action triggers
 
-Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
+Here is a complete list of all available SuperClaude (`/sc:sc-*`) commands.
 
 | Command | Description |
 |---|---|
-| `/sc:sc:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
-| `/sc:sc:brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
-| `/sc:sc:build` | Build, compile, and package projects with intelligent error handling and optimization |
-| `/sc:sc:business-panel` | Multi-expert business analysis with adaptive interaction modes |
-| `/sc:sc:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
-| `/sc:sc:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
-| `/sc:sc:document` | Generate focused documentation for components, functions, APIs, and features |
-| `/sc:sc:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |
-| `/sc:sc:explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |
-| `/sc:sc:git` | Git operations with intelligent commit messages and workflow optimization |
-| `/sc:sc:help` | List all available /sc:sc commands and their functionality |
-| `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
-| `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |
-| `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
-| `/sc:sc:load` | Session lifecycle management with Serena MCP integration for project context loading |
-| `/sc:sc:reflect` | Task reflection and validation using Serena MCP analysis capabilities |
-| `/sc:sc:save` | Session lifecycle management with Serena MCP integration for session context persistence |
-| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
-| `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
-| `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
-| `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |
-| `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |
-| `/sc:sc:troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
-| `/sc:sc:workflow` | Generate structured implementation workflows from PRDs and feature requirements |
+| `/sc:sc-analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
+| `/sc:sc-brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
+| `/sc:sc-build` | Build, compile, and package projects with intelligent error handling and optimization |
+| `/sc:sc-business-panel` | Multi-expert business analysis with adaptive interaction modes |
+| `/sc:sc-cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
+| `/sc:sc-design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
+| `/sc:sc-document` | Generate focused documentation for components, functions, APIs, and features |
+| `/sc:sc-explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |
+| `/sc:sc-git` | Git operations with intelligent commit messages and workflow optimization |
+| `/sc:sc-help` | List all available /sc:sc-* commands and their functionality |
+| `/sc:sc-implement` | Feature and code implementation with intelligent persona activation and MCP integration |
+| `/sc:sc-improve` | Apply systematic improvements to code quality, performance, and maintainability |
+| `/sc:sc-index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
+| `/sc:sc-load` | Session lifecycle management with Serena MCP integration for project context loading |
+| `/sc:sc-reflect` | Task reflection and validation using Serena MCP analysis capabilities |
+| `/sc:sc-save` | Session lifecycle management with Serena MCP integration for session context persistence |
+| `/sc:sc-spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
+| `/sc:sc-spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
+| `/sc:sc-task` | Execute complex tasks with intelligent workflow management and delegation |
+| `/sc:sc-test` | Execute tests with coverage analysis and automated quality reporting |
+| `/sc:sc-troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
+| `/sc:sc-workflow` | Generate structured implementation workflows from PRDs and feature requirements |
 
 ## SuperClaude Framework Flags
 
-SuperClaude supports behavioral flags to enable specific execution modes and tool selection patterns. Use these flags with any `/sc:sc` command to customize behavior.
+SuperClaude supports behavioral flags to enable specific execution modes and tool selection patterns. Use these flags with any `/sc:sc-*` command to customize behavior.
 
 ### Mode Activation Flags
 
@@ -116,16 +114,16 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 ```bash
 # Deep analysis with Context7 enabled
-/sc:sc:analyze --think-hard --context7 src/
+/sc:sc-analyze --think-hard --context7 src/
 
 # UI development with Magic and validation
-/sc:sc:implement --magic --validate "Add user dashboard"
+/sc:sc-implement --magic --validate "Add user dashboard"
 
 # Token-efficient task management
-/sc:sc:task --token-efficient --delegate auto "Refactor authentication system"
+/sc:sc-task --token-efficient --delegate auto "Refactor authentication system"
 
 # Safe production deployment
-/sc:sc:build --safe-mode --validate --focus security
+/sc:sc-build --safe-mode --validate --focus security
 ```
 
 ## Boundaries

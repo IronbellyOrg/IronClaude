@@ -1,0 +1,110 @@
+[
+  {
+    "unit": "installer-packaging",
+    "sha": "8c0559ca9a99a14c7337b48e888959b47dc8acb8",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: tests/unit/test_token_budget.py:1\nerror: tests/unit/test_token_budget.py: patch does not apply\nerror: patch failed: tests/unit/test_self_check.py:1\nerror: tests/unit/test_self_check.py: patch does not apply\nerror: patch failed: tests/unit/test_reflexion.py:1\nerror: tests/unit/test_reflexion.py: patch does not apply\nerror: patch failed: tests/unit/test_confidence.py:1\nerror: tests/unit/test_confidence.py: patch does not apply\nerror: patch failed: tests/unit/test_cli_install.py:1\nerror: tests/unit/test_cli_install.py: patch does not apply\nerror: patch failed: tests/integration/test_pytest_plugin.py:1\nerror: tests/integration/test_pytest_plugin.py: patch does not apply\nerror: patch failed: tests/conftest.py:1\nerror: tests/conftest.py: patch does not apply\nerror: patch failed: src/superclaude/cli/main.py:25\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: patch failed: package.json:1\nerror: package.json: patch does not apply\nerror: TASK.md: No such file or directory\nerror: patch failed: README.md:15\nerror: README.md: patch does not apply\nerror: PLANNING.md: No such file or directory\nerror: patch failed: KNOWLEDGE.md:1\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: .github/workflows/test.yml:1\nerror: .github/workflows/test.yml: patch does not apply\nerror: .github/workflows/quick-check.yml: No such file or directory\nerror: patch failed: .github/workflows/README.md:1\nerror: .github/workflows/README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "ad80f57f63eeae02af6b283ec35ae6f9aa68fcf0",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:46\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_commands.py:1\nerror: src/superclaude/cli/install_commands.py: patch does not apply\nerror: plugins/superclaude/commands/sc.md: No such file or directory\nerror: docs/mistakes/unknown-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_reflexion_with_real_exception-2025-11-11.md: No such file or directory\nerror: docs/mistakes/test_database_connection-2025-11-11.md: No such file or directory\nerror: patch failed: docs/memory/solutions_learned.jsonl:1\nerror: docs/memory/solutions_learned.jsonl: patch does not apply\nerror: patch failed: README.md:125\nerror: README.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "25785363af21849898ca77624aac0b05fc780b94",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:89\nerror: src/superclaude/cli/main.py: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "c6e72825b4feb6ba37facabef868865e11c5ae45",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: src/superclaude/commands/sc.md: No such file or directory\nerror: patch failed: src/superclaude/commands/research.md:1\nerror: src/superclaude/commands/research.md: patch does not apply\nerror: patch failed: src/superclaude/commands/recommend.md:1\nerror: src/superclaude/commands/recommend.md: patch does not apply\nerror: patch failed: src/superclaude/commands/index-repo.md:1\nerror: src/superclaude/commands/index-repo.md: patch does not apply\nerror: patch failed: src/superclaude/commands/agent.md:1\nerror: src/superclaude/commands/agent.md: patch does not apply\nerror: patch failed: src/superclaude/commands/README.md:1\nerror: src/superclaude/commands/README.md: patch does not apply\nerror: patch failed: pyproject.toml:70\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "2847f7551871eb17d2821730be0adc39cba9666a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: MANIFEST.in: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "81343a678bc6011ac8410b95b4f29a6d91749b3d",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/scripts/clean_command_names.py:1\nerror: src/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: patch failed: src/superclaude/scripts/README.md:1\nerror: src/superclaude/scripts/README.md: patch does not apply\nerror: patch failed: src/superclaude/hooks/hooks.json:1\nerror: src/superclaude/hooks/hooks.json: patch does not apply\nerror: patch failed: src/superclaude/hooks/README.md:1\nerror: src/superclaude/hooks/README.md: patch does not apply\nerror: patch failed: src/superclaude/agents/self-review.md:1\nerror: src/superclaude/agents/self-review.md: patch does not apply\nerror: patch failed: src/superclaude/agents/repo-index.md:1\nerror: src/superclaude/agents/repo-index.md: patch does not apply\nerror: patch failed: src/superclaude/agents/deep-research.md:1\nerror: src/superclaude/agents/deep-research.md: patch does not apply\nerror: patch failed: src/superclaude/agents/README.md:1\nerror: src/superclaude/agents/README.md: patch does not apply\nerror: patch failed: pyproject.toml:69\nerror: pyproject.toml: patch does not apply\nerror: MANIFEST.in: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "42946f8445f13f4444aa67ecb1f503ed6d91eb79",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "18c0e4e127dc352db19ae132a770019bf1f32d8a",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/cli/main.py:91\nerror: src/superclaude/cli/main.py: patch does not apply\nerror: patch failed: src/superclaude/cli/install_mcp.py:9\nerror: src/superclaude/cli/install_mcp.py: patch does not apply\nerror: setup.py: No such file or directory\nerror: patch failed: pyproject.toml:165\nerror: pyproject.toml: patch does not apply\nerror: patch failed: plugins/superclaude/scripts/clean_command_names.py:116\nerror: plugins/superclaude/scripts/clean_command_names.py: patch does not apply\nerror: install.sh: No such file or directory\nerror: .github/workflows/quick-check.yml: No such file or directory\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "fd8c67f6f0be47371fe9fffce0be0ffad73b3c72",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: src/superclaude/__init__.py:5\nerror: src/superclaude/__init__.py: patch does not apply\nerror: patch failed: pyproject.toml:4\nerror: pyproject.toml: patch does not apply\nerror: docs/reference/comprehensive-features.md: No such file or directory\nerror: docs/reference/commands-list.md: No such file or directory\nerror: patch failed: VERSION:1\nerror: VERSION: patch does not apply\nerror: patch failed: README.md:14\nerror: README.md: patch does not apply\nerror: README-zh.md: No such file or directory\nerror: README-kr.md: No such file or directory\nerror: README-ja.md: No such file or directory\nerror: PLANNING.md: No such file or directory\nerror: MANIFEST.in: No such file or directory\nerror: patch failed: KNOWLEDGE.md:153\nerror: KNOWLEDGE.md: patch does not apply\nerror: patch failed: CLAUDE.md:18\nerror: CLAUDE.md: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "9ca48494021325defc117145a7f38634852b27b6",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:67\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "074b99480db9ffe7f2f86a5cbd7a96f13843410c",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "error: patch failed: pyproject.toml:68\nerror: pyproject.toml: patch does not apply\n",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  },
+  {
+    "unit": "installer-packaging",
+    "sha": "323137a9df985c17f221f559ccede9860d40cb23",
+    "method": "git diff --binary PARENT COMMIT | git apply --reverse --check --whitespace=nowarn -",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "actual_git_revert": "UNVERIFIED; no Git state mutation authorized"
+  }
+]

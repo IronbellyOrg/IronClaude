@@ -1,8 +1,8 @@
-# /sc:sc:sc:business-panel - Business Panel Analysis System
+# /sc:sc-business-panel - Business Panel Analysis System
 
 ```yaml
 ---
-command: "/sc:sc:business-panel"
+command: "/sc:sc-business-panel"
 category: "Analysis & Strategic Planning"  
 purpose: "Multi-expert business analysis with adaptive interaction modes"
 wave-enabled: true
@@ -42,15 +42,15 @@ Question-driven exploration for deep learning and strategic thinking development
 
 ### Basic Usage
 ```bash
-/sc:sc:business-panel [document_path_or_content]
+/sc:sc-business-panel [document_path_or_content]
 ```
 
 ### Advanced Options
 ```bash
-/sc:sc:business-panel [content] --experts "porter,christensen,meadows"
-/sc:sc:business-panel [content] --mode debate
-/sc:sc:business-panel [content] --focus "competitive-analysis"
-/sc:sc:business-panel [content] --synthesis-only
+/sc:sc-business-panel [content] --experts "porter,christensen,meadows"
+/sc:sc-business-panel [content] --mode debate
+/sc:sc-business-panel [content] --focus "competitive-analysis"
+/sc:sc-business-panel [content] --synthesis-only
 ```
 
 ### Mode Commands
@@ -108,6 +108,6 @@ This command produces EXPERT ANALYSIS and RECOMMENDATIONS only.
 - Priority-ranked recommendations
 
 **Next Step**: User reviews recommendations, then:
-- Use `/sc:sc:design` for architectural changes
-- Use `/sc:sc:implement` for feature development
-- Use `/sc:sc:workflow` for planning
+- Use `/sc:sc-design` for architectural changes
+- Use `/sc:sc-implement` for feature development
+- Use `/sc:sc-workflow` for planning

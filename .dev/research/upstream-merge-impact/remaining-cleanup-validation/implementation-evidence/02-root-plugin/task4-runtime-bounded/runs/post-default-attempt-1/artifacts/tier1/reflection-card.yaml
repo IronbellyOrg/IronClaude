@@ -1,0 +1,134 @@
+# Tier-1 reflection card — persisted VERBATIM as returned by Task(sc:sc-root-cause-analyst)
+# requested_model_slot: sonnet ; returned_model: claude-sonnet-5-5[1m] (agent self-report) ; agentId: ac379293a2c54c7fe
+# All file paths below are relative to audit_repo_root=fixtures/project unless prefixed runs/ or plugin/.
+# ORCHESTRATOR ANNOTATION (not part of the card): the card's notes[0] and REC-4 are factually wrong. The brief said
+# "<output root>/artifacts/wave1b-task-diff-map.yaml" with output root = .../runs/post-default-attempt-1/artifacts,
+# which IS .../artifacts/artifacts/wave1b-task-diff-map.yaml. REC-4 is excluded from the final report as unfounded.
+card_author:
+  agent: Wave-1C Tier-1 card author (sc:sc-root-cause-analyst persona, read-only)
+  model: Sonnet 5.5 (claude-sonnet-5-5[1m])
+  confidence_self_score: withheld
+mode:
+  use_case: UC-2 post-execution deviation audit
+  tier: 1
+  scope_declared: src/
+  inputs_read: [spec.md, completed.md, changes.patch, src/greeting.py, tests/test_greeting.py, runs/post-default-attempt-1/artifacts/artifacts/wave1b-task-diff-map.yaml, plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md]
+  inputs_not_used: [execution.log, proposed.md]
+  verification_ran: false
+  mcp_available: false
+  notes:
+    - "The Wave-1B map is not at the stated path <output root>/artifacts/wave1b-task-diff-map.yaml. It is at <output root>/artifacts/artifacts/wave1b-task-diff-map.yaml. The orchestrator should fix the path reference."
+    - "The git repo has zero commits, so there is no commit-body or history evidence."
+task_map:
+  - task: T-101
+    tasklist_ref: "completed.md:6"
+    requirement: "R-001, spec.md:5-6: greet MUST return exactly 'Hello, Ada!' for Ada"
+    implementing_code: "src/greeting.py:4 `return f\"Hello, {name}!\"`"
+    diff_hunks: [H1]
+    status: "[GROUNDED] Static reading of src/greeting.py:4 gives 'Hello, Ada!' for 'Ada'. Not executed."
+  - task: T-102
+    tasklist_ref: "completed.md:7"
+    requirement: "R-002, spec.md:8-9: greet MUST reject an empty name with ValueError"
+    implementing_code: "src/greeting.py:2-3 `if not name: raise ValueError(\"name required\")`"
+    diff_hunks: [H1]
+    status: "[GROUNDED] Static reading shows greet('') raises ValueError. Not executed."
+  - task: T-103
+    tasklist_ref: "completed.md:8"
+    requirement: "R-003, spec.md:11-12: tests MUST exercise the ordinary greeting and empty-input rejection"
+    implementing_code: "tests/test_greeting.py:4-5 (test_ordinary), tests/test_greeting.py:8-13 (test_empty)"
+    diff_hunks: []
+    status: "[GROUNDED] The test content satisfies R-003 textually. [GROUNDED] It is absent from changes.patch (changes.patch:1-9 touches only src/greeting.py) and outside --scope src. [INFERRED] Provenance cannot be tied to the audited change set, because the repo has zero commits and every file is untracked. See GG-1."
+hunk_map:
+  - hunk: H1
+    file: src/greeting.py
+    patch_lines: "changes.patch:1-9 (new file, @@ -0,0 +1,4 @@ at changes.patch:5)"
+    target_lines: "src/greeting.py:1-4"
+    byte_identity: "[GROUNDED] The added lines at changes.patch:6-9 match src/greeting.py:1-4 line for line."
+    maps_to:
+      - {req: R-001, task: T-101, where: "src/greeting.py:4"}
+      - {req: R-002, task: T-102, where: "src/greeting.py:2-3"}
+    unmapped_content: "None. [GROUNDED] The hunk has four lines (def, guard, raise, return), and each is accounted for by R-001 or R-002."
+  total_hunks: 1
+  unmapped_hunks: 0
+  S_dev_density: 0.0
+deviations: []
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: "tests/test_greeting.py:1-13 (no hunk; absent from changes.patch:1-9)"
+    evidence_missing: "No diff hunk, commit, or selected task log ties tests/test_greeting.py to the audited change. The repo has zero commits, the file is outside --scope src, and no test run output exists."
+    why_not_classifiable: "A claimed-complete task (T-103, completed.md:8) has file content that satisfies R-003 but no attributable change record. The taxonomy cannot distinguish an Authorized or Necessary test addition from a pre-existing file. Nor can it tell whether the test passes, because there was no execution."
+    next_evidence_needed: "Either (a) a diff that includes tests/test_greeting.py, or (b) confirmation that the file was authored for T-103. Plus a pytest run of tests/test_greeting.py (exit 0 expected) from the sanctioned verification surface."
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "src/greeting.py:1-4 (H1)"
+    evidence_missing: "Runtime verification. verification_ran=false because execute_shell_command is unavailable, so no pytest exit code exists."
+    why_not_classifiable: "Behaviour of T-101 and T-102 is inferred from static reading only. The exit-code mapping cannot rule out a collection or import error (pytest exit 2, which maps to a Grounding Gap)."
+    next_evidence_needed: "pytest run on tests/test_greeting.py with exit code. This also covers whether `from src.greeting import greet` (tests/test_greeting.py:1) resolves under the project's rootdir and import config."
+    owner: reviewer
+    decision_needed_by_user: false
+advisory_observations:
+  - id: ADV-1
+    hunk_ref: "src/greeting.py:2"
+    observation: "[GROUNDED] The guard `if not name` rejects every falsy value, not just the empty string. [INFERRED] It would raise ValueError for None, 0 and [], and accept whitespace-only strings such as '  ' (which return 'Hello,   !'). R-002 (spec.md:9) says only 'empty name'."
+    why_advisory: "Spec silent on None, non-string and whitespace inputs. No documented invariant applies."
+    next_evidence_needed: "A spec criterion defining valid name input (type, whitespace handling)."
+    owner: user
+  - id: ADV-2
+    hunk_ref: "src/greeting.py:4"
+    observation: "[INFERRED] A truthy non-string, such as greet(5), returns 'Hello, 5!' without error. No type validation exists."
+    why_advisory: "Spec silent on name type."
+    next_evidence_needed: "A spec criterion on input type."
+    owner: user
+  - id: ADV-3
+    hunk_ref: "tests/test_greeting.py:8-13"
+    observation: "[GROUNDED] test_empty uses try/except plus `raise AssertionError` rather than pytest.raises. It asserts only the exception type, not the message. [INFERRED] This is adequate for R-003 (spec.md:12), which requires no message check."
+    why_advisory: "Test style is not specified. R-001 to R-003 pin no error message."
+    next_evidence_needed: "None required unless the error message becomes a contract."
+    owner: user
+regression_candidates:
+  list: []
+  reason: "[GROUNDED] No hunk contradicts R-001, R-002 or R-003. H1 is a new file (changes.patch:2-3, from /dev/null), so no pre-existing behaviour was modified. [INFERRED] No previously-passing test can have been broken. The runtime check that would detect a regression was not run, so the absence of regression rests on static reading only (see GG-2)."
+risks:
+  blast_radius:
+    - "[GROUNDED] The change set is one new file with one function (changes.patch:1-9). [INFERRED] The blast radius is minimal."
+  untested_invariants:
+    - "[GROUNDED] No executed test evidence exists (verification_ran=false). Both behaviours (src/greeting.py:2-4) are unexecuted."
+    - "[GROUNDED] tests/test_greeting.py covers only greet('Ada') and greet('') (tests/test_greeting.py:5,10). [INFERRED] No test covers None, whitespace, non-string inputs or the exact error message."
+    - "[INFERRED] The test imports `from src.greeting import greet` (tests/test_greeting.py:1). This depends on rootdir/import configuration that was not examined. Resolution failure would show as a collection error, not a spec failure."
+  spec_silent_behaviour: ["ADV-1 and ADV-2: input-validation semantics beyond 'empty'."]
+  provenance_risk: ["[GROUNDED] The zero-commit repo and absent test diff mean T-103 completion rests on disk state alone (GG-1)."]
+  scope_note: ["[GROUNDED] Declared --scope is src/. The R-003 evidence lies outside it. A scope-limited audit cannot confirm T-103 by itself."]
+recommendations:
+  - {id: REC-1, file: "changes.patch (or a new test-inclusive diff)", change: "Regenerate the diff to include tests/test_greeting.py, or add an explicit statement that it was authored for T-103.", verifier: "The new diff contains a hunk for tests/test_greeting.py that maps to R-003. This resolves GG-1."}
+  - {id: REC-2, file: "tests/test_greeting.py", change: "Run it via the sanctioned verification surface and record the pytest exit code (0 expected).", verifier: "pytest exit 0 with 2 tests collected. Exit 2/3 would be a Grounding Gap and exit 1 a Regression. This resolves GG-2."}
+  - {id: REC-3, file: "spec.md", change: "Optional: add a requirement on name validation (None, whitespace, non-str) and on the error message, if those matter.", verifier: "If added, src/greeting.py:2 and tests/test_greeting.py gain checkable criteria, and ADV-1 and ADV-2 can be promoted or closed."}
+  - {id: REC-4, file: "orchestrator run config", change: "Correct the wave1b map path reference (artifacts/artifacts/ duplication).", verifier: "The map resolves at the documented path."}
+per_task_verdicts:
+  T-101: {verdict: "Satisfied on static evidence, unexecuted", basis: "[GROUNDED] src/greeting.py:4 and changes.patch:9. Mapped to H1."}
+  T-102: {verdict: "Satisfied on static evidence, unexecuted", basis: "[GROUNDED] src/greeting.py:2-3 and changes.patch:7-8. Mapped to H1."}
+  T-103: {verdict: "Content present, but completion unverified (grounding gap GG-1)", basis: "[GROUNDED] tests/test_greeting.py:4-13 textually covers both R-003 cases. [GROUNDED] The file is absent from the audited diff and outside scope. [INFERRED] Whether it passes is unknown."}
+tasklist_completion_pct:
+  value: 67
+  justification: "[INFERRED] 2 of 3 tasks (T-101, T-102) are supported by diff-attributable code. T-103 is counted as 0 because its evidence cannot be tied to the audited change set, not because it is shown wrong. completed.md:2 claims status: done and completed.md:6-8 mark all three [x], which is not independently confirmed."
+  overall_status: partial
+  needs_human_decision: true
+  deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+  regression_present: false
+citations:
+  - "spec.md:5-6"
+  - "spec.md:8-9"
+  - "spec.md:11-12"
+  - "completed.md:1-3"
+  - "completed.md:6"
+  - "completed.md:7"
+  - "completed.md:8"
+  - "changes.patch:1-9"
+  - "src/greeting.py:1-4"
+  - "src/greeting.py:2-3"
+  - "src/greeting.py:4"
+  - "tests/test_greeting.py:1"
+  - "tests/test_greeting.py:4-5"
+  - "tests/test_greeting.py:8-13"
+  - "runs/post-default-attempt-1/artifacts/artifacts/wave1b-task-diff-map.yaml"
+  - "plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md"

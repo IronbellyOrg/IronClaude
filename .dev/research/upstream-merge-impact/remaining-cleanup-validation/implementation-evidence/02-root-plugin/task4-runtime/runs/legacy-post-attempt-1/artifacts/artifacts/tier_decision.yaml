@@ -1,0 +1,20 @@
+selected_tier: 1
+fired_rule_number: 2            # §5.3 rule 2 would also STOP at T1 (C=0.91>=0.85, S_scope=2<=10, S_domains=2<=2, S_dev_density=0.0<=0.10); decision itself is the §5.1 --tier 1 hard override
+hard_override: "--tier 1"
+coverage_degraded: null
+surface_unreached: null
+confidence_calibrated: 0.91
+S_scope: 2
+S_domains: 2
+S_dev_density: 0.0
+regression_candidate_count: 0   # RK-1 is a static [INFERRED] risk, not a classified Regression candidate
+composite_score: 1.0
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1          # unverified test execution / import resolution
+escalation_reason: "Pinned to Tier 1 by --tier 1; rubric rule 2 independently agrees (STOP at T1, no WARN since S_dev_density<=0.05)."
+t2_model_class_diversity: full
+t2_vendor_diversity: single

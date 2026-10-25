@@ -1,0 +1,83 @@
+{
+  "status": "FAIL",
+  "units": [
+    {
+      "unit": "foundation-migration",
+      "exists": true,
+      "bytes": 22893,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "installer-packaging",
+      "exists": true,
+      "bytes": 35783,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "quality-ci",
+      "exists": true,
+      "bytes": 31131,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "docs-memory-releases",
+      "exists": true,
+      "bytes": 37270,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "commands-framework",
+      "exists": true,
+      "bytes": 26654,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "mcp-installation",
+      "exists": true,
+      "bytes": 32271,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "sync-protection",
+      "exists": true,
+      "bytes": 19517,
+      "missing_commit_ids": [],
+      "placeholders": []
+    },
+    {
+      "unit": "automated-sync-copies",
+      "exists": true,
+      "bytes": 34041,
+      "missing_commit_ids": [],
+      "placeholders": []
+    }
+  ],
+  "unique_records": 54,
+  "strict_check_records": 54,
+  "head_unchanged": true,
+  "tracked_checkout_unchanged": true,
+  "outside_status_unchanged": false,
+  "outside_status_additions": [
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/availability.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/compute_coverage.py",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/coverage-extraction.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/coverage-matrix.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/grounding.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/input-snapshot.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/t1-calibration.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/artifacts/tier_decision.yaml",
+    "?? .dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022/t1-card.yaml",
+    "?? .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/return-contract.yaml"
+  ],
+  "outside_status_removals": [],
+  "outside_delta_authorship": "UNVERIFIED; status cannot identify the writer; no outside path was modified or removed by this checker",
+  "errors": [
+    "Outside-scope status changed since baseline"
+  ]
+}

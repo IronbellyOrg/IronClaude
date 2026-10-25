@@ -1,0 +1,16 @@
+{
+  "mode": "diff",
+  "base": "origin/master",
+  "head": "HEAD",
+  "depth": "standard",
+  "focus": "all",
+  "revagent": "default",
+  "files": [
+    ".github/workflows/README.md",
+    ".github/workflows/pull-sync-framework.yml",
+    ".github/workflows/test.yml",
+    "docs/.framework-sync-commit",
+    "scripts/sync_from_framework.py"
+  ],
+  "diff_lines": 1142
+}

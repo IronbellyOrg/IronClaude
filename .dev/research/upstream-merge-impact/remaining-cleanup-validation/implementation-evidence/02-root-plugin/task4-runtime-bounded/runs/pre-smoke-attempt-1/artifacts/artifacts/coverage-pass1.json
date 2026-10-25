@@ -1,0 +1,37 @@
+{
+  "total_tasks": 3,
+  "tasks": {
+    "T-101": 3,
+    "T-102": 6,
+    "T-103": 9
+  },
+  "matrix": [
+    {
+      "requirement_id": "R-001",
+      "spec_line": 5,
+      "source": "parsed",
+      "matched_task_ids": [
+        "T-101"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-002",
+      "spec_line": 8,
+      "source": "parsed",
+      "matched_task_ids": [
+        "T-102"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-003",
+      "spec_line": 11,
+      "source": "parsed",
+      "matched_task_ids": [
+        "T-103"
+      ],
+      "match_method": "exact"
+    }
+  ]
+}

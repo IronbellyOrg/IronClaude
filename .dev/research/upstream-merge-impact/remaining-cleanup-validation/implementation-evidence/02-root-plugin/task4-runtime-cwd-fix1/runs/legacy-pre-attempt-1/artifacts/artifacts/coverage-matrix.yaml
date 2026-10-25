@@ -1,0 +1,35 @@
+# Wave 1B coverage matrix — produced by Task(sc:sc-requirements-analyst), requested slot: sonnet
+# Persisted verbatim-in-substance by the orchestrator; orchestrator independently confirmed Pass-1 IDs and exact matches.
+producer: {agent: sc:sc-requirements-analyst, requested_model_slot: sonnet, agent_id: adcde53c7f78c2522, actual_provider_model: "claude-sonnet-5-5[1m] (resolved from ANTHROPIC_DEFAULT_SONNET_MODEL; agent did not self-report a model id)"}
+spec: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md
+tasklist: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/proposed.md
+fuzzy_ids: false
+parsed_requirements:
+  - {id: R-001, heading_line: 5, span_lines: "5-7", quote_line: 6, quote: "The greet function MUST return the exact string Hello, Ada! for Ada."}
+  - {id: R-002, heading_line: 8, span_lines: "8-10", quote_line: 9, quote: "The greet function MUST reject an empty name with ValueError."}
+  - {id: R-003, heading_line: 11, span_lines: "11-12", quote_line: 12, quote: "Tests MUST exercise the ordinary greeting and empty-input rejection."}
+inferred_requirements: []
+pass2_dropped_candidates:
+  - {quote_line: 6, reason: "inside R-001 span; parsed wins"}
+  - {quote_line: 9, reason: "inside R-002 span; parsed wins"}
+  - {quote_line: 12, reason: "inside R-003 span; parsed wins"}
+tasks:
+  - {id: T-101, heading_line: 3, refs: [R-001], text_line: 4, text: "Implement greet(name) returning the required greeting."}
+  - {id: T-102, heading_line: 6, refs: [R-002], text_line: 7, text: "Reject an empty name using ValueError."}
+  - {id: T-103, heading_line: 9, refs: [R-003], text_line: 10, text: "Add ordinary and empty-name test cases."}
+coverage_matrix:
+  - {requirement_id: R-001, matched_task_ids: [T-101], match_method: exact, source: parsed, substance_fidelity: partial-wording, fidelity_note: "T-101 (proposed.md:4) says 'the required greeting' but omits the literal 'Hello, Ada!' / Ada input pinned at spec.md:6"}
+  - {requirement_id: R-002, matched_task_ids: [T-102], match_method: exact, source: parsed, substance_fidelity: full, fidelity_note: "T-102 (proposed.md:7) carries empty-name rejection and ValueError"}
+  - {requirement_id: R-003, matched_task_ids: [T-103], match_method: exact, source: parsed, substance_fidelity: full, fidelity_note: "T-103 (proposed.md:10) names both cases; does not state the empty-name test asserts ValueError nor pin the expected greeting value"}
+summary:
+  parsed_count: 3
+  inferred_count: 0
+  coverage_pct: 1.0
+  coverage_pct_union: 1.0
+  unmapped_requirements: []
+  unmapped_requirements_union: []
+  coverage_degraded: null
+  coverage_undefined: false
+  total_tasks: 3
+  S_dev_density: 0.0
+  missing_implementations_count: 0   # find_implementations unavailable (Serena absent); contributes 0

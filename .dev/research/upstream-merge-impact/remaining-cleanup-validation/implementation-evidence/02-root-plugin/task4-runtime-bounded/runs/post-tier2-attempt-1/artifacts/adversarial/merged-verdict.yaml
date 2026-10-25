@@ -1,0 +1,20 @@
+# Reflect Wave 4 merged verdict, rendered from the actual sc:sc-adversarial-protocol result.
+merge_method: adversarial
+adversarial_artifacts_dir: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial"   # remapped from producer field artifacts_dir
+merged_output_path: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/adversarial/merged-reviewer-card.md"
+merged_output_verified_on_disk: true
+merged_output_sha256: "53bb59a08b8b0acee916a92b5c54a7f42d5c55e3bcd514aef762ee4bd7b84b8c"
+adversarial_status: partial
+adversarial_convergence_score: 0.947
+convergence_status: BLOCKED_BY_INVARIANTS
+unaddressed_invariants: [INV-004]
+reviewer_cards: ["/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-cards/reviewer-1-card.md", "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/artifacts/reviewer-cards/reviewer-2-card.md"]
+reviewer_card_calibrations: {reviewer-1: 0.92, reviewer-2: 0.91}
+verdict:
+  deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+  drift_scope_qualifier: "within changes.patch:1-9 only (GG-3)"
+  regression_present: false            # not observed; verification_skip_reason tool-unavailable
+  requirements: {R-001: adherent-static, R-002: adherent-static, R-003: open-grounding-gap}
+  grounding_gaps: [GG-1 T-103 provenance, GG-2 R-003 execution, GG-3 scope boundary]
+  needs_human_decision: true
+  status_implied: partial

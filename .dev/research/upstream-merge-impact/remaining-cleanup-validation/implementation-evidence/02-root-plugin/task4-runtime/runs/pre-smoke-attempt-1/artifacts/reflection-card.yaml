@@ -1,0 +1,177 @@
+# Wave 1C Tier-1 reflection card. Persisted by orchestrator from the returned text of
+# sc:sc-root-cause-analyst (model slot: sonnet). Prose condensed by orchestrator; no claims, citations, severities or recs added or removed; shorthand file aliases resolved below.
+# Calibration results are recorded separately in calibration/t1-calibration.md (Wave 1D).
+producer: sc:sc-root-cause-analyst
+producer_model_slot: sonnet
+file_aliases:
+  B: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime
+  SPEC: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md
+  PROPOSED: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/proposed.md
+  MATRIX: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/pre-smoke-attempt-1/artifacts/artifacts/coverage-matrix.yaml
+  RUBRIC: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/plugin/skills/sc-reflect-protocol/refs/reflection-rubric.md
+
+card_id: T1-card
+mode: pre
+tier: 1
+
+verdict_summary: >
+  The plan maps every spec requirement to exactly one task, and all three rows are
+  confirmed. It is fit to execute only as a skeleton. Each task restates its
+  requirement without adding specificity. The "empty" and non-Ada gaps from the
+  spec carry through unchanged, the test assertions are unnamed, and no file or
+  verification targets exist. These are specificity gaps, not coverage gaps.
+  Resolve them before an executor starts (P0 and P1 below).
+
+coverage_assessment:
+  method: >
+    Read the spec and the proposed tasklist directly and checked each matrix row
+    against them. Linkage is by explicit R-ID in the task heading, so the
+    match_method "exact" claim holds for ID linkage. It does not hold for semantic
+    completeness, which is covered under gaps.
+  rows:
+    - requirement_id: R-001
+      task_id: T-101
+      verdict: confirmed
+      reasoning: "T-101 heading carries R-001; body targets the greeting but does not restate the exact string (G-01)."
+      citations:
+        - {file: SPEC, line: 5, quote: "## R-001 Greeting"}
+        - {file: SPEC, line: 6, quote: "The greet function MUST return the exact string Hello, Ada! for Ada."}
+        - {file: PROPOSED, line: 3, quote: "## T-101 R-001"}
+        - {file: PROPOSED, line: 4, quote: "Implement greet(name) returning the required greeting."}
+        - {file: MATRIX, line: 11, quote: "{requirement_id: R-001, source: parsed, span: \"spec.md:5-7\", matched_task_ids: [T-101], match_method: exact}"}
+      matrix_check: "Span 5-7 consistent; line 7 blank before R-002 heading at line 8."
+    - requirement_id: R-002
+      task_id: T-102
+      verdict: confirmed
+      reasoning: "T-102 references R-002 and names ValueError; does not define 'empty' (G-02)."
+      citations:
+        - {file: SPEC, line: 8, quote: "## R-002 Empty input"}
+        - {file: SPEC, line: 9, quote: "The greet function MUST reject an empty name with ValueError."}
+        - {file: PROPOSED, line: 6, quote: "## T-102 R-002"}
+        - {file: PROPOSED, line: 7, quote: "Reject an empty name using ValueError."}
+        - {file: MATRIX, line: 12, quote: "{requirement_id: R-002, source: parsed, span: \"spec.md:8-10\", matched_task_ids: [T-102], match_method: exact}"}
+      matrix_check: "Span 8-10 consistent; line 10 blank before R-003 heading at line 11."
+    - requirement_id: R-003
+      task_id: T-103
+      verdict: confirmed
+      reasoning: "T-103 references R-003 and names both scenarios; assertion content unspecified (G-03)."
+      citations:
+        - {file: SPEC, line: 11, quote: "## R-003 Evidence"}
+        - {file: SPEC, line: 12, quote: "Tests MUST exercise the ordinary greeting and empty-input rejection."}
+        - {file: PROPOSED, line: 9, quote: "## T-103 R-003"}
+        - {file: PROPOSED, line: 10, quote: "Add ordinary and empty-name test cases."}
+        - {file: MATRIX, line: 13, quote: "{requirement_id: R-003, source: parsed, span: \"spec.md:11-12\", matched_task_ids: [T-103], match_method: exact}"}
+      matrix_check: "Span 11-12 consistent; file ends at line 12."
+  matrix_summary_check:
+    parsed_requirements_in_spec: 3
+    tasks_in_proposed: 3
+    coverage_pct_confirmed: 1.0
+    unmapped_requirements: []
+    citations:
+      - {file: MATRIX, line: 18, quote: "coverage_pct: 1.0"}
+      - {file: MATRIX, line: 20, quote: "unmapped_requirements: []"}
+      - {file: MATRIX, line: 24, quote: "S_dev_density: 0.0"}
+    matrix_drop_claim_check: "Inferred candidates at spec.md:6, :9, :12 correctly dropped as body lines of R-001..R-003."
+  matrix_unverified_fields:
+    - "[INFERRED] best_practice_grade 3 in the matrix has no rubric/citation in the matrix itself; not confirmable from allowed files."
+    - "[INFERRED] S_domains 2 ('code + tests (planned)') cannot be derived from file paths because the tasklist names none; reasonable guess, not verified."
+
+deviation_classes_applicable: false
+deviation_reason: >
+  UC-1 pre-execution audit: no executed work, so no Authorized/Necessary/Drift/Regression
+  deviations. Plan gaps are recorded as coverage or specificity gaps, which are not
+  deviation classes. The deviation-classification dimension is not exercised.
+deviation_reason_citations:
+  - {file: RUBRIC, line: 28, quote: "every diff hunk for UC-2; every tasklist item / spec requirement for UC-1"}
+  - {file: RUBRIC, line: 39, quote: "classified unambiguously as one of `{Authorized, Necessary, Drift, Regression}`"}
+
+risks:
+  - id: RK-01
+    severity: HIGH
+    title: "'empty' is undefined, so R-002 is untestable at the edges"
+    description: "Spec says 'an empty name' without defining empty ('', whitespace-only, None); task repeats the term; executors could diverge and both claim compliance; T-103 tests would encode whichever interpretation was picked."
+    citations:
+      - {file: SPEC, line: 9, quote: "The greet function MUST reject an empty name with ValueError."}
+      - {file: PROPOSED, line: 7, quote: "Reject an empty name using ValueError."}
+      - {file: PROPOSED, line: 10, quote: "Add ordinary and empty-name test cases."}
+    inferred: false
+  - id: RK-02
+    severity: HIGH
+    title: "Greeting format beyond Ada is unspecified; a hardcoded stub would pass"
+    description: "Spec pins output only for Ada; T-101 says 'the required greeting' without the exact string or a template for other names."
+    citations:
+      - {file: SPEC, line: 6, quote: "The greet function MUST return the exact string Hello, Ada! for Ada."}
+      - {file: PROPOSED, line: 4, quote: "Implement greet(name) returning the required greeting."}
+    inferred: false
+    note: "[INFERRED] the constant-stub risk is inferred from the spec wording; quoted lines show only the Ada-only pin."
+  - id: RK-03
+    severity: MEDIUM
+    title: "Weak or unspecified test assertions in T-103"
+    description: "T-103 asks only for 'ordinary and empty-name test cases' without asserting 'Hello, Ada!' or ValueError; the spec verb 'exercise' is weaker than 'assert'."
+    citations:
+      - {file: SPEC, line: 12, quote: "Tests MUST exercise the ordinary greeting and empty-input rejection."}
+      - {file: PROPOSED, line: 10, quote: "Add ordinary and empty-name test cases."}
+    inferred: false
+  - id: RK-04
+    severity: MEDIUM
+    title: "No file targets and no verification command"
+    description: "No task names a module, test file, runner, or done-when condition."
+    citations:
+      - {file: PROPOSED, line: 4, quote: "Implement greet(name) returning the required greeting."}
+      - {file: PROPOSED, line: 7, quote: "Reject an empty name using ValueError."}
+      - {file: PROPOSED, line: 10, quote: "Add ordinary and empty-name test cases."}
+    inferred: true
+    note: "[INFERRED] absence finding across the whole plan."
+  - id: RK-05
+    severity: LOW
+    title: "No task ordering or dependency between implementation and tests"
+    citations:
+      - {file: PROPOSED, line: 9, quote: "## T-103 R-003"}
+    inferred: true
+  - id: RK-06
+    severity: LOW
+    title: "Spec self-labels as synthetic; no non-functional requirements"
+    citations:
+      - {file: SPEC, line: 3, quote: "This fixture is synthetic audit input, not shipped product code."}
+    inferred: false
+
+gaps:
+  - {id: G-01, kind: specificity, inferred: false, claim: "T-101 does not restate the exact string 'Hello, Ada!'.", citations: [{file: SPEC, line: 6}, {file: PROPOSED, line: 4}]}
+  - {id: G-02, kind: specificity, inferred: false, claim: "'empty' undefined in spec and plan.", citations: [{file: SPEC, line: 9}, {file: PROPOSED, line: 7}]}
+  - {id: G-03, kind: specificity, inferred: false, claim: "T-103 does not name its assertions.", citations: [{file: SPEC, line: 12}, {file: PROPOSED, line: 10}]}
+  - {id: G-04, kind: specificity, inferred: true, claim: "[INFERRED] No file target, runner command, or done-when criterion.", citations: [{file: PROPOSED, line: 4}, {file: PROPOSED, line: 10}]}
+  - {id: G-05, kind: specificity, inferred: true, claim: "[INFERRED] Behaviour for names other than Ada unspecified.", citations: [{file: SPEC, line: 6}]}
+  - {id: G-06, kind: specificity, inferred: true, claim: "[INFERRED] No inter-task dependency stated.", citations: [{file: PROPOSED, line: 9}]}
+  - {id: G-07, kind: coverage, inferred: false, claim: "None found: 3/3 mapped, no orphan tasks.", citations: [{file: PROPOSED, line: 3}, {file: PROPOSED, line: 6}, {file: PROPOSED, line: 9}, {file: MATRIX, line: 20}]}
+
+recommendations:
+  - {id: REC-01, priority: P0, file: "PROPOSED (T-102; SPEC line 9 if spec owner agrees)", change: "Define 'empty' explicitly: state outcomes for '', whitespace-only, and None.", verifier: "Revised T-102 states an outcome for each of '', '   ', None; T-103 has one case per outcome.", addresses: [RK-01, G-02]}
+  - {id: REC-02, priority: P0, file: "PROPOSED (T-101)", change: "Restate greet(\"Ada\") == \"Hello, Ada!\" and state whether other names follow 'Hello, {name}!'.", verifier: "Exact string and other-name behaviour appear in revised T-101.", addresses: [RK-02, G-01, G-05]}
+  - {id: REC-03, priority: P1, file: "PROPOSED (T-103)", change: "Name assertions: equality to 'Hello, Ada!'; pytest.raises(ValueError) per REC-01 input; forbid bare except Exception.", verifier: "Revised T-103 names assertions; after execution tests fail against a constant stub.", addresses: [RK-03, G-03]}
+  - {id: REC-04, priority: P1, file: "PROPOSED (all tasks)", change: "Add target file paths, a runner command, and a done-when line per task.", verifier: "Every task lists a path and a command that exits 0 when done.", addresses: [RK-04, G-04]}
+  - {id: REC-05, priority: P2, file: "PROPOSED", change: "State order T-101 -> T-102 -> T-103 or add depends-on lines.", verifier: "T-103 lists T-101 and T-102 as dependencies.", addresses: [RK-05, G-06]}
+  - {id: REC-06, priority: P2, file: "SPEC (R-003)", change: "Consider 'exercise' -> 'assert' (spec-owner decision).", verifier: "Revised R-003 wording.", addresses: [RK-03]}
+
+citations_index:
+  - {file: SPEC, line: 3}
+  - {file: SPEC, line: 5}
+  - {file: SPEC, line: 6}
+  - {file: SPEC, line: 8}
+  - {file: SPEC, line: 9}
+  - {file: SPEC, line: 11}
+  - {file: SPEC, line: 12}
+  - {file: PROPOSED, line: 3}
+  - {file: PROPOSED, line: 4}
+  - {file: PROPOSED, line: 6}
+  - {file: PROPOSED, line: 7}
+  - {file: PROPOSED, line: 9}
+  - {file: PROPOSED, line: 10}
+  - {file: MATRIX, line: 9}
+  - {file: MATRIX, line: 11}
+  - {file: MATRIX, line: 12}
+  - {file: MATRIX, line: 13}
+  - {file: MATRIX, line: 18}
+  - {file: MATRIX, line: 20}
+  - {file: MATRIX, line: 24}
+  - {file: RUBRIC, line: 28}
+  - {file: RUBRIC, line: 39}

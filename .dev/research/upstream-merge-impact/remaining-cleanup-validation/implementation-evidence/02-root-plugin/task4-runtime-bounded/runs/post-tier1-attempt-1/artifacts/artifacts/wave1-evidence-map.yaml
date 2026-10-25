@@ -1,0 +1,58 @@
+# Wave 1A/1B orchestrator evidence map (UC-2). Native Read/Grep fallback; serena/auggie not exposed.
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project
+git_state: "git init only; no commits, empty index; every file untracked (git status --porcelain)"
+diff_source: changes.patch (file evidence, not applied)
+diff_files: [src/greeting.py]
+hunks:
+  - id: H1
+    ref: changes.patch:5-9 -> src/greeting.py:1-4 (new file)
+    working_tree_matches_hunk: true   # src/greeting.py:1-4 byte-identical to added lines changes.patch:6-9
+    mapped_tasks: [T-101, T-102]
+total_hunks: 1
+unmapped_hunks: 0
+task_map:
+  - task: T-101   # completed.md:6
+    spec: R-001   # spec.md:5-6
+    evidence: "src/greeting.py:4 return f\"Hello, {name}!\" -> 'Hello, Ada!' for 'Ada'"
+    verified_in_diff: true
+  - task: T-102   # completed.md:7
+    spec: R-002   # spec.md:8-9
+    evidence: "src/greeting.py:2-3 if not name: raise ValueError(\"name required\")"
+    verified_in_diff: true
+  - task: T-103   # completed.md:8
+    spec: R-003   # spec.md:11-12
+    evidence: "NOT in changes.patch. tests/test_greeting.py:4-13 exists in working tree (untracked, outside --scope src) with test_ordinary and test_empty"
+    verified_in_diff: false
+    on_disk_candidate: tests/test_greeting.py:4-13
+spec_requirements: [R-001, R-002, R-003]
+frontmatter: { present: true, status: done, ref: completed.md:1-3 }
+structural_signals:
+  S_scope: 1
+  S_domains: 1          # code (tests not in diff)
+  S_dev_density: 0.0    # 0 unmapped / 1 hunk
+referrers_grep:
+  greet:
+    production: []
+    test: [tests/test_greeting.py:1, tests/test_greeting.py:5, tests/test_greeting.py:10]
+runtime_surface:
+  tagger: "greet is an undecorated module-level function; no entrypoint/route/CLI/registry kind per refs/runtime-surface.md allowlist -> non-surface"
+  runtime_surface_requirements: []
+  runtime_surface_sweep_ran: false
+reachability_gate:
+  reachability_gate_ran: false
+  reachability_skip_reason: no-side-effect-requirements   # R-001..R-003 are pure return/raise/test requirements; no durable sink
+verification_triangle:
+  verification_ran: false
+  verification_skip_reason: tool-unavailable   # serena execute_shell_command not exposed; orchestrator did NOT run pytest via Bash (would write caches into the read-only audit root)
+interaction_effects:
+  scanned: true
+  method: grep-fallback (serena find_symbol/find_referencing_symbols unavailable; degraded)
+  findings:
+    - category: cross_task
+      symbol: greet (src/greeting.py:1)
+      tasks: [T-101, T-102]
+      cites_each_other: false
+      referencing_call_sites: 2   # tests/test_greeting.py:5,10 (test-only)
+      severity: MEDIUM
+      note: "Both tasks edit the same 4-line function; shared symbol by construction, not a name collision. Advisory invariant probe only."
+not_supplied_inputs_observed: [execution.log, proposed.md]   # present in repo but not supplied via --task-log/--tasklist; not used as evidence

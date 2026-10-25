@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/adversarial/merged-verdict.yaml
+  convergence_score: 1.0
+  artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/adversarial/
+  status: success
+  base_variant: "sonnet:analyzer (reviewer-1)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # 0 HIGH; 6 MEDIUM warnings: INV-001, INV-002, INV-004, INV-007, INV-013, INV-014

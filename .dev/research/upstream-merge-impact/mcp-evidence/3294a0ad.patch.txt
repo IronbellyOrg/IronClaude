@@ -1,0 +1,829 @@
+commit 3294a0ad941f299e8c997bbe88a718694e173a8f
+Author:     kazuki nakai <48890992+kazukinakai@users.noreply.github.com>
+AuthorDate: Sat Jan 10 21:45:12 2026 +0900
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Jan 10 18:15:12 2026 +0530
+
+    feat(mcp): add AIRIS MCP Gateway as default installation option (#509)
+    
+    * docs: add AIRIS MCP Gateway as unified installation option
+    
+    Adds airis-mcp-gateway as an alternative MCP setup method that provides:
+    - Single SSE endpoint for all MCP servers
+    - HOT/COLD server management for token optimization
+    - Lazy loading (servers start on-demand)
+    - Unified tool discovery
+    - Web UI for management
+    
+    This addresses the complexity of managing multiple MCP servers and
+    provides token-efficient operation through selective tool advertising.
+    
+    Repository: github.com/agiletec-inc/airis-mcp-gateway
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix(docs): update AIRIS MCP Gateway installation instructions
+    
+    - Replace outdated docker-compose.dist.yml method with quick-install.sh
+    - Fix Claude Code registration command: use --transport sse instead of npx mcp-remote
+    - Update feature list: 27+ tools, 75-90% token reduction, 120s idle timeout
+    - Add verification commands (health check, tools count)
+    - Update HOT/COLD server examples with actual server names
+    - Add AIRIS Suite reference (airis-agent, mindbase, airis-workspace)
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix(mcp): update airis configs to recommend airis-mcp-gateway
+    
+    - Update mcp-servers.md: remove quick-install.sh, use git clone + docker compose
+    - Update MCP_Airis-Agent.md: recommend gateway, list current tools
+    - Update MCP_Mindbase.md: recommend gateway, list current tools
+    - Add deprecation notice to airis-agent.json and mindbase.json configs
+    - Change airis-agent config from Docker to uvx
+    
+    All airis components (airis-agent, mindbase) are now included in airis-mcp-gateway.
+    Individual installation is deprecated in favor of the unified gateway.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * feat(mcp): add AIRIS MCP Gateway as default installation option
+    
+    - Add AIRIS_GATEWAY config with endpoint and docker-compose URL
+    - Add check_docker_available() for Docker prerequisite check
+    - Add install_airis_gateway() for automated gateway installation
+      - Downloads docker-compose.dist.yml
+      - Starts containers with docker compose
+      - Registers SSE endpoint with Claude Code
+    - Update interactive selection to recommend gateway first (default: 'g')
+    - Update list_available_servers() to show gateway prominently
+    - Keep individual servers as legacy fallback option
+    
+    Usage:
+      superclaude mcp                              # Interactive (gateway default)
+      superclaude mcp --servers airis-mcp-gateway  # Direct install
+      superclaude mcp --servers tavily             # Individual server
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * docs(claude): update CLAUDE.md with MCP gateway and cleanup
+    
+    - Fix version: 0.4.0 → 4.1.9
+    - Add MCP server commands to Essential Commands section
+    - Update MCP section to recommend airis-mcp-gateway as default
+    - Consolidate v5.0 plugin warnings (3 locations → 1)
+    - Remove unused plugins/superclaude/ structure from docs
+    - Reduce file size: 312 → 284 lines
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * docs: add capability-mapping-v5 design document
+    
+    7-verb capability model to reduce cognitive load:
+    - search, summarize, retrieve, plan, edit, execute, record
+    - Collapses 30 commands into 7 canonical capabilities
+    - Intent-based routing via airis-mcp-gateway
+    - Migration path: v4 commands → v5 capabilities
+    
+    Addresses #501 (too many slash commands)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * style: fix ruff formatting in install_mcp.py
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix(mcp): install gateway to ~/.superclaude/ instead of cwd
+    
+    Avoids polluting the host by:
+    - Installing to ~/.superclaude/airis-mcp-gateway/
+    - Using --project-directory for docker compose
+    - Showing installation path in output
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: kazuki <kazuki@kazukinoMacBook-Air.local>
+    Co-authored-by: Claude Opus 4.5 <noreply@anthropic.com>
+
+diff --git a/CLAUDE.md b/CLAUDE.md
+index f26021fe..e9446b74 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -18,9 +18,6 @@ uv run python script.py          # Execute scripts
+ 
+ ## 📂 Project Structure
+ 
+-> **⚠️ IMPORTANT**: The `.claude-plugin/` directory and TypeScript plugin system described in older docs **DO NOT EXIST** in v4.1.9.
+-> This is planned for v5.0 (see [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)).
+-
+ **Current v4.1.9 Architecture**: Python package with slash commands
+ 
+ ```
+@@ -39,14 +36,6 @@ src/superclaude/         # Pytest plugin + CLI tools
+ ├── execution/           # parallel.py, reflection.py, self_correction.py
+ └── cli/                 # main.py, doctor.py, install_skill.py
+ 
+-# Plugin Development (planned for v5.0 - see docs/plugin-reorg.md)
+-plugins/superclaude/     # Future plugin source (NOT ACTIVE)
+-├── agents/              # Agent definitions
+-├── commands/            # Command definitions
+-├── hooks/               # Hook configurations
+-├── scripts/             # Shell scripts
+-└── skills/              # Skill implementations
+-
+ # Project Files
+ tests/                   # Python test suite
+ docs/                    # Documentation
+@@ -77,6 +66,12 @@ make lint             # Run ruff linter
+ make format           # Format code with ruff
+ make doctor           # Health check diagnostics
+ 
++# MCP Servers
++superclaude mcp                              # Interactive install (gateway default)
++superclaude mcp --list                       # List available servers
++superclaude mcp --servers airis-mcp-gateway  # Install AIRIS Gateway (recommended)
++superclaude mcp --servers tavily context7    # Install individual servers
++
+ # Plugin Packaging
+ make build-plugin            # Build plugin artefacts into dist/
+ make sync-plugin-repo        # Sync artefacts into ../SuperClaude_Plugin
+@@ -120,21 +115,13 @@ Registered via `pyproject.toml` entry point, automatically available after insta
+ - Automatic dependency analysis
+ - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
+ 
+-### TypeScript Plugins (Planned for v5.0)
++### Slash Commands (v4.1.9)
+ 
+-> **⚠️ NOT IMPLEMENTED**: The TypeScript plugin system described below does not exist in v4.1.9.
+-> This is planned for v5.0. See [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419) and `docs/plugin-reorg.md`.
+-
+-**Current v4.1.9 Commands** (slash commands, not plugins):
+ - Install via: `pipx install superclaude && superclaude install`
+ - Commands installed to: `~/.claude/commands/`
+-- Available commands: `/pm`, `/research`, `/index-repo` (and others)
++- Available: `/pm`, `/research`, `/index-repo`, and 27 others
+ 
+-**Planned Plugin Architecture** (v5.0 - NOT YET AVAILABLE):
+-- Plugin source will live under `plugins/superclaude/`
+-- `make build-plugin` will render `.claude-plugin/*` manifests
+-- Project-local detection via `.claude-plugin/plugin.json`
+-- Marketplace distribution support
++> **Note**: TypeScript plugin system planned for v5.0 ([#419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419))
+ 
+ ## 🧪 Testing with PM Agent
+ 
+@@ -233,9 +220,15 @@ Use **Wave → Checkpoint → Wave** pattern (3.5x faster). Example: `[Read file
+ 
+ ## 🔧 MCP Server Integration
+ 
+-Integrates with multiple MCP servers via **airis-mcp-gateway**.
++**Recommended**: Use **airis-mcp-gateway** for unified MCP management.
+ 
+-**High Priority**:
++```bash
++superclaude mcp  # Interactive install, gateway is default (requires Docker)
++```
++
++**Gateway Benefits**: 60+ tools, 98% token reduction, single SSE endpoint, Web UI
++
++**High Priority Servers** (included in gateway):
+ - **Tavily**: Web search (Deep Research)
+ - **Context7**: Official documentation (prevent hallucination)
+ - **Sequential**: Token-efficient reasoning (30-50% reduction)
+@@ -274,30 +267,15 @@ make test
+ make verify
+ ```
+ 
+-### Plugin System (Planned for v5.0 - NOT AVAILABLE)
+-
+-> **⚠️ IMPORTANT**: The plugin system described in older documentation **does not exist** in v4.1.9.
+-> These features are planned for v5.0 (see [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)).
+-
+-**What Does NOT Work** (yet):
+-- ❌ `.claude-plugin/` directory auto-detection
+-- ❌ `/plugin marketplace add` commands
+-- ❌ `/plugin install superclaude`
+-- ❌ `make build-plugin` (planned but not functional)
+-- ❌ Project-local plugin detection
+-
+-**Future Plans** (v5.0):
+-- Plugin marketplace distribution
+-- TypeScript-based plugin architecture
+-- Auto-detection via `.claude-plugin/plugin.json`
+-- Build workflow via `make build-plugin`
++### Plugin System (v5.0 - Not Yet Available)
+ 
+-See `docs/plugin-reorg.md` and `docs/next-refactor-plan.md` for implementation plans.
++The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for v5.0.
++See `docs/plugin-reorg.md` for details.
+ 
+ ## 📊 Package Information
+ 
+ **Package name**: `superclaude`
+-**Version**: 0.4.0
++**Version**: 4.1.9
+ **Python**: >=3.10
+ **Build system**: hatchling (PEP 517)
+ 
+diff --git a/docs/capability-mapping-v5.md b/docs/capability-mapping-v5.md
+new file mode 100644
+index 00000000..53ac1524
+--- /dev/null
++++ b/docs/capability-mapping-v5.md
+@@ -0,0 +1,307 @@
++# SuperClaude v5: Capability-Driven Architecture
++
++## Executive Summary
++
++SuperClaude v4.x has 30 commands that create cognitive overhead ("command flood").
++v5 proposes collapsing these into **7 canonical capabilities** with intent-based routing.
++
++## The 7-Verb Capability Model
++
++| Capability | Description | Primary MCP Implementation |
++|------------|-------------|---------------------------|
++| **search** | Web/docs/code search | tavily, fetch, context7 |
++| **summarize** | Extract, analyze, compare | sequential-thinking |
++| **retrieve** | Knowledge base access | mindbase |
++| **plan** | Task decomposition, strategy | airis-agent |
++| **edit** | File editing, PR, fixes | serena |
++| **execute** | Scripts, workflows, builds | bash, docker |
++| **record** | Memory storage, observations | mindbase |
++
++## Current Command → Capability Mapping
++
++### Primary Search Commands (→ `search`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:research` | Deep web research | `search` + `summarize` |
++| `/sc:index-repo` | Codebase indexing | `search` + `record` |
++| `/sc:troubleshoot` | Debug/investigate | `search` + `summarize` |
++
++### Primary Summarize Commands (→ `summarize`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:analyze` | Code quality analysis | `summarize` |
++| `/sc:explain` | Code explanation | `summarize` |
++| `/sc:estimate` | Effort estimation | `summarize` |
++| `/sc:recommend` | Recommendations | `summarize` |
++| `/sc:business-panel` | Business analysis | `summarize` |
++
++### Primary Retrieve Commands (→ `retrieve`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:load` | Session loading | `retrieve` |
++| `/sc:index` | General index | `retrieve` |
++| `/sc:help` | Help/guidance | `retrieve` |
++| `/sc:select-tool` | Tool selection | `retrieve` |
++
++### Primary Plan Commands (→ `plan`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:brainstorm` | Requirements discovery | `plan` + `summarize` |
++| `/sc:design` | Architecture design | `plan` |
++| `/sc:spec-panel` | Specification | `plan` |
++| `/sc:workflow` | Workflow generation | `plan` + `execute` |
++
++### Primary Edit Commands (→ `edit`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:implement` | Feature implementation | `edit` + `execute` |
++| `/sc:improve` | Code improvement | `edit` |
++| `/sc:cleanup` | Code cleanup | `edit` |
++| `/sc:document` | Documentation | `edit` + `record` |
++
++### Primary Execute Commands (→ `execute`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:build` | Build/compile | `execute` |
++| `/sc:test` | Test execution | `execute` |
++| `/sc:git` | Git operations | `execute` |
++| `/sc:spawn` | Agent spawning | `execute` |
++| `/sc:task` | Task execution | `plan` + `execute` |
++
++### Primary Record Commands (→ `record`)
++| Command | Current Purpose | Capability Mapping |
++|---------|-----------------|-------------------|
++| `/sc:save` | Session persistence | `record` |
++| `/sc:reflect` | Task reflection | `record` + `summarize` |
++
++### Meta/Orchestration Commands
++| Command | Current Purpose | v5 Handling |
++|---------|-----------------|-------------|
++| `/sc:pm` | Project manager | **Absorbed into core** - PM Agent becomes default orchestration layer |
++| `/sc:agent` | Agent control | **Absorbed into core** - Multi-agent is automatic |
++| `/sc:sc` | Super command | **Deprecated** - Intent routing replaces explicit commands |
++
++## v5 Intent → Implementation Routing
++
++### Example: User says "Check if this code has security issues"
++
++**v4 (Command-driven):**
++```bash
++/sc:analyze src/ --focus security
++```
++
++**v5 (Capability-driven):**
++```
++User: "Check if this code has security issues"
++↓
++Intent Detection: security_analysis
++↓
++Capability: summarize
++↓
++Implementation: sequential-thinking + serena (code read)
++↓
++Output: Security analysis report
++```
++
++### Example: User says "Remember this pattern for next time"
++
++**v4 (Command-driven):**
++```bash
++/sc:save --type learnings
++```
++
++**v5 (Capability-driven):**
++```
++User: "Remember this pattern for next time"
++↓
++Intent Detection: store_knowledge
++↓
++Capability: record
++↓
++Implementation: mindbase.store_memory()
++↓
++Output: Pattern stored with semantic embedding
++```
++
++## gateway-config.yaml Schema (Proposed)
++
++```yaml
++# AIRIS MCP Gateway Configuration
++version: "1.0"
++capabilities:
++  search:
++    description: "Web/docs/code search"
++    implementations:
++      - name: tavily
++        priority: 1
++        conditions:
++          - intent: "web_search"
++          - intent: "current_events"
++      - name: context7
++        priority: 2
++        conditions:
++          - intent: "library_docs"
++          - intent: "api_reference"
++      - name: fetch
++        priority: 3
++        conditions:
++          - intent: "specific_url"
++          - intent: "http_request"
++    fallback: fetch
++
++  summarize:
++    description: "Extract, analyze, compare"
++    implementations:
++      - name: sequential-thinking
++        priority: 1
++        conditions:
++          - complexity: "high"
++          - multi_step: true
++      - name: native
++        priority: 2
++        conditions:
++          - complexity: "low"
++    fallback: native
++
++  retrieve:
++    description: "Knowledge base access"
++    implementations:
++      - name: mindbase
++        priority: 1
++        conditions:
++          - scope: "project"
++          - scope: "cross_session"
++      - name: memory
++        priority: 2
++        conditions:
++          - scope: "session_only"
++    fallback: memory
++
++  plan:
++    description: "Task decomposition and strategy"
++    implementations:
++      - name: airis-agent
++        priority: 1
++        conditions:
++          - complexity: "high"
++          - pdca: true
++      - name: sequential-thinking
++        priority: 2
++        conditions:
++          - complexity: "medium"
++    fallback: native
++
++  edit:
++    description: "File editing and refactoring"
++    implementations:
++      - name: serena
++        priority: 1
++        conditions:
++          - scope: "multi_file"
++          - refactoring: true
++      - name: native
++        priority: 2
++        conditions:
++          - scope: "single_file"
++    fallback: native
++
++  execute:
++    description: "Script and workflow execution"
++    implementations:
++      - name: bash
++        priority: 1
++        conditions:
++          - type: "shell_command"
++      - name: docker
++        priority: 2
++        conditions:
++          - type: "container"
++    fallback: bash
++
++  record:
++    description: "Memory storage and observations"
++    implementations:
++      - name: mindbase
++        priority: 1
++        conditions:
++          - persistence: "long_term"
++          - semantic: true
++      - name: memory
++        priority: 2
++        conditions:
++          - persistence: "session"
++    fallback: memory
++
++# Intent patterns for automatic routing
++intent_patterns:
++  web_search:
++    keywords: ["search", "find online", "latest", "current"]
++    capability: search
++    implementation_hint: tavily
++
++  library_docs:
++    keywords: ["docs", "documentation", "how to use", "api"]
++    capability: search
++    implementation_hint: context7
++
++  security_analysis:
++    keywords: ["security", "vulnerability", "owasp", "audit"]
++    capability: summarize
++    implementation_hint: sequential-thinking
++
++  code_explanation:
++    keywords: ["explain", "what does", "how does"]
++    capability: summarize
++
++  store_knowledge:
++    keywords: ["remember", "save", "store", "note"]
++    capability: record
++    implementation_hint: mindbase
++
++  task_planning:
++    keywords: ["plan", "break down", "steps", "how to implement"]
++    capability: plan
++    implementation_hint: airis-agent
++```
++
++## Migration Path: v4 → v5
++
++### Phase 1: Soft Deprecation
++- v4 commands continue to work
++- Commands route to capability layer internally
++- Warning: "Consider using natural language"
++
++### Phase 2: Capability Aliases
++- `/search "query"` as shorthand for search capability
++- `/plan "task"` as shorthand for plan capability
++- Natural language always works
++
++### Phase 3: Command Removal
++- v4 `/sc:*` commands deprecated
++- Only 7 capability verbs + natural language
++- Full intent-based routing
++
++## Implementation Priority
++
++1. **Core Framework**: Intent detection + capability routing
++2. **AIRIS Integration**: airis-agent as plan/execute implementation
++3. **Mindbase Integration**: retrieve/record implementation
++4. **MCP Gateway**: Hot/cold server management
++5. **Legacy Compatibility**: v4 command translation layer
++
++## Token Efficiency Comparison
++
++| Scenario | v4 Tokens | v5 Tokens | Savings |
++|----------|-----------|-----------|---------|
++| Security analysis | ~500 (command parsing) | ~100 (intent) | 80% |
++| Research task | ~800 (multi-command) | ~200 (single intent) | 75% |
++| Memory storage | ~300 (command + args) | ~50 (natural) | 83% |
++
++## Conclusion
++
++The 7-verb capability model:
++- Reduces cognitive load from 30 commands to 7 concepts
++- Enables natural language interaction
++- Allows vendor-neutral MCP implementation swapping
++- Provides cleaner Plugin ABI for extensions
++- Maintains backwards compatibility during transition
+diff --git a/src/superclaude/cli/install_mcp.py b/src/superclaude/cli/install_mcp.py
+index 4bea9732..cdccbd49 100644
+--- a/src/superclaude/cli/install_mcp.py
++++ b/src/superclaude/cli/install_mcp.py
+@@ -13,7 +13,17 @@ from typing import Dict, List, Optional, Tuple
+ 
+ import click
+ 
+-# MCP Server Registry
++# AIRIS MCP Gateway - Unified MCP solution (recommended)
++AIRIS_GATEWAY = {
++    "name": "airis-mcp-gateway",
++    "description": "Unified MCP gateway with 60+ tools, HOT/COLD management, 98% token reduction",
++    "transport": "sse",
++    "endpoint": "http://localhost:9400/sse",
++    "docker_compose_url": "https://raw.githubusercontent.com/agiletec-inc/airis-mcp-gateway/main/docker-compose.dist.yml",
++    "repository": "https://github.com/agiletec-inc/airis-mcp-gateway",
++}
++
++# Individual MCP Server Registry (legacy, for users who prefer individual servers)
+ # Adapted from commit d4a17fc with modern transport configuration
+ MCP_SERVERS = {
+     "sequential-thinking": {
+@@ -113,6 +123,151 @@ def _run_command(cmd: List[str], **kwargs) -> subprocess.CompletedProcess:
+         )
+ 
+ 
++def check_docker_available() -> bool:
++    """Check if Docker is available and running."""
++    try:
++        result = _run_command(
++            ["docker", "info"], capture_output=True, text=True, timeout=10
++        )
++        return result.returncode == 0
++    except (subprocess.TimeoutExpired, FileNotFoundError):
++        return False
++
++
++def install_airis_gateway(dry_run: bool = False) -> bool:
++    """
++    Install AIRIS MCP Gateway using Docker.
++
++    Installs to ~/.superclaude/airis-mcp-gateway/ to avoid polluting the host.
++
++    Returns:
++        True if successful, False otherwise
++    """
++    from pathlib import Path
++
++    click.echo("\n🚀 Installing AIRIS MCP Gateway (Recommended)")
++    click.echo(
++        "   This provides 60+ tools through a single endpoint with 98% token reduction.\n"
++    )
++
++    # Check Docker
++    if not check_docker_available():
++        click.echo("   ❌ Docker is required but not available.", err=True)
++        click.echo(
++            "   Please install Docker: https://docs.docker.com/get-docker/", err=True
++        )
++        return False
++
++    click.echo("   ✅ Docker is available")
++
++    # Create dedicated installation directory
++    install_dir = Path.home() / ".superclaude" / "airis-mcp-gateway"
++    compose_file = install_dir / "docker-compose.yml"
++
++    if dry_run:
++        click.echo(f"   [DRY RUN] Would create directory: {install_dir}")
++        click.echo("   [DRY RUN] Would download docker-compose.yml")
++        click.echo("   [DRY RUN] Would run: docker compose up -d")
++        click.echo("   [DRY RUN] Would register with Claude Code")
++        return True
++
++    # Create installation directory
++    install_dir.mkdir(parents=True, exist_ok=True)
++    click.echo(f"   📁 Installation directory: {install_dir}")
++
++    # Download docker-compose file
++    click.echo("   📥 Downloading docker-compose configuration...")
++    try:
++        result = _run_command(
++            [
++                "curl",
++                "-fsSL",
++                "-o",
++                str(compose_file),
++                AIRIS_GATEWAY["docker_compose_url"],
++            ],
++            capture_output=True,
++            text=True,
++            timeout=60,
++        )
++        if result.returncode != 0:
++            click.echo(
++                f"   ❌ Failed to download docker-compose file: {result.stderr}",
++                err=True,
++            )
++            return False
++    except Exception as e:
++        click.echo(f"   ❌ Error downloading: {e}", err=True)
++        return False
++
++    # Start the gateway from the installation directory
++    click.echo("   🐳 Starting AIRIS MCP Gateway containers...")
++    try:
++        result = _run_command(
++            [
++                "docker",
++                "compose",
++                "-f",
++                str(compose_file),
++                "--project-directory",
++                str(install_dir),
++                "up",
++                "-d",
++            ],
++            capture_output=True,
++            text=True,
++            timeout=300,
++        )
++        if result.returncode != 0:
++            click.echo(f"   ❌ Failed to start containers: {result.stderr}", err=True)
++            return False
++    except subprocess.TimeoutExpired:
++        click.echo("   ❌ Timeout starting containers", err=True)
++        return False
++
++    click.echo("   ✅ Gateway containers started")
++
++    # Register with Claude Code
++    click.echo("   📝 Registering with Claude Code...")
++    try:
++        cmd = [
++            "claude",
++            "mcp",
++            "add",
++            "--scope",
++            "user",
++            "--transport",
++            "sse",
++            AIRIS_GATEWAY["name"],
++            "--",
++            "npx",
++            "-y",
++            "mcp-remote",
++            AIRIS_GATEWAY["endpoint"],
++            "--allow-http",
++        ]
++        result = _run_command(cmd, capture_output=True, text=True, timeout=60)
++        if result.returncode != 0:
++            # May already be registered
++            if "already exists" in (result.stderr or "").lower():
++                click.echo("   ✅ Already registered with Claude Code")
++            else:
++                click.echo(f"   ⚠️  Registration warning: {result.stderr}", err=True)
++        else:
++            click.echo("   ✅ Registered with Claude Code")
++    except Exception as e:
++        click.echo(f"   ⚠️  Registration error: {e}", err=True)
++
++    click.echo("\n✅ AIRIS MCP Gateway installed successfully!")
++    click.echo(f"\n📁 Installed to: {install_dir}")
++    click.echo("\n📖 Next steps:")
++    click.echo("   • Health check: curl http://localhost:9400/health")
++    click.echo("   • Web UI: http://localhost:9400")
++    click.echo(f"   • Manage: cd {install_dir} && docker compose logs -f")
++    click.echo(f"   • Documentation: {AIRIS_GATEWAY['repository']}")
++    return True
++
++
+ def check_prerequisites() -> Tuple[bool, List[str]]:
+     """Check if required tools are available."""
+     errors = []
+@@ -296,6 +451,18 @@ def list_available_servers():
+     """List all available MCP servers."""
+     click.echo("📋 Available MCP Servers:\n")
+ 
++    # Show gateway option first
++    click.echo("   ┌─────────────────────────────────────────────────────────────┐")
++    click.echo("   │  🚀 AIRIS MCP Gateway (Recommended)                         │")
++    gateway_installed = check_mcp_server_installed("airis-mcp-gateway")
++    gateway_status = "✅ installed" if gateway_installed else "⬜ not installed"
++    click.echo(f"   │     Status: {gateway_status:40} │")
++    click.echo("   │     60+ tools, 98% token reduction, Web UI                  │")
++    click.echo("   │     Install: superclaude mcp --servers airis-mcp-gateway    │")
++    click.echo("   └─────────────────────────────────────────────────────────────┘")
++    click.echo()
++    click.echo("   Individual Servers (legacy):\n")
++
+     for server_key, server_info in MCP_SERVERS.items():
+         name = server_info["name"]
+         description = server_info["description"]
+@@ -312,13 +479,16 @@ def list_available_servers():
+         click.echo(f"      {description}{api_key_note}")
+         click.echo()
+ 
+-    click.echo(f"Total: {len(MCP_SERVERS)} servers available")
++    click.echo(
++        f"Total: {len(MCP_SERVERS)} individual servers + AIRIS Gateway available"
++    )
+ 
+ 
+ def install_mcp_servers(
+     selected_servers: Optional[List[str]] = None,
+     scope: str = "user",
+     dry_run: bool = False,
++    use_gateway: Optional[bool] = None,
+ ) -> Tuple[bool, str]:
+     """
+     Install MCP servers for Claude Code.
+@@ -327,6 +497,7 @@ def install_mcp_servers(
+         selected_servers: List of server names to install, or None for interactive selection
+         scope: Installation scope (local, project, user)
+         dry_run: If True, only show what would be done
++        use_gateway: If True, install AIRIS MCP Gateway. If None, prompt user.
+ 
+     Returns:
+         Tuple of (success, message)
+@@ -337,6 +508,12 @@ def install_mcp_servers(
+         error_msg = "Prerequisites not met:\n" + "\n".join(f"  ❌ {e}" for e in errors)
+         return False, error_msg
+ 
++    # Handle explicit gateway selection
++    if selected_servers and "airis-mcp-gateway" in selected_servers:
++        if install_airis_gateway(dry_run):
++            return True, "AIRIS MCP Gateway installed successfully!"
++        return False, "Failed to install AIRIS MCP Gateway"
++
+     # Determine which servers to install
+     if selected_servers:
+         # Use explicitly selected servers
+@@ -350,8 +527,18 @@ def install_mcp_servers(
+         if not servers_to_install:
+             return False, "No valid servers selected"
+     else:
+-        # Interactive selection
+-        click.echo("📋 Available MCP servers:\n")
++        # Interactive selection - offer gateway first
++        click.echo("\n🔌 SuperClaude MCP Server Installation\n")
++        click.echo("Choose your installation method:\n")
++        click.echo("   ┌─────────────────────────────────────────────────────────────┐")
++        click.echo("   │  🚀 AIRIS MCP Gateway (Recommended)                         │")
++        click.echo("   │     • 60+ tools through single endpoint                     │")
++        click.echo("   │     • 98% token reduction with HOT/COLD management          │")
++        click.echo("   │     • Web UI for server management                          │")
++        click.echo("   │     • Requires: Docker                                      │")
++        click.echo("   └─────────────────────────────────────────────────────────────┘")
++        click.echo()
++        click.echo("   Or install individual servers (legacy method):\n")
+ 
+         server_options = []
+         for key, info in MCP_SERVERS.items():
+@@ -365,15 +552,23 @@ def install_mcp_servers(
+         for i, option in enumerate(server_options, 1):
+             click.echo(f"   {i}. {option}")
+ 
+-        click.echo("\n   0. Install all servers")
++        click.echo()
++        click.echo("   ─────────────────────────────────────────────────────────────")
++        click.echo("   g. Install AIRIS MCP Gateway (recommended)")
++        click.echo("   0. Install all individual servers")
+         click.echo()
+ 
+         selection = click.prompt(
+-            "Select servers to install (comma-separated numbers, or 0 for all)",
+-            default="0",
++            "Select option (g for gateway, 0 for all, or comma-separated numbers)",
++            default="g",
+         )
+ 
+-        if selection.strip() == "0":
++        if selection.strip().lower() == "g":
++            # Install gateway
++            if install_airis_gateway(dry_run):
++                return True, "AIRIS MCP Gateway installed successfully!"
++            return False, "Failed to install AIRIS MCP Gateway"
++        elif selection.strip() == "0":
+             servers_to_install = list(MCP_SERVERS.keys())
+         else:
+             try:

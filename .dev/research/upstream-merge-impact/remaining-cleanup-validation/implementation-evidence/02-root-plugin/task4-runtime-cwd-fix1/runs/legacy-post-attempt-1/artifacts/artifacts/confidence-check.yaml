@@ -1,0 +1,5 @@
+# sc:confidence-check (lightweight form) before chat recommendations
+checks: {no_duplicates: pass, architecture: "pass-with-absence (no CLAUDE.md/pyproject in audited repo; ancestors deliberately not read)", official_docs: "not fetched (-0.10)", oss_reference: "n/a standard pytest invocation", root_cause: pass}
+score: 0.85
+band: present-with-alternatives
+unverified_tokens: ["pytest availability in the environment (not installed/executed by this audit)"]

@@ -1,0 +1,17 @@
+{
+  "kind": "independent-adversarial-written-plan-review",
+  "initial_verdict": "FAIL",
+  "initial_per_plan": {"01-legacy-uninstall.md": "PASS", "02-root-plugin.md": "FAIL", "03-memory-docs.md": "PASS", "04-gateway-claims.md": "PASS"},
+  "initial_findings": [
+    {"severity": "IMPORTANT", "finding": "Namespace-only constraints cannot reconcile two advertised but deliberately retired help entries while requiring all changed plugin references to resolve.", "source": "commands/sc-help.md:36,46", "outcome": "Plan revised to permit only those two exact help-row deletions; retired files stay absent."},
+    {"severity": "MINOR", "finding": "Final criterion incorrectly called all 26 command boundaries namespace-only although reflection behavior repair is required.", "outcome": "Final criterion now specifies 24 namespace-only files plus exact help-row exception plus selective reflection repair."}
+  ],
+  "product_files_changed_by_revision": [],
+  "rereview_verdict": "PASS",
+  "final_per_plan": {"01-legacy-uninstall.md": "PASS", "02-root-plugin.md": "PASS", "03-memory-docs.md": "PASS", "04-gateway-claims.md": "PASS"},
+  "final_scope": "Written-plan feasibility and preservation only, not implementation/runtime acceptance.",
+  "rereview_evidence": "Root plan lines 17,54,58 expressly permit exactly two retired-command help-row deletions; line 121 consistently distinguishes 24 namespace-only files, the bounded help exception and selective reflection repair. Both initial contradictions resolved.",
+  "rereview_self_audit": "Tried to falsify count/boundary, retirement preservation, ordering and future-proof claims. Naming/closure pinned before product edits; fixed 22 candidates delivered later; real isolated pre/post and both-tier/restricted-reviewer/merge proof remains mandatory. Missing mandatory dependencies stop for written scope revision. No remaining verified defect; other three plans retain PASS.",
+  "self_audit": "Initial reviewer checked exact 26/22 scope, protected assets/fallbacks/retirements, loader/closure sequencing, actual plugin-only proof, restricted reviewer/merge guards, eight-doc implementation/data contract, optional legacy retirement and automatic/manual gateway distinctions. No runtime proof demanded during planning.",
+  "executed": false
+}

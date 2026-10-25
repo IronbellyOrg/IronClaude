@@ -1,0 +1,15 @@
+selected_tier: 1
+fired_rule_number: null            # §5.1 hard override (--tier 1) — §5.3 table not consulted for the decision
+override: "--tier 1"
+shadow_rule_number: 2              # recording only: §5.3 would also STOP at T1 via rule 2 (C=0.86≥0.85, S_scope=2≤10, S_domains=2≤2, S_dev_density=0.0≤0.10)
+coverage_degraded: null
+surface_unreached: null
+confidence_calibrated: 0.86
+S_scope: 2                         # src/greeting.py, tests/test_greeting.py (task-log declared; no diff supplied)
+S_domains: 2                       # code, tests
+S_dev_density: 0.0                 # no unmapped work: greeting.py:4 is exercised by T-103's ordinary case; no hunk-level diff available (task-log mode)
+regression_candidate_count: 0
+composite_score: 1.5
+per_signal_breakdown: {scope_size: 0, task_count: 0.5, blast_radius: 0, spec_density: 1.0, ambiguity_signals: 0}
+escalation_reason: "--tier 1 explicit pin; no escalation. spec_density scored high because no spec/tasklist was supplied."
+t2_model_class_diversity: full     # 3 distinct aliases resolved (not exercised)

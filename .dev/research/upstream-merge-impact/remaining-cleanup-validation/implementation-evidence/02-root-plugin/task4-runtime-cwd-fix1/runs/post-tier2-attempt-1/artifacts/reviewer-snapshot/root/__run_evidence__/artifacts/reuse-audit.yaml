@@ -1,0 +1,27 @@
+# Persisted by orchestrator from sc:reuse-auditor (requested model slot: sonnet) — Wave 1A step 4a, stage=post
+stage: post
+candidates_scanned: 1
+neighbours_found: 0
+max_overlap: 0.0
+degraded: ["neighbour-search:auggie_unavailable"]
+degraded_reason: "Auggie and Serena MCP unavailable. Used native Glob/Grep/Read with the search limited to audit_repo_root and .git excluded. All findings are capped at advisory L2."
+sampled: false
+search_scope:
+  root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project
+  note: "The only Python source is src/greeting.py (the candidate itself). tests/test_greeting.py is a test caller, not prior art. Other files are non-code."
+findings:
+  - candidate: greet
+    file_line: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/src/greeting.py:1-4
+    capability_tag: "Format a greeting string from a name. Rejects an empty name with ValueError."
+    neighbours: []
+    C_cap: 0.0
+    C_shape: 0.0
+    C_aug: 0.0
+    S_reuse: 0.0
+    confidence: 0.9
+    tier: distinct
+    verdict: distinct
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0

@@ -1,0 +1,234 @@
+[
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project",
+      "/tmp/ironclaude-reflect-runtime-764r_aaf": "NO_GIT_ROOT"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "atis-latch",
+      "attachment",
+      "last-prompt",
+      "queue-operation",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a7bb1470be6ea683c.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-abaa3f31ca911d2a7.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a1d45ee12a553cbcd.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-af20ffba61c177112.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a46d01d42fe5231e4.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a0c755c5867ced80e.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a2fc26571ef1dabba.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-afae2781f38edc52b.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a0e1a2636ce725d44.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a0431ee1cbd732232.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a0081085ca7e9eaff.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a4f87e29c307e9751.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-aa391207b253c02c5.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a2bc429b4c9d52b97.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-aca9a83b042e7e5fb.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-a856cb482ec91ff93.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-ac760360d9731288a.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  },
+  {
+    "transcript": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-764r-aaf/e1eca8d8-d832-49b8-85cc-3ef2da1daf0d/subagents/agent-aa7f516d55a38acc3.jsonl",
+    "cwd_and_git_roots": {
+      "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project"
+    },
+    "real_project_context_markers": [],
+    "record_types": [
+      "assistant",
+      "attachment",
+      "user"
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+selected_tier: 1
+fired_rule_number: 1
+coverage_degraded: null
+surface_unreached: null
+inputs: {C: 0.92, S_scope: 1, S_domains: 1, S_dev_density: 0.0, requirement_coverage: "3/3 = 1.0 (UC-2; coverage_pct UC-1 field emitted null)", coverage_floor: 0.90, regression_candidate_count: 0, reachability_unreachable: 0}
+composite_score: 1.0
+per_signal_breakdown: {scope_size: 0, task_count: 0.5, blast_radius: 0, spec_density: 0, ambiguity_signals: 0.5}
+escalation_reason: "Rule 1: high calibrated confidence, 1 file, single domain, zero unmapped hunks, full requirement coverage; no regression candidate, no pre-filter set."
+t2_model_class_diversity: full

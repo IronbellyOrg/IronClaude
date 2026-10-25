@@ -1,0 +1,38 @@
+commit 074b99480db9ffe7f2f86a5cbd7a96f13843410c
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Fri Nov 14 14:34:23 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Fri Nov 14 14:34:23 2025 +0100
+
+    feat: include plugins directory in wheel distribution
+    
+    - Add plugins as shared-data in wheel configuration
+    - Plugins installed to {prefix}/share/superclaude/plugins/
+    - Increased wheel files from 128 to 225 (110 plugin files)
+    - Maintains backward compatibility with existing package structure
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/pyproject.toml b/pyproject.toml
+index f96b7538..56551af8 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -68,13 +68,9 @@ superclaude = "superclaude.pytest_plugin"
+ 
+ [tool.hatch.build.targets.wheel]
+ packages = ["src/superclaude"]
+-include = [
+-    "plugins/**/*.py",
+-    "plugins/**/*.md",
+-    "plugins/**/*.ts",
+-    "plugins/**/*.json",
+-    "plugins/**/*.sh",
+-]
++
++[tool.hatch.build.targets.wheel.shared-data]
++"plugins" = "share/superclaude/plugins"
+ 
+ [tool.hatch.build.targets.sdist]
+ include = [

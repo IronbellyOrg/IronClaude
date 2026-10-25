@@ -1,0 +1,30 @@
+# Wave 1B coverage matrix (UC-1). Pass 1 deterministic (orchestrator, coverage-pass1.json); Pass 2 by sc:sc-requirements-analyst (requested slot: sonnet; agent self-reported: claude-sonnet-5-5[1m]; agentId a34cabdf685cdc279)
+coverage_matrix:
+  - {requirement_id: R-001, spec_citation: "spec.md:5-6", source: parsed, matched_task_ids: [T-101], match_method: exact, semantic_adequacy: partial, gap: "task omits exact literal 'Hello, Ada!' (proposed.md:4)"}
+  - {requirement_id: R-002, spec_citation: "spec.md:8-9", source: parsed, matched_task_ids: [T-102], match_method: exact, semantic_adequacy: full}
+  - {requirement_id: R-003, spec_citation: "spec.md:11-12", source: parsed, matched_task_ids: [T-103], match_method: exact, semantic_adequacy: partial, gap: "task does not require asserting exact output / ValueError (proposed.md:10)"}
+parsed_count: 3
+inferred_count: 0
+inferred_rows: []
+pass2_dropped_candidates:
+  - {citation: "spec.md:6", reason: "inside R-001 span 5-7"}
+  - {citation: "spec.md:9", reason: "inside R-002 span 8-10"}
+  - {citation: "spec.md:12", reason: "inside R-003 span 11-13"}
+  - {citation: "spec.md:3", reason: "descriptive, not requirement-shaped"}
+  - {citation: "spec.md:1", reason: "title"}
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+unmapped_requirements_union: []
+coverage_undefined: false
+coverage_degraded: null
+S_scope: 3
+S_domains: 1   # docs-only planning artifacts (spec + tasklist); counted from input paths
+S_dev_density: 0.0
+total_tasks: 3
+orphan_tasks: []
+risk_notes_inferred:
+  - "[INFERRED] whitespace-only name semantics unspecified (spec.md:9)"
+  - "[INFERRED] non-Ada name format unspecified (spec.md:6)"
+  - "[INFERRED] None / non-string input behaviour unspecified"
+  - "[INFERRED] case/whitespace normalisation unspecified"

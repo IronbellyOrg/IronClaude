@@ -1,0 +1,16 @@
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.92, coverage_completeness: 0.80, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.60, recommendation_actionability: 0.68}
+C: 0.75
+citation_spot_checks:
+  - {claim: INF-001, cited: "source.md:3 / tasklist:99", holds: true, note: "Goal text and Task 6 heading match."}
+  - {claim: INF-003, cited: "source.md:7 / tasklist:20", holds: true, note: "./artifacts/ evidence rule appears in both."}
+  - {claim: INF-040, cited: "tasklist:158 area", holds: true, note: "The positive-check bullet is at line 159; the card says 'area', so this is acceptable."}
+  - {claim: C1, cited: "tasklist:19,146-156; source.md:35", holds: true, note: "The scripts/README.md lines 7-12 scope and the 'Change nothing else' rule are quoted correctly. Task 9 actually runs to line 160."}
+  - {claim: C2, cited: "tasklist:94", holds: true, note: "The grep -c '\\`' inside an inline code span is present as described."}
+  - {claim: C3, cited: "tasklist:114", holds: true, note: "The text says only that git push and gh are stubbed. Delegating the other git subcommands is not specified."}
+  - {claim: C4, cited: "tasklist:88,91", holds: true, note: "The fixed sed -n '19,20p' and the two-line window check are as described."}
+  - {claim: C5, cited: "tasklist:87,112,125,144,156", holds: true, note: "<t1-head> is on every cited line. The card misses its use on line 84."}
+  - {claim: C6, cited: "tasklist:43,53,65,75,101,119,132,148", holds: true, note: "All eight Depends-on lines match. The 'real orders' list leaves out Task 6's need for Task 3's prerequisite result (line 108)."}
+  - {claim: C8, cited: "source.md:14 / Constraint bullet 9", holds: true, note: "Bullet 9 is tasklist:27 and matches the spec. The count of 10 Constraint bullets is correct."}
+escalation_recommendation: escalate_t2
+notes: Every citation checked says what the card claims, but the risk section is thin. It misses that Task 5 renders the step before and after with the same real SHAs while the diff changes from two dots to three, so the listed files (or whether the warning prints at all) can differ and make the t5-render.diff check (tasklist:94) fail falsely or pass without testing anything; C1 and C3 also flag problems without saying how to fix them.

@@ -1,0 +1,61 @@
+# Wave 1C Tier-1 card — produced by Agent sc:sc-root-cause-analyst (model slot: sonnet), agentId ab89594a4bee251a5.
+# Persisted verbatim by the orchestrator. Paths relative to fixture project root:
+# /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+card_id: wave1c-tier1-uc2-greeting-fixture
+mode: post
+reviewer_role: tier1-root-cause
+reviewer_model_class: sonnet
+task_map:
+  - task_id: T-101
+    requirement: "Implement R-001 ordinary greeting"
+    evidence: ["changes.patch:6-9", "src/greeting.py:4", "completed.md:6"]
+    status: verified   # static reading only; not executed
+  - task_id: T-102
+    requirement: "Implement R-002 empty-name rejection"
+    evidence: ["changes.patch:7-8", "src/greeting.py:2-3", "completed.md:7"]
+    status: verified   # static reading only; not executed
+  - task_id: T-103
+    requirement: "Implement R-003 tests for ordinary greeting and empty-input rejection"
+    evidence: ["tests/test_greeting.py:4-5", "tests/test_greeting.py:8-13", "completed.md:8", "execution.log:4", "execution.log:5"]
+    status: partial    # test file is on disk but not in changes.patch, outside --scope src/, and never executed
+requirement_map:
+  - {req_id: R-001, spec_ref: "spec.md:5-6", satisfied: true, evidence: "src/greeting.py:2-4; changes.patch:6-9"}
+  - {req_id: R-002, spec_ref: "spec.md:8-9", satisfied: true, evidence: "src/greeting.py:2-3; changes.patch:7-8"}
+  - {req_id: R-003, spec_ref: "spec.md:11-12", satisfied: unproven, evidence: "tests/test_greeting.py:4-5, 8-13 exist on disk; outside diff (changes.patch:1-9) and scope; execution.log:5 says nothing was executed"}
+deviations:
+  - id: DEV-1
+    location: "src/greeting.py:2; changes.patch:7"
+    mapped_task: T-102
+    spec_ref: "spec.md:9"
+    class: Drift
+    rationale: "`if not name` rejects None/0/False/[] as well as the empty string; broadens R-002 and does not contradict it; nothing authorizes or necessitates it; low severity. Whitespace-only names are accepted."
+    evidence: ["src/greeting.py:2", "changes.patch:7", "spec.md:9"]
+grounding_gaps:
+  - hunk_ref: "T-103 / R-003: tests/test_greeting.py (whole file)"
+    evidence_missing: "Test file is not in changes.patch (changes.patch:1-9 covers only src/greeting.py); it is untracked, the repo has no commits, it is outside --scope src/; no execution record (execution.log:5)."
+    why_not_classifiable: "Cannot determine from the supplied diff whether the test file belongs to the audited change set; it is a required deliverable (completed.md:8) that is missing from the diff evidence, and passing behavior is unobserved."
+    next_evidence_needed: "Include tests/ in the diff or scope, and run the suite with verification available."
+    owner: user
+    decision_needed_by_user: true
+  - hunk_ref: "tests/test_greeting.py:1 (from src.greeting import greet)"
+    evidence_missing: "No src/__init__.py, tests/__init__.py, conftest.py or pytest configuration present."
+    why_not_classifiable: "[INFERRED] Resolves as a namespace package only if the project root is on sys.path; cannot be resolved by reading alone."
+    next_evidence_needed: "Run the tests from the project root, or add pytest pythonpath config / __init__.py."
+    owner: reviewer
+    decision_needed_by_user: false
+regression_candidates: []
+risks:
+  - "R-003 unproven: tests never executed (execution.log:5) and outside audited diff/scope."
+  - "[INFERRED] `from src.greeting import greet` (tests/test_greeting.py:1) may fail under plain pytest without __init__.py/config."
+  - "DEV-1: `not name` also rejects 0/None/False; None gets ValueError, not TypeError."
+  - "Whitespace-only names accepted (src/greeting.py:2)."
+  - "completed.md frontmatter status: done (completed.md:2) asserted without executed verification."
+recommendations:
+  - {id: REC-1, file: "tests/test_greeting.py + audit diff/scope", change: "Bring tests/ into the diff and scope, then run `python -m pytest` from the project root", verifier: "pytest exit 0 with 2 tests collected", priority: high}
+  - {id: REC-2, file: "src/greeting.py:2", change: "Clarify R-002 intent: record the falsy broadening in the spec or narrow to name == \"\"", verifier: "Spec amendment, or a test for None/0/whitespace", priority: low}
+  - {id: REC-3, file: "project root", change: "Make `src` importable explicitly (src/__init__.py or pytest pythonpath = .)", verifier: "Plain `pytest` collects tests/test_greeting.py without ImportError", priority: medium}
+self_reported_confidence: 0.8
+inferred_claims:
+  - "[INFERRED] src.greeting resolves as a namespace package only if the project root is on sys.path."
+  - "[INFERRED] R-001 and R-002 hold at runtime (static reasoning, not observed)."
+  - "[INFERRED] proposed.md not read; not needed for classification."

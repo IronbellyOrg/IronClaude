@@ -1,0 +1,84 @@
+{
+  "status": "verified",
+  "snapshot_kind": "native-selected-inputs",
+  "source_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+  "reviewer_grounding_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root",
+  "selection_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/selected-inputs.json",
+  "selection_sha256": "8d56de910be5853df89a10536ab0da38fabc8c3febc190c241803c4209ddbdb7",
+  "coverage_basis": "actual dirty tracked command, Git-observed new input and captured run evidence",
+  "enumeration_complete": true,
+  "output_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy",
+  "discovery_metadata": {
+    "version": 1,
+    "scopes": [
+      ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited",
+      ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy"
+    ],
+    "gitignore_policy": "exclude-standard",
+    "verification_artifact_excludes": {
+      "directories": [
+        "__pycache__",
+        ".pytest_cache",
+        "htmlcov",
+        ".mypy_cache",
+        ".ruff_cache",
+        "target",
+        ".hypothesis"
+      ],
+      "suffixes": [
+        ".pyc",
+        ".pyo",
+        ".pyd",
+        ".egg-info"
+      ],
+      "names": [
+        ".coverage",
+        ".tsbuildinfo"
+      ],
+      "prefixes": [
+        ".coverage."
+      ],
+      "nested": [
+        "node_modules/.cache"
+      ]
+    }
+  },
+  "scoped_inventory_before": [
+    {
+      "path": ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt",
+      "kind": "regular"
+    }
+  ],
+  "files": [
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/commands/sc-reflect.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root/commands/sc-reflect.md",
+      "sha256_before": "7b540833f11551e365a1112e5fcd34287b318750d2b733a667966e9e4ae384e3",
+      "sha256_copy": "7b540833f11551e365a1112e5fcd34287b318750d2b733a667966e9e4ae384e3",
+      "sha256_after": "7b540833f11551e365a1112e5fcd34287b318750d2b733a667966e9e4ae384e3"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt",
+      "sha256_before": "7a17c2d3f367909f0facb2286e1f3285f65c31c99ca082c912926f9640491718",
+      "sha256_copy": "7a17c2d3f367909f0facb2286e1f3285f65c31c99ca082c912926f9640491718",
+      "sha256_after": "7a17c2d3f367909f0facb2286e1f3285f65c31c99ca082c912926f9640491718"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/t1-card.txt",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root/__run_evidence__/t1-card.txt",
+      "sha256_before": "f6e1a0bcd14c49f0c47211f336416b2fb694cd8351cea445c350d7d0b0f978fd",
+      "sha256_copy": "f6e1a0bcd14c49f0c47211f336416b2fb694cd8351cea445c350d7d0b0f978fd",
+      "sha256_after": "f6e1a0bcd14c49f0c47211f336416b2fb694cd8351cea445c350d7d0b0f978fd"
+    }
+  ],
+  "scoped_inventory_after": [
+    {
+      "path": ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt",
+      "kind": "regular"
+    }
+  ]
+}

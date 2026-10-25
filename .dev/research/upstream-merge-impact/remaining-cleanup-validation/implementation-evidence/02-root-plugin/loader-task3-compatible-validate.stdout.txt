@@ -1,0 +1,27 @@
+Validating plugin manifest: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin/.claude-plugin/plugin.json
+
+Validating agent: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin/agents/sc-README.md
+
+⚠ Found 1 warning:
+
+  ❯ frontmatter: No frontmatter block found. Add YAML frontmatter between --- delimiters at the top of the file to set description and other metadata.
+
+Validating command: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin/commands/sc-business-panel.md
+
+⚠ Found 1 warning:
+
+  ❯ frontmatter: No frontmatter block found. Add YAML frontmatter between --- delimiters at the top of the file to set description and other metadata.
+
+Validating command: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin/commands/sc-README.md
+
+⚠ Found 1 warning:
+
+  ❯ frontmatter: No frontmatter block found. Add YAML frontmatter between --- delimiters at the top of the file to set description and other metadata.
+
+Validating command: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/isolation-task3-compatible/plugin/commands/sc-agent.md
+
+⚠ Found 1 warning:
+
+  ❯ frontmatter: No frontmatter block found. Add YAML frontmatter between --- delimiters at the top of the file to set description and other metadata.
+
+✔ Validation passed with warnings

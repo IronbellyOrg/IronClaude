@@ -1,0 +1,16 @@
+# sc:confidence-check (bundled skill), lightweight form, before surfacing chat recommendations.
+form: lightweight-direct-token-verification
+verified_tokens:
+  - {token: '"Hello, Ada!" absent from proposed.md', method: Grep, result: confirmed (only spec.md:6)}
+  - {token: 'ValueError in proposed.md only at :7 (T-102), not in T-103', method: Grep, result: confirmed}
+  - {token: 'no whitespace mention in spec.md/proposed.md', method: Grep, result: confirmed}
+  - {token: 'edit locations proposed.md:4, proposed.md:10, spec.md:9', method: Read+Grep, result: confirmed}
+five_check_view:
+  no_duplicate: pass          # literal not already in tasklist
+  architecture: "pass-with-absence (CLAUDE.md/PLANNING.md absent in audit_repo_root; not filled from ancestor; recs add no dependencies)"
+  official_docs: n/a          # doc-text edits, no external API claims; --no-mcp, no web
+  oss_reference: n/a
+  root_cause: pass            # ID-level authoring; tagged [INFERRED] in report
+decision: proceed-to-surface-advisory-recommendations
+blocked_by_low_confidence: false
+note: "Recommendations are advisory plan edits; nothing implemented. Strict 5-check arithmetic counting n/a as fail would be 0.65; lightweight-form token verification is the applicable rule per the skill."

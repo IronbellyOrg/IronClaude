@@ -1,0 +1,5 @@
+{
+  "runtime_surface_requirements": [],
+  "runtime_surface_sweep_ran": false,
+  "reason": "greet: undecorated plain function, no surface signal (refs/runtime-surface.md \u00a71)"
+}

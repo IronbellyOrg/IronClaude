@@ -1,0 +1,12 @@
+selected_tier: 1
+override: "--tier 1 (§5.1 hard override: STOP at T1)"
+fired_rule_number: null        # hard override pre-empted §5.3; for audit, first-match §5.3 would be rule 2 (rule 1 fails S_domains==1)
+would_match_rule_without_override: 2
+coverage_degraded: null
+surface_unreached: null
+inputs: {C: 0.914, S_scope: 2, S_domains: 2, S_dev_density: 0.0, coverage_pct: null, tasklist_completion_pct: 1.0, regression_candidates: 0}
+composite_score: 1.0
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+escalation_reason: "Pinned Tier 1; rubric would also STOP at T1 (rule 2, density 0.0 <= 0.05 so no WARN). ambiguity_signals=1 reflects unverified runtime state (verification unavailable)."
+t2_model_class_diversity: full
+t2_vendor_diversity: multi

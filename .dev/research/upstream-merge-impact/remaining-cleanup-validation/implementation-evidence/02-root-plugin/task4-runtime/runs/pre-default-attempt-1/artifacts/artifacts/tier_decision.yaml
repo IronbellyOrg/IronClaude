@@ -1,0 +1,16 @@
+selected_tier: 1
+fired_rule_number: 2
+coverage_degraded: null
+surface_unreached: null
+coverage_undefined: false
+inputs: {C: 0.884, S_scope: 3, S_domains: 2, S_dev_density: 0.0, coverage_pct: 1.0, coverage_floor: 0.90}
+rule_trace:
+  - {rule: 1, result: no-match, reason: "C 0.884 < 0.90 and S_domains 2 != 1"}
+  - {rule: 2, result: match, reason: "C>=0.85, S_scope<=10, S_domains<=2, S_dev_density<=0.10, no pre-filter; no WARN since S_dev_density<=0.05"}
+overrides: {tier: auto, depth: standard, no_escalate: false}
+budget_forced_tier_downgrade: false
+t2_model_class_diversity: full     # 3 distinct aliases resolved (T2 not reached)
+t2_vendor_diversity: multi
+composite_score: 1                 # recording only, not deciding
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+escalation_reason: "rule_2_medium_confidence_narrow_scope_stop_at_t1"

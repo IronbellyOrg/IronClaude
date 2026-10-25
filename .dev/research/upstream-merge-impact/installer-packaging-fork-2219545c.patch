@@ -1,0 +1,109 @@
+commit 2219545cc6cb5d3cfbd9e8f1d1c078b74adaa3a3
+Author:     Ironbelly <ryan@ironbelly.com>
+AuthorDate: Wed May 20 13:17:19 2026 -0400
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed May 20 13:17:19 2026 -0400
+
+    fix(prd): anchor CLI path resolution to .claude/; migrate templates SoT into src/ (#63)
+    
+    * fix(prd): anchor PRD CLI path resolution to .claude/; migrate templates SoT into src/
+    
+    The PRD pipeline crashed with FileNotFoundError on
+    `src/superclaude/skills/prd/refs/build-request-template.md` whenever
+    `superclaude prd run` was invoked from any CWD outside the IronClaude
+    repo. Root cause: `_discover_skill_refs_dir` resolved candidates as
+    CWD-relative paths. The same shape latently affected
+    `PrdConfig.template_path` (default was `docs/docs-product/templates/prd_template.md`,
+    a path that doesn't exist anywhere).
+    
+    Architectural shift: all PRD-pipeline runtime path resolution now anchors
+    to `.claude/` (project-local first, user-home second), with a dev-tree
+    fallback for editable installs. `src/superclaude/` is the dev source of
+    truth that gets synced via `make sync-dev` and installed via
+    `superclaude install`.
+    
+    Changes:
+    - `src/superclaude/cli/prd/models.py`: new `_default_skill_refs_dir` and
+      `_default_template_path` helpers anchored to `.claude/`. `PrdConfig`
+      default_factory uses them.
+    - `src/superclaude/cli/prd/config.py`: `_discover_skill_refs_dir`
+      delegates to the new single source of truth.
+    - New `src/superclaude/templates/{workflow,documents}/` as SoT for 15
+      templates (PRD, TDD, MDTM, release-spec, etc.).
+    - `git mv src/superclaude/examples/prd_template.md ->
+      src/superclaude/templates/workflow/05_prd_template.md` preserves
+      history of the LARGE 1389-line PRD schema. Renamed the legacy
+      145-line `.claude/templates/workflow/05_prd_template.md` to
+      `.legacy-rf-project.md`.
+    - `Makefile`: `make sync-dev` and `make verify-sync` now handle
+      `src/superclaude/templates/ <-> .claude/templates/`.
+    - New `src/superclaude/cli/install_templates.py` wired into
+      `superclaude install` as Step 6. Excludes any `agent-memory/` path
+      defensively (the per-agent runtime memory directory must never be
+      touched by the installer).
+    - Updated 12 in-tree textual references from
+      `src/superclaude/examples/prd_template.md` ->
+      `.claude/templates/workflow/05_prd_template.md` in SKILL.md and
+      refs/{agent-prompts,build-request-template,synthesis-mapping,validation-checklists,operational-guidance}.md.
+    - `tests/cli/prd/test_path_resolution.py`: 8 new regression tests
+      using `monkeypatch` to pin `Path.cwd()` and `Path.home()` to
+      `tmp_path`, asserting both helpers return absolute `.claude/`-
+      anchored paths from any CWD (including a total-miss case that
+      guarantees `FileNotFoundError` cites an absolute path, not a
+      relative one).
+    - `tests/cli/prd/test_prompts.py`: fixture path updated to the new
+      template location.
+    
+    Verification:
+    - `uv run pytest tests/cli/prd/ -v` => 76 passed (8 new + 68 existing,
+      zero regressions).
+    - `make verify-sync` => all components in sync including the new
+      Templates section.
+    - `uv run ruff check` clean on all changed code files.
+    - Smoke from foreign CWD (`/tmp`): both helpers return absolute paths
+      under `~/.claude/`, no relative-path FileNotFoundError.
+    
+    Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+    
+    * fix(install,Makefile): address PR #63 review feedback
+    
+    - install_{templates,core,agents,commands}.py: widen the
+      "nothing installed" guard with `and not failed` so per-file
+      failure details (e.g., PermissionError) are not discarded
+      by an early return with a misleading "source directory
+      empty?" message. Matches the existing precedent at
+      install_skills.py:114. Resolves PR #63 comment r3275576561.
+    
+    - Makefile: revert 3 inadvertently-included verify-deps
+      additions (PHONY token, target body, help echo) that
+      belong to the CliEval pipeline (R-015 / AC3 / T01.17) and
+      were swept into commit 1150b41 from pre-existing dirty
+      state. The verify-deps target + scripts/verify_deps.py +
+      scripts/dependency_baseline.txt will land together in the
+      CliEval PR. Resolves PR #63 comment r3275576568.
+    
+    - New regression test tests/cli/test_install_failures.py:
+      monkeypatches shutil.copy2 to raise PermissionError for
+      all four installers and asserts the returned message
+      contains failure details and does NOT contain the
+      misleading "source directory empty?" string.
+    
+    Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+
+diff --git a/src/superclaude/cli/install_commands.py b/src/superclaude/cli/install_commands.py
+index e45776e7..34cb58e7 100644
+--- a/src/superclaude/cli/install_commands.py
++++ b/src/superclaude/cli/install_commands.py
+@@ -79,7 +79,7 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
+         for fail in failed_commands:
+             messages.append(f"   - {fail}")
+ 
+-    if not installed_commands and not skipped_commands:
++    if not installed_commands and not skipped_commands and not failed_commands:
+         return False, "No commands were installed"
+ 
+     messages.append(f"\n📁 Installation directory: {target_path}")

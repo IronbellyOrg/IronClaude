@@ -1,0 +1,1 @@
+[claude-code:unrecognized_model] {"model":"grok-4.7[1m]","query_source":"agent:builtin:general-purpose"}

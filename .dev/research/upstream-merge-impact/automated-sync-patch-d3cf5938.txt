@@ -1,0 +1,1088 @@
+commit d3cf593808f5e5df12da7f0c3e506556fdc34e01
+Author:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+AuthorDate: Fri Oct 23 05:26:18 2026 +0000
+Commit:     github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+CommitDate: Fri Oct 23 05:26:18 2026 +0000
+
+    chore: automated sync and namespace isolation from framework [2026-10-23 05:26]
+
+diff --git a/agents/sc-deep-research.md b/agents/sc-deep-research.md
+index 9a32efa6..cfea6b96 100644
+--- a/agents/sc-deep-research.md
++++ b/agents/sc-deep-research.md
+@@ -11,7 +11,7 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
+ ## Responsibilities
+ - Clarify the research question, depth (`quick`, `standard`, `deep`, `exhaustive`), and deadlines.
+ - Draft a lightweight plan (goals, search pivots, likely sources).
+-- Execute searches in parallel using approved tools (Tavily, WebFetch, Context7).
++- Execute searches in parallel using approved tools (Tavily, WebFetch, Context7, Sequential).
+ - Track sources with credibility notes and timestamps.
+ - Deliver a concise synthesis plus a citation table.
+ 
+diff --git a/agents/sc-socratic-mentor.md b/agents/sc-socratic-mentor.md
+index 043b1ba1..2d2cb61e 100644
+--- a/agents/sc-socratic-mentor.md
++++ b/agents/sc-socratic-mentor.md
+@@ -166,6 +166,17 @@ persona_triggers:
+ 
+ ### MCP Server Coordination
+ ```yaml
++sequential_thinking_integration:
++  usage_patterns:
++    - "Multi-step Socratic reasoning progressions"
++    - "Complex discovery session orchestration"
++    - "Progressive question generation and adaptation"
++
++  benefits:
++    - "Maintains logical flow of discovery process"
++    - "Enables complex reasoning about user understanding"
++    - "Supports adaptive questioning based on user responses"
++
+ context_preservation:
+   session_memory:
+     - "Track discovered principles across learning sessions"
+diff --git a/commands/sc-README.md b/commands/sc-README.md
+index 29a4a345..bb0270de 100644
+--- a/commands/sc-README.md
++++ b/commands/sc-README.md
+@@ -8,6 +8,7 @@ This directory contains slash commands that are installed to `~/.claude/commands
+ - **index-repo.md** - Repository indexing for context optimization
+ - **recommend.md** - Command recommendations
+ - **research.md** - Deep web research with parallel search
++- **sc.md** - Show all available SuperClaude commands
+ 
+ ## Important
+ 
+diff --git a/commands/sc-brainstorm.md b/commands/sc-brainstorm.md
+index 68d39ebb..af8240c5 100644
+--- a/commands/sc-brainstorm.md
++++ b/commands/sc-brainstorm.md
+@@ -3,7 +3,7 @@ name: brainstorm
+ description: "Interactive requirements discovery through Socratic dialogue and systematic exploration"
+ category: orchestration
+ complexity: advanced
+-mcp-servers: [context7, magic, playwright, morphllm, serena]
++mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+@@ -37,18 +37,20 @@ Key behaviors:
+ - Cross-session persistence with comprehensive requirements discovery documentation
+ 
+ ## MCP Integration
++- **Sequential MCP**: Complex multi-step reasoning for systematic exploration and validation
+ - **Context7 MCP**: Framework-specific feasibility assessment and pattern analysis
+ - **Magic MCP**: UI/UX feasibility and design system integration analysis
+ - **Playwright MCP**: User experience validation and interaction pattern testing
+ - **Morphllm MCP**: Large-scale content analysis and pattern-based transformation
+ - **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Write/Edit**: Requirements documentation and specification generation
+ - **TodoWrite**: Progress tracking for complex multi-phase exploration
+ - **Task**: Advanced delegation for parallel exploration paths and multi-agent coordination
+ - **WebSearch**: Market research, competitive analysis, and technology validation
++- **sequentialthinking**: Structured reasoning for complex requirements analysis
+ 
+ ## Key Patterns
+ - **Socratic Dialogue**: Question-driven exploration → systematic requirements discovery
+@@ -62,6 +64,7 @@ Key behaviors:
+ ```
+ /sc:sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
+ # Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
++# Sequential MCP provides structured exploration framework
+ ```
+ 
+ ### Agile Feature Exploration
+diff --git a/commands/sc-business-panel.md b/commands/sc-business-panel.md
+index ab368fc3..55bbd296 100644
+--- a/commands/sc-business-panel.md
++++ b/commands/sc-business-panel.md
+@@ -72,7 +72,7 @@ Question-driven exploration for deep learning and strategic thinking development
+ 
+ ## Auto-Persona Activation
+ - **Auto-Activates**: Analyzer, Architect, Mentor personas
+-- **MCP Integration**: Context7 (business patterns)
++- **MCP Integration**: Sequential (primary), Context7 (business patterns)
+ - **Tool Orchestration**: Read, Grep, Write, MultiEdit, TodoWrite
+ 
+ ## Integration Notes
+diff --git a/commands/sc-cleanup.md b/commands/sc-cleanup.md
+index 6920192d..66342d76 100644
+--- a/commands/sc-cleanup.md
++++ b/commands/sc-cleanup.md
+@@ -3,7 +3,7 @@ name: cleanup
+ description: "Systematically clean up code, remove dead code, and optimize project structure"
+ category: workflow
+ complexity: standard
+-mcp-servers: [context7]
++mcp-servers: [sequential, context7]
+ personas: [architect, quality, security]
+ ---
+ 
+@@ -30,12 +30,14 @@ personas: [architect, quality, security]
+ Key behaviors:
+ - Multi-persona coordination (architect, quality, security) based on cleanup type
+ - Framework-specific cleanup patterns via Context7 MCP integration
++- Systematic analysis via Sequential MCP for complex cleanup operations
+ - Safety-first approach with backup and rollback capabilities
+ 
+ ## MCP Integration
++- **Sequential MCP**: Auto-activated for complex multi-step cleanup analysis and planning
+ - **Context7 MCP**: Framework-specific cleanup patterns and best practices
+ - **Persona Coordination**: Architect (structure), Quality (debt), Security (credentials)
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and pattern detection for cleanup opportunities
+@@ -76,6 +78,7 @@ Key behaviors:
+ ```
+ /sc:sc:cleanup components/ --aggressive
+ # Thorough cleanup with Context7 framework patterns
++# Sequential analysis for complex dependency management
+ ```
+ 
+ ## Boundaries
+diff --git a/commands/sc-estimate.md b/commands/sc-estimate.md
+new file mode 100644
+index 00000000..4beb342f
+--- /dev/null
++++ b/commands/sc-estimate.md
+@@ -0,0 +1,108 @@
++---
++name: estimate
++description: "Provide development estimates for tasks, features, or projects with intelligent analysis"
++category: special
++complexity: standard
++mcp-servers: [sequential, context7]
++personas: [architect, performance, project-manager]
++---
++
++# /sc:sc:sc:estimate - Development Estimation
++
++## Triggers
++- Development planning requiring time, effort, or complexity estimates
++- Project scoping and resource allocation decisions
++- Feature breakdown needing systematic estimation methodology
++- Risk assessment and confidence interval analysis requirements
++
++## Usage
++```
++/sc:sc:estimate [target] [--type time|effort|complexity] [--unit hours|days|weeks] [--breakdown]
++```
++
++## Behavioral Flow
++1. **Analyze**: Examine scope, complexity factors, dependencies, and framework patterns
++2. **Calculate**: Apply estimation methodology with historical benchmarks and complexity scoring
++3. **Validate**: Cross-reference estimates with project patterns and domain expertise
++4. **Present**: Provide detailed breakdown with confidence intervals and risk assessment
++5. **Track**: Document estimation accuracy for continuous methodology improvement
++
++Key behaviors:
++- Multi-persona coordination (architect, performance, project-manager) based on estimation scope
++- Sequential MCP integration for systematic analysis and complexity assessment
++- Context7 MCP integration for framework-specific patterns and historical benchmarks
++- Intelligent breakdown analysis with confidence intervals and risk factors
++
++## MCP Integration
++- **Sequential MCP**: Complex multi-step estimation analysis and systematic complexity assessment
++- **Context7 MCP**: Framework-specific estimation patterns and historical benchmark data
++- **Persona Coordination**: Architect (design complexity), Performance (optimization effort), Project Manager (timeline)
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++
++## Tool Coordination
++- **Read/Grep/Glob**: Codebase analysis for complexity assessment and scope evaluation
++- **TodoWrite**: Estimation breakdown and progress tracking for complex estimation workflows
++- **Task**: Advanced delegation for multi-domain estimation requiring systematic coordination
++- **Bash**: Project analysis and dependency evaluation for accurate complexity scoring
++
++## Key Patterns
++- **Scope Analysis**: Project requirements → complexity factors → framework patterns → risk assessment
++- **Estimation Methodology**: Time-based → Effort-based → Complexity-based → Cost-based approaches
++- **Multi-Domain Assessment**: Architecture complexity → Performance requirements → Project timeline
++- **Validation Framework**: Historical benchmarks → cross-validation → confidence intervals → accuracy tracking
++
++## Examples
++
++### Feature Development Estimation
++```
++/sc:sc:estimate "user authentication system" --type time --unit days --breakdown
++# Systematic analysis: Database design (2 days) + Backend API (3 days) + Frontend UI (2 days) + Testing (1 day)
++# Total: 8 days with 85% confidence interval
++```
++
++### Project Complexity Assessment
++```
++/sc:sc:estimate "migrate monolith to microservices" --type complexity --breakdown
++# Architecture complexity analysis with risk factors and dependency mapping
++# Multi-persona coordination for comprehensive assessment
++```
++
++### Performance Optimization Effort
++```
++/sc:sc:estimate "optimize application performance" --type effort --unit hours
++# Performance persona analysis with benchmark comparisons
++# Effort breakdown by optimization category and expected impact
++```
++
++## Boundaries
++
++**Will:**
++- Provide systematic development estimates with confidence intervals and risk assessment
++- Apply multi-persona coordination for comprehensive complexity analysis
++- Generate detailed breakdown analysis with historical benchmark comparisons
++
++**Will Not:**
++- Guarantee estimate accuracy without proper scope analysis and validation
++- Provide estimates without appropriate domain expertise and complexity assessment
++- Override historical benchmarks without clear justification and analysis
++
++## CRITICAL BOUNDARIES
++
++**STOP AFTER ESTIMATION**
++
++This command produces an ESTIMATION REPORT ONLY - no implementation.
++
++**Explicitly Will NOT**:
++- Execute work based on estimates
++- Create implementation timelines for execution
++- Start implementation tasks
++- Make commitments on behalf of user
++
++**Output**: Estimation report containing:
++- Time/effort breakdown
++- Complexity analysis
++- Confidence intervals
++- Risk assessment
++- Resource requirements
++
++**Next Step**: After estimation, user decides on timeline. Use `/sc:sc:workflow` for planning or `/sc:sc:implement` for execution.
+diff --git a/commands/sc-explain.md b/commands/sc-explain.md
+index f8343b86..74c7956f 100644
+--- a/commands/sc-explain.md
++++ b/commands/sc-explain.md
+@@ -3,7 +3,7 @@ name: explain
+ description: "Provide clear explanations of code, concepts, and system behavior with educational clarity"
+ category: workflow
+ complexity: standard
+-mcp-servers: [context7]
++mcp-servers: [sequential, context7]
+ personas: [educator, architect, security]
+ ---
+ 
+@@ -30,12 +30,14 @@ personas: [educator, architect, security]
+ Key behaviors:
+ - Multi-persona coordination for domain expertise (educator, architect, security)
+ - Framework-specific explanations via Context7 integration
++- Systematic analysis via Sequential MCP for complex concept breakdown
+ - Adaptive explanation depth based on audience and complexity
+ 
+ ## MCP Integration
++- **Sequential MCP**: Auto-activated for complex multi-component analysis and structured reasoning
+ - **Context7 MCP**: Framework documentation and official pattern explanations
+ - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
+@@ -68,6 +70,7 @@ Key behaviors:
+ ```
+ /sc:sc:explain microservices-system --level advanced --format interactive
+ # Architect persona explains system design and patterns
++# Interactive exploration with Sequential analysis breakdown
+ ```
+ 
+ ### Security Concept Explanation
+diff --git a/commands/sc-help.md b/commands/sc-help.md
+index d27f4d15..c8b6a2c8 100644
+--- a/commands/sc-help.md
++++ b/commands/sc-help.md
+@@ -70,6 +70,7 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
+ | Flag | Trigger | Behavior |
+ |------|---------|----------|
+ | `--c7` / `--context7` | Library imports, framework questions | Enable Context7 for curated documentation lookup |
++| `--seq` / `--sequential` | Complex debugging, system design | Enable Sequential for structured multi-step reasoning |
+ | `--magic` | UI component requests (/ui, /sc:21) | Enable Magic for modern UI generation from 21st.dev |
+ | `--morph` / `--morphllm` | Bulk code transformations | Enable Morphllm for efficient multi-file pattern application |
+ | `--serena` | Symbol operations, project memory | Enable Serena for semantic understanding and session persistence |
+@@ -81,8 +82,8 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
+ 
+ | Flag | Trigger | Behavior |
+ |------|---------|----------|
+-| `--think` | Multi-component analysis needs | Standard structured analysis (~4K tokens) |
+-| `--think-hard` | Architectural analysis, system-wide dependencies | Deep analysis (~10K tokens), enables Context7 |
++| `--think` | Multi-component analysis needs | Standard structured analysis (~4K tokens), enables Sequential |
++| `--think-hard` | Architectural analysis, system-wide dependencies | Deep analysis (~10K tokens), enables Sequential + Context7 |
+ | `--ultrathink` | Critical system redesign, legacy modernization | Maximum depth analysis (~32K tokens), enables all MCP servers |
+ 
+ ### Execution Control Flags
+diff --git a/commands/sc-implement.md b/commands/sc-implement.md
+index d225e849..22fbb1dd 100644
+--- a/commands/sc-implement.md
++++ b/commands/sc-implement.md
+@@ -3,7 +3,7 @@ name: implement
+ description: "Feature and code implementation with intelligent persona activation and MCP integration"
+ category: workflow
+ complexity: standard
+-mcp-servers: [context7, magic, playwright]
++mcp-servers: [context7, sequential, magic, playwright]
+ personas: [architect, frontend, backend, security, qa-specialist]
+ ---
+ 
+@@ -33,13 +33,15 @@ personas: [architect, frontend, backend, security, qa-specialist]
+ Key behaviors:
+ - Context-based persona activation (architect, frontend, backend, security, qa)
+ - Framework-specific implementation via Context7 and Magic MCP integration
++- Systematic multi-component coordination via Sequential MCP
+ - Comprehensive testing integration with Playwright for validation
+ 
+ ## MCP Integration
+ - **Context7 MCP**: Framework patterns and official documentation for React, Vue, Angular, Express
+ - **Magic MCP**: Auto-activated for UI component generation and design system integration
++- **Sequential MCP**: Complex multi-step analysis and implementation planning
+ - **Playwright MCP**: Testing validation and quality assurance integration
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Write/Edit/MultiEdit**: Code generation and modification for implementation
+@@ -73,6 +75,7 @@ Key behaviors:
+ ```
+ /sc:sc:implement payment processing system --type feature --with-tests
+ # Multi-persona coordination: architect, frontend, backend, security
++# Sequential MCP breaks down complex implementation steps
+ ```
+ 
+ ### Framework-Specific Implementation
+diff --git a/commands/sc-improve.md b/commands/sc-improve.md
+index 2d33e174..ecf164b8 100644
+--- a/commands/sc-improve.md
++++ b/commands/sc-improve.md
+@@ -3,7 +3,7 @@ name: improve
+ description: "Apply systematic improvements to code quality, performance, and maintainability"
+ category: workflow
+ complexity: standard
+-mcp-servers: [context7]
++mcp-servers: [sequential, context7]
+ personas: [architect, performance, quality, security]
+ ---
+ 
+@@ -30,12 +30,14 @@ personas: [architect, performance, quality, security]
+ Key behaviors:
+ - Multi-persona coordination (architect, performance, quality, security) based on improvement type
+ - Framework-specific optimization via Context7 integration for best practices
++- Systematic analysis via Sequential MCP for complex multi-component improvements
+ - Safe refactoring with comprehensive validation and rollback capabilities
+ 
+ ## MCP Integration
++- **Sequential MCP**: Auto-activated for complex multi-step improvement analysis and planning
+ - **Context7 MCP**: Framework-specific best practices and optimization patterns
+ - **Persona Coordination**: Architect (structure), Performance (speed), Quality (maintainability), Security (safety)
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Code analysis and improvement opportunity identification
+diff --git a/commands/sc-index.md b/commands/sc-index.md
+index 4cb517eb..e5b5e976 100644
+--- a/commands/sc-index.md
++++ b/commands/sc-index.md
+@@ -3,7 +3,7 @@ name: index
+ description: "Generate comprehensive project documentation and knowledge base with intelligent organization"
+ category: special
+ complexity: standard
+-mcp-servers: [context7]
++mcp-servers: [sequential, context7]
+ personas: [architect, scribe, quality]
+ ---
+ 
+@@ -29,13 +29,15 @@ personas: [architect, scribe, quality]
+ 
+ Key behaviors:
+ - Multi-persona coordination (architect, scribe, quality) based on documentation scope and complexity
++- Sequential MCP integration for systematic analysis and comprehensive documentation workflows
+ - Context7 MCP integration for framework-specific patterns and documentation standards
+ - Intelligent organization with cross-referencing capabilities and automated maintenance
+ 
+ ## MCP Integration
++- **Sequential MCP**: Complex multi-step project analysis and systematic documentation generation
+ - **Context7 MCP**: Framework-specific documentation patterns and established standards
+ - **Persona Coordination**: Architect (structure), Scribe (content), Quality (validation)
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Grep/Glob**: Project structure analysis and content extraction for documentation generation
+diff --git a/commands/sc-pm.md b/commands/sc-pm.md
+index 1c6ae56f..89b6cbc4 100644
+--- a/commands/sc-pm.md
++++ b/commands/sc-pm.md
+@@ -3,7 +3,7 @@ name: pm
+ description: "Project Manager Agent - Default orchestration agent that coordinates all sub-agents and manages workflows seamlessly"
+ category: orchestration
+ complexity: meta
+-mcp-servers: [context7, magic, playwright, morphllm, serena, tavily, chrome-devtools]
++mcp-servers: [sequential, context7, magic, playwright, morphllm, serena, tavily, chrome-devtools]
+ personas: [pm-agent]
+ ---
+ 
+@@ -122,12 +122,12 @@ Key behaviors:
+ ### Phase-Based Tool Loading
+ ```yaml
+ Discovery Phase:
+-  Load: [context7]
++  Load: [sequential, context7]
+   Execute: Requirements analysis, pattern research
+   Unload: After requirements complete
+ 
+ Design Phase:
+-  Load: [magic]
++  Load: [sequential, magic]
+   Execute: Architecture planning, UI mockups
+   Unload: After design approval
+ 
+@@ -137,7 +137,7 @@ Implementation Phase:
+   Unload: After implementation complete
+ 
+ Testing Phase:
+-  Load: [playwright]
++  Load: [playwright, sequential]
+   Execute: E2E testing, quality validation
+   Unload: After tests pass
+ ```
+@@ -219,6 +219,7 @@ Output: Production-ready real-time chat with video
+ - **Task**: Advanced delegation for complex multi-agent coordination
+ - **Write/Edit/MultiEdit**: Cross-agent code generation and modification
+ - **Read/Grep/Glob**: Context gathering for sub-agent coordination
++- **sequentialthinking**: Structured reasoning for complex delegation decisions
+ 
+ ## Key Patterns
+ - **Default Orchestration**: PM Agent handles all user interactions by default
+diff --git a/commands/sc-recommend.md b/commands/sc-recommend.md
+index 9dea3c1a..dff0674f 100644
+--- a/commands/sc-recommend.md
++++ b/commands/sc-recommend.md
+@@ -119,7 +119,7 @@ keyword_extraction:
+   context_analysis:
+     - "beginner|starter|just started" → beginner_level + --persona-mentor
+     - "expert|senior|experienced" → expert_level + --persona-architect
+-    - "continue|resume" → continuity_mode
++    - "continue|resume" → continuity_mode + --seq
+     - "next step|what now" → next_step_mode + --think
+ ```
+ 
+@@ -127,48 +127,49 @@ keyword_extraction:
+ ```yaml
+ category_mapping:
+   ml_category:
+-    primary_commands: ["/sc:sc:analyze --c7", "/sc:sc:design --ultrathink"]
++    primary_commands: ["/sc:sc:analyze --seq --c7", "/sc:sc:design --seq --ultrathink"]
+     secondary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:improve --performance"]
+-    mcp_servers: ["--c7"]
++    mcp_servers: ["--c7", "--seq"]
+     personas: ["--persona-analyzer", "--persona-architect"]
+     flags: ["--think-hard", "--evidence", "--profile"]
+ 
+   web_category:
+-    primary_commands: ["/sc:sc:build --feature --magic", "/sc:sc:design --api"]
++    primary_commands: ["/sc:sc:build --feature --magic", "/sc:sc:design --api --seq"]
+     secondary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:analyze --code"]
+     mcp_servers: ["--magic", "--c7", "--pup"]
+     personas: ["--persona-frontend", "--persona-qa"]
+     flags: ["--react", "--tdd", "--validate"]
+ 
+   api_category:
+-    primary_commands: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
++    primary_commands: ["/sc:sc:design --api --ddd --seq", "/sc:sc:build --feature --tdd"]
+     secondary_commands: ["/sc:sc:scan --security --owasp", "/sc:sc:analyze --performance --pup"]
+-    mcp_servers: ["--c7", "--pup"]
++    mcp_servers: ["--seq", "--c7", "--pup"]
+     personas: ["--persona-backend", "--persona-security"]
+     flags: ["--microservices", "--ultrathink", "--security"]
+ 
+   debug_category:
+-    primary_commands: ["/sc:sc:troubleshoot --investigate", "/sc:sc:analyze --code"]
++    primary_commands: ["/sc:sc:troubleshoot --investigate --seq", "/sc:sc:analyze --code --seq"]
+     secondary_commands: ["/sc:sc:scan --security", "/sc:sc:improve --quality"]
+-    mcp_servers: ["--all-mcp"]
++    mcp_servers: ["--seq", "--all-mcp"]
+     personas: ["--persona-analyzer", "--persona-security"]
+     flags: ["--evidence", "--think-hard", "--profile"]
+ 
+   performance_category:
+-    primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
++    primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot --seq"]
+     secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:build --optimize"]
+-    mcp_servers: ["--pup"]
++    mcp_servers: ["--pup", "--seq"]
+     personas: ["--persona-performance", "--persona-analyzer"]
+     flags: ["--profile", "--monitoring", "--benchmark"]
+ 
+   security_category:
+-    primary_commands: ["/sc:sc:scan --security --owasp --deps", "/sc:sc:analyze --security"]
++    primary_commands: ["/sc:sc:scan --security --owasp --deps", "/sc:sc:analyze --security --seq"]
+     secondary_commands: ["/sc:sc:improve --security --harden", "/sc:sc:troubleshoot --investigate"]
++    mcp_servers: ["--seq"]
+     personas: ["--persona-security", "--persona-analyzer"]
+     flags: ["--strict", "--validate", "--owasp"]
+ 
+   create_category:
+-    primary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:design --ultrathink"]
++    primary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:design --seq --ultrathink"]
+     secondary_commands: ["/sc:sc:analyze --code --c7", "/sc:sc:test --coverage --e2e"]
+     mcp_servers: ["--magic", "--c7", "--pup"]
+     personas: ["--persona-frontend", "--persona-backend", "--persona-architect"]
+@@ -183,7 +184,8 @@ category_mapping:
+ 
+   improve_category:
+     primary_commands: ["/sc:sc:improve --quality --iterate", "/sc:sc:cleanup --code --all"]
+-    secondary_commands: ["/sc:sc:analyze --code", "/sc:sc:refactor --quality"]
++    secondary_commands: ["/sc:sc:analyze --code --seq", "/sc:sc:refactor --quality"]
++    mcp_servers: ["--seq"]
+     personas: ["--persona-refactorer", "--persona-mentor"]
+     flags: ["--threshold", "--iterate", "--profile"]
+ 
+@@ -227,10 +229,10 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
+ 🎭 Persona: --persona-mentor + --persona-analyzer
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:analyze --c7 --persona-mentor
++1. /sc:sc:analyze --seq --c7 --persona-mentor
+    "Research ML goals, data types, and suitable libraries"
+ 
+-2. /sc:sc:design --ultrathink --persona-architect
++2. /sc:sc:design --seq --ultrathink --persona-architect
+    "Design simple but scalable ML architecture"
+ 
+ 3. /sc:sc:build --feature --tdd --persona-frontend
+@@ -239,7 +241,7 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
+ 4. /sc:sc:test --coverage --e2e --pup --persona-qa
+    "Create comprehensive test scenarios"
+ 
+-🔧 Recommended MCP Servers: --c7
++🔧 Recommended MCP Servers: --c7 --seq
+ 💡 Additional Recommendations:
+ - Learning mode: /sc:sc:document --user --examples --persona-mentor
+ - Security: /sc:sc:scan --security --owasp (next phase)
+@@ -262,7 +264,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
+ 1. /sc:sc:analyze --performance --pup --profile --persona-performance
+    "Detailed performance analysis and bottleneck detection"
+ 
+-2. /sc:sc:troubleshoot --investigate --persona-analyzer
++2. /sc:sc:troubleshoot --investigate --seq --persona-analyzer
+    "Investigate issue with root cause analysis"
+ 
+ 3. /sc:sc:improve --performance --iterate --persona-performance
+@@ -271,7 +273,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
+ 4. /sc:sc:test --coverage --e2e --pup --persona-qa
+    "Tests validating improvements"
+ 
+-🔧 Recommended MCP Servers: --pup
++🔧 Recommended MCP Servers: --pup --seq
+ 💡 Smart Flag Recommendations:
+ --monitoring (continuous performance tracking)
+ --benchmark (before/after comparison)
+@@ -291,13 +293,13 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
+ 🎭 Persona: --persona-security + --persona-backend
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:analyze --security --persona-security
++1. /sc:sc:analyze --security --seq --persona-security
+    "Comprehensive security analysis and threat modeling"
+ 
+ 2. /sc:sc:scan --security --owasp --deps --strict --persona-security
+    "OWASP Top 10 vulnerability scan and dependency check"
+ 
+-3. /sc:sc:design --api --ddd --ultrathink --persona-architect
++3. /sc:sc:design --api --ddd --seq --ultrathink --persona-architect
+    "Secure API architecture with proper authentication patterns"
+ 
+ 4. /sc:sc:build --feature --tdd --persona-backend
+@@ -306,6 +308,7 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
+ 5. /sc:sc:improve --security --harden --persona-security
+    "Security hardening and production-ready configurations"
+ 
++🔧 Recommended MCP Servers: --seq
+ 💡 Advanced Security Options:
+ --token-based-auth --role-based-access --rate-limiting
+ --audit-logging --encryption --secure-headers
+@@ -324,7 +327,7 @@ User: /sc:sc:recommend "I'm going to create a new user profile component"
+ 🎭 Persona: --persona-frontend + --persona-qa
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:design --api --persona-architect
++1. /sc:sc:design --api --seq --persona-architect
+    "Component interface and props design"
+ 
+ 2. /sc:sc:build --feature --magic --react --persona-frontend
+@@ -390,21 +393,23 @@ project_detection:
+     node_api_project:
+       indicators: ["package.json with express", "server.js", "routes/", "controllers/"]
+       detection_commands:
+-        primary: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
++        primary: ["/sc:sc:design --api --ddd --seq", "/sc:sc:build --feature --tdd"]
+         personas: ["--persona-backend", "--persona-security"]
+-        mcp: ["--c7"]
++        mcp: ["--seq", "--c7"]
+ 
+     python_project:
+       indicators: ["requirements.txt", "setup.py", "src/", "main.py", "Dockerfile"]
+       detection_commands:
+-        primary: ["/sc:sc:analyze --code", "/sc:sc:design --ultrathink"]
++        primary: ["/sc:sc:analyze --code --seq", "/sc:sc:design --seq --ultrathink"]
+         personas: ["--persona-analyzer", "--persona-architect"]
++        mcp: ["--seq"]
+ 
+     database_project:
+       indicators: ["schema.sql", "migrations/", "models/", "prisma.schema"]
+       detection_commands:
+-        primary: ["/sc:sc:migrate --database --validate", "/sc:sc:analyze --security"]
++        primary: ["/sc:sc:migrate --database --validate", "/sc:sc:analyze --security --seq"]
+         personas: ["--persona-backend", "--persona-security"]
++        mcp: ["--seq"]
+ 
+   project_size_estimation:
+     small_project:
+@@ -459,7 +464,7 @@ project_detection:
+ 1. /sc:sc:scan --security --owasp --deps --strict --persona-security
+    "OWASP Top 10 and dependency security scan"
+ 
+-2. /sc:sc:analyze --security --persona-security
++2. /sc:sc:analyze --security --seq --persona-security
+    "JWT and authentication pattern analysis"
+ 
+ 3. /sc:sc:improve --security --harden --persona-backend
+@@ -509,11 +514,11 @@ streaming_mode:
+ ⏱️ Estimated Time: 3-6 weeks
+ 
+ --- PHASE 1: ANALYSIS & PLANNING ---
+-✅ Current: /sc:sc:analyze --c7 --persona-architect
++✅ Current: /sc:sc:analyze --seq --c7 --persona-architect
+    "E-commerce architecture and technology selection"
+ 
+ 🔄 Next Steps (when completed):
+-1. /sc:sc:design --api --ddd --ultrathink --persona-architect
++1. /sc:sc:design --api --ddd --seq --ultrathink --persona-architect
+ 2. /sc:sc:build --feature --magic --react --persona-frontend
+ 
+ --- STREAM CONTINUING ---
+@@ -704,7 +709,7 @@ smart_flag_engine:
+     project_size:
+       small: "--quick --simple --no-validation"
+       medium: "--plan --validate --profile"
+-      large: "--plan --validate --ultrathink"
++      large: "--plan --validate --seq --ultrathink"
+ 
+     security_requirements:
+       basic: "--basic-security"
+@@ -749,7 +754,7 @@ smart_flag_engine:
+ - Large refactoring history: --plan --dry-run
+ 
+ 🎯 PROJECT CONTEXT:
+-- Large project (>200 files): --ultrathink
++- Large project (>200 files): --seq --ultrathink
+ - Production environment: --validate --monitoring
+ - High traffic: --benchmark --profile
+ 
+@@ -795,7 +800,7 @@ community_patterns:
+     web_development:
+       most_successful_flow:
+         - "/sc:sc:analyze --code --c7"
+-        - "/sc:sc:design --api"
++        - "/sc:sc:design --api --seq"
+         - "/sc:sc:build --feature --magic --tdd"
+         - "/sc:sc:test --coverage --e2e --pup"
+       success_rate: "87%"
+@@ -803,8 +808,8 @@ community_patterns:
+ 
+     ml_development:
+       most_successful_flow:
+-        - "/sc:sc:analyze --c7 --persona-mentor"
+-        - "/sc:sc:design --ultrathink --persona-architect"
++        - "/sc:sc:analyze --seq --c7 --persona-mentor"
++        - "/sc:sc:design --seq --ultrathink --persona-architect"
+         - "/sc:sc:build --feature --tdd --persona-frontend"
+         - "/sc:sc:improve --performance --iterate"
+       success_rate: "82%"
+@@ -813,7 +818,7 @@ community_patterns:
+   popular_command_combinations:
+     security_focused:
+       - "/sc:sc:scan --security --owasp"
+-      - "/sc:sc:analyze --security"
++      - "/sc:sc:analyze --security --seq"
+       - "/sc:sc:improve --security --harden"
+       usage_frequency: "45% of production projects"
+ 
+@@ -889,7 +894,7 @@ recommend_command_implementation:
+ =================
+ 
+ 1. 🏗️ PLANNING AND DESIGN
+-   /sc:sc:design --api --ddd --ultrathink --persona-architect
++   /sc:sc:design --api --ddd --seq --ultrathink --persona-architect
+    "E-commerce domain architecture and system design"
+ 
+ 2. 🎨 FRONTEND DEVELOPMENT
+diff --git a/commands/sc-research.md b/commands/sc-research.md
+index f80396fc..bd5b0bcb 100644
+--- a/commands/sc-research.md
++++ b/commands/sc-research.md
+@@ -3,7 +3,7 @@ name: research
+ description: Deep web research with adaptive planning and intelligent search
+ category: command
+ complexity: advanced
+-mcp-servers: [tavily, playwright, serena]
++mcp-servers: [tavily, sequential, playwright, serena]
+ personas: [deep-research-agent]
+ ---
+ 
+@@ -81,6 +81,7 @@ personas: [deep-research-agent]
+ 
+ ## MCP Integration
+ - **Tavily**: Primary search and extraction engine
++- **Sequential**: Complex reasoning and synthesis
+ - **Playwright**: JavaScript-heavy content extraction
+ - **Serena**: Research session persistence
+ 
+diff --git a/commands/sc-sc.md b/commands/sc-sc.md
+new file mode 100644
+index 00000000..ff724729
+--- /dev/null
++++ b/commands/sc-sc.md
+@@ -0,0 +1,130 @@
++---
++name: sc
++description: SuperClaude command dispatcher - Use /sc:sc [command] to access all SuperClaude features
++---
++
++# SuperClaude Command Dispatcher
++
++🚀 **SuperClaude Framework** - Main command dispatcher
++
++## Usage
++
++All SuperClaude commands use the `/sc:sc:` prefix:
++
++```
++/sc:sc:command [args...]
++```
++
++## Available Commands
++
++### Research & Analysis
++```
++/sc:sc:research [query]         - Deep web research with parallel search
++```
++
++### Repository Management
++```
++/sc:sc:index-repo              - Index repository for context optimization
++```
++
++### AI Agents
++```
++/sc:sc:agent [type]            - Launch specialized AI agents
++```
++
++### Recommendations
++```
++/sc:sc:recommend [context]     - Get command recommendations
++```
++
++### Help
++```
++/sc:sc                         - Show this help (all available commands)
++```
++
++## Command Namespace
++
++All commands are namespaced under `sc:` to keep them organized:
++- ✅ `/sc:sc:research query`
++- ✅ `/sc:sc:index-repo`
++- ✅ `/sc:sc:agent type`
++- ✅ `/sc:sc:recommend`
++- ✅ `/sc:sc` (help)
++
++## Examples
++
++### Research
++```
++/sc:sc:research React 18 new features
++/sc:sc:research LLM agent architectures 2024
++/sc:sc:research Python async best practices
++```
++
++### Index Repository
++```
++/sc:sc:index-repo
++```
++
++### Agent
++```
++/sc:sc:agent deep-research
++/sc:sc:agent self-review
++/sc:sc:agent repo-index
++```
++
++### Recommendations
++```
++/sc:sc:recommend
++```
++
++## Quick Reference
++
++| Command | Description | Example |
++|---------|-------------|---------|
++| `/sc:sc:research` | Deep web research | `/sc:sc:research topic` |
++| `/sc:sc:index-repo` | Repository indexing | `/sc:sc:index-repo` |
++| `/sc:sc:agent` | Specialized AI agents | `/sc:sc:agent type` |
++| `/sc:sc:recommend` | Command suggestions | `/sc:sc:recommend` |
++| `/sc:sc` | Show help | `/sc:sc` |
++
++## Features
++
++- **Parallel Execution**: Research runs multiple searches in parallel
++- **Evidence-Based**: All findings backed by sources
++- **Context-Aware**: Uses repository context when available
++- **Token Efficient**: Optimized for minimal token usage
++
++## Help
++
++For help on specific commands:
++```
++/sc:sc:research --help
++/sc:sc:agent --help
++```
++
++Or use the main help command:
++```
++/sc:sc
++```
++
++Check the documentation:
++- PLANNING.md - Architecture and design
++- TASK.md - Current tasks and priorities
++- KNOWLEDGE.md - Tips and best practices
++
++## Version
++
++SuperClaude v4.1.7
++- Python package: 0.4.0
++- Pytest plugin included
++- PM Agent patterns enabled
++
++---
++
++💡 **Tip**: All commands use the `/sc:sc:` prefix - e.g., `/sc:sc:research`, `/sc:sc:agent`
++
++🔧 **Installation**: Run `superclaude install` to install/update commands
++
++📚 **Documentation**: https://github.com/SuperClaude-Org/SuperClaude_Framework
++
++⚠️ **Important**: Restart Claude Code after installing commands to use them!
+diff --git a/commands/sc-select-tool.md b/commands/sc-select-tool.md
+new file mode 100644
+index 00000000..95e3a539
+--- /dev/null
++++ b/commands/sc-select-tool.md
+@@ -0,0 +1,87 @@
++---
++name: select-tool
++description: "Intelligent MCP tool selection based on complexity scoring and operation analysis"
++category: special
++complexity: high
++mcp-servers: [serena, morphllm]
++personas: []
++---
++
++# /sc:sc:sc:select-tool - Intelligent MCP Tool Selection
++
++## Triggers
++- Operations requiring optimal MCP tool selection between Serena and Morphllm
++- Meta-system decisions needing complexity analysis and capability matching
++- Tool routing decisions requiring performance vs accuracy trade-offs
++- Operations benefiting from intelligent tool capability assessment
++
++## Usage
++```
++/sc:sc:select-tool [operation] [--analyze] [--explain]
++```
++
++## Behavioral Flow
++1. **Parse**: Analyze operation type, scope, file count, and complexity indicators
++2. **Score**: Apply multi-dimensional complexity scoring across various operation factors
++3. **Match**: Compare operation requirements against Serena and Morphllm capabilities
++4. **Select**: Choose optimal tool based on scoring matrix and performance requirements
++5. **Validate**: Verify selection accuracy and provide confidence metrics
++
++Key behaviors:
++- Complexity scoring based on file count, operation type, language, and framework requirements
++- Performance assessment evaluating speed vs accuracy trade-offs for optimal selection
++- Decision logic matrix with direct mappings and threshold-based routing rules
++- Tool capability matching for Serena (semantic operations) vs Morphllm (pattern operations)
++
++## MCP Integration
++- **Serena MCP**: Optimal for semantic operations, LSP functionality, symbol navigation, and project context
++- **Morphllm MCP**: Optimal for pattern-based edits, bulk transformations, and speed-critical operations
++- **Decision Matrix**: Intelligent routing based on complexity scoring and operation characteristics
++
++## Tool Coordination
++- **get_current_config**: System configuration analysis for tool capability assessment
++- **execute_sketched_edit**: Operation testing and validation for selection accuracy
++- **Read/Grep**: Operation context analysis and complexity factor identification
++- **Integration**: Automatic selection logic used by refactor, edit, implement, and improve commands
++
++## Key Patterns
++- **Direct Mapping**: Symbol operations → Serena, Pattern edits → Morphllm, Memory operations → Serena
++- **Complexity Thresholds**: Score >0.6 → Serena, Score <0.4 → Morphllm, 0.4-0.6 → Feature-based
++- **Performance Trade-offs**: Speed requirements → Morphllm, Accuracy requirements → Serena
++- **Fallback Strategy**: Serena → Morphllm → Native tools degradation chain
++
++## Examples
++
++### Complex Refactoring Operation
++```
++/sc:sc:select-tool "rename function across 10 files" --analyze
++# Analysis: High complexity (multi-file, symbol operations)
++# Selection: Serena MCP (LSP capabilities, semantic understanding)
++```
++
++### Pattern-Based Bulk Edit
++```
++/sc:sc:select-tool "update console.log to logger.info across project" --explain
++# Analysis: Pattern-based transformation, speed priority
++# Selection: Morphllm MCP (pattern matching, bulk operations)
++```
++
++### Memory Management Operation
++```
++/sc:sc:select-tool "save project context and discoveries"
++# Direct mapping: Memory operations → Serena MCP
++# Rationale: Project context and cross-session persistence
++```
++
++## Boundaries
++
++**Will:**
++- Analyze operations and provide optimal tool selection between Serena and Morphllm
++- Apply complexity scoring based on file count, operation type, and requirements
++- Provide sub-100ms decision time with >95% selection accuracy
++
++**Will Not:**
++- Override explicit tool specifications when user has clear preference
++- Select tools without proper complexity analysis and capability matching
++- Compromise performance requirements for convenience or speed
++
+diff --git a/commands/sc-spec-panel.md b/commands/sc-spec-panel.md
+index 1a143a85..1c737ab3 100644
+--- a/commands/sc-spec-panel.md
++++ b/commands/sc-spec-panel.md
+@@ -3,7 +3,7 @@ name: spec-panel
+ description: "Multi-expert specification review and improvement using renowned specification and software engineering experts"
+ category: analysis
+ complexity: enhanced
+-mcp-servers: [context7]
++mcp-servers: [sequential, context7]
+ personas: [technical-writer, system-architect, quality-engineer]
+ ---
+ 
+@@ -95,11 +95,12 @@ Key behaviors:
+ - **Critique Focus**: "How does this specification handle cloud-native deployment and operational concerns?"
+ 
+ ## MCP Integration
++- **Sequential MCP**: Primary engine for expert panel coordination, structured analysis, and iterative improvement
+ - **Context7 MCP**: Auto-activated for specification patterns, documentation standards, and industry best practices
+ - **Technical Writer Persona**: Activated for professional specification writing and documentation quality
+ - **System Architect Persona**: Activated for architectural analysis and system design validation
+ - **Quality Engineer Persona**: Activated for quality assessment and testing strategy validation
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Analysis Modes
+ 
+@@ -229,6 +230,7 @@ KELSEY HIGHTOWER: "What operational and monitoring capabilities does this specif
+ 
+ ## Tool Coordination
+ - **Read**: Specification content analysis and parsing
++- **Sequential**: Expert panel coordination and iterative analysis
+ - **Context7**: Specification patterns and industry best practices
+ - **Grep**: Cross-reference validation and consistency checking
+ - **Write**: Improved specification generation and report creation
+diff --git a/commands/sc-task.md b/commands/sc-task.md
+index 84bb9ead..2f4ceb36 100644
+--- a/commands/sc-task.md
++++ b/commands/sc-task.md
+@@ -3,7 +3,7 @@ name: task
+ description: "Execute complex tasks with intelligent workflow management and delegation"
+ category: special
+ complexity: advanced
+-mcp-servers: [context7, magic, playwright, morphllm, serena]
++mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+@@ -29,22 +29,24 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
+ 
+ Key behaviors:
+ - Multi-persona coordination across architect, frontend, backend, security, devops domains
+-- Intelligent MCP server routing (Context7, Magic, Playwright, Morphllm, Serena)
++- Intelligent MCP server routing (Sequential, Context7, Magic, Playwright, Morphllm, Serena)
+ - Systematic execution with progressive task enhancement and cross-session persistence
+ - Advanced task delegation with hierarchical breakdown and dependency management
+ 
+ ## MCP Integration
++- **Sequential MCP**: Complex multi-step task analysis and systematic execution planning
+ - **Context7 MCP**: Framework-specific patterns and implementation best practices
+ - **Magic MCP**: UI/UX task coordination and design system integration
+ - **Playwright MCP**: Testing workflow integration and validation automation
+ - **Morphllm MCP**: Large-scale task transformation and pattern-based optimization
+ - **Serena MCP**: Cross-session task persistence and project memory management
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
+ - **Task**: Advanced delegation for complex multi-agent coordination and sub-task management
+ - **Read/Write/Edit**: Task documentation and implementation coordination
++- **sequentialthinking**: Structured reasoning for complex task dependency analysis
+ 
+ ## Key Patterns
+ - **Task Hierarchy**: Epic-level objectives → Story coordination → Task execution → Subtask granularity
+diff --git a/commands/sc-workflow.md b/commands/sc-workflow.md
+index 388001bc..cd7ce073 100644
+--- a/commands/sc-workflow.md
++++ b/commands/sc-workflow.md
+@@ -3,7 +3,7 @@ name: workflow
+ description: "Generate structured implementation workflows from PRDs and feature requirements"
+ category: orchestration
+ complexity: advanced
+-mcp-servers: [context7, magic, playwright, morphllm, serena]
++mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+@@ -34,18 +34,20 @@ Key behaviors:
+ - Cross-session workflow management with comprehensive dependency tracking
+ 
+ ## MCP Integration
++- **Sequential MCP**: Complex multi-step workflow analysis and systematic implementation planning
+ - **Context7 MCP**: Framework-specific workflow patterns and implementation best practices
+ - **Magic MCP**: UI/UX workflow generation and design system integration strategies
+ - **Playwright MCP**: Testing workflow integration and quality assurance automation
+ - **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
+ - **Serena MCP**: Cross-session workflow persistence, memory management, and project context
+-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
++- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+ 
+ ## Tool Coordination
+ - **Read/Write/Edit**: PRD analysis and workflow documentation generation
+ - **TodoWrite**: Progress tracking for complex multi-phase workflow execution
+ - **Task**: Advanced delegation for parallel workflow generation and multi-agent coordination
+ - **WebSearch**: Technology research, framework validation, and implementation strategy analysis
++- **sequentialthinking**: Structured reasoning for complex workflow dependency analysis
+ 
+ ## Key Patterns
+ - **PRD Analysis**: Document parsing → requirement extraction → implementation strategy development

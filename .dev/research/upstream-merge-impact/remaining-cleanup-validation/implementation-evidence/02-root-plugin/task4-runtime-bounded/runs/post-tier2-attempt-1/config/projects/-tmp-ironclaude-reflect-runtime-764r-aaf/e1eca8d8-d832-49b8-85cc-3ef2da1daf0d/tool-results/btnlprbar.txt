@@ -1,0 +1,337 @@
+  114 diff-analysis.md
+   82 round-1-advocate-1.md
+   75 round-1-advocate-2.md
+   59 round-2-advocate-1.md
+   75 variant-1-original.md
+  104 variant-2-original.md
+  509 total
+# Diff Analysis: Tier-2 Reviewer Deviation Card Comparison
+
+## Metadata
+- Generated: 2026-10-24T21:21:47Z
+- Variants compared: 2
+  - Variant A = `variant-1-original.md` (reviewer-1: sc:reflect-reviewer, persona analyzer, slot sonnet, reported model claude-sonnet-5-5[1m])
+  - Variant B = `variant-2-original.md` (reviewer-2: sc:reflect-reviewer, persona qa, slot haiku, reported model grok-4.7[1m])
+- Mode: A (--compare), depth standard, focus correctness, coverage, deviation-classification
+- Evidence root for falsifiability checks: `reviewer-snapshot/root` (frozen snapshot). Card paths are relative to it.
+- Total differences found: 24 (plus 4 promoted [SHARED-ASSUMPTION] points, giving 28 debate points)
+- Categories: structural (6), content (6), contradictions (3), unique (9), shared assumptions (8 enumerated; 4 UNSTATED promoted, 4 STATED, 0 CONTRADICTED)
+- Taxonomy levels (S/C/X/A, 23 points): L1 = 3, L2 = 14, L3 = 6
+
+Orchestrator neutrality note: this file records differences. It does not adjudicate them. Where a card made a claim that can be checked against the snapshot, the check result is recorded as an observation for the debate.
+
+## Structural Differences
+
+| # | Area | Variant A | Variant B | Severity | Level |
+|---|------|-----------|-----------|----------|-------|
+| S-001 | Empty deviations-table row | Single row `none \| n/a \| n/a \| ...` with `n/a` severity. No separate precedence walk. | Single row of `—` cells, then a paragraph walking the precedence order (Regression > Drift > Necessary > Authorized). | Low | L1 (presentation/formatting) |
+| S-002 | Grounding-gaps artifact format | Markdown table, IDs `GG-1` and `GG-2`. Columns: id, hunk_ref, evidence_missing, why_not_classifiable, next_evidence_needed, owner. No `decision_needed_by_user` field. | Fenced YAML list, no IDs. Fields follow the taxonomy schema, including `decision_needed_by_user` (true on the first entry, false on the second). | Medium | L2 (artifact interface/schema conformance) |
+| S-003 | Per-requirement coverage section | None. Coverage appears only in the "Adherence summary" bullets. | Dedicated "Coverage findings (acceptance lens)" table, F-001 to F-004, with a Tag column (Grounded / unevidenced). | Medium | L2 (organization) |
+| S-004 | Section order and challenge layout | Deviations, Grounding gaps, Challenge to T1 (numbered 1-6 with Agree/Sharpened/Mostly agree labels), Correctness gaps, Adherence, Risks, Recommendations, Notes. Confidence is inline at the end. | Opening verdict paragraph, Deviations, Coverage findings, T1 challenge (split into "Agreed" and "Challenged" lists), Grounding gaps, Adherence, Risks, Recommendations, Notes, then a separate "Self-reported confidence" section. | Low | L1 (section ordering/presentation) |
+| S-005 | Advisory correctness-gap section | Present. Two-row table "Correctness gaps (advisory — non-gating)" with a "Sibling disagreement" column. | Absent on purpose. One sentence explains why ("No advisory correctness-gap section"). The same two subjects appear as Risks #3 and #4. | Medium | L2 (organization of the report's component sections) |
+| S-006 | Risks and recommendations format | Risks: numbered list of 3, no tags. Recommendations: 3-row table (File / Change / Verifier). | Risks: 4-row table with a Grounded/[INFERRED] Tag column. Recommendations: numbered list of 4 in **File/Change/Verifier** form. | Low | L1 (formatting) |
+
+## Content Differences
+
+| # | Topic | Variant A Approach | Variant B Approach | Severity | Level |
+|---|-------|-------------------|-------------------|----------|-------|
+| C-001 | How the grounding gaps are split | Two gaps, divided by what is missing. GG-1: T-103 completion claim has no diff backing (`completed.md:8` vs `changes.patch:1-9`). GG-2: R-003 tests were never executed (`spec.md:11-12`). Both owner `user`. | Two gaps, divided differently. Gap 1 combines the missing execution and the missing diff provenance for `tests/test_greeting.py:1-13` (`decision_needed_by_user: true`). Gap 2 is new: the `status: done` stamp has no task log behind it (`completed.md:2`, `:6-8`), with `decision_needed_by_user: false`. | High | L3 (completion-state / status-gating classification) |
+| C-002 | Patch citation ranges | Gives the patch evidence as `changes.patch:5-9` in the deviations row, and `changes.patch:7-9` for R-001 and R-002. | Says the body is `changes.patch:6-9` and line 5 is the `@@` header. Uses `changes.patch:1-4` for the file header. Also says "`changes.patch` is 10 lines". Snapshot observation: `changes.patch` has 9 lines (wc -l = 9, final newline present). Line 5 is `@@ -0,0 +1,4 @@` and lines 6-9 are the body. So B's line-count claim is falsified, while its body-range claim matches the snapshot. A's `:5-9` includes the header line. | Medium | L2 (default; citation correctness) |
+| C-003 | How far the T1 "no divergence" headline reaches | Limits the zero-deviation result to `src/greeting.py` ("not to the whole change"). Says it "can read as a clean pass". | Calls the T1 headline "ledger-true and acceptance-false" (`__run_evidence__/t1-card.md:22`), states "QA does not sign the work off", and says S_dev_density 0/1 "does not mean requirement acceptance is 100%". | Low | L2 (default) |
+| C-004 | Import-path remediation | Recommends running both `python -m pytest` and plain `pytest` from the project root. Does not assess T1 recommendation 3. | Same two runs, plus: only if plain pytest exits 2, set `pythonpath = .` (or similar) in root pytest config, and do not treat `tests/__init__.py` as the fix (rejects T1 recommendation 3). | Medium | L2 (module/dependency resolution) |
+| C-005 | R-003 and regression accounting | "R-003: presence confirmed ... Execution is unverified and diff backing is absent (GG-1, GG-2)." Deviation counts are all 0. No explicit `regression_present` field. | Adds "Unclassifiable (grounding gaps): 1 (R-003 / T-103)" and `regression_present: false`, and gives the conditions under which Regression could not be minted. | Low | L2 (default) |
+| C-006 | Self-reported confidence | Split: 0.8 for zero deviations on `src/greeting.py`, about 0.5 for the change overall. Overall status `partial` + `needs_human_decision`. | Single value 0.76, capped by missing R-003 execution, missing test-file provenance, and the inferred import outcome. | Medium | L2 (default; calibration structure) |
+
+## Contradictions
+
+| # | Point of Conflict | Variant A Position | Variant B Position | Impact | Level |
+|---|-------------------|-------------------|-------------------|--------|-------|
+| X-001 | Whether the T-103 no-hunk gap could later be reclassified as Drift | GG-1: "A completion claim with no diff backing could be an unmapped change (Drift) or a claim about pre-existing or out-of-scope work." Risks #2: "It could turn out to be unmapped work, which would make it Drift." | "Not upgraded to Drift: Drift requires an unmapped diff hunk. T-103 is a task with no hunk, which is missing provenance, not extra work." | Medium | L3 (classification boundary between Grounding Gap and Drift) |
+| X-002 | Evidence tag for the missing package/config files (`src/__init__.py`, conftest, pyproject, etc.) | Challenge #4: "the absence of `src/__init__.py` cannot be treated as evidence about the live project. The snapshot cannot support 'Grounded for file absence'. That tag should be [INFERRED]." | Risk #2: "Grounded for the import line and for the missing config files (snapshot file list). `[INFERRED]` for the failure mode." Also counts "8 snapshot files; none of those". Snapshot observation: the snapshot does contain 8 files and none of the listed config files. Neither card shows whether the live root has them, because the live root was out of bounds for both. | Medium | L2 (evidence grounding / dependency config) |
+| X-003 | Whether the `if not name` falsy-guard behaviour counts as an advisory correctness gap | Correctness gap #1: "Falsy vs. truthy input handling is inconsistent ... The guard enforces a 'name required' intent (`src/greeting.py:3`) that the f-string at `:4` does not enforce for type or whitespace." (listed under "Sibling disagreement") | Risk #3: "Not a contradiction, not a sibling-symbol correctness gap (`greet` has no sibling)." Also: "No advisory correctness-gap section ... Spec silence on whitespace and non-strings is not a sibling-contract split." | Medium | L3 (guard / input-validation rule) |
+
+## Unique Contributions
+
+| # | Variant | Contribution | Value Assessment |
+|---|---------|-------------|-----------------|
+| U-001 | A | Argues that the T1 metric `S_dev_density = 0/1` cannot see T-103, because it counts only hunks that exist. So the metric says nothing about the one place a deviation could hide. | Medium |
+| U-002 | A | Notes that the snapshot holds selected inputs only, so file absence in the snapshot says nothing about the live project layout. (This is the basis of A's side of X-002.) | High |
+| U-003 | B | Per-requirement acceptance table F-001 to F-004, with evaluation at the semantic level (for example, "`not \"\"` is true, so an empty string raises `ValueError`"), plus spec, task and diff citations for each requirement. | Medium |
+| U-004 | B | Rejects T1 recommendation 3: `tests/__init__.py` "does not put the project root on `sys.path`". Offers a conditional `pythonpath = .` fix as the alternative. | High |
+| U-005 | B | Corrects T1's "both files are 4 lines" and its `:5-9` body range to `:6-9`. Note: this item also contains B's claim that `changes.patch` is 10 lines, which the snapshot falsifies (see C-002). | Medium |
+| U-006 | B | Checks reachability and runtime surface: `greet` is an undecorated function and is not on the runtime-surface allowlist, so empty `runtime_surface_requirements` is correct and skipping reachability is not a gap. | Low |
+| U-007 | B | Walks the classification precedence explicitly (Regression > Drift > Necessary > Authorized) and sets `regression_present: false`, with stated reasons. | Medium |
+| U-008 | B | Discloses model identity: the haiku slot resolves to `grok-4.7[1m]` through an alias. This matters for whether the reviewers really are heterogeneous. | Medium |
+| U-009 | B | States that static closure of R-001 does not depend on the unexecuted test. The f-string is deterministic, and `tests/test_greeting.py:5` is a second oracle that was never run. | Low |
+
+## Shared Assumptions
+
+Agreement points scanned:
+- Zero 4-class deviations.
+- H1 maps to T-101 and T-102.
+- R-001 and R-002 are adherent on a static reading.
+- R-003 execution is unverified.
+- Non-empty grounding gaps force `partial` + `needs_human_decision`.
+- Shared pytest exit-code mapping: 0 closes the gap, 1 is Regression, 2/3 is a Grounding Gap, 5 is Drift/coverage.
+- Whitespace and non-string inputs are not spec contradictions.
+- `test_empty` is a weaker oracle that still satisfies R-002.
+- The reuse audit says `distinct`.
+- Both recommend running `python -m pytest` and plain `pytest`.
+- Both recommend amending the spec for R-002.
+
+### Enumerated preconditions
+
+| # | Agreement Source | Assumption | Classification | Promoted | Level |
+|---|------------------|------------|----------------|----------|-------|
+| A-001 | Zero deviations; H1 is the only code hunk | Restricting the diff to `--scope src` hides nothing except `tests/test_greeting.py`. No other out-of-scope files were changed by the audited work, so the scope boundary leaves no other unmapped hunks. | UNSTATED | Yes | L3 (scope boundary) |
+| A-002 | R-001 adherent | `spec.md:6` "the exact string Hello, Ada! for Ada." means the literal `Hello, Ada!` with the `!`, and the final `.` ends the sentence rather than being part of the string. | UNSTATED | Yes | L2 |
+| A-003 | Shared exit-code mapping | The taxonomy's pytest exit-code table is the authoritative classifier for any future R-003 run. | STATED (both cite the taxonomy table) | No | L2 |
+| A-004 | Status forced to partial | A non-empty grounding-gaps artifact forces `status: partial` and `needs_human_decision: true`. (Snapshot-adjacent check: `plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md:149-153` says this.) | STATED | No | L3 (return-contract state) |
+| A-005 | R-002 adherent; whitespace not a contradiction | R-002 "empty" means `""` (and other falsy values) only, so the `if not name` guard satisfies it, and whitespace-only or non-string names are outside the validation rule. | STATED (both note `spec.md:9` says only "empty" and recommend a spec amendment) | No | L3 (guard / validation rule) |
+| A-006 | All citations | The five core files in `reviewer-snapshot/root` (`spec.md`, `completed.md`, `changes.patch`, `src/greeting.py`, `tests/test_greeting.py`) are faithful byte copies of the live `audit_repo_root` files at audit time. | UNSTATED (both say the live root was not read; neither states snapshot fidelity, though both depend on it) | Yes | L2 |
+| A-007 | R-001 deterministic f-string; R-002 behaviour | Tests and code run under a Python 3 interpreter (3.6+ for f-strings) whose `not` / f-string semantics match the static reading. No interpreter or dependency version is stated anywhere. | UNSTATED | Yes | L2 (runtime dependency) |
+| A-008 | R-003 execution unverified | No test results exist anywhere for this run. The "verification triangle not run" statement (`__run_evidence__/artifacts/task-to-diff-map.md`, verification section) is accurate and complete. | STATED | No | L2 |
+
+### Promoted [SHARED-ASSUMPTION] points
+
+| A-NNN | Assumption | Source Agreement | Impact | Status |
+|-------|------------|------------------|--------|--------|
+| A-001 | [SHARED-ASSUMPTION] The `--scope src` boundary hides no out-of-scope change other than `tests/test_greeting.py`. | Zero deviations / single mapped hunk | High: if false, unmapped hunks could exist, which is a Drift signal that neither card evaluated. | Open for debate |
+| A-002 | [SHARED-ASSUMPTION] R-001's "exact string" is `Hello, Ada!`, with the sentence-final `.` excluded. | R-001 adherent | Low: the natural reading, but neither card states it. | Open for debate |
+| A-006 | [SHARED-ASSUMPTION] The snapshot core files are byte-faithful to the live audit root. | All citations | Medium: every Grounded tag in both cards rests on it. A provenance manifest exists (`reviewer-snapshot/provenance-manifest.json`) but neither card cites it as checked. | Open for debate |
+| A-007 | [SHARED-ASSUMPTION] Python 3.6+ runtime semantics apply. | R-001 / R-002 static adherence | Low: the fixture is trivial, but no runtime version is evidenced. | Open for debate |
+
+CONTRADICTED assumptions: none found. The snapshot checks made (8-file listing, patch hunk layout, `t1-card.md:22` "no divergence found", taxonomy lines 149-153) do not contradict any precondition that both variants depend on. The only falsified factual claim (B: "`changes.patch` is 10 lines") belongs to Variant B alone and is recorded under C-002 / U-005.
+
+## Summary
+- Total structural differences: 6
+- Total content differences: 6
+- Total contradictions: 3
+- Total unique contributions: 9 (A: 2, B: 7)
+- Total shared assumptions surfaced: 8 (UNSTATED: 4, STATED: 4, CONTRADICTED: 0)
+- Total debate points (S + C + X + U + promoted A): 28
+- Taxonomy coverage (S/C/X/A points): L1 = 3 (S-001, S-004, S-006); L2 = 14 (S-002, S-003, S-005, C-002, C-003, C-004, C-005, C-006, X-002, A-002, A-003, A-006, A-007, A-008); L3 = 6 (C-001, X-001, X-003, A-001, A-004, A-005). All three levels have coverage.
+- Highest-severity items: C-001 (High), A-001 (High impact); High-value unique items: U-002, U-004
+- Verdict-level agreement: both variants report 0 Authorized / 0 Necessary / 0 Drift / 0 Regression, R-001 and R-002 statically adherent, R-003 unresolved, and final status `partial` + `needs_human_decision`. Disagreements concern the shape of the gaps, classification boundaries (X-001, X-003), evidence tagging (X-002), citation precision (C-002), and remediation (C-004).
+
+## Similarity Check
+- Comparable items: 24 differences + 15 agreement points (the 11 listed under Shared Assumptions, plus: H1/T-101/T-102 mapping citations, the test_empty oracle note, the T-103 widen-scope/task-log recommendation, and "live root not read") = 39.
+- Difference ratio: 24 / 39 = 61.5%.
+- Threshold: below 10% means "substantially identical".
+- Result: NOT substantially identical (61.5% ≥ 10%). Do not skip the debate. Steps 2-3 should proceed.
+<!-- Round 1 advocate for Variant 1 (analyzer). Task worker: general-purpose, requested model opus; agentId aa7f516d55a38acc3. Persisted verbatim by the protocol driver. -->
+**Advocate brief: Variant 1 (analyzer card), Round 1**
+
+## Position summary
+Variant 1 reaches the same verdict as Variant 2: no deviations in any of the four classes, R-001 and R-002 adherent on a static reading, R-003 unresolved, so `partial` + `needs_human_decision`. Variant 1 is better on the points that decide whether the verdict can be trusted. It separates its grounding gaps by how each one gets resolved. It is more careful about what a selected-input snapshot can prove. Its confidence is split by scope. It also avoids a probable technical error in Variant 2's import-path remediation. Variant 1 loses on schema conformance and on two classification boundaries (X-001, X-003), and I concede both below.
+
+## Steelman of Variant 2
+At its strongest, Variant 2 is the acceptance-oriented card: an empty ledger is not sign-off. Its opening verdict (V2:11) and its "ledger-true and acceptance-false" challenge (V2:43) make that hard to misread. What it gets right:
+- **Grounding-gaps format.** It uses the taxonomy's byte-exact grounding-gaps schema (V2:49-62 against `deviation-taxonomy.md:140-147`), including `decision_needed_by_user`.
+- **Precedence walk.** It walks precedence explicitly (V2:19) and sets `regression_present: false` with stated reasons (V2:72). This matches `deviation-taxonomy.md:103`, where only Regression-mapped rows set that flag.
+- **Drift boundary.** It reads Drift correctly. Drift needs "Diff hunk does NOT map to any tasklist item" (`deviation-taxonomy.md:62`), and T-103 is a task without a hunk, not a hunk without a task (V2:64).
+- **Sibling-gap rule.** It reads the correctness-gap channel correctly. That channel needs two sibling symbols that disagree (`deviation-taxonomy.md:161,167`), and `greet` has no sibling (V2:81,84).
+- **Coverage table.** F-001..F-004 gives a citation chain of spec, task, diff and source for each requirement (V2:25-28).
+- **Body range.** Its patch body range `changes.patch:6-9` is exact: line 5 is `@@ -0,0 +1,4 @@` (`changes.patch:5`).
+
+## Strengths claimed (Variant 1)
+1. **The gaps are split by how they get resolved (C-001).**
+   - GG-1 is provenance: T-103 is claimed at `completed.md:8` but has no hunk (`task-to-diff-map.md:11,19`). It is closed by widening the diff scope or by a task log.
+   - GG-2 is execution: no verification run (`task-to-diff-map.md:31-33`). It is closed by a pytest exit code.
+   - These two can be resolved independently and owe different evidence. Variant 2's first row (V2:50-55) merges them into one `hunk_ref`. A pytest exit 0 would then "close it" (V2:52) while provenance stays open, so one row ends up half-resolved.
+   - Variant 2's second row (V2:56-61) is close to a verbatim copy of T1's second gap (`t1-card.md:42-47`). It adds no independent analysis. V1 already records "No task log was supplied" inside GG-1 (V1:22).
+2. **Evidence calibration on file absence (X-002, U-002).**
+   - V1:32-36 notes that the snapshot holds selected inputs only. The glob confirms exactly 8 files: the 5 core files plus 3 `__run_evidence__` files.
+   - So the absence of `src/__init__.py`, conftest or pyproject is true of the snapshot and unknown for the live project. "Grounded for file absence" (`t1-card.md:58`) overreaches.
+   - Variant 2 tags the missing config files as "Grounded … (snapshot file list)" (V2:80). It then uses that absence to predict a live collection failure (V2:45, :80, rec 3 at :90). That is an inference built on an absence the snapshot cannot establish for the live root.
+3. **Metric blind spot (U-001).** V1:30 points out that `S_dev_density = 0/1` (`task-to-diff-map.md:25`) counts only hunks that exist. It therefore cannot see T-103, the one place a deviation could hide. Variant 2 says acceptance is not 100% (V2:73) but never explains why the metric is structurally blind.
+4. **Scoped confidence (C-006).** V1:74 gives 0.8 for `src/greeting.py` and about 0.5 for the whole change. The two levels of evidence really are different: patch/disk identity is grounded, while R-003 has no execution or provenance. Variant 2's single 0.76 blends them and sits above T1's 0.72 (`t1-card.md:74`) despite the same gaps.
+5. **No incorrect remediation claim (C-004).** V1's recommendation (V1:65) is the minimal, correct one: run both invocations and read the exit codes against `deviation-taxonomy.md:107-113`. See Weakness 1 for why Variant 2's extra claim is probably wrong.
+6. **Citations for R-001/R-002 are exact.** `changes.patch:7-9` (V1:50) covers the guard (`:7-8`) and the return (`:9`), the same as `task-to-diff-map.md:17-18`.
+
+## Weaknesses identified in Variant 2
+1. **The rejection of T1 recommendation 3 is probably technically wrong (C-004, U-004, which the diff-analysis rated High value).**
+   - V2:45 says `tests/__init__.py` "does not put the project root on `sys.path`."
+   - Under pytest's default `prepend` import mode, a test module inside a package causes pytest to insert the first ancestor directory without `__init__.py` into `sys.path`. With `tests/__init__.py` present, that directory is the project root, so `from src.greeting import greet` (`tests/test_greeting.py:1`) resolves, with `src` as a namespace package.
+   - Without it, pytest inserts `tests/`, and the import fails. So T1 recommendation 3 (`t1-card.md:69`) is a valid fix, and Variant 2's "Do not treat `tests/__init__.py` as that fix" (V2:90) is likely wrong.
+   - Caveat: this rests on documented pytest behaviour, not on anything in the snapshot. Tag it [INFERRED]. Variant 2's `pythonpath = .` alternative is also valid, but only on pytest 7+.
+2. **A falsified factual claim.** "`changes.patch` is 10 lines" (V2:44). A Read of the snapshot shows 9 lines (`changes.patch:1-9`). The card uses this claim to correct T1, so a correction carries a new error.
+3. **An over-strong grounding tag** (V2:80). See Strength 2.
+4. **Merged gap row** (V2:50-55). See Strength 1. It mixes two evidence needs with different owners and verifiers into one `decision_needed_by_user: true` row.
+5. **Confidence is not scoped** (V2:102). See Strength 4.
+
+## Concessions
+- **Schema (S-002).** V1's gaps table omits `decision_needed_by_user`, which is required by `deviation-taxonomy.md:146`. Variant 2 conforms; V1 does not.
+- **Drift boundary (X-001).** V1's "could be an unmapped change (Drift)" (V1:22, :57) is wrong as stated.
+  - If the scope were widened and a hunk for `tests/test_greeting.py` appeared, it would map to T-103 and so would not be Drift (`deviation-taxonomy.md:62,96`).
+  - The only Drift route left for T-103 is pytest exit 5 "Drift / coverage" (`:109`), which both cards already list.
+  - V1's instinct really belongs under A-001 (other unmapped out-of-scope hunks), not under T-103.
+- **Sibling disagreement (X-003).** V1's correctness gap #1 labels guard-vs-f-string *within one function* as a "Sibling disagreement" (V1:44). The advisory channel needs two sibling symbols (`deviation-taxonomy.md:161,167`). The observation is valid; it belongs under Risks, which is where Variant 2 puts it.
+- **Citation range (C-002).** V1's `changes.patch:5-9` (V1:16) includes the `@@` header. It is defensible as a hunk reference, since the orchestrator map uses the same range (`task-to-diff-map.md:9`). But `:6-9` is the precise body range.
+- **Precedence and coverage (U-003, U-007).** Variant 2's explicit precedence walk, `regression_present`, and F-table are real additions.
+
+## Per-point positions
+
+| Point | Preferred | Reason |
+|---|---|---|
+| S-001 | V2 | The explicit precedence walk documents the classification reasoning. |
+| S-002 | V2 | Conforms to the taxonomy's byte-exact schema (`:140-147`). V1 omits a required field. |
+| S-003 | V2 | The per-requirement F-table gives a spec→task→diff→source chain for each requirement. |
+| S-004 | Neutral (slight V2) | Presentation only. V2's opening verdict blocks a clean-pass misreading. |
+| S-005 | V2 | V1's advisory section misapplies the sibling-symbol criterion (`taxonomy:167`). |
+| S-006 | V2 | Grounded/[INFERRED] tags on risks are better evidence hygiene. |
+| C-001 | V1 (with V2 schema) | Gaps split by resolution path can be closed independently. V2's row 2 copies T1's. |
+| C-002 | Mixed, lean V2 for body range | V2's `:6-9` is exact, but its "10 lines" claim is false. V1's `:5-9` is a valid hunk ref but imprecise as a body ref. |
+| C-003 | V2 (concede) | Both are correct. "Ledger-true, acceptance-false" is the clearer framing. |
+| C-004 | V1 | V2's rejection of `tests/__init__.py` probably contradicts pytest's prepend-mode rootdir insertion. |
+| C-005 | V2 | Explicit `regression_present: false` matches `taxonomy:103`. |
+| C-006 | V1 | Split confidence matches the evidence gradient. A single 0.76 overstates the change-level confidence. |
+| X-001 | V2 (concede) | Drift needs a hunk with no task (`taxonomy:62`). A T-103 hunk would be mapped. |
+| X-002 | V1 | Snapshot absence is not live-project absence. V2 then infers a live failure from it. |
+| X-003 | V2 (concede) | `greet` has no sibling symbol, so the advisory correctness channel does not apply. |
+
+## Shared-assumption responses
+- **A-001: QUALIFY.** Nothing in the evidence supports it. The map records only that the patch has no tests hunk and that scope is `src` (`task-to-diff-map.md:11,19`, `t1-card.md:12`). Out-of-scope unmapped hunks would be genuine Drift candidates that neither card checked. V1's GG-1 `next_evidence_needed` (widen the diff scope) partly covers it. The merged card should state it as an explicit grounding gap, not leave it as an assumption.
+- **A-002: ACCEPT.** `spec.md:6` gives the string unquoted, and the natural reading excludes the sentence-final period. `tests/test_greeting.py:5` asserts `"Hello, Ada!"` too, so spec, code and test agree. Low impact.
+- **A-003: ACCEPT.** `deviation-taxonomy.md:105-113` is the governing table. One qualification: the flaky-retry rule (`:112`) and the default that any unmapped exit is a Grounding Gap (`:113`) must also apply. Neither card mentions them.
+- **A-004: ACCEPT.** `deviation-taxonomy.md:149-152` says verbatim that `status: partial` is forced and `needs_human_decision: true` is emitted.
+- **A-005: QUALIFY.** "Empty" (`spec.md:9`) clearly covers `""`, which `not ""` rejects (`src/greeting.py:2`). Rejecting `None` or `0` goes beyond R-002, but it sits inside the mapped T-102 hunk and contradicts nothing, so it is not a deviation. Whether whitespace counts as "empty" is still an open spec question; both cards recommend a spec amendment.
+- **A-006: QUALIFY.** The snapshot is internally consistent: the patch body at `changes.patch:6-9` matches `src/greeting.py:1-4`. But I did not check `provenance-manifest.json` (it is outside my read boundary), and neither card did. Every "Grounded" tag is grounded *to the snapshot*. The merged report should say so.
+- **A-007: QUALIFY (low).** It is unstated, but the failure mode is benign. On Python older than 3.6, `src/greeting.py:4` is a SyntaxError, which surfaces as pytest exit 2 at collection, a Grounding Gap (`taxonomy:108`), not a silent misclassification.
+- **A-008: ACCEPT, scoped to the snapshot.** `task-to-diff-map.md:29-33` ("Not run … tool-unavailable", no task log) and `t1-card.md:4` ("Nothing was executed") support it. Results outside the snapshot cannot be excluded, given the boundary.
+
+Files read: `variant-1-original.md`, `variant-2-original.md`, `diff-analysis.md` (under `.../artifacts/adversarial/adversarial/`); the 8 snapshot files under `.../artifacts/reviewer-snapshot/root/`; and `.../plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md`. I wrote nothing.
+<!-- Round 1 advocate for Variant 2 (qa). Task worker: general-purpose, requested model opus; agentId a0431ee1cbd732232. Persisted verbatim by the protocol driver. -->
+**Position summary.** I argue that Variant 2 (qa) classifies deviations more correctly. It follows the grounding-gaps schema, holds the Drift and correctness-gap boundaries exactly as `deviation-taxonomy.md` draws them (X-001, X-003, S-002, S-005), and has the more complete acceptance coverage (F-001..F-004, `regression_present`, precedence walk). It also has three real defects, which I concede: a false patch line count, an overstated "Grounded" tag on files missing from the snapshot, and, most seriously, a technically wrong rejection of T1 recommendation 3 (the `tests/__init__.py` fix).
+
+## Steelman of Variant 1
+
+Variant 1's strongest argument is about what can be known. The snapshot holds only selected inputs: 8 files, confirmed by my glob of `reviewer-snapshot/root`. So no claim about what is missing from the live project can be Grounded (V1 Challenge #4, Notes bullet 2). V1 also sees that `S_dev_density = 0/1` only counts hunks that exist and so cannot see T-103 at all (V1 Challenge #2; `task-to-diff-map.md:25`). Its gap split has one kind of missing evidence per row: provenance in GG-1 (`completed.md:8` vs `changes.patch:1-9`) and execution in GG-2 (`spec.md:11-12`, `task-to-diff-map.md:31`). Its split confidence (0.8 for `src/greeting.py`, about 0.5 for the whole change) shows the gap between "ledger clean" and "change accepted" better than any single number. V1 also avoids an error V2 makes: it does not wrongly reject T1 recommendation 3. And it makes no false line-count claim.
+
+## Strengths claimed (Variant 2)
+
+1. **Schema conformance (S-002).** The taxonomy's "byte-exact schema" (`deviation-taxonomy.md:138-147`) requires `decision_needed_by_user`. V2's YAML includes it (true for the first entry, false for the second; V2 lines 49-62). V1's table drops it and adds a non-schema `id` column (V1 lines 20-23). V1's `hunk_ref` "`completed.md:8` vs `changes.patch:1-9`" is also not in `<file:line-range>` form.
+2. **Correct Drift boundary (X-001).** Drift needs a "Diff hunk [that] does NOT map to any tasklist item" (`deviation-taxonomy.md:62`; worked example at `:96`). T-103 has no hunk (`task-to-diff-map.md:11`). If the scope were widened, the test-file hunk would map to T-103 (`completed.md:8`), so it would still not be Drift. V2 says exactly this (V2 line 64). The only route from R-003 to Drift is a pytest exit 5 (`taxonomy:109`), and V2 lists it (V2 lines 45, 52).
+3. **Correct correctness-gap boundary (X-003, S-005).** The advisory class needs "Two sibling symbols disagree" and a `siblings: [<symbol A>, <symbol B>]` field (`taxonomy:161, 167, 175`). `greet` is the only symbol (`src/greeting.py:1-4`). V1's "sibling disagreement" compares a guard and an f-string inside the same function (V1 line 44). Its gap #2 is a weak test oracle, not a sibling split (V1 line 45). Neither qualifies, and V1's table has no `siblings` field. V2 explicitly declines the section (V2 lines 81, 84) and keeps both subjects as tagged Risks #3-#4.
+4. **Acceptance coverage (S-003, U-003, U-009).** V2 has a per-requirement table with spec, task and diff citations (V2 lines 23-28). I checked them: `src/greeting.py:4` and `changes.patch:9` give R-001; `src/greeting.py:2-3` and `changes.patch:7-8` give R-002; the R-003 tests are at `tests/test_greeting.py:4-5, 8-13`; the stamp is at `completed.md:2`. All match the snapshot.
+5. **Explicit regression accounting (C-005, U-007, S-001).** V2 states `regression_present: false` and gives an "Unclassifiable: 1" count (V2 lines 71-72). It also walks the precedence order (V2 line 19), matching `taxonomy:91, 103`. V1 never states `regression_present`.
+6. **Runtime-surface and reachability check (U-006).** V2 confirms `greet` is undecorated and that the reachability skip is telemetry only. This matches `task-to-diff-map.md:38-39` and `taxonomy:128` ("no-side-effect-requirements ... may [not] create a Grounding Gap").
+7. **Patch body range (C-002, partly).** Snapshot `changes.patch:5` is `@@ -0,0 +1,4 @@` and lines 6-9 are the body. That makes V2 right on two counts: the byte-identical body is `:6-9`, and T1's "both files are 4 lines" (`t1-card.md:16`) is wrong.
+8. **Model-identity disclosure (U-008).** The haiku slot resolved to `grok-4.7[1m]` (V2 lines 1, 9). Anyone judging whether the two reviewers really differ needs this.
+
+## Weaknesses identified in Variant 1
+
+1. **Drift misclassification risk (X-001).** V1's GG-1 and Risk #2 say T-103 "could turn out to be unmapped work, which would make it Drift" (V1 lines 22, 57). That contradicts `taxonomy:62`: a test hunk that appears later maps to T-103 (`completed.md:8`).
+2. **Advisory section that does not qualify (X-003).** As in Strength 3, there are no sibling symbols, and the required `siblings` and `why_advisory` fields are missing (`taxonomy:172-179`).
+3. **Schema deviation (S-002).** V1 omits the required `decision_needed_by_user` field (`taxonomy:146`).
+4. **Hunk range includes the header.** `changes.patch:5-9` (V1 line 16) is fine as a hunk reference; the map uses it too (`task-to-diff-map.md:9`). But V1 never corrects T1's "byte-identical / both files are 4 lines" claim. Line 5 is the `@@` header, so the patch range is not byte-identical to the file.
+5. **No regression flag or precedence walk.** V1 gives counts of 0 only (V1 line 52). The `regression_present` field the taxonomy defines (`:103, :107`) is never stated.
+6. **Untagged risks.** V1's Risks #1-#2 (V1 lines 56-57) have no Grounded or [INFERRED] tags. That is weaker evidence practice than its own Challenge #4 asks for.
+
+## Concessions
+
+1. **C-002 / U-005: my line count is wrong.** V2 says "`changes.patch` is 10 lines" (V2 line 44). The snapshot has 9 lines, so this is a misstatement of a cited file. The `:6-9` body claim is still correct.
+2. **C-004 / U-004: my rejection of T1 recommendation 3 is technically wrong.** This comes from documented pytest behaviour, not from the snapshot. Under pytest's default `--import-mode=prepend`, a test file inside a package (one with `__init__.py`) causes pytest to put the first parent directory without an `__init__.py` on `sys.path`. Adding `tests/__init__.py` would therefore put the project root on `sys.path`, and `src` would import as a namespace package. V2's "A tests package marker does not put the project root on `sys.path`" (V2 line 45) is false under the default mode and true only under `importlib` mode. V2's conditional `pythonpath = .` fix is still valid, but only as an alternative. I hold V1 superior on C-004 for not making this error, and the diff analysis's "High" rating of U-004 should be withdrawn.
+3. **X-002: V1's tag is the better one.** V2 tags the missing config files as "Grounded ... (snapshot file list)" (V2 line 80). That is literally true of the snapshot, but the failure-mode inference depends on what the live root contains, which neither card could see. V1's [INFERRED] is the right tag.
+4. **C-006: V1's split confidence says more.** It expresses "ledger clean ≠ accepted" better than a single 0.76.
+5. **C-001: V1's gap partition is cleaner.** Provenance and execution are kept in separate rows. V2's gap 1 merges them, and V2's gap 2 largely copies T1 (`t1-card.md:42-47`). V2 still wins on schema. Overall I call this a split, leaning V2.
+6. **U-001 and U-002 are real contributions from V1.**
+
+## Per-point positions
+
+| Point | Preferred | Reason |
+|---|---|---|
+| S-001 | V2 | The precedence walk follows `taxonomy:91`; V1's `n/a` row is ambiguous (minor, L1). |
+| S-002 | V2 | Follows the byte-exact schema in `taxonomy:138-147`; V1 drops `decision_needed_by_user`. |
+| S-003 | V2 | The per-requirement acceptance table makes coverage auditable. |
+| S-004 | V2 (weak) | A separate confidence section and the agreed/challenged split; mostly presentation. |
+| S-005 | V2 | No sibling symbols, so an advisory section is not licensed (`taxonomy:167`). |
+| S-006 | V2 | Tagged risks; V1's risks are untagged. |
+| C-001 | Split, lean V2 | V2 follows the schema; V1's provenance/execution split is cleaner. |
+| C-002 | V2 qualified | `:6-9` body is correct; the "10 lines" claim is false (9). |
+| C-003 | V2 | "Ledger-true, acceptance-false" is the precise QA framing; V1's scoping is also valid. |
+| C-004 | V1 | V2's rejection of `tests/__init__.py` is wrong under pytest's default prepend mode. |
+| C-005 | V2 | Explicit `regression_present` and the unclassifiable count. |
+| C-006 | V1 | Split confidence shows the scope difference. |
+| X-001 | V2 | Drift needs an unmapped hunk (`taxonomy:62, 96`). |
+| X-002 | V1 | Snapshot absence ≠ live absence; [INFERRED] is correct. |
+| X-003 | V2 | Correctness gaps need two sibling symbols (`taxonomy:161, 167`). |
+| U-001 | V1 | A valid limit of the density metric (`task-to-diff-map.md:25`). |
+| U-002 | V1 | The correct epistemic boundary. |
+| U-003 | V2 | Semantic, cited coverage. |
+| U-004 | V1 (concede) | V2's claim is wrong; only the conditional `pythonpath` alternative survives. |
+| U-005 | V2 qualified | The T1 correction is right; the count is wrong. |
+| U-006 | V2 | Matches `task-to-diff-map.md:38-39` and `taxonomy:128`. |
+| U-007 | V2 | Explicit precedence walk and regression flag. |
+| U-008 | V2 | Disclosure relevant to whether the reviewers really differ. |
+| U-009 | V2 | Correct: the static R-001 closure does not depend on the unrun test. |
+
+## Shared-assumption responses
+
+- **A-001: QUALIFY.** Both cards' "0 Drift" holds only for the supplied `changes.patch`. The map says the scope is `--scope src` and the test file is "untracked" (`task-to-diff-map.md:19`). Neither card can rule out other unmapped hunks outside `src/`. V2's recommendation 2 ("stop treating `--scope src/` as covering T-103") and V1's widen-scope recommendation both point that way, but neither states the boundary as a limit on the zero-Drift verdict. It should be stated as one.
+- **A-002: ACCEPT.** The trailing `.` at `spec.md:6` ends the sentence. `tests/test_greeting.py:5` asserts `"Hello, Ada!"`, which corroborates this, though the test comes from the same implementer and is not independent.
+- **A-003: QUALIFY.** The table at `taxonomy:105-113` is the authority. But both cards (and T1) leave out the flaky row (`:112`, "retry once BEFORE classifying as Regression") and the timeout row (`:111`). Their shorthand that exit 1 means Regression is incomplete.
+- **A-004: ACCEPT.** `taxonomy:149-152` says this word for word.
+- **A-005: QUALIFY.** Taking "empty" to mean `""` is the natural reading of `spec.md:9`, so there is no contradiction and no Regression. It is still an interpretation, which is why both cards recommend a spec amendment. Rejecting `None` and `0` goes beyond the spec without contradicting it.
+- **A-006: QUALIFY.** Every Grounded tag in both cards is relative to the snapshot. `reviewer-snapshot/provenance-manifest.json` exists but neither card checked it. I did not read it either, because it sits outside my bounded list. The tags should be read as "snapshot-Grounded".
+- **A-007: QUALIFY.** f-strings need Python 3.6+, and no interpreter version is evidenced. The impact is low, but strictly the R-001 "static" closure carries this as an [INFERRED] premise. My own C-004 concession also depends on pytest's import mode and version.
+- **A-008: ACCEPT, scoped.** `task-to-diff-map.md:29-33` records "Not run", and the 8-file snapshot has no verify-logs. "No results exist anywhere" can only be asserted for the snapshot and the run evidence, not for the live root.
+<!-- Round 2 rebuttal, Variant 1 (analyzer) advocate. Task worker: general-purpose, requested model opus; agentId a2fc26571ef1dabba. Persisted verbatim by the protocol driver. -->
+**Round 2 rebuttal: Variant 1 (analyzer) advocate**
+
+**Steelman of the V2 Round 1 case.** V2's advocate argued mostly from what the taxonomy requires, and conceded V2's three real errors: the 10-line count, the "Grounded" tag on files missing from the snapshot, and the rejection of `tests/__init__.py`. With those conceded, V2's remaining case is that it follows the rules more closely. On the schema, the Drift boundary, the sibling-gap boundary and regression accounting, that case is strong, and I accept most of it.
+
+## Responses to the criticisms of V1
+1. **Drift risk (X-001): concede.** A T-103 hunk would map to T-103 (`completed.md:8`), so it cannot be Drift (`taxonomy:62`). V1's concern belongs under A-001, where out-of-scope hunks *other* than the test file could be real Drift candidates. Neither card checked for them. I propose the merged card carry that idea there as a new grounding gap.
+2. **Advisory section without siblings (X-003, S-005): concede.** `taxonomy:167,175` requires two sibling symbols and a `siblings` field. Only `greet` exists. V1's Challenge #5 ("belong in the advisory section", V1:37) has the same error and should be moved to Risks.
+3. **Schema (S-002): concede `decision_needed_by_user`, but the conformance is not one-sided.** The `<file:line-range>` criticism of V1 applies to V2 too, which I found on re-reading `taxonomy:141` against V2:
+   - V2's gap 2 `hunk_ref` is "completed.md:2 and completed.md:6-8" (V2:56). That is two ranges.
+   - V2's gap 1 `hunk_ref` adds a parenthetical (V2:50).
+   - So both cards bend the `hunk_ref` rule. V2 is ahead only on the missing field.
+4. **T1's "both files are 4 lines" left uncorrected: partial concession.** V1 never claimed byte identity, and its `:5-9` matches the map (`task-to-diff-map.md:9`). V2's own correction brought in a new error ("10 lines"). The merged card should use `:6-9` for the body and `:5-9` for the hunk.
+5. **No `regression_present` field: concede on form, not on substance.** V1 says "Regression cannot be asserted or excluded" (V1:23) and reports Regression count 0 (V1:52). Under `taxonomy:103`, that already implies false. Making it explicit is better.
+6. **Untagged risks: partial concession.** Risk #3 is tagged [INFERRED] (V1:58). Risks #1 and #2 point to GG-2 and GG-1, whose rows carry citations. Tags inline would still be cleaner.
+
+## Updated assessment of Variant 2
+- **What V2 lost in Round 1, by its own advocate's concession:**
+  - C-004/U-004: the import-path remediation.
+  - X-002: the evidence tag.
+  - C-006: confidence.
+  - C-002: the line count.
+- **What still stands:** S-002, S-003, S-005, C-005, U-003, U-006, U-007 and U-008. V2 remains the better source for the merged card's structure.
+- **Remaining V2 defects:**
+  - Its gap 2 (V2:56-61) closely repeats T1 (`t1-card.md:42-47`) and is rated `decision_needed_by_user: false`.
+  - Its gap 1 combines evidence that would be closed separately: execution (a pytest exit code) and provenance (a hunk or task log). An exit 0 would leave that row half-closed.
+  - Both cards' exit-code shorthand leaves out the flaky-retry rule (`taxonomy:112`, retry once before calling it Regression) and the timeout rule (`:111`).
+
+## New evidence
+- `taxonomy:141` versus V2:50 and V2:56: V2's `hunk_ref` values are not in strict `<file:line-range>` form, so the schema point is narrower than V2 claimed.
+- `taxonomy:112`: neither card applies the flaky-retry rule before minting a Regression, so the merged card should add it.
+- A-007 remains low impact. On a Python older than 3.6, `src/greeting.py:4` is a SyntaxError. That shows up as pytest exit 2, which `taxonomy:108` classifies as a Grounding Gap, so it cannot produce a silent misclassification.
+
+## Per-point table
+| Point | Preferred | Reason |
+|---|---|---|
+| S-001 | V2 | The explicit precedence walk follows `taxonomy:91`; V1's `n/a` row is terse. |
+| S-002 | V2 | Has `decision_needed_by_user` (`:146`). The merged card should also fix the `hunk_ref` form, which both cards bend. |
+| S-003 | V2 | The F-001..F-004 table makes each requirement's spec→task→diff chain auditable. |
+| S-004 | either | Presentation only (L1). |
+| S-005 | V2 | No sibling symbols, so the advisory section is not licensed (`:167`). |
+| S-006 | V2 | Inline Grounded/[INFERRED] tags on risks; V1 tags only Risk #3. |
+| C-001 | V1 split + V2 schema | Separate rows for provenance and execution, each with `decision_needed_by_user`. Drop V2's gap 2 that copies T1. |
+| C-002 | either (combine) | `:6-9` for the body, `:5-9` for the hunk. V2's "10 lines" is false. |
+| C-003 | V2 | "Ledger-true, acceptance-false" is the clearest framing; V1's scoping is compatible. |
+| C-004 | V1 | V2's `tests/__init__.py` rejection is wrong under pytest's default prepend mode. Keep `pythonpath = .` only as an alternative (pytest 7+). |
+| C-005 | V2 | Explicit `regression_present: false` and the unclassifiable count. |
+| C-006 | V1 | Split confidence (0.8 / about 0.5) matches the evidence gradient. V2 conceded this. |
+| X-001 | V2 | Drift needs a hunk that maps to no task (`:62,96`). Move V1's concern to A-001. |
+| X-002 | V1 | Absence from the snapshot is not absence from the live project, so [INFERRED] is right. V2 conceded this. |
+| X-003 | V2 | `greet` has no sibling symbol; the observation belongs under Risks. |
+| A-001 | either (add a gap) | Both cards depend on it unstated. The merged card should add a scope-boundary grounding gap that limits the zero-Drift verdict. |
+| A-002 | either | Accept: `spec.md:6` and `tests/test_greeting.py:5` agree on `Hello, Ada!`. |
+| A-006 | either (qualify) | Read every "Grounded" as grounded *to the snapshot*. Neither card checked the manifest. |
+| A-007 | either (qualify) | Unstated but harmless: a pre-3.6 failure surfaces as exit 2, a Grounding Gap (`:108`). |
+
+**Net position:** V2 should supply the merged card's structure, schema and boundary rules. V1 should supply the gap partition, the evidence calibration, the scoped confidence and the import-path remediation. The merged card should add A-001 as an explicit gap and the flaky-retry rule.
+
+Files read (read-only, nothing written): `variant-1-original.md`, `variant-2-original.md`, `diff-analysis.md`, `round-1-advocate-1.md` and `round-1-advocate-2.md` under `.../runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/`, plus `.../task4-runtime-bounded/plugin/skills/sc-reflect-protocol/refs/deviation-taxonomy.md` lines 100-181.

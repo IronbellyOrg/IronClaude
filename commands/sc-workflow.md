@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
-# /sc:sc:sc:workflow - Implementation Workflow Generator
+# /sc:sc-workflow - Implementation Workflow Generator
 
 ## Triggers
 - PRD and feature specification analysis for implementation planning
@@ -17,7 +17,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 ## Usage
 ```
-/sc:sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+/sc:sc-workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
 ## Behavioral Flow
@@ -57,28 +57,28 @@ Key behaviors:
 
 ### Systematic PRD Workflow
 ```
-/sc:sc:workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep
+/sc:sc-workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep
 # Comprehensive PRD analysis with systematic workflow generation
 # Multi-persona coordination for complete implementation strategy
 ```
 
 ### Agile Feature Workflow
 ```
-/sc:sc:workflow "user authentication system" --strategy agile --parallel
+/sc:sc-workflow "user authentication system" --strategy agile --parallel
 # Agile workflow generation with parallel task coordination
 # Context7 and Magic MCP for framework and UI workflow patterns
 ```
 
 ### Enterprise Implementation Planning
 ```
-/sc:sc:workflow enterprise-prd.md --strategy enterprise --validate
+/sc:sc-workflow enterprise-prd.md --strategy enterprise --validate
 # Enterprise-scale workflow with comprehensive validation
 # Security, devops, and architect personas for compliance and scalability
 ```
 
 ### Cross-Session Workflow Management
 ```
-/sc:sc:workflow project-brief.md --depth normal
+/sc:sc-workflow project-brief.md --depth normal
 # Serena MCP manages cross-session workflow context and persistence
 # Progressive workflow enhancement with memory-driven insights
 ```
@@ -114,4 +114,4 @@ This command produces an IMPLEMENTATION PLAN ONLY - no code execution.
 - Execution order
 - Checkpoints and validation steps
 
-**Next Step**: After workflow completes, use `/sc:sc:implement` to execute the plan step by step.
+**Next Step**: After workflow completes, use `/sc:sc-implement` to execute the plan step by step.

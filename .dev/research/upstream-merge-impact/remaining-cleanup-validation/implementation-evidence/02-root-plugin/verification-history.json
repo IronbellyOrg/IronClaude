@@ -1,0 +1,27 @@
+{
+  "schema": "task-verification-events/1",
+  "task": "T1",
+  "events": [
+    {"check": "initial native inventory", "result": "FAIL", "exit": 1, "evidence": "native-inventory.stdout.txt", "observation": "Plugin sc not found"},
+    {"check": "native manifest validation", "result": "FAIL", "exit": 1, "evidence": "loader-validate.stdout.txt", "observation": "homepage: Invalid URL"},
+    {"check": "isolated print session", "result": "FAIL compatibility gate", "process_exit": 0, "evidence": "loader-init.json", "observation": "No sc plugin, commands, skills or agents registered; successful INVENTORY_ONLY text is not plugin success"},
+    {"check": "stronger isolation with bare mode", "result": "FAIL compatibility gate", "process_exit": 0, "evidence": "loader-bare-init.json", "observation": "Same missing sc inventory with automatic instruction discovery disabled"},
+    {"check": "initial script lint", "result": "FAIL", "exit": 1, "observation": "Three unsorted imports and one unused os import"},
+    {"check": "script lint after import corrections", "result": "PASS", "exit": 0, "observation": "All checks passed!"},
+    {"check": "preservation", "result": "PASS", "exit": 0, "evidence": "preservation-check.json", "observation": "All 2260 captured file hashes unchanged; tracked diff and index empty; retired assets absent"},
+    {"check": "report worker write constraints", "result": "LIMITATION", "observation": "Reviewer reports a higher-priority prohibition on writing findings .md files. Parent creates template stubs and will persist returned findings verbatim before consuming them. No alternate write path or permission change is requested."},
+    {"check": "freshness hook", "result": "RECOVERED", "observation": "First capture_baseline.py edit was blocked because the newly written file had not been Read. Parent Read it, then retried the same dedicated edit. No bypass."}
+  ],
+  "follow_up": [
+    {"check": "first written scope revision", "result": "AUTHORIZED", "evidence": "scope-revision.json", "observation": "User permitted removal of only the invalid empty homepage line, not a weaker loader gate"},
+    {"check": "corrected manifest", "result": "PASS with pre-existing warnings", "evidence": "loader-corrected-validate.stdout.txt"},
+    {"check": "bare-mode plugin agents", "result": "FAIL", "evidence": "loader-specialist-session.stderr.txt", "observation": "Qualified specialist unavailable in bare mode"},
+    {"check": "external isolated cwd without bare mode", "result": "PASS inventory and specialist dispatch", "evidence": "loader-external-init.json", "observation": "All 28 commands and 21 existing agents registered without project/global framework resources"},
+    {"check": "22 source candidates in fixture only", "result": "PASS inventory only", "evidence": "loader-candidates-init.json", "observation": "All 22 candidate frontend mappings registered, but protocol invocation/runtime not exercised"},
+    {"check": "namespace-only closure", "result": "FAIL original boundary", "evidence": "namespace-scope-conflict.json", "observation": "15 references to five absent commands in two command files"},
+    {"check": "second written scope revision", "result": "AUTHORIZED", "evidence": "namespace-scope-conflict.json", "observation": "User permitted explicit unavailable labels for exactly these references, no new commands or other behavior"},
+    {"check": "initial closure worker", "result": "NO DELIVERABLE", "observation": "No report or acknowledgement arrived after repeated requests. Worker stopped and assigned scope split into two bounded read-only traces; no findings fabricated from its pending work."}
+  ],
+  "not_run": ["pre audit", "post audit", "Tier 2 merge", "remediation", "product command edits"],
+  "reason": "Native loader identities now verified after narrowly authorized manifest repair; required-versus-optional source closure remains the prerequisite before Task 2."
+}

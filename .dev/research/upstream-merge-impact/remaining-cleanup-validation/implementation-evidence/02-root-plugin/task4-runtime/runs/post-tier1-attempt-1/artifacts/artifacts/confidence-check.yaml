@@ -1,0 +1,32 @@
+{
+  "skill": "sc:confidence-check",
+  "checks": {
+    "no_duplicates": {
+      "pass": true,
+      "weight": 0.25,
+      "basis": "artifacts/reuse-audit.yaml distinct, 0 neighbours"
+    },
+    "architecture_compliance": {
+      "pass": true,
+      "weight": 0.25,
+      "basis": "recs use the project's existing test style (tests/test_greeting.py); no new dependency"
+    },
+    "official_docs_verified": {
+      "pass": false,
+      "weight": 0.2,
+      "basis": "pytest is not installed; `--help` and signature checks are impossible; Context7/web not available. pytest import-mode, pythonpath ini and raises(match=) are [UNVERIFIED]"
+    },
+    "oss_reference": {
+      "pass": false,
+      "weight": 0.15,
+      "basis": "no web/Tavily search performed"
+    },
+    "root_cause": {
+      "pass": true,
+      "weight": 0.15,
+      "basis": "recs derive from GG-1/GG-2 and the cited risks"
+    }
+  },
+  "score": 0.65,
+  "decision": "STOP (<0.70): recommendations are advisory only; pytest-specific tokens are [UNVERIFIED]"
+}

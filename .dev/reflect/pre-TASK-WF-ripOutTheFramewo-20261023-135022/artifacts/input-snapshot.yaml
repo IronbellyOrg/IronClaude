@@ -1,0 +1,31 @@
+input_tree_sha256: e6a322522f7a6536b90d2d4cf1c47dc86dbbb5af2d07adeba6b5f9c96e28d15c
+file_count: 9
+output_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-ripOutTheFramewo-20261023-135022
+serialization: json-compact-sorted-tuples
+file_list:
+- path: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/TASK-WF-ripOutTheFramewo-20261023-134610.md
+  sha256: af8cced6bbd0f43930ebc7817637bf0e124cf6495c533cc21c8cd6e57a60aac2
+- path: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md
+  sha256: f51a3262475378d6dc08932e3066fa8add1addbb1dc67c123f5f8bfb0f996421
+- path: .github/workflows/README.md
+  sha256: 6b0f614f2133d06c9b8e51516ad2adff9857e407fd9bbda8024c64c047330e9a
+- path: .github/workflows/pull-sync-framework.yml
+  sha256: 8c2263b54ada1b0753a03a5c5bbe8a2385f9e740c90276a8761e859f394ea817
+- path: .github/workflows/test.yml
+  sha256: e26d4d380f4bc78fd7adb91862a186f8a7e80d8e58177516e187c0b36b852b9c
+- path: docs/.framework-sync-commit
+  sha256: 40e57ee467a2072cf2507716bc26581835a74f1a390271daa946bff1f69ac0fa
+- path: pyproject.toml
+  sha256: d1d4698190110949e2893fc4e86483c662d0ea2c2e4cb860f5174e44d517bcfb
+- path: scripts/sync_from_framework.py
+  sha256: fd08775261c5257771aa120b5f8b40e0367859ccd51af36cbb69a64f30a0b117
+- path: src/superclaude/templates/documents/readme_template.md
+  sha256: 68c0d1b00ad556300bcf1c3d287ece89cddf2133cad5559fffbcd8ba120fffe3
+missing_references:
+- ./artifacts/
+- ./artifacts/check_test_workflow.py
+- ./artifacts/t1-baseline.txt
+- ./artifacts/t1-removal.log
+- ./artifacts/t2-workflow-check.log
+- ./artifacts/t3-reference-check.log
+missing_references_reason: Future execution artifacts; absent at audit time, not silently treated as evidence.

@@ -7,7 +7,7 @@ mcp-servers: [context7]
 personas: [architect, scribe, quality]
 ---
 
-# /sc:sc:sc:index - Project Documentation
+# /sc:sc-index - Project Documentation
 
 ## Triggers
 - Project documentation creation and maintenance requirements
@@ -17,7 +17,7 @@ personas: [architect, scribe, quality]
 
 ## Usage
 ```
-/sc:sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
+/sc:sc-index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
 ```
 
 ## Behavioral Flow
@@ -53,21 +53,21 @@ Key behaviors:
 
 ### Project Structure Documentation
 ```
-/sc:sc:index project-root --type structure --format md
+/sc:sc-index project-root --type structure --format md
 # Comprehensive project structure documentation with intelligent organization
 # Creates navigable structure with cross-references and component relationships
 ```
 
 ### API Documentation Generation
 ```
-/sc:sc:index src/api --type api --format json
+/sc:sc-index src/api --type api --format json
 # API documentation with systematic analysis and validation
 # Scribe and quality personas ensure completeness and accuracy
 ```
 
 ### Knowledge Base Creation
 ```
-/sc:sc:index . --type docs
+/sc:sc-index . --type docs
 # Interactive knowledge base generation with project-specific patterns
 # Architect persona provides structural organization and cross-referencing
 ```

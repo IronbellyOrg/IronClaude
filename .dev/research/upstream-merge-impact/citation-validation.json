@@ -1,0 +1,5875 @@
+{
+  "note": "Range/existence check only; independent reviewer must verify the claim and distinguish explicit historical citations.",
+  "total": 652,
+  "invalid_or_historical": [],
+  "citations": [
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 16,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 33,
+      "end": 44,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 21,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 23,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 22,
+      "path": "README.md",
+      "line": 64,
+      "end": 64,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 24,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 37,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 24,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 7,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 30,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 255,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 30,
+      "path": "src/superclaude/cli/main.py",
+      "line": 521,
+      "end": 563,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 32,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 419,
+      "end": 425,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 32,
+      "path": "tests/swarm/test_parallel_executor_routing.py",
+      "line": 75,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 452
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 34,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 14,
+      "end": 17,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 34,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 94,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 36,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 97,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 36,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 36,
+      "path": "src/superclaude/skills/confidence-check/SKILL.md",
+      "line": 22,
+      "end": 50,
+      "status": "VALID_RANGE",
+      "source_lines": 150
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 40,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 194,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 41,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 419,
+      "end": 425,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 42,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 72,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 42,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 94,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 43,
+      "path": "src/superclaude/cli/main.py",
+      "line": 254,
+      "end": 273,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 56,
+      "path": "Makefile",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 59,
+      "path": "Makefile",
+      "line": 559,
+      "end": 567,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 59,
+      "path": "docs/getting-started/installation.md",
+      "line": 343,
+      "end": 366,
+      "status": "VALID_RANGE",
+      "source_lines": 546
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 99,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 97,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 99,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 255,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 99,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 419,
+      "end": 425,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 101,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 7,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 101,
+      "path": "Makefile",
+      "line": 559,
+      "end": 567,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 101,
+      "path": "docs/getting-started/installation.md",
+      "line": 343,
+      "end": 366,
+      "status": "VALID_RANGE",
+      "source_lines": 546
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/foundation-migration.md",
+      "report_line": 103,
+      "path": "README.md",
+      "line": 64,
+      "end": 64,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 15,
+      "path": "src/superclaude/commands/analyze.md",
+      "line": 25,
+      "end": 31,
+      "status": "VALID_RANGE",
+      "source_lines": 111
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 20,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 20,
+      "path": "src/superclaude/cli/main.py",
+      "line": 197,
+      "end": 205,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 20,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 11,
+      "end": 64,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 20,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 512,
+      "end": 576,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 22,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 22,
+      "path": "src/superclaude/cli/main.py",
+      "line": 363,
+      "end": 431,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 22,
+      "path": "tests/cli/test_update_command.py",
+      "line": 16,
+      "end": 25,
+      "status": "VALID_RANGE",
+      "source_lines": 424
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 24,
+      "path": "src/superclaude/cli/main.py",
+      "line": 29,
+      "end": 34,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 24,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 25,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 24,
+      "path": "Makefile",
+      "line": 131,
+      "end": 136,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 24,
+      "path": "src/superclaude/commands/README.md",
+      "line": 1,
+      "end": 11,
+      "status": "VALID_RANGE",
+      "source_lines": 11
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 26,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 26,
+      "path": "src/superclaude/commands/README.md",
+      "line": 5,
+      "end": 11,
+      "status": "VALID_RANGE",
+      "source_lines": 11
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 26,
+      "path": "src/superclaude/commands/recommend.md",
+      "line": 1,
+      "end": 58,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_agents.py",
+      "line": 15,
+      "end": 57,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "line": 113,
+      "end": 178,
+      "status": "VALID_RANGE",
+      "source_lines": 576
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/hooks/hooks.json",
+      "line": 3,
+      "end": 32,
+      "status": "VALID_RANGE",
+      "source_lines": 113
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "line": 173,
+      "end": 178,
+      "status": "VALID_RANGE",
+      "source_lines": 576
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "line": 133,
+      "end": 141,
+      "status": "VALID_RANGE",
+      "source_lines": 576
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/scripts/session-init.sh",
+      "line": 5,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 30
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_hooks.py",
+      "line": 42,
+      "end": 80,
+      "status": "VALID_RANGE",
+      "source_lines": 576
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 30,
+      "path": "pyproject.toml",
+      "line": 85,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 30,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 476,
+      "end": 492,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 30,
+      "path": "src/superclaude/cli/install_templates.py",
+      "line": 106,
+      "end": 128,
+      "status": "VALID_RANGE",
+      "source_lines": 156
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 30,
+      "path": "src/superclaude/cli/install_user_setup.py",
+      "line": 39,
+      "end": 46,
+      "status": "VALID_RANGE",
+      "source_lines": 324
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 32,
+      "path": "src/superclaude/pm_agent/token_budget.py",
+      "line": 33,
+      "end": 45,
+      "status": "VALID_RANGE",
+      "source_lines": 85
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 32,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 96,
+      "end": 114,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 32,
+      "path": "tests/unit/test_token_budget.py",
+      "line": 43,
+      "end": 48,
+      "status": "VALID_RANGE",
+      "source_lines": 129
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 34,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 34,
+      "path": "tests/conftest.py",
+      "line": 17,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 45,
+      "path": "pyproject.toml",
+      "line": 1,
+      "end": 3,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 47,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 47,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 912,
+      "end": 948,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 48,
+      "path": "pyproject.toml",
+      "line": 173,
+      "end": 181,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 49,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 16,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 49,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 20,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 50,
+      "path": "pyproject.toml",
+      "line": 78,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 50,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 868,
+      "end": 903,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 58,
+      "path": "src/superclaude/cli/main.py",
+      "line": 228,
+      "end": 234,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 58,
+      "path": "src/superclaude/hooks/hooks.json",
+      "line": 3,
+      "end": 111,
+      "status": "VALID_RANGE",
+      "source_lines": 113
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 59,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 81,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 60,
+      "path": "tests/cli/test_update_command.py",
+      "line": 96,
+      "end": 139,
+      "status": "VALID_RANGE",
+      "source_lines": 424
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "line": 236,
+      "end": 252,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 62,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 855,
+      "end": 860,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 63,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 46,
+      "end": 52,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 63,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 64,
+      "path": "src/superclaude/cli/main.py",
+      "line": 254,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 64,
+      "path": "tests/cli/test_update_command.py",
+      "line": 125,
+      "end": 139,
+      "status": "VALID_RANGE",
+      "source_lines": 424
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 74,
+      "path": "pyproject.toml",
+      "line": 1,
+      "end": 16,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 74,
+      "path": "package.json",
+      "line": 1,
+      "end": 14,
+      "status": "VALID_RANGE",
+      "source_lines": 52
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 74,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 20,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 75,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 53,
+      "end": 68,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 76,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 53,
+      "end": 68,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 77,
+      "path": "tests/conftest.py",
+      "line": 17,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 77,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 77,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 868,
+      "end": 1100,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 79,
+      "path": ".github/workflows/test.yml",
+      "line": 25,
+      "end": 40,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 80,
+      "path": "README.md",
+      "line": 53,
+      "end": 79,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/installer-packaging.md",
+      "report_line": 81,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 1,
+      "end": 146,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "line": 20,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 82
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 185,
+      "end": 233,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 147,
+      "end": 155,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-43bfa0aa.patch",
+      "line": 19,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 71
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 21,
+      "path": ".github/workflows/test.yml",
+      "line": 19,
+      "end": 28,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 185,
+      "end": 205,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 157,
+      "end": 165,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-8da05a17.patch",
+      "line": 25,
+      "end": 118,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "line": 19,
+      "end": 40,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "line": 66,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "line": 92,
+      "end": 116,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "line": 153,
+      "end": 180,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 22,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 166,
+      "end": 174,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 1,
+      "end": 400,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": "pyproject.toml",
+      "line": 173,
+      "end": 206,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": "src/superclaude/execution/__init__.py",
+      "line": 22,
+      "end": 38,
+      "status": "VALID_RANGE",
+      "source_lines": 227
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": "tests/conftest.py",
+      "line": 17,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 112,
+      "end": 116,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 178,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 306,
+      "end": 321,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 175,
+      "end": 183,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 107,
+      "end": 176,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 24,
+      "path": "pyproject.toml",
+      "line": 45,
+      "end": 55,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 24,
+      "path": ".github/workflows/test.yml",
+      "line": 102,
+      "end": 108,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 261,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 184,
+      "end": 192,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 185,
+      "end": 233,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "line": 19,
+      "end": 40,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "line": 51,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "line": 92,
+      "end": 137,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 235,
+      "end": 259,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "line": 42,
+      "end": 49,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 32,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 14,
+      "end": 400,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 32,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 107,
+      "end": 176,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 32,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 34,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 89,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 34,
+      "path": "src/superclaude/execution/__init__.py",
+      "line": 22,
+      "end": 38,
+      "status": "VALID_RANGE",
+      "source_lines": 227
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 112,
+      "end": 116,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 334,
+      "end": 350,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 421,
+      "end": 425,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": "tests/swarm/test_parallel_executor_routing.py",
+      "line": 266,
+      "end": 312,
+      "status": "VALID_RANGE",
+      "source_lines": 452
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 103,
+      "end": 107,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 36,
+      "path": "src/superclaude/execution/parallel.py",
+      "line": 100,
+      "end": 143,
+      "status": "VALID_RANGE",
+      "source_lines": 349
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "line": 45,
+      "end": 55,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "line": 173,
+      "end": 206,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 38,
+      "path": ".github/workflows/test.yml",
+      "line": 102,
+      "end": 108,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 38,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 261,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 71,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": "tests/conftest.py",
+      "line": 17,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 128,
+      "end": 149,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 151,
+      "end": 166,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 27,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 40,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 1,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 42,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 178,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 42,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 306,
+      "end": 321,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 42,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 20,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 44,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 118,
+      "end": 145,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 44,
+      "path": ".github/workflows/test.yml",
+      "line": 127,
+      "end": 137,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 44,
+      "path": ".github/workflows/README.md",
+      "line": 12,
+      "end": 24,
+      "status": "VALID_RANGE",
+      "source_lines": 159
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 44,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 96,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 118,
+      "end": 146,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "line": 1,
+      "end": 158,
+      "status": "VALID_RANGE",
+      "source_lines": 158
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "line": 1905,
+      "end": 1936,
+      "status": "VALID_RANGE",
+      "source_lines": 4433
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "line": 20,
+      "end": 68,
+      "status": "VALID_RANGE",
+      "source_lines": 82
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 194,
+      "end": 196,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 228,
+      "end": 228,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-43bfa0aa.patch",
+      "line": 19,
+      "end": 31,
+      "status": "VALID_RANGE",
+      "source_lines": 71
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-8da05a17.patch",
+      "line": 25,
+      "end": 52,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 230,
+      "end": 230,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "line": 70,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 82
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 231,
+      "end": 231,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 55,
+      "path": ".github/workflows/test.yml",
+      "line": 19,
+      "end": 40,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 55,
+      "path": ".github/workflows/test.yml",
+      "line": 92,
+      "end": 137,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 56,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 1,
+      "end": 12,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 56,
+      "path": "pyproject.toml",
+      "line": 173,
+      "end": 206,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 57,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 14,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 57,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 58,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 28,
+      "end": 41,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 58,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 1,
+      "end": 22,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 58,
+      "path": "src/superclaude/cli/doctor.py",
+      "line": 7,
+      "end": 48,
+      "status": "VALID_RANGE",
+      "source_lines": 260
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 59,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 42,
+      "end": 56,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 59,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 23,
+      "end": 49,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 59,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 7,
+      "end": 40,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 60,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 57,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 60,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 50,
+      "end": 76,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 60,
+      "path": "src/superclaude/cli/install_skill.py",
+      "line": 7,
+      "end": 55,
+      "status": "VALID_RANGE",
+      "source_lines": 150
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 61,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 72,
+      "end": 88,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 61,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 77,
+      "end": 91,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "line": 7,
+      "end": 20,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "line": 46,
+      "end": 75,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 62,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 89,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 62,
+      "path": "src/superclaude/execution/__init__.py",
+      "line": 19,
+      "end": 38,
+      "status": "VALID_RANGE",
+      "source_lines": 227
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 63,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 120,
+      "end": 148,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 63,
+      "path": "src/superclaude/execution/parallel.py",
+      "line": 100,
+      "end": 143,
+      "status": "VALID_RANGE",
+      "source_lines": 349
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 64,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 149,
+      "end": 167,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 64,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 304,
+      "end": 519,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 64,
+      "path": "src/superclaude/execution/reflection.py",
+      "line": 12,
+      "end": 57,
+      "status": "VALID_RANGE",
+      "source_lines": 400
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 65,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 168,
+      "end": 213,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 65,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 520,
+      "end": 715,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 65,
+      "path": "src/superclaude/execution/self_correction.py",
+      "line": 15,
+      "end": 31,
+      "status": "VALID_RANGE",
+      "source_lines": 425
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 66,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 214,
+      "end": 227,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 66,
+      "path": "src/superclaude/pm_agent/__init__.py",
+      "line": 11,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 19
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 228,
+      "end": 241,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 716,
+      "end": 734,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 67,
+      "path": "src/superclaude/pm_agent/confidence.py",
+      "line": 22,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 272
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 242,
+      "end": 258,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 735,
+      "end": 804,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 68,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 69,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 259,
+      "end": 271,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 69,
+      "path": "src/superclaude/pm_agent/self_check.py",
+      "line": 16,
+      "end": 25,
+      "status": "VALID_RANGE",
+      "source_lines": 249
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 272,
+      "end": 291,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 805,
+      "end": 860,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 70,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 12,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 70,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 71,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 71,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 292,
+      "end": 305,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 71,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 861,
+      "end": 872,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 71,
+      "path": "tests/conftest.py",
+      "line": 8,
+      "end": 25,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 71,
+      "path": "tests/conftest.py",
+      "line": 28,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 72,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 306,
+      "end": 323,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 72,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 72,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 178,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 73,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 325,
+      "end": 345,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 73,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 873,
+      "end": 887,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 73,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 14,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 346,
+      "end": 357,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "line": 888,
+      "end": 902,
+      "status": "VALID_RANGE",
+      "source_lines": 902
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 74,
+      "path": "tests/unit/test_confidence.py",
+      "line": 27,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 181
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 74,
+      "path": "tests/unit/test_confidence.py",
+      "line": 61,
+      "end": 66,
+      "status": "VALID_RANGE",
+      "source_lines": 181
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 75,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 358,
+      "end": 378,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 75,
+      "path": "tests/unit/test_reflexion.py",
+      "line": 159,
+      "end": 183,
+      "status": "VALID_RANGE",
+      "source_lines": 183
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 76,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 379,
+      "end": 390,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 76,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 97,
+      "end": 101,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 76,
+      "path": "tests/unit/test_self_check.py",
+      "line": 7,
+      "end": 29,
+      "status": "VALID_RANGE",
+      "source_lines": 236
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 77,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 391,
+      "end": 400,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 77,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 102,
+      "end": 106,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 77,
+      "path": "tests/unit/test_token_budget.py",
+      "line": 7,
+      "end": 34,
+      "status": "VALID_RANGE",
+      "source_lines": 129
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 82,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 107,
+      "end": 176,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "line": 19,
+      "end": 49,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "line": 51,
+      "end": 137,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "line": 139,
+      "end": 180,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 88,
+      "path": "src/superclaude/execution/parallel.py",
+      "line": 100,
+      "end": 143,
+      "status": "VALID_RANGE",
+      "source_lines": 349
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 88,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 88,
+      "path": "tests/conftest.py",
+      "line": 17,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 88,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 47,
+      "end": 93,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 95,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-validation.txt",
+      "line": 1,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 9
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 99,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 147,
+      "end": 192,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 102,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "line": 1,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 158
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 102,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "line": 185,
+      "end": 233,
+      "status": "VALID_RANGE",
+      "source_lines": 978
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 107,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "line": 1,
+      "end": 158,
+      "status": "VALID_RANGE",
+      "source_lines": 158
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 108,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "line": 147,
+      "end": 192,
+      "status": "VALID_RANGE",
+      "source_lines": 194
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 109,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "line": 107,
+      "end": 176,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 110,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "line": 178,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 230
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/quality-ci.md",
+      "report_line": 110,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "line": 306,
+      "end": 321,
+      "status": "VALID_RANGE",
+      "source_lines": 402
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "line": 1,
+      "end": 5843,
+      "status": "VALID_RANGE",
+      "source_lines": 5843
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "line": 1,
+      "end": 637,
+      "status": "VALID_RANGE",
+      "source_lines": 637
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 19,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 19,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 19,
+      "path": "VERSION",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 1
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 19,
+      "path": "package.json",
+      "line": 2,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 52
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 27,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 61,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 27,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 28,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 28,
+      "path": "README.md",
+      "line": 53,
+      "end": 79,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 28,
+      "path": "CLAUDE.md",
+      "line": 94,
+      "end": 115,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 29,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 29,
+      "path": "package.json",
+      "line": 2,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 52
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 30,
+      "path": "src/superclaude/cli/main.py",
+      "line": 15,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 30,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 199,
+      "end": 203,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 32,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 32,
+      "path": "CLAUDE.md",
+      "line": 94,
+      "end": 115,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 33,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 8,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 34,
+      "path": "VERSION",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 1
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 34,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 21,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 36,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 36,
+      "path": "tests/conftest.py",
+      "line": 23,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 37,
+      "path": "README.md",
+      "line": 1,
+      "end": 5,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 38,
+      "path": "docs/user-guide/commands.md",
+      "line": 22,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 1474
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 39,
+      "path": "VERSION",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 1
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 39,
+      "path": "pyproject.toml",
+      "line": 7,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 39,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 8,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 40,
+      "path": "CLAUDE.md",
+      "line": 94,
+      "end": 115,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 46,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 61,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 46,
+      "path": "docs/memory/README.md",
+      "line": 15,
+      "end": 45,
+      "status": "VALID_RANGE",
+      "source_lines": 306
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 46,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 46,
+      "path": "docs/memory/reflexion.jsonl.example",
+      "line": 1,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 15
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 46,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 138,
+      "end": 170,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 48,
+      "path": "docs/memory/README.md",
+      "line": 183,
+      "end": 216,
+      "status": "VALID_RANGE",
+      "source_lines": 306
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 48,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 127,
+      "end": 132,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 48,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 188,
+      "end": 196,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 50,
+      "path": "src/superclaude/__init__.py",
+      "line": 11,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 50,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 172,
+      "end": 196,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 50,
+      "path": "tests/unit/test_reflexion.py",
+      "line": 9,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 183
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 50,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 117,
+      "end": 145,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 50,
+      "path": "src/superclaude/skills/sc-pm-protocol/SKILL.md",
+      "line": 21,
+      "end": 52,
+      "status": "VALID_RANGE",
+      "source_lines": 197
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 52,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 52,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 52,
+      "path": "tests/conftest.py",
+      "line": 23,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 52,
+      "path": "tests/unit/test_reflexion_pollution_guard.py",
+      "line": 1,
+      "end": 26,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 54,
+      "path": "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+      "line": 11,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 430
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 54,
+      "path": "scripts/analyze_workflow_metrics.py",
+      "line": 25,
+      "end": 41,
+      "status": "VALID_RANGE",
+      "source_lines": 346
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 54,
+      "path": "scripts/ab_test_workflows.py",
+      "line": 26,
+      "end": 56,
+      "status": "VALID_RANGE",
+      "source_lines": 290
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 58,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 16,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 58,
+      "path": "src/superclaude/cli/main.py",
+      "line": 15,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 58,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 199,
+      "end": 203,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 60,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 21,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 60,
+      "path": "package.json",
+      "line": 2,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 52
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 64,
+      "path": "docs/user-guide/commands.md",
+      "line": 22,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 1474
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 66,
+      "path": "src/superclaude/cli/install_core.py",
+      "line": 27,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 152
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 66,
+      "path": "CLAUDE.md",
+      "line": 16,
+      "end": 31,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "line": 2133,
+      "end": 2169,
+      "status": "VALID_RANGE",
+      "source_lines": 4433
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 75,
+      "path": "CLAUDE.md",
+      "line": 16,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 81,
+      "path": "README.md",
+      "line": 1,
+      "end": 79,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 83,
+      "path": "VERSION",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 1
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 83,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 21,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 84,
+      "path": "docs/mcp/mcp-integration-policy.md",
+      "line": 9,
+      "end": 67,
+      "status": "VALID_RANGE",
+      "source_lines": 475
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 84,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 85,
+      "path": "docs/memory/README.md",
+      "line": 15,
+      "end": 45,
+      "status": "VALID_RANGE",
+      "source_lines": 306
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 85,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 127,
+      "end": 132,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 86,
+      "path": "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+      "line": 11,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 430
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 87,
+      "path": "docs/memory/pm_context.md",
+      "line": 35,
+      "end": 65,
+      "status": "VALID_RANGE",
+      "source_lines": 99
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 87,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 117,
+      "end": 145,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 88,
+      "path": "docs/memory/reflexion.jsonl.example",
+      "line": 1,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 15
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 89,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 90,
+      "path": "docs/memory/token_efficiency_validation.md",
+      "line": 96,
+      "end": 115,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 94,
+      "path": "docs/reference/pm-agent-autonomous-reflection.md",
+      "line": 188,
+      "end": 229,
+      "status": "VALID_RANGE",
+      "source_lines": 662
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 94,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 110,
+      "end": 136,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 98,
+      "path": "docs/user-guide/commands.md",
+      "line": 22,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 1474
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 99,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 30,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 99,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 100,
+      "path": "package.json",
+      "line": 2,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 52
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 102,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 103,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 20,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 103,
+      "path": "src/superclaude/cli/main.py",
+      "line": 15,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 103,
+      "path": "src/superclaude/pytest_plugin.py",
+      "line": 199,
+      "end": 203,
+      "status": "VALID_RANGE",
+      "source_lines": 228
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 107,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 183,
+      "end": 306,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 132,
+      "path": "docs/memory/README.md",
+      "line": 38,
+      "end": 45,
+      "status": "VALID_RANGE",
+      "source_lines": 306
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 132,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 177,
+      "end": 185,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 133,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 138,
+      "end": 170,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 134,
+      "path": "tests/conftest.py",
+      "line": 23,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 134,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 136,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 136,
+      "path": "src/superclaude/skills/sc-pm-protocol/SKILL.md",
+      "line": 21,
+      "end": 52,
+      "status": "VALID_RANGE",
+      "source_lines": 197
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 143,
+      "path": "docs/memory/token_efficiency_validation.md",
+      "line": 145,
+      "end": 168,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 152,
+      "path": "README.md",
+      "line": 53,
+      "end": 79,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 152,
+      "path": "pyproject.toml",
+      "line": 5,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 152,
+      "path": "src/superclaude/__init__.py",
+      "line": 8,
+      "end": 20,
+      "status": "VALID_RANGE",
+      "source_lines": 21
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 152,
+      "path": "docs/user-guide/commands.md",
+      "line": 22,
+      "end": 30,
+      "status": "VALID_RANGE",
+      "source_lines": 1474
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 153,
+      "path": "docs/memory/solutions_learned.jsonl",
+      "line": 1,
+      "end": 4,
+      "status": "VALID_RANGE",
+      "source_lines": 4
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 153,
+      "path": "tests/conftest.py",
+      "line": 23,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 154,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 30,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/docs-memory-releases.md",
+      "report_line": 154,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/commands-framework-evidence/path-coverage.md",
+      "line": 5,
+      "end": 225,
+      "status": "VALID_RANGE",
+      "source_lines": 225
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 26,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "line": 1,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 26,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "line": 40,
+      "end": 60,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 26,
+      "path": "src/superclaude/commands/recommend.md",
+      "line": 40,
+      "end": 60,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 27,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 25,
+      "end": 44,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_agents.py",
+      "line": 26,
+      "end": 57,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 28,
+      "path": "src/superclaude/cli/install_core.py",
+      "line": 12,
+      "end": 23,
+      "status": "VALID_RANGE",
+      "source_lines": 152
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 28,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "line": 345,
+      "end": 360,
+      "status": "VALID_RANGE",
+      "source_lines": 686
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 28,
+      "path": "tests/commands/test_research_command.py",
+      "line": 11,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 28,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 123,
+      "end": 161,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 29,
+      "path": "src/superclaude/commands/cleanup.md",
+      "line": 107,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 127
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 29,
+      "path": "src/superclaude/commands/research.md",
+      "line": 122,
+      "end": 142,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 29,
+      "path": "src/superclaude/commands/workflow.md",
+      "line": 48,
+      "end": 80,
+      "status": "VALID_RANGE",
+      "source_lines": 80
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 29,
+      "path": "src/superclaude/commands/implement.md",
+      "line": 63,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 146
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 219,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 29,
+      "end": 44,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 50,
+      "end": 64,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_agents.py",
+      "line": 47,
+      "end": 59,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 38,
+      "path": "src/superclaude/skills/sc-task-protocol/SKILL.md",
+      "line": 311,
+      "end": 315,
+      "status": "VALID_RANGE",
+      "source_lines": 405
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 38,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "line": 345,
+      "end": 360,
+      "status": "VALID_RANGE",
+      "source_lines": 686
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 38,
+      "path": "src/superclaude/agents/backend-architect.md",
+      "line": 1,
+      "end": 56,
+      "status": "VALID_RANGE",
+      "source_lines": 56
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 39,
+      "path": "src/superclaude/commands/research.md",
+      "line": 86,
+      "end": 100,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 39,
+      "path": "tests/commands/test_research_command.py",
+      "line": 11,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 129,
+      "end": 133,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 40,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 53,
+      "end": 68,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 41,
+      "path": "pyproject.toml",
+      "line": 78,
+      "end": 97,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 41,
+      "path": "Makefile",
+      "line": 126,
+      "end": 136,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 41,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 47,
+      "path": "src/superclaude/cli/install_core.py",
+      "line": 46,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 152
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 48,
+      "path": "src/superclaude/commands/task.md",
+      "line": 95,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 186
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 49,
+      "path": "src/superclaude/commands/recommend.md",
+      "line": 30,
+      "end": 60,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 49,
+      "path": "src/superclaude/skills/sc-recommend/SKILL.md",
+      "line": 148,
+      "end": 171,
+      "status": "VALID_RANGE",
+      "source_lines": 398
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 50,
+      "path": "src/superclaude/commands/implement.md",
+      "line": 63,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 146
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 50,
+      "path": "src/superclaude/commands/workflow.md",
+      "line": 44,
+      "end": 80,
+      "status": "VALID_RANGE",
+      "source_lines": 80
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 74,
+      "path": "plugins/superclaude/commands/recommend.md",
+      "line": 40,
+      "end": 60,
+      "status": "VALID_RANGE",
+      "source_lines": 138
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 74,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 393,
+      "end": 399,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 74,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 107,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 75,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 38,
+      "end": 62,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 75,
+      "path": "src/superclaude/commands/implement.md",
+      "line": 67,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 146
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 75,
+      "path": "src/superclaude/commands/workflow.md",
+      "line": 44,
+      "end": 54,
+      "status": "VALID_RANGE",
+      "source_lines": 80
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 75,
+      "path": "src/superclaude/commands/task.md",
+      "line": 95,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 186
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 75,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 111,
+      "end": 120,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 76,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "line": 351,
+      "end": 360,
+      "status": "VALID_RANGE",
+      "source_lines": 686
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 76,
+      "path": "src/superclaude/skills/sc-task-protocol/SKILL.md",
+      "line": 311,
+      "end": 315,
+      "status": "VALID_RANGE",
+      "source_lines": 405
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 76,
+      "path": "tests/commands/test_research_command.py",
+      "line": 11,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 76,
+      "path": "src/superclaude/cli/install_core.py",
+      "line": 46,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 152
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 76,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 123,
+      "end": 161,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 77,
+      "path": "src/superclaude/commands/research.md",
+      "line": 122,
+      "end": 142,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 77,
+      "path": "src/superclaude/commands/business-panel.md",
+      "line": 112,
+      "end": 129,
+      "status": "VALID_RANGE",
+      "source_lines": 129
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 77,
+      "path": "src/superclaude/commands/cleanup.md",
+      "line": 107,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 127
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 77,
+      "path": "src/superclaude/commands/troubleshoot.md",
+      "line": 181,
+      "end": 196,
+      "status": "VALID_RANGE",
+      "source_lines": 214
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 99,
+      "path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "line": 2495,
+      "end": 2499,
+      "status": "VALID_RANGE",
+      "source_lines": 4433
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 105,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 29,
+      "end": 62,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 105,
+      "path": "src/superclaude/cli/install_core.py",
+      "line": 46,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 152
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 105,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "line": 351,
+      "end": 360,
+      "status": "VALID_RANGE",
+      "source_lines": 686
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 105,
+      "path": "tests/commands/test_research_command.py",
+      "line": 34,
+      "end": 51,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/commands-framework.md",
+      "report_line": 105,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 959,
+      "end": 982,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/55c658c7.patch.txt",
+      "line": 51,
+      "end": 59,
+      "status": "VALID_RANGE",
+      "source_lines": 224
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/0ceb2955.net.patch.txt",
+      "line": 1,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 174
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/5a685958.patch.txt",
+      "line": 24,
+      "end": 108,
+      "status": "VALID_RANGE",
+      "source_lines": 269
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/5a685958.patch.txt",
+      "line": 112,
+      "end": 265,
+      "status": "VALID_RANGE",
+      "source_lines": 269
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/renames.txt",
+      "line": 10,
+      "end": 13,
+      "status": "VALID_RANGE",
+      "source_lines": 20
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/67449770.patch.txt",
+      "line": 7,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 35
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "line": 354,
+      "end": 467,
+      "status": "VALID_RANGE",
+      "source_lines": 807
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "line": 517,
+      "end": 643,
+      "status": "VALID_RANGE",
+      "source_lines": 807
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "line": 669,
+      "end": 802,
+      "status": "VALID_RANGE",
+      "source_lines": 807
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/202660b5.patch.txt",
+      "line": 34,
+      "end": 172,
+      "status": "VALID_RANGE",
+      "source_lines": 172
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/6ae5e998.patch.txt",
+      "line": 60,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 275
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "line": 376,
+      "end": 441,
+      "status": "VALID_RANGE",
+      "source_lines": 807
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/04c9b85c.patch.txt",
+      "line": 17,
+      "end": 46,
+      "status": "VALID_RANGE",
+      "source_lines": 49
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/3294a0ad.patch.txt",
+      "line": 235,
+      "end": 258,
+      "status": "VALID_RANGE",
+      "source_lines": 829
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/3294a0ad.patch.txt",
+      "line": 548,
+      "end": 829,
+      "status": "VALID_RANGE",
+      "source_lines": 829
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/renames.txt",
+      "line": 4,
+      "end": 6,
+      "status": "VALID_RANGE",
+      "source_lines": 20
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 25,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/55c658c7.patch.txt",
+      "line": 55,
+      "end": 223,
+      "status": "VALID_RANGE",
+      "source_lines": 224
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 25,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 293,
+      "end": 380,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 25,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 415,
+      "end": 459,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "line": 254,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "line": 310,
+      "end": 343,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 29,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 72,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 29,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 1325,
+      "end": 1356,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 31,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/fork-history.txt",
+      "line": 1,
+      "end": 19,
+      "status": "VALID_RANGE",
+      "source_lines": 29
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 71,
+      "end": 108,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 192,
+      "end": 233,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 815,
+      "end": 913,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 1034,
+      "end": 1178,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 33,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "line": 24,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 149
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 33,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "line": 41,
+      "end": 71,
+      "status": "VALID_RANGE",
+      "source_lines": 149
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 35,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 112,
+      "end": 141,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 35,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 587,
+      "end": 603,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 35,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/04c9b85c.patch.txt",
+      "line": 30,
+      "end": 46,
+      "status": "VALID_RANGE",
+      "source_lines": 49
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 1287,
+      "end": 1297,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 1313,
+      "end": 1356,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "line": 1023,
+      "end": 1031,
+      "status": "VALID_RANGE",
+      "source_lines": 1633
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "line": 1096,
+      "end": 1111,
+      "status": "VALID_RANGE",
+      "source_lines": 1633
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "line": 1229,
+      "end": 1238,
+      "status": "VALID_RANGE",
+      "source_lines": 1633
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/main.py",
+      "line": 254,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 37,
+      "path": "docs/user-guide/mcp-installation.md",
+      "line": 5,
+      "end": 24,
+      "status": "VALID_RANGE",
+      "source_lines": 329
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 40,
+      "end": 109,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/consumers.txt",
+      "line": 16,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 177
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 147,
+      "end": 154,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 885,
+      "end": 895,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": "pyproject.toml",
+      "line": 78,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 421,
+      "end": 426,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 41,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 41,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 172,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 41,
+      "path": "CLAUDE.md",
+      "line": 351,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 43,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "line": 15,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 27
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 43,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "line": 20,
+      "end": 26,
+      "status": "VALID_RANGE",
+      "source_lines": 34
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 43,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 24,
+      "end": 31,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 45,
+      "path": "CLAUDE.md",
+      "line": 353,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 45,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 49,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 344,
+      "end": 423,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 57,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 57,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "line": 24,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 149
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 58,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 40,
+      "end": 109,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 58,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 147,
+      "end": 154,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 58,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 172,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 59,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "line": 18,
+      "end": 29,
+      "status": "VALID_RANGE",
+      "source_lines": 34
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 59,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 268,
+      "end": 305,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 60,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 123,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 61,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "line": 1023,
+      "end": 1031,
+      "status": "VALID_RANGE",
+      "source_lines": 1633
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 61,
+      "path": "CLAUDE.md",
+      "line": 353,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 61,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 62,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 293,
+      "end": 459,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 71,
+      "path": "CLAUDE.md",
+      "line": 351,
+      "end": 373,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 72,
+      "path": "README.md",
+      "line": 53,
+      "end": 92,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/review-quality-mcp-evidence.json",
+      "line": 2498,
+      "end": 2498,
+      "status": "VALID_RANGE",
+      "source_lines": 2502
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 74,
+      "path": "docs/user-guide/mcp-installation.md",
+      "line": 5,
+      "end": 63,
+      "status": "VALID_RANGE",
+      "source_lines": 329
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 74,
+      "path": "README.md",
+      "line": 64,
+      "end": 64,
+      "status": "VALID_RANGE",
+      "source_lines": 274
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 77,
+      "path": "docs/user-guide/mcp-servers.md",
+      "line": 119,
+      "end": 132,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 78,
+      "path": "src/superclaude/cli/main.py",
+      "line": 324,
+      "end": 324,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 79,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 112,
+      "end": 141,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 80,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 81,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "line": 1,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 27
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 81,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 40,
+      "end": 109,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 81,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 147,
+      "end": 154,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 82,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "line": 18,
+      "end": 34,
+      "status": "VALID_RANGE",
+      "source_lines": 34
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 82,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 82,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 172,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 83,
+      "path": "src/superclaude/mcp/configs/airis-agent.json",
+      "line": 1,
+      "end": 11,
+      "status": "VALID_RANGE",
+      "source_lines": 11
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 83,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 40,
+      "end": 109,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 83,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 147,
+      "end": 154,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 84,
+      "path": "src/superclaude/mcp/configs/mindbase.json",
+      "line": 1,
+      "end": 13,
+      "status": "VALID_RANGE",
+      "source_lines": 13
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 84,
+      "path": "tests/unit/test_cli_install.py",
+      "line": 147,
+      "end": 154,
+      "status": "VALID_RANGE",
+      "source_lines": 1100
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 84,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 172,
+      "end": 184,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 90,
+      "path": "CLAUDE.md",
+      "line": 353,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 90,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 90,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "line": 15,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 27
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 90,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "line": 20,
+      "end": 29,
+      "status": "VALID_RANGE",
+      "source_lines": 34
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 91,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 344,
+      "end": 405,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 91,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 123,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 92,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 1287,
+      "end": 1356,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 92,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "line": 1023,
+      "end": 1031,
+      "status": "VALID_RANGE",
+      "source_lines": 1633
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 93,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 93,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "line": 24,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 149
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 102,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/negative-search.txt",
+      "line": 1,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 18
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 103,
+      "path": ".dev/research/upstream-merge-impact/review-quality-mcp-evidence.json",
+      "line": 2498,
+      "end": 2498,
+      "status": "VALID_RANGE",
+      "source_lines": 2502
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 107,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 107,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "line": 24,
+      "end": 27,
+      "status": "VALID_RANGE",
+      "source_lines": 149
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 108,
+      "path": "CLAUDE.md",
+      "line": 353,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 108,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 108,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "line": 15,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 27
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/mcp-installation.md",
+      "report_line": 108,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "line": 20,
+      "end": 26,
+      "status": "VALID_RANGE",
+      "source_lines": 34
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 21,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/units.json",
+      "line": 2073,
+      "end": 2120,
+      "status": "VALID_RANGE",
+      "source_lines": 2376
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 1,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "line": 3822,
+      "end": 3858,
+      "status": "VALID_RANGE",
+      "source_lines": 4433
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 21,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 31,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 3,
+      "end": 6,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "line": 67,
+      "end": 147,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "line": 150,
+      "end": 300,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "line": 303,
+      "end": 433,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "line": 436,
+      "end": 639,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 32,
+      "path": "scripts/sync_from_framework.py",
+      "line": 643,
+      "end": 848,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 34,
+      "path": "scripts/sync_from_framework.py",
+      "line": 443,
+      "end": 480,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 34,
+      "path": "scripts/sync_from_framework.py",
+      "line": 719,
+      "end": 766,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 36,
+      "path": "scripts/sync_from_framework.py",
+      "line": 503,
+      "end": 522,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 36,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 56,
+      "end": 78,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 38,
+      "path": "scripts/sync_from_framework.py",
+      "line": 70,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 40,
+      "path": "scripts/sync_from_framework.py",
+      "line": 822,
+      "end": 843,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 44,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 974,
+      "end": 1001,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 44,
+      "path": ".github/workflows/README.md",
+      "line": 41,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 159
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 46,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 46,
+      "path": "Makefile",
+      "line": 65,
+      "end": 86,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 50,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 786,
+      "end": 827,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 51,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 861,
+      "end": 901,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 903,
+      "end": 957,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 37,
+      "end": 730,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 56,
+      "path": ".github/workflows/boundary-guard.yml",
+      "line": 13,
+      "end": 33,
+      "status": "VALID_RANGE",
+      "source_lines": 98
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 60,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 425,
+      "end": 441,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 64,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 21,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 64,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 50,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 66,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 96,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 66,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 974,
+      "end": 1001,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 68,
+      "path": ".github/workflows/README.md",
+      "line": 41,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 159
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 68,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 80,
+      "end": 84,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 974,
+      "end": 1001,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 78,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 3,
+      "end": 6,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 78,
+      "path": "scripts/sync_from_framework.py",
+      "line": 199,
+      "end": 246,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 79,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 974,
+      "end": 1001,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 81,
+      "path": ".github/workflows/boundary-guard.yml",
+      "line": 25,
+      "end": 33,
+      "status": "VALID_RANGE",
+      "source_lines": 98
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 88,
+      "path": "scripts/sync_from_framework.py",
+      "line": 490,
+      "end": 519,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 89,
+      "path": ".dev/research/upstream-merge-impact/units.json",
+      "line": 2116,
+      "end": 2120,
+      "status": "VALID_RANGE",
+      "source_lines": 2376
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/sync-protection.md",
+      "report_line": 89,
+      "path": ".dev/research/upstream-merge-impact/sync-protection-git-evidence.txt",
+      "line": 974,
+      "end": 1008,
+      "status": "VALID_RANGE",
+      "source_lines": 1008
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 14,
+      "path": ".dev/research/upstream-merge-impact/ANALYSIS-INSTRUCTIONS.md",
+      "line": 9,
+      "end": 28,
+      "status": "VALID_RANGE",
+      "source_lines": 32
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 14,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-evidence.json",
+      "line": 1,
+      "end": 6,
+      "status": "VALID_RANGE",
+      "source_lines": 1245
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-collect.py",
+      "line": 17,
+      "end": 39,
+      "status": "VALID_RANGE",
+      "source_lines": 57
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-evidence.json",
+      "line": 1,
+      "end": 6,
+      "status": "VALID_RANGE",
+      "source_lines": 1245
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-content.txt",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 6790
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 18,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 18,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 18,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 74,
+      "end": 85,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 26,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 1,
+      "end": 60,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 26,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 7432,
+      "end": 7438,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 7440,
+      "end": 7459,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 10870,
+      "end": 11024,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 12441,
+      "end": 12449,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 27,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-reflect.txt",
+      "line": 18,
+      "end": 62,
+      "status": "VALID_RANGE",
+      "source_lines": 179
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 27,
+      "path": "src/superclaude/commands/reflect.md",
+      "line": 13,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 311
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 28,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 12451,
+      "end": 12465,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 28,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 21,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 29,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 12467,
+      "end": 12686,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 12688,
+      "end": 12702,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 30,
+      "path": "docs/.framework-sync-commit",
+      "line": 1,
+      "end": 1,
+      "status": "VALID_RANGE",
+      "source_lines": 1
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 30,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 28,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 34,
+      "path": "src/superclaude/commands/help.md",
+      "line": 25,
+      "end": 28,
+      "status": "VALID_RANGE",
+      "source_lines": 135
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 38,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 38,
+      "path": "src/superclaude/cli/install_agents.py",
+      "line": 89,
+      "end": 108,
+      "status": "VALID_RANGE",
+      "source_lines": 142
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "line": 78,
+      "end": 97,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 40,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 23,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 40,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 74,
+      "end": 90,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 40,
+      "path": "Makefile",
+      "line": 65,
+      "end": 86,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 42,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 21,
+      "end": 54,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 42,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 80,
+      "end": 118,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 42,
+      "path": "scripts/sync_from_framework.py",
+      "line": 719,
+      "end": 758,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 42,
+      "path": "scripts/sync_from_framework.py",
+      "line": 200,
+      "end": 248,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 44,
+      "path": "src/superclaude/cli/cli_portify/resolution.py",
+      "line": 78,
+      "end": 85,
+      "status": "VALID_RANGE",
+      "source_lines": 261
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 44,
+      "path": "src/superclaude/cli/cli_portify/resolution.py",
+      "line": 89,
+      "end": 105,
+      "status": "VALID_RANGE",
+      "source_lines": 261
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 44,
+      "path": "tests/cli_portify/test_resolution.py",
+      "line": 30,
+      "end": 79,
+      "status": "VALID_RANGE",
+      "source_lines": 370
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 44,
+      "path": "src/superclaude/scripts/clean_command_names.py",
+      "line": 23,
+      "end": 42,
+      "status": "VALID_RANGE",
+      "source_lines": 168
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 44,
+      "path": "src/superclaude/scripts/clean_command_names.py",
+      "line": 128,
+      "end": 145,
+      "status": "VALID_RANGE",
+      "source_lines": 168
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 50,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-history.txt",
+      "line": 1,
+      "end": 9,
+      "status": "VALID_RANGE",
+      "source_lines": 9
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-reflect.txt",
+      "line": 18,
+      "end": 62,
+      "status": "VALID_RANGE",
+      "source_lines": 179
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 10870,
+      "end": 11024,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 52,
+      "path": "src/superclaude/commands/reflect.md",
+      "line": 13,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 311
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-fork-removal.txt",
+      "line": 26,
+      "end": 41,
+      "status": "VALID_RANGE",
+      "source_lines": 368
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 56,
+      "path": "src/superclaude/commands/implement.md",
+      "line": 9,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 146
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 56,
+      "path": "scripts/sync_from_framework.py",
+      "line": 70,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 58,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 58,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 18,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 58,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 74,
+      "end": 85,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 62,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 443,
+      "end": 486,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 66,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 443,
+      "end": 450,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 452,
+      "end": 459,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 461,
+      "end": 468,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 69,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 470,
+      "end": 477,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "line": 479,
+      "end": 486,
+      "status": "VALID_RANGE",
+      "source_lines": 488
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 76,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 50,
+      "end": 54,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 76,
+      "path": "scripts/sync_from_framework.py",
+      "line": 205,
+      "end": 234,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 77,
+      "path": "scripts/sync_from_framework.py",
+      "line": 70,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 78,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-patches.txt",
+      "line": 10870,
+      "end": 11024,
+      "status": "VALID_RANGE",
+      "source_lines": 12702
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 78,
+      "path": "src/superclaude/commands/reflect.md",
+      "line": 13,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 311
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 79,
+      "path": "scripts/build_superclaude_plugin.py",
+      "line": 15,
+      "end": 23,
+      "status": "VALID_RANGE",
+      "source_lines": 101
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 85,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 115,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 85,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "line": 1,
+      "end": 7,
+      "status": "VALID_RANGE",
+      "source_lines": 1088
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "line": 9,
+      "end": 39,
+      "status": "VALID_RANGE",
+      "source_lines": 1088
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "line": 149,
+      "end": 155,
+      "status": "VALID_RANGE",
+      "source_lines": 1088
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "line": 750,
+      "end": 756,
+      "status": "VALID_RANGE",
+      "source_lines": 1088
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 87,
+      "path": ".dev/research/upstream-merge-impact/automated-sync-pending.txt",
+      "line": 886,
+      "end": 892,
+      "status": "VALID_RANGE",
+      "source_lines": 1088
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 166,
+      "path": "src/superclaude/commands/reflect.md",
+      "line": 13,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 311
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/automated-sync-copies.md",
+      "report_line": 168,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 3,
+      "end": 5,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 220,
+      "end": 222,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 18,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 134,
+      "end": 218,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 9,
+      "end": 21,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 72,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 22,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 211,
+      "end": 218,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 25,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 129,
+      "end": 218,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 26,
+      "path": ".dev/research/upstream-merge-impact/git-evidence.md",
+      "line": 85,
+      "end": 127,
+      "status": "VALID_RANGE",
+      "source_lines": 222
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 28,
+      "path": ".dev/research/upstream-merge-impact/endpoint-summary.txt",
+      "line": 1,
+      "end": 15,
+      "status": "VALID_RANGE",
+      "source_lines": 15
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 28,
+      "path": ".dev/research/upstream-merge-impact/provenance-audit-evidence.json",
+      "line": 310,
+      "end": 362,
+      "status": "VALID_RANGE",
+      "source_lines": 391
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 36,
+      "path": "scripts/sync_from_framework.py",
+      "line": 726,
+      "end": 758,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 36,
+      "path": ".github/workflows/pull-sync-framework.yml",
+      "line": 110,
+      "end": 117,
+      "status": "VALID_RANGE",
+      "source_lines": 121
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 36,
+      "path": "scripts/sync_from_framework.py",
+      "line": 70,
+      "end": 102,
+      "status": "VALID_RANGE",
+      "source_lines": 928
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 37,
+      "path": "pyproject.toml",
+      "line": 69,
+      "end": 87,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 37,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 419,
+      "end": 425,
+      "status": "VALID_RANGE",
+      "source_lines": 508
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 37,
+      "path": "Makefile",
+      "line": 559,
+      "end": 567,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 37,
+      "path": "scripts/uninstall_legacy.sh",
+      "line": 33,
+      "end": 43,
+      "status": "VALID_RANGE",
+      "source_lines": 118
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 38,
+      "path": "src/superclaude/cli/main.py",
+      "line": 189,
+      "end": 275,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 38,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 96,
+      "end": 126,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "line": 78,
+      "end": 97,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 39,
+      "path": ".github/workflows/test.yml",
+      "line": 102,
+      "end": 137,
+      "status": "VALID_RANGE",
+      "source_lines": 191
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 39,
+      "path": "pyproject.toml",
+      "line": 173,
+      "end": 206,
+      "status": "VALID_RANGE",
+      "source_lines": 216
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 40,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "line": 57,
+      "end": 82,
+      "status": "VALID_RANGE",
+      "source_lines": 352
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 40,
+      "path": "docs/user-guide/memory-system.md",
+      "line": 61,
+      "end": 103,
+      "status": "VALID_RANGE",
+      "source_lines": 292
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 40,
+      "path": "docs/memory/README.md",
+      "line": 183,
+      "end": 207,
+      "status": "VALID_RANGE",
+      "source_lines": 306
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 41,
+      "path": "src/superclaude/cli/install_commands.py",
+      "line": 29,
+      "end": 62,
+      "status": "VALID_RANGE",
+      "source_lines": 166
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 41,
+      "path": "src/superclaude/skills/sc-task-protocol/SKILL.md",
+      "line": 311,
+      "end": 315,
+      "status": "VALID_RANGE",
+      "source_lines": 405
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 41,
+      "path": "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "line": 351,
+      "end": 360,
+      "status": "VALID_RANGE",
+      "source_lines": 686
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 41,
+      "path": "src/superclaude/commands/workflow.md",
+      "line": 44,
+      "end": 80,
+      "status": "VALID_RANGE",
+      "source_lines": 80
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 42,
+      "path": "src/superclaude/cli/main.py",
+      "line": 78,
+      "end": 83,
+      "status": "VALID_RANGE",
+      "source_lines": 567
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 42,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 112,
+      "end": 141,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 42,
+      "path": "CLAUDE.md",
+      "line": 353,
+      "end": 368,
+      "status": "VALID_RANGE",
+      "source_lines": 437
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 42,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "line": 334,
+      "end": 346,
+      "status": "VALID_RANGE",
+      "source_lines": 1373
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 43,
+      "path": "src/superclaude/commands/reflect.md",
+      "line": 13,
+      "end": 35,
+      "status": "VALID_RANGE",
+      "source_lines": 311
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 50,
+      "path": "docs/getting-started/installation.md",
+      "line": 343,
+      "end": 366,
+      "status": "VALID_RANGE",
+      "source_lines": 546
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/strict-check-summary.txt",
+      "line": 3,
+      "end": 11,
+      "status": "VALID_RANGE",
+      "source_lines": 11
+    },
+    {
+      "report": ".dev/research/upstream-merge-impact/REPORT.md",
+      "report_line": 76,
+      "path": ".dev/research/upstream-merge-impact/provenance-audit-evidence.json",
+      "line": 289,
+      "end": 289,
+      "status": "VALID_RANGE",
+      "source_lines": 391
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# Wave 5 final gate — persisted result returned by sc:evidence-validator (requested model slot: sonnet) on REPORT.draft.md
+validator_agent: sc:evidence-validator
+draft: REPORT.draft.md
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred_confirmed_tagged: 1     # draft claimed 2; only G2 was tagged in body
+citation_budget_policy: full_reread
+per_citation_verdicts: {C1: VERIFIED, C2: VERIFIED, C3: VERIFIED, C4: VERIFIED, C5: VERIFIED, C6: VERIFIED, C7: VERIFIED, C8: VERIFIED, C9: VERIFIED, C10: VERIFIED, C11: VERIFIED, C12: VERIFIED, C13: "VERIFIED (caveat: porcelain lists untracked files only; ignored files not ruled out)", C14: VERIFIED, C15: VERIFIED, C16: VERIFIED, C17: VERIFIED, C18: VERIFIED}
+in_body_issues:
+  - "inferred-count mismatch: header says 2, body tags 1 (reviewer-2 static-pass prediction untagged)"
+  - "R-002 verifier attributes 'collected and assertion failed' qualifier to C16; it comes from INV-006 (C17)"
+  - "G2 'no package marker' rests weakly on C13 (untracked-only listing)"
+snapshot_translation_check: "faithful — manifest verified; root/src/greeting.py identical to original"
+zero_drop_flag: true
+orchestrator_disposition: "No citation dropped. Three in-body issues corrected in REPORT.md (tag added, attribution moved to C17, C13 caveat stated). No new citation introduced; coverage unaffected."

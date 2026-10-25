@@ -1,0 +1,17 @@
+# Wave 5 final evidence gate. Agent: sc:evidence-validator (model slot: opus). Returned result persisted by orchestrator.
+validator: sc:evidence-validator
+evidence_validator_ran: true
+draft_validated: REPORT.draft.md
+citations_total: 17
+citations_revalidated: 17
+citation_budget_policy: full_reread
+kept: [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17]
+dropped: []
+zero_drop_flag: true      # SKILL §11.2: zero-drop is audit-flagged, not treated as clean signal
+inline_citations_checked: all verified (coverage-matrix fidelity, deviation ranges, R-1..R-4 locations)
+claim_accuracy_issues:
+  - {id: R-2, severity: minor, issue: "Verifier called tests/test_greeting.py:8-13 an 'assertion'; it is a try/except + raise AssertionError check, not an assert statement.", disposition: "reworded in final REPORT.md; no citation drop"}
+out_of_scope: ["K1 git diagnostic is command output (orchestrator ran `git rev-parse HEAD` / `git status --porcelain -uall`), not a file citation"]
+inferred_count: 1
+validator_skipped_structural_checks: "A1-A10 skipped (no assertions_path etc. supplied) — legacy citation-only validation"
+coverage_recompute: "not required (0 INF rows, 0 drops)"

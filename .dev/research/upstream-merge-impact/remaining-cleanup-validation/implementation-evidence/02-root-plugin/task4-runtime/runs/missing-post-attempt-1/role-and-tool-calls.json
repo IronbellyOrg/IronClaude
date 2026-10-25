@@ -1,0 +1,33 @@
+[
+  {
+    "parent_tool_use_id": null,
+    "tool": "Skill",
+    "input": {
+      "skill": "sc:sc-reflect-protocol",
+      "args": "--mode post --spec /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md --no-promote --output /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/missing-post-attempt-1/artifacts"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "B=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime\nS=$B/fixtures/project/spec.md; O=$B/runs/missing-post-attempt-1/artifacts\nls -la \"$S\"; wc -c \"$S\"; sha256sum \"$S\"\necho \"--- output\"; ls -la \"$O\" 2>&1; ls -la \"$(dirname \"$O\")\" 2>&1\npython3 -c \"\nimport os,sys\no='$O'; p=o\nwhile not os.path.exists(p): p=os.path.dirname(p)\nprint('nearest',p,'real',os.path.realpath(p))\nprint('output_real', os.path.join(os.path.realpath(p), os.path.relpath(o,p)))\nprint('dotdot', '..' in o.split('/'))\n\"\nls -la \"$B/fixtures/project\"; git -C \"$B/fixtures/project\" status --short 2>&1 | head",
+      "description": "Validate spec input and output path safety"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Read",
+    "input": {
+      "file_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md"
+    }
+  },
+  {
+    "parent_tool_use_id": null,
+    "tool": "Bash",
+    "input": {
+      "command": "O=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/runs/missing-post-attempt-1/artifacts\nS=/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md\nmkdir -p \"$O\"\nTS=$(date -u +%Y-%m-%dT%H:%M:%SZ)\ncat > \"$O/audit.log\" <<EOF\n{\"wave\": 0, \"step\": \"0.1\", \"timestamp\": \"$TS\", \"outcome\": \"ok\", \"evidence_ref\": null, \"note\": \"flags parsed; rule 1 explicit --mode post\"}\n{\"wave\": 0, \"step\": \"0.2\", \"timestamp\": \"$TS\", \"outcome\": \"ok\", \"evidence_ref\": \"$S\", \"note\": \"spec readable, 356 bytes, sha256 9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548\"}\n{\"wave\": 0, \"step\": \"0.2-guard\", \"timestamp\": \"$TS\", \"outcome\": \"fail\", \"evidence_ref\": null, \"note\": \"STOP stopped-precondition: --mode post requires --diff, --commit-range, or --task-log; none supplied (SKILL \u00a73.3). Unsupplied fixture files (changes.patch, execution.log) NOT substituted.\"}\n{\"wave\": 0, \"step\": \"0.8\", \"timestamp\": \"$TS\", \"outcome\": \"skip\", \"evidence_ref\": null, \"note\": \"Waves 1-7 not executed; no agents dispatched; --no-promote honored; no repository mutation\"}\nEOF\ncat > \"$O/return-contract.yaml\" <<EOF\n{\n  \"contract_version\": \"1.8.0\",\n  \"status\": \"failed\",\n  \"stop_reason\": \"post-mode-missing-completed-work-input\",\n  \"stop_message\": \"--mode post requires --diff <ref-or-path>, --commit-range <range>, or --task-log <path>; none was supplied. A spec alone does not satisfy a post audit.\",\n  \"stopped_at\": {\"wave\": 0, \"step\": \"0.2\"},\n  \"mode\": \"post\",\n  \"mode_resolution_rule\": 1,\n  \"tier_reached\": null,\n  \"report_path\": null,\n  \"audit_log_path\": \"$O/audit.log\",\n  \"confidence_calibrated\": null,\n  \"escalation_rule_matched\": null,\n  \"onboarding_ran\": false,\n  \"inputs_supplied\": {\"spec\": \"$S\", \"tasklist\": null, \"diff\": null, \"commit_range\": null, \"task_log\": null},\n  \"input_sha256\": {\"tasklist\": null, \"spec\": \"9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548\"},\n  \"input_tree_sha256\": null,\n  \"input_tree_file_count\": null,\n  \"input_tree_snapshot_path\": null,\n  \"input_drift_detected\": false,\n  \"input_drift_diff\": null,\n  \"tasklist_completion_pct\": null,\n  \"deviation_count_by_class\": {\"authorized\": 0, \"necessary\": 0, \"drift\": 0, \"regression\": 0},\n  \"deviation_register_path\": null,\n  \"grounding_gaps_path\": null,\n  \"citations_total\": 0,\n  \"citations_revalidated\": 0,\n  \"citations_dropped\": 0,\n  \"citations_dropped_extrapolated\": 0,\n  \"citations_inferred\": 0,\n  \"citation_budget_policy\": null,\n  \"evidence_validator_ran\": false,\n  \"citation_revalidation_at_promotion\": false,\n  \"reviewer_cards\": [],\n  \"adversarial_artifacts_dir\": null,\n  \"adversarial_convergence_score\": null,\n  \"adversarial_unavailable\": false,\n  \"merge_method\": null,\n  \"merge_method_note\": \"not applicable: no Tier 2 or merge was attempted\",\n  \"t2_model_class_diversity\": null,\n  \"t2_vendor_diversity\": null,\n  \"calibrator_diversity\": null,\n  \"remediation_offered\": false,\n  \"remediation_accepted\": false,\n  \"remediation_unavailable\": false,\n  \"task_file_path\": null,\n  \"remediation_task_path\": null,\n  \"remediation_plan_path\": null,\n  \"handoff_memory_key\": null,\n  \"cannot_validate_without_user_input\": true,\n  \"regression_present\": false,\n  \"unauthorized_deviation_present\": false,\n  \"blocked_by_low_confidence\": false,\n  \"spec_is_wrong\": false,\n  \"user_decision_required\": true,\n  \"needs_human_decision\": false,\n  \"per_task_verdicts\": [],\n  \"promotion_action\": \"skipped\",\n  \"promotion_skip_reason\": \"user-flag\",\n  \"promotion_gate_passed\": null,\n  \"promotion_log_path\": null,\n  \"agents_dispatched\": [],\n  \"degraded_components\": [],\n  \"next_action\": \"Re-run with --diff <ref-or-path>, --commit-range <real-range>, or --task-log <path> (optionally --tasklist), or use --mode pre for a spec-coverage review.\"\n}\nEOF\npython3 -c \"import json;json.load(open('$O/return-contract.yaml'));print('valid')\"; ls \"$O\"",
+      "description": "Write stopped-precondition audit log and contract"
+    }
+  }
+]

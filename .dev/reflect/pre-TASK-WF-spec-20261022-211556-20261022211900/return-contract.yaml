@@ -1,0 +1,108 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/audit.log
+confidence_calibrated: 0.84
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.8444
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-003, INF-037, INF-040, INF-041, INF-042, INF-045]
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256: {tasklist: null, spec: null}   # tree hash authoritative
+input_tree_sha256: a6d82ad1fb1a7e0c44393978a448ea7207a143941fba3bae671123ed02cb0c98
+input_tree_file_count: 2
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 38
+citations_revalidated: 38
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards: [/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/reviewer-cards/reviewer-1-card.yaml, /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/reviewer-cards/reviewer-2-card.yaml]
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true    # verdict not_ready: user chooses refactor (regenerate plan) or accept as is
+needs_human_decision: false     # no grounding-gaps.yaml
+overall_verdict: not_ready
+merged_findings: {high: 0, medium: 10, low: 8}
+unaddressed_invariants: []      # 0 HIGH; MEDIUM warnings INV-001, INV-002, INV-004, INV-007, INV-013, INV-014
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+telemetry:
+  reviewer_models: [claude-sonnet-5-5, grok-4.7]
+  reviewer_personas: [analyzer, qa]
+  reviewer_vendors: [Anthropic, xAI]
+  calibrator_model: claude-opus-5-5
+  degraded_components: ["requirements-analyst:inline", get_current_config, "serena:activate", "serena:think-checkpoints", "adversarial:base-scoring-inline"]
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  three_way_partition: degraded   # calibrator (opus) shares class with executor (opus)
+  onboarding_status: unknown
+  serena_version: unknown
+  memory_persist_skipped: true
+  invariant_warnings: [INV-001, INV-002, INV-004, INV-007, INV-013, INV-014]
+  verification_triangle: not-applicable-uc1

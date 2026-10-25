@@ -1,0 +1,3 @@
+# 4-category deviation ledger (authorized | necessary | drift | regression). Evidence-insufficient items live in grounding-gaps.yaml.
+deviations: []
+counts: {authorized: 0, necessary: 0, drift: 0, regression: 0}

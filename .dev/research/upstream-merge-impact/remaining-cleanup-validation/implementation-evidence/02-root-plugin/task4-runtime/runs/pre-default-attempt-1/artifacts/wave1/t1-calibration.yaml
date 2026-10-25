@@ -1,0 +1,19 @@
+# Wave 1D blind calibration. Agent: sc:confidence-calibrator (model slot: opus = claude-opus-5-5[1m]); card author slot: sonnet.
+# Inputs given: card path + rubric path only (no formation context). Returned scores persisted verbatim.
+calibrator_agent: sc:confidence-calibrator
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet]
+calibrator_diversity: full
+calibration: independent
+dimensions:
+  citation_grounding: 0.92
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.72
+  risk_surface_coverage: 0.93
+  recommendation_actionability: 0.90
+arithmetic_mean: 0.884     # (0.92+0.95+0.72+0.93+0.90)/5 = 4.42/5, recomputed by orchestrator
+C_reported_by_calibrator: 0.88
+self_reported_confidence_ignored: 0.85
+calibrator_notes:
+  - "All 18 card file:line cites resolve; K1 'no commits'/'untracked' claims uncited (orchestrator-side diagnostic: `git rev-parse HEAD` -> 'fatal: ambiguous argument HEAD: unknown revision'; `git status --porcelain` lists all files as ??)."
+  - "Lowest dimension: deviation clarity - K1 hedges Regression vs Drift."

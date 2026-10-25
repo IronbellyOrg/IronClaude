@@ -1,0 +1,428 @@
+{
+  "cases": 14,
+  "successful_shell_commands": 103,
+  "foreign_file_calls": 0,
+  "shells_with_foreign_checkout_literals": [
+    {
+      "case": "invalid-commit-range-attempt-1",
+      "event": 8,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "invalid-commit-range-attempt-1",
+      "event": 14,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 39,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 41,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 264,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-post-attempt-1",
+      "event": 364,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 64,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 128,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 205,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "legacy-pre-attempt-1",
+      "event": 346,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "missing-post-attempt-1",
+      "event": 12,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "missing-pre-attempt-1",
+      "event": 5,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 101,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 197,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 395,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 508,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-default-attempt-1",
+      "event": 546,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 12,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 74,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-log-only-attempt-1",
+      "event": 296,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 75,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 80,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/plugin\\"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 300,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier1-attempt-1",
+      "event": 477,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 11,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 29,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 36,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 55,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 213,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 244,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 246,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 267,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 321,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 433,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 515,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 578,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 613,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 658,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 915,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 968,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "post-tier2-attempt-1",
+      "event": 980,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-default-attempt-1",
+      "event": 10,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-default-attempt-1",
+      "event": 38,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-default-attempt-1",
+      "event": 242,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 8,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 32,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 39,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 282,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "pre-smoke-attempt-1",
+      "event": 291,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 11,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 41,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 44,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 144,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "remediation-unavailable-attempt-1",
+      "event": 228,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "unsafe-output-attempt-1",
+      "event": 8,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    },
+    {
+      "case": "unsafe-output-attempt-1",
+      "event": 43,
+      "paths": [
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1"
+      ]
+    }
+  ],
+  "output": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1-trace-audit.json"
+}

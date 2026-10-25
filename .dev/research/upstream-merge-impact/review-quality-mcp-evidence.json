@@ -1,0 +1,2502 @@
+{
+  "snapshot": "053b75664c8979bf223b8040f68310dce882d05b",
+  "units": [
+    {
+      "id": "quality-ci",
+      "complete_path_count": 26,
+      "endpoint_manifest_matches": true,
+      "commits": [
+        {
+          "sha": "32c0086d0f916362fd4899212e8e714511ca4524",
+          "named_in_report": true,
+          "first_parent": "a3541f43c5e95cae669c0d666a6fc68808de8fde",
+          "path_count": 2,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 2698,
+          "sha256": "1427e099b301695fc30c8b6d8829bd1c8f5c582863d3825cd6c8f2d52d71080e"
+        },
+        {
+          "sha": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+          "named_in_report": true,
+          "first_parent": "16caa49442f477febd4b2a8e32dd1ded705d02d3",
+          "path_count": 2,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 1457,
+          "sha256": "c3526e1b5c38137cc1fca033e5dd0efe17dca72dea5062b214bed1868d3d3de1"
+        },
+        {
+          "sha": "8da05a172063d16e062a0bfabf583debc9be385c",
+          "named_in_report": true,
+          "first_parent": "43bfa0aa0211ce2a7797a4e1748e92103d1d8f1a",
+          "path_count": 2,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 3331,
+          "sha256": "05829f9feda961cfbbfeaeebeef2a40b6106e5ba04e858baf248b25d22baed61"
+        },
+        {
+          "sha": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+          "named_in_report": true,
+          "first_parent": "8da05a172063d16e062a0bfabf583debc9be385c",
+          "path_count": 22,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 12894,
+          "sha256": "f8dc64748093f8edf35bb0d003c46fc49df58b01468c05a41f0d3c959c75299e"
+        },
+        {
+          "sha": "b00547ad535ee638952c5e38b2a139888e50f496",
+          "named_in_report": true,
+          "first_parent": "e2896335ba82f83a0b1a271cb872ff04b7ea884b",
+          "path_count": 14,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 31718,
+          "sha256": "dd03d79d2089ba3d8ce6d1a6778ad04cda918a574b94a6097fa892b98006a118"
+        }
+      ],
+      "placeholders": []
+    },
+    {
+      "id": "mcp-installation",
+      "complete_path_count": 14,
+      "endpoint_manifest_matches": true,
+      "commits": [
+        {
+          "sha": "5a68595835256815c19b8fde256722f4dc687dd5",
+          "named_in_report": true,
+          "first_parent": "faa53f27da2380cb48f4a289d51d702acc1e68c5",
+          "path_count": 2,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 11273,
+          "sha256": "3d58a10595ab4c63267bc3bb353d65261faa9bc6511eee68dec2cfad2014c83d"
+        },
+        {
+          "sha": "67449770c0157372f276c16f99f0a935de1b1125",
+          "named_in_report": true,
+          "first_parent": "5a68595835256815c19b8fde256722f4dc687dd5",
+          "path_count": 0,
+          "reverse_rc": 128,
+          "matches_central_rc": true,
+          "patch_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "sha": "1b14d065378163809c027873454eaa38cc6a108b",
+          "named_in_report": true,
+          "first_parent": "3762d6ab24508107dc794811d9b6b0c9def84707",
+          "path_count": 5,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 26023,
+          "sha256": "86b5aa7b8aca2b45a26d377325716a9f198cfd5b17c5baaf2ca9de0c9826f856"
+        },
+        {
+          "sha": "202660b52451d0680969c3fbb1042cb52539d35a",
+          "named_in_report": true,
+          "first_parent": "ab0bb0f57dff3e1a751e72e8f0bf9b1ea9699211",
+          "path_count": 4,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 4006,
+          "sha256": "3fcdb4a4bbe8a513bcef53d4d81e18e509e35812bc2bd23f95070ab14f1a70be"
+        },
+        {
+          "sha": "6ae5e9987736dab9908260d392f1a6c89b2dcde4",
+          "named_in_report": true,
+          "first_parent": "202660b52451d0680969c3fbb1042cb52539d35a",
+          "path_count": 5,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 7778,
+          "sha256": "b56154999c56219a051aef53d03bd92a470002a4fd4f28793fb3d5b23c5de0cf"
+        },
+        {
+          "sha": "04c9b85cd0c2ed774f397bcc39f21a56178c7d49",
+          "named_in_report": true,
+          "first_parent": "6ae5e9987736dab9908260d392f1a6c89b2dcde4",
+          "path_count": 1,
+          "reverse_rc": 0,
+          "matches_central_rc": true,
+          "patch_bytes": 1493,
+          "sha256": "664b23baafc1703075605da354a806360d6e99ef34056ec21322eb8a6c61cea7"
+        },
+        {
+          "sha": "3294a0ad941f299e8c997bbe88a718694e173a8f",
+          "named_in_report": true,
+          "first_parent": "04c9b85cd0c2ed774f397bcc39f21a56178c7d49",
+          "path_count": 3,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 26670,
+          "sha256": "f11e196c08892a32275fa9760507e152ccd35fd6ad92c3662658e5b432c72b5e"
+        },
+        {
+          "sha": "55c658c77f88c538cf9d90a3736c1b24f8f64f44",
+          "named_in_report": true,
+          "first_parent": "ad6b2e9982d978b02f301ce81ea3a89183cbb5c8",
+          "path_count": 1,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 7139,
+          "sha256": "07a37f727b08d34cc4da4ea49078409d0670ae140959d2ea8a07f7134ed2674a"
+        },
+        {
+          "sha": "0ceb29553c2ba42efc3c55d1ec9402f8087b7773",
+          "named_in_report": true,
+          "first_parent": "f3ba7c21cb3fb68d2fae4f1be13cffbe88312555",
+          "path_count": 1,
+          "reverse_rc": 1,
+          "matches_central_rc": true,
+          "patch_bytes": 7139,
+          "sha256": "07a37f727b08d34cc4da4ea49078409d0670ae140959d2ea8a07f7134ed2674a"
+        }
+      ],
+      "placeholders": []
+    }
+  ],
+  "format_ast": [
+    {
+      "path": "src/superclaude/cli/doctor.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/cli/install_commands.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/cli/install_skill.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/cli/main.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/execution/__init__.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/execution/parallel.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/execution/reflection.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/execution/self_correction.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/pm_agent/confidence.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "equal": true
+    },
+    {
+      "path": "src/superclaude/pytest_plugin.py",
+      "equal": true
+    },
+    {
+      "path": "tests/conftest.py",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/test_cli_install.py",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/test_confidence.py",
+      "equal": true
+    }
+  ],
+  "citations": [
+    {
+      "report": "quality-ci",
+      "report_line": 16,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 1,
+      "end": 146,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "start": 20,
+      "end": 82,
+      "valid": true,
+      "line_count": 82
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 185,
+      "end": 233,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 20,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 147,
+      "end": 155,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-43bfa0aa.patch",
+      "start": 19,
+      "end": 71,
+      "valid": true,
+      "line_count": 71
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 21,
+      "path": ".github/workflows/test.yml",
+      "start": 19,
+      "end": 28,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 185,
+      "end": 205,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 157,
+      "end": 165,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-8da05a17.patch",
+      "start": 25,
+      "end": 118,
+      "valid": true,
+      "line_count": 118
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "start": 19,
+      "end": 40,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "start": 66,
+      "end": 82,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "start": 92,
+      "end": 116,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".github/workflows/test.yml",
+      "start": 153,
+      "end": 180,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 22,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 166,
+      "end": 174,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 1,
+      "end": 400,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": "pyproject.toml",
+      "start": 173,
+      "end": 206,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": "src/superclaude/execution/__init__.py",
+      "start": 22,
+      "end": 38,
+      "valid": true,
+      "line_count": 227
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": "tests/conftest.py",
+      "start": 17,
+      "end": 117,
+      "valid": true,
+      "line_count": 225
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "start": 112,
+      "end": 116,
+      "valid": true,
+      "line_count": 508
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 178,
+      "end": 184,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 306,
+      "end": 321,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 175,
+      "end": 183,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 107,
+      "end": 176,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 24,
+      "path": "pyproject.toml",
+      "start": 45,
+      "end": 55,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 24,
+      "path": ".github/workflows/test.yml",
+      "start": 102,
+      "end": 108,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 261,
+      "end": 275,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 24,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 184,
+      "end": 192,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 185,
+      "end": 233,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "start": 19,
+      "end": 40,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "start": 51,
+      "end": 82,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "start": 92,
+      "end": 137,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 235,
+      "end": 259,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 30,
+      "path": ".github/workflows/test.yml",
+      "start": 42,
+      "end": 49,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 32,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 14,
+      "end": 400,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 32,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 107,
+      "end": 176,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 32,
+      "path": "pyproject.toml",
+      "start": 69,
+      "end": 87,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 34,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 89,
+      "end": 117,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 34,
+      "path": "src/superclaude/execution/__init__.py",
+      "start": 22,
+      "end": 38,
+      "valid": true,
+      "line_count": 227
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "start": 112,
+      "end": 116,
+      "valid": true,
+      "line_count": 508
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "start": 334,
+      "end": 350,
+      "valid": true,
+      "line_count": 508
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": "src/superclaude/cli/swarm/dispatch.py",
+      "start": 421,
+      "end": 425,
+      "valid": true,
+      "line_count": 508
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": "tests/swarm/test_parallel_executor_routing.py",
+      "start": 266,
+      "end": 312,
+      "valid": true,
+      "line_count": 452
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 103,
+      "end": 107,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 36,
+      "path": "src/superclaude/execution/parallel.py",
+      "start": 100,
+      "end": 143,
+      "valid": true,
+      "line_count": 349
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "start": 45,
+      "end": 55,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 38,
+      "path": "pyproject.toml",
+      "start": 173,
+      "end": 206,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 38,
+      "path": ".github/workflows/test.yml",
+      "start": 102,
+      "end": 108,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 38,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 261,
+      "end": 275,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 57,
+      "end": 82,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": "src/superclaude/pytest_plugin.py",
+      "start": 71,
+      "end": 93,
+      "valid": true,
+      "line_count": 228
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": "tests/conftest.py",
+      "start": 17,
+      "end": 117,
+      "valid": true,
+      "line_count": 225
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 128,
+      "end": 149,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 151,
+      "end": 166,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 27,
+      "end": 93,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 40,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 1,
+      "end": 35,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 42,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 178,
+      "end": 184,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 42,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 306,
+      "end": 321,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 42,
+      "path": "src/superclaude/pytest_plugin.py",
+      "start": 20,
+      "end": 42,
+      "valid": true,
+      "line_count": 228
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 44,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 118,
+      "end": 145,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 44,
+      "path": ".github/workflows/test.yml",
+      "start": 127,
+      "end": 137,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 44,
+      "path": ".github/workflows/README.md",
+      "start": 12,
+      "end": 24,
+      "valid": true,
+      "line_count": 159
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 44,
+      "path": "pyproject.toml",
+      "start": 69,
+      "end": 96,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 118,
+      "end": 146,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "start": 1,
+      "end": 158,
+      "valid": true,
+      "line_count": 158
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 48,
+      "path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "start": 1905,
+      "end": 1936,
+      "valid": true,
+      "line_count": 4433
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "start": 20,
+      "end": 68,
+      "valid": true,
+      "line_count": 82
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 194,
+      "end": 196,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 52,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 228,
+      "end": 228,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-43bfa0aa.patch",
+      "start": 19,
+      "end": 31,
+      "valid": true,
+      "line_count": 71
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-8da05a17.patch",
+      "start": 25,
+      "end": 52,
+      "valid": true,
+      "line_count": 118
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 53,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 230,
+      "end": 230,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-32c0086d.patch",
+      "start": 70,
+      "end": 82,
+      "valid": true,
+      "line_count": 82
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 54,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 231,
+      "end": 231,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 55,
+      "path": ".github/workflows/test.yml",
+      "start": 19,
+      "end": 40,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 55,
+      "path": ".github/workflows/test.yml",
+      "start": 92,
+      "end": 137,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 56,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 1,
+      "end": 12,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 56,
+      "path": "pyproject.toml",
+      "start": 173,
+      "end": 206,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 57,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 14,
+      "end": 27,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 57,
+      "path": "src/superclaude/__init__.py",
+      "start": 8,
+      "end": 21,
+      "valid": true,
+      "line_count": 21
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 58,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 28,
+      "end": 41,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 58,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 1,
+      "end": 22,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 58,
+      "path": "src/superclaude/cli/doctor.py",
+      "start": 7,
+      "end": 48,
+      "valid": true,
+      "line_count": 260
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 59,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 42,
+      "end": 56,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 59,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 23,
+      "end": 49,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 59,
+      "path": "src/superclaude/cli/install_commands.py",
+      "start": 7,
+      "end": 40,
+      "valid": true,
+      "line_count": 166
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 60,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 57,
+      "end": 71,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 60,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 50,
+      "end": 76,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 60,
+      "path": "src/superclaude/cli/install_skill.py",
+      "start": 7,
+      "end": 55,
+      "valid": true,
+      "line_count": 150
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 61,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 72,
+      "end": 88,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 61,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 77,
+      "end": 91,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "start": 7,
+      "end": 20,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 61,
+      "path": "src/superclaude/cli/main.py",
+      "start": 46,
+      "end": 75,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 62,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 89,
+      "end": 117,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 62,
+      "path": "src/superclaude/execution/__init__.py",
+      "start": 19,
+      "end": 38,
+      "valid": true,
+      "line_count": 227
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 63,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 120,
+      "end": 148,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 63,
+      "path": "src/superclaude/execution/parallel.py",
+      "start": 100,
+      "end": 143,
+      "valid": true,
+      "line_count": 349
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 64,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 149,
+      "end": 167,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 64,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 304,
+      "end": 519,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 64,
+      "path": "src/superclaude/execution/reflection.py",
+      "start": 12,
+      "end": 57,
+      "valid": true,
+      "line_count": 400
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 65,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 168,
+      "end": 213,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 65,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 520,
+      "end": 715,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 65,
+      "path": "src/superclaude/execution/self_correction.py",
+      "start": 15,
+      "end": 31,
+      "valid": true,
+      "line_count": 425
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 66,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 214,
+      "end": 227,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 66,
+      "path": "src/superclaude/pm_agent/__init__.py",
+      "start": 11,
+      "end": 19,
+      "valid": true,
+      "line_count": 19
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 228,
+      "end": 241,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 67,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 716,
+      "end": 734,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 67,
+      "path": "src/superclaude/pm_agent/confidence.py",
+      "start": 22,
+      "end": 42,
+      "valid": true,
+      "line_count": 272
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 242,
+      "end": 258,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 68,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 735,
+      "end": 804,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 68,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 57,
+      "end": 82,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 69,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 259,
+      "end": 271,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 69,
+      "path": "src/superclaude/pm_agent/self_check.py",
+      "start": 16,
+      "end": 25,
+      "valid": true,
+      "line_count": 249
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 272,
+      "end": 291,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 70,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 805,
+      "end": 860,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 70,
+      "path": "src/superclaude/pytest_plugin.py",
+      "start": 12,
+      "end": 42,
+      "valid": true,
+      "line_count": 228
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 70,
+      "path": "src/superclaude/pytest_plugin.py",
+      "start": 71,
+      "end": 93,
+      "valid": true,
+      "line_count": 228
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 71,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 292,
+      "end": 305,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 71,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 861,
+      "end": 872,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 71,
+      "path": "tests/conftest.py",
+      "start": 8,
+      "end": 25,
+      "valid": true,
+      "line_count": 225
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 71,
+      "path": "tests/conftest.py",
+      "start": 28,
+      "end": 117,
+      "valid": true,
+      "line_count": 225
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 72,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 306,
+      "end": 323,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 72,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 47,
+      "end": 93,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 72,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 178,
+      "end": 184,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 73,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 325,
+      "end": 345,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 73,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 873,
+      "end": 887,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 73,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 14,
+      "end": 35,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 346,
+      "end": 357,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 74,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-b00547ad.patch",
+      "start": 888,
+      "end": 902,
+      "valid": true,
+      "line_count": 902
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 74,
+      "path": "tests/unit/test_confidence.py",
+      "start": 27,
+      "end": 43,
+      "valid": true,
+      "line_count": 181
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 74,
+      "path": "tests/unit/test_confidence.py",
+      "start": 61,
+      "end": 66,
+      "valid": true,
+      "line_count": 181
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 75,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 358,
+      "end": 378,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 75,
+      "path": "tests/unit/test_reflexion.py",
+      "start": 159,
+      "end": 183,
+      "valid": true,
+      "line_count": 183
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 76,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 379,
+      "end": 390,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 76,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 97,
+      "end": 101,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 76,
+      "path": "tests/unit/test_self_check.py",
+      "start": 7,
+      "end": 29,
+      "valid": true,
+      "line_count": 236
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 77,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 391,
+      "end": 400,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 77,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 102,
+      "end": 106,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 77,
+      "path": "tests/unit/test_token_budget.py",
+      "start": 7,
+      "end": 34,
+      "valid": true,
+      "line_count": 129
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 82,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 107,
+      "end": 176,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "start": 19,
+      "end": 49,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "start": 51,
+      "end": 137,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 86,
+      "path": ".github/workflows/test.yml",
+      "start": 139,
+      "end": 180,
+      "valid": true,
+      "line_count": 191
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 88,
+      "path": "src/superclaude/execution/parallel.py",
+      "start": 100,
+      "end": 143,
+      "valid": true,
+      "line_count": 349
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 88,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 57,
+      "end": 82,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 88,
+      "path": "tests/conftest.py",
+      "start": 17,
+      "end": 117,
+      "valid": true,
+      "line_count": 225
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 88,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 47,
+      "end": 93,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 95,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-validation.txt",
+      "start": 1,
+      "end": 9,
+      "valid": true,
+      "line_count": 9
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 99,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 147,
+      "end": 192,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 102,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "start": 1,
+      "end": 19,
+      "valid": true,
+      "line_count": 158
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 102,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-history.txt",
+      "start": 185,
+      "end": 233,
+      "valid": true,
+      "line_count": 978
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 107,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-path-status.json",
+      "start": 1,
+      "end": 158,
+      "valid": true,
+      "line_count": 158
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 108,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-inputs.json",
+      "start": 147,
+      "end": 192,
+      "valid": true,
+      "line_count": 194
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 109,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-ast-check.json",
+      "start": 107,
+      "end": 176,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 110,
+      "path": "tests/integration/test_pytest_plugin.py",
+      "start": 178,
+      "end": 184,
+      "valid": true,
+      "line_count": 230
+    },
+    {
+      "report": "quality-ci",
+      "report_line": 110,
+      "path": ".dev/research/upstream-merge-impact/quality-ci-e2896335.patch",
+      "start": 306,
+      "end": 321,
+      "valid": true,
+      "line_count": 402
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/55c658c7.patch.txt",
+      "start": 51,
+      "end": 59,
+      "valid": true,
+      "line_count": 224
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 15,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/0ceb2955.net.patch.txt",
+      "start": 1,
+      "end": 9,
+      "valid": true,
+      "line_count": 174
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/5a685958.patch.txt",
+      "start": 24,
+      "end": 108,
+      "valid": true,
+      "line_count": 269
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/5a685958.patch.txt",
+      "start": 112,
+      "end": 265,
+      "valid": true,
+      "line_count": 269
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/renames.txt",
+      "start": 10,
+      "end": 13,
+      "valid": true,
+      "line_count": 20
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 17,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/67449770.patch.txt",
+      "start": 7,
+      "end": 35,
+      "valid": true,
+      "line_count": 35
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "start": 354,
+      "end": 467,
+      "valid": true,
+      "line_count": 807
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "start": 517,
+      "end": 643,
+      "valid": true,
+      "line_count": 807
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 19,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "start": 669,
+      "end": 802,
+      "valid": true,
+      "line_count": 807
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/202660b5.patch.txt",
+      "start": 34,
+      "end": 172,
+      "valid": true,
+      "line_count": 172
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/6ae5e998.patch.txt",
+      "start": 60,
+      "end": 275,
+      "valid": true,
+      "line_count": 275
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 21,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/1b14d065.patch.txt",
+      "start": 376,
+      "end": 441,
+      "valid": true,
+      "line_count": 807
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/04c9b85c.patch.txt",
+      "start": 17,
+      "end": 46,
+      "valid": true,
+      "line_count": 49
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/3294a0ad.patch.txt",
+      "start": 235,
+      "end": 258,
+      "valid": true,
+      "line_count": 829
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/3294a0ad.patch.txt",
+      "start": 548,
+      "end": 829,
+      "valid": true,
+      "line_count": 829
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 23,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/renames.txt",
+      "start": 4,
+      "end": 6,
+      "valid": true,
+      "line_count": 20
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 25,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/55c658c7.patch.txt",
+      "start": 55,
+      "end": 223,
+      "valid": true,
+      "line_count": 224
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 25,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 293,
+      "end": 380,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 25,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 415,
+      "end": 459,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "start": 78,
+      "end": 83,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "start": 254,
+      "end": 275,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 29,
+      "path": "src/superclaude/cli/main.py",
+      "start": 310,
+      "end": 343,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 29,
+      "path": "pyproject.toml",
+      "start": 69,
+      "end": 72,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 29,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 1325,
+      "end": 1356,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 31,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/fork-history.txt",
+      "start": 1,
+      "end": 19,
+      "valid": true,
+      "line_count": 29
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 71,
+      "end": 108,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 192,
+      "end": 233,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 815,
+      "end": 913,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 31,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 1034,
+      "end": 1178,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 33,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "start": 24,
+      "end": 27,
+      "valid": true,
+      "line_count": 149
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 33,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "start": 41,
+      "end": 71,
+      "valid": true,
+      "line_count": 149
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 35,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 112,
+      "end": 141,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 35,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 587,
+      "end": 603,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 35,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/04c9b85c.patch.txt",
+      "start": 30,
+      "end": 46,
+      "valid": true,
+      "line_count": 49
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 1287,
+      "end": 1297,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 1313,
+      "end": 1356,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "start": 1023,
+      "end": 1031,
+      "valid": true,
+      "line_count": 1633
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "start": 1096,
+      "end": 1111,
+      "valid": true,
+      "line_count": 1633
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "start": 1229,
+      "end": 1238,
+      "valid": true,
+      "line_count": 1633
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "src/superclaude/cli/main.py",
+      "start": 254,
+      "end": 275,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 37,
+      "path": "docs/user-guide/mcp-installation.md",
+      "start": 5,
+      "end": 24,
+      "valid": true,
+      "line_count": 329
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 40,
+      "end": 109,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/consumers.txt",
+      "start": 16,
+      "end": 35,
+      "valid": true,
+      "line_count": 177
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 147,
+      "end": 154,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 885,
+      "end": 895,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": "pyproject.toml",
+      "start": 78,
+      "end": 87,
+      "valid": true,
+      "line_count": 216
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 39,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 421,
+      "end": 426,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 41,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 57,
+      "end": 82,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 41,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 172,
+      "end": 184,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 41,
+      "path": "CLAUDE.md",
+      "start": 351,
+      "end": 368,
+      "valid": true,
+      "line_count": 437
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 43,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "start": 15,
+      "end": 15,
+      "valid": true,
+      "line_count": 27
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 43,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "start": 20,
+      "end": 20,
+      "valid": true,
+      "line_count": 34
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 43,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 334,
+      "end": 346,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 47,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 344,
+      "end": 423,
+      "valid": true,
+      "line_count": 488
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 55,
+      "path": "src/superclaude/cli/main.py",
+      "start": 78,
+      "end": 83,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 55,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "start": 24,
+      "end": 27,
+      "valid": true,
+      "line_count": 149
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 56,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 40,
+      "end": 109,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 56,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 147,
+      "end": 154,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 56,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 172,
+      "end": 184,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 57,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 334,
+      "end": 346,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 57,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "start": 18,
+      "end": 29,
+      "valid": true,
+      "line_count": 34
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 58,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 123,
+      "end": 127,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 59,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "start": 1023,
+      "end": 1031,
+      "valid": true,
+      "line_count": 1633
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 60,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 293,
+      "end": 459,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 69,
+      "path": "CLAUDE.md",
+      "start": 351,
+      "end": 373,
+      "valid": true,
+      "line_count": 437
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 70,
+      "path": "README.md",
+      "start": 53,
+      "end": 92,
+      "valid": true,
+      "line_count": 274
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 72,
+      "path": "docs/user-guide/mcp-installation.md",
+      "start": 5,
+      "end": 63,
+      "valid": true,
+      "line_count": 329
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 75,
+      "path": "docs/user-guide/mcp-servers.md",
+      "start": 119,
+      "end": 132,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 76,
+      "path": "src/superclaude/cli/main.py",
+      "start": 324,
+      "end": 324,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 77,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 112,
+      "end": 141,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 78,
+      "path": "src/superclaude/cli/main.py",
+      "start": 78,
+      "end": 83,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 79,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "start": 1,
+      "end": 27,
+      "valid": true,
+      "line_count": 27
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 79,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 40,
+      "end": 109,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 79,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 147,
+      "end": 154,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 80,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "start": 18,
+      "end": 34,
+      "valid": true,
+      "line_count": 34
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 80,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 334,
+      "end": 346,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 80,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 172,
+      "end": 184,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 81,
+      "path": "src/superclaude/mcp/configs/airis-agent.json",
+      "start": 1,
+      "end": 11,
+      "valid": true,
+      "line_count": 11
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 81,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 40,
+      "end": 109,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 81,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 147,
+      "end": 154,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 82,
+      "path": "src/superclaude/mcp/configs/mindbase.json",
+      "start": 1,
+      "end": 13,
+      "valid": true,
+      "line_count": 13
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 82,
+      "path": "tests/unit/test_cli_install.py",
+      "start": 147,
+      "end": 154,
+      "valid": true,
+      "line_count": 1100
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 82,
+      "path": "src/superclaude/pm_agent/reflexion.py",
+      "start": 172,
+      "end": 184,
+      "valid": true,
+      "line_count": 352
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 88,
+      "path": "src/superclaude/mcp/MCP_Airis-Agent.md",
+      "start": 15,
+      "end": 21,
+      "valid": true,
+      "line_count": 27
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 88,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "start": 20,
+      "end": 29,
+      "valid": true,
+      "line_count": 34
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 88,
+      "path": "CLAUDE.md",
+      "start": 353,
+      "end": 368,
+      "valid": true,
+      "line_count": 437
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 88,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 334,
+      "end": 346,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 89,
+      "path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "start": 344,
+      "end": 405,
+      "valid": true,
+      "line_count": 488
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 89,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 123,
+      "end": 127,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 90,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 1287,
+      "end": 1356,
+      "valid": true,
+      "line_count": 1373
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 90,
+      "path": "tests/cli/test_install_codebase_memory.py",
+      "start": 1023,
+      "end": 1031,
+      "valid": true,
+      "line_count": 1633
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 91,
+      "path": "src/superclaude/cli/main.py",
+      "start": 78,
+      "end": 83,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 91,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "start": 24,
+      "end": 27,
+      "valid": true,
+      "line_count": 149
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 100,
+      "path": ".dev/research/upstream-merge-impact/mcp-evidence/negative-search.txt",
+      "start": 1,
+      "end": 18,
+      "valid": true,
+      "line_count": 18
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 105,
+      "path": "src/superclaude/cli/main.py",
+      "start": 78,
+      "end": 83,
+      "valid": true,
+      "line_count": 567
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 105,
+      "path": "src/superclaude/cli/recommend/plugin_eval.py",
+      "start": 24,
+      "end": 27,
+      "valid": true,
+      "line_count": 149
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 106,
+      "path": "src/superclaude/mcp/MCP_Mindbase.md",
+      "start": 20,
+      "end": 20,
+      "valid": true,
+      "line_count": 34
+    },
+    {
+      "report": "mcp-installation",
+      "report_line": 106,
+      "path": "src/superclaude/cli/install_mcp.py",
+      "start": 334,
+      "end": 346,
+      "valid": true,
+      "line_count": 1373
+    }
+  ],
+  "mcp_case_rename": " rename docs/{User-Guide => user-guide}/mcp-installation.md (100%)\n",
+  "mcp_merge_patch_same": true,
+  "empty_commit_tree_equal": true,
+  "invalid_citations": []
+}

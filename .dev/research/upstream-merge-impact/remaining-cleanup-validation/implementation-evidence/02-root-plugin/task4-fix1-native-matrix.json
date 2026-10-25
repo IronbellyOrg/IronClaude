@@ -1,0 +1,292 @@
+{
+  "runtime": "task4-runtime-cwd-fix1",
+  "state": "failed",
+  "cases": {
+    "pre-default": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "pre-default",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"pre-default\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 525.8779981941916,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-default-attempt-1\n",
+      "stderr": ""
+    },
+    "post-default": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "post-default",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"post-default\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 697.4499308033846,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-default-attempt-1\n",
+      "stderr": ""
+    },
+    "post-tier1": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "post-tier1",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"post-tier1\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 750.5551162967458,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier1-attempt-1\n",
+      "stderr": ""
+    },
+    "legacy-post": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "legacy-post",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"legacy-post\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 402.72757772682235,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/legacy-post-attempt-1\n",
+      "stderr": ""
+    },
+    "legacy-pre": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "legacy-pre",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"legacy-pre\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 593.7138414038345,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/legacy-pre-attempt-1\n",
+      "stderr": ""
+    },
+    "missing-pre": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "missing-pre",
+        "--timeout",
+        "900",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"missing-pre\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 36.928143402095884,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/missing-pre-attempt-1\n",
+      "stderr": ""
+    },
+    "missing-post": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "missing-post",
+        "--timeout",
+        "900",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"missing-post\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 53.06109887780622,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/missing-post-attempt-1\n",
+      "stderr": ""
+    },
+    "unsafe-output": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "unsafe-output",
+        "--timeout",
+        "900",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"unsafe-output\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 50.933522179257125,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/unsafe-output-attempt-1\n",
+      "stderr": ""
+    },
+    "readiness-unavailable": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "readiness-unavailable",
+        "--timeout",
+        "900",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"readiness-unavailable\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 41.503726058639586,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/readiness-unavailable-attempt-1\n",
+      "stderr": ""
+    },
+    "invalid-commit-range": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "invalid-commit-range",
+        "--timeout",
+        "900",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"invalid-commit-range\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 50.37107686791569,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/invalid-commit-range-attempt-1\n",
+      "stderr": ""
+    },
+    "post-log-only": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "post-log-only",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"post-log-only\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 605.9803525437601,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-log-only-attempt-1\n",
+      "stderr": ""
+    },
+    "post-tier2": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "post-tier2",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"post-tier2\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 1417.1539210267365,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1\n",
+      "stderr": ""
+    },
+    "remediation-unavailable": {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py",
+        "--runtime",
+        "task4-runtime-cwd-fix1",
+        "--case",
+        "remediation-unavailable",
+        "--timeout",
+        "6000",
+        "--persist-session"
+      ],
+      "native_harness_exit": 0,
+      "stdout": "{\n  \"case\": \"remediation-unavailable\",\n  \"state\": \"exited\",\n  \"returncode\": 0,\n  \"duration_seconds\": 442.06736470991746,\n  \"changed_plugin_files\": [],\n  \"changed_audit_inputs\": []\n}\n/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/remediation-unavailable-attempt-1\n",
+      "stderr": ""
+    }
+  },
+  "checker_command": [
+    "uv",
+    "run",
+    "--no-sync",
+    "python",
+    "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-check.py",
+    "--runtime",
+    "task4-runtime-cwd-fix1",
+    "--require-all",
+    "--case",
+    "pre-smoke-attempt-1",
+    "--case",
+    "post-tier2-attempt-1",
+    "--case",
+    "post-default-attempt-1",
+    "--case",
+    "pre-default-attempt-1",
+    "--case",
+    "post-tier1-attempt-1",
+    "--case",
+    "legacy-pre-attempt-1",
+    "--case",
+    "legacy-post-attempt-1",
+    "--case",
+    "post-log-only-attempt-1",
+    "--case",
+    "missing-pre-attempt-1",
+    "--case",
+    "missing-post-attempt-1",
+    "--case",
+    "unsafe-output-attempt-1",
+    "--case",
+    "remediation-unavailable-attempt-1",
+    "--case",
+    "readiness-unavailable-attempt-1",
+    "--case",
+    "invalid-commit-range-attempt-1"
+  ],
+  "checker_exit": 1
+}

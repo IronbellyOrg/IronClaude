@@ -1,0 +1,33 @@
+# Rendered by the sc-reflect orchestrator from the ACTUAL sc:sc-adversarial-protocol result (Wave 4).
+# Source contract: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/return-contract.yaml ; merged artifact: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/merged-card.yaml (verified on disk)
+merge_method: adversarial
+adversarial_unavailable: false
+fallback_path: null                      # no reflect F1/F2/F3 fallback fired
+adversarial_artifacts_dir: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial"          # consumer-side remap of producer field artifacts_dir
+merged_output_path: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/merged-card.yaml"
+adversarial_status: partial              # producer status
+adversarial_convergence_score: 1.0       # producer convergence_score = diff-point agreement 17/17 ONLY
+convergence_gate_status: BLOCKED_BY_INVARIANTS   # convergence NOT declared; 1 HIGH UNADDRESSED invariant
+producer_fallback_mode: true             # internal no_convergence force-select by score (NOT reflect F2/F3)
+producer_failure_stage: debate
+base_variant: "haiku:qa (reviewer-2, env grok-4.7[1m]); combined 0.944 vs reviewer-1 0.819"
+unresolved_conflicts: 0
+unaddressed_invariants:
+  - {id: INV-006, category: guard_conditions, severity: HIGH, summary: "a bare 'pytest exit 1 = Regression' verifier map would let tool/environment failures set regression_present; merged card recommendations[1] carries the full deviation-taxonomy.md:105-113 classification, but the debate never ruled on it"}
+attempts:
+  - {attempt: 1, outcome: interrupted-after-round-1, evidence: "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/attempt-1-interrupted"}
+  - {attempt: 2, outcome: completed-partial, roles: "R2 advocates sonnet:analyzer + haiku:qa; fault-finder opus; dual-pass qual scorers opus; merge sc:merge-executor opus"}
+merged_verdict:
+  findings: []
+  deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+  grounding_gaps: 3
+  tasklist_completion_pct: 0.667
+  regression_present: false
+  status_recommendation: partial
+  needs_human_decision: true
+reviewer_cards: ["/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-cards/reviewer-1-card.yaml", "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-cards/reviewer-2-card.yaml"]
+calibrated_confidence: {reviewer-1: 0.90, reviewer-2: 0.92, t1: 0.93}
+protocol_deviations_reported_by_producer:
+  - "merge-executor validated YAML with 'uv run --no-project --with pyyaml' (temporary env from local uv cache) — conflicts with the no-installs boundary; orchestrator validation used stdlib only"
+  - "fault-finder merge actions entered refactor plan without advocate debate (documented in refactor-plan.md)"
+  - "section-coverage metric counted top-level YAML keys (cards have no H2 headings)"

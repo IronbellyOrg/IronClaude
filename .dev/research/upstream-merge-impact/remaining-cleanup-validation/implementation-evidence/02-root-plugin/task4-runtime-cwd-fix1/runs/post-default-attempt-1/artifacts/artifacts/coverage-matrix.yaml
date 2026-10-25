@@ -1,0 +1,14 @@
+# Wave 1B task/spec-to-work map (authored by sc:sc-requirements-analyst, sonnet slot; persisted by orchestrator)
+mode: post
+requirements:
+  - {id: R-001, spec_ref: "spec.md:5-6", task: T-101, task_ref: "completed.md:6", evidence: ["src/greeting.py:4", "tests/test_greeting.py:4-5", "changes.patch:9"], satisfied: true}
+  - {id: R-002, spec_ref: "spec.md:8-9", task: T-102, task_ref: "completed.md:7", evidence: ["src/greeting.py:2-3", "tests/test_greeting.py:8-13", "changes.patch:7-8"], satisfied: true, note: "`if not name` also rejects None/0/[] - superset of empty, no criterion contradicted"}
+  - {id: R-003, spec_ref: "spec.md:11-12", task: T-103, task_ref: "completed.md:8", evidence: ["tests/test_greeting.py:4-5", "tests/test_greeting.py:8-13"], satisfied: true_on_disk, note: "test file is untracked, outside --scope, absent from changes.patch"}
+inferred_requirements_pass2: []
+diff_hunks:
+  - {id: H1, ref: "changes.patch:5-9", file: src/greeting.py, maps_to: [T-101, T-102]}
+unmapped_hunks: []
+diff_completeness_flags:
+  - {id: FLAG-1, claim: "T-103 deliverable tests/test_greeting.py has no hunk in changes.patch", evidence: ["completed.md:8", "changes.patch:1-9", "tests/test_greeting.py:1-13"]}
+signals: {S_scope: 1, S_domains: 1, S_domains_set: [code], S_dev_density: 0.0, total_hunks: 1}
+tasklist_completion_pct: {disk_verified: 1.0, diff_and_disk_verified: 0.667, adopted: 1.0, adoption_rationale: "Reflect verifies completion against on-disk work; the diff file is one evidence source. T-103 content was independently Read on disk."}

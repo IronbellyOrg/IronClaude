@@ -1,0 +1,162 @@
+{
+  "template": "src/superclaude/templates/modularization-template-review/codebase-research_template.md",
+  "Topic": "Independent whole-list FINAL review of root plugin cleanup",
+  "Topic type": "Local code and evidence verification",
+  "Scope": "Full source plan, ledger, current product delta, accepted Task 4 exceptions and retained runtime evidence",
+  "Status": "complete-independent-review, accepted gaps retained",
+  "Date": "2026-10-25",
+  "Findings": {
+    "acceptance_record": {
+      "tag": "[CODE-VERIFIED]",
+      "claim": "The ledger retains the failed Task 4 review and test:fail, then records an open retry, terminal dispute halt, scoped user Ruling and complete line with unchanged verdict fields. The acceptance permits completion of the unchanged delivered state, not a compliant proof or source/evidence rewrite.",
+      "evidence": [".dev/implement/02-root-plugin-8f5843b3/progress.md:10-14", ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-user-acceptance.json:5-19", "/config/.claude/skills/sc-implement-protocol/refs/qa.md:61-68", "/config/.claude/skills/sc-implement-protocol/refs/retry.md:468-470"]
+    },
+    "task_assessments": {
+      "Task1": {
+        "tag": "[CODE-VERIFIED]",
+        "assessment": "The contract, original/corrected manifest hashes, exact 26-command/22-resource boundary and required versus optional roles remain present. Candidate inventory proves filename/directory-derived plugin names; current runtime confirms those same supplied roles rather than global substitutes. The original failed registration is historical negative evidence, not the accepted loader result.",
+        "criteria": [
+          {"id":"T1.AC1","status":"met","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2849-2877"]},
+          {"id":"T1.AC2","status":"met","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2833-2844"]},
+          {"id":"T1.AC3","status":"met","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-candidates-init.json:27-31",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-candidates-init.json:50-82",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-candidates-init.json:132-166"]},
+          {"id":"T1.AC4","status":"met","evidence":[".claude-plugin/plugin.json:1-11",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2883-2887"]}
+        ],
+        "independent_challenge": "Recomputed protected hashes and compared original isolated manifest bytes after exactly the authorized line deletion. Inventory names were compared with the actual retained command, skill and agent filenames, not frontmatter names. No new native invocation was run."
+      },
+      "Task2": {
+        "tag": "[CODE-VERIFIED]",
+        "assessment": "The 25 non-reflection command files equal a fresh independent reconstruction from original isolated bytes and registered filename-based names. The final reflection command is assessed separately under Task 4. Current scope is exactly 22 namespace-only command files, recommendation/spec-panel with 15 unavailable labels, help with two retired-row deletions, and the authorized reflection behavior repair.",
+        "criteria": [
+          {"id":"T2.AC1","status":"met","evidence":["commands/sc-recommend.md:144-186",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-candidates-init.json:50-82"]},
+          {"id":"T2.AC2","status":"met","evidence":["commands/sc-help.md:27-50","commands/sc-recommend.md:144-186",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2847-2875"]},
+          {"id":"T2.AC3","status":"met","evidence":["commands/sc-spec-panel.md:97-102",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task2-review.md:18"]},
+          {"id":"T2.AC4","status":"met","evidence":[".claude-plugin/plugin.json:1-11",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2878-2887"]}
+        ],
+        "independent_challenge": "Searched every root command/agent for repeated namespace tokens; none remain. Rebuilt complete non-reflection files rather than accepting regex absence alone, counted exactly 15 unavailable labels, verified the exact two help deletions, and preserved all nine Availability fallback blocks by whole-file transformation comparison. Unmatched commands, all 21 original agents and confidence skill are covered by independently matched protected hashes."
+      },
+      "Task3": {
+        "tag": "[CODE-VERIFIED]",
+        "assessment": "All 22 current resources replay exactly from current canonical sources through the recorded narrow adaptations, with unchanged source and delivered hashes. Namespace substitutions preserve frontmatter. The scorer itself is byte-identical to canonical; the approved calibration and native compatibility repairs do not import the package or add production dependencies.",
+        "criteria": [
+          {"id":"T3.AC1","status":"met","evidence":["skills/sc-reflect-protocol/SKILL.md:8-42","agents/confidence-calibrator.md:44-55","skills/sc-reflect-protocol/refs/reflection-rubric.md:9-45",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task3-adaptation-manifest.json:6-18"]},
+          {"id":"T3.AC2","status":"met","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-task3-fix1-init.json:27-31",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/loader-task3-fix1-init.json:137-166"]},
+          {"id":"T3.AC3","status":"met","evidence":["agents/reflect-reviewer.md:5-8","agents/reflect-reviewer.md:36-40","skills/sc-reflect-protocol/refs/reviewer-spec.md:19-58","skills/sc-reflect-protocol/SKILL.md:502-563","agents/evidence-validator.md:23-29"]},
+          {"id":"T3.AC4","status":"met","evidence":["skills/sc-reflect-protocol/SKILL.md:44-95","skills/sc-adversarial-protocol/SKILL.md:43-94"]},
+          {"id":"T3.AC5","status":"met","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-baseline.py:9-16",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task3-review-fix1.md:15-19"]}
+        ],
+        "independent_challenge": "Read actual local lookup/optional-resource gates, restricted agent tools and plan permission, calibration mean and taxonomy, native snapshot membership/source-copy checks and immutable-source adaptations. Independently replayed every adaptation and compared all 22 complete delivered files. Current native snapshot independently has ten correct source/copy hashes, exact selection digest and selected membership, including untracked scoped source plus linked tests/log. Source-level supply and isolation remain intact; this does not relabel Task 4's runtime installation as compliant."
+      },
+      "Task4": {
+        "tag": "[CODE-VERIFIED]",
+        "assessment": "The modern root command dispatch and genuine role pipeline exist, but the proof remains missing under the original criteria because the accepted runtime installed PyYAML and produced a prohibited bare-Python recommendation. Completion is valid only through the recorded scoped Ruling, with missing and test:fail unchanged. This FINAL does not reopen the accepted task or request repeat approval.",
+        "criteria": [
+          {"id":"T4.AC1","status":"unmet-accepted","reason":"Actual modern/legacy dispatch and input/output guards are present; accepted F1/F2 prevent claiming the entire runtime boundary compliant.","evidence":["commands/sc-reflect.md:20-58","commands/sc-reflect.md:69-115",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/merge-log.md:143-150",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-user-acceptance.json:10-18"]},
+          {"id":"T4.AC2","status":"unmet-accepted","reason":"Nine real positive-case reports/contracts, independent calibration, restricted heterogeneous reviewers, real disk merge and final validator are present. The only current forced Tier-2 proof installed an absent parser, so successful mechanics do not establish a no-install proof.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-default-attempt-1/artifacts/return-contract.yaml:1-17",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/calibration/reviewer-1-calibration.yaml:3-15",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/merge-log.md:141-150",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/evidence-validation.yaml:1-16"]},
+          {"id":"T4.AC3","status":"met","reason":"Missing MCP verification remains loud and partial. Explicit missing remediation builder has false acceptance and null handoffs, with no corrective executor.","evidence":["commands/sc-reflect.md:177-198",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/remediation-unavailable-attempt-1/artifacts/return-contract.yaml:97-107",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/remediation-unavailable-attempt-1/artifacts/return-contract.yaml:145-162"]},
+          {"id":"T4.AC4","status":"met","reason":"Independent complete byte reconstruction and accepted-checkpoint comparison establish the exact 49-path delta and protected preservation, not merely the producer PASS.","evidence":["commands/sc-help.md:27-50",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2847-2887",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-baseline.py:9-16"]},
+          {"id":"T4.AC5","status":"unmet-accepted","reason":"Fresh independent review occurred and this whole-list FINAL is additional independent verification. The literal criterion also requires no unmet proof gate; accepted F1/F2 are not erased by review or user acceptance.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/plans/02-root-plugin.md:119-124",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-fix1-independent-review.json:29-37",".dev/implement/02-root-plugin-8f5843b3/progress.md:10-14"]}
+        ],
+        "completion_disposition": "complete-as-accepted, not compliant; original missing verdict and test:fail retained"
+      }
+    },
+    "independent_byte_verification": {
+      "tag": "[CODE-VERIFIED]",
+      "method": "Fresh read-only stdlib SHA-256 and Git-object byte comparisons, not execution of the producer check or acceptance of its PASS label.",
+      "results": {
+        "original_protected_paths_outside_authorized_commands_and_manifest": 2233,
+        "protected_mismatches": [],
+        "task4_baseline_paths": 2282,
+        "changed_task4_baseline_paths": ["commands/sc-reflect.md"],
+        "accepted_task3_resources": 22,
+        "resource_mismatches": [],
+        "accepted_checkpoint": "0698085ebe35aec30d19fb3c7710cc4654037b8f",
+        "current_and_checkpoint_product_files": 74,
+        "checkpoint_inventory_difference": [],
+        "checkpoint_byte_difference": [],
+        "independently_regenerated_nonreflection_command_files": 25,
+        "command_transformation_mismatches": [],
+        "authorized_unavailable_label_count": 15,
+        "manifest_exact_empty_homepage_line_deletion_only": true,
+        "malformed_repeated_namespaces": [],
+        "retired_commands_or_producer_present": [],
+        "current_runtime_plugin_copy_mismatches": [],
+        "current_runtime_fixture_mismatches": [],
+        "head": "2658e6d6326b56695f327e3c1584cc007a31c4e7",
+        "index_diff": []
+      },
+      "claim": "All current product bytes equal the checkpoint recorded immediately before scoped acceptance. The complete repair remains 49 product paths: 26 existing commands, the narrowly corrected manifest and 22 added resources. The 21 original root agents, two unmatched commands, confidence skill, canonical/package/alternate-build paths retain their protected bytes. The seven current fixture inputs and 74-file current-runtime plugin copy retain their recorded bytes.",
+      "evidence": [".dev/implement/02-root-plugin-8f5843b3/progress.md:11-14", ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/plugin-contract.json:2849-2887", ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-baseline.py:9-16", ".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py:81-87"]
+    },
+    "runtime_and_accepted_exceptions": {
+      "eligible_cohort": "task4-runtime-cwd-fix1, including its genuine same-session resume-1 only",
+      "native_observations": {
+        "tag": "[CODE-VERIFIED]",
+        "claim": "All fourteen original invocations exited zero, but the audit outcomes are two pre successes, seven partial audits and five honest refused/unavailable cases. The forced Tier-2 original turn ended before required merge/final validation; its recorded same-session continuation actually completed those roles. Nine positive-case contracts parse as JSON and their report files exist. Each positive pipeline has a real independent calibrator and final evidence-validator, not only a success boolean.",
+        "cases": {"pre-smoke":"success","pre-default":"success","post-default":"partial","post-tier1":"partial","post-tier2":"partial","legacy-pre":"partial","legacy-post":"partial","post-log-only":"partial","remediation-unavailable":"partial","missing-pre":"stopped","missing-post":"failed","unsafe-output":"stopped_precondition","readiness-unavailable":"stopped","invalid-commit-range":"failed"},
+        "evidence": [".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py:133-171",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/resume-1-execution.json:3-51",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/missing-pre-attempt-1/artifacts/return-contract.yaml:3-40",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/pre-default-attempt-1/artifacts/REPORT.md:17-36"]
+      },
+      "review_and_merge_reality": {
+        "tag": "[CODE-VERIFIED]",
+        "claim": "Raw original/resumed streams contain the actual restricted sonnet and haiku reviewer calls and returns. Observed provider models are claude-sonnet-5-5 and grok-4.7-build; all three forced-case calibrators actually used claude-opus-5-5, Read cited fixture/snapshot evidence, and scored the five-dimension mean. All eleven retained calibration outputs have arithmetic matching their reported precision. The native snapshot has ten exact source/copy rows and correct selected membership. Real debate/scorers, thirty-criterion forward/reverse evaluation with disagreement re-evaluation, merge-executor and final validator followed. The final validator Read source files supporting all eighteen indexed citations and surfaced three in-body issues, corrected without inventing a second validator. Zero drops is flagged, not automatic proof of cleanliness.",
+        "evidence": [".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout.jsonl:275",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout.jsonl:305",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout-resume-1.jsonl:507",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout-resume-1.jsonl:713",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/provenance-manifest.json:45-138",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/base-selection.md:85-126",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/evidence-validation.yaml:4-16"]
+      },
+      "honest_partial_result": {
+        "tag": "[CODE-VERIFIED]",
+        "claim": "The fixture's absent test hunk, unexecuted test claims and unspecified empty-input semantics remain grounding gaps. The adversarial result explicitly blocks convergence on its unadjudicated verifier invariant, force-selects by score and records fallback_mode true/status partial even though a real merge completed. This is neither fabricated convergence nor an observed application regression. No corrective plan or promotion ran.",
+        "evidence": [".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/REPORT.md:27-79",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/adversarial/adversarial/return-contract.yaml:1-20",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/return-contract.yaml:155-167"]
+      },
+      "isolation": {
+        "tag": "[CODE-VERIFIED]",
+        "claim": "Fresh parsing of every eligible parent/nested stream and persisted transcript found only each exact launch cwd, no successful file-tool access outside its bound roots and no explicit Write/Edit outside its output. The restricted reviewers used only Read/Grep/Glob on their frozen evidence, briefs and allowed procedural taxonomy. All fourteen MCP inventories are empty and no package executable supplied missing roles. The native profile denies directory-changing shell commands and secondary briefs repeat exact roots. This is bounded observed tool evidence, not an OS shell sandbox or a claim that implicit cache writes were impossible; accepted F1 demonstrates the latter limit.",
+        "evidence": ["commands/sc-reflect.md:30-58","agents/reflect-reviewer.md:5-8",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py:154-171",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout.jsonl:275",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout.jsonl:305"]
+      },
+      "accepted_findings": [
+        {"id":"F1","tag":"[CODE-VERIFIED]","severity":"IMPORTANT","disposition":"accepted-unchanged, not compliant","claim":"The resumed merge worker first failed to import yaml, then actually installed the absent PyYAML parser using uv --with. The coordinator merge brief suggested that fallback despite repeating no installs. The native result says Installed 1 package in 13ms and the isolated installed distribution names uv as INSTALLER. Installation remains a no-install/output-only violation even when cached. No network download, operator-global Python mutation or audit-input mutation is established.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/config/projects/-tmp-ironclaude-reflect-runtime-v007odbm/7c32390b-7faa-4876-b415-995e0992feca/subagents/agent-a2db302687085cb22.jsonl:45-49",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/stdout-resume-1.jsonl:507",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/home/.cache/uv/archive-v0/1o4_gznhTL8Y-8Zw0EKDO/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info/INSTALLER:1",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-user-acceptance.json:12-18"]},
+        {"id":"F2","tag":"[CODE-VERIFIED]","severity":"MINOR","disposition":"accepted-unchanged, not compliant","claim":"The preserved final native report still recommends bare python -m pytest and plain pytest, contrary to the standing UV-only rule. This is a prohibited recommendation, not evidence that bare Python executed. The report was not edited to erase it.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/REPORT.md:95-98","/config/.claude/CLAUDE.md:5-13",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-user-acceptance.json:13-19"]}
+      ],
+      "historical_evidence": {
+        "tag":"[CODE-VERIFIED]",
+        "claim":"The initial Task 4 PASS was explicitly withdrawn for an actual cwd violation. Its old cohort is not current proof. The fresh fix-pass FAIL is authoritative for F1/F2. Its source JSON and the six retry/T4 files remain intact; no step=revert record or named retry brief exists, so no adviser, brief or revert is fabricated. The open checkpoint was halted before eligible scoped acceptance, and blocked/complete verdict fields compare exactly after changing only the status token.",
+        "evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-review.md:5-27",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-review-fix1.md:5-21",".dev/implement/02-root-plugin-8f5843b3/progress.md:10-14",".dev/implement/02-root-plugin-8f5843b3/retries/T4/approach-2.md:3-9",".dev/implement/02-root-plugin-8f5843b3/retries/T4/extras-2.log:2-5"]
+      }
+    },
+    "new_unaccepted_findings": []
+  },
+  "Gaps": [
+    {"tag":"[CODE-VERIFIED]","claim":"Accepted Task 4 criteria 1, 2 and 5 remain unmet. No fully compliant no-install proof is claimed and no old or producer-PASS record is substituted for it.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-user-acceptance.json:9-18",".dev/implement/02-root-plugin-8f5843b3/progress.md:10-14"]},
+    {"tag":"[UNVERIFIED]","claim":"A positive valid Git commit-range runtime audit is not demonstrated. The synthetic fixture has no commits; the current evidence demonstrates invalid-range refusal and source-level alternatives only. This retained limit is not a claim of a failed positive run.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py:133-148",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-fix1-independent-review.json:15-18"]},
+    {"tag":"[UNVERIFIED]","claim":"No full Python suite, production deployment, external-user success, complete OS shell isolation or network-download provenance is demonstrated by this local review. No new native audits, checker writes, tests, installs, product changes, ledger edits, staging, commits or remote operations were run.","evidence":[".dev/implement/02-root-plugin-8f5843b3/retries/T4/extras-2.log:2-5",".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-trace-audit.py:69-73"]},
+    {"tag":"[CODE-VERIFIED]","claim":"Review inspection failures were recovered, not interpreted as product defects: an initial jq probe guessed an absent field; the first independent resource replay failed because it incorrectly rewrote frontmatter and passed after preserving frontmatter; a retry-diff reader split inside a quoted diff string, then an empty split record caused IndexError, and the corrected line-anchored nonempty-section parser confirmed both helper files exactly. An oversized trace output was reduced and inspected from its saved tool output. None caused product/evidence edits or a fabricated test pass.","evidence":[".dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task3-adaptation-manifest.json:15-18",".dev/implement/02-root-plugin-8f5843b3/retries/T4/attempt-2.diff:323-328"]}
+  ],
+  "KeyTakeaways": {
+    "tag": "[CODE-VERIFIED]",
+    "summary": "FINAL issues under the literal unmet-criterion/failing-outcome rubric. Tasks 1-3 remain met and Task 4 is legally complete-as-accepted with its original missing verdict and test:fail. The two accepted exceptions remain real; no new or changed unaccepted finding was identified.",
+    "ruling_eligibility": "Valid: latest Task 4 blocked record, open retry checkpoint, terminal halt, scoped direct-user-confirmation Ruling, then complete with all verdict fields unchanged. There is no intervening verdict, reopened task, changed product outcome or inferred new approval.",
+    "interpretation": "The FAIL binary measures full original-criterion compliance, not validity of the user's acceptance. The separate PASS for no new unaccepted issues does not turn accepted gaps into compliant criteria. This legacy FINAL is advisory and does not rewrite per-task verdicts, demand duplicate acceptance or authorize staging/commit/release.",
+    "recommended_next": "Executor records this fresh FINAL outcome and report pointer, preserving Task 4 complete verdict=missing and test:fail. No further approval or product repair is required to retain the same already accepted state.",
+    "evidence": ["/config/.claude/skills/sc-implement-protocol/refs/qa.md:61-68","/config/.claude/skills/sc-implement-protocol/refs/qa.md:80-82","/config/.claude/skills/sc-implement-protocol/refs/ledger.md:73-81","/config/.claude/skills/sc-implement-protocol/refs/ledger.md:113-134","/config/.claude/skills/sc-implement-protocol/refs/retry.md:468-470",".dev/implement/02-root-plugin-8f5843b3/progress.md:10-14"]
+  },
+  "SelfAudit": {
+    "position": "Assumed the producer's preservation and runtime claims could be wrong. Zero NEW findings is not a clean full-compliance verdict.",
+    "challenges": [
+      "Compared all 74 current product files and inventory directly with the accepted checkpoint, not the handoff or producer PASS; recomputed 2233 protected hashes and all 22 resource hashes.",
+      "Independently regenerated complete bytes of all 25 non-reflection commands, counted the 15 approved unavailable labels and exact retired help deletions, and challenged preservation of nine fallback blocks, unmatched files, original agents, confidence assets and retired producer absence.",
+      "Independently replayed all 22 resource adaptations over actual current canonical contents, preserved frontmatter and verified unchanged scoring algorithm, reviewer allowlist, five-dimensional calibration and actual frozen-source membership/hashes.",
+      "Parsed all fourteen eligible raw parent/nested native streams and persisted cwd records, checked successful file/write targets, all eleven calibrators' actual cited-source Reads, distinct restricted reviewer models/tools, and exact-root propagation in every forced-case secondary Agent assignment.",
+      "Checked actual original-plus-resumed session identity, real merge output, scorer/debate provenance, final validator order and source Reads, nine valid report/contracts, honest no-MCP/remediation failure and no-promotion outcomes. Did not count exit zero, force-selected partial merge or zero citation drops as compliance.",
+      "Re-read raw absent-yaml/install output and preserved bare-Python recommendation, confirmed the isolated installed distribution, and kept both accepted findings instead of repeating the earlier withdrawn zero-finding PASS.",
+      "Read the full original plan and ledger, live QA/ledger/retry rules, Task 1-3 accepted reviews, withdrawn initial Task 4 review and authoritative fix-pass FAIL. Read all six files actually present in retries/T4, including the complete failed diff and checkpoint source; no named revert brief exists. Compared blocked/complete verdict fields mechanically.",
+      "Kept graph coverage as best-effort only; directly inspected raw unindexed/excluded evidence and never used graph absence to prove completeness. No delegation, native audit rerun, full suite or producer checker invocation was performed."
+    ],
+    "why_no_new_findings": "The current product exactly matches the accepted checkpoint; the supplied local role/guard structure and retained actual mechanics survive direct challenge. Every demonstrated proof failure remains the same scoped accepted exception or an honestly disclosed fixture/verification limit. No distinct changed or unaccepted gap was established."
+  },
+  "verdict": "issues",
+  "binary_verdict": "FAIL",
+  "binary_basis": "Original criteria remain unmet through the two retained accepted findings, not newly discovered defects.",
+  "new_unaccepted_issues_verdict": "PASS",
+  "new_unaccepted_issue_count": 0,
+  "accepted_issue_count": 2,
+  "task4_accepted_completion_valid": true,
+  "per_task_verdict_rewrite": false,
+  "reviewer_write_scope": "Exactly this one assigned JSON report, stubbed first and incrementally populated. No Markdown report copy, product/helper/fixture/raw-output rewrite, ledger edit, new recorded test result, staging, commit, remote operation or external publication."
+}

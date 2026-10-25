@@ -1,0 +1,36 @@
+{
+  "agent": "sc:evidence-validator",
+  "requested_model_slot": "opus",
+  "agent_id": "ac5dbda90c5f4d5f0",
+  "draft": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/pre-default-attempt-1/artifacts/REPORT-draft.md",
+  "verified": [
+    "spec.md:5",
+    "spec.md:8",
+    "spec.md:11",
+    "spec.md:6",
+    "spec.md:9",
+    "spec.md:12",
+    "proposed.md:3",
+    "proposed.md:6",
+    "proposed.md:9",
+    "proposed.md:4",
+    "proposed.md:7",
+    "proposed.md:10"
+  ],
+  "dropped": [
+    {
+      "citation": "proposed.md:11",
+      "attached_to": "recommendation R-4 anchor",
+      "reason": "line does not exist; proposed.md has 10 lines"
+    }
+  ],
+  "citations_total": 13,
+  "citations_revalidated": 13,
+  "citations_dropped": 1,
+  "citations_inferred": 5,
+  "coverage_recompute_needed": false,
+  "notes": [
+    "draft citations_inferred=6 corrected to 5 per validator",
+    "assertion checks A1-A10 not run (no assertions_path) \u2014 citation-only gate"
+  ]
+}

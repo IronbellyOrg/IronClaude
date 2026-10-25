@@ -1,0 +1,127 @@
+# Tier-1 reflection card. Author: sc:sc-root-cause-analyst (model slot: sonnet), Wave 1C.
+# Persisted by the orchestrator from the agent's returned YAML, lightly condensed (map_verification.checked list and
+# some prose trimmed; gap/rec ids added). No finding, classification, risk or recommendation was added or removed.
+# Self-reported confidence: absent (not requested).
+card_tier: 1
+mode: post
+audit_basis:
+  note: >
+    Read-only pass. Read spec.md, completed.md, execution.log, src/greeting.py,
+    tests/test_greeting.py and the pre-built map. No tests were executed by anyone
+    (execution.log:5 "No test execution is claimed; inspect these files independently.").
+    The directory glob shows no src/__init__.py, tests/__init__.py, conftest.py,
+    pytest.ini, pyproject.toml or setup.cfg in the fixture.
+  map_verification:
+    verdict: >
+      The map's line references match the files I read. Spec lines, tasklist lines,
+      log lines and work ranges are all correct. The map is accurate but only
+      structural. It does not assess runtime behavior.
+
+requirements:
+  - id: R-001
+    task: T-101
+    spec_ref: "spec.md:6 'The greet function MUST return the exact string Hello, Ada! for Ada.'"
+    task_ref: "completed.md:6 '- [x] T-101 implements R-001 ordinary greeting.'"
+    log_ref: "execution.log:2 'T-101 R-001: created src/greeting.py.'"
+    work_ref:
+      - "src/greeting.py:1 'def greet(name):'"
+      - "src/greeting.py:4 '    return f\"Hello, {name}!\"'"
+    satisfied: true
+    basis: >
+      By static reading, greet("Ada") evaluates `not "Ada"` as False, skips the
+      guard, and returns f"Hello, {name}!", which is "Hello, Ada!". Not run.
+  - id: R-002
+    task: T-102
+    spec_ref: "spec.md:9 'The greet function MUST reject an empty name with ValueError.'"
+    task_ref: "completed.md:7 '- [x] T-102 implements R-002 empty-name rejection.'"
+    log_ref: "execution.log:3 'T-102 R-002: empty names raise ValueError.'"
+    work_ref:
+      - "src/greeting.py:2 '    if not name:'"
+      - "src/greeting.py:3 '        raise ValueError(\"name required\")'"
+    satisfied: true
+    basis: >
+      greet("") evaluates `not ""` as True and raises ValueError. The spec does not
+      mandate a message. Not run.
+  - id: R-003
+    task: T-103
+    spec_ref: "spec.md:12 'Tests MUST exercise the ordinary greeting and empty-input rejection.'"
+    task_ref: "completed.md:8 '- [x] T-103 implements R-003 both ordinary and empty-input tests.'"
+    log_ref: "execution.log:4 'T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases.'"
+    work_ref:
+      - "tests/test_greeting.py:5 '    assert greet(\"Ada\") == \"Hello, Ada!\"'"
+      - "tests/test_greeting.py:9-13 'try: greet(\"\") / except ValueError: return / raise AssertionError(\"empty name accepted\")'"
+    satisfied: true
+    basis: >
+      Both required cases are present in source. Execution and import resolution
+      (tests/test_greeting.py:1) are not verified; see GG-1, GG-2.
+
+deviations: []
+deviation_notes:
+  - >
+    No divergence between spec, tasklist, log and work. tests/ is outside --scope src
+    but declared by execution.log:4 and completed.md:8, so it is in the task set.
+    [INFERRED] If logged at all it would be authorized.
+  - >
+    Spec-unconstrained behaviors (custom ValueError message src/greeting.py:3,
+    truthiness guard src/greeting.py:2) are not deviations.
+
+grounding_gaps:
+  - id: GG-1
+    hunk_ref: "tests/test_greeting.py:1 'from src.greeting import greet'"
+    evidence_missing: "No pytest run; no rootdir/sys.path/conftest/pyproject config in fixture; no src/__init__.py."
+    why_not_classifiable: "Import resolution depends on pytest invocation; cannot tell regression (uncollectable test) from fine."
+    next_evidence_needed: "Output of `python -m pytest tests/test_greeting.py` and bare `pytest tests/test_greeting.py` from fixture root."
+    owner: user
+    decision_needed_by_user: true
+  - id: GG-2
+    hunk_ref: "tests/test_greeting.py:4-13 (T-103 runtime pass claim)"
+    evidence_missing: "Test execution results; execution.log:5 disclaims any run; sanctioned verification tool unavailable."
+    why_not_classifiable: "R-001/R-002 correctness established only by static reading, not observed test outcomes."
+    next_evidence_needed: "A passing run log for test_ordinary and test_empty."
+    owner: user
+    decision_needed_by_user: true
+
+risks:
+  - id: RK-1
+    type: regression_candidate
+    where: "tests/test_greeting.py:1"
+    detail: "[INFERRED] With no __init__.py/conftest, bare `pytest` (prepend mode) may raise ModuleNotFoundError for `src.greeting`; `python -m pytest` from root would resolve it."
+  - id: RK-2
+    type: untested_invariant
+    where: "src/greeting.py:2 '    if not name:'"
+    detail: "None and other falsy values (0, [], False) raise ValueError; unspecified and untested."
+  - id: RK-3
+    type: untested_invariant
+    where: "src/greeting.py:2-4"
+    detail: "Whitespace-only name is truthy and returns 'Hello,    !'; spec says only 'empty'; untested."
+  - id: RK-4
+    type: untested_invariant
+    where: "src/greeting.py:4"
+    detail: "Non-string truthy input (e.g. 5) returns 'Hello, 5!'; no type validation; unspecified."
+  - id: RK-5
+    type: weak_test
+    where: "tests/test_greeting.py:8-13"
+    detail: "try/except + manual AssertionError instead of pytest.raises; functionally correct; message unchecked."
+  - id: RK-6
+    type: process
+    where: "artifacts/task-to-work-map.yaml 'tasklist_completion_pct: 1.0'"
+    detail: "1.0 is mapping coverage only, not verified pass status."
+
+recommendations:
+  - id: REC-1
+    file: "tests/test_greeting.py (plus new conftest.py or pytest.ini at fixture root)"
+    change: "Make `src.greeting` import robust: add pytest.ini `pythonpath = .` or conftest.py, or src/__init__.py."
+    verifier: "`pytest tests/test_greeting.py` and `python -m pytest tests/test_greeting.py` from fixture root both collect and pass."
+  - id: REC-2
+    file: "tests/test_greeting.py"
+    change: "Optionally use pytest.raises(ValueError) and add a None case; add whitespace case only if spec amended."
+    verifier: "pytest passes; mutating greet to not raise makes test_empty fail."
+  - id: REC-3
+    file: "spec.md"
+    change: "If whitespace-only or None names matter, clarify R-002 to say whether they must be rejected."
+    verifier: "Spec review confirms matching test and guard exist after the change."
+
+inferred_claims:
+  - "[INFERRED] tests/ file is in-task rather than an unplanned expansion."
+  - "[INFERRED] RK-1 bare-pytest import failure (untested)."
+  - "[INFERRED] Absence of pytest config taken from glob results."

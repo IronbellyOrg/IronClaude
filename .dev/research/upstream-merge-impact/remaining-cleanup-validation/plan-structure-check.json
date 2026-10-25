@@ -1,0 +1,42 @@
+{
+  "scope": "written document structure only, not implementation or runtime acceptance",
+  "verdict": "PASS",
+  "checks": {
+    "01-legacy-uninstall.md": {
+      "contiguous_task_ids": true,
+      "acceptance_criteria_per_task": true,
+      "constraints_and_source": true,
+      "no_placeholders": true,
+      "no_duplicate_task_syntax": true,
+      "not_a_managed_package": true,
+      "plain_dashes": true
+    },
+    "02-root-plugin.md": {
+      "contiguous_task_ids": true,
+      "acceptance_criteria_per_task": true,
+      "constraints_and_source": true,
+      "no_placeholders": true,
+      "no_duplicate_task_syntax": true,
+      "not_a_managed_package": true,
+      "plain_dashes": true
+    },
+    "03-memory-docs.md": {
+      "contiguous_task_ids": true,
+      "acceptance_criteria_per_task": true,
+      "constraints_and_source": true,
+      "no_placeholders": true,
+      "no_duplicate_task_syntax": true,
+      "not_a_managed_package": true,
+      "plain_dashes": true
+    },
+    "04-gateway-claims.md": {
+      "contiguous_task_ids": true,
+      "acceptance_criteria_per_task": true,
+      "constraints_and_source": true,
+      "no_placeholders": true,
+      "no_duplicate_task_syntax": true,
+      "not_a_managed_package": true,
+      "plain_dashes": true
+    }
+  }
+}

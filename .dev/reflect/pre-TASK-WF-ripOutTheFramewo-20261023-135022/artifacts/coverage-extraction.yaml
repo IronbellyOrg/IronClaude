@@ -1,0 +1,64 @@
+producer: requirements-analyst
+producer_model: sonnet
+verdict: FAIL
+source_file: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md
+parsed_ids: []
+parsed_ranges: []
+parsed_spans: []
+inferred_rows:
+- {id: INF-001, lines: '1', quote: 'Rip out the framework sync workflow and the Codecov upload in the IronbellyOrg/IronClaude fork.'}
+- {id: INF-002, lines: '1-2', quote: 'Delete .github/workflows/pull-sync-framework.yml, scripts/sync_from_framework.py and docs/.framework-sync-commit.'}
+- {id: INF-003, lines: '2-3', quote: "Remove the 'Upload coverage to Codecov' step from .github/workflows/test.yml"}
+- {id: INF-004, lines: '3', quote: "keep pytest's own coverage measurement"}
+- {id: INF-005, lines: '3-5', quote: "In .github/workflows/README.md remove the pull-sync-framework entry (section 4), the Codecov list item, the Codecov text in the Coverage Reporting section, and the Codecov bullets in 'Coverage upload fails'"}
+- {id: INF-006, lines: '5', quote: 'remove that whole section if nothing is left'}
+- {id: INF-007, lines: '5-6', quote: 'Do not touch src/superclaude/templates/documents/readme_template.md, which is a generic example badge.'}
+- {id: INF-008, lines: '6-7', quote: 'Do not revert any content that earlier syncs brought in from upstream; that is decided separately.'}
+- {id: INF-009, lines: '7', quote: 'Do not close PR 283 or delete the sync/framework branch on origin'}
+- {id: INF-010, lines: '7-8', quote: 'list both in the final report for my approval.'}
+- {id: INF-011, lines: '8-9', quote: 'Final check: no tracked file outside .dev/ still mentions pull-sync-framework, sync_from_framework, framework-sync-commit or codecov (except the template above).'}
+- {id: INF-012, lines: '9', quote: 'Work on a feature branch'}
+- {id: INF-013, lines: '9', quote: 'any PR goes to IronbellyOrg/IronClaude only.'}
+matching_proposal:
+  computed_by: hand, not executed; requires deterministic recomputation
+  tokenization: casefold; strip possessive apostrophe-s; unique ASCII alphanumeric words
+  stopwords: [a, an, the, and, or, but, nor, so, yet, if, that, because, while, when, although, in, on, at, of, to, from, for, with, by, as, into, out, outside, within, before, after, than, about, through, against, under, over, up, off, per, via, until, between, during, is, are, was, were, be, been, being, am, do, does, did, has, have, had, will, would, shall, should, can, could, may, might, must]
+  task_blocks: {task1: '30-39', task2: '41-57', task3: '61-84'}
+  fenced_task_text_included: true
+  constraints_excluded_from_task_matching: true
+  proposed_union_coverage: 0.8462
+  proposed_unmapped: [INF-006, INF-008]
+  coverage_degraded: parsed-sparse
+  coverage_undefined: false
+producer_findings:
+- id: RA-1
+  severity: high
+  claim: Dedicated feature branch has no task owner or acceptance criterion.
+  evidence: ['TASK-WF-ripOutTheFramewo-20261023-134610.md:20', 'TASK-WF-ripOutTheFramewo-20261023-134610.md:34', 'source.md:9']
+- id: RA-2
+  severity: medium
+  claim: Task 3 deletes unrequested Non-blocking coverage best-practice item.
+  evidence: ['TASK-WF-ripOutTheFramewo-20261023-134610.md:70', '.github/workflows/README.md:151']
+- id: RA-3
+  severity: low
+  claim: Exact step-block equality ambiguous regarding surrounding blank lines.
+  evidence: ['TASK-WF-ripOutTheFramewo-20261023-134610.md:54', '.github/workflows/test.yml:41-50']
+- id: RA-4
+  severity: low
+  claim: Constraint-only feature-branch and PR-target rows spuriously match Task 3 reporting language.
+  evidence: ['TASK-WF-ripOutTheFramewo-20261023-134610.md:20-25', 'TASK-WF-ripOutTheFramewo-20261023-134610.md:84']
+- id: RA-5
+  severity: protocol
+  claim: Coverage reference lacks explicit fixed stopword set and tokenization; numbers depend on choices.
+  evidence: ['/config/.claude/skills/sc-reflect-protocol/refs/coverage-mapping.md:52-57']
+- id: RA-6
+  severity: verification
+  claim: Planning-time reference claims were not checked by this reviewer.
+  evidence: ['TASK-WF-ripOutTheFramewo-20261023-134610.md:32']
+producer_mapping_notes:
+- INF-006 is semantically covered by Task 3 line 69 despite lexical non-match.
+- INF-008 is semantically covered by Task 1 lines 34/39 and Task 3 line 83 despite lexical non-match.
+- INF-012 lexical match uses unrelated work/branch language in Task 3; the substantive requirement is in global Constraints line 20.
+- INF-013 lexical match uses reporting PR 283, while global Constraints line 25 governs new PR targets.
+- Umbrella INF-001 spans three tasks although only one best-match task is retained.
+- Source quotes normalize line-wrap whitespace; evidence validator must compare normalized whitespace and exact source text.

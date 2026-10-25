@@ -1,0 +1,13 @@
+diff --git a/MANIFEST.in b/MANIFEST.in
+index a3388db1..ddb8a37c 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -8,6 +8,8 @@ include pyproject.toml
+ recursive-include docs *.md
+ recursive-include tests *.py
+ recursive-include src/superclaude *.py *.md *.ts *.json
++recursive-include src/superclaude/commands *.md
++recursive-include src/superclaude/skills *.md *.json
+ global-exclude __pycache__
+ global-exclude *.py[co]
+ global-exclude .DS_Store

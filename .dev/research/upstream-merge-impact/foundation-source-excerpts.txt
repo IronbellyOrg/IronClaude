@@ -1,0 +1,3124 @@
+
+### c733413d:pyproject.toml
+1: [build-system]
+2: requires = ["hatchling"]
+3: build-backend = "hatchling.build"
+4: 
+5: [project]
+6: name = "superclaude"
+7: version = "0.4.0"
+8: description = "AI-enhanced development framework for Claude Code - pytest plugin with optional skills"
+9: readme = "README.md"
+10: license = {text = "MIT"}
+11: authors = [
+12:     {name = "Kazuki Nakai"},
+13:     {name = "NomenAK", email = "anton.knoery@gmail.com"},
+14:     {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
+15: ]
+16: requires-python = ">=3.10"
+17: keywords = ["claude", "ai", "automation", "framework", "pytest", "plugin", "testing", "development"]
+18: classifiers = [
+19:     "Development Status :: 4 - Beta",
+20:     "Framework :: Pytest",
+21:     "Intended Audience :: Developers",
+22:     "License :: OSI Approved :: MIT License",
+23:     "Operating System :: OS Independent",
+24:     "Programming Language :: Python :: 3",
+25:     "Programming Language :: Python :: 3.10",
+26:     "Programming Language :: Python :: 3.11",
+27:     "Programming Language :: Python :: 3.12",
+28:     "Topic :: Software Development :: Libraries :: Python Modules",
+29:     "Topic :: Software Development :: Testing",
+30:     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+31:     "Environment :: Console",
+32: ]
+33: 
+34: dependencies = [
+35:     "pytest>=7.0.0",
+36:     "click>=8.0.0",
+37:     "rich>=13.0.0",
+38: ]
+39: 
+40: [project.optional-dependencies]
+41: dev = [
+42:     "pytest-cov>=4.0.0",
+43:     "pytest-benchmark>=4.0.0",
+44:     "scipy>=1.10.0",  # For A/B testing
+45:     "black>=22.0",
+46:     "ruff>=0.1.0",
+47:     "mypy>=1.0",
+48: ]
+49: test = [
+50:     "pytest>=7.0.0",
+51:     "pytest-cov>=4.0.0",
+52:     "scipy>=1.10.0",
+53: ]
+54: 
+55: [project.urls]
+56: Homepage = "https://github.com/SuperClaude-Org/SuperClaude_Framework"
+57: GitHub = "https://github.com/SuperClaude-Org/SuperClaude_Framework"
+58: "Bug Tracker" = "https://github.com/SuperClaude-Org/SuperClaude_Framework/issues"
+59: Documentation = "https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/main/README.md"
+60: 
+61: # ⭐ CLI commands (hatchling format)
+62: [project.scripts]
+63: superclaude = "superclaude.cli.main:main"
+64: 
+65: # ⭐ pytest plugin auto-discovery (most important!)
+66: [project.entry-points.pytest11]
+67: superclaude = "superclaude.pytest_plugin"
+68: 
+69: [tool.hatch.build.targets.wheel]
+70: packages = ["src/superclaude"]
+71: include = [
+72:     "src/superclaude/skills/confidence-check/**",
+73: ]
+74: 
+75: [tool.hatch.build.targets.sdist]
+76: include = [
+77:     "src/",
+78:     "tests/",
+79:     "README.md",
+80:     "LICENSE",
+81:     "pyproject.toml",
+82: ]
+83: exclude = [
+84:     "*.pyc",
+85:     "__pycache__",
+86:     ".git*",
+87:     ".venv*",
+88:     "*.egg-info",
+89:     ".DS_Store",
+90: ]
+91: 
+92: [tool.pytest.ini_options]
+93: testpaths = ["tests"]
+94: python_files = ["test_*.py"]
+95: python_classes = ["Test*"]
+96: python_functions = ["test_*"]
+97: addopts = [
+98:     "-v",
+99:     "--strict-markers",
+100:     "--tb=short",
+101: ]
+102: markers = [
+103:     "unit: Unit tests",
+104:     "integration: Integration tests",
+105:     "hallucination: Hallucination detection tests",
+106:     "performance: Performance benchmark tests",
+107:     "confidence_check: Pre-execution confidence assessment",
+108:     "self_check: Post-implementation validation",
+109:     "reflexion: Error learning and prevention",
+110:     "complexity: Task complexity level (simple, medium, complex)",
+111: ]
+112: 
+113: [tool.coverage.run]
+114: source = ["src/superclaude"]
+115: omit = [
+116:     "*/tests/*",
+117:     "*/test_*",
+118:     "*/__pycache__/*",
+119:     "*/.*"
+120: ]
+121: 
+122: [tool.coverage.report]
+123: exclude_lines = [
+124:     "pragma: no cover",
+125:     "def __repr__",
+126:     "if self.debug:",
+127:     "if settings.DEBUG",
+128:     "raise AssertionError",
+129:     "raise NotImplementedError",
+130:     "if 0:",
+131:     "if __name__ == .__main__.:",
+132:     "if TYPE_CHECKING:",
+133: ]
+134: show_missing = true
+135: 
+136: [tool.black]
+137: line-length = 88
+138: target-version = ["py310", "py311", "py312"]
+139: include = '\.pyi?$'
+140: extend-exclude = '''
+141: /(
+142:   \.eggs
+143:   | \.git
+144:   | \.hg
+145:   | \.mypy_cache
+146:   | \.tox
+147:   | \.venv
+148:   | build
+149:   | dist
+150: )/
+151: '''
+152: 
+153: [tool.ruff]
+154: line-length = 88
+155: target-version = "py310"
+156: select = ["E", "F", "I", "N", "W"]
+157: ignore = ["E501"]  # Line too long (handled by black)
+158: 
+159: [tool.mypy]
+160: python_version = "3.10"
+161: warn_return_any = true
+162: warn_unused_configs = true
+163: disallow_untyped_defs = false  # Allow for gradual typing
+164: check_untyped_defs = true
+165: no_implicit_optional = true
+166: warn_redundant_casts = true
+167: warn_unused_ignores = true
+
+### c733413d^:pyproject.toml
+1: [build-system]
+2: requires = ["setuptools>=61.0", "wheel"]
+3: build-backend = "setuptools.build_meta"
+4: 
+5: [project]
+6: name = "SuperClaude"
+7: version = "4.1.6"
+8: authors = [
+9:     {name = "NomenAK", email = "anton.knoery@gmail.com"},
+10:     {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
+11: ]
+12: description = "SuperClaude Framework Management Hub - AI-enhanced development framework for Claude Code"
+13: readme = "README.md"
+14: license = {text = "MIT"}
+15: requires-python = ">=3.8"
+16: classifiers = [
+17:     "Development Status :: 4 - Beta",
+18:     "Intended Audience :: Developers",
+19:     "License :: OSI Approved :: MIT License",
+20:     "Operating System :: OS Independent",
+21:     "Programming Language :: Python :: 3",
+22:     "Programming Language :: Python :: 3.8",
+23:     "Programming Language :: Python :: 3.9", 
+24:     "Programming Language :: Python :: 3.10",
+25:     "Programming Language :: Python :: 3.11",
+26:     "Programming Language :: Python :: 3.12",
+27:     "Topic :: Software Development :: Libraries :: Python Modules",
+28:     "Topic :: Software Development :: Code Generators",
+29:     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+30:     "Environment :: Console",
+31: ]
+32: keywords = ["claude", "ai", "automation", "framework", "mcp", "agents", "development", "code-generation", "assistant"]
+33: dependencies = [
+34:     "setuptools>=45.0.0",
+35:     "importlib-metadata>=1.0.0; python_version<'3.8'",
+36:     "typer>=0.9.0",
+37:     "rich>=13.0.0",
+38:     "click>=8.0.0",
+39:     "pyyaml>=6.0.0",
+40:     "requests>=2.28.0"
+41: ]
+42: 
+43: [project.urls]
+44: Homepage = "https://github.com/SuperClaude-Org/SuperClaude_Framework"
+45: GitHub = "https://github.com/SuperClaude-Org/SuperClaude_Framework"
+46: "Bug Tracker" = "https://github.com/SuperClaude-Org/SuperClaude_Framework/issues"
+47: "Mithun Gowda B" = "https://github.com/mithun50"
+48: "NomenAK" = "https://github.com/NomenAK"
+49: 
+50: [project.scripts]
+51: SuperClaude = "superclaude.cli.app:cli_main"
+52: superclaude = "superclaude.cli.app:cli_main"
+53: 
+54: [project.optional-dependencies]
+55: dev = [
+56:     "pytest>=6.0",
+57:     "pytest-cov>=2.0",
+58:     "black>=22.0",
+59:     "flake8>=4.0",
+60:     "mypy>=0.900"
+61: ]
+62: test = [
+63:     "pytest>=6.0", 
+64:     "pytest-cov>=2.0"
+65: ]
+66: 
+67: [tool.setuptools]
+68: include-package-data = true
+69: 
+70: [tool.setuptools.packages.find]
+71: where = ["."]
+72: include = ["superclaude*", "setup*"]
+73: exclude = ["tests*", "*.tests*", "*.tests", ".git*", ".venv*", "*.egg-info*"]
+74: 
+75: [tool.setuptools.package-data]
+76: "setup" = ["data/*.json", "data/*.yaml", "data/*.yml", "components/*.py", "**/*.py"]
+77: "superclaude" = ["*.md", "*.txt", "**/*.md", "**/*.txt", "**/*.json", "**/*.yaml", "**/*.yml"]
+78: 
+79: [tool.black]
+80: line-length = 88
+81: target-version = ["py38", "py39", "py310", "py311", "py312"]
+82: include = '\.pyi?$'
+83: extend-exclude = '''
+84: /(
+85:   # directories
+86:   \.eggs
+87:   | \.git
+88:   | \.hg
+89:   | \.mypy_cache
+90:   | \.tox
+91:   | \.venv
+92:   | build
+93:   | dist
+94: )/
+95: '''
+96: 
+97: [tool.mypy]
+98: python_version = "3.8"
+99: warn_return_any = true
+100: warn_unused_configs = true
+101: disallow_untyped_defs = true
+102: disallow_incomplete_defs = true
+103: check_untyped_defs = true
+104: disallow_untyped_decorators = true
+105: no_implicit_optional = true
+106: warn_redundant_casts = true
+107: warn_unused_ignores = true
+108: warn_no_return = true
+109: warn_unreachable = true
+110: 
+111: [tool.pytest.ini_options]
+112: testpaths = ["tests"]
+113: python_files = ["test_*.py", "*_test.py"]
+114: python_classes = ["Test*"]
+115: python_functions = ["test_*"]
+116: addopts = "-v --tb=short --strict-markers"
+117: markers = [
+118:     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+119:     "integration: marks tests as integration tests",
+120:     "benchmark: marks tests as performance benchmarks",
+121:     "validation: marks tests as validation tests for PM mode claims"
+122: ]
+123: 
+124: [tool.coverage.run]
+125: source = ["superclaude", "setup"]
+126: omit = [
+127:     "*/tests/*",
+128:     "*/test_*",
+129:     "*/__pycache__/*",
+130:     "*/.*"
+131: ]
+132: 
+133: [tool.coverage.report]
+134: exclude_lines = [
+135:     "pragma: no cover",
+136:     "def __repr__",
+137:     "if self.debug:",
+138:     "if settings.DEBUG",
+139:     "raise AssertionError", 
+140:     "raise NotImplementedError",
+141:     "if 0:",
+142:     "if __name__ == .__main__.:"
+143: ]
+144: show_missing = true
+
+### c733413d:src/superclaude/cli/main.py
+1: """
+2: SuperClaude CLI Main Entry Point
+3: 
+4: Provides command-line interface for SuperClaude operations.
+5: """
+6: 
+7: import click
+8: from pathlib import Path
+9: import sys
+10: 
+11: # Add parent directory to path to import superclaude
+12: sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+13: 
+14: from superclaude import __version__
+15: 
+16: 
+17: @click.group()
+18: @click.version_option(version=__version__, prog_name="SuperClaude")
+19: def main():
+20:     """
+21:     SuperClaude - AI-enhanced development framework for Claude Code
+22: 
+23:     A pytest plugin providing PM Agent capabilities and optional skills system.
+24:     """
+25:     pass
+26: 
+27: 
+28: @main.command()
+29: @click.argument("skill_name")
+30: @click.option(
+31:     "--target",
+32:     default="~/.claude/skills",
+33:     help="Installation directory (default: ~/.claude/skills)",
+34: )
+35: @click.option(
+36:     "--force",
+37:     is_flag=True,
+38:     help="Force reinstall if skill already exists",
+39: )
+40: def install_skill(skill_name: str, target: str, force: bool):
+41:     """
+42:     Install a SuperClaude skill to Claude Code
+43: 
+44:     SKILL_NAME: Name of the skill to install (e.g., pm-agent)
+45: 
+46:     Example:
+47:         superclaude install-skill pm-agent
+48:         superclaude install-skill pm-agent --target ~/.claude/skills --force
+49:     """
+50:     from .install_skill import install_skill_command
+51: 
+52:     target_path = Path(target).expanduser()
+53: 
+54:     click.echo(f"📦 Installing skill '{skill_name}' to {target_path}...")
+55: 
+56:     success, message = install_skill_command(
+57:         skill_name=skill_name,
+58:         target_path=target_path,
+59:         force=force
+60:     )
+61: 
+62:     if success:
+63:         click.echo(f"✅ {message}")
+64:     else:
+65:         click.echo(f"❌ {message}", err=True)
+66:         sys.exit(1)
+67: 
+68: 
+69: @main.command()
+70: @click.option(
+71:     "--verbose",
+72:     is_flag=True,
+73:     help="Show detailed diagnostic information",
+74: )
+75: def doctor(verbose: bool):
+76:     """
+77:     Check SuperClaude installation health
+78: 
+79:     Verifies:
+80:         - pytest plugin loaded correctly
+81:         - Skills installed (if any)
+82:         - Configuration files present
+83:     """
+84:     from .doctor import run_doctor
+85: 
+86:     click.echo("🔍 SuperClaude Doctor\n")
+87: 
+88:     results = run_doctor(verbose=verbose)
+89: 
+90:     # Display results
+91:     for check in results["checks"]:
+92:         status_symbol = "✅" if check["passed"] else "❌"
+93:         click.echo(f"{status_symbol} {check['name']}")
+94: 
+95:         if verbose and check.get("details"):
+96:             for detail in check["details"]:
+97:                 click.echo(f"    {detail}")
+98: 
+99:     # Summary
+100:     click.echo()
+101:     total = len(results["checks"])
+102:     passed = sum(1 for check in results["checks"] if check["passed"])
+103: 
+104:     if passed == total:
+105:         click.echo("✅ SuperClaude is healthy")
+106:     else:
+107:         click.echo(f"⚠️  {total - passed}/{total} checks failed")
+108:         sys.exit(1)
+109: 
+110: 
+111: @main.command()
+112: def version():
+113:     """Show SuperClaude version"""
+114:     click.echo(f"SuperClaude version {__version__}")
+115: 
+116: 
+117: if __name__ == "__main__":
+118:     main()
+
+### c733413d:src/superclaude/pytest_plugin.py
+1: """
+2: SuperClaude pytest plugin
+3: 
+4: Auto-loaded when superclaude is installed.
+5: Provides PM Agent fixtures and hooks for enhanced testing.
+6: 
+7: Entry point registered in pyproject.toml:
+8:     [project.entry-points.pytest11]
+9:     superclaude = "superclaude.pytest_plugin"
+10: """
+11: 
+12: import pytest
+13: from pathlib import Path
+14: from typing import Dict, Any, Optional
+15: 
+16: from .pm_agent.confidence import ConfidenceChecker
+17: from .pm_agent.self_check import SelfCheckProtocol
+18: from .pm_agent.reflexion import ReflexionPattern
+19: from .pm_agent.token_budget import TokenBudgetManager
+20: 
+21: 
+22: def pytest_configure(config):
+23:     """
+24:     Register SuperClaude plugin and custom markers
+25: 
+26:     Markers:
+27:         - confidence_check: Pre-execution confidence assessment
+28:         - self_check: Post-implementation validation
+29:         - reflexion: Error learning and prevention
+30:         - complexity(level): Set test complexity (simple, medium, complex)
+31:     """
+32:     config.addinivalue_line(
+33:         "markers",
+34:         "confidence_check: Pre-execution confidence assessment (min 70%)"
+35:     )
+36:     config.addinivalue_line(
+37:         "markers",
+38:         "self_check: Post-implementation validation with evidence requirement"
+39:     )
+40:     config.addinivalue_line(
+41:         "markers",
+42:         "reflexion: Error learning and prevention pattern"
+43:     )
+44:     config.addinivalue_line(
+45:         "markers",
+46:         "complexity(level): Set test complexity (simple, medium, complex)"
+47:     )
+48: 
+49: 
+50: @pytest.fixture
+51: def confidence_checker():
+52:     """
+53:     Fixture for pre-execution confidence checking
+54: 
+55:     Usage:
+56:         def test_example(confidence_checker):
+57:             confidence = confidence_checker.assess(context)
+58:             assert confidence >= 0.7
+59:     """
+60:     return ConfidenceChecker()
+61: 
+62: 
+63: @pytest.fixture
+64: def self_check_protocol():
+65:     """
+66:     Fixture for post-implementation self-check protocol
+67: 
+68:     Usage:
+69:         def test_example(self_check_protocol):
+70:             passed, issues = self_check_protocol.validate(implementation)
+71:             assert passed
+72:     """
+73:     return SelfCheckProtocol()
+74: 
+75: 
+76: @pytest.fixture
+77: def reflexion_pattern():
+78:     """
+79:     Fixture for reflexion error learning pattern
+80: 
+81:     Usage:
+82:         def test_example(reflexion_pattern):
+83:             reflexion_pattern.record_error(...)
+84:             solution = reflexion_pattern.get_solution(error_signature)
+85:     """
+86:     return ReflexionPattern()
+87: 
+88: 
+89: @pytest.fixture
+90: def token_budget(request):
+91:     """
+92:     Fixture for token budget management
+93: 
+94:     Complexity levels:
+95:         - simple: 200 tokens (typo fix)
+96:         - medium: 1,000 tokens (bug fix)
+97:         - complex: 2,500 tokens (feature implementation)
+98: 
+99:     Usage:
+100:         @pytest.mark.complexity("medium")
+101:         def test_example(token_budget):
+102:             assert token_budget.limit == 1000
+103:     """
+104:     # Get test complexity from marker
+105:     marker = request.node.get_closest_marker("complexity")
+106:     complexity = marker.args[0] if marker else "medium"
+107:     return TokenBudgetManager(complexity=complexity)
+108: 
+109: 
+110: @pytest.fixture
+111: def pm_context(tmp_path):
+112:     """
+113:     Fixture providing PM Agent context for testing
+114: 
+115:     Creates temporary memory directory structure:
+116:         - docs/memory/pm_context.md
+117:         - docs/memory/last_session.md
+118:         - docs/memory/next_actions.md
+119: 
+120:     Usage:
+121:         def test_example(pm_context):
+122:             assert pm_context["memory_dir"].exists()
+123:             pm_context["pm_context"].write_text("# Context")
+124:     """
+125:     memory_dir = tmp_path / "docs" / "memory"
+126:     memory_dir.mkdir(parents=True)
+127: 
+128:     # Create empty memory files
+129:     (memory_dir / "pm_context.md").touch()
+130:     (memory_dir / "last_session.md").touch()
+131:     (memory_dir / "next_actions.md").touch()
+132: 
+133:     return {
+134:         "memory_dir": memory_dir,
+135:         "pm_context": memory_dir / "pm_context.md",
+136:         "last_session": memory_dir / "last_session.md",
+137:         "next_actions": memory_dir / "next_actions.md",
+138:     }
+139: 
+140: 
+141: def pytest_runtest_setup(item):
+142:     """
+143:     Pre-test hook for confidence checking
+144: 
+145:     If test is marked with @pytest.mark.confidence_check,
+146:     run pre-execution confidence assessment and skip if < 70%.
+147:     """
+148:     marker = item.get_closest_marker("confidence_check")
+149:     if marker:
+150:         checker = ConfidenceChecker()
+151: 
+152:         # Build context from test
+153:         context = {
+154:             "test_name": item.name,
+155:             "test_file": str(item.fspath),
+156:             "markers": [m.name for m in item.iter_markers()],
+157:         }
+158: 
+159:         confidence = checker.assess(context)
+160: 
+161:         if confidence < 0.7:
+162:             pytest.skip(
+163:                 f"Confidence too low: {confidence:.0%} (minimum: 70%)"
+164:             )
+165: 
+166: 
+167: def pytest_runtest_makereport(item, call):
+168:     """
+169:     Post-test hook for self-check and reflexion
+170: 
+171:     Records test outcomes for reflexion learning.
+172:     Stores error information for future pattern matching.
+173:     """
+174:     if call.when == "call":
+175:         # Check for reflexion marker
+176:         marker = item.get_closest_marker("reflexion")
+177: 
+178:         if marker and call.excinfo is not None:
+179:             # Test failed - apply reflexion pattern
+180:             reflexion = ReflexionPattern()
+181: 
+182:             # Record error for future learning
+183:             error_info = {
+184:                 "test_name": item.name,
+185:                 "test_file": str(item.fspath),
+186:                 "error_type": type(call.excinfo.value).__name__,
+187:                 "error_message": str(call.excinfo.value),
+188:                 "traceback": str(call.excinfo.traceback),
+189:             }
+190: 
+191:             reflexion.record_error(error_info)
+192: 
+193: 
+194: def pytest_report_header(config):
+195:     """Add SuperClaude version to pytest header"""
+196:     from . import __version__
+197:     return f"SuperClaude: {__version__}"
+198: 
+199: 
+200: def pytest_collection_modifyitems(config, items):
+201:     """
+202:     Modify test collection to add automatic markers
+203: 
+204:     - Adds 'unit' marker to test files in tests/unit/
+205:     - Adds 'integration' marker to test files in tests/integration/
+206:     - Adds 'hallucination' marker to test files matching *hallucination*
+207:     - Adds 'performance' marker to test files matching *performance*
+208:     """
+209:     for item in items:
+210:         test_path = str(item.fspath)
+211: 
+212:         # Auto-mark by directory
+213:         if "/unit/" in test_path:
+214:             item.add_marker(pytest.mark.unit)
+215:         elif "/integration/" in test_path:
+216:             item.add_marker(pytest.mark.integration)
+217: 
+218:         # Auto-mark by filename
+219:         if "hallucination" in test_path:
+220:             item.add_marker(pytest.mark.hallucination)
+221:         elif "performance" in test_path or "benchmark" in test_path:
+222:             item.add_marker(pytest.mark.performance)
+
+### c733413d:src/superclaude/__init__.py
+1: """
+2: SuperClaude Framework
+3: 
+4: AI-enhanced development framework for Claude Code.
+5: Provides pytest plugin for enhanced testing and optional skills system.
+6: """
+7: 
+8: __version__ = "0.4.0"
+9: __author__ = "Kazuki Nakai"
+10: 
+11: # Expose main components
+12: from .pm_agent.confidence import ConfidenceChecker
+13: from .pm_agent.self_check import SelfCheckProtocol
+14: from .pm_agent.reflexion import ReflexionPattern
+15: 
+16: __all__ = [
+17:     "ConfidenceChecker",
+18:     "SelfCheckProtocol",
+19:     "ReflexionPattern",
+20:     "__version__",
+21: ]
+
+### c733413d:plugins/superclaude/hooks/hooks.json
+1: {
+2:   "hooks": {
+3:     "SessionStart": [
+4:       {
+5:         "hooks": [
+6:           {
+7:             "type": "command",
+8:             "command": "./scripts/session-init.sh",
+9:             "timeout": 10
+10:           }
+11:         ]
+12:       }
+13:     ]
+14:   }
+15: }
+
+### c733413d:scripts/build_superclaude_plugin.py
+1: #!/usr/bin/env python3
+2: """
+3: Build SuperClaude plugin distribution artefacts from unified sources.
+4: 
+5: Usage:
+6:     python scripts/build_superclaude_plugin.py
+7: """
+8: 
+9: from __future__ import annotations
+10: 
+11: import json
+12: import shutil
+13: from pathlib import Path
+14: 
+15: 
+16: ROOT = Path(__file__).resolve().parents[1]
+17: PLUGIN_SRC = ROOT / "plugins" / "superclaude"
+18: DIST_ROOT = ROOT / "dist" / "plugins" / "superclaude"
+19: MANIFEST_DIR = PLUGIN_SRC / "manifest"
+20: 
+21: 
+22: def load_metadata() -> dict:
+23:     with (MANIFEST_DIR / "metadata.json").open() as f:
+24:         metadata = json.load(f)
+25: 
+26:     version_file = ROOT / "VERSION"
+27:     if version_file.exists():
+28:         metadata["plugin_version"] = version_file.read_text().strip()
+29:     else:
+30:         # Fall back to metadata override or default version
+31:         metadata["plugin_version"] = metadata.get("plugin_version", "0.0.0")
+32: 
+33:     metadata.setdefault("keywords", [])
+34:     return metadata
+35: 
+36: 
+37: def render_template(template_path: Path, placeholders: dict[str, str]) -> str:
+38:     content = template_path.read_text()
+39:     for key, value in placeholders.items():
+40:         token = f"{{{{{key}}}}}"
+41:         content = content.replace(token, value)
+42:     return content
+43: 
+44: 
+45: def copy_tree(src: Path, dest: Path) -> None:
+46:     if not src.exists():
+47:         return
+48:     shutil.copytree(src, dest, dirs_exist_ok=True)
+49: 
+50: 
+51: def main() -> None:
+52:     if not PLUGIN_SRC.exists():
+53:         raise SystemExit(f"Missing plugin sources: {PLUGIN_SRC}")
+54: 
+55:     metadata = load_metadata()
+56: 
+57:     placeholders = {
+58:         "plugin_name": metadata["plugin_name"],
+59:         "plugin_version": metadata["plugin_version"],
+60:         "plugin_description": metadata["plugin_description"],
+61:         "author_name": metadata["author_name"],
+62:         "homepage_url": metadata["homepage_url"],
+63:         "repository_url": metadata["repository_url"],
+64:         "license": metadata["license"],
+65:         "keywords_json": json.dumps(metadata["keywords"]),
+66:         "marketplace_name": metadata["marketplace_name"],
+67:         "marketplace_description": metadata["marketplace_description"],
+68:     }
+69: 
+70:     # Clean dist directory
+71:     if DIST_ROOT.exists():
+72:         shutil.rmtree(DIST_ROOT)
+73:     DIST_ROOT.mkdir(parents=True, exist_ok=True)
+74: 
+75:     # Copy top-level asset directories
+76:     for folder in ["agents", "commands", "hooks", "scripts", "skills"]:
+77:         copy_tree(PLUGIN_SRC / folder, DIST_ROOT / folder)
+78: 
+79:     # Render manifests
+80:     claude_dir = DIST_ROOT / ".claude-plugin"
+81:     claude_dir.mkdir(parents=True, exist_ok=True)
+82: 
+83:     plugin_manifest = render_template(MANIFEST_DIR / "plugin.template.json", placeholders)
+84:     (claude_dir / "plugin.json").write_text(plugin_manifest + "\n")
+85: 
+86:     marketplace_manifest = render_template(MANIFEST_DIR / "marketplace.template.json", placeholders)
+87:     (claude_dir / "marketplace.json").write_text(marketplace_manifest + "\n")
+88: 
+89:     # Copy tests into manifest directory
+90:     tests_src = PLUGIN_SRC / "tests"
+91:     if tests_src.exists():
+92:         copy_tree(tests_src, claude_dir / "tests")
+93: 
+94:     print(f"✅ Built plugin artefacts at {DIST_ROOT}")
+95: 
+96: 
+97: if __name__ == "__main__":
+98:     main()
+
+### c733413d^:superclaude/cli/app.py
+1: """
+2: SuperClaude CLI - Root application with typer
+3: Modern, type-safe command-line interface with rich formatting
+4: """
+5: 
+6: import sys
+7: import typer
+8: from typing import Optional
+9: from superclaude.cli._console import console
+10: from superclaude.cli.commands import install, doctor, config
+11: 
+12: # Create root typer app
+13: app = typer.Typer(
+14:     name="superclaude",
+15:     help="SuperClaude Framework CLI - AI-enhanced development framework for Claude Code",
+16:     add_completion=False,  # Disable shell completion for now
+17:     no_args_is_help=True,  # Show help when no args provided
+18:     pretty_exceptions_enable=True,  # Rich exception formatting
+19: )
+20: 
+21: # Register command groups
+22: app.add_typer(install.app, name="install", help="Install SuperClaude components")
+23: app.add_typer(doctor.app, name="doctor", help="Diagnose system environment")
+24: app.add_typer(config.app, name="config", help="Manage configuration")
+25: 
+26: 
+27: def version_callback(value: bool):
+28:     """Show version and exit"""
+29:     if value:
+30:         from superclaude import __version__
+31:         console.print(f"[bold cyan]SuperClaude[/bold cyan] version [green]{__version__}[/green]")
+32:         raise typer.Exit()
+33: 
+34: 
+35: @app.callback()
+36: def main(
+37:     version: Optional[bool] = typer.Option(
+38:         None,
+39:         "--version",
+40:         "-v",
+41:         callback=version_callback,
+42:         is_eager=True,
+43:         help="Show version and exit",
+44:     ),
+45: ):
+46:     """
+47:     SuperClaude Framework CLI
+48: 
+49:     Modern command-line interface for managing SuperClaude installation,
+50:     configuration, and diagnostic operations.
+51:     """
+52:     pass
+53: 
+54: 
+55: def cli_main():
+56:     """Entry point for CLI (called from pyproject.toml)"""
+57:     try:
+58:         app()
+59:     except KeyboardInterrupt:
+60:         console.print("\n[yellow]Operation cancelled by user[/yellow]")
+61:         sys.exit(130)
+62:     except Exception as e:
+63:         console.print(f"[bold red]Unhandled error:[/bold red] {e}")
+64:         if "--debug" in sys.argv or "--verbose" in sys.argv:
+65:             console.print_exception()
+66:         sys.exit(1)
+67: 
+68: 
+69: if __name__ == "__main__":
+70:     cli_main()
+
+### c733413d^:superclaude/core/pm_init/init_hook.py
+1: """PM Mode Initialization Hook
+2: 
+3: Runs automatically at session start to:
+4: 1. Detect repository root and structure
+5: 2. Generate Context Contract
+6: 3. Load Reflexion Memory
+7: 4. Set up PM Mode as default
+8: """
+9: 
+10: import os
+11: import subprocess
+12: from pathlib import Path
+13: from typing import Optional, Dict, Any
+14: import yaml
+15: 
+16: from .context_contract import ContextContract
+17: from .reflexion_memory import ReflexionMemory
+18: 
+19: 
+20: class PMInitializer:
+21:     """Initializes PM Mode with project context"""
+22: 
+23:     def __init__(self, cwd: Optional[Path] = None):
+24:         self.cwd = cwd or Path.cwd()
+25:         self.git_root: Optional[Path] = None
+26:         self.config: Dict[str, Any] = {}
+27: 
+28:     def detect_git_root(self) -> Optional[Path]:
+29:         """Detect Git repository root"""
+30:         try:
+31:             result = subprocess.run(
+32:                 ["git", "rev-parse", "--show-toplevel"],
+33:                 cwd=self.cwd,
+34:                 capture_output=True,
+35:                 text=True,
+36:                 check=False
+37:             )
+38:             if result.returncode == 0:
+39:                 return Path(result.stdout.strip())
+40:         except Exception:
+41:             pass
+42:         return None
+43: 
+44:     def scan_project_structure(self) -> Dict[str, Any]:
+45:         """Lightweight scan of project structure (paths only, no content)"""
+46:         if not self.git_root:
+47:             return {}
+48: 
+49:         structure = {
+50:             "docker_compose": [],
+51:             "infrastructure": {
+52:                 "traefik": [],
+53:                 "kong": [],
+54:                 "supabase": [],
+55:                 "infisical": []
+56:             },
+57:             "package_managers": {
+58:                 "node": [],
+59:                 "python": []
+60:             },
+61:             "config_files": []
+62:         }
+63: 
+64:         # Docker Compose files
+65:         for pattern in ["docker-compose*.yml", "docker-compose*.yaml"]:
+66:             structure["docker_compose"].extend([
+67:                 str(p.relative_to(self.git_root))
+68:                 for p in self.git_root.glob(pattern)
+69:             ])
+70: 
+71:         # Infrastructure directories
+72:         for infra_type in ["traefik", "kong", "supabase", "infisical"]:
+73:             infra_path = self.git_root / "infra" / infra_type
+74:             if infra_path.exists():
+75:                 structure["infrastructure"][infra_type].append(str(infra_path.relative_to(self.git_root)))
+76: 
+77:         # Package managers
+78:         if (self.git_root / "package.json").exists():
+79:             structure["package_managers"]["node"].append("package.json")
+80:         if (self.git_root / "pnpm-lock.yaml").exists():
+81:             structure["package_managers"]["node"].append("pnpm-lock.yaml")
+82:         if (self.git_root / "pyproject.toml").exists():
+83:             structure["package_managers"]["python"].append("pyproject.toml")
+84:         if (self.git_root / "uv.lock").exists():
+85:             structure["package_managers"]["python"].append("uv.lock")
+86: 
+87:         return structure
+88: 
+89:     def initialize(self) -> Dict[str, Any]:
+90:         """Main initialization routine"""
+91:         # Step 1: Detect Git root
+92:         self.git_root = self.detect_git_root()
+93:         if not self.git_root:
+94:             return {
+95:                 "status": "not_git_repo",
+96:                 "message": "Not a Git repository - PM Mode running in standalone mode"
+97:             }
+98: 
+99:         # Step 2: Scan project structure (lightweight)
+100:         structure = self.scan_project_structure()
+101: 
+102:         # Step 3: Generate or load Context Contract
+103:         contract = ContextContract(self.git_root, structure)
+104:         contract_data = contract.generate_or_load()
+105: 
+106:         # Step 4: Load Reflexion Memory
+107:         memory = ReflexionMemory(self.git_root)
+108:         memory_data = memory.load()
+109: 
+110:         # Step 5: Return initialization data
+111:         return {
+112:             "status": "initialized",
+113:             "git_root": str(self.git_root),
+114:             "structure": structure,
+115:             "context_contract": contract_data,
+116:             "reflexion_memory": memory_data,
+117:             "message": "PM Mode initialized successfully"
+118:         }
+119: 
+120: 
+121: def initialize_pm_mode(cwd: Optional[Path] = None) -> Dict[str, Any]:
+122:     """
+123:     Initialize PM Mode as default.
+124: 
+125:     This function runs automatically at session start.
+126: 
+127:     Args:
+128:         cwd: Current working directory (defaults to os.getcwd())
+129: 
+130:     Returns:
+131:         Initialization status and configuration
+132:     """
+133:     initializer = PMInitializer(cwd)
+134:     return initializer.initialize()
+
+### c733413d^:setup/cli/commands/install.py
+1: """
+2: SuperClaude Installation Operation Module
+3: Refactored from install.py for unified CLI hub
+4: """
+5: 
+6: import sys
+7: import time
+8: from pathlib import Path
+9: from ...utils.paths import get_home_directory
+10: from typing import List, Optional, Dict, Any
+11: import argparse
+12: 
+13: from ...core.installer import Installer
+14: from ...core.registry import ComponentRegistry
+15: from ...services.config import ConfigService
+16: from ...core.validator import Validator
+17: from ...utils.ui import (
+18:     display_header,
+19:     display_info,
+20:     display_success,
+21:     display_error,
+22:     display_warning,
+23:     Menu,
+24:     confirm,
+25:     ProgressBar,
+26:     Colors,
+27:     format_size,
+28:     prompt_api_key,
+29: )
+30: from ...utils.environment import setup_environment_variables
+31: from ...utils.logger import get_logger
+32: from ... import DEFAULT_INSTALL_DIR, PROJECT_ROOT, DATA_DIR
+33: from . import OperationBase
+34: 
+35: 
+36: class InstallOperation(OperationBase):
+37:     """Installation operation implementation"""
+38: 
+39:     def __init__(self):
+40:         super().__init__("install")
+41: 
+42: 
+43: def register_parser(subparsers, global_parser=None) -> argparse.ArgumentParser:
+44:     """Register installation CLI arguments"""
+45:     parents = [global_parser] if global_parser else []
+46: 
+47:     parser = subparsers.add_parser(
+48:         "install",
+49:         help="Install SuperClaude framework components",
+50:         description="Install SuperClaude Framework with various options and profiles",
+51:         epilog="""
+52: Examples:
+53:   SuperClaude install                          # Interactive installation
+54:   SuperClaude install --dry-run                # Dry-run mode  
+55:   SuperClaude install --components core mcp    # Specific components
+56:   SuperClaude install --verbose --force        # Verbose with force mode
+57:         """,
+58:         formatter_class=argparse.RawDescriptionHelpFormatter,
+59:         parents=parents,
+60:     )
+61: 
+62:     # Installation mode options
+63: 
+64:     parser.add_argument(
+65:         "--components", type=str, nargs="+", help="Specific components to install"
+66:     )
+67: 
+68:     # Installation options
+69:     parser.add_argument("--no-backup", action="store_true", help="Skip backup creation")
+70: 
+71:     parser.add_argument(
+72:         "--list-components",
+73:         action="store_true",
+74:         help="List available components and exit",
+75:     )
+76: 
+77:     parser.add_argument(
+78:         "--diagnose",
+79:         action="store_true",
+80:         help="Run system diagnostics and show installation help",
+81:     )
+82: 
+83:     parser.add_argument(
+84:         "--legacy",
+85:         action="store_true",
+86:         help="Use legacy mode: install individual official MCP servers instead of unified gateway",
+87:     )
+88: 
+89:     return parser
+90: 
+91: 
+92: def validate_system_requirements(
+93:     validator: Validator, component_names: List[str]
+94: ) -> bool:
+95:     """Validate system requirements"""
+96:     logger = get_logger()
+97: 
+98:     logger.info("Validating system requirements...")
+99: 
+100:     try:
+101:         # Load requirements configuration
+102:         config_manager = ConfigService(DATA_DIR)
+103:         requirements = config_manager.get_requirements_for_components(component_names)
+104: 
+105:         # Validate requirements
+106:         success, errors = validator.validate_component_requirements(
+107:             component_names, requirements
+108:         )
+109: 
+110:         if success:
+111:             logger.success("All system requirements met")
+112:             return True
+113:         else:
+114:             logger.error("System requirements not met:")
+115:             for error in errors:
+116:                 logger.error(f"  - {error}")
+117: 
+118:             # Provide additional guidance
+119:             print(f"\n{Colors.CYAN}💡 Installation Help:{Colors.RESET}")
+120:             print(
+121:                 "  Run 'superclaude install --diagnose' for detailed system diagnostics"
+122:             )
+123:             print("  and step-by-step installation instructions.")
+124: 
+125:             return False
+126: 
+127:     except Exception as e:
+128:         logger.error(f"Could not validate system requirements: {e}")
+129:         return False
+130: 
+131: 
+132: def get_components_to_install(
+133:     args: argparse.Namespace, registry: ComponentRegistry, config_manager: ConfigService
+134: ) -> Optional[List[str]]:
+135:     """Determine which components to install"""
+136:     logger = get_logger()
+137: 
+138:     # Explicit components specified
+139:     if args.components:
+140:         if "all" in args.components:
+141:             components = ["framework_docs", "commands", "agents", "modes", "mcp"]
+142:         else:
+143:             components = args.components
+144: 
+145:         # If mcp is specified, handle MCP server selection
+146:         if "mcp" in components and not args.yes:
+147:             selected_servers = select_mcp_servers(registry)
+148:             if not hasattr(config_manager, "_installation_context"):
+149:                 config_manager._installation_context = {}
+150:             config_manager._installation_context["selected_mcp_servers"] = (
+151:                 selected_servers
+152:             )
+153: 
+154:             # If the user selected some servers, ensure mcp is included
+155:             if selected_servers:
+156:                 if "mcp" not in components:
+157:                     components.append("mcp")
+158:                     logger.debug(
+159:                         f"Auto-added 'mcp' component for selected servers: {selected_servers}"
+160:                     )
+161: 
+162:                 logger.info(f"Final components to install: {components}")
+163: 
+164:         return components
+165: 
+166:     # Interactive two-stage selection
+167:     return interactive_component_selection(registry, config_manager)
+168: 
+169: 
+170: def collect_api_keys_for_servers(
+171:     selected_servers: List[str], mcp_instance
+172: ) -> Dict[str, str]:
+173:     """
+174:     Collect API keys for servers that require them
+175: 
+176:     Args:
+177:         selected_servers: List of selected server keys
+178:         mcp_instance: MCP component instance
+179: 
+180:     Returns:
+181:         Dictionary of environment variable names to API key values
+182:     """
+183:     # Filter servers needing keys
+184:     servers_needing_keys = [
+185:         (server_key, mcp_instance.mcp_servers[server_key])
+186:         for server_key in selected_servers
+187:         if server_key in mcp_instance.mcp_servers
+188:         and mcp_instance.mcp_servers[server_key].get("requires_api_key", False)
+189:     ]
+190: 
+191:     if not servers_needing_keys:
+192:         return {}
+193: 
+194:     # Display API key configuration header
+195:     print(f"\n{Colors.CYAN}{Colors.BRIGHT}=== API Key Configuration ==={Colors.RESET}")
+196:     print(
+197:         f"{Colors.YELLOW}The following servers require API keys for full functionality:{Colors.RESET}\n"
+198:     )
+199: 
+200:     collected_keys = {}
+201:     for server_key, server_info in servers_needing_keys:
+202:         api_key_env = server_info.get("api_key_env")
+203:         service_name = server_info["name"]
+204: 
+205:         if api_key_env:
+206:             key = prompt_api_key(service_name, api_key_env)
+207:             if key:
+208:                 collected_keys[api_key_env] = key
+209: 
+210:     return collected_keys
+211: 
+212: 
+213: def select_mcp_servers(registry: ComponentRegistry) -> List[str]:
+214:     """Stage 1: MCP Server Selection with API Key Collection"""
+215:     logger = get_logger()
+216: 
+217:     try:
+218:         # Get MCP component to access server list
+219:         mcp_instance = registry.get_component_instance(
+220:             "mcp", DEFAULT_INSTALL_DIR
+221:         )
+222:         if not mcp_instance or not hasattr(mcp_instance, "mcp_servers"):
+223:             logger.error("Could not access MCP server information")
+224:             return []
+225: 
+226:         # Create MCP server menu
+227:         mcp_servers = mcp_instance.mcp_servers
+228:         server_options = []
+229: 
+230:         for server_key, server_info in mcp_servers.items():
+231:             description = server_info["description"]
+232:             api_key_note = (
+233:                 " (requires API key)"
+234:                 if server_info.get("requires_api_key", False)
+235:                 else ""
+236:             )
+237:             server_options.append(f"{server_key} - {description}{api_key_note}")
+238: 
+239:         print(f"\n{Colors.CYAN}{Colors.BRIGHT}{'='*51}{Colors.RESET}")
+240:         print(
+241:             f"{Colors.CYAN}{Colors.BRIGHT}Stage 1: MCP Server Selection (Optional){Colors.RESET}"
+242:         )
+243:         print(f"{Colors.CYAN}{Colors.BRIGHT}{'='*51}{Colors.RESET}")
+244:         print(
+245:             f"\n{Colors.BLUE}MCP servers extend Claude Code with specialized capabilities.{Colors.RESET}"
+246:         )
+247:         print(
+248:             f"{Colors.BLUE}Select servers to configure (you can always add more later):{Colors.RESET}"
+249:         )
+250: 
+251:         # Add option to skip MCP
+252:         server_options.append("Skip MCP Server installation")
+253: 
+254:         menu = Menu(
+255:             "Select MCP servers to configure:", server_options, multi_select=True
+256:         )
+257:         selections = menu.display()
+258: 
+259:         if not selections:
+260:             logger.info("No MCP servers selected")
+261:             return []
+262: 
+263:         # Filter out the "skip" option and return server keys
+264:         server_keys = list(mcp_servers.keys())
+265:         selected_servers = []
+266: 
+267:         for i in selections:
+268:             if i < len(server_keys):  # Not the "skip" option
+269:                 selected_servers.append(server_keys[i])
+270: 
+271:         if selected_servers:
+272:             logger.info(f"Selected MCP servers: {', '.join(selected_servers)}")
+273: 
+274:             # NEW: Collect API keys for selected servers
+275:             collected_keys = collect_api_keys_for_servers(
+276:                 selected_servers, mcp_instance
+277:             )
+278: 
+279:             # Set up environment variables
+280:             if collected_keys:
+281:                 setup_environment_variables(collected_keys)
+282: 
+283:                 # Store keys for MCP component to use during installation
+284:                 mcp_instance.collected_api_keys = collected_keys
+285:         else:
+286:             logger.info("No MCP servers selected")
+287: 
+288:         return selected_servers
+289: 
+290:     except Exception as e:
+291:         logger.error(f"Error in MCP server selection: {e}")
+292:         return []
+293: 
+294: 
+295: def select_framework_components(
+296:     registry: ComponentRegistry,
+297:     config_manager: ConfigService,
+298:     selected_mcp_servers: List[str],
+299: ) -> List[str]:
+300:     """Stage 2: Framework Component Selection"""
+301:     logger = get_logger()
+302: 
+303:     try:
+304:         # Framework components (excluding MCP-related ones)
+305:         framework_components = ["framework_docs", "modes", "commands", "agents"]
+306: 
+307:         # Create component menu
+308:         component_options = []
+309:         component_info = {}
+310: 
+311:         for component_name in framework_components:
+312:             metadata = registry.get_component_metadata(component_name)
+313:             if metadata:
+314:                 description = metadata.get("description", "No description")
+315:                 component_options.append(f"{component_name} - {description}")
+316:                 component_info[component_name] = metadata
+317: 
+318:         # MCP documentation is integrated into airis-mcp-gateway, no separate component needed
+319: 
+320:         print(f"\n{Colors.CYAN}{Colors.BRIGHT}{'='*51}{Colors.RESET}")
+321:         print(
+322:             f"{Colors.CYAN}{Colors.BRIGHT}Stage 2: Framework Component Selection{Colors.RESET}"
+323:         )
+324:         print(f"{Colors.CYAN}{Colors.BRIGHT}{'='*51}{Colors.RESET}")
+325:         print(
+326:             f"\n{Colors.BLUE}Select SuperClaude framework components to install:{Colors.RESET}"
+327:         )
+328: 
+329:         menu = Menu(
+330:             "Select components (Core is recommended):",
+331:             component_options,
+332:             multi_select=True,
+333:         )
+334:         selections = menu.display()
+335: 
+336:         if not selections:
+337:             # Default to framework_docs if nothing selected
+338:             logger.info("No components selected, defaulting to framework_docs")
+339:             selected_components = ["framework_docs"]
+340:         else:
+341:             selected_components = []
+342:             all_components = framework_components
+343: 
+344:             for i in selections:
+345:                 if i < len(all_components):
+346:                     selected_components.append(all_components[i])
+347: 
+348:         # Always include MCP component if servers were selected
+349:         if selected_mcp_servers and "mcp" not in selected_components:
+350:             selected_components.append("mcp")
+351: 
+352:         logger.info(f"Selected framework components: {', '.join(selected_components)}")
+353:         return selected_components
+354: 
+355:     except Exception as e:
+356:         logger.error(f"Error in framework component selection: {e}")
+357:         return ["framework_docs"]  # Fallback to framework_docs
+358: 
+359: 
+360: def interactive_component_selection(
+361:     registry: ComponentRegistry, config_manager: ConfigService
+362: ) -> Optional[List[str]]:
+363:     """Two-stage interactive component selection"""
+364:     logger = get_logger()
+365: 
+366:     try:
+367:         print(f"\n{Colors.CYAN}SuperClaude Interactive Installation{Colors.RESET}")
+368:         print(
+369:             f"{Colors.BLUE}Select components to install using the two-stage process:{Colors.RESET}"
+370:         )
+371: 
+372:         # Stage 1: MCP Server Selection
+373:         selected_mcp_servers = select_mcp_servers(registry)
+374: 
+375:         # Stage 2: Framework Component Selection
+376:         selected_components = select_framework_components(
+377:             registry, config_manager, selected_mcp_servers
+378:         )
+379: 
+380:         # Store selected MCP servers for components to use
+381:         if not hasattr(config_manager, "_installation_context"):
+382:             config_manager._installation_context = {}
+383:         config_manager._installation_context["selected_mcp_servers"] = (
+384:             selected_mcp_servers
+385:         )
+386: 
+387:         return selected_components
+388: 
+389:     except Exception as e:
+390:         logger.error(f"Error in component selection: {e}")
+391:         return None
+392: 
+393: 
+394: def display_installation_plan(
+395:     components: List[str], registry: ComponentRegistry, install_dir: Path
+396: ) -> None:
+397:     """Display installation plan"""
+398:     logger = get_logger()
+399: 
+400:     print(f"\n{Colors.CYAN}{Colors.BRIGHT}Installation Plan{Colors.RESET}")
+401:     print("=" * 50)
+402: 
+403:     # Resolve dependencies
+404:     try:
+405:         ordered_components = registry.resolve_dependencies(components)
+406: 
+407:         print(f"{Colors.BLUE}Installation Directory:{Colors.RESET} {install_dir}")
+408:         print(f"{Colors.BLUE}Components to install:{Colors.RESET}")
+409: 
+410:         total_size = 0
+411:         for i, component_name in enumerate(ordered_components, 1):
+412:             metadata = registry.get_component_metadata(component_name)
+413:             if metadata:
+414:                 description = metadata.get("description", "No description")
+415:                 print(f"  {i}. {component_name} - {description}")
+416: 
+417:                 # Get size estimate if component supports it
+418:                 try:
+419:                     instance = registry.get_component_instance(
+420:                         component_name, install_dir
+421:                     )
+422:                     if instance and hasattr(instance, "get_size_estimate"):
+423:                         size = instance.get_size_estimate()
+424:                         total_size += size
+425:                 except Exception:
+426:                     pass
+427:             else:
+428:                 print(f"  {i}. {component_name} - Unknown component")
+429: 
+430:         if total_size > 0:
+431:             print(
+432:                 f"\n{Colors.BLUE}Estimated size:{Colors.RESET} {format_size(total_size)}"
+433:             )
+434: 
+435:         print()
+436: 
+437:     except Exception as e:
+438:         logger.error(f"Could not resolve dependencies: {e}")
+439:         raise
+440: 
+441: 
+442: def run_system_diagnostics(validator: Validator) -> None:
+443:     """Run comprehensive system diagnostics"""
+444:     logger = get_logger()
+445: 
+446:     print(f"\n{Colors.CYAN}{Colors.BRIGHT}SuperClaude System Diagnostics{Colors.RESET}")
+447:     print("=" * 50)
+448: 
+449:     # Run diagnostics
+450:     diagnostics = validator.diagnose_system()
+451: 
+452:     # Display platform info
+453:     print(f"{Colors.BLUE}Platform:{Colors.RESET} {diagnostics['platform']}")
+454: 
+455:     # Display check results
+456:     print(f"\n{Colors.BLUE}System Checks:{Colors.RESET}")
+457:     all_passed = True
+458: 
+459:     for check_name, check_info in diagnostics["checks"].items():
+460:         status = check_info["status"]
+461:         message = check_info["message"]
+462: 
+463:         if status == "pass":
+464:             print(f"  ✅ {check_name}: {message}")
+465:         else:
+466:             print(f"  ❌ {check_name}: {message}")
+467:             all_passed = False
+468: 
+469:     # Display issues and recommendations
+470:     if diagnostics["issues"]:
+471:         print(f"\n{Colors.YELLOW}Issues Found:{Colors.RESET}")
+472:         for issue in diagnostics["issues"]:
+473:             print(f"  ⚠️  {issue}")
+474: 
+475:         print(f"\n{Colors.CYAN}Recommendations:{Colors.RESET}")
+476:         for recommendation in diagnostics["recommendations"]:
+477:             print(recommendation)
+478: 
+479:     # Summary
+480:     if all_passed:
+481:         print(
+482:             f"\n{Colors.GREEN}✅ All system checks passed! Your system is ready for superclaude.{Colors.RESET}"
+483:         )
+484:     else:
+485:         print(
+486:             f"\n{Colors.YELLOW}⚠️  Some issues found. Please address the recommendations above.{Colors.RESET}"
+487:         )
+488: 
+489:     print(f"\n{Colors.BLUE}Next steps:{Colors.RESET}")
+490:     if all_passed:
+491:         print("  1. Run 'superclaude install' to proceed with installation")
+492:         print(
+493:             "  2. Choose your preferred installation mode (quick, minimal, or custom)"
+494:         )
+495:     else:
+496:         print("  1. Install missing dependencies using the commands above")
+497:         print("  2. Restart your terminal after installing tools")
+498:         print("  3. Run 'superclaude install --diagnose' again to verify")
+499: 
+500: 
+501: def perform_installation(
+502:     components: List[str],
+503:     args: argparse.Namespace,
+504:     config_manager: ConfigService = None,
+505: ) -> bool:
+506:     """Perform the actual installation"""
+507:     logger = get_logger()
+508:     start_time = time.time()
+509: 
+510:     try:
+511:         # Create installer
+512:         installer = Installer(args.install_dir, dry_run=args.dry_run)
+513: 
+514:         # Create component registry
+515:         registry = ComponentRegistry(PROJECT_ROOT / "setup" / "components")
+516:         registry.discover_components()
+517: 
+518:         # Create component instances
+519:         component_instances = registry.create_component_instances(
+520:             components, args.install_dir
+521:         )
+522: 
+523:         if not component_instances:
+524:             logger.error("No valid component instances created")
+525:             return False
+526: 
+527:         # Register components with installer
+528:         installer.register_components(list(component_instances.values()))
+529: 
+530:         # The 'components' list is already resolved, so we can use it directly.
+531:         ordered_components = components
+532: 
+533:         # Setup progress tracking
+534:         progress = ProgressBar(
+535:             total=len(ordered_components), prefix="Installing: ", suffix=""
+536:         )
+537: 
+538:         # Install components
+539:         logger.info(f"Installing {len(ordered_components)} components...")
+540: 
+541:         config = {
+542:             "force": args.force,
+543:             "backup": not args.no_backup,
+544:             "dry_run": args.dry_run,
+545:             "legacy_mode": getattr(args, "legacy", False),
+546:             "selected_mcp_servers": getattr(
+547:                 config_manager, "_installation_context", {}
+548:             ).get("selected_mcp_servers", []),
+549:         }
+550: 
+551:         success = installer.install_components(ordered_components, config)
+552: 
+553:         # Update progress
+554:         for i, component_name in enumerate(ordered_components):
+555:             if component_name in installer.installed_components:
+556:                 progress.update(i + 1, f"Installed {component_name}")
+557:             else:
+558:                 progress.update(i + 1, f"Failed {component_name}")
+559:             time.sleep(0.1)  # Brief pause for visual effect
+560: 
+561:         progress.finish("Installation complete")
+562: 
+563:         # Show results
+564:         duration = time.time() - start_time
+565: 
+566:         if success:
+567:             logger.success(
+568:                 f"Installation completed successfully in {duration:.1f} seconds"
+569:             )
+570: 
+571:             # Show summary
+572:             summary = installer.get_installation_summary()
+573:             if summary["installed"]:
+574:                 logger.info(f"Installed components: {', '.join(summary['installed'])}")
+575: 
+576:         else:
+577:             logger.error(
+578:                 f"Installation completed with errors in {duration:.1f} seconds"
+579:             )
+580: 
+581:             summary = installer.get_installation_summary()
+582:             if summary["failed"]:
+583:                 logger.error(f"Failed components: {', '.join(summary['failed'])}")
+584: 
+585:         return success
+586: 
+587:     except Exception as e:
+588:         logger.exception(f"Unexpected error during installation: {e}")
+589:         return False
+590: 
+591: 
+592: def run(args: argparse.Namespace) -> int:
+593:     """Execute installation operation with parsed arguments"""
+594:     operation = InstallOperation()
+595:     operation.setup_operation_logging(args)
+596:     logger = get_logger()
+597:     # ✅ Enhanced security validation with symlink protection
+598:     expected_home = get_home_directory().resolve()
+599:     install_dir_original = args.install_dir
+600:     install_dir_resolved = args.install_dir.resolve()
+601: 
+602:     # Check for symlink attacks - compare original vs resolved paths
+603:     try:
+604:         # Verify the resolved path is still within user home
+605:         install_dir_resolved.relative_to(expected_home)
+606: 
+607:         # Additional check: if there's a symlink in the path, verify it doesn't escape user home
+608:         if install_dir_original != install_dir_resolved:
+609:             # Path contains symlinks - verify each component stays within user home
+610:             current_path = expected_home
+611:             parts = install_dir_original.parts
+612:             home_parts = expected_home.parts
+613: 
+614:             # Skip home directory parts
+615:             if len(parts) >= len(home_parts) and parts[: len(home_parts)] == home_parts:
+616:                 relative_parts = parts[len(home_parts) :]
+617: 
+618:                 for part in relative_parts:
+619:                     current_path = current_path / part
+620:                     if current_path.is_symlink():
+621:                         symlink_target = current_path.resolve()
+622:                         # Ensure symlink target is also within user home
+623:                         symlink_target.relative_to(expected_home)
+624:     except ValueError:
+625:         print(f"\n[x] Installation must be inside your user profile directory.")
+626:         print(f"    Expected prefix: {expected_home}")
+627:         print(f"    Provided path:   {install_dir_resolved}")
+628:         print(f"    Security: Symlinks outside user directory are not allowed.")
+629:         sys.exit(1)
+630:     except Exception as e:
+631:         print(f"\n[x] Security validation failed: {e}")
+632:         print(f"    Please use a standard directory path within your user profile.")
+633:         sys.exit(1)
+634: 
+635:     try:
+636:         # Validate global arguments
+637:         success, errors = operation.validate_global_args(args)
+638:         if not success:
+639:             for error in errors:
+640:                 logger.error(error)
+641:             return 1
+642: 
+643:         # Display header
+644:         if not args.quiet:
+645:             from setup.cli.base import __version__
+646: 
+647:             display_header(
+648:                 f"SuperClaude Installation v{__version__}",
+649:                 "Installing SuperClaude framework components",
+650:             )
+651: 
+652:         # Handle special modes
+653:         if args.list_components:
+654:             registry = ComponentRegistry(PROJECT_ROOT / "setup" / "components")
+655:             registry.discover_components()
+656: 
+657:             components = registry.list_components()
+658:             if components:
+659:                 print(f"\n{Colors.CYAN}Available Components:{Colors.RESET}")
+660:                 for component_name in components:
+661:                     metadata = registry.get_component_metadata(component_name)
+662:                     if metadata:
+663:                         desc = metadata.get("description", "No description")
+664:                         category = metadata.get("category", "unknown")
+665:                         print(f"  {component_name} ({category}) - {desc}")
+666:                     else:
+667:                         print(f"  {component_name} - Unknown component")
+668:             else:
+669:                 print("No components found")
+670:             return 0
+671: 
+672:         # Handle diagnostic mode
+673:         if args.diagnose:
+674:             validator = Validator()
+675:             run_system_diagnostics(validator)
+676:             return 0
+677: 
+678:         # Create component registry and load configuration
+679:         logger.info("Initializing installation system...")
+680: 
+681:         registry = ComponentRegistry(PROJECT_ROOT / "setup" / "components")
+682:         registry.discover_components()
+683: 
+684:         config_manager = ConfigService(DATA_DIR)
+685:         validator = Validator()
+686: 
+687:         # Validate configuration
+688:         config_errors = config_manager.validate_config_files()
+689:         if config_errors:
+690:             logger.error("Configuration validation failed:")
+691:             for error in config_errors:
+692:                 logger.error(f"  - {error}")
+693:             return 1
+694: 
+695:         # Get components to install
+696:         components_to_install = get_components_to_install(
+697:             args, registry, config_manager
+698:         )
+699:         if not components_to_install:
+700:             logger.error("No components selected for installation")
+701:             return 1
+702: 
+703:         # Resolve dependencies
+704:         try:
+705:             resolved_components = registry.resolve_dependencies(components_to_install)
+706:         except ValueError as e:
+707:             logger.error(f"Dependency resolution error: {e}")
+708:             return 1
+709: 
+710:         # Validate system requirements for all components
+711:         if not validate_system_requirements(validator, resolved_components):
+712:             if not args.force:
+713:                 logger.error("System requirements not met. Use --force to override.")
+714:                 return 1
+715:             else:
+716:                 logger.warning(
+717:                     "System requirements not met, but continuing due to --force flag"
+718:                 )
+719: 
+720:         # Check for existing installation
+721:         if args.install_dir.exists() and not args.force:
+722:             if not args.dry_run:
+723:                 logger.warning(
+724:                     f"Installation directory already exists: {args.install_dir}"
+725:                 )
+726:                 if not args.yes and not confirm(
+727:                     "Continue and update existing installation?", default=False
+728:                 ):
+729:                     logger.info("Installation cancelled by user")
+730:                     return 0
+731: 
+732:         # Display installation plan
+733:         if not args.quiet:
+734:             display_installation_plan(resolved_components, registry, args.install_dir)
+735: 
+736:             if not args.dry_run:
+737:                 if not args.yes and not confirm(
+738:                     "Proceed with installation?", default=True
+739:                 ):
+740:                     logger.info("Installation cancelled by user")
+741:                     return 0
+742: 
+743:         # Perform installation
+744:         success = perform_installation(resolved_components, args, config_manager)
+745: 
+746:         if success:
+747:             if not args.quiet:
+748:                 display_success("SuperClaude installation completed successfully!")
+749: 
+750:                 if not args.dry_run:
+751:                     print(f"\n{Colors.CYAN}Next steps:{Colors.RESET}")
+752:                     print(f"1. Restart your Claude Code session")
+753:                     print(f"2. Framework files are now available in {args.install_dir}")
+754:                     print(f"3. Use SuperClaude commands and features in Claude Code")
+755: 
+756:             return 0
+757:         else:
+758:             display_error("Installation failed. Check logs for details.")
+759:             return 1
+760: 
+761:     except KeyboardInterrupt:
+762:         print(f"\n{Colors.YELLOW}Installation cancelled by user{Colors.RESET}")
+763:         return 130
+764:     except Exception as e:
+765:         return operation.handle_operation_error("install", e)
+
+### c733413d^:setup/utils/security.py
+1: """
+2: Security utilities for SuperClaude installation system
+3: Path validation and input sanitization
+4: 
+5: This module provides comprehensive security validation for file paths and user inputs
+6: during SuperClaude installation. It includes protection against:
+7: - Directory traversal attacks
+8: - Installation to system directories
+9: - Path injection attacks
+10: - Cross-platform security issues
+11: 
+12: Key Features:
+13: - Platform-specific validation (Windows vs Unix)
+14: - User-friendly error messages with actionable suggestions
+15: - Comprehensive path normalization
+16: - Backward compatibility with existing validation logic
+17: 
+18: Fixed Issues:
+19: - GitHub Issue #129: Fixed overly broad regex patterns that prevented installation
+20:   in legitimate paths containing "dev", "tmp", "bin", etc.
+21: - Enhanced cross-platform compatibility
+22: - Improved error message clarity
+23: 
+24: Architecture:
+25: - Separated pattern categories for better maintainability
+26: - Platform-aware validation logic
+27: - Comprehensive test coverage
+28: """
+29: 
+30: import re
+31: import os
+32: from pathlib import Path
+33: from typing import List, Optional, Tuple, Set
+34: import urllib.parse
+35: from .paths import get_home_directory
+36: 
+37: 
+38: class SecurityValidator:
+39:     """Security validation utilities"""
+40: 
+41:     # Directory traversal patterns (match anywhere in path - platform independent)
+42:     # These patterns detect common directory traversal attack vectors
+43:     TRAVERSAL_PATTERNS = [
+44:         r"\.\./",  # Directory traversal using ../
+45:         r"\.\.\.",  # Directory traversal using ...
+46:         r"//+",  # Multiple consecutive slashes (path injection)
+47:     ]
+48: 
+49:     # Unix system directories (match only at start of path)
+50:     # These patterns identify Unix/Linux system directories that should not be writable
+51:     # by regular users. Using ^ anchor to match only at path start prevents false positives
+52:     # for user directories containing these names (e.g., /home/user/dev/ is allowed)
+53:     UNIX_SYSTEM_PATTERNS = [
+54:         r"^/etc/",  # System configuration files
+55:         r"^/bin/",  # Essential command binaries
+56:         r"^/sbin/",  # System binaries
+57:         r"^/usr/bin/",  # User command binaries
+58:         r"^/usr/sbin/",  # Non-essential system binaries
+59:         r"^/var/(?!home/)",  # Variable data files (but exclude /var/home/ used on immutable distros)
+60:         r"^/tmp/",  # Temporary files (system-wide)
+61:         r"^/dev/",  # Device files - FIXED: was r'/dev/' (GitHub Issue #129)
+62:         r"^/proc/",  # Process information pseudo-filesystem
+63:         r"^/sys/",  # System information pseudo-filesystem
+64:     ]
+65: 
+66:     # Windows system directories (match only at start of path)
+67:     # These patterns identify Windows system directories using flexible separator matching
+68:     # to handle both forward slashes and backslashes consistently
+69:     WINDOWS_SYSTEM_PATTERNS = [
+70:         r"^c:[/\\]windows[/\\]",  # Windows system directory
+71:         r"^c:[/\\]program files[/\\]",  # Program Files directory
+72:         # Note: Removed c:\\users\\ to allow installation in user directories
+73:         # Claude Code installs to user home directory by default
+74:     ]
+75: 
+76:     # Combined dangerous patterns for backward compatibility
+77:     # This maintains compatibility with existing code while providing the new categorized approach
+78:     DANGEROUS_PATTERNS = (
+79:         TRAVERSAL_PATTERNS + UNIX_SYSTEM_PATTERNS + WINDOWS_SYSTEM_PATTERNS
+80:     )
+81: 
+82:     # Dangerous filename patterns
+83:     DANGEROUS_FILENAMES = [
+84:         r"\.exe$",  # Executables
+85:         r"\.bat$",
+86:         r"\.cmd$",
+87:         r"\.scr$",
+88:         r"\.dll$",
+89:         r"\.so$",
+90:         r"\.dylib$",
+91:         r"passwd",  # System files
+92:         r"shadow",
+93:         r"hosts",
+94:         r"\.ssh/",
+95:         r"\.aws/",
+96:         r"\.env",  # Environment files
+97:         r"\.secret",
+98:     ]
+99: 
+100:     # Allowed file extensions for installation
+101:     ALLOWED_EXTENSIONS = {
+102:         ".md",
+103:         ".json",
+104:         ".py",
+105:         ".js",
+106:         ".ts",
+107:         ".jsx",
+108:         ".tsx",
+109:         ".txt",
+110:         ".yml",
+111:         ".yaml",
+112:         ".toml",
+113:         ".cfg",
+114:         ".conf",
+115:         ".sh",
+116:         ".ps1",
+117:         ".html",
+118:         ".css",
+119:         ".svg",
+120:         ".png",
+121:         ".jpg",
+122:         ".gif",
+123:     }
+124: 
+125:     # Maximum path lengths
+126:     MAX_PATH_LENGTH = 4096
+127:     MAX_FILENAME_LENGTH = 255
+128: 
+129:     @classmethod
+130:     def validate_path(
+131:         cls, path: Path, base_dir: Optional[Path] = None
+132:     ) -> Tuple[bool, str]:
+133:         """
+134:         Validate path for security issues with enhanced cross-platform support
+135: 
+136:         This method performs comprehensive security validation including:
+137:         - Directory traversal attack detection
+138:         - System directory protection (platform-specific)
+139:         - Path length and filename validation
+140:         - Cross-platform path normalization
+141:         - User-friendly error messages
+142: 
+143:         Architecture:
+144:         - Uses both original and resolved paths for validation
+145:         - Applies platform-specific patterns for system directories
+146:         - Checks traversal patterns against original path to catch attacks before normalization
+147:         - Provides detailed error messages with actionable suggestions
+148: 
+149:         Args:
+150:             path: Path to validate (can be relative or absolute)
+151:             base_dir: Base directory that path should be within (optional)
+152: 
+153:         Returns:
+154:             Tuple of (is_safe: bool, error_message: str)
+155:             - is_safe: True if path passes all security checks
+156:             - error_message: Detailed error message with suggestions if validation fails
+157:         """
+158:         try:
+159:             # Convert to absolute path
+160:             abs_path = path.resolve()
+161: 
+162:             # For system directory validation, use the original path structure
+163:             # to avoid issues with symlinks and cross-platform path resolution
+164:             original_path_str = cls._normalize_path_for_validation(path)
+165:             resolved_path_str = cls._normalize_path_for_validation(abs_path)
+166: 
+167:             # Check path length
+168:             if len(str(abs_path)) > cls.MAX_PATH_LENGTH:
+169:                 return (
+170:                     False,
+171:                     f"Path too long: {len(str(abs_path))} > {cls.MAX_PATH_LENGTH}",
+172:                 )
+173: 
+174:             # Check filename length
+175:             if len(abs_path.name) > cls.MAX_FILENAME_LENGTH:
+176:                 return (
+177:                     False,
+178:                     f"Filename too long: {len(abs_path.name)} > {cls.MAX_FILENAME_LENGTH}",
+179:                 )
+180: 
+181:             # Check for dangerous patterns using platform-specific validation
+182:             # Always check traversal patterns (platform independent) - use original path string
+183:             # to detect patterns before normalization removes them
+184:             original_str = str(path).lower()
+185:             for pattern in cls.TRAVERSAL_PATTERNS:
+186:                 if re.search(pattern, original_str, re.IGNORECASE):
+187:                     return False, cls._get_user_friendly_error_message(
+188:                         "traversal", pattern, abs_path
+189:                     )
+190: 
+191:             # Check platform-specific system directory patterns - use original path first, then resolved
+192:             # Always check both Windows and Unix patterns to handle cross-platform scenarios
+193: 
+194:             # Check Windows system directory patterns
+195:             for pattern in cls.WINDOWS_SYSTEM_PATTERNS:
+196:                 if re.search(pattern, original_path_str, re.IGNORECASE) or re.search(
+197:                     pattern, resolved_path_str, re.IGNORECASE
+198:                 ):
+199:                     return False, cls._get_user_friendly_error_message(
+200:                         "windows_system", pattern, abs_path
+201:                     )
+202: 
+203:             # Check Unix system directory patterns
+204:             for pattern in cls.UNIX_SYSTEM_PATTERNS:
+205:                 if re.search(pattern, original_path_str, re.IGNORECASE) or re.search(
+206:                     pattern, resolved_path_str, re.IGNORECASE
+207:                 ):
+208:                     return False, cls._get_user_friendly_error_message(
+209:                         "unix_system", pattern, abs_path
+210:                     )
+211: 
+212:             # Check for dangerous filenames
+213:             for pattern in cls.DANGEROUS_FILENAMES:
+214:                 if re.search(pattern, abs_path.name, re.IGNORECASE):
+215:                     return False, f"Dangerous filename pattern detected: {pattern}"
+216: 
+217:             # Check if path is within base directory
+218:             if base_dir:
+219:                 base_abs = base_dir.resolve()
+220:                 try:
+221:                     abs_path.relative_to(base_abs)
+222:                 except ValueError:
+223:                     return (
+224:                         False,
+225:                         f"Path outside allowed directory: {abs_path} not in {base_abs}",
+226:                     )
+227: 
+228:             # Check for null bytes
+229:             if "\x00" in str(path):
+230:                 return False, "Null byte detected in path"
+231: 
+232:             # Check for Windows reserved names
+233:             if os.name == "nt":
+234:                 reserved_names = [
+235:                     "CON",
+236:                     "PRN",
+237:                     "AUX",
+238:                     "NUL",
+239:                     "COM1",
+240:                     "COM2",
+241:                     "COM3",
+242:                     "COM4",
+243:                     "COM5",
+244:                     "COM6",
+245:                     "COM7",
+246:                     "COM8",
+247:                     "COM9",
+248:                     "LPT1",
+249:                     "LPT2",
+250:                     "LPT3",
+251:                     "LPT4",
+252:                     "LPT5",
+253:                     "LPT6",
+254:                     "LPT7",
+255:                     "LPT8",
+256:                     "LPT9",
+257:                 ]
+258: 
+259:                 name_without_ext = abs_path.stem.upper()
+260:                 if name_without_ext in reserved_names:
+261:                     return False, f"Reserved Windows filename: {name_without_ext}"
+262: 
+263:             return True, "Path is safe"
+264: 
+265:         except Exception as e:
+266:             return False, f"Path validation error: {e}"
+267: 
+268:     @classmethod
+269:     def validate_file_extension(cls, path: Path) -> Tuple[bool, str]:
+270:         """
+271:         Validate file extension is allowed
+272: 
+273:         Args:
+274:             path: Path to validate
+275: 
+276:         Returns:
+277:             Tuple of (is_allowed: bool, message: str)
+278:         """
+279:         extension = path.suffix.lower()
+280: 
+281:         if not extension:
+282:             return True, "No extension (allowed)"
+283: 
+284:         if extension in cls.ALLOWED_EXTENSIONS:
+285:             return True, f"Extension {extension} is allowed"
+286:         else:
+287:             return False, f"Extension {extension} is not allowed"
+288: 
+289:     @classmethod
+290:     def sanitize_filename(cls, filename: str) -> str:
+291:         """
+292:         Sanitize filename by removing dangerous characters
+293: 
+294:         Args:
+295:             filename: Original filename
+296: 
+297:         Returns:
+298:             Sanitized filename
+299:         """
+300:         # Remove null bytes
+301:         filename = filename.replace("\x00", "")
+302: 
+303:         # Remove or replace dangerous characters
+304:         dangerous_chars = r'[<>:"/\\|?*\x00-\x1f]'
+305:         filename = re.sub(dangerous_chars, "_", filename)
+306: 
+307:         # Remove leading/trailing dots and spaces
+308:         filename = filename.strip(". ")
+309: 
+310:         # Ensure not empty
+311:         if not filename:
+312:             filename = "unnamed"
+313: 
+314:         # Truncate if too long
+315:         if len(filename) > cls.MAX_FILENAME_LENGTH:
+316:             name, ext = os.path.splitext(filename)
+317:             max_name_len = cls.MAX_FILENAME_LENGTH - len(ext)
+318:             filename = name[:max_name_len] + ext
+319: 
+320:         # Check for Windows reserved names
+321:         if os.name == "nt":
+322:             name_without_ext = os.path.splitext(filename)[0].upper()
+323:             reserved_names = [
+324:                 "CON",
+325:                 "PRN",
+326:                 "AUX",
+327:                 "NUL",
+328:                 "COM1",
+329:                 "COM2",
+330:                 "COM3",
+331:                 "COM4",
+332:                 "COM5",
+333:                 "COM6",
+334:                 "COM7",
+335:                 "COM8",
+336:                 "COM9",
+337:                 "LPT1",
+338:                 "LPT2",
+339:                 "LPT3",
+340:                 "LPT4",
+341:                 "LPT5",
+342:                 "LPT6",
+343:                 "LPT7",
+344:                 "LPT8",
+345:                 "LPT9",
+346:             ]
+347: 
+348:             if name_without_ext in reserved_names:
+349:                 filename = f"safe_{filename}"
+350: 
+351:         return filename
+352: 
+353:     @classmethod
+354:     def sanitize_input(cls, user_input: str, max_length: int = 1000) -> str:
+355:         """
+356:         Sanitize user input
+357: 
+358:         Args:
+359:             user_input: Raw user input
+360:             max_length: Maximum allowed length
+361: 
+362:         Returns:
+363:             Sanitized input
+364:         """
+365:         if not user_input:
+366:             return ""
+367: 
+368:         # Remove null bytes and control characters
+369:         sanitized = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", user_input)
+370: 
+371:         # Trim whitespace
+372:         sanitized = sanitized.strip()
+373: 
+374:         # Truncate if too long
+375:         if len(sanitized) > max_length:
+376:             sanitized = sanitized[:max_length]
+377: 
+378:         return sanitized
+379: 
+380:     @classmethod
+381:     def validate_url(cls, url: str) -> Tuple[bool, str]:
+382:         """
+383:         Validate URL for security issues
+384: 
+385:         Args:
+386:             url: URL to validate
+387: 
+388:         Returns:
+389:             Tuple of (is_safe: bool, message: str)
+390:         """
+391:         try:
+392:             parsed = urllib.parse.urlparse(url)
+393: 
+394:             # Check scheme
+395:             if parsed.scheme not in ["http", "https"]:
+396:                 return False, f"Invalid scheme: {parsed.scheme}"
+397: 
+398:             # Check for localhost/private IPs (basic check)
+399:             hostname = parsed.hostname
+400:             if hostname:
+401:                 if hostname.lower() in ["localhost", "127.0.0.1", "::1"]:
+402:                     return False, "Localhost URLs not allowed"
+403: 
+404:                 # Basic private IP check
+405:                 if (
+406:                     hostname.startswith("192.168.")
+407:                     or hostname.startswith("10.")
+408:                     or hostname.startswith("172.")
+409:                 ):
+410:                     return False, "Private IP addresses not allowed"
+411: 
+412:             # Check URL length
+413:             if len(url) > 2048:
+414:                 return False, "URL too long"
+415: 
+416:             return True, "URL is safe"
+417: 
+418:         except Exception as e:
+419:             return False, f"URL validation error: {e}"
+420: 
+421:     @classmethod
+422:     def check_permissions(
+423:         cls, path: Path, required_permissions: Set[str]
+424:     ) -> Tuple[bool, List[str]]:
+425:         """
+426:         Check file/directory permissions
+427: 
+428:         Args:
+429:             path: Path to check
+430:             required_permissions: Set of required permissions ('read', 'write', 'execute')
+431: 
+432:         Returns:
+433:             Tuple of (has_permissions: bool, missing_permissions: List[str])
+434:         """
+435:         missing = []
+436: 
+437:         try:
+438:             if not path.exists():
+439:                 # For non-existent paths, check parent directory
+440:                 parent = path.parent
+441:                 if not parent.exists():
+442:                     missing.append("path does not exist")
+443:                     return False, missing
+444:                 path = parent
+445: 
+446:             if "read" in required_permissions:
+447:                 if not os.access(path, os.R_OK):
+448:                     missing.append("read")
+449: 
+450:             if "write" in required_permissions:
+451:                 if not os.access(path, os.W_OK):
+452:                     missing.append("write")
+453: 
+454:             if "execute" in required_permissions:
+455:                 if not os.access(path, os.X_OK):
+456:                     missing.append("execute")
+457: 
+458:             return len(missing) == 0, missing
+459: 
+460:         except Exception as e:
+461:             missing.append(f"permission check error: {e}")
+462:             return False, missing
+463: 
+464:     @classmethod
+465:     def validate_installation_target(cls, target_dir: Path) -> Tuple[bool, List[str]]:
+466:         """
+467:         Validate installation target directory with enhanced Windows compatibility
+468: 
+469:         Args:
+470:             target_dir: Target installation directory
+471: 
+472:         Returns:
+473:             Tuple of (is_safe: bool, error_messages: List[str])
+474:         """
+475:         errors = []
+476: 
+477:         # Enhanced path resolution with Windows normalization
+478:         try:
+479:             abs_target = target_dir.resolve()
+480:         except Exception as e:
+481:             errors.append(f"Cannot resolve target path: {e}")
+482:             return False, errors
+483: 
+484:         # Windows-specific path normalization
+485:         if os.name == "nt":
+486:             # Normalize Windows paths for consistent comparison
+487:             abs_target_str = str(abs_target).lower().replace("/", "\\")
+488:         else:
+489:             abs_target_str = str(abs_target).lower()
+490: 
+491:         # Special handling for Claude installation directory
+492:         claude_patterns = [".claude", ".claude" + os.sep, ".claude\\", ".claude/"]
+493:         is_claude_dir = any(
+494:             abs_target_str.endswith(pattern) for pattern in claude_patterns
+495:         )
+496: 
+497:         if is_claude_dir:
+498:             try:
+499:                 # Resolve home_path to handle symlinks (e.g., /home -> /var/home on immutable distros)
+500:                 home_path = get_home_directory().resolve()
+501:             except (RuntimeError, OSError):
+502:                 # If we can't determine home directory, skip .claude special handling
+503:                 cls._log_security_decision(
+504:                     "WARN",
+505:                     f"Cannot determine home directory for .claude validation: {abs_target}",
+506:                 )
+507:                 # Fall through to regular validation
+508:             else:
+509:                 try:
+510:                     # Verify it's specifically the current user's home directory
+511:                     # Both abs_target and home_path are now resolved, so symlinks are handled
+512:                     abs_target.relative_to(home_path)
+513: 
+514:                     # Enhanced Windows security checks for .claude directories
+515:                     if os.name == "nt":
+516:                         # Check for junction points and symbolic links on Windows
+517:                         if cls._is_windows_junction_or_symlink(abs_target):
+518:                             errors.append(
+519:                                 "Installation to junction points or symbolic links is not allowed for security"
+520:                             )
+521:                             return False, errors
+522: 
+523:                         # Additional validation: verify it's in the current user's profile directory
+524:                         # Use actual home directory comparison instead of username-based path construction
+525:                         if ":" in abs_target_str and "\\users\\" in abs_target_str:
+526:                             try:
+527:                                 # Check if target is within the user's actual home directory
+528:                                 # Resolve to handle any potential symlinks
+529:                                 home_path = get_home_directory().resolve()
+530:                                 abs_target.relative_to(home_path)
+531:                                 # Path is valid - within user's home directory
+532:                             except ValueError:
+533:                                 # Path is outside user's home directory
+534:                                 current_user = os.environ.get(
+535:                                     "USERNAME", home_path.name
+536:                                 )
+537:                                 errors.append(
+538:                                     f"Installation must be in current user's directory ({current_user})"
+539:                                 )
+540:                                 return False, errors
+541: 
+542:                     # Check permissions
+543:                     has_perms, missing = cls.check_permissions(
+544:                         target_dir, {"read", "write"}
+545:                     )
+546:                     if not has_perms:
+547:                         if os.name == "nt":
+548:                             errors.append(
+549:                                 f"Insufficient permissions for Windows installation: {missing}. Try running as administrator or check folder permissions."
+550:                             )
+551:                         else:
+552:                             errors.append(
+553:                                 f"Insufficient permissions: missing {missing}"
+554:                             )
+555: 
+556:                     # Log successful validation for audit trail
+557:                     cls._log_security_decision(
+558:                         "ALLOW",
+559:                         f"Claude directory installation validated: {abs_target}",
+560:                     )
+561:                     return len(errors) == 0, errors
+562: 
+563:                 except ValueError:
+564:                     # Not under current user's home directory
+565:                     if os.name == "nt":
+566:                         errors.append(
+567:                             "Claude installation must be in your user directory (e.g., C:\\Users\\YourName\\.claude)"
+568:                         )
+569:                     else:
+570:                         errors.append(
+571:                             "Claude installation must be in your home directory (e.g., ~/.claude)"
+572:                         )
+573:                     cls._log_security_decision(
+574:                         "DENY", f"Claude directory outside user home: {abs_target}"
+575:                     )
+576:                     return False, errors
+577: 
+578:         # Validate path for non-.claude directories
+579:         is_safe, msg = cls.validate_path(target_dir)
+580:         if not is_safe:
+581:             if os.name == "nt":
+582:                 # Enhanced Windows error messages
+583:                 if "dangerous path pattern" in msg.lower():
+584:                     errors.append(
+585:                         f"Invalid Windows path: {msg}. Ensure path doesn't contain dangerous patterns or reserved directories."
+586:                     )
+587:                 elif "path too long" in msg.lower():
+588:                     errors.append(
+589:                         f"Windows path too long: {msg}. Windows has a 260 character limit for most paths."
+590:                     )
+591:                 elif "reserved" in msg.lower():
+592:                     errors.append(
+593:                         f"Windows reserved name: {msg}. Avoid names like CON, PRN, AUX, NUL, COM1-9, LPT1-9."
+594:                     )
+595:                 else:
+596:                     errors.append(f"Invalid target path: {msg}")
+597:             else:
+598:                 errors.append(f"Invalid target path: {msg}")
+599: 
+600:         # Check permissions with platform-specific guidance
+601:         has_perms, missing = cls.check_permissions(target_dir, {"read", "write"})
+602:         if not has_perms:
+603:             if os.name == "nt":
+604:                 errors.append(
+605:                     f"Insufficient Windows permissions: {missing}. Try running as administrator or check folder security settings in Properties > Security."
+606:                 )
+607:             else:
+608:                 errors.append(
+609:                     f"Insufficient permissions: {missing}. Try: chmod 755 {target_dir}"
+610:                 )
+611: 
+612:         # Check if it's a system directory with enhanced messages
+613:         # Note: /var/home is excluded as it's used for user directories on immutable distros like Fedora Silverblue and its variants
+614:         system_dirs = [
+615:             Path("/etc"),
+616:             Path("/bin"),
+617:             Path("/sbin"),
+618:             Path("/usr/bin"),
+619:             Path("/usr/sbin"),
+620:             Path("/var/log"),  # Only check specific /var subdirs, not /var/home
+621:             Path("/var/cache"),
+622:             Path("/var/lib"),
+623:             Path("/var/spool"),
+624:             Path("/tmp"),
+625:             Path("/dev"),
+626:             Path("/proc"),
+627:             Path("/sys"),
+628:         ]
+629: 
+630:         if os.name == "nt":
+631:             system_dirs.extend(
+632:                 [
+633:                     Path("C:\\Windows"),
+634:                     Path("C:\\Program Files"),
+635:                     Path("C:\\Program Files (x86)"),
+636:                 ]
+637:             )
+638: 
+639:         for sys_dir in system_dirs:
+640:             try:
+641:                 if abs_target.is_relative_to(sys_dir):
+642:                     if os.name == "nt":
+643:                         errors.append(
+644:                             f"Cannot install to Windows system directory: {sys_dir}. Use a location in your user profile instead (e.g., C:\\Users\\YourName\\)."
+645:                         )
+646:                     else:
+647:                         errors.append(
+648:                             f"Cannot install to system directory: {sys_dir}. Use a location in your home directory instead (~/)."
+649:                         )
+650:                     cls._log_security_decision(
+651:                         "DENY", f"Attempted installation to system directory: {sys_dir}"
+652:                     )
+653:                     break
+654:             except (ValueError, AttributeError):
+655:                 # is_relative_to not available in older Python versions
+656:                 try:
+657:                     abs_target.relative_to(sys_dir)
+658:                     errors.append(f"Cannot install to system directory: {sys_dir}")
+659:                     break
+660:                 except ValueError:
+661:                     continue
+662: 
+663:         return len(errors) == 0, errors
+664: 
+665:     @classmethod
+666:     def validate_component_files(
+667:         cls,
+668:         file_list: List[Tuple[Path, Path]],
+669:         base_source_dir: Path,
+670:         base_target_dir: Path,
+671:     ) -> Tuple[bool, List[str]]:
+672:         """
+673:         Validate list of files for component installation
+674: 
+675:         Args:
+676:             file_list: List of (source, target) path tuples
+677:             base_source_dir: Base source directory
+678:             base_target_dir: Base target directory
+679: 
+680:         Returns:
+681:             Tuple of (all_safe: bool, error_messages: List[str])
+682:         """
+683:         errors = []
+684: 
+685:         for source, target in file_list:
+686:             # Validate source path
+687:             is_safe, msg = cls.validate_path(source, base_source_dir)
+688:             if not is_safe:
+689:                 errors.append(f"Invalid source path {source}: {msg}")
+690: 
+691:             # Validate target path
+692:             is_safe, msg = cls.validate_path(target, base_target_dir)
+693:             if not is_safe:
+694:                 errors.append(f"Invalid target path {target}: {msg}")
+695: 
+696:             # Validate file extension
+697:             is_allowed, msg = cls.validate_file_extension(source)
+698:             if not is_allowed:
+699:                 errors.append(f"File {source}: {msg}")
+700: 
+701:         return len(errors) == 0, errors
+702: 
+703:     @classmethod
+704:     def _normalize_path_for_validation(cls, path: Path) -> str:
+705:         """
+706:         Normalize path for consistent validation across platforms
+707: 
+708:         Args:
+709:             path: Path to normalize
+710: 
+711:         Returns:
+712:             Normalized path string for validation
+713:         """
+714:         path_str = str(path)
+715: 
+716:         # Convert to lowercase for case-insensitive comparison
+717:         path_str = path_str.lower()
+718: 
+719:         # Normalize path separators for consistent pattern matching
+720:         if os.name == "nt":  # Windows
+721:             # Convert forward slashes to backslashes for Windows
+722:             path_str = path_str.replace("/", "\\")
+723:             # Ensure consistent drive letter format
+724:             if len(path_str) >= 2 and path_str[1] == ":":
+725:                 path_str = path_str[0] + ":\\" + path_str[3:].lstrip("\\")
+726:         else:  # Unix-like systems
+727:             # Convert backslashes to forward slashes for Unix
+728:             path_str = path_str.replace("\\", "/")
+729:             # Ensure single leading slash
+730:             if path_str.startswith("//"):
+731:                 path_str = "/" + path_str.lstrip("/")
+732: 
+733:         return path_str
+734: 
+735:     @classmethod
+736:     def _get_user_friendly_error_message(
+737:         cls, error_type: str, pattern: str, path: Path
+738:     ) -> str:
+739:         """
+740:         Generate user-friendly error messages with actionable suggestions
+741: 
+742:         Args:
+743:             error_type: Type of error (traversal, windows_system, unix_system)
+744:             pattern: The regex pattern that matched
+745:             path: The path that caused the error
+746: 
+747:         Returns:
+748:             User-friendly error message with suggestions
+749:         """
+750:         if error_type == "traversal":
+751:             return (
+752:                 f"Security violation: Directory traversal pattern detected in path '{path}'. "
+753:                 f"Paths containing '..' or '//' are not allowed for security reasons. "
+754:                 f"Please use an absolute path without directory traversal characters."
+755:             )
+756:         elif error_type == "windows_system":
+757:             if pattern == r"^c:\\windows\\":
+758:                 return (
+759:                     f"Cannot install to Windows system directory '{path}'. "
+760:                     f"Please choose a location in your user directory instead, "
+761:                     f"such as C:\\Users\\{os.environ.get('USERNAME', 'YourName')}\\.claude\\"
+762:                 )
+763:             elif pattern == r"^c:\\program files\\":
+764:                 return (
+765:                     f"Cannot install to Program Files directory '{path}'. "
+766:                     f"Please choose a location in your user directory instead, "
+767:                     f"such as C:\\Users\\{os.environ.get('USERNAME', 'YourName')}\\.claude\\"
+768:                 )
+769:             else:
+770:                 return (
+771:                     f"Cannot install to Windows system directory '{path}'. "
+772:                     f"Please choose a location in your user directory instead."
+773:                 )
+774:         elif error_type == "unix_system":
+775:             system_dirs = {
+776:                 r"^/dev/": "/dev (device files)",
+777:                 r"^/etc/": "/etc (system configuration)",
+778:                 r"^/bin/": "/bin (system binaries)",
+779:                 r"^/sbin/": "/sbin (system binaries)",
+780:                 r"^/usr/bin/": "/usr/bin (user binaries)",
+781:                 r"^/usr/sbin/": "/usr/sbin (user system binaries)",
+782:                 r"^/var/(?!home/)": "/var (variable data, excluding /var/home)",
+783:                 r"^/tmp/": "/tmp (temporary files)",
+784:                 r"^/proc/": "/proc (process information)",
+785:                 r"^/sys/": "/sys (system information)",
+786:             }
+787: 
+788:             dir_desc = system_dirs.get(pattern, "system directory")
+789:             return (
+790:                 f"Cannot install to {dir_desc} '{path}'. "
+791:                 f"Please choose a location in your home directory instead, "
+792:                 f"such as ~/.claude/ or ~/superclaude/"
+793:             )
+794:         else:
+795:             return f"Security validation failed for path '{path}'"
+796: 
+797:     @classmethod
+798:     def _is_windows_junction_or_symlink(cls, path: Path) -> bool:
+799:         """
+800:         Check if path is a Windows junction point or symbolic link
+801: 
+802:         Args:
+803:             path: Path to check
+804: 
+805:         Returns:
+806:             True if path is a junction point or symlink, False otherwise
+807:         """
+808:         if os.name != "nt":
+809:             return False
+810: 
+811:         try:
+812:             # Only check if path exists to avoid filesystem errors during testing
+813:             if not path.exists():
+814:                 return False
+815: 
+816:             # Check if path is a symlink (covers most cases)
+817:             if path.is_symlink():
+818:                 return True
+819: 
+820:             # Additional Windows-specific checks for junction points
+821:             try:
+822:                 import stat
+823: 
+824:                 st = path.stat()
+825:                 # Check for reparse point (junction points have this attribute)
+826:                 if hasattr(st, "st_reparse_tag") and st.st_reparse_tag != 0:
+827:                     return True
+828:             except (OSError, AttributeError):
+829:                 pass
+830: 
+831:             # Alternative method using os.path.islink
+832:             try:
+833:                 if os.path.islink(str(path)):
+834:                     return True
+835:             except (OSError, AttributeError):
+836:                 pass
+837: 
+838:         except (OSError, AttributeError, NotImplementedError):
+839:             # If we can't determine safely, default to False
+840:             # This ensures the function doesn't break validation
+841:             pass
+842: 
+843:         return False
+844: 
+845:     @classmethod
+846:     def _log_security_decision(cls, action: str, message: str) -> None:
+847:         """
+848:         Log security validation decisions for audit trail
+849: 
+850:         Args:
+851:             action: Security action taken (ALLOW, DENY, WARN)
+852:             message: Description of the decision
+853:         """
+854:         try:
+855:             import logging
+856:             import datetime
+857: 
+858:             # Create security logger if it doesn't exist
+859:             security_logger = logging.getLogger("superclaude.security")
+860:             if not security_logger.handlers:
+861:                 # Set up basic logging if not already configured
+862:                 handler = logging.StreamHandler()
+863:                 formatter = logging.Formatter(
+864:                     "%(asctime)s - SECURITY - %(levelname)s - %(message)s"
+865:                 )
+866:                 handler.setFormatter(formatter)
+867:                 security_logger.addHandler(handler)
+868:                 security_logger.setLevel(logging.INFO)
+869: 
+870:             # Log the security decision
+871:             timestamp = datetime.datetime.now().isoformat()
+872:             log_message = f"[{action}] {message} (PID: {os.getpid()})"
+873: 
+874:             if action == "DENY":
+875:                 security_logger.warning(log_message)
+876:             else:
+877:                 security_logger.info(log_message)
+878: 
+879:         except Exception:
+880:             # Don't fail security validation if logging fails
+881:             pass
+882: 
+883:     @classmethod
+884:     def create_secure_temp_dir(cls, prefix: str = "superclaude_") -> Path:
+885:         """
+886:         Create secure temporary directory
+887: 
+888:         Args:
+889:             prefix: Prefix for temp directory name
+890: 
+891:         Returns:
+892:             Path to secure temporary directory
+893:         """
+894:         import tempfile
+895: 
+896:         # Create with secure permissions (0o700)
+897:         temp_dir = Path(tempfile.mkdtemp(prefix=prefix))
+898:         temp_dir.chmod(0o700)
+899: 
+900:         return temp_dir
+901: 
+902:     @classmethod
+903:     def secure_delete(cls, path: Path) -> bool:
+904:         """
+905:         Securely delete file or directory
+906: 
+907:         Args:
+908:             path: Path to delete
+909: 
+910:         Returns:
+911:             True if successful, False otherwise
+912:         """
+913:         try:
+914:             if not path.exists():
+915:                 return True
+916: 
+917:             if path.is_file():
+918:                 # Overwrite file with random data before deletion
+919:                 try:
+920:                     import secrets
+921: 
+922:                     file_size = path.stat().st_size
+923: 
+924:                     with open(path, "r+b") as f:
+925:                         # Overwrite with random data
+926:                         f.write(secrets.token_bytes(file_size))
+927:                         f.flush()
+928:                         os.fsync(f.fileno())
+929:                 except Exception:
+930:                     pass  # If overwrite fails, still try to delete
+931: 
+932:                 path.unlink()
+933: 
+934:             elif path.is_dir():
+935:                 # Recursively delete directory contents
+936:                 import shutil
+937: 
+938:                 shutil.rmtree(path)
+939: 
+940:             return True
+941: 
+942:         except Exception:
+943:             return False
+
+### c733413d:DELETION_RATIONALE.md
+1: # Deletion Rationale (Evidence-Based)
+2: 
+3: **PR Target Branch**: `next`
+4: **Base Branch**: `master`
+5: **Date**: 2025-10-24
+6: 
+7: ---
+8: 
+9: ## 📊 Deletion Summary
+10: 
+11: | Category | Deleted Files | Deleted Lines | Reason Category |
+12: |---------|--------------|---------------|-----------------|
+13: | setup/ directory | 40 | 12,289 | Architecture renovation |
+14: | superclaude/ (old structure) | 86 | ~8,000 | PEP 517 migration |
+15: | TypeScript implementation | 14 | 2,633 | Preserved in branch |
+16: | Plugin files | 9 | 494 | Repository separation |
+17: | bin/ + scripts/ | 8 | ~800 | CLI modernization |
+18: | **Total** | **~157** | **~22,507** | - |
+19: 
+20: ---
+21: 
+22: ## 1. setup/ Directory Deletion (12,289 lines)
+23: 
+24: ### What Was Deleted
+25: ```
+26: setup/
+27: ├── cli/          # Old CLI commands (backup, install, uninstall, update)
+28: ├── components/   # Installers for agents, modes, commands
+29: ├── core/         # Installer, registry, validator
+30: ├── services/     # claude_md, config, files, settings
+31: └── utils/        # logger, paths, security, symbols, ui, updater
+32: ```
+33: 
+34: ### Deletion Rationale (Evidence)
+35: 
+36: **Evidence 1: Commit Message**
+37: ```
+38: commit eb37591
+39: refactor: remove legacy setup/ system and dependent tests
+40: 
+41: Remove old installation system (setup/) that caused heavy token consumption
+42: ```
+43: 
+44: **Evidence 2: PHASE_2_COMPLETE.md**
+45: ```markdown
+46: New architecture (src/superclaude/) is self-contained and doesn't need setup/.
+47: ```
+48: 
+49: **Evidence 3: Architecture Migration Rationale**
+50: - Old system: Copied files to `~/.claude/superclaude/` → **Polluted user environment**
+51: - New system: Installed to `site-packages/` → **Standard Python package**
+52: 
+53: **Evidence 4: Token Efficiency**
+54: - Old setup/: Complex installation logic, backup functionality, security checks
+55: - New system: Complete with `uv pip install -e ".[dev]"`
+56: 
+57: **Logical Conclusion**:
+58: - ✅ Migrated to PEP 517 compliant build system (hatchling)
+59: - ✅ Uses standard Python package management (UV)
+60: - ✅ Zero `~/.claude/` pollution
+61: - ✅ Significantly reduced maintenance burden
+62: 
+63: ---
+64: 
+65: ## 2. superclaude/ Directory Deletion (Old Structure)
+66: 
+67: ### What Was Deleted
+68: ```
+69: superclaude/
+70: ├── agents/          # 20 agent definitions
+71: ├── commands/        # 27 slash commands
+72: ├── modes/           # 7 behavior modes
+73: ├── framework/       # PRINCIPLES, RULES, FLAGS
+74: ├── business/        # Business panel
+75: └── cli/             # Old CLI tools
+76: ```
+77: 
+78: ### Deletion Rationale (Evidence)
+79: 
+80: **Evidence 1: Python Package Directory Layout Research**
+81: ```markdown
+82: File: docs/research/python_src_layout_research_20251021.md
+83: 
+84: ## Recommendation
+85: Use src/ layout for SuperClaude:
+86: - Clear separation between package code and tests
+87: - Prevents accidental imports from development directory
+88: - Modern Python best practice
+89: ```
+90: 
+91: **Evidence 2: Migration Completion Proof**
+92: ```bash
+93: # Old structure
+94: superclaude/pm_agent/confidence.py
+95: 
+96: # New structure (PEP 517 compliant)
+97: src/superclaude/pm_agent/confidence.py
+98: ```
+99: 
+100: **Evidence 3: pytest plugin auto-discovery**
+101: ```bash
+102: $ uv run python -m pytest --trace-config 2>&1 | grep "registered third-party plugins:"
+103: registered third-party plugins:
+104:   superclaude-0.4.0 at /Users/kazuki/github/superclaude/src/superclaude/pytest_plugin.py
+105: ```
+106: 
+107: **Logical Conclusion**:
+108: - ✅ src/ layout is official Python recommendation
+109: - ✅ Clear separation between package and tests
+110: - ✅ Prevents accidental imports from development directory
+111: - ✅ Entry point auto-discovery verified working
+112: 
+113: ---
+114: 
+115: ## 3. 27 Slash Commands Deletion
+116: 
+117: ### What Was Deleted
+118: ```
+119: ~/.claude/commands/sc/ (27 commands):
+120: - analyze, brainstorm, build, business-panel, cleanup
+121: - design, document, estimate, explain, git, help
+122: - implement, improve, index, load, pm, reflect
+123: - research, save, select-tool, spawn, spec-panel
+124: - task, test, troubleshoot, workflow
+125: ```
+126: 
+127: ### Deletion Rationale (Evidence)
+128: 
+129: **Evidence 1: Commit Message**
+130: ```
+131: commit 06e7c00
+132: feat: migrate research and index-repo to plugin, delete all slash commands
+133: 
+134: ## Architecture Change
+135: Strategy: Minimal start with PM Agent orchestration
+136: - PM Agent = orchestrator (command coordinator)
+137: - Task tool (general-purpose, Explore) = execution
+138: - Plugin commands = specialized tasks when needed
+139: - Avoid reinventing the wheel (use official tools first)
+140: 
+141: ## Benefits
+142: ✅ Minimal footprint (3 commands vs 27)
+143: ✅ Plugin-based distribution
+144: ✅ Version control
+145: ✅ Easy to extend when needed
+146: ```
+147: 
+148: **Evidence 2: Claude Code Official Tools Priority Policy**
+149: - Task tool: General-purpose task execution
+150: - Explore agent: Codebase exploration
+151: - These are **Claude Code built-in tools** - no need to reimplement
+152: 
+153: **Evidence 3: PM Agent Orchestration Strategy**
+154: ```markdown
+155: File: commands/agent.md (SuperClaude_Plugin)
+156: 
+157: ## Task Protocol
+158: 1. Clarify scope
+159: 2. Plan investigation
+160:    - @confidence-check skill (pre-implementation score ≥0.90 required)
+161:    - @deep-research agent (web/MCP research)
+162:    - @repo-index agent (repository structure + file shortlist)
+163:    - @self-review agent (post-implementation validation)
+164: 3. Iterate until confident
+165: 4. Implementation wave
+166: 5. Self-review and reflexion
+167: ```
+168: 
+169: **Evidence 4: Performance Data**
+170: - 27 commands → 3 commands (pm, research, index-repo)
+171: - Footprint reduction: **89% reduction**
+172: - Can be extended as needed (plugin architecture)
+173: 
+174: **Logical Conclusion**:
+175: - ✅ Eliminated overlap with Claude Code built-in tools
+176: - ✅ PM Agent functions as orchestrator
+177: - ✅ Started with minimal essential command set
+178: - ✅ Designed for extensibility via plugins
+179: 
+180: ---
+181: 
+182: ## 4. TypeScript Implementation Deletion (2,633 lines)
+183: 
+184: ### What Was Deleted
+185: ```
+186: pm/
+187: ├── index.ts
+188: ├── confidence.ts
+189: ├── self-check.ts
+190: ├── reflexion.ts
+191: └── __tests__/
+192: 
+193: research/
+194: └── index.ts
+195: 
+196: index/
+197: └── index.ts
+198: ```
+199: 
+200: ### Deletion Rationale (Evidence)
+201: 
+202: **Evidence 1: Commit Message**
+203: ```
+204: commit f511e04
+205: chore: remove TypeScript implementation (saved in typescript-impl branch)
+206: 
+207: - TypeScript implementation preserved in typescript-impl branch for future reference
+208: ```
+209: 
+210: **Evidence 2: Branch Preservation Confirmation**
+211: ```bash
+212: $ git branch --all | grep typescript-impl
+213:   typescript-impl
+214: ```
+215: 
+216: **Evidence 3: Avoiding Dual Implementation**
+217: - TypeScript version: Hot reload plugin implementation (experimental)
+218: - Python version: Production use (pytest plugin)
+219: 
+220: **Evidence 4: Markdown-based Command Superiority**
+221: ```markdown
+222: File: commands/agent.md
+223: 
+224: # SC Agent Activation
+225: 🚀 **SC Agent online** — this plugin launches `/sc:agent` automatically at session start.
+226: ```
+227: - Markdown is readable
+228: - Natively supported by Claude Code
+229: - TypeScript implementation was over-engineering
+230: 
+231: **Logical Conclusion**:
+232: - ✅ TypeScript implementation saved in `typescript-impl` branch
+233: - ✅ Maintained for future reference
+234: - ✅ Current Markdown-based + Python implementation is sufficient
+235: - ✅ Prioritized simplicity
+236: 
+237: ---
+238: 
+239: ## 5. Plugin Files Deletion (494 lines)
+240: 
+241: ### What Was Deleted
+242: ```
+243: .claude-plugin/
+244: ├── plugin.json
+245: └── marketplace.json
+246: 
+247: agents/
+248: ├── deep-research.md
+249: ├── repo-index.md
+250: └── self-review.md
+251: 
+252: commands/
+253: ├── pm.md
+254: ├── research.md
+255: └── index-repo.md
+256: 
+257: hooks/
+258: └── hooks.json
+259: ```
+260: 
+261: ### Deletion Rationale (Evidence)
+262: 
+263: **Evidence 1: Commit Message**
+264: ```
+265: commit 87c80d0
+266: refactor: move plugin files to SuperClaude_Plugin repository
+267: 
+268: Plugin files now maintained in SuperClaude_Plugin repository.
+269: This repository focuses on Python package implementation.
+270: ```
+271: 
+272: **Evidence 2: Repository Separation Rationale**
+273: 
+274: **SuperClaude_Framework (this repository)**:
+275: - Python package implementation
+276: - pytest plugin
+277: - CLI tools (`superclaude` command)
+278: - Documentation
+279: 
+280: **SuperClaude_Plugin (separate repository)**:
+281: - Claude Code plugin
+282: - Slash command definitions
+283: - Agent definitions
+284: - Hooks configuration
+285: 
+286: **Evidence 3: Clear Responsibility Separation**
+287: ```
+288: SuperClaude_Framework:
+289:   Purpose: Distributed as Python library
+290:   Install: `uv pip install superclaude`
+291:   Target: pytest + CLI users
+292: 
+293: SuperClaude_Plugin:
+294:   Purpose: Distributed as Claude Code plugin
+295:   Install: `/plugin install sc@SuperClaude-Org`
+296:   Target: Claude Code users
+297: ```
+298: 
+299: **Logical Conclusion**:
+300: - ✅ Separation of concerns (Python package vs Claude Code plugin)
+301: - ✅ Independent version control
+302: - ✅ Optimized distribution methods
+303: - ✅ Distributed maintenance burden
+304: 
+305: ---
+306: 
+307: ## 6. bin/ + scripts/ Deletion (~800 lines)
+308: 
+309: ### What Was Deleted
+310: ```
+311: bin/
+312: ├── cli.js
+313: ├── check_env.js
+314: ├── check_update.js
+315: ├── install.js
+316: └── update.js
+317: 
+318: scripts/
+319: ├── build_and_upload.py
+320: ├── validate_pypi_ready.py
+321: └── verify_research_integration.sh
+322: ```
+323: 
+324: ### Deletion Rationale (Evidence)
+325: 
+326: **Evidence 1: CLI Modernization Commit**
+327: ```
+328: commit b23c9ce
+329: feat: migrate CLI to typer + rich for modern UX
+330: ```
+331: 
+332: **Evidence 2: Old CLI vs New CLI**
+333: 
+334: **Old CLI (bin/cli.js)**:
+335: - Node.js implementation
+336: - Complex dependency checking
+337: - Auto-update functionality
+338: 
+339: **New CLI (src/superclaude/cli/main.py)**:
+340: ```python
+341: # Modern Python CLI with typer + rich
+342: @app.command()
+343: def doctor(verbose: bool = False):
+344:     """Run health checks"""
+345:     # Simple, readable, maintainable
+346: ```
+347: 
+348: **Evidence 3: Obsolete Scripts**
+349: - `build_and_upload.py` → Replaced by `uv build` + `uv publish`
+350: - `validate_pypi_ready.py` → Replaced by `uv build --check`
+351: - `verify_research_integration.sh` → Replaced by `uv run pytest`
+352: 
+353: **Logical Conclusion**:
+354: - ✅ Eliminated Node.js dependency
+355: - ✅ Modern Python CLI (typer + rich)
+356: - ✅ Leveraged UV standard commands
+357: - ✅ Simpler and more maintainable code
+358: 
+359: ---
+360: 
+361: ## 📈 Overall Impact
+362: 
+363: ### Before (master)
+364: - **Total lines**: ~45,000 lines
+365: - **Directories**: setup/, superclaude/, bin/, scripts/, .claude-plugin/
+366: - **Installation**: Complex `setup/` system
+367: - **Distribution**: npm + PyPI
+368: - **Dependencies**: Node.js + Python
+369: 
+370: ### After (next)
+371: - **Total lines**: ~22,500 lines (**50% reduction**)
+372: - **Directories**: src/superclaude/, docs/, tests/
+373: - **Installation**: `uv pip install -e ".[dev]"`
+374: - **Distribution**: PyPI (plugin in separate repo)
+375: - **Dependencies**: Python only
+376: 
+377: ### Reduction Effects
+378: - ✅ Code size: 50% reduction
+379: - ✅ Dependencies: Node.js removed
+380: - ✅ Maintenance: Significantly reduced with setup/ removal
+381: - ✅ User environment pollution: Zero
+382: - ✅ Installation time: Seconds
+383: 
+384: ---
+385: 
+386: ## ✅ Conclusion
+387: 
+388: All deletions were performed based on the following principles:
+389: 
+390: 1. **Evidence-Based**: Backed by documentation, test results, commit history
+391: 2. **Logical**: Compliant with architecture principles, Python standards, Claude Code official recommendations
+392: 3. **Preserved**: TypeScript saved in branch, plugin moved to separate repository
+393: 4. **Verified**: All 97 tests passing, installation verified working
+394: 
+395: **Review Focus**:
+396: - [ ] Architecture migration validity
+397: - [ ] Sufficiency of deletion rationale
+398: - [ ] Clarity of alternative solutions
+399: - [ ] Test coverage maintenance
+400: - [ ] Documentation consistency
+
+### c733413d:.claude/settings.json
+1: {}

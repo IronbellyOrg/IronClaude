@@ -1,0 +1,6 @@
+# Orchestrator erratum (does not change matching or any summary field)
+- row: R-003
+  persisted_span: "spec.md:11-13"
+  corrected_span: "spec.md:11-12"
+  basis: "wc -l spec.md = 12; last byte is newline"
+  source_finding: reflection-card.yaml F-6

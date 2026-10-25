@@ -1,0 +1,386 @@
+commit fd8c67f6f0be47371fe9fffce0be0ffad73b3c72
+Author:     mithun50 <mithungowda.b7411@gmail.com>
+AuthorDate: Fri Nov 14 14:15:44 2025 +0100
+Commit:     mithun50 <mithungowda.b7411@gmail.com>
+CommitDate: Fri Nov 14 14:16:19 2025 +0100
+
+    chore: bump version to 4.1.9 and add __init__.py to all packages
+    
+    - Bump version from 4.1.8 to 4.1.9 in all relevant files
+    - Add __init__.py to all directories in src/superclaude/ and plugins/superclaude/
+    - Update pyproject.toml to include plugins/superclaude package
+    - Update MANIFEST.in to include plugin resources
+    - Ensure proper Python package structure with 27 __init__.py files
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude <noreply@anthropic.com>
+
+diff --git a/CLAUDE.md b/CLAUDE.md
+index d702f820..f26021fe 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -18,13 +18,13 @@ uv run python script.py          # Execute scripts
+ 
+ ## 📂 Project Structure
+ 
+-> **⚠️ IMPORTANT**: The `.claude-plugin/` directory and TypeScript plugin system described in older docs **DO NOT EXIST** in v4.1.8.
++> **⚠️ IMPORTANT**: The `.claude-plugin/` directory and TypeScript plugin system described in older docs **DO NOT EXIST** in v4.1.9.
+ > This is planned for v5.0 (see [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)).
+ 
+-**Current v4.1.8 Architecture**: Python package with slash commands
++**Current v4.1.9 Architecture**: Python package with slash commands
+ 
+ ```
+-# Claude Code Configuration (v4.1.8)
++# Claude Code Configuration (v4.1.9)
+ .claude/
+ ├── settings.json        # User settings
+ └── commands/            # Slash commands (installed via `superclaude install`)
+@@ -122,10 +122,10 @@ Registered via `pyproject.toml` entry point, automatically available after insta
+ 
+ ### TypeScript Plugins (Planned for v5.0)
+ 
+-> **⚠️ NOT IMPLEMENTED**: The TypeScript plugin system described below does not exist in v4.1.8.
++> **⚠️ NOT IMPLEMENTED**: The TypeScript plugin system described below does not exist in v4.1.9.
+ > This is planned for v5.0. See [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419) and `docs/plugin-reorg.md`.
+ 
+-**Current v4.1.8 Commands** (slash commands, not plugins):
++**Current v4.1.9 Commands** (slash commands, not plugins):
+ - Install via: `pipx install superclaude && superclaude install`
+ - Commands installed to: `~/.claude/commands/`
+ - Available commands: `/pm`, `/research`, `/index-repo` (and others)
+@@ -248,7 +248,7 @@ Integrates with multiple MCP servers via **airis-mcp-gateway**.
+ 
+ ## 🚀 Development & Installation
+ 
+-### Current Installation Method (v4.1.8)
++### Current Installation Method (v4.1.9)
+ 
+ **Standard Installation**:
+ ```bash
+@@ -276,7 +276,7 @@ make verify
+ 
+ ### Plugin System (Planned for v5.0 - NOT AVAILABLE)
+ 
+-> **⚠️ IMPORTANT**: The plugin system described in older documentation **does not exist** in v4.1.8.
++> **⚠️ IMPORTANT**: The plugin system described in older documentation **does not exist** in v4.1.9.
+ > These features are planned for v5.0 (see [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)).
+ 
+ **What Does NOT Work** (yet):
+diff --git a/KNOWLEDGE.md b/KNOWLEDGE.md
+index b5905e8e..86d49b56 100644
+--- a/KNOWLEDGE.md
++++ b/KNOWLEDGE.md
+@@ -153,12 +153,12 @@ cat test_output.txt
+ 
+ ### **Pitfall 4: Version Inconsistency**
+ 
+-**Problem**: VERSION file says 4.1.8, but package.json says 4.1.5, pyproject.toml says 0.4.0.
++**Problem**: VERSION file says 4.1.9, but package.json says 4.1.5, pyproject.toml says 0.4.0.
+ 
+ **Solution**: Understand versioning strategy:
+-- **Framework version** (VERSION file): User-facing version (4.1.8)
++- **Framework version** (VERSION file): User-facing version (4.1.9)
+ - **Python package** (pyproject.toml): Library semantic version (0.4.0)
+-- **NPM package** (package.json): Should match framework version (4.1.8)
++- **NPM package** (package.json): Should match framework version (4.1.9)
+ 
+ **When updating versions**:
+ 1. Update VERSION file first
+@@ -523,7 +523,7 @@ Based on real usage data:
+ 
+ ### **Lesson 1: Documentation Drift is Real**
+ 
+-**What happened**: README described v2.0 plugin system that didn't exist in v4.1.8
++**What happened**: README described v2.0 plugin system that didn't exist in v4.1.9
+ 
+ **Impact**: Users spent hours trying to install non-existent features
+ 
+diff --git a/MANIFEST.in b/MANIFEST.in
+index a4bc8912..14ab8c9a 100644
+--- a/MANIFEST.in
++++ b/MANIFEST.in
+@@ -17,6 +17,17 @@ recursive-include src/superclaude/examples *.md
+ recursive-include src/superclaude/hooks *.json
+ recursive-include src/superclaude/scripts *.py *.sh
+ recursive-include src/superclaude/skills *.md *.ts *.json
++recursive-include plugins/superclaude *.py *.md *.ts *.json *.sh
++recursive-include plugins/superclaude/commands *.md
++recursive-include plugins/superclaude/agents *.md
++recursive-include plugins/superclaude/modes *.md
++recursive-include plugins/superclaude/mcp *.py *.md *.json
++recursive-include plugins/superclaude/mcp/configs *.json
++recursive-include plugins/superclaude/core *.md
++recursive-include plugins/superclaude/examples *.md
++recursive-include plugins/superclaude/hooks *.json
++recursive-include plugins/superclaude/scripts *.py *.sh
++recursive-include plugins/superclaude/skills *.py *.md *.ts *.json
+ global-exclude __pycache__
+ global-exclude *.py[co]
+ global-exclude .DS_Store
+diff --git a/PLANNING.md b/PLANNING.md
+index cea455ed..3b2ef00f 100644
+--- a/PLANNING.md
++++ b/PLANNING.md
+@@ -23,7 +23,7 @@ SuperClaude Framework transforms Claude Code into a structured development platf
+ 
+ ## 🏗️ **Architecture Overview**
+ 
+-### **Current State (v4.1.8)**
++### **Current State (v4.1.9)**
+ 
+ SuperClaude is a **Python package** with:
+ - Pytest plugin (auto-loaded via entry points)
+@@ -33,7 +33,7 @@ SuperClaude is a **Python package** with:
+ - Optional slash commands (installed to ~/.claude/commands/)
+ 
+ ```
+-SuperClaude Framework v4.1.8
++SuperClaude Framework v4.1.9
+ │
+ ├── Core Package (src/superclaude/)
+ │   ├── pytest_plugin.py          # Auto-loaded by pytest
+@@ -237,7 +237,7 @@ Use SelfCheckProtocol to prevent hallucinations:
+ ### **Version Management**
+ 
+ 1. **Version sources of truth**:
+-   - Framework version: `VERSION` file (e.g., 4.1.8)
++   - Framework version: `VERSION` file (e.g., 4.1.9)
+    - Python package version: `pyproject.toml` (e.g., 0.4.0)
+    - NPM package version: `package.json` (should match VERSION)
+ 
+@@ -338,7 +338,7 @@ Before releasing a new version:
+ 
+ ## 🚀 **Roadmap**
+ 
+-### **v4.1.8 (Current)**
++### **v4.1.9 (Current)**
+ - ✅ Python package with pytest plugin
+ - ✅ PM Agent patterns (confidence, self-check, reflexion)
+ - ✅ Parallel execution framework
+diff --git a/README-ja.md b/README-ja.md
+index d5b2b72b..a1547afb 100644
+--- a/README-ja.md
++++ b/README-ja.md
+@@ -5,7 +5,7 @@
+ ### **Claude Codeを構造化開発プラットフォームに変換**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.8-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -93,7 +93,7 @@ Claude Codeは[Anthropic](https://www.anthropic.com/)によって構築および
+ > まだ利用できません（v5.0で予定）。v4.xの現在のインストール
+ > 手順については、以下の手順に従ってください。
+ 
+-### **現在の安定バージョン (v4.1.8)**
++### **現在の安定バージョン (v4.1.9)**
+ 
+ SuperClaudeは現在スラッシュコマンドを使用しています。
+ 
+diff --git a/README-kr.md b/README-kr.md
+index 2ba0e087..01a774f8 100644
+--- a/README-kr.md
++++ b/README-kr.md
+@@ -5,7 +5,7 @@
+ ### **Claude Code를 구조화된 개발 플랫폼으로 변환**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.8-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -96,7 +96,7 @@ Claude Code는 [Anthropic](https://www.anthropic.com/)에 의해 구축 및 유
+ > 아직 사용할 수 없습니다(v5.0에서 계획). v4.x의 현재 설치
+ > 지침은 아래 단계를 따르세요.
+ 
+-### **현재 안정 버전 (v4.1.8)**
++### **현재 안정 버전 (v4.1.9)**
+ 
+ SuperClaude는 현재 슬래시 명령어를 사용합니다.
+ 
+diff --git a/README-zh.md b/README-zh.md
+index 40bec769..bc66a5e3 100644
+--- a/README-zh.md
++++ b/README-zh.md
+@@ -5,7 +5,7 @@
+ ### **将Claude Code转换为结构化开发平台**
+ 
+ <p align="center">
+-  <img src="https://img.shields.io/badge/version-4.1.8-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
+   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+ </p>
+@@ -93,7 +93,7 @@ Claude Code是由[Anthropic](https://www.anthropic.com/)构建和维护的产品
+ > 尚未可用（计划在v5.0中推出）。请按照以下v4.x的
+ > 当前安装说明操作。
+ 
+-### **当前稳定版本 (v4.1.8)**
++### **当前稳定版本 (v4.1.9)**
+ 
+ SuperClaude目前使用斜杠命令。
+ 
+diff --git a/README.md b/README.md
+index 338c3fbb..1e6b3207 100644
+--- a/README.md
++++ b/README.md
+@@ -14,7 +14,7 @@
+ <a href="https://github.com/SuperClaude-Org/SuperQwen_Framework" target="_blank">
+   <img src="https://img.shields.io/badge/Try-SuperQwen_Framework-orange" alt="Try SuperQwen Framework"/>
+ </a>
+-  <img src="https://img.shields.io/badge/version-4.1.8-blue" alt="Version">
++  <img src="https://img.shields.io/badge/version-4.1.9-blue" alt="Version">
+   <a href="https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml">
+     <img src="https://github.com/SuperClaude-Org/SuperClaude_Framework/actions/workflows/test.yml/badge.svg" alt="Tests">
+   </a>
+@@ -107,7 +107,7 @@ Claude Code is a product built and maintained by [Anthropic](https://www.anthrop
+ > not yet available (planned for v5.0). For current installation
+ > instructions, please follow the steps below for v4.x.
+ 
+-### **Current Stable Version (v4.1.8)**
++### **Current Stable Version (v4.1.9)**
+ 
+ SuperClaude currently uses slash commands.
+ 
+diff --git a/VERSION b/VERSION
+index a7c00da3..18837e70 100644
+--- a/VERSION
++++ b/VERSION
+@@ -1 +1 @@
+-4.1.8
++4.1.9
+diff --git a/docs/reference/commands-list.md b/docs/reference/commands-list.md
+index 0f5a7f27..41f6d6bf 100644
+--- a/docs/reference/commands-list.md
++++ b/docs/reference/commands-list.md
+@@ -1,6 +1,6 @@
+ # SuperClaude Commands Reference
+ 
+-Complete list of all 30 slash commands available in SuperClaude Framework v4.1.8+
++Complete list of all 30 slash commands available in SuperClaude Framework v4.1.9+
+ 
+ ## Command Categories
+ 
+diff --git a/docs/reference/comprehensive-features.md b/docs/reference/comprehensive-features.md
+index 9ac70284..925209c7 100644
+--- a/docs/reference/comprehensive-features.md
++++ b/docs/reference/comprehensive-features.md
+@@ -1,6 +1,6 @@
+ # SuperClaude Framework - Comprehensive Feature List
+ 
+-Complete inventory of all features restored in v4.1.8+
++Complete inventory of all features restored in v4.1.9+
+ 
+ ## 📋 Commands (30)
+ 
+diff --git a/plugins/superclaude/__init__.py b/plugins/superclaude/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/agents/__init__.py b/plugins/superclaude/agents/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/commands/__init__.py b/plugins/superclaude/commands/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/examples/__init__.py b/plugins/superclaude/examples/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/hooks/__init__.py b/plugins/superclaude/hooks/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/mcp/configs/__init__.py b/plugins/superclaude/mcp/configs/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/scripts/__init__.py b/plugins/superclaude/scripts/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/skills/__init__.py b/plugins/superclaude/skills/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/plugins/superclaude/skills/confidence-check/__init__.py b/plugins/superclaude/skills/confidence-check/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/pyproject.toml b/pyproject.toml
+index a4ae61b9..3c08a000 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
+ 
+ [project]
+ name = "superclaude"
+-version = "4.1.8"
++version = "4.1.9"
+ description = "AI-enhanced development framework for Claude Code - pytest plugin with optional skills"
+ readme = "README.md"
+ license = {text = "MIT"}
+@@ -67,8 +67,9 @@ superclaude = "superclaude.cli.main:main"
+ superclaude = "superclaude.pytest_plugin"
+ 
+ [tool.hatch.build.targets.wheel]
+-packages = ["src/superclaude"]
++packages = ["src/superclaude", "plugins/superclaude"]
+ include = [
++    "src/superclaude/**/*.py",
+     "src/superclaude/skills/**/*.md",
+     "src/superclaude/skills/**/*.ts",
+     "src/superclaude/skills/**/*.json",
+@@ -82,11 +83,17 @@ include = [
+     "src/superclaude/hooks/**/*.json",
+     "src/superclaude/scripts/**/*.py",
+     "src/superclaude/scripts/**/*.sh",
++    "plugins/superclaude/**/*.py",
++    "plugins/superclaude/**/*.md",
++    "plugins/superclaude/**/*.ts",
++    "plugins/superclaude/**/*.json",
++    "plugins/superclaude/**/*.sh",
+ ]
+ 
+ [tool.hatch.build.targets.sdist]
+ include = [
+     "src/",
++    "plugins/",
+     "tests/",
+     "README.md",
+     "LICENSE",
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index 4b4bfbec..05411987 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -5,7 +5,7 @@ AI-enhanced development framework for Claude Code.
+ Provides pytest plugin for enhanced testing and optional skills system.
+ """
+ 
+-__version__ = "4.1.8"
++__version__ = "4.1.9"
+ __author__ = "NomenAK, Mithun Gowda B"
+ 
+ # Expose main components
+diff --git a/src/superclaude/agents/__init__.py b/src/superclaude/agents/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/commands/__init__.py b/src/superclaude/commands/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/examples/__init__.py b/src/superclaude/examples/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/hooks/__init__.py b/src/superclaude/hooks/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/mcp/configs/__init__.py b/src/superclaude/mcp/configs/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/scripts/__init__.py b/src/superclaude/scripts/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/skills/__init__.py b/src/superclaude/skills/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/src/superclaude/skills/confidence-check/__init__.py b/src/superclaude/skills/confidence-check/__init__.py
+new file mode 100644
+index 00000000..e69de29b

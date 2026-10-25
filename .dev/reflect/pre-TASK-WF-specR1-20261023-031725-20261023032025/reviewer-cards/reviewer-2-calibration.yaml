@@ -1,0 +1,53 @@
+```yaml
+card: reviewer-2
+calibrator_model_class: opus
+dimensions:
+  citation_grounding: 0.88
+  coverage_completeness: 0.74
+  deviation_classification_clarity: 0.78
+  risk_surface_coverage: 0.68
+  recommendation_actionability: 0.72
+C: 0.76
+finding_checks:
+  - id: R2-1
+    holds: true
+    severity_justified: true
+    adjusted_severity: medium
+    note: "Confirmed. The single-dependency chain is 9->8->7->2->1 (tasklist lines 138, 153, 172), so the edit tasks 5 and 6, and also 3 and 4, are not ancestors. Source line 82 asks for a chain where the earlier edits are ancestors, and the 'number order' rule at line 31 does not make one. The recommendation contradicts itself, though: its example chain (6->5, 8->6, keep 7->2) leaves out Tasks 3 and 7, which the same recommendation said must be ancestors. A chain that works is 4->1, 5->4, 6->5, 2->6, 7->2, 8->7, 9->8, with Task 3's artifact listed in the task body."
+  - id: R2-2
+    holds: partial
+    severity_justified: false
+    adjusted_severity: low
+    note: "Line 184 does accept any path under .github/workflows/, and no other check would catch an edit to some other workflow file. But source line 39 itself states the final scope check at directory level ('only .github/workflows/, scripts/README.md and the plan package folder may differ'). The plan follows the source's check rule exactly, and the gap comes from the spec. That makes this a tightening suggestion, not a medium defect."
+  - id: R2-3
+    holds: true
+    severity_justified: true
+    adjusted_severity: low
+    note: "Confirmed. Source line 70 says renamed paths must be recorded explicitly. Tasks 1 and 9 (lines 37, 178) only cover MISSING for deleted paths and say nothing on how to convert a rename's two -z paths. This duplicates T1-card C2. Low is right, because a rename at baseline needs staged changes."
+  - id: R2-4
+    holds: partial
+    severity_justified: true
+    adjusted_severity: low
+    note: "Line 95 does forbid the substring 'required' in the job name, so an odd wording like 'not required' would fail. The citations check out (boundary-guard.yml:37; ci.py:19 and 77 match on 'boundary'). Two parts are wrong. The card says the spec forbids 'required' only on the warning and header lines, but source line 55 forbids 'before merge' and 'requiring this check', not the word 'required'. And the recommendation to require 'boundary' and 'advisory' asks for something line 95 already checks. The example name at line 83 passes."
+  - id: R2-5
+    holds: true
+    severity_justified: true
+    adjusted_severity: low
+    note: "Confirmed. Line 147 only checks that there is still one Decision line, so an UNVERIFIED note appended without a Decision prefix passes. That is a bullet that fails to catch a wrong edit, against source line 38. A hash or cmp check is concrete and cheap."
+  - id: R2-6
+    holds: true
+    severity_justified: true
+    adjusted_severity: low
+    note: "Confirmed. Line 128 says 'no `<` placeholder', and that wording can be argued either way, even though line 117 states what is meant. This duplicates T1-card C4. The fix is a one-line rewording."
+  - id: R2-7
+    holds: true
+    severity_justified: true
+    adjusted_severity: low
+    note: "Rejecting C3 is correct. Source line 55 requires the literal word 'advisory' on the ::warning line (boundary-guard.yml:50 is the current text), and the executor can see that check in Task 5's acceptance criteria. Copying the word into the edit bullet at line 84 is optional, so this is cosmetic."
+  - id: R2-8
+    holds: true
+    severity_justified: true
+    adjusted_severity: low
+    note: "Confirmed. The matrix has no row for the YAML-parse-only sentence, the git diff --stat / master...HEAD ban, or the general uv run rule. INF-025 points at Task 9 (should be Task 4) and INF-033 at Task 5 (should be Task 8). The citation coverage-matrix.yaml:247 is the start of the INF-024 row; INF-025 starts at line 256. The card also missed that INF-069 is mapped to Task 8 when it should be Task 7."
+notes: "One significant risk is missed. Task 9's `cmp` of the hash files will fail if a file that already existed at baseline under .dev/reflect/ (for example this reflect run's own folder) is changed during execution. That happens because the tooling-output exception covers only new status entries, not the hash comparison. The citations are otherwise accurate, but the recommendations for R2-1 and R2-4 are internally inconsistent or repeat checks the plan already has."
+```

@@ -1,0 +1,80 @@
+# Tier-1 card as returned by Task(sc:sc-root-cause-analyst, model=sonnet), persisted verbatim by orchestrator before calibration.
+# hypothesis_source: agent (sc:sc-root-cause-analyst); card_model_class: sonnet
+card_author_role: "Tier-1 single-agent grounded reflector (sc:reflect UC-2, read-only, Read/Glob only, no execution)"
+root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+per_claim:
+  - task_id: T-101
+    req_id: R-001
+    claim: "created src/greeting.py"
+    verdict: satisfied
+    evidence:
+      - "src/greeting.py:1 -> 'def greet(name):'"
+      - "src/greeting.py:4 -> 'return f\"Hello, {name}!\"'"
+      - "execution.log:2 -> 'T-101 R-001: created src/greeting.py.'"
+      - "Glob src/**/* returns only src/greeting.py (file exists). Whether it was 'created' (vs. pre-existing) is not checkable: no commits in the repo."
+  - task_id: T-102
+    req_id: R-002
+    claim: "empty names raise ValueError"
+    verdict: partial
+    evidence:
+      - "src/greeting.py:2-3 -> 'if not name:' / 'raise ValueError(\"name required\")'"
+      - "execution.log:3 -> 'T-102 R-002: empty names raise ValueError.'"
+      - "Empty string '' satisfies the claim by static reading. The guard is truthiness-based, so it also rejects None, 0, [] and False, which the claim does not mention. It does not reject whitespace-only strings such as '   '. Not executed."
+    note: "Verdict is partial rather than satisfied because the claim's scope of 'empty' is undefined (no spec) and the code has no explicit definition. The core case is met statically."
+  - task_id: T-103
+    req_id: R-003
+    claim: "created tests/test_greeting.py with ordinary and empty-name cases"
+    verdict: partial
+    evidence:
+      - "tests/test_greeting.py:4-5 -> 'def test_ordinary(): assert greet(\"Ada\") == \"Hello, Ada!\"'"
+      - "tests/test_greeting.py:8-13 -> 'def test_empty(): try: greet(\"\") except ValueError: return / raise AssertionError(\"empty name accepted\")'"
+      - "execution.log:4 -> 'T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases.'"
+      - "tests/test_greeting.py:1 -> 'from src.greeting import greet'. There is no __init__.py or conftest anywhere (Glob **/__init__.py: none). Under a namespace package and pytest rootdir/rootdir-insertion, this import may or may not resolve. Not executed."
+    note: "Both cases exist on disk, so the content claim is met. Importability of the test is unverified. The log makes no execution claim (execution.log:5), so nothing contradicts it."
+deviations: []
+grounding_gaps:
+  - hunk_ref: "src/greeting.py:2-3 (falsy check) vs execution.log:3 ('empty names')"
+    evidence_missing: "A definition of 'empty' (R-002 text). No spec/tasklist was supplied."
+    why_not_classifiable: "Whether rejecting None/0/[] is intended, or whether whitespace-only should be rejected, cannot be judged. R-IDs cannot be verified against any source."
+    next_evidence_needed: "The R-002 requirement text or an acceptance criterion."
+    owner: "user / spec author"
+    decision_needed_by_user: "Should 'empty' mean exactly '', also None, or also whitespace-only?"
+  - hunk_ref: "tests/test_greeting.py:1-13"
+    evidence_missing: "Test execution result and the pytest/pythonpath configuration."
+    why_not_classifiable: "Execution is disabled in this run. The import 'from src.greeting import greet' depends on rootdir/sys.path, with no __init__.py or config seen."
+    next_evidence_needed: "A pytest run from the project root, or a pyproject.toml/pytest.ini/conftest.py showing pythonpath."
+    owner: "executor / CI"
+    decision_needed_by_user: "Approve a verification run, or accept the unverified status."
+  - hunk_ref: "R-001, R-002, R-003 IDs"
+    evidence_missing: "Spec or tasklist mapping R-IDs to requirements."
+    why_not_classifiable: "The log's R-IDs are executor narrative. There is no independent check of requirement coverage or of missing requirements."
+    next_evidence_needed: "A driving spec or tasklist."
+    owner: "user"
+    decision_needed_by_user: "Supply a spec, or accept log-only grounding."
+  - hunk_ref: "T-101 'created'"
+    evidence_missing: "Git history or baseline."
+    why_not_classifiable: "The repo has no commits, so create vs. modify, and any pre-existing content, cannot be distinguished."
+    next_evidence_needed: "A baseline snapshot or commit."
+    owner: "user"
+    decision_needed_by_user: "Whether provenance matters for this audit."
+unmapped_work:
+  - "src/greeting.py:4 -> the success-path formatting 'Hello, {name}!' is not described by any claim. It is exercised by tests/test_greeting.py:5, so it is covered by T-103's 'ordinary' case but not by T-101/T-102 wording. Minor and low-risk."
+  - "No other in-scope files exist (Glob src/**/* returned a single file)."
+risk_notes:
+  - "src/greeting.py:2 -> 'if not name:' is falsy-based, so non-empty-but-falsy inputs (0, False, [], None) raise ValueError rather than a TypeError. Grounded in the cited line."
+  - "src/greeting.py:4 -> the f-string accepts any truthy non-str (e.g. 5 or ['a']), producing 'Hello, 5!' without type validation. Grounded in the cited line."
+  - "src/greeting.py:2 -> whitespace-only names such as ' ' are truthy and pass through, producing 'Hello,  !'. Grounded."
+  - "tests/test_greeting.py:1 -> 'from src.greeting import greet' assumes the project root is on sys.path. There is no __init__.py (Glob), so this relies on namespace-package behavior or pytest rootdir config. [INFERRED]"
+  - "tests/test_greeting.py:9-13 -> the try/except-return pattern is correct but does not assert on the exception message. It is also less idiomatic than pytest.raises. Low severity. Grounded."
+  - "tests/test_greeting.py:4-13 -> there are no tests for None, whitespace, or non-str inputs, so the falsy-check behavior is unpinned. [INFERRED from absence]"
+recommendations:
+  - file: fixtures/project/tests/test_greeting.py
+    change: "Run the suite from the project root to confirm that the 'from src.greeting import greet' import resolves. If it does not, add a conftest.py or a pytest pythonpath setting, or add src/__init__.py."
+    verifier: "pytest tests/test_greeting.py exits 0 (run by the user or CI, since execution is disabled here)"
+  - file: fixtures/project/src/greeting.py
+    change: "After the user defines 'empty' for R-002, make the guard explicit: for example 'if not isinstance(name, str) or not name.strip(): raise ...'. Otherwise document that falsy values are rejected."
+    verifier: "Added test cases for None, '   ', and 0 asserting the intended exception types"
+  - file: fixtures/project/tests/test_greeting.py
+    change: "Replace the try/except pattern with pytest.raises(ValueError) and optionally match the message 'name required'."
+    verifier: "pytest run; mutating greet to not raise makes test_empty fail"
+self_reported_confidence: 0.8

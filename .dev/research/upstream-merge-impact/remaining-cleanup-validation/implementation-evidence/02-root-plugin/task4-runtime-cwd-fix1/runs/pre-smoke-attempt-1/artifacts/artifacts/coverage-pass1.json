@@ -1,0 +1,57 @@
+{
+  "pass1_parsed_count": 3,
+  "tasks": [
+    {
+      "task": "T-101",
+      "line": 3,
+      "refs": [
+        "R-001"
+      ]
+    },
+    {
+      "task": "T-102",
+      "line": 6,
+      "refs": [
+        "R-002"
+      ]
+    },
+    {
+      "task": "T-103",
+      "line": 9,
+      "refs": [
+        "R-003"
+      ]
+    }
+  ],
+  "coverage_matrix": [
+    {
+      "requirement_id": "R-001",
+      "spec_line": 5,
+      "matched_task_ids": [
+        "T-101"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    },
+    {
+      "requirement_id": "R-002",
+      "spec_line": 8,
+      "matched_task_ids": [
+        "T-102"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    },
+    {
+      "requirement_id": "R-003",
+      "spec_line": 11,
+      "matched_task_ids": [
+        "T-103"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    }
+  ],
+  "coverage_pct": 1.0,
+  "unmapped_requirements": []
+}

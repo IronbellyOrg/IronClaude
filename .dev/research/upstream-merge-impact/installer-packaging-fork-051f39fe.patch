@@ -1,0 +1,63 @@
+commit 051f39feaf2796e6f2bec1313dcfa9ce713055b6
+Author:     clayphi <clay@ironbelly.com>
+AuthorDate: Wed Oct 14 08:07:04 2026 -0500
+Commit:     clayphi <clay@ironbelly.com>
+CommitDate: Wed Oct 14 08:07:04 2026 -0500
+
+    feat(routing): one HOW-WE-WORK guide for which tool to use when
+    
+    - Add src/superclaude/core/HOW-WE-WORK.md (marker-delimited level and routing
+      tables) and the pointer page docs/user-guide/how-we-work.md
+    - core/CLAUDE.md gets the routing block (six levels, hard limit, /sc: must-load-skill rule)
+    - /sc:help lists installed commands and skills live; /sc:recommend reads the guide
+      first, returns ordered workflows with mandatory flags, searches installed and
+      project locations, and skips its cache outside an IronClaude checkout
+    - Plugin tree: help, recommend and the sc-recommend skill with the guide; parity tests
+    - Retire 6 unused core files, 1 plugin core copy and 10 superseded docs;
+      stop installing commands/README.md (nothing deleted from existing installs)
+    - Update kept docs, CHANGELOG, PROJECT_INDEX; new tests for every contract
+    
+    Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+
+diff --git a/src/superclaude/cli/install_commands.py b/src/superclaude/cli/install_commands.py
+index 34cb58e7..c720e5c5 100644
+--- a/src/superclaude/cli/install_commands.py
++++ b/src/superclaude/cli/install_commands.py
+@@ -8,6 +8,8 @@ import shutil
+ from pathlib import Path
+ from typing import List, Tuple
+ 
++_EXCLUDE_FILES = {"README.md"}
++
+ 
+ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[bool, str]:
+     """
+@@ -34,7 +36,9 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
+     target_path.mkdir(parents=True, exist_ok=True)
+ 
+     # Get all command files
+-    command_files = list(command_source.glob("*.md"))
++    command_files = [
++        f for f in sorted(command_source.glob("*.md")) if f.name not in _EXCLUDE_FILES
++    ]
+ 
+     if not command_files:
+         return False, f"No command files found in {command_source}"
+@@ -136,7 +140,7 @@ def list_available_commands() -> List[str]:
+ 
+     commands = []
+     for file in command_source.glob("*.md"):
+-        if file.stem != "README":
++        if file.name not in _EXCLUDE_FILES:
+             commands.append(file.stem)
+ 
+     return sorted(commands)
+@@ -156,7 +160,7 @@ def list_installed_commands() -> List[str]:
+ 
+     installed = []
+     for file in commands_dir.glob("*.md"):
+-        if file.stem != "README":
++        if file.name not in _EXCLUDE_FILES:
+             installed.append(file.stem)
+ 
+     return sorted(installed)

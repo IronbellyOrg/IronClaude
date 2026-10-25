@@ -1,0 +1,63 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-10-25T14:45:05.166213+00:00-post-tier2-attempt-1",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "post",
+  "tier_reached": 2,
+  "status": "partial",
+  "calibration": {
+    "calibrator_diversity": "full",
+    "calibrated_confidence_initial": 0.93,
+    "calibrated_confidence_final": 0.92,
+    "calibration_delta": -0.01
+  },
+  "ensemble": {
+    "t2_model_class_diversity": "full",
+    "t2_vendor_diversity": "multi",
+    "t2_effective_diversity": "full",
+    "reviewer_count": 2,
+    "executor_class_resolved": false,
+    "executor_exclusion_degraded": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 18,
+    "citations_revalidated": 18,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 0,
+    "regression": 0,
+    "total": 0
+  },
+  "adversarial": {
+    "convergence_score": 1.0,
+    "merge_method": "adversarial",
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "skipped",
+    "gate_conditions_passed": null,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": [
+    "serena",
+    "auggie",
+    "get_current_config",
+    "serena:onboarding-parse",
+    "neighbour-search:auggie_unavailable",
+    "verification-triangle:tool-unavailable",
+    "context7"
+  ],
+  "input_drift_detected": false,
+  "needs_human_decision": true,
+  "note": "wave_durations/token_usage not instrumented in native plugin run; .dev/reflect/runs.jsonl not appended (outside permitted output)"
+}

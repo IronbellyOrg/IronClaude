@@ -1,0 +1,20 @@
+selected_tier: 2
+fired_rule_number: null          # §5.1 hard override (--tier 2) preempts §5.3 rubric; rubric would have fired rule 2 (C=0.90>=0.85, S_scope=1<=10, S_domains=2<=2, S_dev_density=0.0<=0.10) -> STOP at T1
+hard_override: "--tier 2"
+coverage_degraded: null
+surface_unreached: null
+composite_score: 1.5
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0.5
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1     # unrun tests, diff omits task-declared test file, D-1 class contested
+escalation_reason: "Explicit --tier 2 pin (§5.1). Absent the pin, rule 2 would STOP at T1."
+confidence_calibrated: 0.90
+S_scope: 1
+S_domains: 2
+S_dev_density: 0.0
+regression_candidate_count: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: single

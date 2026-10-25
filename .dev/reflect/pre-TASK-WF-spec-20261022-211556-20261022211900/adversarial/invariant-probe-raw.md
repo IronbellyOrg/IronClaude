@@ -1,0 +1,42 @@
+No HIGH findings. With the must-fix list applied, a correctly executed plan would still meet its spec and leave master unharmed. But six MEDIUM gaps remain: some acceptance bullets still pass a wrong edit, and some fail a correct run.
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|---|---|---|---|---|---|
+| INV-001 | 1 State | Task 2's file keeps ending with its `Decision:` line. Task 7 appends a line to the same file, so Task 2's acceptance check fails if the final review re-runs it. A check that reads "the last line" to get the file input gets the wrong line. | UNADDRESSED | MEDIUM | tasklist:49 ("The file ends with a line beginning `Decision:`") vs tasklist:121 ("Append to ./artifacts/t2-codecov-v4.md…"); consensus-summary.md:16 points the input at "Task 2 Decision line" without saying which line. |
+| INV-002 | 1 State / 6 Sufficiency | The user can append the post-merge run result to `./artifacts/t6-fix1-notes.md`. That file sits in an untracked package inside `.dev/worktrees/`, which is gitignored. It is never committed and disappears when the worktree is removed, so "where the result is recorded" (source.md:16) does not last. | UNADDRESSED | MEDIUM | tasklist:108; .gitignore:235 (`.dev/worktrees/`); `git status` in the worktree shows `?? .dev/tasks/to-do/TASK-WF-spec-20261022-211556/`. |
+| INV-003 | 2 Guard | Running the stub with `bash -eo pipefail` matches GitHub Actions. It does not: a step with no `shell:` runs as `bash -e {0}`, without pipefail, so a `gh … \| …` count pipeline can pass the stub and behave differently on the runner. | UNADDRESSED | LOW | consensus-summary.md:9; pull-sync-framework.yml:85-88 (no `shell:` key). |
+| INV-004 | 2 Guard / 6 Sufficiency | A failed `gh pr list` stops the step. The plan does not require failing closed. The obvious form `if [ "$(gh pr list …)" = "0" ]` turns a failure into an empty string, takes the "reused" branch, and the run goes green with the branch pushed and no pull request. No stub run covers a failing `gh`. | UNADDRESSED | MEDIUM | tasklist:105 ("only when that count is 0; otherwise echo that the open pull request is reused"); tasklist:114 (stub returns only `0` or `1`). |
+| INV-005 | 2 Guard | The checkout's saved credentials allow pushing a new branch. | ADDRESSED | LOW | pull-sync-framework.yml:15-18 checks out with default credentials and already pushes at :109; repo rulesets are `[]`. |
+| INV-006 | 6 Sufficiency | A pull request opened with the built-in token does not start test.yml. Master has no branch protection (API returns 404), so nothing blocks the merge; there is just no test result. Recorded as a known limitation. | ADDRESSED | LOW | tasklist:59; source.md:15. |
+| INV-007 | 3 Count | The stub's second run (list returns `1`) reaches `gh`. The first run commits the staged change, so unless the change is staged again, run 2 goes to `No changes detected.` and "zero `gh pr create`" passes without ever testing anything. A wrong edit that always creates a pull request passes. Run 2 needs a fresh staged change and a logged `gh pr list` call. | UNADDRESSED | MEDIUM | tasklist:114; pull-sync-framework.yml:107-111. |
+| INV-008 | 3 Count | Each `gh pr` call fits on one line. If the long `gh pr create … --title … --body …` is split with `\`, `--repo` lands on another line and the check "count of `gh pr` lines equals count with `--repo`" fails a correct edit. | UNADDRESSED | LOW | tasklist:113. |
+| INV-009 | 3 Count | There is a "single `name:` line under `flag-boundary-touch:`". There are three: the job name and two step names. A text grep over the block returns 3. Only the job-level key, read with PyYAML, is meant. | UNADDRESSED | LOW | tasklist:89; boundary-guard.yml:37, :40, :45. |
+| INV-010 | 3 Count | The `::warning` line "begins `echo "::warning…`". The raw line starts with 10 spaces, so a check on the unstripped line fails a correct edit. | UNADDRESSED | LOW | tasklist:90; boundary-guard.yml:50. |
+| INV-011 | 4 Collection | An empty hashes baseline gives a valid `cmp` and the status comparison still catches new paths. | ADDRESSED | LOW | tasklist:34 ("an empty file is valid"); tasklist:157-158. |
+| INV-012 | 4 Collection / 5 Interaction | The third run is a no-op when the index equals HEAD. The script's own `git add` loop stages `commands/`, `agents/`, `.claude-plugin/plugin.json` and `docs/.framework-sync-commit` if they exist and differ. The third run also needs those working-tree paths clean or absent. | UNADDRESSED | LOW | pull-sync-framework.yml:96-105; consensus-summary.md:9 ("third run with index == HEAD"). |
+| INV-013 | 5 Interaction | Nothing outside the package is written after Task 1. The consensus names the `.dev/reflect/` hazard but gives no fix. The `/sc:implement` retry ladder can also write `.dev/troubleshoot/`, and a `--remediate` handoff writes a new package folder. Any of these fails Task 9 on a correct run. | UNADDRESSED | MEDIUM | consensus-summary.md:18; ~/.claude/skills/sc-implement-protocol/refs/retry.md:157 (`.dev/troubleshoot/`), :21 (`.dev/workflow/<slug>/`); tasklist:158. |
+| INV-014 | 6 Sufficiency | Comparing named steps proves "nothing else changed". Tasks 6 and 7 never compare the `on:` block (cron, triggers), top-level or job-level keys (`runs-on`, top-level `permissions`), or the step count. A wrong edit that inserts an extra step (for example a second push to master, or a coverage-threshold step) or changes the cron passes. | UNADDRESSED | MEDIUM | tasklist:112, :125; pull-sync-framework.yml:3-6, :9-12; test.yml:3-8, :11-13. |
+| INV-015 | 5 Interaction | origin/master holds still during execution. The scheduled sync is live (the API shows successful schedule runs at 11:13, 16:41 and 21:13 UTC on 2026-10-22) and still pushes to master until Fix 1 merges, so the branch may need a rebase before the pull request. | UNADDRESSED | LOW | pull-sync-framework.yml:4-5, :109. |
+| INV-016 | 6 Sufficiency | Task 9's leftover list is complete. It misses the `## Publishing (GitHub Actions)` heading (line 5), "Before publishing" (line 34) and the Security Notes publishing lines (64-66). | UNADDRESSED | LOW | scripts/README.md:5, :34, :64-66; tasklist:150. |
+| INV-017 | 3 Count | `grep -c 'publish-pypi.yml'` is 1 or 0 after a correct edit. | ADDRESSED | LOW | scripts/README.md:7 is the only occurrence. |
+| INV-018 | 6 Sufficiency | Renaming the job breaks neither the pytest guard test nor the ci.py name match. | ADDRESSED | LOW | test_merge_boundary_guards.py:171-209 checks only the paths filter; ci.py:77 matches `"boundary"`. No other non-`.dev` reference to the old name. |
+| INV-019 | 6 Sufficiency | The sync branch gets a new commit SHA every run, because the commit message embeds the date. This is covered by the stated "force-replaces the branch" consequence. | ADDRESSED | LOW | pull-sync-framework.yml:108; tasklist:27. |
+
+## Summary
+- Total findings: 19. ADDRESSED: 6. UNADDRESSED: 13 (HIGH 0 / MEDIUM 6 / LOW 7).
+- The consensus claim "every bullet fails on a wrong edit" does not yet hold: INV-007 and INV-014 still let a wrong Task 6 or Task 7 edit pass.
+- INV-001 and INV-013 make a correct run fail its own checks.
+- INV-004 is the one runtime risk: a failed `gh pr list` can end in a green run with no pull request.
+- Recommended next step: add INV-001, INV-004, INV-007, INV-013 and INV-014 to the must-fix list before running `/sc:implement`. Each is a small edit to the tasklist text.
+
+I ran only read-only commands. Besides the repo files, I made read-only `gh api` calls: branch protection (master is not protected), rulesets (none), default branch (`master`) and recent sync runs.
+
+| DONE | NEXT |
+|---|---|
+| Checked all 6 categories against the consensus, the tasklist, the spec and the target files | Merge INV-001/004/007/013/014 into the consensus must-fix list |
+
+Files:
+- /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-spec-20261022-211556/TASK-WF-spec-20261022-211556.md
+- /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/adversarial/consensus-summary.md
+- /config/workspace/IronClaude/.dev/worktrees/ci-followup/.github/workflows/pull-sync-framework.yml
+- /config/.claude/skills/sc-implement-protocol/refs/retry.md

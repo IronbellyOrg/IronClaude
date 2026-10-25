@@ -1,0 +1,35 @@
+COMMAND git diff --no-ext-diff --find-renames e61aaba771055f65dd7c4f5de4d0e3e91ac928ec 1bd92c91fd78cd528f2b0211460e3e1f9dedfcb5 -- VERSION pyproject.toml src/superclaude/__init__.py
+RETURN 0
+diff --git a/VERSION b/VERSION
+index 18837e70..6aba2b24 100644
+--- a/VERSION
++++ b/VERSION
+@@ -1 +1 @@
+-4.1.9
++4.2.0
+diff --git a/pyproject.toml b/pyproject.toml
+index 31b770f1..b061a78e 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
+ 
+ [project]
+ name = "superclaude"
+-version = "4.1.9"
++version = "4.2.0"
+ description = "AI-enhanced development framework for Claude Code - pytest plugin with optional skills"
+ readme = "README.md"
+ license = {text = "MIT"}
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index 05411987..cc53e27f 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -5,7 +5,7 @@ AI-enhanced development framework for Claude Code.
+ Provides pytest plugin for enhanced testing and optional skills system.
+ """
+ 
+-__version__ = "4.1.9"
++__version__ = "4.2.0"
+ __author__ = "NomenAK, Mithun Gowda B"
+ 
+ # Expose main components

@@ -1,0 +1,213 @@
+{
+  "verdict": "PASS",
+  "checks": {
+    "actual_dirty_untracked_and_run_evidence_frozen": true,
+    "real_distinct_readonly_root_and_equal_three_hashes": true,
+    "before_dispatch_verifier_passes": true,
+    "stale_snapshot_reuse_rejected": true,
+    "source_drift_detected_without_changing_frozen_copy": true,
+    "frozen_copy_tamper_detected": true,
+    "selection_file_tamper_rejected_separately": true,
+    "out_of_scope_unrelated_file_does_not_invalidate": true,
+    "pinned_output_reviewer_artifact_does_not_invalidate": true,
+    "excluded_verification_cache_does_not_invalidate": true,
+    "in_scope_new_untracked_file_rejected_with_prior_bytes_unchanged": true,
+    "discovery_metadata_and_selection_hash_are_pinned": true,
+    "incomplete_selection_refused": true,
+    "missing_input_retains_failed_manifest_no_live_fallback": true,
+    "audited_tracked_input_never_mutated": true,
+    "all_snapshots_retained": true
+  },
+  "proof_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1",
+  "delivered_recipe_sha256": "45a4cd7f9240767cc21934243aafd8e48215f02c80e5cf1505a24a0e775a433c",
+  "executions": [
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/selected-inputs.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/selected-inputs.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"[Errno 17] File exists: '/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot'\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"audited source changed: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"snapshot copy changed: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/happy/reviewer-snapshot/root/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/audited/new-input.txt\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership-selection.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"selection file changed\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"verified\", \"reviewer_grounding_root\": \"/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/root\", \"files\": 3}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "--verify",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/membership/reviewer-snapshot/provenance-manifest.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"scoped audit membership changed\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/incomplete",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/incomplete-selection.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"explicit complete selected-input enumeration and coverage basis required\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/missing",
+        "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/missing-selection.json"
+      ],
+      "returncode": 1,
+      "stdout": "{\"status\": \"failed\", \"reason\": \"[Errno 2] No such file or directory: '/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/snapshot-proof-fix1/absent.txt'\"}\n",
+      "stderr": ""
+    }
+  ],
+  "runtime_audits": "NOT RUN: snapshot recipe proof only, Task 4 remains unverified"
+}

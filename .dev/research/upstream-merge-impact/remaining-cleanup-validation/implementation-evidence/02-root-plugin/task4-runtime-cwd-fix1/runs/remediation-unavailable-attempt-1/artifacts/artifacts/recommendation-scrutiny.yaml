@@ -1,0 +1,13 @@
+# Skill sc:confidence-check, lightweight form, run before surfacing recommendations
+checks:
+  - {token: "--spec / --tasklist / --diff / --commit-range", method: "read loaded /sc:sc-reflect command + protocol §3.1", result: verified}
+  - {token: "src/greeting.py, tests/test_greeting.py, execution.log", method: Read, result: verified}
+  - {token: "uv run pytest tests/test_greeting.py", method: "file listing of audit root (no pyproject.toml, no pytest config)", result: UNVERIFIED, note: "pytest availability and import resolution not confirmed; the command was not run (--no-mcp verification unavailable)"}
+  - {token: "audit-root CLAUDE.md / PLANNING.md", method: "Wave-0 find", result: "absent (recorded as absence; no ancestor file read)"}
+score: 0.80
+band: "0.70-0.89: present alternatives / ask the user"
+decision:
+  - {rec: R-001, decision: surface, note: "needs user-supplied inputs"}
+  - {rec: R-002, decision: surface-as-question, note: "user decision, no code change recommended"}
+  - {rec: R-003, decision: surface-with-UNVERIFIED-marker}
+blocked_by_low_confidence: false

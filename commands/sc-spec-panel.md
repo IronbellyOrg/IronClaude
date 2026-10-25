@@ -7,7 +7,7 @@ mcp-servers: [context7]
 personas: [technical-writer, system-architect, quality-engineer]
 ---
 
-# /sc:sc:sc:spec-panel - Expert Specification Review Panel
+# /sc:sc-spec-panel - Expert Specification Review Panel
 
 ## Triggers
 - Specification quality review and improvement requests
@@ -17,7 +17,7 @@ personas: [technical-writer, system-architect, quality-engineer]
 
 ## Usage
 ```
-/sc:sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N] [--format standard|structured|detailed]
+/sc:sc-spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N] [--format standard|structured|detailed]
 ```
 
 ## Behavioral Flow
@@ -308,7 +308,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ### API Specification Review
 ```
-/sc:sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
+/sc:sc-spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
 # Comprehensive API specification review
 # Focus on requirements quality and architectural consistency
 # Generate detailed improvement recommendations
@@ -316,7 +316,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ### Requirements Workshop
 ```
-/sc:sc:spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
+/sc:sc-spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
 # Collaborative requirements analysis and improvement
 # Expert dialogue for requirement refinement
 # Consensus building around acceptance criteria
@@ -324,7 +324,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ### Architecture Validation
 ```
-/sc:sc:spec-panel @microservice.spec.yml --mode socratic --focus architecture
+/sc:sc-spec-panel @microservice.spec.yml --mode socratic --focus architecture
 # Learning-focused architectural review
 # Deep questioning about design decisions
 # Alternative approach exploration
@@ -332,7 +332,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ### Iterative Improvement
 ```
-/sc:sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed
+/sc:sc-spec-panel @complex_system.spec.yml --iterations 3 --format detailed
 # Multi-iteration improvement process
 # Progressive refinement with expert guidance
 # Comprehensive quality enhancement
@@ -340,7 +340,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ### Compliance Review
 ```
-/sc:sc:spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
+/sc:sc-spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
 # Compliance and security specification review
 # Regulatory requirement validation
 # Risk assessment and mitigation planning
@@ -348,28 +348,28 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 
 ## Integration Patterns
 
-### Workflow Integration with /sc:sc:code-to-spec
+### Workflow Integration with UNAVAILABLE(code-to-spec)
 ```bash
 # Generate initial specification from code
-/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml
+UNAVAILABLE(code-to-spec) ./sc:authentication_service --type api --format yaml
 
 # Review and improve with expert panel
-/sc:sc:spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
+/sc:sc-spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
 
 # Iterative refinement based on feedback
-/sc:sc:spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
+/sc:sc-spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
 ```
 
 ### Learning and Development Workflow
 ```bash
 # Start with socratic mode for learning
-/sc:sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2
+/sc:sc-spec-panel @my_first_spec.yml --mode socratic --iterations 2
 
 # Apply learnings with discussion mode
-/sc:sc:spec-panel @revised_spec.yml --mode discussion --focus requirements
+/sc:sc-spec-panel @revised_spec.yml --mode discussion --focus requirements
 
 # Final quality validation with critique mode
-/sc:sc:spec-panel @final_spec.yml --mode critique --format detailed
+/sc:sc-spec-panel @final_spec.yml --mode critique --format detailed
 ```
 
 ## Quality Assurance Features
@@ -432,4 +432,4 @@ Comprehensive analysis with full expert commentary, examples, and implementation
 - Consensus points and disagreements
 - Priority-ranked improvements
 
-**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
+**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc-design` for architecture or `/sc:sc-implement` for coding.

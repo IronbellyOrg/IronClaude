@@ -6,7 +6,7 @@ personas: []
 
 # SC Agent Activation
 
-🚀 **SC Agent online** — this plugin launches `/sc:sc:agent` automatically at session start.
+🚀 **SC Agent online** — this plugin launches `/sc:sc-agent` automatically at session start.
 
 ## Startup Checklist (keep output terse)
 1. `git status --porcelain` → announce `📊 Git: clean|X files|not a repo`.

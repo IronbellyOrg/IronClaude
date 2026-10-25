@@ -1,0 +1,139 @@
+{
+  "status": "verified",
+  "snapshot_kind": "native-selected-inputs",
+  "source_repo_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project",
+  "reviewer_grounding_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root",
+  "selection_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/selected-inputs.json",
+  "selection_sha256": "f18e34139e2643b9cac8718c1c9be63b7105ffdda5b2a03394de7667f45ff47e",
+  "coverage_basis": "--diff changes.patch (1 new file src/greeting.py) + --scope src (discovery) + explicit spec.md, completed.md, changes.patch + linked/log-declared evidence execution.log and tests/test_greeting.py (T-103, declared in execution.log:4) + this run's T1 card and Wave-1 ledgers; repo has no commits so all files are untracked and current working-tree bytes are captured",
+  "enumeration_complete": true,
+  "output_root": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts",
+  "discovery_metadata": {
+    "version": 1,
+    "scopes": [
+      "src"
+    ],
+    "gitignore_policy": "exclude-standard",
+    "verification_artifact_excludes": {
+      "directories": [
+        "__pycache__",
+        ".pytest_cache",
+        "htmlcov",
+        ".mypy_cache",
+        ".ruff_cache",
+        "target",
+        ".hypothesis"
+      ],
+      "suffixes": [
+        ".pyc",
+        ".pyo",
+        ".pyd",
+        ".egg-info"
+      ],
+      "names": [
+        ".coverage",
+        ".tsbuildinfo"
+      ],
+      "prefixes": [
+        ".coverage."
+      ],
+      "nested": [
+        "node_modules/.cache"
+      ]
+    }
+  },
+  "scoped_inventory_before": [
+    {
+      "path": "src/greeting.py",
+      "kind": "regular"
+    }
+  ],
+  "files": [
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/spec.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/spec.md",
+      "sha256_before": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548",
+      "sha256_copy": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548",
+      "sha256_after": "9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/completed.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/completed.md",
+      "sha256_before": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25",
+      "sha256_copy": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25",
+      "sha256_after": "2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/changes.patch",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/changes.patch",
+      "sha256_before": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74",
+      "sha256_copy": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74",
+      "sha256_after": "f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/execution.log",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/execution.log",
+      "sha256_before": "db52c076e3eccc09207806f3620bce1750d834f7cbc01259484cf8bddc51db52",
+      "sha256_copy": "db52c076e3eccc09207806f3620bce1750d834f7cbc01259484cf8bddc51db52",
+      "sha256_after": "db52c076e3eccc09207806f3620bce1750d834f7cbc01259484cf8bddc51db52"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/tests/test_greeting.py",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/tests/test_greeting.py",
+      "sha256_before": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4",
+      "sha256_copy": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4",
+      "sha256_after": "6a7d83bda045357140181e677194ae7b42837d0317b4753ffe0d2eeea0075fb4"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/t1-card.md",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/t1-card.md",
+      "sha256_before": "fc5c1f9bd2b8257b0ad0b9cd38fd566feddcaa49d653f91c1dae47c216d75b2f",
+      "sha256_copy": "fc5c1f9bd2b8257b0ad0b9cd38fd566feddcaa49d653f91c1dae47c216d75b2f",
+      "sha256_after": "fc5c1f9bd2b8257b0ad0b9cd38fd566feddcaa49d653f91c1dae47c216d75b2f"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/task-diff-map.yaml",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/artifacts/task-diff-map.yaml",
+      "sha256_before": "2bd8aa4abe6df51ee98cbaf4385110613ae6e7141555a96a52a9b28aeee81253",
+      "sha256_copy": "2bd8aa4abe6df51ee98cbaf4385110613ae6e7141555a96a52a9b28aeee81253",
+      "sha256_after": "2bd8aa4abe6df51ee98cbaf4385110613ae6e7141555a96a52a9b28aeee81253"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/reuse-audit.yaml",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/artifacts/reuse-audit.yaml",
+      "sha256_before": "ecc9f1aa31b64ded8d1b005f3b016f9aa3ca326923cb64fc62236890a295e41c",
+      "sha256_copy": "ecc9f1aa31b64ded8d1b005f3b016f9aa3ca326923cb64fc62236890a295e41c",
+      "sha256_after": "ecc9f1aa31b64ded8d1b005f3b016f9aa3ca326923cb64fc62236890a295e41c"
+    },
+    {
+      "kind": "run-evidence",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/artifacts/git-inventory.txt",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/__run_evidence__/artifacts/git-inventory.txt",
+      "sha256_before": "cd25463929bd1967244aa3b2a446219034de4f0b43f3ccf332b49815d927d934",
+      "sha256_copy": "cd25463929bd1967244aa3b2a446219034de4f0b43f3ccf332b49815d927d934",
+      "sha256_after": "cd25463929bd1967244aa3b2a446219034de4f0b43f3ccf332b49815d927d934"
+    },
+    {
+      "kind": "audit-input",
+      "source_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/fixtures/project/src/greeting.py",
+      "snapshot_path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-cwd-fix1/runs/post-tier2-attempt-1/artifacts/reviewer-snapshot/root/src/greeting.py",
+      "sha256_before": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35",
+      "sha256_copy": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35",
+      "sha256_after": "6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35"
+    }
+  ],
+  "scoped_inventory_after": [
+    {
+      "path": "src/greeting.py",
+      "kind": "regular"
+    }
+  ]
+}

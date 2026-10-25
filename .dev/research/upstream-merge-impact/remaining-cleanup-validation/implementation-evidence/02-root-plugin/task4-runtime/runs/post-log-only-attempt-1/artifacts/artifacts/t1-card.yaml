@@ -1,0 +1,101 @@
+# Wave 1C Tier-1 card — produced by Agent(sc:sc-root-cause-analyst, model slot: sonnet), agentId a568500b2a8f4b20c.
+# Persisted verbatim by the orchestrator BEFORE calibration. Root R = /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project
+card_id: t1-card
+mode: post
+hypothesis_source: agent
+reviewer_agent: sc:sc-root-cause-analyst
+reviewer_model_slot: sonnet
+per_claim_map:
+  - task_id: T-101
+    claim_quote: "T-101 R-001: created src/greeting.py."
+    log_citation: R/execution.log:2
+    mapped_files: [src/greeting.py]
+    evidence_citations: [R/src/greeting.py:1-4]
+    verdict: partially-satisfied
+    notes: >
+      File exists and defines greet(name) (greeting.py:1); "created" is satisfied. R-001's text is not
+      available, so conformance to R-001 cannot be verified. Output format "Hello, {name}!" (greeting.py:4)
+      is not specified anywhere. Creation-by-this-task is not provable from file content alone.
+  - task_id: T-102
+    claim_quote: "T-102 R-002: empty names raise ValueError."
+    log_citation: R/execution.log:3
+    mapped_files: [src/greeting.py]
+    evidence_citations: [R/src/greeting.py:2-3]
+    verdict: satisfied
+    notes: >
+      `if not name: raise ValueError("name required")` raises for "" by static reading, matching the claim
+      as worded. The guard is broader than "empty string" (None, 0, [] also raise). Whitespace-only names
+      like "   " are NOT rejected and return "Hello,    !". Whether R-002 means "empty" strictly or "blank"
+      is unverifiable without the requirement text. Satisfaction is static-only (no test run).
+  - task_id: T-103
+    claim_quote: "T-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases."
+    log_citation: R/execution.log:4
+    mapped_files: [tests/test_greeting.py]
+    evidence_citations: [R/tests/test_greeting.py:4-5, R/tests/test_greeting.py:8-13]
+    verdict: partially-satisfied
+    notes: >
+      File exists with test_ordinary (4-5) and test_empty (8-13), matching the claim's wording. Created !=
+      passes: the log claims no execution (execution.log:5) and none was performed, so runnability is
+      unverified. [INFERRED] The import `from src.greeting import greet` (test_greeting.py:1) depends on
+      the project root being on sys.path; Glob of src/ returned only greeting.py (no src/__init__.py). It may
+      resolve as a namespace package under `python -m pytest` from root but not necessarily under plain
+      `pytest` with rootdir-based sys.path insertion. No conftest.py/pytest.ini/pyproject.toml was checked.
+      test_empty only asserts ValueError is raised; it does not check the message or None/whitespace inputs.
+unmapped_work:
+  - range: R/src/greeting.py:4
+    description: >
+      Greeting format "Hello, {name}!" and error message "name required" (line 3) are not specified by any
+      log claim; reasonable implementation detail of T-101/T-102, treated as in-scope rather than drift.
+      The ordinary-case test hard-codes this format (test_greeting.py:5).
+deviations: []
+grounding_gaps:
+  - hunk_ref: R/execution.log:2-4 (R-001, R-002, R-003)
+    evidence_missing: Text and acceptance criteria of requirements R-001, R-002, R-003; no spec or tasklist supplied.
+    why_not_classifiable: >
+      Without requirement text it cannot be determined whether the implementation contradicts a criterion
+      (Regression), adds unrequested behavior (Drift), or is authorized.
+    next_evidence_needed: The driving spec/tasklist entries for R-001..R-003, including the definition of "empty name".
+    owner: user
+    decision_needed_by_user: true
+  - hunk_ref: R/tests/test_greeting.py:1
+    evidence_missing: Runtime evidence that the tests import and pass; repo layout/config determining the import path.
+    why_not_classifiable: >
+      Log explicitly claims no execution (execution.log:5); read-only constraints forbid running tests;
+      whether `from src.greeting` resolves is undetermined, so a Regression against T-103's intent cannot be ruled in or out.
+    next_evidence_needed: Test-run output from the project root, or contents of any conftest.py/pytest.ini/pyproject.toml.
+    owner: user
+    decision_needed_by_user: true
+risks:
+  - id: RK-1
+    description: "`not name` conflates empty with falsy: whitespace-only names pass through; None/0/[] raise ValueError. May or may not match R-002."
+    citations: [R/src/greeting.py:2-3]
+    severity: medium
+  - id: RK-2
+    description: "[INFERRED] Tests may fail to collect under plain `pytest` (no src/__init__.py, import is `from src.greeting`). The log does not claim the tests pass."
+    citations: [R/tests/test_greeting.py:1, R/execution.log:5]
+    severity: medium
+  - id: RK-3
+    description: "Thin coverage: only '' and 'Ada' tested; None, whitespace and the error message untested. test_empty uses try/except plus manual AssertionError instead of pytest.raises."
+    citations: [R/tests/test_greeting.py:8-13]
+    severity: low
+  - id: RK-4
+    description: "R-001..R-003 text unverifiable without spec; all satisfied verdicts rest on the log's own wording and static reading."
+    citations: [R/execution.log:2-4]
+    severity: medium
+recommendations:
+  - id: REC-1
+    file: R/tests/test_greeting.py
+    change: Confirm the import path works, e.g. run `python -m pytest` from the project root, or add conftest.py/pythonpath config and src/__init__.py.
+    verifier: Test-run output from the project root
+    priority: high
+  - id: REC-2
+    file: R/src/greeting.py
+    change: Once R-002's definition of "empty" is known, decide whitespace-only/None handling (e.g. `if not isinstance(name, str) or not name.strip()`) and add matching tests.
+    verifier: R-002 spec text plus new unit tests
+    priority: medium
+  - id: REC-3
+    file: R/tests/test_greeting.py
+    change: Use pytest.raises(ValueError) and add edge-case tests (None, whitespace) if the spec requires them.
+    verifier: Test-run output
+    priority: low
+self_reported_confidence: 0.80   # self-report; NOT used for routing (calibrated value supersedes)

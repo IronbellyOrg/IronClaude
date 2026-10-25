@@ -1,0 +1,54 @@
+{
+  "pass": 1,
+  "R_spec": [
+    "R-001",
+    "R-002",
+    "R-003"
+  ],
+  "tasks": [
+    {
+      "id": "T-101",
+      "line": 3,
+      "text": "## T-101 R-001 Implement greet(name) returning the required greeting."
+    },
+    {
+      "id": "T-102",
+      "line": 6,
+      "text": "## T-102 R-002 Reject an empty name using ValueError."
+    },
+    {
+      "id": "T-103",
+      "line": 9,
+      "text": "## T-103 R-003 Add ordinary and empty-name test cases."
+    }
+  ],
+  "matrix": [
+    {
+      "requirement_id": "R-001",
+      "spec_line": 5,
+      "matched_task_ids": [
+        "T-101"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    },
+    {
+      "requirement_id": "R-002",
+      "spec_line": 8,
+      "matched_task_ids": [
+        "T-102"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    },
+    {
+      "requirement_id": "R-003",
+      "spec_line": 11,
+      "matched_task_ids": [
+        "T-103"
+      ],
+      "match_method": "exact",
+      "source": "parsed"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "protected_hash_count": 2260,
+  "changed_protected": [],
+  "manifest_exact_authorized_change": true,
+  "retired_restored": [],
+  "candidate_resources_added": [],
+  "tracked_diff_paths": [
+    ".claude-plugin/plugin.json"
+  ],
+  "index_diff_paths": [],
+  "preservation": "PASS",
+  "plugin_loaded": true,
+  "mappings_verified": true,
+  "required_closure_present": true,
+  "runtime_audit_proofs": "NOT RUN: Task 4 only"
+}

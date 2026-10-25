@@ -1,0 +1,475 @@
+diff --git a/docs/user-guide/commands.md b/docs/user-guide/commands.md
+index 1f31ac67..7c66496f 100644
+--- a/docs/user-guide/commands.md
++++ b/docs/user-guide/commands.md
+@@ -205,6 +205,39 @@ src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
+ 
+ ---
+ 
++## 📊 Command Output Categories
++
++### Document-Only Commands (STOP after output)
++These commands produce documents/reports and DO NOT implement:
++- `/sc:brainstorm` → Requirements specification
++- `/sc:workflow` → Implementation plan
++- `/sc:spawn` → Task hierarchy
++- `/sc:research` → Research report
++- `/sc:estimate` → Estimation report
++- `/sc:design` → Architecture documents
++- `/sc:analyze` → Analysis report
++- `/sc:spec-panel` → Expert review document
++- `/sc:business-panel` → Business analysis document
++- `/sc:troubleshoot` → Diagnostic report (fixes require `--fix` flag + confirmation)
++
++### Execution Commands (IMPLEMENT changes)
++These commands execute changes:
++- `/sc:implement` → Writes code
++- `/sc:improve` → Applies improvements (auto-fix for style, approval for architecture)
++- `/sc:cleanup` → Removes dead code (auto-fix for unused imports, approval for referenced code)
++- `/sc:task` → Discrete task execution (stops when complete)
++- `/sc:test` → Runs tests
++- `/sc:build` → Builds project
++- `/sc:git` → Git operations
++
++### Key Behavior Notes
++- **Document-only commands** stop after producing their output and suggest next steps
++- **Execution commands** have clear completion criteria
++- **`/sc:troubleshoot`** is diagnose-first by default; use `--fix` flag to apply fixes
++- **`/sc:improve`** and **`/sc:cleanup`** auto-fix safe changes, prompt for risky ones
++
++---
++
+ ## 📖 Detailed Description of Each Command
+ 
+ ---
+diff --git a/src/superclaude/commands/analyze.md b/src/superclaude/commands/analyze.md
+index ed44f9f5..6f7eefb3 100644
+--- a/src/superclaude/commands/analyze.md
++++ b/src/superclaude/commands/analyze.md
+@@ -86,4 +86,13 @@ Key behaviors:
+ **Will Not:**
+ - Execute dynamic analysis requiring code compilation or runtime
+ - Modify source code or apply fixes without explicit user consent
+-- Analyze external dependencies beyond import and usage patterns
+\ No newline at end of file
++- Analyze external dependencies beyond import and usage patterns
++
++**Output**: Analysis report containing:
++- Severity-rated findings
++- Code quality metrics
++- Security vulnerabilities
++- Performance issues
++- Recommendations
++
++**Next Step**: After review, use `/sc:improve` to apply recommended fixes or `/sc:cleanup` for dead code removal.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/brainstorm.md b/src/superclaude/commands/brainstorm.md
+index fb09457c..ef6dd3db 100644
+--- a/src/superclaude/commands/brainstorm.md
++++ b/src/superclaude/commands/brainstorm.md
+@@ -97,4 +97,26 @@ Key behaviors:
+ **Will Not:**
+ - Make implementation decisions without proper requirements discovery
+ - Override user vision with prescriptive solutions during exploration phase
+-- Bypass systematic exploration for complex multi-domain projects
+\ No newline at end of file
++- Bypass systematic exploration for complex multi-domain projects
++
++## CRITICAL BOUNDARIES
++
++**STOP AFTER REQUIREMENTS DISCOVERY**
++
++This command produces a REQUIREMENTS SPECIFICATION ONLY.
++
++**Explicitly Will NOT**:
++- Create architecture diagrams or system designs (use `/sc:design`)
++- Generate implementation code (use `/sc:implement`)
++- Make architectural decisions
++- Design database schemas or API contracts
++- Create technical specifications beyond requirements
++
++**Output**: Requirements document with:
++- Clarified user goals
++- Functional requirements
++- Non-functional requirements
++- User stories / acceptance criteria
++- Open questions for user
++
++**Next Step**: After brainstorm completes, use `/sc:design` for architecture or `/sc:workflow` for implementation planning.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/business-panel.md b/src/superclaude/commands/business-panel.md
+index f1727999..15f3633e 100644
+--- a/src/superclaude/commands/business-panel.md
++++ b/src/superclaude/commands/business-panel.md
+@@ -78,4 +78,36 @@ Question-driven exploration for deep learning and strategic thinking development
+ ## Integration Notes
+ - Compatible with all thinking flags (--think, --think-hard, --ultrathink)
+ - Supports wave orchestration for comprehensive business analysis
+-- Integrates with scribe persona for professional business communication
+\ No newline at end of file
++- Integrates with scribe persona for professional business communication
++
++## CRITICAL BOUNDARIES
++
++**SYNTHESIS OUTPUT ONLY - NOT IMPLEMENTATION**
++
++This command produces EXPERT ANALYSIS and RECOMMENDATIONS only.
++
++**Default behavior**:
++- Assemble expert panel
++- Conduct analysis/discussion
++- **STOP with synthesis document** - do not implement recommendations
++
++**Completion Criteria**:
++- All relevant experts have contributed
++- Consensus or disagreements documented
++- Actionable recommendations provided
++
++**Explicitly Will NOT**:
++- Implement any business recommendations
++- Make code or architectural changes
++- Execute decisions without user approval
++
++**Output**: Business analysis document containing:
++- Expert perspectives (9 simulated experts)
++- Consensus points
++- Disagreements with reasoning
++- Priority-ranked recommendations
++
++**Next Step**: User reviews recommendations, then:
++- Use `/sc:design` for architectural changes
++- Use `/sc:implement` for feature development
++- Use `/sc:workflow` for planning
+\ No newline at end of file
+diff --git a/src/superclaude/commands/cleanup.md b/src/superclaude/commands/cleanup.md
+index f61c85fe..bb41dc39 100644
+--- a/src/superclaude/commands/cleanup.md
++++ b/src/superclaude/commands/cleanup.md
+@@ -90,4 +90,23 @@ Key behaviors:
+ **Will Not:**
+ - Remove code without thorough safety analysis and validation
+ - Override project-specific cleanup exclusions or architectural constraints
+-- Apply cleanup operations that compromise functionality or introduce bugs
+\ No newline at end of file
++- Apply cleanup operations that compromise functionality or introduce bugs
++
++## AUTO-FIX VS APPROVAL-REQUIRED
++
++**Auto-fix (applies automatically)**:
++- Unused imports removal
++- Dead code with zero references
++- Empty blocks removal
++- Redundant type annotations
++
++**Approval Required (prompts user first)**:
++- Code with indirect references
++- Exports potentially used externally
++- Test fixtures/utilities
++- Configuration values
++
++**Safety Threshold**:
++- If code has ANY usage path, prompt user
++- If code affects public API, prompt user
++- If unsure, prompt user
+\ No newline at end of file
+diff --git a/src/superclaude/commands/design.md b/src/superclaude/commands/design.md
+index ec8ce22c..5ef3fac6 100644
+--- a/src/superclaude/commands/design.md
++++ b/src/superclaude/commands/design.md
+@@ -85,4 +85,12 @@ Key behaviors:
+ **Will Not:**
+ - Generate actual implementation code (use /sc:implement for implementation)
+ - Modify existing system architecture without explicit design approval
+-- Create designs that violate established architectural constraints
+\ No newline at end of file
++- Create designs that violate established architectural constraints
++
++**Output**: Architecture documents containing:
++- System diagrams (component, sequence, data flow)
++- API specifications
++- Database schemas
++- Interface definitions
++
++**Next Step**: After design is approved, use `/sc:implement` to build the designed components.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/estimate.md b/src/superclaude/commands/estimate.md
+index 9bdc706a..c7fdbee8 100644
+--- a/src/superclaude/commands/estimate.md
++++ b/src/superclaude/commands/estimate.md
+@@ -85,3 +85,23 @@ Key behaviors:
+ - Provide estimates without appropriate domain expertise and complexity assessment
+ - Override historical benchmarks without clear justification and analysis
+ 
++## CRITICAL BOUNDARIES
++
++**STOP AFTER ESTIMATION**
++
++This command produces an ESTIMATION REPORT ONLY - no implementation.
++
++**Explicitly Will NOT**:
++- Execute work based on estimates
++- Create implementation timelines for execution
++- Start implementation tasks
++- Make commitments on behalf of user
++
++**Output**: Estimation report containing:
++- Time/effort breakdown
++- Complexity analysis
++- Confidence intervals
++- Risk assessment
++- Resource requirements
++
++**Next Step**: After estimation, user decides on timeline. Use `/sc:workflow` for planning or `/sc:implement` for execution.
+diff --git a/src/superclaude/commands/implement.md b/src/superclaude/commands/implement.md
+index 00cbd3b1..5cabca7c 100644
+--- a/src/superclaude/commands/implement.md
++++ b/src/superclaude/commands/implement.md
+@@ -94,4 +94,18 @@ Key behaviors:
+ **Will Not:**
+ - Make architectural decisions without appropriate persona consultation
+ - Implement features conflicting with security policies or architectural constraints
+-- Override user-specified safety constraints or bypass quality gates
+\ No newline at end of file
++- Override user-specified safety constraints or bypass quality gates
++
++## COMPLETION CRITERIA
++
++**Implementation is DONE when**:
++- Feature code is written and compiles
++- Basic functionality verified
++- Files saved and ready for testing
++
++**Post-Implementation Checklist**:
++1. Code compiles without errors
++2. Basic functionality works
++3. Ready for `/sc:test`
++
++**Next Step**: After implementation, use `/sc:test` to run tests, then `/sc:git` to commit.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/improve.md b/src/superclaude/commands/improve.md
+index 091a3140..b9a2271e 100644
+--- a/src/superclaude/commands/improve.md
++++ b/src/superclaude/commands/improve.md
+@@ -92,3 +92,22 @@ Key behaviors:
+ - Make architectural changes without understanding full system impact
+ - Override established coding standards or project-specific conventions
+ 
++## AUTO-FIX VS APPROVAL-REQUIRED
++
++**Auto-fix (applies automatically)**:
++- Style fixes (formatting, naming conventions)
++- Unused variable removal
++- Import organization
++- Simple type annotations
++
++**Approval Required (prompts user first)**:
++- Architectural changes
++- Logic refactoring
++- Function signature changes
++- Removing code used by public APIs
++- Changes affecting multiple files
++
++**Explicitly Will NOT** (without `--force` flag):
++- Make architectural decisions
++- Refactor code structure without confirmation
++- Remove functionality
+diff --git a/src/superclaude/commands/research.md b/src/superclaude/commands/research.md
+index 07583d97..a9415c52 100644
+--- a/src/superclaude/commands/research.md
++++ b/src/superclaude/commands/research.md
+@@ -100,4 +100,24 @@ personas: [deep-research-agent]
+ 
+ ## Boundaries
+ **Will**: Current information, intelligent search, evidence-based analysis
+-**Won't**: Make claims without sources, skip validation, access restricted content
+\ No newline at end of file
++**Won't**: Make claims without sources, skip validation, access restricted content
++
++## CRITICAL BOUNDARIES
++
++**STOP AFTER RESEARCH REPORT**
++
++This command produces a RESEARCH REPORT ONLY - no implementation.
++
++**Explicitly Will NOT**:
++- Implement findings or recommendations
++- Write code based on research
++- Make architectural decisions
++- Create system changes based on research
++
++**Output**: Research report (`claudedocs/research_*.md`) containing:
++- Findings with sources
++- Evidence-based analysis
++- Recommendations (for human decision)
++- Cited references
++
++**Next Step**: After research completes, user decides next action. Use `/sc:design` for architecture or `/sc:implement` for coding.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/spawn.md b/src/superclaude/commands/spawn.md
+index cc24c120..0bd297d9 100644
+--- a/src/superclaude/commands/spawn.md
++++ b/src/superclaude/commands/spawn.md
+@@ -82,4 +82,24 @@ Key behaviors:
+ **Will Not:**
+ - Replace domain-specific commands for simple operations
+ - Override user coordination preferences or execution strategies
+-- Execute operations without proper dependency analysis and validation
+\ No newline at end of file
++- Execute operations without proper dependency analysis and validation
++
++## CRITICAL BOUNDARIES
++
++**STOP AFTER TASK DECOMPOSITION**
++
++This command produces a TASK HIERARCHY ONLY - delegates execution to other commands.
++
++**Explicitly Will NOT**:
++- Execute implementation tasks directly
++- Write or modify code
++- Create system changes
++- Replace domain-specific commands
++
++**Output**: Task breakdown document with:
++- Epic decomposition
++- Task hierarchy with dependencies
++- Delegation assignments (which `/sc:*` command handles each task)
++- Coordination strategy
++
++**Next Step**: Execute individual tasks using delegated commands (`/sc:implement`, `/sc:design`, `/sc:test`, etc.)
+\ No newline at end of file
+diff --git a/src/superclaude/commands/spec-panel.md b/src/superclaude/commands/spec-panel.md
+index d2cf6345..72b2ad79 100644
+--- a/src/superclaude/commands/spec-panel.md
++++ b/src/superclaude/commands/spec-panel.md
+@@ -425,4 +425,12 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ - Replace human judgment and domain expertise in critical decisions
+ - Modify specifications without explicit user consent and validation
+ - Generate specifications from scratch without existing content or context
+-- Provide legal or regulatory compliance guarantees beyond analysis guidance
+\ No newline at end of file
++- Provide legal or regulatory compliance guarantees beyond analysis guidance
++
++**Output**: Expert review document containing:
++- Multi-expert analysis (10 simulated experts)
++- Specific, actionable recommendations
++- Consensus points and disagreements
++- Priority-ranked improvements
++
++**Next Step**: After review, incorporate feedback into spec, then use `/sc:design` for architecture or `/sc:implement` for coding.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/task.md b/src/superclaude/commands/task.md
+index ef784067..bee103a3 100644
+--- a/src/superclaude/commands/task.md
++++ b/src/superclaude/commands/task.md
+@@ -86,4 +86,31 @@ Key behaviors:
+ **Will Not:**
+ - Execute simple tasks that don't require advanced orchestration
+ - Compromise quality standards for speed or convenience
+-- Operate without proper validation and quality gates
+\ No newline at end of file
++- Operate without proper validation and quality gates
++
++## CRITICAL BOUNDARIES
++
++**USER-INVOKED DISCRETE TASK EXECUTION**
++
++This command executes specific tasks when explicitly invoked by user.
++
++**Difference from /sc:pm**:
++- `/sc:pm` = session-level orchestration (background monitoring, continuous)
++- `/sc:task` = user-invoked discrete execution (explicit start/end)
++
++**Behavior**:
++- User invokes `/sc:task [description]`
++- Execute the specific task using multi-agent coordination
++- **STOP when task is complete** - do not continue to next tasks without user input
++
++**Completion Criteria**:
++- Task objective achieved
++- All sub-tasks marked completed in TodoWrite
++- Validation passed
++
++**Output**: Task completion report with:
++- What was accomplished
++- Files modified
++- Tests status (if applicable)
++
++**Next Step**: User decides next action. May invoke another `/sc:task` or use specific commands.
+\ No newline at end of file
+diff --git a/src/superclaude/commands/troubleshoot.md b/src/superclaude/commands/troubleshoot.md
+index 166783dc..e496fc8a 100644
+--- a/src/superclaude/commands/troubleshoot.md
++++ b/src/superclaude/commands/troubleshoot.md
+@@ -85,4 +85,36 @@ Key behaviors:
+ **Will Not:**
+ - Apply risky fixes without proper analysis and user confirmation
+ - Modify production systems without explicit permission and safety validation
+-- Make architectural changes without understanding full system impact
+\ No newline at end of file
++- Make architectural changes without understanding full system impact
++
++## CRITICAL BOUNDARIES
++
++**DIAGNOSE FIRST - FIXES REQUIRE `--fix` FLAG**
++
++This command is DIAGNOSIS-FIRST by default.
++
++**Default behavior (no `--fix` flag)**:
++- Diagnose the issue
++- Identify root cause
++- Propose solution options
++- **STOP and present findings to user** - do not apply any fixes
++
++**With `--fix` flag**:
++- After diagnosis, prompt user for confirmation before applying
++- Apply fix only after user explicitly approves
++- Verify fix with tests
++
++**Explicitly Will NOT** (without `--fix` flag):
++- Apply any code changes
++- Modify any files
++- Execute fixes automatically
++
++**Output**: Diagnostic report containing:
++- Issue description
++- Root cause analysis
++- Proposed solutions (ranked)
++- Risk assessment for each solution
++
++**Next Step**: User reviews diagnosis, then either:
++- Re-run with `--fix` flag to apply recommended fix
++- Use `/sc:improve` for broader refactoring
+\ No newline at end of file
+diff --git a/src/superclaude/commands/workflow.md b/src/superclaude/commands/workflow.md
+index 32cb7810..c868077f 100644
+--- a/src/superclaude/commands/workflow.md
++++ b/src/superclaude/commands/workflow.md
+@@ -94,4 +94,25 @@ Key behaviors:
+ **Will Not:**
+ - Execute actual implementation tasks beyond workflow planning and strategy
+ - Override established development processes without proper analysis and validation
+-- Generate workflows without comprehensive requirement analysis and dependency mapping 
+\ No newline at end of file
++- Generate workflows without comprehensive requirement analysis and dependency mapping
++
++## CRITICAL BOUNDARIES
++
++**STOP AFTER PLAN CREATION**
++
++This command produces an IMPLEMENTATION PLAN ONLY - no code execution.
++
++**Explicitly Will NOT**:
++- Execute any implementation tasks
++- Write or modify code
++- Create files (except the workflow plan document)
++- Make architectural changes
++- Run builds or tests
++
++**Output**: Workflow plan document (`claudedocs/workflow_*.md`) containing:
++- Implementation phases
++- Task dependencies
++- Execution order
++- Checkpoints and validation steps
++
++**Next Step**: After workflow completes, use `/sc:implement` to execute the plan step by step.
+\ No newline at end of file

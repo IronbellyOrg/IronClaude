@@ -1,0 +1,22 @@
+selected_tier: 1
+fired_rule_number: null          # §5.1 hard override "--tier 1" fired; §5.3 table not authoritative
+hard_override: "--tier 1"
+rubric_equivalent_rule: 2        # recorded only: C=0.90>=0.85, S_scope=2<=10, S_domains=2<=2, S_dev_density=0.0<=0.10 -> STOP at T1 (rule 1 fails on S_domains==1)
+coverage_degraded: null
+surface_unreached: null
+confidence_calibrated: 0.90
+confidence_unrounded: 0.898
+S_scope: 2
+S_domains: 2
+S_dev_density: 0.0
+regression_candidate_count: 0
+composite_score: 2.0
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 2      # no spec supplied (gold standard absent)
+  ambiguity_signals: 0
+escalation_reason: "Tier pinned by --tier 1 (hard override). Rubric-equivalent would also STOP at T1 via rule 2."
+t2_model_class_diversity: full        # 3 distinct aliases resolved; T2 not run
+t2_vendor_diversity: multi

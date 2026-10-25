@@ -1,0 +1,12 @@
+selected_tier: 1
+decision_source: "§5.1 hard override --tier 1 (STOP at T1; Wave 3+ skipped)"
+fired_rule_number: 2                # rubric evaluated for recording: rule 1 fails (S_domains=2 != 1); rule 2 matches (C 0.916>=0.85, S_scope 3<=10, S_domains 2<=2, S_dev_density 0.0<=0.10)
+rubric_agrees_with_override: true
+coverage_undefined: false
+coverage_degraded: null
+surface_unreached: null
+inputs: {C: 0.9160, S_scope: 3, S_domains: 2, S_domains_inferred: true, S_dev_density: 0.0, coverage_pct: 1.0, coverage_pct_union: 1.0}
+composite_score: 1
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+t2_model_class_diversity: full      # 3 distinct aliases resolved; T2 not run
+escalation_reason: "Pinned Tier 1 by user flag; rubric independently reaches STOP at T1 via rule 2 (S_dev_density 0.0 <= 0.05, no WARN)"

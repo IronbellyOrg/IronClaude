@@ -1,0 +1,15 @@
+Historical path endpoint audit
+Method: git diff --no-renames --name-status FIRST_PARENT COMMIT
+Default manifest counts use git diff --name-only and can omit a rename source. This audit includes every old and new endpoint.
+
+foundation-migration: default=268 complete_endpoints=269 extra=['docs/User-Guide/mcp-installation.md']
+installer-packaging: default=76 complete_endpoints=76 extra=[]
+quality-ci: default=26 complete_endpoints=26 extra=[]
+docs-memory-releases: default=30 complete_endpoints=30 extra=[]
+commands-framework: default=217 complete_endpoints=217 extra=[]
+mcp-installation: default=14 complete_endpoints=14 extra=[]
+sync-protection: default=2 complete_endpoints=2 extra=[]
+automated-sync-copies: default=54 complete_endpoints=54 extra=[]
+
+Across all units: default=563 complete_endpoints=563
+Globally additional endpoints: []

@@ -1,0 +1,402 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index 72c1af82..6c0e3c49 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -153,6 +153,8 @@ extend-exclude = '''
+ [tool.ruff]
+ line-length = 88
+ target-version = "py310"
++
++[tool.ruff.lint]
+ select = ["E", "F", "I", "N", "W"]
+ ignore = ["E501"]  # Line too long (handled by black)
+ 
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index 8073d24a..a4090539 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -10,8 +10,8 @@ __author__ = "NomenAK, Mithun Gowda B"
+ 
+ # Expose main components
+ from .pm_agent.confidence import ConfidenceChecker
+-from .pm_agent.self_check import SelfCheckProtocol
+ from .pm_agent.reflexion import ReflexionPattern
++from .pm_agent.self_check import SelfCheckProtocol
+ 
+ __all__ = [
+     "ConfidenceChecker",
+diff --git a/src/superclaude/cli/doctor.py b/src/superclaude/cli/doctor.py
+index cd6e1048..b9cbd64d 100644
+--- a/src/superclaude/cli/doctor.py
++++ b/src/superclaude/cli/doctor.py
+@@ -5,8 +5,7 @@ Health check for SuperClaude installation.
+ """
+ 
+ from pathlib import Path
+-from typing import Dict, List, Any
+-import sys
++from typing import Any, Dict
+ 
+ 
+ def run_doctor(verbose: bool = False) -> Dict[str, Any]:
+diff --git a/src/superclaude/cli/install_commands.py b/src/superclaude/cli/install_commands.py
+index 2ac47303..81621596 100644
+--- a/src/superclaude/cli/install_commands.py
++++ b/src/superclaude/cli/install_commands.py
+@@ -4,9 +4,9 @@ Command Installation
+ Installs SuperClaude slash commands to ~/.claude/commands/sc/ directory.
+ """
+ 
++import shutil
+ from pathlib import Path
+ from typing import List, Tuple
+-import shutil
+ 
+ 
+ def install_commands(
+diff --git a/src/superclaude/cli/install_skill.py b/src/superclaude/cli/install_skill.py
+index 5099c9ba..d4c0bd4c 100644
+--- a/src/superclaude/cli/install_skill.py
++++ b/src/superclaude/cli/install_skill.py
+@@ -4,9 +4,9 @@ Skill Installation Command
+ Installs SuperClaude skills to ~/.claude/skills/ directory.
+ """
+ 
++import shutil
+ from pathlib import Path
+ from typing import List, Optional, Tuple
+-import shutil
+ 
+ 
+ def install_skill_command(
+diff --git a/src/superclaude/cli/main.py b/src/superclaude/cli/main.py
+index cd7028f2..480ec525 100644
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -4,9 +4,10 @@ SuperClaude CLI Main Entry Point
+ Provides command-line interface for SuperClaude operations.
+ """
+ 
+-import click
+-from pathlib import Path
+ import sys
++from pathlib import Path
++
++import click
+ 
+ # Add parent directory to path to import superclaude
+ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+diff --git a/src/superclaude/execution/__init__.py b/src/superclaude/execution/__init__.py
+index da1b0d82..9c66f8bc 100644
+--- a/src/superclaude/execution/__init__.py
++++ b/src/superclaude/execution/__init__.py
+@@ -17,10 +17,11 @@ Usage:
+ """
+ 
+ from pathlib import Path
+-from typing import List, Dict, Any, Optional, Callable
+-from .reflection import ReflectionEngine, ConfidenceScore, reflect_before_execution
+-from .parallel import ParallelExecutor, Task, ExecutionPlan, should_parallelize
+-from .self_correction import SelfCorrectionEngine, RootCause, learn_from_failure
++from typing import Any, Callable, Dict, List, Optional
++
++from .parallel import ExecutionPlan, ParallelExecutor, Task, should_parallelize
++from .reflection import ConfidenceScore, ReflectionEngine, reflect_before_execution
++from .self_correction import RootCause, SelfCorrectionEngine, learn_from_failure
+ 
+ __all__ = [
+     "intelligent_execute",
+@@ -30,6 +31,10 @@ __all__ = [
+     "ConfidenceScore",
+     "ExecutionPlan",
+     "RootCause",
++    "Task",
++    "should_parallelize",
++    "reflect_before_execution",
++    "learn_from_failure",
+ ]
+ 
+ 
+diff --git a/src/superclaude/execution/parallel.py b/src/superclaude/execution/parallel.py
+index 44a574aa..178925db 100644
+--- a/src/superclaude/execution/parallel.py
++++ b/src/superclaude/execution/parallel.py
+@@ -11,11 +11,11 @@ Key features:
+ - Result aggregation and error handling
+ """
+ 
+-from dataclasses import dataclass
+-from typing import List, Dict, Any, Callable, Optional, Set
++import time
+ from concurrent.futures import ThreadPoolExecutor, as_completed
++from dataclasses import dataclass
+ from enum import Enum
+-import time
++from typing import Any, Callable, Dict, List, Optional, Set
+ 
+ 
+ class TaskStatus(Enum):
+@@ -106,9 +106,6 @@ class ParallelExecutor:
+         print(f"⚡ Parallel Executor: Planning {len(tasks)} tasks")
+         print("=" * 60)
+ 
+-        # Build dependency graph
+-        task_map = {task.id: task for task in tasks}
+-
+         # Find parallel groups using topological sort
+         groups = []
+         completed = set()
+diff --git a/src/superclaude/execution/reflection.py b/src/superclaude/execution/reflection.py
+index 606ffbfa..0ca25ef8 100644
+--- a/src/superclaude/execution/reflection.py
++++ b/src/superclaude/execution/reflection.py
+@@ -9,11 +9,11 @@ Implements the "Triple Reflection" pattern:
+ Only proceeds with execution if confidence >70%.
+ """
+ 
+-from dataclasses import dataclass
+-from pathlib import Path
+-from typing import List, Optional, Dict, Any
+ import json
++from dataclasses import dataclass
+ from datetime import datetime
++from pathlib import Path
++from typing import Any, Dict, List, Optional
+ 
+ 
+ @dataclass
+diff --git a/src/superclaude/execution/self_correction.py b/src/superclaude/execution/self_correction.py
+index 5cd42ba3..ba13d978 100644
+--- a/src/superclaude/execution/self_correction.py
++++ b/src/superclaude/execution/self_correction.py
+@@ -12,12 +12,12 @@ Key features:
+ - Persistent learning memory
+ """
+ 
+-from dataclasses import dataclass, asdict
+-from typing import List, Optional, Dict, Any
+-from pathlib import Path
++import hashlib
+ import json
++from dataclasses import asdict, dataclass
+ from datetime import datetime
+-import hashlib
++from pathlib import Path
++from typing import Any, Dict, List, Optional
+ 
+ 
+ @dataclass
+@@ -288,7 +288,7 @@ class SelfCorrectionEngine:
+         Updates Reflexion memory with new learning.
+         """
+ 
+-        print(f"📚 Self-Correction: Learning from failure")
++        print("📚 Self-Correction: Learning from failure")
+ 
+         # Generate unique ID for this failure
+         failure_id = hashlib.md5(
+@@ -334,13 +334,13 @@ class SelfCorrectionEngine:
+             if "prevention_rules" not in data:
+                 data["prevention_rules"] = []
+             data["prevention_rules"].append(root_cause.prevention_rule)
+-            print(f"📝 Prevention rule added")
++            print("📝 Prevention rule added")
+ 
+         # Save updated memory
+         with open(self.reflexion_file, 'w') as f:
+             json.dump(data, f, indent=2)
+ 
+-        print(f"💾 Reflexion memory updated")
++        print("💾 Reflexion memory updated")
+ 
+     def get_prevention_rules(self) -> List[str]:
+         """Get all active prevention rules"""
+diff --git a/src/superclaude/pm_agent/__init__.py b/src/superclaude/pm_agent/__init__.py
+index fd9670ce..b8c94c54 100644
+--- a/src/superclaude/pm_agent/__init__.py
++++ b/src/superclaude/pm_agent/__init__.py
+@@ -9,8 +9,8 @@ Provides core functionality for PM Agent:
+ """
+ 
+ from .confidence import ConfidenceChecker
+-from .self_check import SelfCheckProtocol
+ from .reflexion import ReflexionPattern
++from .self_check import SelfCheckProtocol
+ 
+ __all__ = [
+     "ConfidenceChecker",
+diff --git a/src/superclaude/pm_agent/confidence.py b/src/superclaude/pm_agent/confidence.py
+index da7332a6..a93f31d2 100644
+--- a/src/superclaude/pm_agent/confidence.py
++++ b/src/superclaude/pm_agent/confidence.py
+@@ -19,8 +19,8 @@ Required Checks:
+     5. Root cause identified with high certainty
+ """
+ 
+-from typing import Dict, Any, Optional
+ from pathlib import Path
++from typing import Any, Dict
+ 
+ 
+ class ConfidenceChecker:
+diff --git a/src/superclaude/pm_agent/reflexion.py b/src/superclaude/pm_agent/reflexion.py
+index 77ac4a8f..af13012d 100644
+--- a/src/superclaude/pm_agent/reflexion.py
++++ b/src/superclaude/pm_agent/reflexion.py
+@@ -23,10 +23,10 @@ Process:
+     4. Store for future reference (dual storage)
+ """
+ 
+-from typing import Dict, List, Optional, Any
+-from pathlib import Path
+ import json
+ from datetime import datetime
++from pathlib import Path
++from typing import Any, Dict, Optional
+ 
+ 
+ class ReflexionPattern:
+diff --git a/src/superclaude/pm_agent/self_check.py b/src/superclaude/pm_agent/self_check.py
+index 66290bf5..cdbe157c 100644
+--- a/src/superclaude/pm_agent/self_check.py
++++ b/src/superclaude/pm_agent/self_check.py
+@@ -13,7 +13,7 @@ The Four Questions:
+ 4. Is there evidence?
+ """
+ 
+-from typing import Dict, List, Tuple, Any, Optional
++from typing import Any, Dict, List, Tuple
+ 
+ 
+ class SelfCheckProtocol:
+diff --git a/src/superclaude/pytest_plugin.py b/src/superclaude/pytest_plugin.py
+index 04e2321e..b0203672 100644
+--- a/src/superclaude/pytest_plugin.py
++++ b/src/superclaude/pytest_plugin.py
+@@ -9,13 +9,12 @@ Entry point registered in pyproject.toml:
+     superclaude = "superclaude.pytest_plugin"
+ """
+ 
++
+ import pytest
+-from pathlib import Path
+-from typing import Dict, Any, Optional
+ 
+ from .pm_agent.confidence import ConfidenceChecker
+-from .pm_agent.self_check import SelfCheckProtocol
+ from .pm_agent.reflexion import ReflexionPattern
++from .pm_agent.self_check import SelfCheckProtocol
+ from .pm_agent.token_budget import TokenBudgetManager
+ 
+ 
+diff --git a/tests/conftest.py b/tests/conftest.py
+index 6b1c1a36..a36bfbb0 100644
+--- a/tests/conftest.py
++++ b/tests/conftest.py
+@@ -5,8 +5,8 @@ This file is automatically loaded by pytest and provides
+ shared fixtures available to all test modules.
+ """
+ 
++
+ import pytest
+-from pathlib import Path
+ 
+ 
+ @pytest.fixture
+diff --git a/tests/integration/test_pytest_plugin.py b/tests/integration/test_pytest_plugin.py
+index 67b55ab4..dafcf39f 100644
+--- a/tests/integration/test_pytest_plugin.py
++++ b/tests/integration/test_pytest_plugin.py
+@@ -91,13 +91,11 @@ class TestPytestPluginIntegration:
+ 
+     def test_pytest_markers_registered(self):
+         """Test that custom markers are registered"""
+-        # Get all registered markers
+-        markers = {marker.name for marker in pytest.mark.__dict__.values() if hasattr(marker, "name")}
+-
+         # Note: This test might need adjustment based on pytest version
+         # The important thing is that our custom markers exist
+         # confidence_check, self_check, reflexion, complexity
+         # These are registered in pytest_plugin.py
++        pass
+ 
+ 
+ class TestPytestPluginHooks:
+diff --git a/tests/unit/test_cli_install.py b/tests/unit/test_cli_install.py
+index 2f942040..4bb2a24b 100644
+--- a/tests/unit/test_cli_install.py
++++ b/tests/unit/test_cli_install.py
+@@ -4,8 +4,6 @@ Unit tests for CLI install command
+ Tests the command installation functionality.
+ """
+ 
+-import pytest
+-from pathlib import Path
+ from superclaude.cli.install_commands import (
+     install_commands,
+     list_available_commands,
+@@ -172,7 +170,6 @@ def test_cli_integration():
+     This tests that the CLI main.py can successfully import the functions
+     """
+     from superclaude.cli.install_commands import (
+-        install_commands,
+         list_available_commands,
+     )
+ 
+diff --git a/tests/unit/test_confidence.py b/tests/unit/test_confidence.py
+index bcf31ccc..254b8315 100644
+--- a/tests/unit/test_confidence.py
++++ b/tests/unit/test_confidence.py
+@@ -5,6 +5,7 @@ Tests pre-execution confidence assessment functionality.
+ """
+ 
+ import pytest
++
+ from superclaude.pm_agent.confidence import ConfidenceChecker
+ 
+ 
+diff --git a/tests/unit/test_reflexion.py b/tests/unit/test_reflexion.py
+index af954c0e..8bd8d3a5 100644
+--- a/tests/unit/test_reflexion.py
++++ b/tests/unit/test_reflexion.py
+@@ -5,6 +5,7 @@ Tests error learning and prevention functionality.
+ """
+ 
+ import pytest
++
+ from superclaude.pm_agent.reflexion import ReflexionPattern
+ 
+ 
+@@ -165,7 +166,7 @@ def test_reflexion_with_real_exception():
+ 
+     try:
+         # Simulate an operation that fails
+-        result = 10 / 0
++        _ = 10 / 0  # noqa: F841
+     except ZeroDivisionError as e:
+         # Record the error
+         error_info = {
+diff --git a/tests/unit/test_self_check.py b/tests/unit/test_self_check.py
+index 8431bcb6..a0478a6e 100644
+--- a/tests/unit/test_self_check.py
++++ b/tests/unit/test_self_check.py
+@@ -5,6 +5,7 @@ Tests post-implementation validation functionality.
+ """
+ 
+ import pytest
++
+ from superclaude.pm_agent.self_check import SelfCheckProtocol
+ 
+ 
+diff --git a/tests/unit/test_token_budget.py b/tests/unit/test_token_budget.py
+index 57ce36c6..d8f71daa 100644
+--- a/tests/unit/test_token_budget.py
++++ b/tests/unit/test_token_budget.py
+@@ -5,6 +5,7 @@ Tests token budget allocation and management functionality.
+ """
+ 
+ import pytest
++
+ from superclaude.pm_agent.token_budget import TokenBudgetManager
+ 
+ 

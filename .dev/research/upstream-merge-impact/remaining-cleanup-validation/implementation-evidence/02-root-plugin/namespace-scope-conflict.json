@@ -1,0 +1,122 @@
+{
+  "kind": "namespace-scope-conflict",
+  "observed_loader_inventory": "loader-candidates-init.json",
+  "unavailable_names": [
+    "code-to-spec",
+    "deploy",
+    "migrate",
+    "refactor",
+    "scan"
+  ],
+  "references": [
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 145,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "    secondary_commands: [\"/sc:sc:scan --security --owasp\", \"/sc:sc:analyze --performance --pup\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 152,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "    secondary_commands: [\"/sc:sc:scan --security\", \"/sc:sc:improve --quality\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 165,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "    primary_commands: [\"/sc:sc:scan --security --owasp --deps\", \"/sc:sc:analyze --security\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 178,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "    primary_commands: [\"/sc:sc:test --coverage --e2e --pup\", \"/sc:sc:scan --validate\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 186,
+      "token": "/sc:sc:refactor",
+      "name": "refactor",
+      "text": "    secondary_commands: [\"/sc:sc:analyze --code\", \"/sc:sc:refactor --quality\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 245,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "- Security: /sc:sc:scan --security --owasp (next phase)"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 297,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "2. /sc:sc:scan --security --owasp --deps --strict --persona-security"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 406,
+      "token": "/sc:sc:migrate",
+      "name": "migrate",
+      "text": "        primary: [\"/sc:sc:migrate --database --validate\", \"/sc:sc:analyze --security\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 459,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "1. /sc:sc:scan --security --owasp --deps --strict --persona-security"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 494,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "      commands: [\"/sc:sc:test\", \"/sc:sc:scan\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 498,
+      "token": "/sc:sc:deploy",
+      "name": "deploy",
+      "text": "      commands: [\"/sc:sc:deploy\", \"/sc:sc:improve\"]"
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 815,
+      "token": "/sc:sc:scan",
+      "name": "scan",
+      "text": "      - \"/sc:sc:scan --security --owasp\""
+    },
+    {
+      "path": "commands/sc-recommend.md",
+      "line": 945,
+      "token": "/sc:sc:deploy",
+      "name": "deploy",
+      "text": "/sc:sc:analyze \u2192 /sc:sc:design \u2192 /sc:sc:build \u2192 /sc:sc:test \u2192 /sc:sc:deploy"
+    },
+    {
+      "path": "commands/sc-spec-panel.md",
+      "line": 351,
+      "token": "/sc:sc:code-to-spec",
+      "name": "code-to-spec",
+      "text": "### Workflow Integration with /sc:sc:code-to-spec"
+    },
+    {
+      "path": "commands/sc-spec-panel.md",
+      "line": 354,
+      "token": "/sc:sc:code-to-spec",
+      "name": "code-to-spec",
+      "text": "/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml"
+    }
+  ],
+  "reference_count": 15,
+  "product_command_edits": false,
+  "proposed_narrow_revision": "Permit explicit unavailable labels only for these nonexistent command references in sc-recommend.md and sc-spec-panel.md, retaining every other prose/flag/example and never adding retired or new commands.",
+  "authorization": "User selected Label unavailable (Recommended) on 2026-10-24; permits only 15 explicit unavailable labels in the two named files and corresponding written plan revision, not new commands or other behavior changes"
+}

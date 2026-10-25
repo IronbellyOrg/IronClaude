@@ -1,0 +1,39 @@
+{
+  "gate_agent": "sc:evidence-validator",
+  "requested_model_slot": "haiku",
+  "resolved_alias": "grok-4.7[1m]",
+  "passes": [
+    {
+      "pass": 1,
+      "agent_id": "aa4ba27e56bda2842",
+      "draft": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft.md",
+      "citations_total": 17,
+      "citations_revalidated": 17,
+      "citations_dropped": 0,
+      "untagged_unsupported_claims": 8,
+      "orchestrator_action": "grounded each at validator-identified anchors (re-Read by orchestrator) -> C18-C28; git no-commit claim grounded by diagnostic command output; resubmitted"
+    },
+    {
+      "pass": 2,
+      "agent_id": "ab714561edd0ce1bc",
+      "draft": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/runs/legacy-pre-attempt-1/artifacts/REPORT.draft-v2.md",
+      "citations_total": 28,
+      "citations_revalidated": 28,
+      "citations_dropped": 0,
+      "not_reverifiable_by_validator": [
+        "git -C <root> rev-list --all --count -> 0 (orchestrator-run diagnostic; validator has no shell)"
+      ],
+      "untagged_unsupported_claims": 7,
+      "orchestrator_action": "run-provenance statements (MCP absence, tech-research skip, Wave 7 n/a, legacy mapping, checkpoint skips, no grounding-gaps.yaml) re-worded as orchestrator-recorded provenance pointing to audit.log rows, not evidentiary citations; 'checkpoints' plural corrected; inferred_count claim re-anchored to C18. No citation added or removed after pass 2."
+    }
+  ],
+  "final": {
+    "citations_total": 28,
+    "citations_revalidated": 28,
+    "citations_dropped": 0,
+    "citations_inferred": 2,
+    "citation_budget_policy": "full_reread",
+    "zero_drop_flag": true,
+    "zero_drop_note": "zero drops on a small (28-citation) synthetic fixture after two independent passes; flagged per \u00a711.2 for meta-eval spot-check, not treated as proof of cleanliness"
+  }
+}

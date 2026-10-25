@@ -1,0 +1,384 @@
+parsed_count: 0
+inferred_count: 13
+total_tasks: 3
+coverage_pct: null
+coverage_pct_union: 0.8462
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-006
+- INF-008
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+S_scope: 3
+S_domains: 3
+domains:
+- code
+- infra
+- docs
+S_dev_density: 0.1538
+tokenization: casefold; strip possessive apostrophe-s; unique ASCII alphanumeric words
+stopwords:
+- a
+- about
+- after
+- against
+- although
+- am
+- an
+- and
+- are
+- as
+- at
+- be
+- because
+- been
+- before
+- being
+- between
+- but
+- by
+- can
+- could
+- did
+- do
+- does
+- during
+- for
+- from
+- had
+- has
+- have
+- if
+- in
+- into
+- is
+- may
+- might
+- must
+- nor
+- of
+- 'off'
+- 'on'
+- or
+- out
+- outside
+- over
+- per
+- shall
+- should
+- so
+- than
+- that
+- the
+- through
+- to
+- under
+- until
+- up
+- via
+- was
+- were
+- when
+- while
+- will
+- with
+- within
+- would
+- yet
+rows:
+- id: INF-001
+  lines: '1'
+  quote: Rip out the framework sync workflow and the Codecov upload in the IronbellyOrg/IronClaude
+    fork.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:1
+  content_words:
+  - codecov
+  - fork
+  - framework
+  - ironbellyorg
+  - ironclaude
+  - rip
+  - sync
+  - upload
+  - workflow
+  ratios:
+    task1: 0.3333
+    task2: 0.3333
+    task3: 0.7778
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-002
+  lines: 1-2
+  quote: Delete .github/workflows/pull-sync-framework.yml, scripts/sync_from_framework.py
+    and docs/.framework-sync-commit.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:1-2
+  content_words:
+  - commit
+  - delete
+  - docs
+  - framework
+  - github
+  - pull
+  - py
+  - scripts
+  - sync
+  - workflows
+  - yml
+  ratios:
+    task1: 1.0
+    task2: 0.4545
+    task3: 0.6364
+  matched_task_ids:
+  - task1
+  match_method: containment
+- id: INF-003
+  lines: 2-3
+  quote: Remove the 'Upload coverage to Codecov' step from .github/workflows/test.yml
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:2-3
+  content_words:
+  - codecov
+  - coverage
+  - github
+  - remove
+  - step
+  - test
+  - upload
+  - workflows
+  - yml
+  ratios:
+    task1: 0.3333
+    task2: 1.0
+    task3: 1.0
+  matched_task_ids:
+  - task2
+  match_method: containment
+- id: INF-004
+  lines: '3'
+  quote: keep pytest's own coverage measurement
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:3
+  content_words:
+  - coverage
+  - keep
+  - measurement
+  - own
+  - pytest
+  ratios:
+    task1: 0.0
+    task2: 0.6
+    task3: 0.4
+  matched_task_ids:
+  - task2
+  match_method: containment
+- id: INF-005
+  lines: 3-5
+  quote: In .github/workflows/README.md remove the pull-sync-framework entry (section
+    4), the Codecov list item, the Codecov text in the Coverage Reporting section,
+    and the Codecov bullets in 'Coverage upload fails'
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:3-5
+  content_words:
+  - '4'
+  - bullets
+  - codecov
+  - coverage
+  - entry
+  - fails
+  - framework
+  - github
+  - item
+  - list
+  - md
+  - pull
+  - readme
+  - remove
+  - reporting
+  - section
+  - sync
+  - text
+  - upload
+  - workflows
+  ratios:
+    task1: 0.35
+    task2: 0.45
+    task3: 0.9
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-006
+  lines: '5'
+  quote: remove that whole section if nothing is left
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:5
+  content_words:
+  - left
+  - nothing
+  - remove
+  - section
+  - whole
+  ratios:
+    task1: 0.0
+    task2: 0.2
+    task3: 0.4
+  matched_task_ids: []
+  match_method: none
+- id: INF-007
+  lines: 5-6
+  quote: Do not touch src/superclaude/templates/documents/readme_template.md, which
+    is a generic example badge.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:5-6
+  content_words:
+  - badge
+  - documents
+  - example
+  - generic
+  - md
+  - not
+  - readme
+  - src
+  - superclaude
+  - template
+  - templates
+  - touch
+  - which
+  ratios:
+    task1: 0.1538
+    task2: 0.3846
+    task3: 0.7692
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-008
+  lines: 6-7
+  quote: Do not revert any content that earlier syncs brought in from upstream; that
+    is decided separately.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:6-7
+  content_words:
+  - any
+  - brought
+  - content
+  - decided
+  - earlier
+  - not
+  - revert
+  - separately
+  - syncs
+  - upstream
+  ratios:
+    task1: 0.4
+    task2: 0.1
+    task3: 0.5
+  matched_task_ids: []
+  match_method: none
+- id: INF-009
+  lines: '7'
+  quote: Do not close PR 283 or delete the sync/framework branch on origin
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:7
+  content_words:
+  - '283'
+  - branch
+  - close
+  - delete
+  - framework
+  - not
+  - origin
+  - pr
+  - sync
+  ratios:
+    task1: 0.7778
+    task2: 0.1111
+    task3: 0.7778
+  matched_task_ids:
+  - task1
+  match_method: containment
+- id: INF-010
+  lines: 7-8
+  quote: list both in the final report for my approval.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:7-8
+  content_words:
+  - approval
+  - both
+  - final
+  - list
+  - my
+  - report
+  ratios:
+    task1: 0.1667
+    task2: 0.3333
+    task3: 0.8333
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-011
+  lines: 8-9
+  quote: 'Final check: no tracked file outside .dev/ still mentions pull-sync-framework,
+    sync_from_framework, framework-sync-commit or codecov (except the template above).'
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:8-9
+  content_words:
+  - above
+  - check
+  - codecov
+  - commit
+  - dev
+  - except
+  - file
+  - final
+  - framework
+  - mentions
+  - 'no'
+  - pull
+  - still
+  - sync
+  - template
+  - tracked
+  ratios:
+    task1: 0.5
+    task2: 0.5
+    task3: 0.8125
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-012
+  lines: '9'
+  quote: Work on a feature branch
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:9
+  content_words:
+  - branch
+  - feature
+  - work
+  ratios:
+    task1: 0.3333
+    task2: 0.0
+    task3: 0.6667
+  matched_task_ids:
+  - task3
+  match_method: containment
+- id: INF-013
+  lines: '9'
+  quote: any PR goes to IronbellyOrg/IronClaude only.
+  source: inferred
+  citation: .dev/tasks/to-do/TASK-WF-ripOutTheFramewo-20261023-134610/source.md:9
+  content_words:
+  - any
+  - goes
+  - ironbellyorg
+  - ironclaude
+  - only
+  - pr
+  ratios:
+    task1: 0.5
+    task2: 0.1667
+    task3: 0.6667
+  matched_task_ids:
+  - task3
+  match_method: containment

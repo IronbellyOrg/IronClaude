@@ -1,0 +1,20 @@
+selected_tier: 1
+hard_override: "--tier 1"          # §5.1: STOP at T1, skip Wave 3+
+fired_rule_number: 2               # rubric-equivalent first match had no override been set (recording only)
+rubric_evaluation:
+  C: 0.94
+  S_scope: 3                       # UC-1 tasklist-item count
+  S_domains: 2                     # code + tests (calibrator concern 3; conservative)
+  S_dev_density: 0.0
+  coverage_pct: 1.0
+  coverage_undefined: false
+  coverage_degraded: null
+  surface_unreached: null
+  rule_1: "fail (S_domains != 1)"
+  rule_2: "pass -> STOP at T1 (no WARN; S_dev_density <= 0.05)"
+coverage_degraded: null
+surface_unreached: null
+composite_score: 1.5
+per_signal_breakdown: {scope_size: 0.5, task_count: 0.5, blast_radius: 0.0, spec_density: 0.5, ambiguity_signals: 0.0}
+escalation_reason: "Tier pinned by --tier 1; rubric independently agrees (rule 2 STOP at T1)."
+t2_model_class_diversity: null     # Tier 2 not reached; 3 distinct aliases resolved

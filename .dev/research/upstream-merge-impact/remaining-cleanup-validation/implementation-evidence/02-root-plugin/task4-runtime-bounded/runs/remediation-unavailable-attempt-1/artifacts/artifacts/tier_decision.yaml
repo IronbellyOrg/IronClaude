@@ -1,0 +1,10 @@
+selected_tier: 1
+fired_rule_number: null            # §5.1 hard override --tier 1 (no rubric evaluation needed)
+override: "--tier 1"
+rubric_shadow_rule: 2              # informational: C=0.91>=0.85, S_scope=2<=10, S_domains=2<=2, S_dev_density=0.0<=0.10 -> STOP at T1 anyway
+coverage_degraded: null
+surface_unreached: null
+composite_score: 1.5
+per_signal_breakdown: {scope_size: 0, task_count: 0.5, blast_radius: 0, spec_density: 1.0, ambiguity_signals: 0}
+escalation_reason: "User pinned --tier 1; no regression candidate; rubric would also stop at T1. spec_density signal reflects absent spec."
+t2_model_class_diversity: full     # 3 distinct aliases resolved (unused at T1)

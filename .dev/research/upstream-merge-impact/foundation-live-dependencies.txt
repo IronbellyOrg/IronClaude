@@ -1,0 +1,123 @@
+## Fork feature adding swarm dispatch and CLI registration
+git show --format=%H %cI %an <%ae> %s --stat b0de1479 -- src/superclaude/cli/main.py src/superclaude/cli/swarm/dispatch.py
+b0de1479267353fa77d56cf9d1b59ee57b27138d 2026-06-08T14:51:36-04:00 Ironbelly <ryan@ironbelly.com> feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+
+ src/superclaude/cli/main.py           |   4 +
+ src/superclaude/cli/swarm/dispatch.py | 480 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 484 insertions(+)
+
+
+## Fork feature adding installed core files to inherited CLI
+git show --format=%H %cI %an <%ae> %s --stat de177847 -- src/superclaude/cli/main.py src/superclaude/cli/install_core.py
+de177847a83acbd5a1633684cf1f34861fc8305d 2026-02-13T20:50:26+00:00 RyanW <ryan@ironbelly.com> feat(v1.05): add core framework file installation to superclaude install
+
+ src/superclaude/cli/install_core.py | 154 ++++++++++++++++++++++++++++++++++++
+ src/superclaude/cli/main.py         |  75 +++++++++++++-----
+ 2 files changed, 209 insertions(+), 20 deletions(-)
+
+
+## Fork feature adding required native MCP phase
+git show --format=%H %cI %an <%ae> %s --stat d594babb -- src/superclaude/cli/main.py src/superclaude/cli/install_codebase_memory.py
+d594babb0a0f696c829c189631d0e589e8f37716 2026-10-22T18:43:15+00:00 Ryan wiancko <ryan@ironbelly.com> feat(mcp): default Codebase Memory MCP install and native lifecycle (live smoke pending)
+
+ src/superclaude/cli/install_codebase_memory.py | 711 +++++++++++++++++++++++++
+ src/superclaude/cli/main.py                    | 102 +++-
+ 2 files changed, 796 insertions(+), 17 deletions(-)
+
+
+## Fork cleanup strengthening pytest plugin provenance tests
+git log --format=%H %cI %an <%ae> %s --author=@ironbelly.com HEAD -- tests/integration/test_pytest_plugin.py
+08cbea9ea2948c33e26bd8d839f404b9912fd176 2026-10-20T17:42:22+00:00 Ryan wiancko <ryan@ironbelly.com> refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+
+
+## All commits touching optional legacy script
+git log --format=%H %cI %an <%ae> %s HEAD -- scripts/uninstall_legacy.sh
+10844490e2609a61ec201e073872428bac9f9470 2025-11-09T14:41:29+09:00 kazuki <kazuki@kazukinoMacBook-Air.local> Update Makefile and add uninstall script
+
+
+## Fork fixture isolation patch
+git show --format=%H %cI %an <%ae> %s --stat d36591ee -- src/superclaude/pm_agent/reflexion.py src/superclaude/pytest_plugin.py tests/conftest.py
+d36591ee2f79f8b10f886b77e9d1423fb23e3ca7 2026-05-19T06:48:05-04:00 Ironbelly <ryan@ironbelly.com> fix(reflexion): eliminate test pollution via REFLEXION_OUTPUT_DIR env var (FU-002) (#59)
+
+ src/superclaude/pm_agent/reflexion.py |  16 ++++--
+ src/superclaude/pytest_plugin.py      |  18 +++++-
+ tests/conftest.py                     | 104 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 131 insertions(+), 7 deletions(-)
+
+
+## Legacy uninstall documentation provenance
+git blame -L 343,367 HEAD -- docs/getting-started/installation.md
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 343) # Uninstall package (pip)
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 344) pip uninstall superclaude
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 345) 
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 346) # Remove the old Claude Code plugin install
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 347) make uninstall-legacy
+545e84c56 Getting-Started/installation.md      (NomenAK 2025-08-16 19:22:54 +0200 348) ```
+545e84c56 Getting-Started/installation.md      (NomenAK 2025-08-16 19:22:54 +0200 349) 
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 350) </td>
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 351) </tr>
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 352) </table>
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 353) 
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 354) </div>
+3c819e116 Docs/Getting-Started/installation.md (NomenAK 2025-08-22 23:05:55 +0200 355) 
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 356) There is no `superclaude uninstall` command. Uninstalling the package removes only the Python package and the `superclaude` command. Everything `superclaude install` copied into your home folder stays where it is:
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 357) 
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 358) - core files such as `~/.claude/CLAUDE.md`, `~/.claude/RULES.md` and `~/.claude/HOW-WE-WORK.md`
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 359) - `~/.claude/commands/sc/`, `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/hooks/` and `~/.claude/templates/`
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 360) - `~/.claude/rules/` and `~/.claude/output-styles/`
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 361) - the `~/.local/bin/ccsession` link and `~/.claude/ccsession.env`
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 362) - the hook entries and settings defaults merged into `~/.claude/settings.json` (a backup named `settings.json.bak.<timestamp>` is written before the hook merge)
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 363) 
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 364) Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed.
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 365) 
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 366) `make uninstall-legacy` (run from a repository checkout) runs `scripts/uninstall_legacy.sh`. It removes only the old Claude Code plugin install: `~/.claude/plugins/superclaude@superclaude`, `~/.claude/superclaude.json`, `~/.claude/superclaude_config.json`, and the `superclaude@superclaude` entry in `enabledPlugins` in `~/.claude/settings.json`. It backs these up to `~/.claude-superclaude-backup-<timestamp>` first. It does not remove anything `superclaude install` put in `~/.claude/`.
+051f39fea docs/getting-started/installation.md (clayphi 2026-10-14 08:07:04 -0500 367) 
+
+
+## Later fork retirement of migration documentation and translations
+git show --format=%H %cI %an <%ae> %s --stat 4e5e3759 -- docs/user-guide-jp docs/user-guide-kr docs/user-guide-zh docs/research docs/architecture
+4e5e3759b951bf38b64f5c7501e23900cecd6ddd 2026-03-23T21:00:26+00:00 RyanW <ryan@ironbelly.com>   - feat(v3.7): add reachability and fidelity validation for TurnLedger wiring     - Added src/superclaude/cli/audit/reachability.py     - Added src/superclaude/cli/roadmap/fidelity_checker.py     - Updated src/superclaude/cli/audit/wiring_gate.py to fail when files_analyzed == 0 on non-empty source trees     - Wired new checker flow into roadmap execution in src/superclaude/cli/roadmap/executor.py   - test(v3.3): expand wiring, rollout, fidelity, and regression coverage     - Extended tests/v3.3/test_wiring_points_e2e.py     - Added:         - tests/v3.3/test_zero_files_analyzed.py       - tests/v3.3/test_broken_wiring_detection.py       - tests/v3.3/test_fidelity_checker.py       - tests/v3.3/test_gate_rollout_modes.py       - tests/v3.3/test_integration_regression.py       - tests/v3.3/test_turnledger_lifecycle.py     - Updated roadmap convergence tests:         - tests/roadmap/test_convergence_e2e.py       - tests/roadmap/test_convergence_smoke.py       - tests/roadmap/test_convergence_wiring.py   - fix(sprint): complete sprint runner/TUI wiring updates     - Updated:         - src/superclaude/cli/sprint/commands.py       - src/superclaude/cli/sprint/config.py       - src/superclaude/cli/sprint/executor.py       - src/superclaude/cli/sprint/tui.py     - Added:         - tests/sprint/test_resolve_release_dir.py       - tests/sprint/test_tui_task_updates.py   - docs(artifacts): record completed v3.3 and v3.6 outputs     - Updated tasklist execution artifacts under .dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/tasklist/     - Added final/generated artifacts like:         - docs/generated/v3.3-wiring-verification-final.md       - tasklist artifact/result directories for D-0032, D-0035, D-0038, D-0045–D-0050     - Added completed workflow doc:         - .dev/releases/backlog/v3.6-Cli-portify-fix/sprint-runner-bugfix-workflow.md   - docs(cleanup): remove legacy framework and translated documentation     - Deleted large sets of outdated top-level and docs/ content including:         - CHANGELOG.md, CONTRIBUTING.md, PLANNING.md, KNOWLEDGE.md, install.sh       - legacy architecture/dev docs       - translated user guides (docs/user-guide-jp, docs/user-guide-kr, docs/user-guide-zh)     - Updated README.md and VERSION
+
+ docs/architecture/CONTEXT_WINDOW_ANALYSIS.md       |  348 -------
+ .../MIGRATION_TO_CLEAN_ARCHITECTURE.md             |  692 -------------
+ docs/architecture/PHASE_1_COMPLETE.md              |  235 -----
+ docs/architecture/PHASE_2_COMPLETE.md              |  300 ------
+ docs/architecture/PHASE_3_COMPLETE.md              |  544 -----------
+ docs/architecture/PM_AGENT_COMPARISON.md           |  529 ----------
+ docs/architecture/SKILLS_CLEANUP.md                |  240 -----
+ docs/architecture/command-skill-policy.md          |  238 -----
+ docs/architecture/pm-agent-auto-activation.md      |  455 ---------
+ .../pm-agent-responsibility-cleanup.md             |  306 ------
+ docs/user-guide-jp/agents.md                       | 1029 --------------------
+ docs/user-guide-jp/commands.md                     |  415 --------
+ docs/user-guide-jp/flags.md                        |  388 --------
+ docs/user-guide-jp/mcp-servers.md                  |  319 ------
+ docs/user-guide-jp/modes.md                        |  726 --------------
+ docs/user-guide-jp/session-management.md           |  414 --------
+ docs/user-guide-kr/agents.md                       |  865 ----------------
+ docs/user-guide-kr/commands.md                     |  367 -------
+ docs/user-guide-kr/flags.md                        |  271 ------
+ docs/user-guide-kr/mcp-servers.md                  |  340 -------
+ docs/user-guide-kr/modes.md                        |  658 -------------
+ docs/user-guide-kr/session-management.md           |  311 ------
+ docs/user-guide-zh/agents.md                       |  819 ----------------
+ docs/user-guide-zh/commands.md                     |  305 ------
+ docs/user-guide-zh/flags.md                        |  270 -----
+ docs/user-guide-zh/mcp-servers.md                  |  272 ------
+ docs/user-guide-zh/modes.md                        |  603 ------------
+ docs/user-guide-zh/session-management.md           |  310 ------
+ 28 files changed, 12569 deletions(-)
+
+
+## All tracked-source search roots for legacy uninstall consumers
+git grep -n -E uninstall-legacy|uninstall_legacy HEAD -- . :!.dev (all tracked paths except research/task artifacts)
+HEAD:Makefile:1:.PHONY: install test test-plugin doctor verify verify-deps clean lint format build-plugin sync-plugin-repo sync-dev verify-sync lint-architecture eval-skill reflect-eval reflect-eval-quick sync-cost-profile uninstall-legacy help
+HEAD:Makefile:560:	@echo "  make uninstall-legacy - Remove old SuperClaude files from ~/.claude"
+HEAD:Makefile:564:uninstall-legacy:
+HEAD:Makefile:566:	@bash scripts/uninstall_legacy.sh
+HEAD:docs/getting-started/installation.md:347:make uninstall-legacy
+HEAD:docs/getting-started/installation.md:366:`make uninstall-legacy` (run from a repository checkout) runs `scripts/uninstall_legacy.sh`. It removes only the old Claude Code plugin install: `~/.claude/plugins/superclaude@superclaude`, `~/.claude/superclaude.json`, `~/.claude/superclaude_config.json`, and the `superclaude@superclaude` entry in `enabledPlugins` in `~/.claude/settings.json`. It backs these up to `~/.claude-superclaude-backup-<timestamp>` first. It does not remove anything `superclaude install` put in `~/.claude/`.
+
+
+Search return code: 0
+Earlier attempt to invoke rg through UV subprocess PATH failed with FileNotFoundError; recovered using git grep against tracked HEAD.

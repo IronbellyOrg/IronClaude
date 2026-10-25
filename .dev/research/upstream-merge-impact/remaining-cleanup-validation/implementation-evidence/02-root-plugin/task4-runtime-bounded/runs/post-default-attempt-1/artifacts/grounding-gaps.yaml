@@ -1,0 +1,15 @@
+# Parallel artifact (refs/deviation-taxonomy.md "Grounding-gaps parallel artifact"); never shares rows with deviation-ledger.yaml
+- id: GG-1
+  hunk_ref: "tests/test_greeting.py:1-13 (no hunk in changes.patch:1-9)"
+  evidence_missing: "No diff hunk, commit, or selected task log ties tests/test_greeting.py to the audited change; repo has zero commits; file is outside --scope src; no test-run output"
+  why_not_classifiable: "T-103 (completed.md:8) claims completion and the on-disk content satisfies R-003 textually, but there is no attributable change record to classify"
+  next_evidence_needed: "A diff including tests/test_greeting.py, or user confirmation it was authored for T-103"
+  owner: user
+  decision_needed_by_user: true
+- id: GG-2
+  hunk_ref: "src/greeting.py:1-4"
+  evidence_missing: "Runtime verification: execute_shell_command unavailable (verification_skip_reason: tool-unavailable); no pytest exit code"
+  why_not_classifiable: "Regression detection degrades to static reading; a collection/import error (pytest exit 2) cannot be ruled out, e.g. `from src.greeting import greet` at tests/test_greeting.py:1"
+  next_evidence_needed: "pytest run of tests/test_greeting.py from a sanctioned verification surface; expect exit 0 with 2 tests collected"
+  owner: reviewer
+  decision_needed_by_user: false

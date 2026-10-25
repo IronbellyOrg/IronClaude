@@ -1,0 +1,40 @@
+{
+  "skill": "sc:confidence-check",
+  "form": "full 5-check + lightweight token verification",
+  "checks": {
+    "no_duplicate": {
+      "pass": true,
+      "weight": 0.25,
+      "evidence": "artifacts/reuse-audit.yaml (0 neighbours)"
+    },
+    "architecture_compliance": {
+      "pass": false,
+      "weight": 0.25,
+      "evidence": "audit root has no CLAUDE.md/PLANNING.md (explicit absence; ancestor not read); R-002 needs pytest, which is not installed"
+    },
+    "official_docs": {
+      "pass": false,
+      "weight": 0.2,
+      "evidence": "Context7 unavailable; pytest import-mode behaviour unverified"
+    },
+    "oss_reference": {
+      "pass": false,
+      "weight": 0.15,
+      "evidence": "Tavily/WebSearch not used"
+    },
+    "root_cause": {
+      "pass": true,
+      "weight": 0.15,
+      "evidence": "G1-G3 root causes grounded and evidence-validated"
+    }
+  },
+  "score": 0.4,
+  "band": "<0.70 STOP for implementation",
+  "blocked_by_low_confidence": true,
+  "token_verification": {
+    "paths_and_line_refs": "verified by sc:evidence-validator (18/18)",
+    "python -m pytest tests -q / pytest tests -q": "[UNVERIFIED] pytest not installed here (find_spec None, no CLI on PATH); user must install/run in their environment",
+    "git regeneration for R-001": "no command token emitted (scope-widened regeneration left to user)"
+  },
+  "disposition": "recommendations surfaced as advisory, user-executed evidence requests only; nothing executed by the audit"
+}

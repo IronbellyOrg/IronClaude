@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-24",
+  "user_answer": "Allow narrow repairs (Recommended)",
+  "source_of_truth": "../../plans/02-root-plugin.md Constraints, user-approved native compatibility revision",
+  "authorized_repairs": [
+    {"paths": ["skills/sc-adversarial-protocol/refs/artifact-templates.md", "skills/sc-adversarial-protocol/refs/debate-protocol.md", "skills/sc-adversarial-protocol/SKILL.md"], "repair": "Align stale 25-criterion scaffold/summary and exactly two active forward/reverse evaluation count strings to existing 30-criterion scorer, sixth invariant/edge-case dimension and eligibility floor; do not change scoring algorithm/weights", "clarification": "The user's approved question authorized scoring alignment within the same 22 resources, not only two named files. Including these two active copies of the same stale count completes that existing repair; this record does not claim new user approval or permit broader changes.", "source_evidence": "src/superclaude/skills/sc-adversarial-protocol/SKILL.md:1740,1753,1756"},
+    {"paths": ["skills/sc-reflect-protocol/SKILL.md", "skills/sc-reflect-protocol/refs/input-resolution.md"], "repair": "Keep post diff OR task-log minimum and recommended tasklist consistent in declarations and hard input guards"},
+    {"paths": ["skills/sc-reflect-protocol/SKILL.md", "skills/sc-reflect-protocol/refs/reviewer-spec.md"], "repair": "Provision actual native read-only snapshots of selected audit inputs, including relevant uncommitted/new files; supply snapshot-grounded briefs with verified hashes and paths; preserve restricted agent allowlist and truthful native-versus-package isolation labels"}
+  ],
+  "preserve": ["same 22 product additions", "all canonical and alternate-build sources", "read-only reviewer tools and permissions", "source input/output guards", "independent calibration", "real merge and citation validation", "runtime proof gates"],
+  "forbidden": ["package-wrapper import", "new production file or dependency", "fake live-path snapshot", "silent fallback as successful proof", "unrelated changes"],
+  "gate_waiver": false,
+  "implementation_status": "Additional repair pending Task 3",
+  "runtime_status": "Unverified until Task 4"
+}

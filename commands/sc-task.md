@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
-# /sc:sc:sc:task - Enhanced Task Management
+# /sc:sc-task - Enhanced Task Management
 
 ## Triggers
 - Complex tasks requiring multi-agent coordination and delegation
@@ -17,7 +17,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 ## Usage
 ```
-/sc:sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
+/sc:sc-task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
 ```
 
 ## Behavioral Flow
@@ -56,21 +56,21 @@ Key behaviors:
 
 ### Complex Feature Development
 ```
-/sc:sc:task create "enterprise authentication system" --strategy systematic --parallel
+/sc:sc-task create "enterprise authentication system" --strategy systematic --parallel
 # Comprehensive task breakdown with multi-domain coordination
 # Activates architect, security, backend, frontend personas
 ```
 
 ### Agile Sprint Coordination
 ```
-/sc:sc:task execute "feature backlog" --strategy agile --delegate
+/sc:sc-task execute "feature backlog" --strategy agile --delegate
 # Iterative task execution with intelligent delegation
 # Cross-session persistence for sprint continuity
 ```
 
 ### Multi-Domain Integration
 ```
-/sc:sc:task execute "microservices platform" --strategy enterprise --parallel
+/sc:sc-task execute "microservices platform" --strategy enterprise --parallel
 # Enterprise-scale coordination with compliance validation
 # Parallel execution across multiple technical domains
 ```
@@ -93,12 +93,12 @@ Key behaviors:
 
 This command executes specific tasks when explicitly invoked by user.
 
-**Difference from /sc:sc:pm**:
-- `/sc:sc:pm` = session-level orchestration (background monitoring, continuous)
-- `/sc:sc:task` = user-invoked discrete execution (explicit start/end)
+**Difference from /sc:sc-pm**:
+- `/sc:sc-pm` = session-level orchestration (background monitoring, continuous)
+- `/sc:sc-task` = user-invoked discrete execution (explicit start/end)
 
 **Behavior**:
-- User invokes `/sc:sc:task [description]`
+- User invokes `/sc:sc-task [description]`
 - Execute the specific task using multi-agent coordination
 - **STOP when task is complete** - do not continue to next tasks without user input
 
@@ -112,4 +112,4 @@ This command executes specific tasks when explicitly invoked by user.
 - Files modified
 - Tests status (if applicable)
 
-**Next Step**: User decides next action. May invoke another `/sc:sc:task` or use specific commands.
+**Next Step**: User decides next action. May invoke another `/sc:sc-task` or use specific commands.

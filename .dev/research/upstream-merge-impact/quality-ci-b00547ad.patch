@@ -1,0 +1,902 @@
+diff --git a/src/superclaude/cli/doctor.py b/src/superclaude/cli/doctor.py
+index b9cbd64d..449c676d 100644
+--- a/src/superclaude/cli/doctor.py
++++ b/src/superclaude/cli/doctor.py
+@@ -55,8 +55,7 @@ def _check_pytest_plugin() -> Dict[str, Any]:
+ 
+             # Check if superclaude plugin is loaded
+             superclaude_loaded = any(
+-                "superclaude" in str(plugin[0]).lower()
+-                for plugin in plugins
++                "superclaude" in str(plugin[0]).lower() for plugin in plugins
+             )
+ 
+             if superclaude_loaded:
+@@ -132,6 +131,7 @@ def _check_configuration() -> Dict[str, Any]:
+     # Check if package is importable
+     try:
+         import superclaude
++
+         version = superclaude.__version__
+ 
+         return {
+diff --git a/src/superclaude/cli/install_commands.py b/src/superclaude/cli/install_commands.py
+index 81621596..f8893974 100644
+--- a/src/superclaude/cli/install_commands.py
++++ b/src/superclaude/cli/install_commands.py
+@@ -9,10 +9,7 @@ from pathlib import Path
+ from typing import List, Tuple
+ 
+ 
+-def install_commands(
+-    target_path: Path = None,
+-    force: bool = False
+-) -> Tuple[bool, str]:
++def install_commands(target_path: Path = None, force: bool = False) -> Tuple[bool, str]:
+     """
+     Install all SuperClaude commands to Claude Code
+ 
+@@ -71,7 +68,9 @@ def install_commands(
+             messages.append(f"   - /{cmd}")
+ 
+     if skipped_commands:
+-        messages.append(f"\n⚠️  Skipped {len(skipped_commands)} existing commands (use --force to reinstall):")
++        messages.append(
++            f"\n⚠️  Skipped {len(skipped_commands)} existing commands (use --force to reinstall):"
++        )
+         for cmd in skipped_commands:
+             messages.append(f"   - /{cmd}")
+ 
+diff --git a/src/superclaude/cli/install_skill.py b/src/superclaude/cli/install_skill.py
+index d4c0bd4c..852abb63 100644
+--- a/src/superclaude/cli/install_skill.py
++++ b/src/superclaude/cli/install_skill.py
+@@ -10,9 +10,7 @@ from typing import List, Optional, Tuple
+ 
+ 
+ def install_skill_command(
+-    skill_name: str,
+-    target_path: Path,
+-    force: bool = False
++    skill_name: str, target_path: Path, force: bool = False
+ ) -> Tuple[bool, str]:
+     """
+     Install a skill to target directory
+@@ -40,7 +38,10 @@ def install_skill_command(
+ 
+     # Check if skill already installed
+     if skill_target.exists() and not force:
+-        return False, f"Skill '{skill_name}' already installed (use --force to reinstall)"
++        return (
++            False,
++            f"Skill '{skill_name}' already installed (use --force to reinstall)",
++        )
+ 
+     # Remove existing if force
+     if skill_target.exists() and force:
+diff --git a/src/superclaude/cli/main.py b/src/superclaude/cli/main.py
+index 480ec525..c3206e00 100644
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -118,9 +118,7 @@ def install_skill(skill_name: str, target: str, force: bool):
+     click.echo(f"📦 Installing skill '{skill_name}' to {target_path}...")
+ 
+     success, message = install_skill_command(
+-        skill_name=skill_name,
+-        target_path=target_path,
+-        force=force
++        skill_name=skill_name, target_path=target_path, force=force
+     )
+ 
+     if success:
+diff --git a/src/superclaude/execution/__init__.py b/src/superclaude/execution/__init__.py
+index 9c66f8bc..36375544 100644
+--- a/src/superclaude/execution/__init__.py
++++ b/src/superclaude/execution/__init__.py
+@@ -43,7 +43,7 @@ def intelligent_execute(
+     operations: List[Callable],
+     context: Optional[Dict[str, Any]] = None,
+     repo_path: Optional[Path] = None,
+-    auto_correct: bool = True
++    auto_correct: bool = True,
+ ) -> Dict[str, Any]:
+     """
+     Intelligent Task Execution with Reflection, Parallelization, and Self-Correction
+@@ -96,7 +96,7 @@ def intelligent_execute(
+             "status": "blocked",
+             "confidence": confidence.confidence,
+             "blockers": confidence.blockers,
+-            "recommendations": confidence.recommendations
++            "recommendations": confidence.recommendations,
+         }
+ 
+     print(f"\n✅ HIGH CONFIDENCE ({confidence.confidence:.0%}) - PROCEEDING")
+@@ -111,9 +111,9 @@ def intelligent_execute(
+     tasks = [
+         Task(
+             id=f"task_{i}",
+-            description=f"Operation {i+1}",
++            description=f"Operation {i + 1}",
+             execute=op,
+-            depends_on=[]  # Assume independent for now (can enhance later)
++            depends_on=[],  # Assume independent for now (can enhance later)
+         )
+         for i, op in enumerate(operations)
+     ]
+@@ -145,7 +145,7 @@ def intelligent_execute(
+                 failure_info = {
+                     "type": "execution_error",
+                     "error": "Operation returned None",
+-                    "task_id": task_id
++                    "task_id": task_id,
+                 }
+ 
+                 root_cause = correction_engine.analyze_root_cause(task, failure_info)
+@@ -162,7 +162,7 @@ def intelligent_execute(
+             "confidence": confidence.confidence,
+             "results": results,
+             "failures": len(failures),
+-            "speedup": plan.speedup
++            "speedup": plan.speedup,
+         }
+ 
+     except Exception as e:
+@@ -174,11 +174,7 @@ def intelligent_execute(
+ 
+             correction_engine = SelfCorrectionEngine(repo_path)
+ 
+-            failure_info = {
+-                "type": "exception",
+-                "error": str(e),
+-                "exception": e
+-            }
++            failure_info = {"type": "exception", "error": str(e), "exception": e}
+ 
+             root_cause = correction_engine.analyze_root_cause(task, failure_info)
+             correction_engine.learn_and_prevent(task, failure_info, root_cause)
+@@ -188,12 +184,13 @@ def intelligent_execute(
+         return {
+             "status": "failed",
+             "error": str(e),
+-            "confidence": confidence.confidence
++            "confidence": confidence.confidence,
+         }
+ 
+ 
+ # Convenience functions
+ 
++
+ def quick_execute(operations: List[Callable]) -> List[Any]:
+     """
+     Quick parallel execution without reflection
+diff --git a/src/superclaude/execution/parallel.py b/src/superclaude/execution/parallel.py
+index 178925db..f11fee6e 100644
+--- a/src/superclaude/execution/parallel.py
++++ b/src/superclaude/execution/parallel.py
+@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
+ 
+ class TaskStatus(Enum):
+     """Task execution status"""
++
+     PENDING = "pending"
+     RUNNING = "running"
+     COMPLETED = "completed"
+@@ -29,6 +30,7 @@ class TaskStatus(Enum):
+ @dataclass
+ class Task:
+     """Single executable task"""
++
+     id: str
+     description: str
+     execute: Callable
+@@ -45,6 +47,7 @@ class Task:
+ @dataclass
+ class ParallelGroup:
+     """Group of tasks that can execute in parallel"""
++
+     group_id: int
+     tasks: List[Task]
+     dependencies: Set[str]  # External task IDs this group depends on
+@@ -56,6 +59,7 @@ class ParallelGroup:
+ @dataclass
+ class ExecutionPlan:
+     """Complete execution plan with parallelization strategy"""
++
+     groups: List[ParallelGroup]
+     total_tasks: int
+     sequential_time_estimate: float
+@@ -114,7 +118,8 @@ class ParallelExecutor:
+         while len(completed) < len(tasks):
+             # Find tasks that can execute now (dependencies met)
+             ready = [
+-                task for task in tasks
++                task
++                for task in tasks
+                 if task.id not in completed and task.can_execute(completed)
+             ]
+ 
+@@ -127,7 +132,7 @@ class ParallelExecutor:
+             group = ParallelGroup(
+                 group_id=group_id,
+                 tasks=ready,
+-                dependencies=set().union(*[set(t.depends_on) for t in ready])
++                dependencies=set().union(*[set(t.depends_on) for t in ready]),
+             )
+             groups.append(group)
+ 
+@@ -143,8 +148,7 @@ class ParallelExecutor:
+ 
+         # Parallel time = sum of slowest task in each group
+         parallel_time = sum(
+-            max(1, len(group.tasks) // self.max_workers) * task_time
+-            for group in groups
++            max(1, len(group.tasks) // self.max_workers) * task_time for group in groups
+         )
+ 
+         speedup = sequential_time / parallel_time if parallel_time > 0 else 1.0
+@@ -154,7 +158,7 @@ class ParallelExecutor:
+             total_tasks=len(tasks),
+             sequential_time_estimate=sequential_time,
+             parallel_time_estimate=parallel_time,
+-            speedup=speedup
++            speedup=speedup,
+         )
+ 
+         print(plan)
+@@ -205,8 +209,7 @@ class ParallelExecutor:
+         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+             # Submit all tasks in group
+             future_to_task = {
+-                executor.submit(task.execute): task
+-                for task in group.tasks
++                executor.submit(task.execute): task for task in group.tasks
+             }
+ 
+             # Collect results as they complete
+@@ -233,6 +236,7 @@ class ParallelExecutor:
+ 
+ # Convenience functions for common patterns
+ 
++
+ def parallel_file_operations(files: List[str], operation: Callable) -> List[Any]:
+     """
+     Execute operation on multiple files in parallel
+@@ -251,7 +255,7 @@ def parallel_file_operations(files: List[str], operation: Callable) -> List[Any]
+             id=f"op_{i}",
+             description=f"Process {file}",
+             execute=lambda f=file: operation(f),
+-            depends_on=[]
++            depends_on=[],
+         )
+         for i, file in enumerate(files)
+     ]
+@@ -273,6 +277,7 @@ def should_parallelize(items: List[Any], threshold: int = 3) -> bool:
+ 
+ # Example usage patterns
+ 
++
+ def example_parallel_read():
+     """Example: Parallel file reading"""
+ 
+@@ -285,7 +290,7 @@ def example_parallel_read():
+             id=f"read_{i}",
+             description=f"Read {file}",
+             execute=lambda f=file: f"Content of {f}",  # Placeholder
+-            depends_on=[]
++            depends_on=[],
+         )
+         for i, file in enumerate(files)
+     ]
+@@ -306,10 +311,10 @@ def example_dependent_tasks():
+         Task("read1", "Read config.py", lambda: "config", []),
+         Task("read2", "Read utils.py", lambda: "utils", []),
+         Task("read3", "Read main.py", lambda: "main", []),
+-
+         # Wave 2: Analysis (depends on reads)
+-        Task("analyze", "Analyze code", lambda: "analysis", ["read1", "read2", "read3"]),
+-
++        Task(
++            "analyze", "Analyze code", lambda: "analysis", ["read1", "read2", "read3"]
++        ),
+         # Wave 3: Generate report (depends on analysis)
+         Task("report", "Generate report", lambda: "report", ["analyze"]),
+     ]
+diff --git a/src/superclaude/execution/reflection.py b/src/superclaude/execution/reflection.py
+index 0ca25ef8..8c7a8382 100644
+--- a/src/superclaude/execution/reflection.py
++++ b/src/superclaude/execution/reflection.py
+@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional
+ @dataclass
+ class ReflectionResult:
+     """Single reflection analysis result"""
++
+     stage: str
+     score: float  # 0.0 - 1.0
+     evidence: List[str]
+@@ -48,10 +49,12 @@ class ConfidenceScore:
+ 
+     def __repr__(self) -> str:
+         status = "🟢 PROCEED" if self.should_proceed else "🔴 BLOCKED"
+-        return f"{status} | Confidence: {self.confidence:.0%}\n" + \
+-               f"  Clarity: {self.requirement_clarity}\n" + \
+-               f"  Mistakes: {self.mistake_check}\n" + \
+-               f"  Context: {self.context_ready}"
++        return (
++            f"{status} | Confidence: {self.confidence:.0%}\n"
++            + f"  Clarity: {self.requirement_clarity}\n"
++            + f"  Mistakes: {self.mistake_check}\n"
++            + f"  Context: {self.context_ready}"
++        )
+ 
+ 
+ class ReflectionEngine:
+@@ -79,12 +82,14 @@ class ReflectionEngine:
+ 
+         # Weights for confidence calculation
+         self.WEIGHTS = {
+-            "clarity": 0.5,      # Most important
+-            "mistakes": 0.3,     # Learn from past
+-            "context": 0.2,      # Least critical (can load more)
++            "clarity": 0.5,  # Most important
++            "mistakes": 0.3,  # Learn from past
++            "context": 0.2,  # Least critical (can load more)
+         }
+ 
+-    def reflect(self, task: str, context: Optional[Dict[str, Any]] = None) -> ConfidenceScore:
++    def reflect(
++        self, task: str, context: Optional[Dict[str, Any]] = None
++    ) -> ConfidenceScore:
+         """
+         3-Stage Reflection Process
+ 
+@@ -108,9 +113,9 @@ class ReflectionEngine:
+ 
+         # Calculate overall confidence
+         confidence = (
+-            clarity.score * self.WEIGHTS["clarity"] +
+-            mistakes.score * self.WEIGHTS["mistakes"] +
+-            context_ready.score * self.WEIGHTS["context"]
++            clarity.score * self.WEIGHTS["clarity"]
++            + mistakes.score * self.WEIGHTS["mistakes"]
++            + context_ready.score * self.WEIGHTS["context"]
+         )
+ 
+         # Decision logic
+@@ -139,7 +144,7 @@ class ReflectionEngine:
+             confidence=confidence,
+             should_proceed=should_proceed,
+             blockers=blockers,
+-            recommendations=recommendations
++            recommendations=recommendations,
+         )
+ 
+         print("=" * 60)
+@@ -148,7 +153,9 @@ class ReflectionEngine:
+ 
+         return result
+ 
+-    def _reflect_clarity(self, task: str, context: Optional[Dict] = None) -> ReflectionResult:
++    def _reflect_clarity(
++        self, task: str, context: Optional[Dict] = None
++    ) -> ReflectionResult:
+         """
+         Reflection 1: Requirement Clarity
+ 
+@@ -161,7 +168,15 @@ class ReflectionEngine:
+         score = 0.5  # Start neutral
+ 
+         # Check for specificity indicators
+-        specific_verbs = ["create", "fix", "add", "update", "delete", "refactor", "implement"]
++        specific_verbs = [
++            "create",
++            "fix",
++            "add",
++            "update",
++            "delete",
++            "refactor",
++            "implement",
++        ]
+         vague_verbs = ["improve", "optimize", "enhance", "better", "something"]
+ 
+         task_lower = task.lower()
+@@ -172,7 +187,10 @@ class ReflectionEngine:
+             evidence.append("Contains specific action verb")
+ 
+         # Technical terms present
+-        if any(term in task_lower for term in ["function", "class", "file", "api", "endpoint"]):
++        if any(
++            term in task_lower
++            for term in ["function", "class", "file", "api", "endpoint"]
++        ):
+             score += 0.15
+             evidence.append("Includes technical specifics")
+ 
+@@ -198,10 +216,12 @@ class ReflectionEngine:
+             stage="Requirement Clarity",
+             score=score,
+             evidence=evidence,
+-            concerns=concerns
++            concerns=concerns,
+         )
+ 
+-    def _reflect_mistakes(self, task: str, context: Optional[Dict] = None) -> ReflectionResult:
++    def _reflect_mistakes(
++        self, task: str, context: Optional[Dict] = None
++    ) -> ReflectionResult:
+         """
+         Reflection 2: Past Mistake Check
+ 
+@@ -218,10 +238,7 @@ class ReflectionEngine:
+         if not reflexion_file.exists():
+             evidence.append("No past mistakes recorded")
+             return ReflectionResult(
+-                stage="Past Mistakes",
+-                score=score,
+-                evidence=evidence,
+-                concerns=concerns
++                stage="Past Mistakes", score=score, evidence=evidence, concerns=concerns
+             )
+ 
+         try:
+@@ -248,7 +265,9 @@ class ReflectionEngine:
+                 for mistake in similar_mistakes[:3]:  # Show max 3
+                     concerns.append(f"  ⚠️ {mistake.get('mistake', 'Unknown')}")
+             else:
+-                evidence.append(f"Checked {len(past_mistakes)} past mistakes - none similar")
++                evidence.append(
++                    f"Checked {len(past_mistakes)} past mistakes - none similar"
++                )
+ 
+         except Exception as e:
+             concerns.append(f"Could not load reflexion memory: {e}")
+@@ -258,13 +277,12 @@ class ReflectionEngine:
+         score = max(0.0, min(1.0, score))
+ 
+         return ReflectionResult(
+-            stage="Past Mistakes",
+-            score=score,
+-            evidence=evidence,
+-            concerns=concerns
++            stage="Past Mistakes", score=score, evidence=evidence, concerns=concerns
+         )
+ 
+-    def _reflect_context(self, task: str, context: Optional[Dict] = None) -> ReflectionResult:
++    def _reflect_context(
++        self, task: str, context: Optional[Dict] = None
++    ) -> ReflectionResult:
+         """
+         Reflection 3: Context Readiness
+ 
+@@ -283,7 +301,7 @@ class ReflectionEngine:
+                 stage="Context Readiness",
+                 score=score,
+                 evidence=evidence,
+-                concerns=concerns
++                concerns=concerns,
+             )
+ 
+         # Check for essential context elements
+@@ -319,10 +337,7 @@ class ReflectionEngine:
+         score = max(0.0, min(1.0, score))
+ 
+         return ReflectionResult(
+-            stage="Context Readiness",
+-            score=score,
+-            evidence=evidence,
+-            concerns=concerns
++            stage="Context Readiness", score=score, evidence=evidence, concerns=concerns
+         )
+ 
+     def record_reflection(self, task: str, confidence: ConfidenceScore, decision: str):
+@@ -336,7 +351,7 @@ class ReflectionEngine:
+             "confidence": confidence.confidence,
+             "decision": decision,
+             "blockers": confidence.blockers,
+-            "recommendations": confidence.recommendations
++            "recommendations": confidence.recommendations,
+         }
+ 
+         # Append to log
+@@ -349,7 +364,7 @@ class ReflectionEngine:
+ 
+             log_data["reflections"].append(entry)
+ 
+-            with open(reflection_log, 'w') as f:
++            with open(reflection_log, "w") as f:
+                 json.dump(log_data, f, indent=2)
+ 
+         except Exception as e:
+@@ -373,7 +388,9 @@ def get_reflection_engine(repo_path: Optional[Path] = None) -> ReflectionEngine:
+ 
+ 
+ # Convenience function
+-def reflect_before_execution(task: str, context: Optional[Dict] = None) -> ConfidenceScore:
++def reflect_before_execution(
++    task: str, context: Optional[Dict] = None
++) -> ConfidenceScore:
+     """
+     Perform 3-stage reflection before task execution
+ 
+diff --git a/src/superclaude/execution/self_correction.py b/src/superclaude/execution/self_correction.py
+index ba13d978..8f792d4f 100644
+--- a/src/superclaude/execution/self_correction.py
++++ b/src/superclaude/execution/self_correction.py
+@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
+ @dataclass
+ class RootCause:
+     """Identified root cause of failure"""
++
+     category: str  # e.g., "validation", "dependency", "logic", "assumption"
+     description: str
+     evidence: List[str]
+@@ -41,6 +42,7 @@ class RootCause:
+ @dataclass
+ class FailureEntry:
+     """Single failure entry in Reflexion memory"""
++
+     id: str
+     timestamp: str
+     task: str
+@@ -95,10 +97,10 @@ class SelfCorrectionEngine:
+             "created": datetime.now().isoformat(),
+             "mistakes": [],
+             "patterns": [],
+-            "prevention_rules": []
++            "prevention_rules": [],
+         }
+ 
+-        with open(self.reflexion_file, 'w') as f:
++        with open(self.reflexion_file, "w") as f:
+             json.dump(initial_data, f, indent=2)
+ 
+     def detect_failure(self, execution_result: Dict[str, Any]) -> bool:
+@@ -110,11 +112,7 @@ class SelfCorrectionEngine:
+         status = execution_result.get("status", "unknown")
+         return status in ["failed", "error", "exception"]
+ 
+-    def analyze_root_cause(
+-        self,
+-        task: str,
+-        failure: Dict[str, Any]
+-    ) -> RootCause:
++    def analyze_root_cause(self, task: str, failure: Dict[str, Any]) -> RootCause:
+         """
+         Analyze root cause of failure
+ 
+@@ -148,7 +146,7 @@ class SelfCorrectionEngine:
+             description=error_msg,
+             evidence=[error_msg, stack_trace] if stack_trace else [error_msg],
+             prevention_rule=prevention_rule,
+-            validation_tests=validation_tests
++            validation_tests=validation_tests,
+         )
+ 
+         print(root_cause)
+@@ -162,11 +160,15 @@ class SelfCorrectionEngine:
+         error_lower = error_msg.lower()
+ 
+         # Validation failures
+-        if any(word in error_lower for word in ["invalid", "missing", "required", "must"]):
++        if any(
++            word in error_lower for word in ["invalid", "missing", "required", "must"]
++        ):
+             return "validation"
+ 
+         # Dependency failures
+-        if any(word in error_lower for word in ["not found", "missing", "import", "module"]):
++        if any(
++            word in error_lower for word in ["not found", "missing", "import", "module"]
++        ):
+             return "dependency"
+ 
+         # Logic errors
+@@ -191,8 +193,7 @@ class SelfCorrectionEngine:
+                 data = json.load(f)
+ 
+             past_failures = [
+-                FailureEntry.from_dict(entry)
+-                for entry in data.get("mistakes", [])
++                FailureEntry.from_dict(entry) for entry in data.get("mistakes", [])
+             ]
+ 
+             # Simple similarity: keyword overlap
+@@ -217,10 +218,7 @@ class SelfCorrectionEngine:
+             return []
+ 
+     def _generate_prevention_rule(
+-        self,
+-        category: str,
+-        error_msg: str,
+-        similar: List[FailureEntry]
++        self, category: str, error_msg: str, similar: List[FailureEntry]
+     ) -> str:
+         """Generate prevention rule based on failure analysis"""
+ 
+@@ -230,7 +228,7 @@ class SelfCorrectionEngine:
+             "logic": "ALWAYS verify assumptions with assertions",
+             "assumption": "NEVER assume - always verify with checks",
+             "type": "ALWAYS use type hints and runtime type checking",
+-            "unknown": "ALWAYS add error handling for unknown cases"
++            "unknown": "ALWAYS add error handling for unknown cases",
+         }
+ 
+         base_rule = rules.get(category, "ALWAYS add defensive checks")
+@@ -248,28 +246,28 @@ class SelfCorrectionEngine:
+             "validation": [
+                 "Check input is not None",
+                 "Verify input type matches expected",
+-                "Validate input range/constraints"
++                "Validate input range/constraints",
+             ],
+             "dependency": [
+                 "Verify module exists before import",
+                 "Check file exists before reading",
+-                "Validate path is accessible"
++                "Validate path is accessible",
+             ],
+             "logic": [
+                 "Add assertion for pre-conditions",
+                 "Add assertion for post-conditions",
+-                "Verify intermediate results"
++                "Verify intermediate results",
+             ],
+             "assumption": [
+                 "Explicitly check assumed condition",
+                 "Add logging for assumption verification",
+-                "Document assumption with test"
++                "Document assumption with test",
+             ],
+             "type": [
+                 "Add type hints",
+                 "Add runtime type checking",
+-                "Use dataclass with validation"
+-            ]
++                "Use dataclass with validation",
++            ],
+         }
+ 
+         return tests.get(category, ["Add defensive check", "Add error handling"])
+@@ -280,7 +278,7 @@ class SelfCorrectionEngine:
+         failure: Dict[str, Any],
+         root_cause: RootCause,
+         fixed: bool = False,
+-        fix_description: Optional[str] = None
++        fix_description: Optional[str] = None,
+     ):
+         """
+         Learn from failure and store prevention rules
+@@ -305,7 +303,7 @@ class SelfCorrectionEngine:
+             root_cause=root_cause,
+             fixed=fixed,
+             fix_description=fix_description,
+-            recurrence_count=0
++            recurrence_count=0,
+         )
+ 
+         # Load current reflexion memory
+@@ -337,7 +335,7 @@ class SelfCorrectionEngine:
+             print("📝 Prevention rule added")
+ 
+         # Save updated memory
+-        with open(self.reflexion_file, 'w') as f:
++        with open(self.reflexion_file, "w") as f:
+             json.dump(data, f, indent=2)
+ 
+         print("💾 Reflexion memory updated")
+@@ -366,8 +364,7 @@ class SelfCorrectionEngine:
+                 data = json.load(f)
+ 
+             past_failures = [
+-                FailureEntry.from_dict(entry)
+-                for entry in data.get("mistakes", [])
++                FailureEntry.from_dict(entry) for entry in data.get("mistakes", [])
+             ]
+ 
+             # Find similar tasks
+@@ -391,7 +388,9 @@ class SelfCorrectionEngine:
+ _self_correction_engine: Optional[SelfCorrectionEngine] = None
+ 
+ 
+-def get_self_correction_engine(repo_path: Optional[Path] = None) -> SelfCorrectionEngine:
++def get_self_correction_engine(
++    repo_path: Optional[Path] = None,
++) -> SelfCorrectionEngine:
+     """Get or create self-correction engine singleton"""
+     global _self_correction_engine
+ 
+@@ -408,7 +407,7 @@ def learn_from_failure(
+     task: str,
+     failure: Dict[str, Any],
+     fixed: bool = False,
+-    fix_description: Optional[str] = None
++    fix_description: Optional[str] = None,
+ ):
+     """
+     Learn from execution failure
+diff --git a/src/superclaude/pm_agent/confidence.py b/src/superclaude/pm_agent/confidence.py
+index a93f31d2..35bc1257 100644
+--- a/src/superclaude/pm_agent/confidence.py
++++ b/src/superclaude/pm_agent/confidence.py
+@@ -242,8 +242,12 @@ class ConfidenceChecker:
+         # Check for markers indicating test type
+         markers = context.get("markers", [])
+         known_markers = {
+-            "unit", "integration", "hallucination",
+-            "performance", "confidence_check", "self_check"
++            "unit",
++            "integration",
++            "hallucination",
++            "performance",
++            "confidence_check",
++            "self_check",
+         }
+ 
+         has_markers = bool(set(markers) & known_markers)
+diff --git a/src/superclaude/pm_agent/reflexion.py b/src/superclaude/pm_agent/reflexion.py
+index af13012d..78872c9d 100644
+--- a/src/superclaude/pm_agent/reflexion.py
++++ b/src/superclaude/pm_agent/reflexion.py
+@@ -152,7 +152,8 @@ class ReflexionPattern:
+             message = error_info["error_message"]
+             # Remove numbers (often varies between errors)
+             import re
+-            message = re.sub(r'\d+', 'N', message)
++
++            message = re.sub(r"\d+", "N", message)
+             parts.append(message[:100])  # First 100 chars
+ 
+         if "test_name" in error_info:
+@@ -261,47 +262,47 @@ class ReflexionPattern:
+         content = f"""# Mistake Record: {test_name}
+ 
+ **Date**: {date}
+-**Error Type**: {error_info.get('error_type', 'Unknown')}
++**Error Type**: {error_info.get("error_type", "Unknown")}
+ 
+ ---
+ 
+ ## ❌ What Happened
+ 
+-{error_info.get('error_message', 'No error message')}
++{error_info.get("error_message", "No error message")}
+ 
+ ```
+-{error_info.get('traceback', 'No traceback')}
++{error_info.get("traceback", "No traceback")}
+ ```
+ 
+ ---
+ 
+ ## 🔍 Root Cause
+ 
+-{error_info.get('root_cause', 'Not analyzed')}
++{error_info.get("root_cause", "Not analyzed")}
+ 
+ ---
+ 
+ ## 🤔 Why Missed
+ 
+-{error_info.get('why_missed', 'Not analyzed')}
++{error_info.get("why_missed", "Not analyzed")}
+ 
+ ---
+ 
+ ## ✅ Fix Applied
+ 
+-{error_info.get('solution', 'Not documented')}
++{error_info.get("solution", "Not documented")}
+ 
+ ---
+ 
+ ## 🛡️ Prevention Checklist
+ 
+-{error_info.get('prevention', 'Not documented')}
++{error_info.get("prevention", "Not documented")}
+ 
+ ---
+ 
+ ## 💡 Lesson Learned
+ 
+-{error_info.get('lesson', 'Not documented')}
++{error_info.get("lesson", "Not documented")}
+ """
+ 
+         filepath.write_text(content)
+diff --git a/src/superclaude/pytest_plugin.py b/src/superclaude/pytest_plugin.py
+index b0203672..05bb60e0 100644
+--- a/src/superclaude/pytest_plugin.py
++++ b/src/superclaude/pytest_plugin.py
+@@ -9,7 +9,6 @@ Entry point registered in pyproject.toml:
+     superclaude = "superclaude.pytest_plugin"
+ """
+ 
+-
+ import pytest
+ 
+ from .pm_agent.confidence import ConfidenceChecker
+@@ -29,20 +28,17 @@ def pytest_configure(config):
+         - complexity(level): Set test complexity (simple, medium, complex)
+     """
+     config.addinivalue_line(
+-        "markers",
+-        "confidence_check: Pre-execution confidence assessment (min 70%)"
++        "markers", "confidence_check: Pre-execution confidence assessment (min 70%)"
+     )
+     config.addinivalue_line(
+         "markers",
+-        "self_check: Post-implementation validation with evidence requirement"
++        "self_check: Post-implementation validation with evidence requirement",
+     )
+     config.addinivalue_line(
+-        "markers",
+-        "reflexion: Error learning and prevention pattern"
++        "markers", "reflexion: Error learning and prevention pattern"
+     )
+     config.addinivalue_line(
+-        "markers",
+-        "complexity(level): Set test complexity (simple, medium, complex)"
++        "markers", "complexity(level): Set test complexity (simple, medium, complex)"
+     )
+ 
+ 
+@@ -158,9 +154,7 @@ def pytest_runtest_setup(item):
+         confidence = checker.assess(context)
+ 
+         if confidence < 0.7:
+-            pytest.skip(
+-                f"Confidence too low: {confidence:.0%} (minimum: 70%)"
+-            )
++            pytest.skip(f"Confidence too low: {confidence:.0%} (minimum: 70%)")
+ 
+ 
+ def pytest_runtest_makereport(item, call):
+@@ -193,6 +187,7 @@ def pytest_runtest_makereport(item, call):
+ def pytest_report_header(config):
+     """Add SuperClaude version to pytest header"""
+     from . import __version__
++
+     return f"SuperClaude: {__version__}"
+ 
+ 
+diff --git a/tests/conftest.py b/tests/conftest.py
+index a36bfbb0..49edb6a0 100644
+--- a/tests/conftest.py
++++ b/tests/conftest.py
+@@ -5,7 +5,6 @@ This file is automatically loaded by pytest and provides
+ shared fixtures available to all test modules.
+ """
+ 
+-
+ import pytest
+ 
+ 
+diff --git a/tests/unit/test_cli_install.py b/tests/unit/test_cli_install.py
+index 4bb2a24b..31dd899d 100644
+--- a/tests/unit/test_cli_install.py
++++ b/tests/unit/test_cli_install.py
+@@ -138,7 +138,9 @@ class TestInstallCommands:
+         expected = ["agent", "index-repo", "recommend", "research"]
+ 
+         for expected_cmd in expected:
+-            assert expected_cmd in commands, f"Expected command '{expected_cmd}' not found"
++            assert expected_cmd in commands, (
++                f"Expected command '{expected_cmd}' not found"
++            )
+ 
+ 
+ class TestInstallCommandsEdgeCases:
+diff --git a/tests/unit/test_confidence.py b/tests/unit/test_confidence.py
+index 254b8315..33c984e2 100644
+--- a/tests/unit/test_confidence.py
++++ b/tests/unit/test_confidence.py
+@@ -60,7 +60,9 @@ class TestConfidenceChecker:
+ 
+         confidence = checker.assess(context)
+ 
+-        assert 0.7 <= confidence < 0.9, f"Expected medium confidence 0.7-0.9, got {confidence}"
++        assert 0.7 <= confidence < 0.9, (
++            f"Expected medium confidence 0.7-0.9, got {confidence}"
++        )
+         assert confidence == 0.7, "Should be exactly 70%"
+ 
+     def test_confidence_checks_recorded(self, sample_context):

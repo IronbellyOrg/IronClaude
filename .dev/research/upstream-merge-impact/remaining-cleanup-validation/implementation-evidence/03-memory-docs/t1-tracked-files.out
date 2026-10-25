@@ -1,0 +1,11 @@
+$ git ls-files docs/memory
+docs/memory/README.md
+docs/memory/WORKFLOW_METRICS_SCHEMA.md
+docs/memory/last_session.md
+docs/memory/next_actions.md
+docs/memory/patterns_learned.jsonl
+docs/memory/pm_context.md
+docs/memory/reflexion.jsonl.example
+docs/memory/solutions_learned.jsonl
+docs/memory/token_efficiency_validation.md
+docs/memory/workflow_metrics.jsonl

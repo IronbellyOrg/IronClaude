@@ -1,0 +1,20 @@
+# sc:confidence-check (plugin-local) gate on actionable recommendations — inline orchestrator application of the skill
+overall_5_check_score: 0.575   # dup 0.25 + arch 0.25 + docs 0 (--no-mcp, no Context7/WebFetch) + OSS 0 + root-cause 0.075 (partial; RR-1 inferred, no observed failure)
+overall_band: "<0.70 STOP for implementation; recommendations shipped only as conditional/[UNVERIFIED] where not token-verified"
+recommendations:
+  - id: R-001
+    decision: actionable
+    confidence: 0.90
+    verification: "lightweight: flags --mode post, --task-log, --spec, --no-promote confirmed in the loaded /sc:sc-reflect command text (Input and mode resolution + Examples)"
+  - id: R-002
+    decision: conditional
+    confidence: 0.60
+    unverified_tokens: ["pytest `pythonpath` ini option", "default prepend import-mode sys.path behavior"]
+    verification_needed: "pytest --help | grep -i pythonpath  (user-run; not executed: would create caches in the audited repo)"
+  - id: R-003
+    decision: conditional
+    confidence: 0.60
+    unverified_tokens: ["pytest.raises(..., match=...)"]
+    prerequisite: "GG-1 owner decision"
+    verification_needed: "official pytest docs for pytest.raises (Context7/WebFetch unavailable under --no-mcp)"
+blocked_by_low_confidence: false   # not every recommendation is gated below 0.70 (R-001 clears)

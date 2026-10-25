@@ -1,0 +1,2106 @@
+diff --git a/commands/sc-agent.md b/commands/sc-agent.md
+index bb28a2db..a8c40d6e 100644
+--- a/commands/sc-agent.md
++++ b/commands/sc-agent.md
+@@ -6,7 +6,7 @@ personas: []
+ 
+ # SC Agent Activation
+ 
+-🚀 **SC Agent online** — this plugin launches `/sc:sc:agent` automatically at session start.
++🚀 **SC Agent online** — this plugin launches `/sc:sc-agent` automatically at session start.
+ 
+ ## Startup Checklist (keep output terse)
+ 1. `git status --porcelain` → announce `📊 Git: clean|X files|not a repo`.
+diff --git a/commands/sc-analyze.md b/commands/sc-analyze.md
+index a7a06f94..5461136e 100644
+--- a/commands/sc-analyze.md
++++ b/commands/sc-analyze.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:analyze - Code Analysis and Quality Assessment
++# /sc:sc-analyze - Code Analysis and Quality Assessment
+ 
+ ## Triggers
+ - Code quality assessment requests for projects or specific components
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
++/sc:sc-analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
+ ```
+ 
+ ## Behavioral Flow
+@@ -50,28 +50,28 @@ Key behaviors:
+ 
+ ### Comprehensive Project Analysis
+ ```
+-/sc:sc:analyze
++/sc:sc-analyze
+ # Multi-domain analysis of entire project
+ # Generates comprehensive report with key findings and roadmap
+ ```
+ 
+ ### Focused Security Assessment
+ ```
+-/sc:sc:analyze src/auth --focus security --depth deep
++/sc:sc-analyze src/auth --focus security --depth deep
+ # Deep security analysis of authentication components
+ # Vulnerability assessment with detailed remediation guidance
+ ```
+ 
+ ### Performance Optimization Analysis
+ ```
+-/sc:sc:analyze --focus performance --format report
++/sc:sc-analyze --focus performance --format report
+ # Performance bottleneck identification
+ # Generates HTML report with optimization recommendations
+ ```
+ 
+ ### Quick Quality Check
+ ```
+-/sc:sc:analyze src/components --focus quality --depth quick
++/sc:sc-analyze src/components --focus quality --depth quick
+ # Rapid quality assessment of component directory
+ # Identifies code smells and maintainability issues
+ ```
+@@ -95,4 +95,4 @@ Key behaviors:
+ - Performance issues
+ - Recommendations
+ 
+-**Next Step**: After review, use `/sc:sc:improve` to apply recommended fixes or `/sc:sc:cleanup` for dead code removal.
+\ No newline at end of file
++**Next Step**: After review, use `/sc:sc-improve` to apply recommended fixes or `/sc:sc-cleanup` for dead code removal.
+\ No newline at end of file
+diff --git a/commands/sc-brainstorm.md b/commands/sc-brainstorm.md
+index 68d39ebb..925e11c3 100644
+--- a/commands/sc-brainstorm.md
++++ b/commands/sc-brainstorm.md
+@@ -7,9 +7,9 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+-# /sc:sc:sc:brainstorm - Interactive Requirements Discovery
++# /sc:sc-brainstorm - Interactive Requirements Discovery
+ 
+-> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:sc:brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.
++> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:sc-brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.
+ 
+ ## Triggers
+ - Ambiguous project ideas requiring structured exploration
+@@ -19,7 +19,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
+ 
+ ## Context Trigger Pattern
+ ```
+-/sc:sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
++/sc:sc-brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+ ```
+ **Usage**: Type this pattern in your Claude Code conversation to activate brainstorming behavioral mode with systematic exploration and multi-persona coordination.
+ 
+@@ -60,27 +60,27 @@ Key behaviors:
+ 
+ ### Systematic Product Discovery
+ ```
+-/sc:sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
++/sc:sc-brainstorm "AI-powered project management tool" --strategy systematic --depth deep
+ # Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
+ ```
+ 
+ ### Agile Feature Exploration
+ ```
+-/sc:sc:brainstorm "real-time collaboration features" --strategy agile --parallel
++/sc:sc-brainstorm "real-time collaboration features" --strategy agile --parallel
+ # Parallel exploration paths with frontend, backend, and security personas
+ # Context7 and Magic MCP for framework and UI pattern analysis
+ ```
+ 
+ ### Enterprise Solution Validation
+ ```
+-/sc:sc:brainstorm "enterprise data analytics platform" --strategy enterprise --validate
++/sc:sc-brainstorm "enterprise data analytics platform" --strategy enterprise --validate
+ # Comprehensive validation with security, devops, and architect personas
+ # Serena MCP for cross-session persistence and enterprise requirements tracking
+ ```
+ 
+ ### Cross-Session Refinement
+ ```
+-/sc:sc:brainstorm "mobile app monetization strategy" --depth normal
++/sc:sc-brainstorm "mobile app monetization strategy" --depth normal
+ # Serena MCP manages cross-session context and iterative refinement
+ # Progressive dialogue enhancement with memory-driven insights
+ ```
+@@ -104,8 +104,8 @@ Key behaviors:
+ This command produces a REQUIREMENTS SPECIFICATION ONLY.
+ 
+ **Explicitly Will NOT**:
+-- Create architecture diagrams or system designs (use `/sc:sc:design`)
+-- Generate implementation code (use `/sc:sc:implement`)
++- Create architecture diagrams or system designs (use `/sc:sc-design`)
++- Generate implementation code (use `/sc:sc-implement`)
+ - Make architectural decisions
+ - Design database schemas or API contracts
+ - Create technical specifications beyond requirements
+@@ -117,4 +117,4 @@ This command produces a REQUIREMENTS SPECIFICATION ONLY.
+ - User stories / acceptance criteria
+ - Open questions for user
+ 
+-**Next Step**: After brainstorm completes, use `/sc:sc:design` for architecture or `/sc:sc:workflow` for implementation planning.
++**Next Step**: After brainstorm completes, use `/sc:sc-design` for architecture or `/sc:sc-workflow` for implementation planning.
+diff --git a/commands/sc-build.md b/commands/sc-build.md
+index 9b321feb..f861bdcd 100644
+--- a/commands/sc-build.md
++++ b/commands/sc-build.md
+@@ -7,7 +7,7 @@ mcp-servers: [playwright]
+ personas: [devops-engineer]
+ ---
+ 
+-# /sc:sc:sc:build - Project Building and Packaging
++# /sc:sc-build - Project Building and Packaging
+ 
+ ## Triggers
+ - Project compilation and packaging requests for different environments
+@@ -17,7 +17,7 @@ personas: [devops-engineer]
+ 
+ ## Usage
+ ```
+-/sc:sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
++/sc:sc-build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
+ ```
+ 
+ ## Behavioral Flow
+@@ -55,28 +55,28 @@ Key behaviors:
+ 
+ ### Standard Project Build
+ ```
+-/sc:sc:build
++/sc:sc-build
+ # Builds entire project using default configuration
+ # Generates artifacts and comprehensive build report
+ ```
+ 
+ ### Production Optimization Build
+ ```
+-/sc:sc:build --type prod --clean --optimize
++/sc:sc-build --type prod --clean --optimize
+ # Clean production build with advanced optimizations
+ # Minification, tree-shaking, and deployment preparation
+ ```
+ 
+ ### Targeted Component Build
+ ```
+-/sc:sc:build frontend --verbose
++/sc:sc-build frontend --verbose
+ # Builds specific project component with detailed output
+ # Real-time progress monitoring and diagnostic information
+ ```
+ 
+ ### Development Build with Validation
+ ```
+-/sc:sc:build --type dev --validate
++/sc:sc-build --type dev --validate
+ # Development build with Playwright validation
+ # UI testing and build verification integration
+ ```
+diff --git a/commands/sc-business-panel.md b/commands/sc-business-panel.md
+index ab368fc3..607ee039 100644
+--- a/commands/sc-business-panel.md
++++ b/commands/sc-business-panel.md
+@@ -1,8 +1,8 @@
+-# /sc:sc:sc:business-panel - Business Panel Analysis System
++# /sc:sc-business-panel - Business Panel Analysis System
+ 
+ ```yaml
+ ---
+-command: "/sc:sc:business-panel"
++command: "/sc:sc-business-panel"
+ category: "Analysis & Strategic Planning"  
+ purpose: "Multi-expert business analysis with adaptive interaction modes"
+ wave-enabled: true
+@@ -42,15 +42,15 @@ Question-driven exploration for deep learning and strategic thinking development
+ 
+ ### Basic Usage
+ ```bash
+-/sc:sc:business-panel [document_path_or_content]
++/sc:sc-business-panel [document_path_or_content]
+ ```
+ 
+ ### Advanced Options
+ ```bash
+-/sc:sc:business-panel [content] --experts "porter,christensen,meadows"
+-/sc:sc:business-panel [content] --mode debate
+-/sc:sc:business-panel [content] --focus "competitive-analysis"
+-/sc:sc:business-panel [content] --synthesis-only
++/sc:sc-business-panel [content] --experts "porter,christensen,meadows"
++/sc:sc-business-panel [content] --mode debate
++/sc:sc-business-panel [content] --focus "competitive-analysis"
++/sc:sc-business-panel [content] --synthesis-only
+ ```
+ 
+ ### Mode Commands
+@@ -108,6 +108,6 @@ This command produces EXPERT ANALYSIS and RECOMMENDATIONS only.
+ - Priority-ranked recommendations
+ 
+ **Next Step**: User reviews recommendations, then:
+-- Use `/sc:sc:design` for architectural changes
+-- Use `/sc:sc:implement` for feature development
+-- Use `/sc:sc:workflow` for planning
+\ No newline at end of file
++- Use `/sc:sc-design` for architectural changes
++- Use `/sc:sc-implement` for feature development
++- Use `/sc:sc-workflow` for planning
+\ No newline at end of file
+diff --git a/commands/sc-cleanup.md b/commands/sc-cleanup.md
+index 6920192d..cdaea3e2 100644
+--- a/commands/sc-cleanup.md
++++ b/commands/sc-cleanup.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7]
+ personas: [architect, quality, security]
+ ---
+ 
+-# /sc:sc:sc:cleanup - Code and Project Cleanup
++# /sc:sc-cleanup - Code and Project Cleanup
+ 
+ ## Triggers
+ - Code maintenance and technical debt reduction requests
+@@ -17,7 +17,7 @@ personas: [architect, quality, security]
+ 
+ ## Usage
+ ```
+-/sc:sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
++/sc:sc-cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
+ ```
+ 
+ ## Behavioral Flow
+@@ -53,28 +53,28 @@ Key behaviors:
+ 
+ ### Safe Code Cleanup
+ ```
+-/sc:sc:cleanup src/ --type code --safe
++/sc:sc-cleanup src/ --type code --safe
+ # Conservative cleanup with automatic safety validation
+ # Removes dead code while preserving all functionality
+ ```
+ 
+ ### Import Optimization
+ ```
+-/sc:sc:cleanup --type imports --preview
++/sc:sc-cleanup --type imports --preview
+ # Analyzes and shows unused import cleanup without execution
+ # Framework-aware optimization via Context7 patterns
+ ```
+ 
+ ### Comprehensive Project Cleanup
+ ```
+-/sc:sc:cleanup --type all --interactive
++/sc:sc-cleanup --type all --interactive
+ # Multi-domain cleanup with user guidance for complex decisions
+ # Activates all personas for comprehensive analysis
+ ```
+ 
+ ### Framework-Specific Cleanup
+ ```
+-/sc:sc:cleanup components/ --aggressive
++/sc:sc-cleanup components/ --aggressive
+ # Thorough cleanup with Context7 framework patterns
+ ```
+ 
+diff --git a/commands/sc-design.md b/commands/sc-design.md
+index 6bfdc330..a135508f 100644
+--- a/commands/sc-design.md
++++ b/commands/sc-design.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:design - System and Component Design
++# /sc:sc-design - System and Component Design
+ 
+ ## Triggers
+ - Architecture planning and system design requests
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:design [target] [--type architecture|api|component|database] [--format diagram|spec|code]
++/sc:sc-design [target] [--type architecture|api|component|database] [--format diagram|spec|code]
+ ```
+ 
+ ## Behavioral Flow
+@@ -49,28 +49,28 @@ Key behaviors:
+ 
+ ### System Architecture Design
+ ```
+-/sc:sc:design user-management-system --type architecture --format diagram
++/sc:sc-design user-management-system --type architecture --format diagram
+ # Creates comprehensive system architecture with component relationships
+ # Includes scalability considerations and best practices
+ ```
+ 
+ ### API Specification Design
+ ```
+-/sc:sc:design payment-api --type api --format spec
++/sc:sc-design payment-api --type api --format spec
+ # Generates detailed API specification with endpoints and data models
+ # Follows RESTful design principles and industry standards
+ ```
+ 
+ ### Component Interface Design
+ ```
+-/sc:sc:design notification-service --type component --format code
++/sc:sc-design notification-service --type component --format code
+ # Designs component interfaces with clear contracts and dependencies
+ # Provides implementation guidance and integration patterns
+ ```
+ 
+ ### Database Schema Design
+ ```
+-/sc:sc:design e-commerce-db --type database --format diagram
++/sc:sc-design e-commerce-db --type database --format diagram
+ # Creates database schema with entity relationships and constraints
+ # Includes normalization and performance considerations
+ ```
+@@ -83,7 +83,7 @@ Key behaviors:
+ - Validate designs against maintainability and scalability standards
+ 
+ **Will Not:**
+-- Generate actual implementation code (use /sc:sc:implement for implementation)
++- Generate actual implementation code (use /sc:sc-implement for implementation)
+ - Modify existing system architecture without explicit design approval
+ - Create designs that violate established architectural constraints
+ 
+@@ -93,4 +93,4 @@ Key behaviors:
+ - Database schemas
+ - Interface definitions
+ 
+-**Next Step**: After design is approved, use `/sc:sc:implement` to build the designed components.
+\ No newline at end of file
++**Next Step**: After design is approved, use `/sc:sc-implement` to build the designed components.
+\ No newline at end of file
+diff --git a/commands/sc-document.md b/commands/sc-document.md
+index 167c7872..132ee1a2 100644
+--- a/commands/sc-document.md
++++ b/commands/sc-document.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:document - Focused Documentation Generation
++# /sc:sc-document - Focused Documentation Generation
+ 
+ ## Triggers
+ - Documentation requests for specific components, functions, or features
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:document [target] [--type inline|external|api|guide] [--style brief|detailed]
++/sc:sc-document [target] [--type inline|external|api|guide] [--style brief|detailed]
+ ```
+ 
+ ## Behavioral Flow
+@@ -49,28 +49,28 @@ Key behaviors:
+ 
+ ### Inline Code Documentation
+ ```
+-/sc:sc:document src/auth/login.js --type inline
++/sc:sc-document src/auth/login.js --type inline
+ # Generates JSDoc comments with parameter and return descriptions
+ # Adds comprehensive inline documentation for functions and classes
+ ```
+ 
+ ### API Reference Generation
+ ```
+-/sc:sc:document src/api --type api --style detailed
++/sc:sc-document src/api --type api --style detailed
+ # Creates comprehensive API documentation with endpoints and schemas
+ # Generates usage examples and integration guidelines
+ ```
+ 
+ ### User Guide Creation
+ ```
+-/sc:sc:document payment-module --type guide --style brief
++/sc:sc-document payment-module --type guide --style brief
+ # Creates user-focused documentation with practical examples
+ # Focuses on implementation patterns and common use cases
+ ```
+ 
+ ### Component Documentation
+ ```
+-/sc:sc:document components/ --type external
++/sc:sc-document components/ --type external
+ # Generates external documentation files for component library
+ # Includes props, usage examples, and integration patterns
+ ```
+diff --git a/commands/sc-explain.md b/commands/sc-explain.md
+index f8343b86..5f90e980 100644
+--- a/commands/sc-explain.md
++++ b/commands/sc-explain.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7]
+ personas: [educator, architect, security]
+ ---
+ 
+-# /sc:sc:sc:explain - Code and Concept Explanation
++# /sc:sc-explain - Code and Concept Explanation
+ 
+ ## Triggers
+ - Code understanding and documentation requests for complex functionality
+@@ -17,7 +17,7 @@ personas: [educator, architect, security]
+ 
+ ## Usage
+ ```
+-/sc:sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
++/sc:sc-explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
+ ```
+ 
+ ## Behavioral Flow
+@@ -52,27 +52,27 @@ Key behaviors:
+ 
+ ### Basic Code Explanation
+ ```
+-/sc:sc:explain authentication.js --level basic
++/sc:sc-explain authentication.js --level basic
+ # Clear explanation with practical examples for beginners
+ # Educator persona provides learning-optimized structure
+ ```
+ 
+ ### Framework Concept Explanation
+ ```
+-/sc:sc:explain react-hooks --level intermediate --context react
++/sc:sc-explain react-hooks --level intermediate --context react
+ # Context7 integration for official React documentation patterns
+ # Structured explanation with progressive complexity
+ ```
+ 
+ ### System Architecture Explanation
+ ```
+-/sc:sc:explain microservices-system --level advanced --format interactive
++/sc:sc-explain microservices-system --level advanced --format interactive
+ # Architect persona explains system design and patterns
+ ```
+ 
+ ### Security Concept Explanation
+ ```
+-/sc:sc:explain jwt-authentication --context security --level basic
++/sc:sc-explain jwt-authentication --context security --level basic
+ # Security persona explains authentication concepts and best practices
+ # Framework-agnostic security principles with practical examples
+ ```
+diff --git a/commands/sc-git.md b/commands/sc-git.md
+index 0700aece..87cdc9d3 100644
+--- a/commands/sc-git.md
++++ b/commands/sc-git.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:git - Git Operations
++# /sc:sc-git - Git Operations
+ 
+ ## Triggers
+ - Git repository operations: status, add, commit, push, pull, branch
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:git [operation] [args] [--smart-commit] [--interactive]
++/sc:sc-git [operation] [args] [--smart-commit] [--interactive]
+ ```
+ 
+ ## Behavioral Flow
+@@ -49,21 +49,21 @@ Key behaviors:
+ 
+ ### Smart Status Analysis
+ ```
+-/sc:sc:git status
++/sc:sc-git status
+ # Analyzes repository state with change summary
+ # Provides next steps and workflow recommendations
+ ```
+ 
+ ### Intelligent Commit
+ ```
+-/sc:sc:git commit --smart-commit
++/sc:sc-git commit --smart-commit
+ # Generates conventional commit message from change analysis
+ # Applies best practices and consistent formatting
+ ```
+ 
+ ### Interactive Operations
+ ```
+-/sc:sc:git merge feature-branch --interactive
++/sc:sc-git merge feature-branch --interactive
+ # Guided merge with conflict resolution assistance
+ ```
+ 
+diff --git a/commands/sc-help.md b/commands/sc-help.md
+index d27f4d15..e694d4f4 100644
+--- a/commands/sc-help.md
++++ b/commands/sc-help.md
+@@ -1,13 +1,13 @@
+ ---
+ name: help
+-description: "List all available /sc:sc commands and their functionality"
++description: "List all available /sc:sc-* commands and their functionality"
+ category: utility
+ complexity: low
+ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:help - Command Reference Documentation
++# /sc:sc-help - Command Reference Documentation
+ 
+ ## Triggers
+ - Command discovery and reference lookup requests
+@@ -22,38 +22,36 @@ Key behaviors:
+ - Information display only - no execution or implementation
+ - Reference documentation mode without action triggers
+ 
+-Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
++Here is a complete list of all available SuperClaude (`/sc:sc-*`) commands.
+ 
+ | Command | Description |
+ |---|---|
+-| `/sc:sc:analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
+-| `/sc:sc:brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
+-| `/sc:sc:build` | Build, compile, and package projects with intelligent error handling and optimization |
+-| `/sc:sc:business-panel` | Multi-expert business analysis with adaptive interaction modes |
+-| `/sc:sc:cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
+-| `/sc:sc:design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
+-| `/sc:sc:document` | Generate focused documentation for components, functions, APIs, and features |
+-| `/sc:sc:estimate` | Provide development estimates for tasks, features, or projects with intelligent analysis |
+-| `/sc:sc:explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |
+-| `/sc:sc:git` | Git operations with intelligent commit messages and workflow optimization |
+-| `/sc:sc:help` | List all available /sc:sc commands and their functionality |
+-| `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
+-| `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |
+-| `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
+-| `/sc:sc:load` | Session lifecycle management with Serena MCP integration for project context loading |
+-| `/sc:sc:reflect` | Task reflection and validation using Serena MCP analysis capabilities |
+-| `/sc:sc:save` | Session lifecycle management with Serena MCP integration for session context persistence |
+-| `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
+-| `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
+-| `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
+-| `/sc:sc:task` | Execute complex tasks with intelligent workflow management and delegation |
+-| `/sc:sc:test` | Execute tests with coverage analysis and automated quality reporting |
+-| `/sc:sc:troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
+-| `/sc:sc:workflow` | Generate structured implementation workflows from PRDs and feature requirements |
++| `/sc:sc-analyze` | Comprehensive code analysis across quality, security, performance, and architecture domains |
++| `/sc:sc-brainstorm` | Interactive requirements discovery through Socratic dialogue and systematic exploration |
++| `/sc:sc-build` | Build, compile, and package projects with intelligent error handling and optimization |
++| `/sc:sc-business-panel` | Multi-expert business analysis with adaptive interaction modes |
++| `/sc:sc-cleanup` | Systematically clean up code, remove dead code, and optimize project structure |
++| `/sc:sc-design` | Design system architecture, APIs, and component interfaces with comprehensive specifications |
++| `/sc:sc-document` | Generate focused documentation for components, functions, APIs, and features |
++| `/sc:sc-explain` | Provide clear explanations of code, concepts, and system behavior with educational clarity |
++| `/sc:sc-git` | Git operations with intelligent commit messages and workflow optimization |
++| `/sc:sc-help` | List all available /sc:sc-* commands and their functionality |
++| `/sc:sc-implement` | Feature and code implementation with intelligent persona activation and MCP integration |
++| `/sc:sc-improve` | Apply systematic improvements to code quality, performance, and maintainability |
++| `/sc:sc-index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
++| `/sc:sc-load` | Session lifecycle management with Serena MCP integration for project context loading |
++| `/sc:sc-reflect` | Task reflection and validation using Serena MCP analysis capabilities |
++| `/sc:sc-save` | Session lifecycle management with Serena MCP integration for session context persistence |
++| `/sc:sc-spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
++| `/sc:sc-spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
++| `/sc:sc-task` | Execute complex tasks with intelligent workflow management and delegation |
++| `/sc:sc-test` | Execute tests with coverage analysis and automated quality reporting |
++| `/sc:sc-troubleshoot` | Diagnose and resolve issues in code, builds, deployments, and system behavior |
++| `/sc:sc-workflow` | Generate structured implementation workflows from PRDs and feature requirements |
+ 
+ ## SuperClaude Framework Flags
+ 
+-SuperClaude supports behavioral flags to enable specific execution modes and tool selection patterns. Use these flags with any `/sc:sc` command to customize behavior.
++SuperClaude supports behavioral flags to enable specific execution modes and tool selection patterns. Use these flags with any `/sc:sc-*` command to customize behavior.
+ 
+ ### Mode Activation Flags
+ 
+@@ -116,16 +114,16 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
+ 
+ ```bash
+ # Deep analysis with Context7 enabled
+-/sc:sc:analyze --think-hard --context7 src/
++/sc:sc-analyze --think-hard --context7 src/
+ 
+ # UI development with Magic and validation
+-/sc:sc:implement --magic --validate "Add user dashboard"
++/sc:sc-implement --magic --validate "Add user dashboard"
+ 
+ # Token-efficient task management
+-/sc:sc:task --token-efficient --delegate auto "Refactor authentication system"
++/sc:sc-task --token-efficient --delegate auto "Refactor authentication system"
+ 
+ # Safe production deployment
+-/sc:sc:build --safe-mode --validate --focus security
++/sc:sc-build --safe-mode --validate --focus security
+ ```
+ 
+ ## Boundaries
+diff --git a/commands/sc-implement.md b/commands/sc-implement.md
+index d225e849..ab70d92b 100644
+--- a/commands/sc-implement.md
++++ b/commands/sc-implement.md
+@@ -7,9 +7,9 @@ mcp-servers: [context7, magic, playwright]
+ personas: [architect, frontend, backend, security, qa-specialist]
+ ---
+ 
+-# /sc:sc:sc:implement - Feature Implementation
++# /sc:sc-implement - Feature Implementation
+ 
+-> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:sc:implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.
++> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:sc-implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.
+ 
+ ## Triggers
+ - Feature development requests for components, APIs, or complete functionality
+@@ -19,7 +19,7 @@ personas: [architect, frontend, backend, security, qa-specialist]
+ 
+ ## Context Trigger Pattern
+ ```
+-/sc:sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
++/sc:sc-implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
+ ```
+ **Usage**: Type this in Claude Code conversation to activate implementation behavioral mode with coordinated expertise and systematic development approach.
+ 
+@@ -57,27 +57,27 @@ Key behaviors:
+ 
+ ### React Component Implementation
+ ```
+-/sc:sc:implement user profile component --type component --framework react
++/sc:sc-implement user profile component --type component --framework react
+ # Magic MCP generates UI component with design system integration
+ # Frontend persona ensures best practices and accessibility
+ ```
+ 
+ ### API Service Implementation
+ ```
+-/sc:sc:implement user authentication API --type api --safe --with-tests
++/sc:sc-implement user authentication API --type api --safe --with-tests
+ # Backend persona handles server-side logic and data processing
+ # Security persona ensures authentication best practices
+ ```
+ 
+ ### Full-Stack Feature
+ ```
+-/sc:sc:implement payment processing system --type feature --with-tests
++/sc:sc-implement payment processing system --type feature --with-tests
+ # Multi-persona coordination: architect, frontend, backend, security
+ ```
+ 
+ ### Framework-Specific Implementation
+ ```
+-/sc:sc:implement dashboard widget --framework vue
++/sc:sc-implement dashboard widget --framework vue
+ # Context7 MCP provides Vue-specific patterns and documentation
+ # Framework-appropriate implementation with official best practices
+ ```
+@@ -104,6 +104,6 @@ Key behaviors:
+ **Post-Implementation Checklist**:
+ 1. Code compiles without errors
+ 2. Basic functionality works
+-3. Ready for `/sc:sc:test`
++3. Ready for `/sc:sc-test`
+ 
+-**Next Step**: After implementation, use `/sc:sc:test` to run tests, then `/sc:sc:git` to commit.
++**Next Step**: After implementation, use `/sc:sc-test` to run tests, then `/sc:sc-git` to commit.
+diff --git a/commands/sc-improve.md b/commands/sc-improve.md
+index 2d33e174..353fd7ae 100644
+--- a/commands/sc-improve.md
++++ b/commands/sc-improve.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7]
+ personas: [architect, performance, quality, security]
+ ---
+ 
+-# /sc:sc:sc:improve - Code Improvement
++# /sc:sc-improve - Code Improvement
+ 
+ ## Triggers
+ - Code quality enhancement and refactoring requests
+@@ -17,7 +17,7 @@ personas: [architect, performance, quality, security]
+ 
+ ## Usage
+ ```
+-/sc:sc:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
++/sc:sc-improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
+ ```
+ 
+ ## Behavioral Flow
+@@ -53,28 +53,28 @@ Key behaviors:
+ 
+ ### Code Quality Enhancement
+ ```
+-/sc:sc:improve src/ --type quality --safe
++/sc:sc-improve src/ --type quality --safe
+ # Systematic quality analysis with safe refactoring application
+ # Improves code structure, reduces technical debt, enhances readability
+ ```
+ 
+ ### Performance Optimization
+ ```
+-/sc:sc:improve api-endpoints --type performance --interactive
++/sc:sc-improve api-endpoints --type performance --interactive
+ # Performance persona analyzes bottlenecks and optimization opportunities
+ # Interactive guidance for complex performance improvement decisions
+ ```
+ 
+ ### Maintainability Improvements
+ ```
+-/sc:sc:improve legacy-modules --type maintainability --preview
++/sc:sc-improve legacy-modules --type maintainability --preview
+ # Architect persona analyzes structure and suggests maintainability improvements
+ # Preview mode shows changes before application for review
+ ```
+ 
+ ### Security Hardening
+ ```
+-/sc:sc:improve auth-service --type security --validate
++/sc:sc-improve auth-service --type security --validate
+ # Security persona identifies vulnerabilities and applies security patterns
+ # Comprehensive validation ensures security improvements are effective
+ ```
+diff --git a/commands/sc-index.md b/commands/sc-index.md
+index 4cb517eb..49b2c70c 100644
+--- a/commands/sc-index.md
++++ b/commands/sc-index.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7]
+ personas: [architect, scribe, quality]
+ ---
+ 
+-# /sc:sc:sc:index - Project Documentation
++# /sc:sc-index - Project Documentation
+ 
+ ## Triggers
+ - Project documentation creation and maintenance requirements
+@@ -17,7 +17,7 @@ personas: [architect, scribe, quality]
+ 
+ ## Usage
+ ```
+-/sc:sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
++/sc:sc-index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
+ ```
+ 
+ ## Behavioral Flow
+@@ -53,21 +53,21 @@ Key behaviors:
+ 
+ ### Project Structure Documentation
+ ```
+-/sc:sc:index project-root --type structure --format md
++/sc:sc-index project-root --type structure --format md
+ # Comprehensive project structure documentation with intelligent organization
+ # Creates navigable structure with cross-references and component relationships
+ ```
+ 
+ ### API Documentation Generation
+ ```
+-/sc:sc:index src/api --type api --format json
++/sc:sc-index src/api --type api --format json
+ # API documentation with systematic analysis and validation
+ # Scribe and quality personas ensure completeness and accuracy
+ ```
+ 
+ ### Knowledge Base Creation
+ ```
+-/sc:sc:index . --type docs
++/sc:sc-index . --type docs
+ # Interactive knowledge base generation with project-specific patterns
+ # Architect persona provides structural organization and cross-referencing
+ ```
+diff --git a/commands/sc-load.md b/commands/sc-load.md
+index e28d9d3a..5e9a911b 100644
+--- a/commands/sc-load.md
++++ b/commands/sc-load.md
+@@ -7,7 +7,7 @@ mcp-servers: [serena]
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:load - Project Context Loading
++# /sc:sc-load - Project Context Loading
+ 
+ ## Triggers
+ - Session initialization and project context loading requests
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
++/sc:sc-load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
+ ```
+ 
+ ## Behavioral Flow
+@@ -54,28 +54,28 @@ Key behaviors:
+ 
+ ### Basic Project Loading
+ ```
+-/sc:sc:load
++/sc:sc-load
+ # Loads current directory project context with Serena memory integration
+ # Establishes session context and prepares for development workflow
+ ```
+ 
+ ### Specific Project Loading
+ ```
+-/sc:sc:load /path/to/project --type project --analyze
++/sc:sc-load /path/to/project --type project --analyze
+ # Loads specific project with comprehensive analysis
+ # Activates project context and retrieves cross-session memories
+ ```
+ 
+ ### Checkpoint Restoration
+ ```
+-/sc:sc:load --type checkpoint --checkpoint session_123
++/sc:sc-load --type checkpoint --checkpoint session_123
+ # Restores specific checkpoint with session context
+ # Continues previous work session with full context preservation
+ ```
+ 
+ ### Dependency Context Loading
+ ```
+-/sc:sc:load --type deps --refresh
++/sc:sc-load --type deps --refresh
+ # Loads dependency context with fresh analysis
+ # Updates project understanding and dependency mapping
+ ```
+diff --git a/commands/sc-pm.md b/commands/sc-pm.md
+index 1c6ae56f..0ff043b3 100644
+--- a/commands/sc-pm.md
++++ b/commands/sc-pm.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena, tavily, chrome-devt
+ personas: [pm-agent]
+ ---
+ 
+-# /sc:sc:sc:pm - Project Manager Agent (Always Active)
++# /sc:sc-pm - Project Manager Agent (Always Active)
+ 
+ > **Always-Active Foundation Layer**: PM Agent is NOT a mode - it's the DEFAULT operating foundation that runs automatically at every session start. Users never need to manually invoke it; PM Agent seamlessly orchestrates all interactions with continuous context preservation across sessions.
+ 
+@@ -25,10 +25,10 @@ personas: [pm-agent]
+ "Build authentication system for my app"
+ 
+ # Explicit PM Agent invocation (optional)
+-/sc:sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
++/sc:sc-pm [request] [--strategy brainstorm|direct|wave] [--verbose]
+ 
+ # Override to specific sub-agent (optional)
+-/sc:sc:implement "user profile" --agent backend
++/sc:sc-implement "user profile" --agent backend
+ ```
+ 
+ ## Session Lifecycle (Serena MCP Memory Integration)
+@@ -246,7 +246,7 @@ Output: Complete payment system implementation
+ 
+ ### Explicit Strategy Selection
+ ```
+-/sc:sc:pm "Improve application security" --strategy wave
++/sc:sc-pm "Improve application security" --strategy wave
+ 
+ # Wave mode for large-scale security audit
+ PM Agent: Initiating comprehensive security analysis...
+@@ -277,7 +277,7 @@ Output: Clear UX improvement roadmap with priorities
+ ### Manual Sub-Agent Override (Optional)
+ ```
+ # User can still specify sub-agents directly if desired
+-/sc:sc:implement "responsive navbar" --agent frontend
++/sc:sc-implement "responsive navbar" --agent frontend
+ 
+ # PM Agent delegates to specified agent
+ PM Agent: Routing to frontend-architect...
+diff --git a/commands/sc-recommend.md b/commands/sc-recommend.md
+index 9dea3c1a..61e80dca 100644
+--- a/commands/sc-recommend.md
++++ b/commands/sc-recommend.md
+@@ -11,7 +11,7 @@ category: utility
+ ## Command Definition
+ 
+ ```bash
+-/sc:sc:recommend [user request] --options [flags]
++/sc:sc-recommend [user request] --options [flags]
+ ```
+ 
+ ## Multi-language Support
+@@ -71,19 +71,19 @@ def detect_language_and_translate(input_text):
+ 
+ ```bash
+ # Turkish examples
+-/sc:sc:recommend "makine öğrenmesi algoritması başlat"
+-/sc:sc:recommend "sitem yavaş açılıyor, ne yapayım?"
+-/sc:sc:recommend "yeni bir özellik eklemeliyim"
+-/sc:sc:recommend "hata alıyorum, çözüm bul"
++/sc:sc-recommend "makine öğrenmesi algoritması başlat"
++/sc:sc-recommend "sitem yavaş açılıyor, ne yapayım?"
++/sc:sc-recommend "yeni bir özellik eklemeliyim"
++/sc:sc-recommend "hata alıyorum, çözüm bul"
+ 
+ # English examples
+-/sc:sc:recommend "I want to build ML algorithm"
+-/sc:sc:recommend "my website is slow, help me optimize"
+-/sc:sc:recommend "I need to add a new feature"
+-/sc:sc:recommend "getting errors, need debugging"
++/sc:sc-recommend "I want to build ML algorithm"
++/sc:sc-recommend "my website is slow, help me optimize"
++/sc:sc-recommend "I need to add a new feature"
++/sc:sc-recommend "getting errors, need debugging"
+ 
+ # Mixed language
+-/sc:sc:recommend "makine learning projesi yapmak istiyorum"
++/sc:sc-recommend "makine learning projesi yapmak istiyorum"
+ ```
+ 
+ ## SuperClaude Integrated Recommendation Engine
+@@ -127,69 +127,69 @@ keyword_extraction:
+ ```yaml
+ category_mapping:
+   ml_category:
+-    primary_commands: ["/sc:sc:analyze --c7", "/sc:sc:design --ultrathink"]
+-    secondary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:improve --performance"]
++    primary_commands: ["/sc:sc-analyze --c7", "/sc:sc-design --ultrathink"]
++    secondary_commands: ["/sc:sc-build --feature --tdd", "/sc:sc-improve --performance"]
+     mcp_servers: ["--c7"]
+     personas: ["--persona-analyzer", "--persona-architect"]
+     flags: ["--think-hard", "--evidence", "--profile"]
+ 
+   web_category:
+-    primary_commands: ["/sc:sc:build --feature --magic", "/sc:sc:design --api"]
+-    secondary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:analyze --code"]
++    primary_commands: ["/sc:sc-build --feature --magic", "/sc:sc-design --api"]
++    secondary_commands: ["/sc:sc-test --coverage --e2e --pup", "/sc:sc-analyze --code"]
+     mcp_servers: ["--magic", "--c7", "--pup"]
+     personas: ["--persona-frontend", "--persona-qa"]
+     flags: ["--react", "--tdd", "--validate"]
+ 
+   api_category:
+-    primary_commands: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
+-    secondary_commands: ["/sc:sc:scan --security --owasp", "/sc:sc:analyze --performance --pup"]
++    primary_commands: ["/sc:sc-design --api --ddd", "/sc:sc-build --feature --tdd"]
++    secondary_commands: ["UNAVAILABLE(scan) --security --owasp", "/sc:sc-analyze --performance --pup"]
+     mcp_servers: ["--c7", "--pup"]
+     personas: ["--persona-backend", "--persona-security"]
+     flags: ["--microservices", "--ultrathink", "--security"]
+ 
+   debug_category:
+-    primary_commands: ["/sc:sc:troubleshoot --investigate", "/sc:sc:analyze --code"]
+-    secondary_commands: ["/sc:sc:scan --security", "/sc:sc:improve --quality"]
++    primary_commands: ["/sc:sc-troubleshoot --investigate", "/sc:sc-analyze --code"]
++    secondary_commands: ["UNAVAILABLE(scan) --security", "/sc:sc-improve --quality"]
+     mcp_servers: ["--all-mcp"]
+     personas: ["--persona-analyzer", "--persona-security"]
+     flags: ["--evidence", "--think-hard", "--profile"]
+ 
+   performance_category:
+-    primary_commands: ["/sc:sc:analyze --performance --pup --profile", "/sc:sc:troubleshoot"]
+-    secondary_commands: ["/sc:sc:improve --performance --iterate", "/sc:sc:build --optimize"]
++    primary_commands: ["/sc:sc-analyze --performance --pup --profile", "/sc:sc-troubleshoot"]
++    secondary_commands: ["/sc:sc-improve --performance --iterate", "/sc:sc-build --optimize"]
+     mcp_servers: ["--pup"]
+     personas: ["--persona-performance", "--persona-analyzer"]
+     flags: ["--profile", "--monitoring", "--benchmark"]
+ 
+   security_category:
+-    primary_commands: ["/sc:sc:scan --security --owasp --deps", "/sc:sc:analyze --security"]
+-    secondary_commands: ["/sc:sc:improve --security --harden", "/sc:sc:troubleshoot --investigate"]
++    primary_commands: ["UNAVAILABLE(scan) --security --owasp --deps", "/sc:sc-analyze --security"]
++    secondary_commands: ["/sc:sc-improve --security --harden", "/sc:sc-troubleshoot --investigate"]
+     personas: ["--persona-security", "--persona-analyzer"]
+     flags: ["--strict", "--validate", "--owasp"]
+ 
+   create_category:
+-    primary_commands: ["/sc:sc:build --feature --tdd", "/sc:sc:design --ultrathink"]
+-    secondary_commands: ["/sc:sc:analyze --code --c7", "/sc:sc:test --coverage --e2e"]
++    primary_commands: ["/sc:sc-build --feature --tdd", "/sc:sc-design --ultrathink"]
++    secondary_commands: ["/sc:sc-analyze --code --c7", "/sc:sc-test --coverage --e2e"]
+     mcp_servers: ["--magic", "--c7", "--pup"]
+     personas: ["--persona-frontend", "--persona-backend", "--persona-architect"]
+     flags: ["--interactive", "--plan", "--think"]
+ 
+   test_category:
+-    primary_commands: ["/sc:sc:test --coverage --e2e --pup", "/sc:sc:scan --validate"]
+-    secondary_commands: ["/sc:sc:improve --quality", "/sc:sc:troubleshoot --investigate"]
++    primary_commands: ["/sc:sc-test --coverage --e2e --pup", "UNAVAILABLE(scan) --validate"]
++    secondary_commands: ["/sc:sc-improve --quality", "/sc:sc-troubleshoot --investigate"]
+     mcp_servers: ["--pup"]
+     personas: ["--persona-qa", "--persona-performance"]
+     flags: ["--validate", "--coverage", "--monitoring"]
+ 
+   improve_category:
+-    primary_commands: ["/sc:sc:improve --quality --iterate", "/sc:sc:cleanup --code --all"]
+-    secondary_commands: ["/sc:sc:analyze --code", "/sc:sc:refactor --quality"]
++    primary_commands: ["/sc:sc-improve --quality --iterate", "/sc:sc-cleanup --code --all"]
++    secondary_commands: ["/sc:sc-analyze --code", "UNAVAILABLE(refactor) --quality"]
+     personas: ["--persona-refactorer", "--persona-mentor"]
+     flags: ["--threshold", "--iterate", "--profile"]
+ 
+   learning_category:
+-    primary_commands: ["/sc:sc:document --user --examples", "/sc:sc:analyze --code --c7"]
+-    secondary_commands: ["/sc:sc:brainstorm --interactive", "/sc:sc:help --specific"]
++    primary_commands: ["/sc:sc-document --user --examples", "/sc:sc-analyze --code --c7"]
++    secondary_commands: ["/sc:sc-brainstorm --interactive", "/sc:sc-help --specific"]
+     mcp_servers: ["--c7"]
+     personas: ["--persona-mentor", "--persona-analyzer"]
+     flags: ["--examples", "--visual", "--interactive"]
+@@ -200,18 +200,18 @@ category_mapping:
+ expertise_levels:
+   beginner:
+     style: "detailed, step-by-step, explanatory"
+-    recommended_commands: ["/sc:sc:brainstorm --educational", "/sc:sc:help --interactive"]
++    recommended_commands: ["/sc:sc-brainstorm --educational", "/sc:sc-help --interactive"]
+     extra_explanations: true
+     step_by_step: true
+ 
+   intermediate:
+     style: "balanced, technical but understandable"
+-    recommended_commands: ["/sc:sc:implement --guided", "/sc:sc:design --template"]
++    recommended_commands: ["/sc:sc-implement --guided", "/sc:sc-design --template"]
+     some_explanations: true
+ 
+   expert:
+     style: "fast, technical, direct"
+-    recommended_commands: ["/sc:sc:implement --advanced", "/sc:sc:analyze --deep"]
++    recommended_commands: ["/sc:sc-implement --advanced", "/sc:sc-analyze --deep"]
+     minimal_explanations: true
+ ```
+ 
+@@ -219,7 +219,7 @@ expertise_levels:
+ 
+ ### Example 1: Beginner Level ML Project
+ ```bash
+-User: /sc:sc:recommend "I'm new, I want to do machine learning"
++User: /sc:sc-recommend "I'm new, I want to do machine learning"
+ 
+ 🎯 Project Analysis: Machine learning - Beginner level
+ 🌍 Language: Turkish detected
+@@ -227,31 +227,31 @@ User: /sc:sc:recommend "I'm new, I want to do machine learning"
+ 🎭 Persona: --persona-mentor + --persona-analyzer
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:analyze --c7 --persona-mentor
++1. /sc:sc-analyze --c7 --persona-mentor
+    "Research ML goals, data types, and suitable libraries"
+ 
+-2. /sc:sc:design --ultrathink --persona-architect
++2. /sc:sc-design --ultrathink --persona-architect
+    "Design simple but scalable ML architecture"
+ 
+-3. /sc:sc:build --feature --tdd --persona-frontend
++3. /sc:sc-build --feature --tdd --persona-frontend
+    "Create ML pipeline with TDD"
+ 
+-4. /sc:sc:test --coverage --e2e --pup --persona-qa
++4. /sc:sc-test --coverage --e2e --pup --persona-qa
+    "Create comprehensive test scenarios"
+ 
+ 🔧 Recommended MCP Servers: --c7
+ 💡 Additional Recommendations:
+-- Learning mode: /sc:sc:document --user --examples --persona-mentor
+-- Security: /sc:sc:scan --security --owasp (next phase)
+-- Performance: /sc:sc:analyze --performance --pup (after model training)
++- Learning mode: /sc:sc-document --user --examples --persona-mentor
++- Security: UNAVAILABLE(scan) --security --owasp (next phase)
++- Performance: /sc:sc-analyze --performance --pup (after model training)
+ 
+ 🚀 Quick Start (optional):
+-/sc:sc:build --feature --magic --react --persona-frontend
++/sc:sc-build --feature --magic --react --persona-frontend
+ ```
+ 
+ ### Example 2: Web Performance Optimization
+ ```bash
+-User: /sc:sc:recommend "my site is very slow, what should I do?"
++User: /sc:sc-recommend "my site is very slow, what should I do?"
+ 
+ 🎯 Project Analysis: Web performance optimization - Urgent
+ 🌍 Language: Turkish
+@@ -259,16 +259,16 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
+ 🎭 Persona: --persona-performance + --persona-analyzer
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:analyze --performance --pup --profile --persona-performance
++1. /sc:sc-analyze --performance --pup --profile --persona-performance
+    "Detailed performance analysis and bottleneck detection"
+ 
+-2. /sc:sc:troubleshoot --investigate --persona-analyzer
++2. /sc:sc-troubleshoot --investigate --persona-analyzer
+    "Investigate issue with root cause analysis"
+ 
+-3. /sc:sc:improve --performance --iterate --persona-performance
++3. /sc:sc-improve --performance --iterate --persona-performance
+    "Data-driven performance improvements"
+ 
+-4. /sc:sc:test --coverage --e2e --pup --persona-qa
++4. /sc:sc-test --coverage --e2e --pup --persona-qa
+    "Tests validating improvements"
+ 
+ 🔧 Recommended MCP Servers: --pup
+@@ -283,7 +283,7 @@ User: /sc:sc:recommend "my site is very slow, what should I do?"
+ 
+ ### Example 3: Advanced API Security (English)
+ ```bash
+-User: /sc:sc:recommend "Need to secure API with authentication and authorization"
++User: /sc:sc-recommend "Need to secure API with authentication and authorization"
+ 
+ 🎯 Project Analysis: API security - Advanced level
+ 🌍 Language: English detected
+@@ -291,19 +291,19 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
+ 🎭 Persona: --persona-security + --persona-backend
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:analyze --security --persona-security
++1. /sc:sc-analyze --security --persona-security
+    "Comprehensive security analysis and threat modeling"
+ 
+-2. /sc:sc:scan --security --owasp --deps --strict --persona-security
++2. UNAVAILABLE(scan) --security --owasp --deps --strict --persona-security
+    "OWASP Top 10 vulnerability scan and dependency check"
+ 
+-3. /sc:sc:design --api --ddd --ultrathink --persona-architect
++3. /sc:sc-design --api --ddd --ultrathink --persona-architect
+    "Secure API architecture with proper authentication patterns"
+ 
+-4. /sc:sc:build --feature --tdd --persona-backend
++4. /sc:sc-build --feature --tdd --persona-backend
+    "Implement security features with test-driven development"
+ 
+-5. /sc:sc:improve --security --harden --persona-security
++5. /sc:sc-improve --security --harden --persona-security
+    "Security hardening and production-ready configurations"
+ 
+ 💡 Advanced Security Options:
+@@ -316,7 +316,7 @@ User: /sc:sc:recommend "Need to secure API with authentication and authorization
+ 
+ ### Example 4: React Component Development
+ ```bash
+-User: /sc:sc:recommend "I'm going to create a new user profile component"
++User: /sc:sc-recommend "I'm going to create a new user profile component"
+ 
+ 🎯 Project Analysis: React UI component development
+ 🌍 Language: Turkish
+@@ -324,16 +324,16 @@ User: /sc:sc:recommend "I'm going to create a new user profile component"
+ 🎭 Persona: --persona-frontend + --persona-qa
+ 
+ ✅ SuperClaude Recommended Flow:
+-1. /sc:sc:design --api --persona-architect
++1. /sc:sc-design --api --persona-architect
+    "Component interface and props design"
+ 
+-2. /sc:sc:build --feature --magic --react --persona-frontend
++2. /sc:sc-build --feature --magic --react --persona-frontend
+    "Create accessible React component with Magic"
+ 
+-3. /sc:sc:test --coverage --e2e --pup --persona-qa
++3. /sc:sc-test --coverage --e2e --pup --persona-qa
+    "E2E tests and accessibility validation"
+ 
+-4. /sc:sc:analyze --code --c7 --persona-frontend
++4. /sc:sc-analyze --code --c7 --persona-frontend
+    "React best practices and optimization"
+ 
+ 🔧 Recommended MCP Servers: --magic --c7 --pup
+@@ -376,34 +376,34 @@ project_detection:
+     react_project:
+       indicators: ["package.json with react", "src/App.jsx", "public/", "node_modules/react"]
+       detection_commands:
+-        primary: ["/sc:sc:build --feature --magic --react", "/sc:sc:test --coverage --e2e --pup"]
++        primary: ["/sc:sc-build --feature --magic --react", "/sc:sc-test --coverage --e2e --pup"]
+         personas: ["--persona-frontend", "--persona-qa"]
+         mcp: ["--magic", "--c7", "--pup"]
+ 
+     vue_project:
+       indicators: ["package.json with vue", "src/App.vue", "vue.config.js"]
+       detection_commands:
+-        primary: ["/sc:sc:build --feature --magic", "/sc:sc:analyze --code --c7"]
++        primary: ["/sc:sc-build --feature --magic", "/sc:sc-analyze --code --c7"]
+         personas: ["--persona-frontend"]
+         mcp: ["--magic", "--c7"]
+ 
+     node_api_project:
+       indicators: ["package.json with express", "server.js", "routes/", "controllers/"]
+       detection_commands:
+-        primary: ["/sc:sc:design --api --ddd", "/sc:sc:build --feature --tdd"]
++        primary: ["/sc:sc-design --api --ddd", "/sc:sc-build --feature --tdd"]
+         personas: ["--persona-backend", "--persona-security"]
+         mcp: ["--c7"]
+ 
+     python_project:
+       indicators: ["requirements.txt", "setup.py", "src/", "main.py", "Dockerfile"]
+       detection_commands:
+-        primary: ["/sc:sc:analyze --code", "/sc:sc:design --ultrathink"]
++        primary: ["/sc:sc-analyze --code", "/sc:sc-design --ultrathink"]
+         personas: ["--persona-analyzer", "--persona-architect"]
+ 
+     database_project:
+       indicators: ["schema.sql", "migrations/", "models/", "prisma.schema"]
+       detection_commands:
+-        primary: ["/sc:sc:migrate --database --validate", "/sc:sc:analyze --security"]
++        primary: ["UNAVAILABLE(migrate) --database --validate", "/sc:sc-analyze --security"]
+         personas: ["--persona-backend", "--persona-security"]
+ 
+   project_size_estimation:
+@@ -426,20 +426,20 @@ project_detection:
+ ### Context-Aware Examples
+ 
+ ```bash
+-/sc:sc:recommend "I need to add a new feature"
++/sc:sc-recommend "I need to add a new feature"
+ 
+ 🎯 Project Analysis: React project - Feature development
+ 📁 Project Context: React application detected (15+ components)
+ 🎭 Persona: --persona-frontend + --persona-qa
+ 
+ ✅ Context-Aware Recommendations:
+-1. /sc:sc:build --feature --magic --react --persona-frontend
++1. /sc:sc-build --feature --magic --react --persona-frontend
+    "New component compatible with existing design system"
+ 
+-2. /sc:sc:test --coverage --e2e --pup --persona-qa
++2. /sc:sc-test --coverage --e2e --pup --persona-qa
+    "Create tests for new feature"
+ 
+-3. /sc:sc:analyze --code --c7 --persona-frontend
++3. /sc:sc-analyze --code --c7 --persona-frontend
+    "React best practices check"
+ 
+ 💡 Project-Specific Flags:
+@@ -449,20 +449,20 @@ project_detection:
+ ```
+ 
+ ```bash
+-/sc:sc:recommend "I need to do a security audit"
++/sc:sc-recommend "I need to do a security audit"
+ 
+ 🎯 Project Analysis: Node.js API - Security audit
+ 📁 Project Context: Express API detected (JWT auth exists)
+ 🎭 Persona: --persona-security + --persona-backend
+ 
+ ✅ Context-Aware Recommendations:
+-1. /sc:sc:scan --security --owasp --deps --strict --persona-security
++1. UNAVAILABLE(scan) --security --owasp --deps --strict --persona-security
+    "OWASP Top 10 and dependency security scan"
+ 
+-2. /sc:sc:analyze --security --persona-security
++2. /sc:sc-analyze --security --persona-security
+    "JWT and authentication pattern analysis"
+ 
+-3. /sc:sc:improve --security --harden --persona-backend
++3. /sc:sc-improve --security --harden --persona-backend
+    "Security hardening and production configs"
+ 
+ 💡 Project-Specific Flags:
+@@ -478,43 +478,43 @@ project_detection:
+ ```yaml
+ streaming_mode:
+   activation:
+-    command: "/sc:sc:recommend --stream [project description]"
++    command: "/sc:sc-recommend --stream [project description]"
+     purpose: "Continuous recommendation throughout project"
+ 
+   flow_tracking:
+     phase_1: Analysis & Planning
+-      commands: ["/sc:sc:analyze", "/sc:sc:design"]
++      commands: ["/sc:sc-analyze", "/sc:sc-design"]
+       next_phase_trigger: "analysis_complete"
+ 
+     phase_2: Implementation
+-      commands: ["/sc:sc:build", "/sc:sc:implement"]
++      commands: ["/sc:sc-build", "/sc:sc-implement"]
+       next_phase_trigger: "implementation_complete"
+ 
+     phase_3: Testing & Validation
+-      commands: ["/sc:sc:test", "/sc:sc:scan"]
++      commands: ["/sc:sc-test", "UNAVAILABLE(scan)"]
+       next_phase_trigger: "testing_complete"
+ 
+     phase_4: Deployment & Monitoring
+-      commands: ["/sc:sc:deploy", "/sc:sc:improve"]
++      commands: ["UNAVAILABLE(deploy)", "/sc:sc-improve"]
+       project_complete: true
+ ```
+ 
+ ### Streaming Example
+ 
+ ```bash
+-/sc:sc:recommend --stream "I'm building a new e-commerce site"
++/sc:sc-recommend --stream "I'm building a new e-commerce site"
+ 
+ 🚀 STREAMING MODE ACTIVE
+ 📊 Project: E-commerce website
+ ⏱️ Estimated Time: 3-6 weeks
+ 
+ --- PHASE 1: ANALYSIS & PLANNING ---
+-✅ Current: /sc:sc:analyze --c7 --persona-architect
++✅ Current: /sc:sc-analyze --c7 --persona-architect
+    "E-commerce architecture and technology selection"
+ 
+ 🔄 Next Steps (when completed):
+-1. /sc:sc:design --api --ddd --ultrathink --persona-architect
+-2. /sc:sc:build --feature --magic --react --persona-frontend
++1. /sc:sc-design --api --ddd --ultrathink --persona-architect
++2. /sc:sc-build --feature --magic --react --persona-frontend
+ 
+ --- STREAM CONTINUING ---
+ ```
+@@ -546,26 +546,26 @@ alternative_engine:
+ ### Alternative Example
+ 
+ ```bash
+-/sc:sc:recommend --alternatives "new blog site"
++/sc:sc-recommend --alternatives "new blog site"
+ 
+ 🎯 PROJECT ANALYSIS: Blog site development
+ 
+ ⭐ BEST RECOMMENDATION:
+-/sc:sc:build --feature --magic --nextjs --persona-frontend
++/sc:sc-build --feature --magic --nextjs --persona-frontend
+    "Modern, SEO-friendly blog with Next.js"
+ 
+ 🔧 ALTERNATIVES:
+-1. /sc:sc:build --feature --react --static --persona-frontend
++1. /sc:sc-build --feature --react --static --persona-frontend
+    ✅ Advantage: Simpler learning curve
+    ❌ Disadvantage: Less SEO optimization
+    👥 Users: 35% prefer this
+ 
+-2. /sc:sc:build --feature --vue --nuxt --persona-frontend
++2. /sc:sc-build --feature --vue --nuxt --persona-frontend
+    ✅ Advantage: Great developer experience
+    ❌ Disadvantage: Smaller community
+    👥 Users: 20% prefer this
+ 
+-3. /sc:sc:build --feature --gatsby --static --persona-frontend
++3. /sc:sc-build --feature --gatsby --static --persona-frontend
+    ✅ Advantage: Excellent performance and SEO
+    ❌ Disadvantage: More complex configuration
+    👥 Users: 15% prefer this
+@@ -626,7 +626,7 @@ estimation_engine:
+ ### Estimation Examples
+ 
+ ```bash
+-/sc:sc:recommend "I'm developing a classification model" --estimate
++/sc:sc-recommend "I'm developing a classification model" --estimate
+ 
+ 🎯 PROJECT ANALYSIS: Classification model development
+ 📊 Estimation Mode: Active
+@@ -659,7 +659,7 @@ estimation_engine:
+ ```
+ 
+ ```bash
+-/sc:sc:recommend "corporate website" --estimate
++/sc:sc-recommend "corporate website" --estimate
+ 
+ 🎯 PROJECT ANALYSIS: Corporate website
+ 📊 Estimation Mode: Active
+@@ -738,7 +738,7 @@ smart_flag_engine:
+ ### Smart Flag Examples
+ 
+ ```bash
+-/sc:sc:recommend "performance improvement"
++/sc:sc-recommend "performance improvement"
+ 
+ 🎯 PROJECT ANALYSIS: Performance optimization
+ 🧠 SMART FLAG RECOMMENDATIONS:
+@@ -754,7 +754,7 @@ smart_flag_engine:
+ - High traffic: --benchmark --profile
+ 
+ 💡 RECOMMENDED COMMAND:
+-/sc:sc:improve --performance --optimize --profile --monitoring --validate
++/sc:sc-improve --performance --optimize --profile --monitoring --validate
+ 
+ 🔧 ADDITIONAL FLAG OPTIONS:
+ --memory-optimization (if RAM usage is high)
+@@ -763,7 +763,7 @@ smart_flag_engine:
+ ```
+ 
+ ```bash
+-/sc:sc:recommend "my first React component"
++/sc:sc-recommend "my first React component"
+ 
+ 🎯 PROJECT ANALYSIS: React component development - Beginner
+ 🧠 SMART FLAG RECOMMENDATIONS:
+@@ -777,7 +777,7 @@ smart_flag_engine:
+ - Accessibility required: --a11y --wcag
+ 
+ 💡 RECOMMENDED COMMAND:
+-/sc:sc:build --feature --magic --react --tutorial --examples --persona-frontend
++/sc:sc-build --feature --magic --react --tutorial --examples --persona-frontend
+ 
+ 🔧 ADDITIONAL LEARNING FLAGS:
+ --guided-development (step-by-step guidance)
+@@ -794,33 +794,33 @@ community_patterns:
+   successful_workflows:
+     web_development:
+       most_successful_flow:
+-        - "/sc:sc:analyze --code --c7"
+-        - "/sc:sc:design --api"
+-        - "/sc:sc:build --feature --magic --tdd"
+-        - "/sc:sc:test --coverage --e2e --pup"
++        - "/sc:sc-analyze --code --c7"
++        - "/sc:sc-design --api"
++        - "/sc:sc-build --feature --magic --tdd"
++        - "/sc:sc-test --coverage --e2e --pup"
+       success_rate: "87%"
+       user_feedback: "Highly recommended for React projects"
+ 
+     ml_development:
+       most_successful_flow:
+-        - "/sc:sc:analyze --c7 --persona-mentor"
+-        - "/sc:sc:design --ultrathink --persona-architect"
+-        - "/sc:sc:build --feature --tdd --persona-frontend"
+-        - "/sc:sc:improve --performance --iterate"
++        - "/sc:sc-analyze --c7 --persona-mentor"
++        - "/sc:sc-design --ultrathink --persona-architect"
++        - "/sc:sc-build --feature --tdd --persona-frontend"
++        - "/sc:sc-improve --performance --iterate"
+       success_rate: "82%"
+       user_feedback: "Great for ML beginners"
+ 
+   popular_command_combinations:
+     security_focused:
+-      - "/sc:sc:scan --security --owasp"
+-      - "/sc:sc:analyze --security"
+-      - "/sc:sc:improve --security --harden"
++      - "UNAVAILABLE(scan) --security --owasp"
++      - "/sc:sc-analyze --security"
++      - "/sc:sc-improve --security --harden"
+       usage_frequency: "45% of production projects"
+ 
+     performance_optimization:
+-      - "/sc:sc:analyze --performance --pup --profile"
+-      - "/sc:sc:improve --performance --iterate"
+-      - "/sc:sc:test --coverage --benchmark"
++      - "/sc:sc-analyze --performance --pup --profile"
++      - "/sc:sc-improve --performance --iterate"
++      - "/sc:sc-test --coverage --benchmark"
+       usage_frequency: "38% of optimization projects"
+ 
+   user_preferences:
+@@ -840,7 +840,7 @@ community_patterns:
+ 
+ ```yaml
+ recommend_command_implementation:
+-  command_structure: "/sc:sc:recommend [query] --options [flags]"
++  command_structure: "/sc:sc-recommend [query] --options [flags]"
+ 
+   available_options:
+     --estimate: "Includes time and budget estimation"
+@@ -874,7 +874,7 @@ recommend_command_implementation:
+ ### Comprehensive Final Example
+ 
+ ```bash
+-/sc:sc:recommend "I'm building an e-commerce site" --estimate --alternatives --community
++/sc:sc-recommend "I'm building an e-commerce site" --estimate --alternatives --community
+ 
+ 🎯 COMPREHENSIVE ANALYSIS
+ ==========================
+@@ -889,15 +889,15 @@ recommend_command_implementation:
+ =================
+ 
+ 1. 🏗️ PLANNING AND DESIGN
+-   /sc:sc:design --api --ddd --ultrathink --persona-architect
++   /sc:sc-design --api --ddd --ultrathink --persona-architect
+    "E-commerce domain architecture and system design"
+ 
+ 2. 🎨 FRONTEND DEVELOPMENT
+-   /sc:sc:build --feature --magic --nextjs --persona-frontend
++   /sc:sc-build --feature --magic --nextjs --persona-frontend
+    "Modern, SEO-friendly e-commerce frontend"
+ 
+ 3. 🔒 SECURITY AND BACKEND
+-   /sc:sc:build --feature --tdd --persona-security
++   /sc:sc-build --feature --tdd --persona-security
+    "Secure payment system and user management"
+ 
+ 🔧 SMART FLAG RECOMMENDATIONS
+@@ -942,7 +942,7 @@ recommend_command_implementation:
+ ==================
+ 
+ 🏆 Most Successful Flow:
+-/sc:sc:analyze → /sc:sc:design → /sc:sc:build → /sc:sc:test → /sc:sc:deploy
++/sc:sc-analyze → /sc:sc-design → /sc:sc-build → /sc:sc-test → UNAVAILABLE(deploy)
+ Success Rate: 87% (from 2,847 projects)
+ 
+ 📈 Popular Features:
+@@ -981,7 +981,7 @@ Success Rate: 87% (from 2,847 projects)
+ ===================================
+ 
+ To receive continuous recommendations throughout the project:
+-/sc:sc:recommend --stream "track my e-commerce project"
++/sc:sc-recommend --stream "track my e-commerce project"
+ 
+ You'll receive automatic recommendations at each stage! 🚀
+ ```
+@@ -1001,11 +1001,11 @@ You'll receive automatic recommendations at each stage! 🚀
+ ## 🚀 HOW TO USE?
+ 
+ ```bash
+-/sc:sc:recommend "I want to do something"
+-/sc:sc:recommend "new React project" --estimate --alternatives
+-/sc:sc:recommend --stream "I'm developing my e-commerce site"
+-/sc:sc:recommend "I want to learn React" --expertise beginner
+-/sc:sc:recommend "blog site" --community
++/sc:sc-recommend "I want to do something"
++/sc:sc-recommend "new React project" --estimate --alternatives
++/sc:sc-recommend --stream "I'm developing my e-commerce site"
++/sc:sc-recommend "I want to learn React" --expertise beginner
++/sc:sc-recommend "blog site" --community
+ ```
+ 
+ **Ultra-intelligent command recommender ready! 🎉**
+diff --git a/commands/sc-reflect.md b/commands/sc-reflect.md
+index 370061c9..acf77130 100644
+--- a/commands/sc-reflect.md
++++ b/commands/sc-reflect.md
+@@ -7,7 +7,7 @@ mcp-servers: [serena]
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:reflect - Task Reflection and Validation
++# /sc:sc-reflect - Task Reflection and Validation
+ 
+ ## Triggers
+ - Task completion requiring validation and quality assessment
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:reflect [--type task|session|completion] [--analyze] [--validate]
++/sc:sc-reflect [--type task|session|completion] [--analyze] [--validate]
+ ```
+ 
+ ## Behavioral Flow
+@@ -55,21 +55,21 @@ Key behaviors:
+ 
+ ### Task Adherence Reflection
+ ```
+-/sc:sc:reflect --type task --analyze
++/sc:sc-reflect --type task --analyze
+ # Validates current approach against project goals
+ # Identifies deviations and provides course correction recommendations
+ ```
+ 
+ ### Session Progress Analysis
+ ```
+-/sc:sc:reflect --type session --validate
++/sc:sc-reflect --type session --validate
+ # Comprehensive analysis of session work and information gathering
+ # Quality assessment and gap identification for project improvement
+ ```
+ 
+ ### Completion Validation
+ ```
+-/sc:sc:reflect --type completion
++/sc:sc-reflect --type completion
+ # Evaluates task completion criteria against actual progress
+ # Determines readiness for task completion and identifies remaining blockers
+ ```
+diff --git a/commands/sc-research.md b/commands/sc-research.md
+index f80396fc..91ee763b 100644
+--- a/commands/sc-research.md
++++ b/commands/sc-research.md
+@@ -7,7 +7,7 @@ mcp-servers: [tavily, playwright, serena]
+ personas: [deep-research-agent]
+ ---
+ 
+-# /sc:sc:sc:research - Deep Research Command
++# /sc:sc-research - Deep Research Command
+ 
+ > **Context Framework Note**: This command activates comprehensive research capabilities with adaptive planning, multi-hop reasoning, and evidence-based synthesis.
+ 
+@@ -20,7 +20,7 @@ personas: [deep-research-agent]
+ 
+ ## Context Trigger Pattern
+ ```
+-/sc:sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
++/sc:sc-research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
+ ```
+ 
+ ## Behavioral Flow
+@@ -92,9 +92,9 @@ personas: [deep-research-agent]
+ 
+ ## Examples
+ ```
+-/sc:sc:research "latest developments in quantum computing 2024"
+-/sc:sc:research "competitive analysis of AI coding assistants" --depth deep
+-/sc:sc:research "best practices for distributed systems" --strategy unified
++/sc:sc-research "latest developments in quantum computing 2024"
++/sc:sc-research "competitive analysis of AI coding assistants" --depth deep
++/sc:sc-research "best practices for distributed systems" --strategy unified
+ ```
+ 
+ ## Boundaries
+@@ -119,4 +119,4 @@ This command produces a RESEARCH REPORT ONLY - no implementation.
+ - Recommendations (for human decision)
+ - Cited references
+ 
+-**Next Step**: After research completes, user decides next action. Use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
+\ No newline at end of file
++**Next Step**: After research completes, user decides next action. Use `/sc:sc-design` for architecture or `/sc:sc-implement` for coding.
+\ No newline at end of file
+diff --git a/commands/sc-save.md b/commands/sc-save.md
+index 6bd79eda..9dd4d474 100644
+--- a/commands/sc-save.md
++++ b/commands/sc-save.md
+@@ -7,7 +7,7 @@ mcp-servers: [serena]
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:save - Session Context Persistence
++# /sc:sc-save - Session Context Persistence
+ 
+ ## Triggers
+ - Session completion and project context persistence needs
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
++/sc:sc-save [--type session|learnings|context|all] [--summarize] [--checkpoint]
+ ```
+ 
+ ## Behavioral Flow
+@@ -54,28 +54,28 @@ Key behaviors:
+ 
+ ### Basic Session Save
+ ```
+-/sc:sc:save
++/sc:sc-save
+ # Saves current session discoveries and context to Serena MCP
+ # Automatically creates checkpoint if session exceeds 30 minutes
+ ```
+ 
+ ### Comprehensive Session Checkpoint
+ ```
+-/sc:sc:save --type all --checkpoint
++/sc:sc-save --type all --checkpoint
+ # Complete session preservation with recovery checkpoint
+ # Includes all learnings, context, and progress for session restoration
+ ```
+ 
+ ### Session Summary Generation
+ ```
+-/sc:sc:save --summarize
++/sc:sc-save --summarize
+ # Creates session summary with discovery documentation
+ # Updates cross-session learning patterns and project insights
+ ```
+ 
+ ### Discovery-Only Persistence
+ ```
+-/sc:sc:save --type learnings
++/sc:sc-save --type learnings
+ # Saves only new patterns and insights discovered during session
+ # Updates project understanding without full session preservation
+ ```
+diff --git a/commands/sc-spawn.md b/commands/sc-spawn.md
+index 2f7bee14..683fa800 100644
+--- a/commands/sc-spawn.md
++++ b/commands/sc-spawn.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:spawn - Meta-System Task Orchestration
++# /sc:sc-spawn - Meta-System Task Orchestration
+ 
+ ## Triggers
+ - Complex multi-domain operations requiring intelligent task breakdown
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
++/sc:sc-spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
+ ```
+ 
+ ## Behavioral Flow
+@@ -53,21 +53,21 @@ Key behaviors:
+ 
+ ### Complex Feature Implementation
+ ```
+-/sc:sc:spawn "implement user authentication system"
++/sc:sc-spawn "implement user authentication system"
+ # Breakdown: Database design → Backend API → Frontend UI → Testing
+ # Coordinates across multiple domains with dependency management
+ ```
+ 
+ ### Large-Scale System Operation
+ ```
+-/sc:sc:spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
++/sc:sc-spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
+ # Enterprise-scale operation with sophisticated orchestration
+ # Adaptive coordination based on operation characteristics
+ ```
+ 
+ ### Cross-Domain Infrastructure
+ ```
+-/sc:sc:spawn "establish CI/CD pipeline with security scanning"
++/sc:sc-spawn "establish CI/CD pipeline with security scanning"
+ # System-wide infrastructure operation spanning DevOps, Security, Quality domains
+ # Parallel execution of independent components with validation gates
+ ```
+@@ -99,7 +99,7 @@ This command produces a TASK HIERARCHY ONLY - delegates execution to other comma
+ **Output**: Task breakdown document with:
+ - Epic decomposition
+ - Task hierarchy with dependencies
+-- Delegation assignments (which `/sc:sc:*` command handles each task)
++- Delegation assignments (which `/sc:sc-*` command handles each task)
+ - Coordination strategy
+ 
+-**Next Step**: Execute individual tasks using delegated commands (`/sc:sc:implement`, `/sc:sc:design`, `/sc:sc:test`, etc.)
+\ No newline at end of file
++**Next Step**: Execute individual tasks using delegated commands (`/sc:sc-implement`, `/sc:sc-design`, `/sc:sc-test`, etc.)
+\ No newline at end of file
+diff --git a/commands/sc-spec-panel.md b/commands/sc-spec-panel.md
+index 1a143a85..8d014bce 100644
+--- a/commands/sc-spec-panel.md
++++ b/commands/sc-spec-panel.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7]
+ personas: [technical-writer, system-architect, quality-engineer]
+ ---
+ 
+-# /sc:sc:sc:spec-panel - Expert Specification Review Panel
++# /sc:sc-spec-panel - Expert Specification Review Panel
+ 
+ ## Triggers
+ - Specification quality review and improvement requests
+@@ -17,7 +17,7 @@ personas: [technical-writer, system-architect, quality-engineer]
+ 
+ ## Usage
+ ```
+-/sc:sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N] [--format standard|structured|detailed]
++/sc:sc-spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N] [--format standard|structured|detailed]
+ ```
+ 
+ ## Behavioral Flow
+@@ -308,7 +308,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ### API Specification Review
+ ```
+-/sc:sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
++/sc:sc-spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
+ # Comprehensive API specification review
+ # Focus on requirements quality and architectural consistency
+ # Generate detailed improvement recommendations
+@@ -316,7 +316,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ### Requirements Workshop
+ ```
+-/sc:sc:spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
++/sc:sc-spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
+ # Collaborative requirements analysis and improvement
+ # Expert dialogue for requirement refinement
+ # Consensus building around acceptance criteria
+@@ -324,7 +324,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ### Architecture Validation
+ ```
+-/sc:sc:spec-panel @microservice.spec.yml --mode socratic --focus architecture
++/sc:sc-spec-panel @microservice.spec.yml --mode socratic --focus architecture
+ # Learning-focused architectural review
+ # Deep questioning about design decisions
+ # Alternative approach exploration
+@@ -332,7 +332,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ### Iterative Improvement
+ ```
+-/sc:sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed
++/sc:sc-spec-panel @complex_system.spec.yml --iterations 3 --format detailed
+ # Multi-iteration improvement process
+ # Progressive refinement with expert guidance
+ # Comprehensive quality enhancement
+@@ -340,7 +340,7 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ### Compliance Review
+ ```
+-/sc:sc:spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
++/sc:sc-spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
+ # Compliance and security specification review
+ # Regulatory requirement validation
+ # Risk assessment and mitigation planning
+@@ -348,28 +348,28 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ 
+ ## Integration Patterns
+ 
+-### Workflow Integration with /sc:sc:code-to-spec
++### Workflow Integration with UNAVAILABLE(code-to-spec)
+ ```bash
+ # Generate initial specification from code
+-/sc:sc:code-to-spec ./sc:authentication_service --type api --format yaml
++UNAVAILABLE(code-to-spec) ./sc:authentication_service --type api --format yaml
+ 
+ # Review and improve with expert panel
+-/sc:sc:spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
++/sc:sc-spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
+ 
+ # Iterative refinement based on feedback
+-/sc:sc:spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
++/sc:sc-spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
+ ```
+ 
+ ### Learning and Development Workflow
+ ```bash
+ # Start with socratic mode for learning
+-/sc:sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2
++/sc:sc-spec-panel @my_first_spec.yml --mode socratic --iterations 2
+ 
+ # Apply learnings with discussion mode
+-/sc:sc:spec-panel @revised_spec.yml --mode discussion --focus requirements
++/sc:sc-spec-panel @revised_spec.yml --mode discussion --focus requirements
+ 
+ # Final quality validation with critique mode
+-/sc:sc:spec-panel @final_spec.yml --mode critique --format detailed
++/sc:sc-spec-panel @final_spec.yml --mode critique --format detailed
+ ```
+ 
+ ## Quality Assurance Features
+@@ -432,4 +432,4 @@ Comprehensive analysis with full expert commentary, examples, and implementation
+ - Consensus points and disagreements
+ - Priority-ranked improvements
+ 
+-**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc:design` for architecture or `/sc:sc:implement` for coding.
++**Next Step**: After review, incorporate feedback into spec, then use `/sc:sc-design` for architecture or `/sc:sc-implement` for coding.
+diff --git a/commands/sc-task.md b/commands/sc-task.md
+index 84bb9ead..d4daa7ea 100644
+--- a/commands/sc-task.md
++++ b/commands/sc-task.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+-# /sc:sc:sc:task - Enhanced Task Management
++# /sc:sc-task - Enhanced Task Management
+ 
+ ## Triggers
+ - Complex tasks requiring multi-agent coordination and delegation
+@@ -17,7 +17,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
+ 
+ ## Usage
+ ```
+-/sc:sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
++/sc:sc-task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
+ ```
+ 
+ ## Behavioral Flow
+@@ -56,21 +56,21 @@ Key behaviors:
+ 
+ ### Complex Feature Development
+ ```
+-/sc:sc:task create "enterprise authentication system" --strategy systematic --parallel
++/sc:sc-task create "enterprise authentication system" --strategy systematic --parallel
+ # Comprehensive task breakdown with multi-domain coordination
+ # Activates architect, security, backend, frontend personas
+ ```
+ 
+ ### Agile Sprint Coordination
+ ```
+-/sc:sc:task execute "feature backlog" --strategy agile --delegate
++/sc:sc-task execute "feature backlog" --strategy agile --delegate
+ # Iterative task execution with intelligent delegation
+ # Cross-session persistence for sprint continuity
+ ```
+ 
+ ### Multi-Domain Integration
+ ```
+-/sc:sc:task execute "microservices platform" --strategy enterprise --parallel
++/sc:sc-task execute "microservices platform" --strategy enterprise --parallel
+ # Enterprise-scale coordination with compliance validation
+ # Parallel execution across multiple technical domains
+ ```
+@@ -93,12 +93,12 @@ Key behaviors:
+ 
+ This command executes specific tasks when explicitly invoked by user.
+ 
+-**Difference from /sc:sc:pm**:
+-- `/sc:sc:pm` = session-level orchestration (background monitoring, continuous)
+-- `/sc:sc:task` = user-invoked discrete execution (explicit start/end)
++**Difference from /sc:sc-pm**:
++- `/sc:sc-pm` = session-level orchestration (background monitoring, continuous)
++- `/sc:sc-task` = user-invoked discrete execution (explicit start/end)
+ 
+ **Behavior**:
+-- User invokes `/sc:sc:task [description]`
++- User invokes `/sc:sc-task [description]`
+ - Execute the specific task using multi-agent coordination
+ - **STOP when task is complete** - do not continue to next tasks without user input
+ 
+@@ -112,4 +112,4 @@ This command executes specific tasks when explicitly invoked by user.
+ - Files modified
+ - Tests status (if applicable)
+ 
+-**Next Step**: User decides next action. May invoke another `/sc:sc:task` or use specific commands.
++**Next Step**: User decides next action. May invoke another `/sc:sc-task` or use specific commands.
+diff --git a/commands/sc-test.md b/commands/sc-test.md
+index c14fd1bd..e74178e6 100644
+--- a/commands/sc-test.md
++++ b/commands/sc-test.md
+@@ -7,7 +7,7 @@ mcp-servers: [playwright]
+ personas: [qa-specialist]
+ ---
+ 
+-# /sc:sc:sc:test - Testing and Quality Assurance
++# /sc:sc-test - Testing and Quality Assurance
+ 
+ ## Triggers
+ - Test execution requests for unit, integration, or e2e tests
+@@ -17,7 +17,7 @@ personas: [qa-specialist]
+ 
+ ## Usage
+ ```
+-/sc:sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
++/sc:sc-test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
+ ```
+ 
+ ## Behavioral Flow
+@@ -55,27 +55,27 @@ Key behaviors:
+ 
+ ### Basic Test Execution
+ ```
+-/sc:sc:test
++/sc:sc-test
+ # Discovers and runs all tests with standard configuration
+ # Generates pass/fail summary and basic coverage
+ ```
+ 
+ ### Targeted Coverage Analysis
+ ```
+-/sc:sc:test src/components --type unit --coverage
++/sc:sc-test src/components --type unit --coverage
+ # Unit tests for specific directory with detailed coverage metrics
+ ```
+ 
+ ### Browser Testing
+ ```
+-/sc:sc:test --type e2e
++/sc:sc-test --type e2e
+ # Activates Playwright MCP for comprehensive browser testing
+ # Cross-browser compatibility and visual validation
+ ```
+ 
+ ### Development Watch Mode
+ ```
+-/sc:sc:test --watch --fix
++/sc:sc-test --watch --fix
+ # Continuous testing with automatic simple failure fixes
+ # Real-time feedback during development
+ ```
+diff --git a/commands/sc-troubleshoot.md b/commands/sc-troubleshoot.md
+index c9de3dd2..3d8d9469 100644
+--- a/commands/sc-troubleshoot.md
++++ b/commands/sc-troubleshoot.md
+@@ -7,7 +7,7 @@ mcp-servers: []
+ personas: []
+ ---
+ 
+-# /sc:sc:sc:troubleshoot - Issue Diagnosis and Resolution
++# /sc:sc-troubleshoot - Issue Diagnosis and Resolution
+ 
+ ## Triggers
+ - Code defects and runtime error investigation requests
+@@ -17,7 +17,7 @@ personas: []
+ 
+ ## Usage
+ ```
+-/sc:sc:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
++/sc:sc-troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
+ ```
+ 
+ ## Behavioral Flow
+@@ -49,28 +49,28 @@ Key behaviors:
+ 
+ ### Code Bug Investigation
+ ```
+-/sc:sc:troubleshoot "Null pointer exception in user service" --type bug --trace
++/sc:sc-troubleshoot "Null pointer exception in user service" --type bug --trace
+ # Systematic analysis of error context and stack traces
+ # Identifies root cause and provides targeted fix recommendations
+ ```
+ 
+ ### Build Failure Analysis
+ ```
+-/sc:sc:troubleshoot "TypeScript compilation errors" --type build --fix
++/sc:sc-troubleshoot "TypeScript compilation errors" --type build --fix
+ # Analyzes build logs and TypeScript configuration
+ # Automatically applies safe fixes for common compilation issues
+ ```
+ 
+ ### Performance Issue Diagnosis
+ ```
+-/sc:sc:troubleshoot "API response times degraded" --type performance
++/sc:sc-troubleshoot "API response times degraded" --type performance
+ # Performance metrics analysis and bottleneck identification
+ # Provides optimization recommendations and monitoring guidance
+ ```
+ 
+ ### Deployment Problem Resolution
+ ```
+-/sc:sc:troubleshoot "Service not starting in production" --type deployment --trace
++/sc:sc-troubleshoot "Service not starting in production" --type deployment --trace
+ # Environment and configuration analysis
+ # Systematic verification of deployment requirements and dependencies
+ ```
+@@ -117,4 +117,4 @@ This command is DIAGNOSIS-FIRST by default.
+ 
+ **Next Step**: User reviews diagnosis, then either:
+ - Re-run with `--fix` flag to apply recommended fix
+-- Use `/sc:sc:improve` for broader refactoring
+\ No newline at end of file
++- Use `/sc:sc-improve` for broader refactoring
+\ No newline at end of file
+diff --git a/commands/sc-workflow.md b/commands/sc-workflow.md
+index 388001bc..3f85ae9d 100644
+--- a/commands/sc-workflow.md
++++ b/commands/sc-workflow.md
+@@ -7,7 +7,7 @@ mcp-servers: [context7, magic, playwright, morphllm, serena]
+ personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+ ---
+ 
+-# /sc:sc:sc:workflow - Implementation Workflow Generator
++# /sc:sc-workflow - Implementation Workflow Generator
+ 
+ ## Triggers
+ - PRD and feature specification analysis for implementation planning
+@@ -17,7 +17,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
+ 
+ ## Usage
+ ```
+-/sc:sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
++/sc:sc-workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+ ```
+ 
+ ## Behavioral Flow
+@@ -57,28 +57,28 @@ Key behaviors:
+ 
+ ### Systematic PRD Workflow
+ ```
+-/sc:sc:workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep
++/sc:sc-workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep
+ # Comprehensive PRD analysis with systematic workflow generation
+ # Multi-persona coordination for complete implementation strategy
+ ```
+ 
+ ### Agile Feature Workflow
+ ```
+-/sc:sc:workflow "user authentication system" --strategy agile --parallel
++/sc:sc-workflow "user authentication system" --strategy agile --parallel
+ # Agile workflow generation with parallel task coordination
+ # Context7 and Magic MCP for framework and UI workflow patterns
+ ```
+ 
+ ### Enterprise Implementation Planning
+ ```
+-/sc:sc:workflow enterprise-prd.md --strategy enterprise --validate
++/sc:sc-workflow enterprise-prd.md --strategy enterprise --validate
+ # Enterprise-scale workflow with comprehensive validation
+ # Security, devops, and architect personas for compliance and scalability
+ ```
+ 
+ ### Cross-Session Workflow Management
+ ```
+-/sc:sc:workflow project-brief.md --depth normal
++/sc:sc-workflow project-brief.md --depth normal
+ # Serena MCP manages cross-session workflow context and persistence
+ # Progressive workflow enhancement with memory-driven insights
+ ```
+@@ -114,4 +114,4 @@ This command produces an IMPLEMENTATION PLAN ONLY - no code execution.
+ - Execution order
+ - Checkpoints and validation steps
+ 
+-**Next Step**: After workflow completes, use `/sc:sc:implement` to execute the plan step by step.
++**Next Step**: After workflow completes, use `/sc:sc-implement` to execute the plan step by step.

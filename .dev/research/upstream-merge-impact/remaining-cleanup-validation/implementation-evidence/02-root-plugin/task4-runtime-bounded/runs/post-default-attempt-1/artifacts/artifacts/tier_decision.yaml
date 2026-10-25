@@ -1,0 +1,12 @@
+selected_tier: 1
+fired_rule_number: 2
+coverage_degraded: null
+surface_unreached: null
+inputs: {C: 0.896, S_scope: 1, S_domains: 1, S_dev_density: 0.0, regression_candidate_count: 0, coverage_undefined: false, reachability_unreachable: 0}
+rule_1_failed_on: "C 0.896 < 0.90 (coverage_pct is a UC-1 field, null in post mode)"
+rule_2_warn: false                     # S_dev_density 0.0 <= 0.05
+composite_score: 1.0
+per_signal_breakdown: {scope_size: 0, task_count: 0, blast_radius: 0, spec_density: 0, ambiguity_signals: 1}
+escalation_reason: "Rule 2: C>=0.85, 1 file, 1 domain, 0 unmapped hunks, no regression candidate -> STOP at Tier 1. ambiguity_signals=1 records the two grounding gaps (non-routing)."
+t2_model_class_diversity: full         # recorded; Tier 2 not reached
+t2_vendor_diversity: multi

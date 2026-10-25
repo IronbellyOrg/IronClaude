@@ -1,0 +1,6 @@
+# UC-2 4-category deviation ledger (authorized | necessary | drift | regression).
+# Source: adversarial merged verdict (adversarial/merged-reviewer-card.md "Deviations"); Tier-1 card and both
+# Tier-2 reviewers independently agree. Drift = 0 holds within changes.patch:1-9 only (see grounding-gaps GG-3).
+deviation_aggregation_mode: per-hunk
+hunk_count: 1
+deviations: []

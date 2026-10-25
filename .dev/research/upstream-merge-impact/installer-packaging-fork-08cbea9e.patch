@@ -1,0 +1,133 @@
+commit 08cbea9ea2948c33e26bd8d839f404b9912fd176
+Author:     Ryan wiancko <ryan@ironbelly.com>
+AuthorDate: Tue Oct 20 17:41:56 2026 +0000
+Commit:     Ryan wiancko <ryan@ironbelly.com>
+CommitDate: Tue Oct 20 17:42:22 2026 +0000
+
+    refactor(cleanup): behavior-preserving cleanup debt reduction (C01-C10)
+    
+    Remove disconnected and duplicated machinery without changing supported
+    behavior:
+    
+    - C01: drop unused Portify monitor helpers (EventRecord, EventLogger,
+      classify_failure, generate_diagnostic_report); requirement assertions
+      migrated to live ExecutionLog/DiagnosticsCollector/executor owners.
+    - C02: retire the orphan scripts/publish.sh wrapper; correct publishing docs.
+    - C03: share identical recipe primitives via swarm/recipes/_primitives.py;
+      recipe exports, clocks, defaults and caps unchanged.
+    - C04: retire unwired Portify failure helpers (get_failure_handler_name,
+      handle_non_writable_output, handle_missing_skills); registry unchanged.
+    - C05: remove inactive setup.py and MANIFEST.in (Hatchling payload unchanged).
+    - C06: share validation text helpers via pipeline/validation_text.py.
+    - C07: share the normalize/reduce atomic byte writer via swarm/atomic.py.
+    - C08: drop the Black dev dependency and [tool.black]; Ruff stays pinned.
+    - C09: registered-None recipes resolve to the concrete Passthrough.
+    - C10: drop the roadmap apply_decomposition_pass wrapper; tests retarget
+      decompose_deliverables.
+    
+    Adds characterization, migration and installed-resource tests. Full suite:
+    no new failures versus baseline.
+    
+    Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+
+diff --git a/MANIFEST.in b/MANIFEST.in
+deleted file mode 100644
+index 14ab8c9a..00000000
+--- a/MANIFEST.in
++++ /dev/null
+@@ -1,33 +0,0 @@
+-include VERSION
+-include README.md
+-include LICENSE
+-include CHANGELOG.md
+-include CONTRIBUTING.md
+-include SECURITY.md
+-include pyproject.toml
+-recursive-include docs *.md *.json *.py
+-recursive-include tests *.py
+-recursive-include src/superclaude *.py *.md *.ts *.json *.sh
+-recursive-include src/superclaude/commands *.md
+-recursive-include src/superclaude/agents *.md
+-recursive-include src/superclaude/modes *.md
+-recursive-include src/superclaude/mcp *.md *.json
+-recursive-include src/superclaude/core *.md
+-recursive-include src/superclaude/examples *.md
+-recursive-include src/superclaude/hooks *.json
+-recursive-include src/superclaude/scripts *.py *.sh
+-recursive-include src/superclaude/skills *.md *.ts *.json
+-recursive-include plugins/superclaude *.py *.md *.ts *.json *.sh
+-recursive-include plugins/superclaude/commands *.md
+-recursive-include plugins/superclaude/agents *.md
+-recursive-include plugins/superclaude/modes *.md
+-recursive-include plugins/superclaude/mcp *.py *.md *.json
+-recursive-include plugins/superclaude/mcp/configs *.json
+-recursive-include plugins/superclaude/core *.md
+-recursive-include plugins/superclaude/examples *.md
+-recursive-include plugins/superclaude/hooks *.json
+-recursive-include plugins/superclaude/scripts *.py *.sh
+-recursive-include plugins/superclaude/skills *.py *.md *.ts *.json
+-global-exclude __pycache__
+-global-exclude *.py[co]
+-global-exclude .DS_Store
+diff --git a/pyproject.toml b/pyproject.toml
+index 874af5bd..3df0fa81 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -47,7 +47,6 @@ dev = [
+     "pytest-cov>=4.0.0",
+     "pytest-benchmark>=4.0.0",
+     "scipy>=1.10.0",  # For A/B testing
+-    "black>=22.0",
+     # Pinned exactly: `ruff format` output is version-sensitive, so an
+     # unpinned floor let CI install newer ruffs whose reformatting drifted
+     # `ruff format --check` red against the committed tree. Pin so CI and
+@@ -171,23 +170,6 @@ exclude_lines = [
+ ]
+ show_missing = true
+ 
+-[tool.black]
+-line-length = 88
+-target-version = ["py310", "py311", "py312"]
+-include = '\.pyi?$'
+-extend-exclude = '''
+-/(
+-  \.eggs
+-  | \.git
+-  | \.hg
+-  | \.mypy_cache
+-  | \.tox
+-  | \.venv
+-  | build
+-  | dist
+-)/
+-'''
+-
+ [tool.ruff]
+ line-length = 88
+ target-version = "py310"
+@@ -201,7 +183,7 @@ extend-exclude = [
+ [tool.ruff.lint]
+ select = ["E", "F", "I", "N", "W", "TID"]
+ ignore = [
+-    "E501",  # Line too long (handled by black)
++    "E501",  # Line too long (handled by ruff format)
+     # N818: many existing exception classes (PtyDriverTimeout,
+     # ReporterContractViolation, HomeContainmentViolation, InvalidEvalId,
+     # ScratchRootViolation, EvalNotFound, etc.) are part of the public
+diff --git a/setup.py b/setup.py
+deleted file mode 100644
+index 1ca34b8d..00000000
+--- a/setup.py
++++ /dev/null
+@@ -1,11 +0,0 @@
+-"""
+-Setup.py for SuperClaude Framework
+-
+-This is a minimal setup.py that defers to pyproject.toml for configuration.
+-Modern Python packaging uses pyproject.toml as the primary configuration file.
+-"""
+-
+-from setuptools import setup
+-
+-# All configuration is now in pyproject.toml
+-setup()

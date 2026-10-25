@@ -1,0 +1,2046 @@
+{
+  "total": 255,
+  "invalid": [],
+  "records": [
+    {
+      "report": "foundation-migration.md",
+      "report_line": 16,
+      "citation": "scripts/uninstall_legacy.sh:33-44",
+      "resolved_path": "scripts/uninstall_legacy.sh",
+      "source_lines": 118,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 20,
+      "citation": "foundation-source-excerpts.txt:2-315",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-source-excerpts.txt",
+      "source_lines": 3124,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 20,
+      "citation": "foundation-source-excerpts.txt:317-659",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-source-excerpts.txt",
+      "source_lines": 3124,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 21,
+      "citation": "foundation-10844490.patch:1-148",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-10844490.patch",
+      "source_lines": 148,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 21,
+      "citation": "scripts/uninstall_legacy.sh:23-43,59-98",
+      "resolved_path": "scripts/uninstall_legacy.sh",
+      "source_lines": 118,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 22,
+      "citation": "foundation-case-evidence.md:3-51",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-case-evidence.md",
+      "source_lines": 51,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 22,
+      "citation": "README.md:64",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 24,
+      "citation": "scripts/uninstall_legacy.sh:37-43",
+      "resolved_path": "scripts/uninstall_legacy.sh",
+      "source_lines": 118,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 24,
+      "citation": "scripts/uninstall_legacy.sh:7,52-57",
+      "resolved_path": "scripts/uninstall_legacy.sh",
+      "source_lines": 118,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 26,
+      "citation": "foundation-case-evidence.md:5-51",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-case-evidence.md",
+      "source_lines": 51,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 30,
+      "citation": "src/superclaude/cli/main.py:189-255",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 30,
+      "citation": "src/superclaude/cli/main.py:521-563",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 32,
+      "citation": "src/superclaude/cli/swarm/dispatch.py:419-425,464-471",
+      "resolved_path": "src/superclaude/cli/swarm/dispatch.py",
+      "source_lines": 508,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 32,
+      "citation": "tests/swarm/test_parallel_executor_routing.py:75-103",
+      "resolved_path": "tests/swarm/test_parallel_executor_routing.py",
+      "source_lines": 452,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 34,
+      "citation": "src/superclaude/pytest_plugin.py:14-17,45-114",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 34,
+      "citation": "tests/integration/test_pytest_plugin.py:47-94",
+      "resolved_path": "tests/integration/test_pytest_plugin.py",
+      "source_lines": 230,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 36,
+      "citation": "pyproject.toml:69-97",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 36,
+      "citation": "scripts/build_superclaude_plugin.py:15-18,69-85",
+      "resolved_path": "scripts/build_superclaude_plugin.py",
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 36,
+      "citation": "src/superclaude/skills/confidence-check/SKILL.md:22-50",
+      "resolved_path": "src/superclaude/skills/confidence-check/SKILL.md",
+      "source_lines": 150,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 40,
+      "citation": "foundation-live-dependencies.txt:10-16",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 40,
+      "citation": "src/superclaude/cli/main.py:189-194",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 41,
+      "citation": "foundation-live-dependencies.txt:1-7",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 41,
+      "citation": "src/superclaude/cli/swarm/dispatch.py:419-425",
+      "resolved_path": "src/superclaude/cli/swarm/dispatch.py",
+      "source_lines": 508,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 42,
+      "citation": "foundation-live-dependencies.txt:28-45",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 42,
+      "citation": "src/superclaude/pytest_plugin.py:72-93",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 42,
+      "citation": "tests/integration/test_pytest_plugin.py:47-94",
+      "resolved_path": "tests/integration/test_pytest_plugin.py",
+      "source_lines": 230,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 43,
+      "citation": "foundation-live-dependencies.txt:19-25",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 43,
+      "citation": "src/superclaude/cli/main.py:254-273",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 44,
+      "citation": "foundation-live-dependencies.txt:33-35,48-74",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 44,
+      "citation": "foundation-live-dependencies.txt:112-123",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 45,
+      "citation": "foundation-live-dependencies.txt:77-109",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 45,
+      "citation": "foundation-case-evidence.md:23-40",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-case-evidence.md",
+      "source_lines": 51,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 47,
+      "citation": "foundation-source-excerpts.txt:317-340,3053-3077",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-source-excerpts.txt",
+      "source_lines": 3124,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 51,
+      "citation": "reverse-checks.json:3-27",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 55,
+      "citation": "reverse-checks.json:3-9",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 56,
+      "citation": "Makefile:1",
+      "resolved_path": "Makefile",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 56,
+      "citation": "reverse-checks.json:12-18",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 57,
+      "citation": "reverse-checks.json:21-27",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 59,
+      "citation": "Makefile:559-567",
+      "resolved_path": "Makefile",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 59,
+      "citation": "docs/getting-started/installation.md:343-366",
+      "resolved_path": "docs/getting-started/installation.md",
+      "source_lines": 546,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 71,
+      "citation": "endpoint-summary.txt:1-5",
+      "resolved_path": ".dev/research/upstream-merge-impact/endpoint-summary.txt",
+      "source_lines": 15,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 71,
+      "citation": "foundation-complete-path-ledger.md:277-278",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-complete-path-ledger.md",
+      "source_lines": 278,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 76,
+      "citation": "foundation-source-excerpts.txt:801-1000",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-source-excerpts.txt",
+      "source_lines": 3124,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 81,
+      "citation": "foundation-live-dependencies.txt:77-90",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 82,
+      "citation": "foundation-complete-path-ledger.md:269-275",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-complete-path-ledger.md",
+      "source_lines": 278,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 83,
+      "citation": "foundation-case-evidence.md:5-51",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-case-evidence.md",
+      "source_lines": 51,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 92,
+      "citation": "foundation-live-dependencies.txt:112-123",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 94,
+      "citation": "foundation-live-dependencies.txt:112-123",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-live-dependencies.txt",
+      "source_lines": 123,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 95,
+      "citation": "endpoint-summary.txt:1-5",
+      "resolved_path": ".dev/research/upstream-merge-impact/endpoint-summary.txt",
+      "source_lines": 15,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 95,
+      "citation": "foundation-complete-path-ledger.md:277-278",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-complete-path-ledger.md",
+      "source_lines": 278,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 99,
+      "citation": "pyproject.toml:69-97",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 99,
+      "citation": "src/superclaude/cli/main.py:189-255,521-563",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 99,
+      "citation": "src/superclaude/cli/swarm/dispatch.py:419-425",
+      "resolved_path": "src/superclaude/cli/swarm/dispatch.py",
+      "source_lines": 508,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 101,
+      "citation": "scripts/uninstall_legacy.sh:7,33-57",
+      "resolved_path": "scripts/uninstall_legacy.sh",
+      "source_lines": 118,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 101,
+      "citation": "Makefile:559-567",
+      "resolved_path": "Makefile",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 101,
+      "citation": "docs/getting-started/installation.md:343-366",
+      "resolved_path": "docs/getting-started/installation.md",
+      "source_lines": 546,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 103,
+      "citation": "reverse-checks.json:21-27",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 103,
+      "citation": "foundation-case-evidence.md:5-51",
+      "resolved_path": ".dev/research/upstream-merge-impact/foundation-case-evidence.md",
+      "source_lines": 51,
+      "valid": true
+    },
+    {
+      "report": "foundation-migration.md",
+      "report_line": 103,
+      "citation": "README.md:64",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 15,
+      "citation": ".dev/research/upstream-merge-impact/docs-commit-patches.txt:1-5843",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 15,
+      "citation": ".dev/research/upstream-merge-impact/docs-path-history.txt:1-637",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 15,
+      "citation": "docs-commit-patches.txt:91-1011",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 17,
+      "citation": "docs-path-history.txt:91-177",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 19,
+      "citation": "pyproject.toml:5-9",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 19,
+      "citation": "src/superclaude/__init__.py:8-9",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 19,
+      "citation": "VERSION:1",
+      "resolved_path": "VERSION",
+      "source_lines": 1,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 19,
+      "citation": "package.json:2-7",
+      "resolved_path": "package.json",
+      "source_lines": 52,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 27,
+      "citation": "docs-commit-patches.txt:117-1011",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 27,
+      "citation": "docs/user-guide/memory-system.md:61-103",
+      "resolved_path": "docs/user-guide/memory-system.md",
+      "source_lines": 292,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 27,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 28,
+      "citation": "docs-commit-patches.txt:1083-1524",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 28,
+      "citation": "pyproject.toml:69-87",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 28,
+      "citation": "README.md:53-79",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 28,
+      "citation": "CLAUDE.md:94-115",
+      "resolved_path": "CLAUDE.md",
+      "source_lines": 437,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 29,
+      "citation": "docs-commit-patches.txt:1526-1808",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 29,
+      "citation": "pyproject.toml:5-9",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 29,
+      "citation": "package.json:2-7",
+      "resolved_path": "package.json",
+      "source_lines": 52,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 30,
+      "citation": "docs-commit-patches.txt:1829-1843",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 30,
+      "citation": "src/superclaude/cli/main.py:15-19",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 30,
+      "citation": "src/superclaude/pytest_plugin.py:199-203",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 31,
+      "citation": "docs-commit-patches.txt:1867-1905",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 31,
+      "citation": "docs-path-history.txt:106-177",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 32,
+      "citation": "docs-commit-patches.txt:1927-2121",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 32,
+      "citation": "pyproject.toml:5-9",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 32,
+      "citation": "CLAUDE.md:94-115",
+      "resolved_path": "CLAUDE.md",
+      "source_lines": 437,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 33,
+      "citation": "docs-commit-patches.txt:2138-2150",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 33,
+      "citation": "docs-path-history.txt:626-637",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 33,
+      "citation": "src/superclaude/__init__.py:8",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 34,
+      "citation": "docs-commit-patches.txt:2165-2171",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 34,
+      "citation": "VERSION:1",
+      "resolved_path": "VERSION",
+      "source_lines": 1,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 34,
+      "citation": "docs-path-history.txt:306-315",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 34,
+      "citation": "scripts/build_superclaude_plugin.py:21-30",
+      "resolved_path": "scripts/build_superclaude_plugin.py",
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 35,
+      "citation": "docs-commit-patches.txt:2200-3451",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 35,
+      "citation": "docs-path-history.txt:106-177",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 36,
+      "citation": "docs-commit-patches.txt:3470-3635",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 36,
+      "citation": "docs-path-history.txt:384-449",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 36,
+      "citation": "docs/memory/solutions_learned.jsonl:1-4",
+      "resolved_path": "docs/memory/solutions_learned.jsonl",
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 36,
+      "citation": "tests/conftest.py:23-117",
+      "resolved_path": "tests/conftest.py",
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 37,
+      "citation": "docs-commit-patches.txt:3648-3658",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 37,
+      "citation": "README.md:1-5",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 37,
+      "citation": "docs-path-history.txt:179-204",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 38,
+      "citation": "docs-commit-patches.txt:3681-5520",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 38,
+      "citation": "docs/user-guide/commands.md:22-30",
+      "resolved_path": "docs/user-guide/commands.md",
+      "source_lines": 1474,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 39,
+      "citation": "docs-commit-patches.txt:5533-5565",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 39,
+      "citation": "VERSION:1",
+      "resolved_path": "VERSION",
+      "source_lines": 1,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 39,
+      "citation": "pyproject.toml:7",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 39,
+      "citation": "src/superclaude/__init__.py:8",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 39,
+      "citation": "docs-path-history.txt:311-315",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 40,
+      "citation": "docs-commit-patches.txt:5584-5843",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 40,
+      "citation": "docs-path-history.txt:1-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 40,
+      "citation": "CHANGELOG.md:1-28",
+      "resolved_path": "CHANGELOG.md",
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 40,
+      "citation": "CLAUDE.md:94-115",
+      "resolved_path": "CLAUDE.md",
+      "source_lines": 437,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 46,
+      "citation": "docs/user-guide/memory-system.md:61-103",
+      "resolved_path": "docs/user-guide/memory-system.md",
+      "source_lines": 292,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 46,
+      "citation": "docs/memory/README.md:15-45",
+      "resolved_path": "docs/memory/README.md",
+      "source_lines": 306,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 46,
+      "citation": "docs-verification-evidence.txt:73-76",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 46,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 46,
+      "citation": "src/superclaude/pm_agent/reflexion.py:138-170",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 48,
+      "citation": "docs/memory/README.md:183-216",
+      "resolved_path": "docs/memory/README.md",
+      "source_lines": 306,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 48,
+      "citation": "src/superclaude/pm_agent/reflexion.py:127-132",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 48,
+      "citation": "src/superclaude/pytest_plugin.py:188-196",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "src/superclaude/__init__.py:11-19",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "src/superclaude/pytest_plugin.py:172-196",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "tests/unit/test_reflexion.py:9-21",
+      "resolved_path": "tests/unit/test_reflexion.py",
+      "source_lines": 183,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "src/superclaude/pytest_plugin.py:117-145",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "docs-verification-evidence.txt:79-92",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "src/superclaude/skills/sc-pm-protocol/SKILL.md:21-52",
+      "resolved_path": "src/superclaude/skills/sc-pm-protocol/SKILL.md",
+      "source_lines": 197,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 50,
+      "citation": "docs-verification-evidence.txt:101-103",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "docs-commit-patches.txt:3470-3635",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "docs-verification-evidence.txt:17-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "docs/memory/solutions_learned.jsonl:1-4",
+      "resolved_path": "docs/memory/solutions_learned.jsonl",
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "tests/conftest.py:23-117",
+      "resolved_path": "tests/conftest.py",
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 52,
+      "citation": "tests/unit/test_reflexion_pollution_guard.py:1-26",
+      "resolved_path": "tests/unit/test_reflexion_pollution_guard.py",
+      "source_lines": 57,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 54,
+      "citation": "docs-commit-patches.txt:497-509",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 54,
+      "citation": "docs/memory/WORKFLOW_METRICS_SCHEMA.md:11-27",
+      "resolved_path": "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+      "source_lines": 430,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 54,
+      "citation": "scripts/analyze_workflow_metrics.py:25-41",
+      "resolved_path": "scripts/analyze_workflow_metrics.py",
+      "source_lines": 346,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 54,
+      "citation": "scripts/ab_test_workflows.py:26-56",
+      "resolved_path": "scripts/ab_test_workflows.py",
+      "source_lines": 290,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 54,
+      "citation": "docs-verification-evidence.txt:73-76",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 58,
+      "citation": "pyproject.toml:5-16",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 58,
+      "citation": "src/superclaude/cli/main.py:15-19",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 58,
+      "citation": "src/superclaude/pytest_plugin.py:199-203",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 58,
+      "citation": "docs-verification-evidence.txt:25-46",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 60,
+      "citation": "scripts/build_superclaude_plugin.py:21-30",
+      "resolved_path": "scripts/build_superclaude_plugin.py",
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 60,
+      "citation": "docs-verification-evidence.txt:110",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 60,
+      "citation": "package.json:2-7",
+      "resolved_path": "package.json",
+      "source_lines": 52,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 60,
+      "citation": "docs-verification-evidence.txt:109",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 62,
+      "citation": "docs-verification-evidence.txt:4-14",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 62,
+      "citation": "KNOWLEDGE.md:1-16",
+      "resolved_path": "KNOWLEDGE.md",
+      "source_lines": 325,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 62,
+      "citation": "CHANGELOG.md:1-28",
+      "resolved_path": "CHANGELOG.md",
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 62,
+      "citation": "docs-verification-evidence.txt:49-59",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 62,
+      "citation": "docs-verification-evidence.txt:62-70",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 64,
+      "citation": "docs-path-history.txt:490-510",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 64,
+      "citation": "docs/user-guide/commands.md:22-30",
+      "resolved_path": "docs/user-guide/commands.md",
+      "source_lines": 1474,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 64,
+      "citation": "docs-verification-evidence.txt:79-92",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 66,
+      "citation": "src/superclaude/cli/install_core.py:27-71",
+      "resolved_path": "src/superclaude/cli/install_core.py",
+      "source_lines": 152,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 66,
+      "citation": "CLAUDE.md:16-31",
+      "resolved_path": "CLAUDE.md",
+      "source_lines": 437,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 70,
+      "citation": ".dev/research/upstream-merge-impact/endpoint-inventory.json:2133-2169",
+      "resolved_path": ".dev/research/upstream-merge-impact/endpoint-inventory.json",
+      "source_lines": 4433,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 74,
+      "citation": "docs-verification-evidence.txt:4-14",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 74,
+      "citation": "CHANGELOG.md:1-28",
+      "resolved_path": "CHANGELOG.md",
+      "source_lines": 210,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 74,
+      "citation": "docs-path-history.txt:1-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 75,
+      "citation": "CLAUDE.md:16-82",
+      "resolved_path": "CLAUDE.md",
+      "source_lines": 437,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 75,
+      "citation": "docs-commit-patches.txt:1083-1253",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 76,
+      "citation": "docs-verification-evidence.txt:4-14",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 76,
+      "citation": "KNOWLEDGE.md:1-16",
+      "resolved_path": "KNOWLEDGE.md",
+      "source_lines": 325,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 77,
+      "citation": "docs-verification-evidence.txt:4-14",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 77,
+      "citation": "docs-commit-patches.txt:1628-1667",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 78,
+      "citation": "docs-verification-evidence.txt:10",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 78,
+      "citation": "docs-commit-patches.txt:2200-2604",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 79,
+      "citation": "docs-verification-evidence.txt:11",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 79,
+      "citation": "docs-commit-patches.txt:2605-3010",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 80,
+      "citation": "docs-verification-evidence.txt:12",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 80,
+      "citation": "docs-commit-patches.txt:3011-3451",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 81,
+      "citation": "README.md:1-79",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 81,
+      "citation": "docs-path-history.txt:179-204",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 82,
+      "citation": "docs-path-history.txt:295-304",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 82,
+      "citation": "docs-commit-patches.txt:1729-1741",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 83,
+      "citation": "VERSION:1",
+      "resolved_path": "VERSION",
+      "source_lines": 1,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 83,
+      "citation": "scripts/build_superclaude_plugin.py:21-30",
+      "resolved_path": "scripts/build_superclaude_plugin.py",
+      "source_lines": 101,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 83,
+      "citation": "docs-path-history.txt:306-315",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 84,
+      "citation": "docs/mcp/mcp-integration-policy.md:9-67",
+      "resolved_path": "docs/mcp/mcp-integration-policy.md",
+      "source_lines": 475,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 84,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 85,
+      "citation": "docs/memory/README.md:15-45",
+      "resolved_path": "docs/memory/README.md",
+      "source_lines": 306,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 85,
+      "citation": "src/superclaude/pm_agent/reflexion.py:127-132",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 86,
+      "citation": "docs-commit-patches.txt:497-509",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 86,
+      "citation": "docs/memory/WORKFLOW_METRICS_SCHEMA.md:11-27",
+      "resolved_path": "docs/memory/WORKFLOW_METRICS_SCHEMA.md",
+      "source_lines": 430,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 87,
+      "citation": "docs/memory/pm_context.md:35-65",
+      "resolved_path": "docs/memory/pm_context.md",
+      "source_lines": 99,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 87,
+      "citation": "src/superclaude/pytest_plugin.py:117-145",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 88,
+      "citation": "docs-verification-evidence.txt:79-92",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 89,
+      "citation": "docs/memory/solutions_learned.jsonl:1-4",
+      "resolved_path": "docs/memory/solutions_learned.jsonl",
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 89,
+      "citation": "docs-path-history.txt:384-415",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-path-history.txt",
+      "source_lines": 637,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 90,
+      "citation": "docs/memory/token_efficiency_validation.md:96-115",
+      "resolved_path": "docs/memory/token_efficiency_validation.md",
+      "source_lines": 191,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 90,
+      "citation": "docs-commit-patches.txt:560-598",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 91,
+      "citation": "docs-verification-evidence.txt:17-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 91,
+      "citation": "docs-commit-patches.txt:3486-3535",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 92,
+      "citation": "docs-verification-evidence.txt:17-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 92,
+      "citation": "docs-commit-patches.txt:3536-3585",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 93,
+      "citation": "docs-verification-evidence.txt:17-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 93,
+      "citation": "docs-commit-patches.txt:3586-3635",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 94,
+      "citation": "docs/reference/pm-agent-autonomous-reflection.md:188-229",
+      "resolved_path": "docs/reference/pm-agent-autonomous-reflection.md",
+      "source_lines": 662,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 94,
+      "citation": "src/superclaude/pm_agent/reflexion.py:110-136",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 95,
+      "citation": "docs-commit-patches.txt:659-671",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 95,
+      "citation": "docs-verification-evidence.txt:49-59",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 96,
+      "citation": "docs-commit-patches.txt:672-721",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 96,
+      "citation": "docs-verification-evidence.txt:49-59",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 97,
+      "citation": "docs-commit-patches.txt:1749-1770",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 97,
+      "citation": "docs-verification-evidence.txt:49-59",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 98,
+      "citation": "docs/user-guide/commands.md:22-30",
+      "resolved_path": "docs/user-guide/commands.md",
+      "source_lines": 1474,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 99,
+      "citation": "docs/user-guide/memory-system.md:30-103",
+      "resolved_path": "docs/user-guide/memory-system.md",
+      "source_lines": 292,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 99,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 100,
+      "citation": "docs-commit-patches.txt:1771-1782",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 100,
+      "citation": "package.json:2-7",
+      "resolved_path": "package.json",
+      "source_lines": 52,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 100,
+      "citation": "docs-verification-evidence.txt:109",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 101,
+      "citation": "docs-commit-patches.txt:1783-1795",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 101,
+      "citation": "docs-verification-evidence.txt:62-70",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 102,
+      "citation": "pyproject.toml:5-9",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 102,
+      "citation": "docs-verification-evidence.txt:25-46",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 102,
+      "citation": "docs-commit-patches.txt:1796-1808",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-commit-patches.txt",
+      "source_lines": 5843,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 103,
+      "citation": "src/superclaude/__init__.py:8-20",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 103,
+      "citation": "src/superclaude/cli/main.py:15-19",
+      "resolved_path": "src/superclaude/cli/main.py",
+      "source_lines": 567,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 103,
+      "citation": "src/superclaude/pytest_plugin.py:199-203",
+      "resolved_path": "src/superclaude/pytest_plugin.py",
+      "source_lines": 228,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 107,
+      "citation": ".dev/research/upstream-merge-impact/reverse-checks.json:183-306",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 111,
+      "citation": "reverse-checks.json:183-189",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 112,
+      "citation": "reverse-checks.json:192-198",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 113,
+      "citation": "reverse-checks.json:201-207",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 114,
+      "citation": "reverse-checks.json:210-216",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 115,
+      "citation": "reverse-checks.json:219-225",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 116,
+      "citation": "reverse-checks.json:228-234",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 117,
+      "citation": "reverse-checks.json:237-243",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 118,
+      "citation": "reverse-checks.json:246-252",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 119,
+      "citation": "reverse-checks.json:255-261",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 120,
+      "citation": "reverse-checks.json:264-270",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 121,
+      "citation": "reverse-checks.json:273-279",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 122,
+      "citation": "reverse-checks.json:282-288",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 123,
+      "citation": "reverse-checks.json:291-297",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 124,
+      "citation": "reverse-checks.json:300-306",
+      "resolved_path": ".dev/research/upstream-merge-impact/reverse-checks.json",
+      "source_lines": 488,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 132,
+      "citation": "docs/memory/README.md:38-45",
+      "resolved_path": "docs/memory/README.md",
+      "source_lines": 306,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 132,
+      "citation": "docs/user-guide/memory-system.md:177-185",
+      "resolved_path": "docs/user-guide/memory-system.md",
+      "source_lines": 292,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 133,
+      "citation": "src/superclaude/pm_agent/reflexion.py:138-170",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 133,
+      "citation": "docs-verification-evidence.txt:49-59",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 134,
+      "citation": "tests/conftest.py:23-117",
+      "resolved_path": "tests/conftest.py",
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 134,
+      "citation": "docs/memory/solutions_learned.jsonl:1-4",
+      "resolved_path": "docs/memory/solutions_learned.jsonl",
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 136,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 136,
+      "citation": "src/superclaude/skills/sc-pm-protocol/SKILL.md:21-52",
+      "resolved_path": "src/superclaude/skills/sc-pm-protocol/SKILL.md",
+      "source_lines": 197,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 136,
+      "citation": "docs-verification-evidence.txt:79-103",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 143,
+      "citation": "docs/memory/token_efficiency_validation.md:145-168",
+      "resolved_path": "docs/memory/token_efficiency_validation.md",
+      "source_lines": 191,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 145,
+      "citation": "docs-verification-evidence.txt:1-2",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 152,
+      "citation": "README.md:53-79",
+      "resolved_path": "README.md",
+      "source_lines": 274,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 152,
+      "citation": "pyproject.toml:5-9",
+      "resolved_path": "pyproject.toml",
+      "source_lines": 216,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 152,
+      "citation": "src/superclaude/__init__.py:8-20",
+      "resolved_path": "src/superclaude/__init__.py",
+      "source_lines": 21,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 152,
+      "citation": "docs/user-guide/commands.md:22-30",
+      "resolved_path": "docs/user-guide/commands.md",
+      "source_lines": 1474,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 153,
+      "citation": "docs-verification-evidence.txt:17-22",
+      "resolved_path": ".dev/research/upstream-merge-impact/docs-verification-evidence.txt",
+      "source_lines": 110,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 153,
+      "citation": "docs/memory/solutions_learned.jsonl:1-4",
+      "resolved_path": "docs/memory/solutions_learned.jsonl",
+      "source_lines": 4,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 153,
+      "citation": "tests/conftest.py:23-117",
+      "resolved_path": "tests/conftest.py",
+      "source_lines": 225,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 154,
+      "citation": "docs/user-guide/memory-system.md:30-103",
+      "resolved_path": "docs/user-guide/memory-system.md",
+      "source_lines": 292,
+      "valid": true
+    },
+    {
+      "report": "docs-memory-releases.md",
+      "report_line": 154,
+      "citation": "src/superclaude/pm_agent/reflexion.py:57-82",
+      "resolved_path": "src/superclaude/pm_agent/reflexion.py",
+      "source_lines": 352,
+      "valid": true
+    }
+  ]
+}

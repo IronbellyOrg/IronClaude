@@ -1,0 +1,10 @@
+# Wave 3C blind calibration of reviewer-1-card.md — sc:confidence-calibrator, requested slot opus, reported model claude-opus-5-5[1m], agentId a0081085ca7e9eaff
+card: reviewer-cards/reviewer-1-card.md
+reviewer: {persona: analyzer, slot: sonnet, model: "claude-sonnet-5-5[1m]", vendor: Anthropic}
+calibrator_model_class: opus
+calibrator_diversity: full
+citation_spot_checks: {checked: 18, verified: 17, mismatch: 0, unreadable: 0, not_checked: 1, not_checked_item: "snapshot file-list listing claim (not a file range)"}
+scores: {citation_grounding: 0.93, coverage_completeness: 0.92, deviation_classification_clarity: 0.95, risk_surface_coverage: 0.88, recommendation_actionability: 0.90}
+arithmetic: "(0.93+0.92+0.95+0.88+0.90)/5 = 4.58/5 = 0.916"
+confidence_calibrated: 0.92
+self_reported_confidence: "0.8 (greeting.py) / ~0.5 overall"

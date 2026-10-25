@@ -1,0 +1,854 @@
+diff --git a/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-check.py b/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-check.py
+new file mode 100644
+index 00000000..350b2857
+--- /dev/null
++++ b/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-check.py
+@@ -0,0 +1,316 @@
++#!/usr/bin/env python3
++"""Inspect Task 4 product preservation and real native output, not process-exit claims."""
++
++import argparse
++import hashlib
++import json
++import re
++import runpy
++import subprocess
++import time
++from pathlib import Path
++
++import yaml
++
++OUT = Path(__file__).resolve().parent
++ROOT = OUT.parents[5]
++RUNTIME = OUT / "task4-runtime"
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def blocks(event):
++    message = event.get("message")
++    content = message.get("content") if isinstance(message, dict) else None
++    return [block for block in content if isinstance(block, dict)] if isinstance(content, list) else []
++
++
++def model_of(event):
++    message = event.get("message")
++    return message.get("model", "") if isinstance(message, dict) else ""
++
++
++def main():
++    global RUNTIME
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--runtime", default="task4-runtime")
++    parser.add_argument("--case", action="append", default=[])
++    parser.add_argument("--require-all", action="store_true")
++    args = parser.parse_args()
++    RUNTIME = OUT / args.runtime
++    if RUNTIME.parent != OUT:
++        parser.error("runtime must be an immediate evidence child")
++    baseline = json.loads((OUT / "task4-baseline.json").read_text())
++    contract = json.loads((OUT / "plugin-contract.json").read_text())
++    checks = {}
++    cwd_guard = runpy.run_path(str(OUT / "task4-cwd-audit.py"))
++    cwd_guard["self_check"]()
++
++    def check(name, passed, details):
++        checks[name] = {"pass": bool(passed), "details": details}
++
++    changed = [path for path, digest in baseline["sha256"].items() if path != "commands/sc-reflect.md" and (not (ROOT / path).is_file() or sha(ROOT / path) != digest)]
++    check("all_other_commands_resources_and_protected_bytes_preserved", not changed, {"checked": len(baseline["sha256"]) - 1, "changed": changed})
++    command = (ROOT / "commands/sc-reflect.md").read_text()
++    required = ("Skill sc:sc-reflect-protocol", "${CLAUDE_PLUGIN_ROOT}/skills/sc-reflect-protocol/SKILL.md", "--type task --analyze", "--type task --validate", "--commit-range", "sc:confidence-calibrator", "sc:evidence-validator", "sc:reflect-reviewer", "sc:merge-executor", "--no-promote", "remediation_unavailable: true", "superclaude` package executable", "stopped-precondition")
++    forbidden = ("<200ms", "<1s", "task|session|completion", "Serena MCP**: Mandatory", "~/.claude/")
++    check("root_entrypoint_modern_contract_and_local_binding", all(token in command for token in required) and not any(token in command for token in forbidden), {"missing": [token for token in required if token not in command], "obsolete": [token for token in forbidden if token in command]})
++    retired = list(contract["producer_retirement"]) + ["commands/sc-estimate.md", "commands/sc-sc.md", "commands/sc-select-tool.md"]
++    check("retired_producer_and_commands_remain_absent", not any((ROOT / path).exists() for path in retired), retired)
++    expected = {row["path"] for row in contract["commands"]} | {row["path"] for row in contract["existing_agents"]} | {row["destination"] for row in contract["candidate_resources"]} | {path for path in contract["protected_sha256"] if path.startswith("skills/")} | {".claude-plugin/plugin.json"}
++    actual = {str(path.relative_to(ROOT)) for folder in ("commands", "agents", "skills", ".claude-plugin") for path in (ROOT / folder).rglob("*") if path.is_file()}
++    check("exact_bounded_product_inventory", actual == expected, {"unexpected": sorted(actual - expected), "missing": sorted(expected - actual)})
++    index = subprocess.check_output(["git", "diff", "--cached", "--name-only"], cwd=ROOT, text=True)
++    check("index_unchanged", not index.strip(), index)
++    check("head_unchanged", subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() == baseline["head"], baseline["head"])
++    fixture = json.loads((RUNTIME / "fixture-contents.json").read_text())
++    copy_drift = [path for path, digest in fixture["actual_plugin_copy_sha256"].items() if not (RUNTIME / "plugin" / path).is_file() or sha(RUNTIME / "plugin" / path) != digest or sha(ROOT / path) != digest]
++    check("actual_isolated_copy_matches_current_product", not copy_drift, copy_drift)
++    case_results = {}
++    for name in args.case:
++        case = RUNTIME / "runs" / name
++        execution = json.loads((case / "execution.json").read_text())
++        init = json.loads((case / "native-init.json").read_text())
++        artifacts = case / "artifacts"
++        raw_events = []
++        trace_paths = [case / "stdout.jsonl", *sorted(case.glob("stdout-resume-*.jsonl"))]
++        for trace_path in trace_paths:
++            for line in trace_path.read_text().splitlines():
++                try:
++                    raw_events.append(json.loads(line))
++                except json.JSONDecodeError:
++                    continue
++        calls = [{"parent_tool_use_id": event.get("parent_tool_use_id"), "tool": block["name"], "input": block.get("input", {})} for event in raw_events for block in blocks(event) if block.get("type") == "tool_use"]
++        continuation_records = [json.loads(path.read_text()) for path in sorted(case.glob("resume-*-execution.json"))]
++        agent_calls = {block["id"]: block["input"] for event in raw_events for block in blocks(event) if block.get("type") == "tool_use" and block.get("name") in ("Agent", "Task")}
++        agent_returns = {block["tool_use_id"]: block for event in raw_events for block in blocks(event) if block.get("type") == "tool_result" and block.get("tool_use_id") in agent_calls}
++        successful_roles = [spec.get("subagent_type") for identity, spec in agent_calls.items() if identity in agent_returns and not agent_returns[identity].get("is_error") and agent_returns[identity].get("content")]
++        roles = [row["input"].get("subagent_type") for row in calls if row["tool"] in ("Agent", "Task")]
++        skills = [row["input"].get("skill") for row in calls if row["tool"] == "Skill"]
++        mode = execution["case"]
++        negative = mode in ("missing-pre", "missing-post", "unsafe-output", "readiness-unavailable", "invalid-commit-range")
++        paths = [artifacts / "return-contract.yaml"] if (artifacts / "return-contract.yaml").is_file() else []
++        parsed = []
++        for path in paths:
++            try:
++                value = yaml.safe_load(path.read_text())
++                if isinstance(value, dict):
++                    parsed.append({"path": str(path), "value": value})
++            except yaml.YAMLError:
++                pass
++        returns = {block["tool_use_id"]: block for event in raw_events for block in blocks(event) if block.get("type") == "tool_result"}
++        out_of_scope_reads = []
++        for event in raw_events:
++            for block in blocks(event):
++                if block.get("type") != "tool_use" or block.get("name") != "Read":
++                    continue
++                path = Path(block.get("input", {}).get("file_path", "."))
++                result = returns.get(block.get("id"), {})
++                if path.is_absolute() and not any(path.is_relative_to(allowed) for allowed in (RUNTIME / "fixtures/project", RUNTIME / "plugin", case, Path(execution["cwd"]))) and result and not result.get("is_error"):
++                    out_of_scope_reads.append({"path": str(path), "parent_tool_use_id": event.get("parent_tool_use_id")})
++        shell_transitions = []
++        for index, event in enumerate(raw_events):
++            for block in blocks(event):
++                if block.get("type") == "tool_use" and block.get("name") == "Bash" and block.get("id") in returns and not returns[block["id"]].get("is_error"):
++                    command_text = block.get("input", {}).get("command", "")
++                    transitions = cwd_guard["shell_transitions"](command_text)
++                    if transitions:
++                        shell_transitions.append({"event": index, "parent": event.get("parent_tool_use_id"), "commands": transitions, "command": command_text})
++        actual_cwd_records = []
++        seen_cwd_records = set()
++        for transcript in (case / "config").rglob("*.jsonl"):
++            for line in transcript.read_text().splitlines():
++                try:
++                    row = json.loads(line)
++                except json.JSONDecodeError:
++                    continue
++                if row.get("cwd") and (str(transcript), row["cwd"]) not in seen_cwd_records:
++                    seen_cwd_records.add((str(transcript), row["cwd"]))
++                    actual_cwd_records.append({"transcript": str(transcript), "cwd": row["cwd"], "pass": cwd_guard["persisted_cwd_allowed"](row["cwd"], execution["cwd"], RUNTIME / "fixtures/project")})
++        result_text = json.dumps(execution.get("native_result", {}))
++        case_checks = {
++            "native_exited_zero": execution["state"] == "exited" and execution["returncode"] == 0 and all(row.get("state") == "exited" and row.get("returncode") == 0 and not row.get("changed_plugin_files") and not row.get("changed_audit_inputs") for row in continuation_records),
++            "inputs_plugin_unmodified": not execution["changed_plugin_files"] and not execution["changed_audit_inputs"] and not execution.get("added_plugin_files", []) and not execution.get("fixture_staged_files", []) and not execution.get("fixture_head_created", False),
++            "isolated_native_environment": not init.get("mcp_servers") and Path(execution["cwd"]).parent == Path("/tmp") and execution["framework_executable_absent"] and "--bare" not in execution["command"] and "--restricted" in execution["command"],
++            "root_command_dispatched": execution["command"][-1].startswith("/sc:sc-reflect "),
++            "actual_launch_bytes_match_frozen_final_product": execution.get("plugin_sha256_at_launch") == fixture["actual_plugin_copy_sha256"] and all(row.get("plugin_sha256_at_launch") == fixture["actual_plugin_copy_sha256"] for row in continuation_records),
++            "no_successful_file_reads_outside_isolated_roots": not out_of_scope_reads,
++            "no_successful_shell_directory_transitions": not shell_transitions,
++            "actual_all_role_cwd_exactly_launch_or_audit_root": bool(actual_cwd_records) and all(row["pass"] for row in actual_cwd_records),
++            "declared_native_cwd_deny_profile": all(rule in execution["command"] for rule in ("Bash(cd *)", "Bash(cd)", "Bash(pushd *)", "Bash(popd *)")),
++        }
++        if negative:
++            case_checks["no_audit_roles_started_for_refusal"] = not any(role in {"sc:confidence-calibrator", "sc:evidence-validator", "sc:reflect-reviewer", "sc:sc-root-cause-analyst", "sc:sc-requirements-analyst"} for role in roles)
++            case_checks["refusal_not_misreported_as_success"] = not parsed or all(row["value"].get("status") not in ("success", "partial") for row in parsed)
++            case_checks["honest_refusal_or_unavailable"] = bool(re.search(r"stop|refus|unavailable|invalid|missing|cannot|require", result_text, re.IGNORECASE))
++            if mode == "unsafe-output":
++                case_checks["unsafe_destination_never_created"] = not (RUNTIME / "plugin/skills/forbidden-runtime-output").exists()
++        else:
++            case_checks["bundled_protocol_called"] = "sc:sc-reflect-protocol" in skills
++            case_checks["real_report_and_contract_exist"] = (artifacts / "REPORT.md").is_file() and bool(parsed)
++            case_checks["independent_calibrator_called"] = "sc:confidence-calibrator" in successful_roles
++            case_checks["independent_evidence_validator_called"] = "sc:evidence-validator" in successful_roles
++            calibrator_spot_checks = []
++            for identity, spec in agent_calls.items():
++                if spec.get("subagent_type") != "sc:confidence-calibrator":
++                    continue
++                reads = [Path(block["input"]["file_path"]) for event in raw_events if event.get("parent_tool_use_id") == identity for block in blocks(event) if block.get("type") == "tool_use" and block.get("name") == "Read" and block.get("input", {}).get("file_path") and block.get("id") in returns and not returns[block["id"]].get("is_error")]
++                actual_sources = [str(path) for path in reads if path.is_relative_to(RUNTIME / "fixtures/project") or path.is_relative_to(artifacts / "reviewer-snapshot/root")]
++                card_paths = [path for path in reads if path.is_relative_to(artifacts) and "card" in path.name and path.suffix in (".md", ".yaml", ".yml", ".json")]
++                references = set()
++                for card_path in card_paths:
++                    references.update(re.findall(r"[A-Za-z0-9_./-]+\.(?:py|md|yaml|yml|json|patch|log):[0-9]+", card_path.read_text()))
++                cited_keys = set()
++                for reference in references:
++                    path = Path(reference.rsplit(":", 1)[0])
++                    for source_root in (RUNTIME / "fixtures/project", artifacts / "reviewer-snapshot/root"):
++                        if path.is_absolute() and path.is_relative_to(source_root):
++                            cited_keys.add(str(path.relative_to(source_root)))
++                    if not path.is_absolute():
++                        cited_keys.add(str(path).removeprefix("./").removeprefix("root/"))
++                matched_sources = []
++                for source in map(Path, actual_sources):
++                    for source_root in (RUNTIME / "fixtures/project", artifacts / "reviewer-snapshot/root"):
++                        if source.is_relative_to(source_root) and str(source.relative_to(source_root)) in cited_keys:
++                            matched_sources.append(str(source))
++                calibrator_spot_checks.append({"model": spec.get("model"), "input_cards": list(map(str, card_paths)), "cited_source_keys": sorted(cited_keys), "source_reads": actual_sources, "matched_cited_source_reads": sorted(set(matched_sources)), "pass": bool(matched_sources)})
++            case_checks["calibrators_actually_spot_check_cited_sources"] = bool(calibrator_spot_checks) and all(row["pass"] for row in calibrator_spot_checks)
++            calibration_math = []
++            dimension_names = ("Citation grounding", "Coverage completeness", "Deviation-classification clarity", "Risk surface coverage", "Recommendation actionability")
++            dimension_keys = ("citation_grounding", "coverage_completeness", "deviation_classification_clarity", "risk_surface_coverage", "recommendation_actionability")
++            for calibration_path in artifacts.rglob("*"):
++                if "reviewer-snapshot" in calibration_path.relative_to(artifacts).parts or ("calibrat" not in str(calibration_path.relative_to(artifacts)) and calibration_path.name != "reflection-card.yaml") or not calibration_path.is_file() or calibration_path.suffix not in (".md", ".yaml", ".yml", ".json"):
++                    continue
++                calibration_text = calibration_path.read_text()
++                if calibration_path.name == "reflection-card.yaml" and not re.search(r"^(?:calibrator|calibrator_agent):", calibration_text, re.MULTILINE):
++                    continue  # Canonical calibration output only, not the unscored author input card.
++                scores = []
++                claimed = None
++                if calibration_path.suffix == ".md":
++                    plain = calibration_text.replace("**", "")
++                    for dimension in dimension_names:
++                        match = re.search(r"^\|\s*" + re.escape(dimension) + r"\s*\|\s*([01](?:\.\d+)?)\s*\|", plain, re.MULTILINE)
++                        if match:
++                            scores.append(float(match.group(1)))
++                    match = re.search(r"\bCalibrated(?:\s*\([^)]+\))?\s*:\s*([01](?:\.\d+)?)", plain, re.IGNORECASE)
++                    claimed = float(match.group(1)) if match else None
++                else:
++                    data = yaml.safe_load(calibration_text)
++                    if isinstance(data, dict):
++                        if data.get("author_agent") and not data.get("calibrator_agent"):
++                            continue  # Input card, not the calibrator's returned scoring report.
++                        dimensions = data.get("dimensions", data.get("per_dimension", data.get("dimension_scores", data.get("per_dimension_scores", data.get("scores", {})))))
++                        if set(dimensions) == set(dimension_keys):
++                            scores = [float(dimensions[key].get("score") if isinstance(dimensions[key], dict) else dimensions[key]) for key in dimension_keys]
++                        claimed = data.get("confidence_calibrated", data.get("C_reported_by_calibrator", data.get("calibrated_confidence", data.get("calibrated", data.get("C", data.get("arithmetic_mean_C", data.get("arithmetic_mean")))))))
++                calibration_math.append({"path": str(calibration_path), "scores": scores, "claimed": claimed, "pass": len(scores) == 5 and all(0 <= score <= 1 for score in scores) and isinstance(claimed, (int, float)) and abs(sum(scores) / 5 - claimed) <= 0.005001})
++            case_checks["calibration_five_dimension_math_verified"] = bool(calibration_math) and all(row["pass"] for row in calibration_math)
++            validation_records = []
++            for path in artifacts.rglob("*validat*"):
++                if not path.is_file() or path.suffix not in (".md", ".yaml", ".yml", ".json"):
++                    continue
++                if path.suffix == ".md":
++                    text = path.read_text().lower()
++                    if "verified" in text and "dropped" in text:
++                        validation_records.append(str(path))
++                else:
++                    data = yaml.safe_load(path.read_text())
++                    if isinstance(data, dict):
++                        summary = data.get("final", data)
++                        total = summary.get("citations_total", summary.get("citations_grounded_occurrences"))
++                        dropped = summary.get("citations_dropped", summary.get("dropped"))
++                        revalidated = summary.get("citations_revalidated")
++                        explicit_rows = summary.get("citations")
++                        if revalidated is None and isinstance(explicit_rows, list) and all(isinstance(row, dict) and row.get("verdict") in {"verified", "line-mismatch", "file-missing", "snippet-mismatch"} for row in explicit_rows):
++                            revalidated = len(explicit_rows)
++                            if total != revalidated or dropped != sum(row["verdict"] != "verified" for row in explicit_rows):
++                                revalidated = None
++                        dropped_count = len(dropped) if isinstance(dropped, list) else dropped
++                        if isinstance(total, int) and isinstance(revalidated, int) and isinstance(dropped_count, int) and 0 <= dropped_count <= revalidated <= total:
++                            validation_records.append(str(path))
++            case_checks["actual_validator_record_exists"] = bool(validation_records)
++            snapshot_result = None
++            reviewer_tools = []
++            if parsed:
++                value = parsed[-1]["value"]
++                case_checks["contract_real_fields"] = all(key in value for key in ("contract_version", "status", "mode", "tier_reached", "confidence_calibrated", "evidence_validator_ran", "report_path"))
++                case_checks["citation_gate_reports_actual_run"] = value.get("evidence_validator_ran") is True
++                case_checks["no_promotion"] = value.get("promotion_action") in ("skipped", "not-applicable")
++                if value.get("tier_reached") == 1:
++                    case_checks["contract_confidence_matches_actual_calibration"] = any(row["pass"] and isinstance(value.get("confidence_calibrated"), (int, float)) and (row["claimed"] == value["confidence_calibrated"] or abs(sum(row["scores"]) / 5 - value["confidence_calibrated"]) < 0.000001) for row in calibration_math)
++                case_checks["mcp_absence_reported_honestly"] = bool(value.get("degraded_components", value.get("telemetry", {}).get("degraded_components")))
++                if mode == "post-tier2":
++                    case_checks["forced_tier2_reached"] = value.get("tier_reached") == 2
++                if value.get("tier_reached") == 2:
++                    reviewers = [row for row in calls if row["tool"] in ("Agent", "Task") and row["input"].get("subagent_type") == "sc:reflect-reviewer"]
++                    case_checks["distinct_restricted_reviewers"] = len(reviewers) >= 2 and len({row["input"].get("model") for row in reviewers}) >= 2
++                    case_checks["real_adversarial_skill_and_merge_executor"] = "sc:sc-adversarial-protocol" in skills and "sc:debate-orchestrator" in successful_roles and "sc:merge-executor" in successful_roles
++                    merge_returns = [index for index, event in enumerate(raw_events) for block in blocks(event) if block.get("type") == "tool_result" and agent_calls.get(block.get("tool_use_id"), {}).get("subagent_type") == "sc:merge-executor" and not block.get("is_error")]
++                    final_validator_calls = [index for index, event in enumerate(raw_events) for block in blocks(event) if block.get("type") == "tool_use" and block.get("name") in ("Agent", "Task") and block.get("input", {}).get("subagent_type") == "sc:evidence-validator"]
++                    case_checks["final_citation_gate_after_actual_merge"] = bool(merge_returns) and any(index > max(merge_returns) for index in final_validator_calls)
++                    required_merge_artifacts = ("diff-analysis.md", "debate-transcript.md", "base-selection.md", "refactor-plan.md", "merge-log.md")
++                    case_checks["actual_full_debate_merge_artifacts_exist"] = all(any(path.is_file() and path.stat().st_size > 100 for path in artifacts.rglob(filename)) for filename in required_merge_artifacts)
++                    case_checks["every_card_independently_calibrated"] = successful_roles.count("sc:confidence-calibrator") >= len(reviewers) + 1 and len(calibration_math) >= len(reviewers) + 1
++                    snapshot_root = artifacts / "reviewer-snapshot/root"
++                    snapshot_manifest = artifacts / "reviewer-snapshot/provenance-manifest.json"
++                    snapshot_result = None
++                    try:
++                        protocol_path = RUNTIME / "plugin/skills/sc-reflect-protocol/SKILL.md"
++                        if sha(protocol_path) != baseline["task3_resource_sha256"]["skills/sc-reflect-protocol/SKILL.md"]:
++                            raise ValueError("Changed snapshot recipe resource is not executed")
++                        protocol = protocol_path.read_text()
++                        snapshot_code = protocol.split("<!-- native-snapshot-recipe:start -->\n```python\n", 1)[1].split("\n```\n<!-- native-snapshot-recipe:end -->", 1)[0]
++                        verification = subprocess.run([str(RUNTIME / "runtime-bin/uv"), "run", "--no-project", "python", "-", "--verify", str(snapshot_manifest)], input=snapshot_code, cwd=execution["cwd"], env=execution["environment"], text=True, capture_output=True, timeout=120)
++                        snapshot_result = json.loads(verification.stdout.strip())
++                        if verification.returncode != 0:
++                            snapshot_result["status"] = "failed"
++                    except Exception as error:
++                        snapshot_result = {"status": "failed", "reason": str(error)}
++                    case_checks["real_snapshot_source_copy_and_membership_verified"] = snapshot_result.get("status") == "verified" and snapshot_root.is_dir() and snapshot_root != RUNTIME / "fixtures/project"
++                    reviewer_tools = []
++                    for identity, spec in agent_calls.items():
++                        if spec.get("subagent_type") != "sc:reflect-reviewer":
++                            continue
++                        nested = [block for event in raw_events if event.get("parent_tool_use_id") == identity for block in blocks(event) if block.get("type") == "tool_use"]
++                        read_paths = [Path(block["input"]["file_path"]) for block in nested if block.get("name") == "Read" and block.get("input", {}).get("file_path")]
++                        procedural_refs = {RUNTIME / "plugin" / row["destination"] for row in contract["candidate_resources"] if row["destination"].startswith("skills/sc-reflect-protocol/refs/") and sha(RUNTIME / "plugin" / row["destination"]) == baseline["task3_resource_sha256"][row["destination"]]}
++                        allowed_reads = all(path.is_relative_to(snapshot_root) or path.is_relative_to(artifacts / "reviewer-briefs") or path in procedural_refs for path in read_paths)
++                        reviewer_tools.append({"model": spec.get("model"), "observed_models": sorted({model_of(event) for event in raw_events if event.get("parent_tool_use_id") == identity} - {""}), "tools": sorted({block["name"] for block in nested}), "read_paths": list(map(str, read_paths)), "pass": bool(read_paths) and allowed_reads and all(block["name"] in {"Read", "Grep", "Glob"} for block in nested)})
++                    case_checks["actual_reviewers_readonly_and_snapshot_grounded"] = len(reviewer_tools) >= 2 and all(row["pass"] for row in reviewer_tools)
++                    case_checks["actual_provider_reviewer_models_distinct"] = len({tuple(row["observed_models"]) for row in reviewer_tools if row["observed_models"]}) >= 2
++                    case_checks["tier2_real_disk_gate"] = value.get("tier_reached") == 2 and value.get("merge_method") == "adversarial" and (artifacts / "adversarial/merged-verdict.yaml").is_file() and len(value.get("reviewer_cards", [])) >= 2
++                if mode == "remediation-unavailable":
++                    case_checks["explicit_missing_handoff_no_executor"] = value.get("remediation_unavailable") is True and all(value.get(key) is None for key in ("remediation_task_path", "remediation_plan_path", "task_file_path", "handoff_memory_key")) and not any(row.get("input", {}).get("subagent_type") in {"task-builder", "rf-task-builder"} or row.get("input", {}).get("skill") in {"sc:workflow-protocol", "sc:sc-workflow-protocol", "task-builder", "task", "sc:sc-implement"} for row in calls if row["tool"] in ("Skill", "Agent", "Task"))
++        case_results[name] = {"checks": case_checks, "pass": all(case_checks.values()), "roles": roles, "skills": skills, "contracts": parsed, "calibration_math": calibration_math if not negative else [], "calibrator_spot_checks": calibrator_spot_checks if not negative else [], "snapshot_verification": snapshot_result if not negative else None, "reviewer_tools": reviewer_tools if not negative else [], "out_of_scope_reads": out_of_scope_reads, "successful_cwd_transitions": shell_transitions, "actual_cwd_records": actual_cwd_records, "trace_paths": list(map(str, trace_paths)), "continuations": continuation_records, "execution": str(case / "execution.json")}
++        check("runtime:" + name, all(case_checks.values()), case_results[name])
++    expected_cases = {"pre-smoke", "pre-default", "post-default", "post-tier1", "post-tier2", "legacy-pre", "legacy-post", "post-log-only", "missing-pre", "missing-post", "unsafe-output", "remediation-unavailable", "readiness-unavailable", "invalid-commit-range"}
++    if args.require_all:
++        observed = {json.loads((RUNTIME / "runs" / name / "execution.json").read_text())["case"] for name in args.case}
++        check("all_required_case_types_observed", expected_cases <= observed, {"missing": sorted(expected_cases - observed)})
++    failed = [name for name, row in checks.items() if not row["pass"]]
++    observed_cases = {json.loads((RUNTIME / "runs" / name / "execution.json").read_text())["case"] for name in args.case}
++    case_outcomes = []
++    for name, result in case_results.items():
++        execution = json.loads(Path(result["execution"]).read_text())
++        verdict = result["contracts"][-1]["value"] if result["contracts"] else {}
++        case_outcomes.append({"case": execution["case"], "attempt": name, "native_exit": execution["returncode"], "status": verdict.get("status"), "mode": verdict.get("mode"), "tier": verdict.get("tier_reached"), "confidence": verdict.get("confidence_calibrated"), "stop_reason": verdict.get("stop_reason"), "merge_method": verdict.get("merge_method"), "evidence_validator_ran": verdict.get("evidence_validator_ran"), "producer_checks_pass": result["pass"], "output_directory": str(Path(result["execution"]).parent / "artifacts")})
++    record = {"case_outcomes": case_outcomes, "runtime_case_types_missing": sorted(expected_cases - observed_cases), "all_cases_required_in_this_run": args.require_all, "verdict": "FAIL" if failed else "PASS", "checks": checks, "failed_checks": failed, "independent_review": "NOT CLAIMED; producer check only", "positive_commit_range_runtime": "Not claimed: synthetic Git fixture has no commits; invalid range refusal and static alternatives tested"}
++    history = OUT / "task4-check-history"
++    history.mkdir(exist_ok=True)
++    current = OUT / "task4-check-output.json"
++    if current.exists():
++        previous = current.read_text()
++        (history / f"{time.time_ns()}-previous.json").write_text(previous)
++    record["runtime_fixture"] = str(RUNTIME)
++    record["checker_sha256"] = sha(Path(__file__))
++    encoded = json.dumps(record, indent=2) + "\n"
++    (history / f"{time.time_ns()}-{RUNTIME.name}.json").write_text(encoded)
++    current.write_text(encoded)
++    print(json.dumps({"verdict": record["verdict"], "checks": len(checks), "failed_checks": failed}, indent=2))
++    raise SystemExit(bool(failed))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py b/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py
+new file mode 100644
+index 00000000..2e8dce7d
+--- /dev/null
++++ b/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime.py
+@@ -0,0 +1,228 @@
++#!/usr/bin/env python3
++"""Run real native root-command cases in an isolated actual-copy plugin fixture."""
++
++import argparse
++import hashlib
++import json
++import os
++import shutil
++import signal
++import subprocess
++import tempfile
++import time
++from pathlib import Path
++
++OUT = Path(__file__).resolve().parent
++ROOT = OUT.parents[5]
++RUNTIME = OUT / "task4-runtime"
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def dump(path, value):
++    path.write_text(json.dumps(value, indent=2) + "\n")
++
++
++def prepare():
++    if RUNTIME.exists():
++        raise SystemExit("Runtime fixture already exists; retain it and use its recorded contents")
++    RUNTIME.mkdir()
++    for folder in (".claude-plugin", "commands", "agents", "skills"):
++        shutil.copytree(ROOT / folder, RUNTIME / "plugin" / folder)
++    binary = RUNTIME / "runtime-bin"
++    binary.mkdir()
++    uv = shutil.which("uv")
++    if not uv:
++        raise SystemExit("Existing uv unavailable; do not install it")
++    (binary / "uv").symlink_to(Path(uv).resolve())
++    project = RUNTIME / "fixtures/project"
++    (project / "src").mkdir(parents=True)
++    (project / "tests").mkdir()
++    subprocess.run(["git", "init", "--quiet", str(project)], check=True)
++    (project / "spec.md").write_text("""# Synthetic greeting contract
++
++This fixture is synthetic audit input, not shipped product code.
++
++## R-001 Greeting
++The greet function MUST return the exact string Hello, Ada! for Ada.
++
++## R-002 Empty input
++The greet function MUST reject an empty name with ValueError.
++
++## R-003 Evidence
++Tests MUST exercise the ordinary greeting and empty-input rejection.
++""")
++    (project / "proposed.md").write_text("""# Proposed synthetic greeting plan
++
++## T-101 R-001
++Implement greet(name) returning the required greeting.
++
++## T-102 R-002
++Reject an empty name using ValueError.
++
++## T-103 R-003
++Add ordinary and empty-name test cases.
++""")
++    (project / "completed.md").write_text("""---
++status: done
++---
++# Synthetic completed tasklist
++
++- [x] T-101 implements R-001 ordinary greeting.
++- [x] T-102 implements R-002 empty-name rejection.
++- [x] T-103 implements R-003 both ordinary and empty-input tests.
++""")
++    (project / "src/greeting.py").write_text('def greet(name):\n    if not name:\n        raise ValueError("name required")\n    return f"Hello, {name}!"\n')
++    (project / "tests/test_greeting.py").write_text('from src.greeting import greet\n\n\ndef test_ordinary():\n    assert greet("Ada") == "Hello, Ada!"\n\n\ndef test_empty():\n    try:\n        greet("")\n    except ValueError:\n        return\n    raise AssertionError("empty name accepted")\n')
++    (project / "changes.patch").write_text('diff --git a/src/greeting.py b/src/greeting.py\nnew file mode 100644\n--- /dev/null\n+++ b/src/greeting.py\n@@ -0,0 +1,4 @@\n+def greet(name):\n+    if not name:\n+        raise ValueError("name required")\n+    return f"Hello, {name}!"\n')
++    (project / "execution.log").write_text("Synthetic completed-work log, not an execution claim about product code.\nT-101 R-001: created src/greeting.py.\nT-102 R-002: empty names raise ValueError.\nT-103 R-003: created tests/test_greeting.py with ordinary and empty-name cases.\nNo test execution is claimed; inspect these files independently.\n")
++    help_result = subprocess.run([shutil.which("claude"), "--help"], capture_output=True, text=True, check=True)
++    (RUNTIME / "native-help.txt").write_text(help_result.stdout)
++    required = ("--setting-sources", "--strict-mcp-config", "--mcp-config", "--plugin-dir", "--permission-mode", "acceptEdits", "--restricted", "--add-dir", "--allowed-tools", "--permission-prompts", "--forward-subagent-text", "--append-system-prompt", "--no-session-persistence")
++    assert all(token in help_result.stdout for token in required)
++    files = {str(path.relative_to(RUNTIME / "plugin")): sha(path) for path in (RUNTIME / "plugin").rglob("*") if path.is_file()}
++    inputs = {str(path.relative_to(project)): sha(path) for path in project.rglob("*") if path.is_file() and ".git" not in path.relative_to(project).parts}
++    dump(RUNTIME / "fixture-contents.json", {"actual_plugin_copy_sha256": files, "audit_input_sha256": inputs, "git_init_only_no_staging_or_commits": True, "runtime_bin_uv_target": str((binary / "uv").resolve())})
++    print(RUNTIME)
++
++
++def blocks(event):
++    message = event.get("message")
++    content = message.get("content") if isinstance(message, dict) else None
++    return [block for block in content if isinstance(block, dict)] if isinstance(content, list) else []
++
++
++def main():
++    global RUNTIME
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--runtime", default="task4-runtime")
++    parser.add_argument("--persist-session", action="store_true")
++    parser.add_argument("--prepare", action="store_true")
++    parser.add_argument("--case")
++    parser.add_argument("--attempt", default="1")
++    parser.add_argument("--timeout", type=int, default=1800)
++    args = parser.parse_args()
++    RUNTIME = OUT / args.runtime
++    if RUNTIME.parent != OUT:
++        parser.error("runtime must be an immediate evidence child")
++    if args.prepare:
++        prepare()
++        return
++    if not args.case:
++        parser.error("--case required")
++    project = RUNTIME / "fixtures/project"
++    runs = RUNTIME / "runs"
++    runs.mkdir(exist_ok=True)
++    case = runs / f"{args.case}-attempt-{args.attempt}"
++    case.mkdir(exist_ok=False)
++    artifacts = case / "artifacts"
++    home = case / "home"
++    config = case / "config"
++    home.mkdir()
++    config.mkdir()
++    (config / "settings.json").write_text("{}\n")
++    cwd = Path(tempfile.mkdtemp(prefix="ironclaude-reflect-runtime-"))
++    env = {"PATH": str(RUNTIME / "runtime-bin") + ":/usr/bin:/bin", "HOME": str(home),
++           "CLAUDE_CONFIG_DIR": str(config), "XDG_CONFIG_HOME": str(home / ".config")}
++    provider_keys = [key for key in os.environ if key.startswith("ANTHROPIC_")]
++    env.update({key: os.environ[key] for key in provider_keys})
++    absence = subprocess.run(["/bin/sh", "-c", "command -v superclaude; command -v uv; command -v git"], cwd=cwd, env=env, capture_output=True, text=True)
++    assert shutil.which("superclaude", path=env["PATH"]) is None, "Package executable unexpectedly exposed"
++    common = ["--spec", str(project / "spec.md"), "--tasklist", str(project / "completed.md"), "--scope", str(project / "src")]
++    cases = {
++        "pre-smoke": ["--mode", "pre", "--spec", str(project / "spec.md"), "--tasklist", str(project / "proposed.md"), "--tier", "1", "--no-mcp"],
++        "pre-default": ["--mode", "pre", "--spec", str(project / "spec.md"), "--tasklist", str(project / "proposed.md")],
++        "post-default": ["--mode", "post", "--diff", str(project / "changes.patch"), *common],
++        "post-tier1": ["--mode", "post", "--diff", str(project / "changes.patch"), *common, "--tier", "1"],
++        "post-tier2": ["--mode", "post", "--diff", str(project / "changes.patch"), *common, "--tier", "2", "--reviewers", "2"],
++        "legacy-pre": ["--type", "task", "--analyze", "--spec", str(project / "spec.md"), "--tasklist", str(project / "proposed.md"), "--tier", "1"],
++        "legacy-post": ["--type", "task", "--validate", "--task-log", str(project / "execution.log"), *common, "--tier", "1"],
++        "post-log-only": ["--mode", "post", "--task-log", str(project / "execution.log"), "--scope", str(project / "src"), "--tier", "1", "--no-mcp"],
++        "missing-pre": ["--mode", "pre", "--tasklist", str(project / "proposed.md")],
++        "missing-post": ["--mode", "post", "--spec", str(project / "spec.md")],
++        "unsafe-output": ["--mode", "pre", "--spec", str(project / "spec.md"), "--output", str(RUNTIME / "plugin/skills/forbidden-runtime-output")],
++        "remediation-unavailable": ["--mode", "post", "--task-log", str(project / "execution.log"), "--scope", str(project / "src"), "--tier", "1", "--remediate", "--no-mcp"],
++        "readiness-unavailable": ["detection-contract", "readiness", "--repo", "synthetic/example", "--pr", "1"],
++        "invalid-commit-range": ["--mode", "post", "--commit-range", "NOT_A_REAL_REF..ALSO_NOT_REAL", "--scope", str(project / "src")],
++    }
++    flags = cases[args.case] + ["--no-promote"]
++    if "--output" not in flags:
++        flags.extend(["--output", str(artifacts)])
++    prompt = "/sc:sc-reflect " + " ".join(flags)
++    context = (f"This is an authorized isolated plugin-only audit. The synthetic audited repository is {project}, not your empty launch cwd. "
++               f"Use that explicit repository for read-only Git operations and scope resolution. It has git init only, no commits/index entries. "
++               f"All supplied files are safe synthetic fixtures. Do NOT stage, commit, edit audit inputs, edit plugin distribution resources, create a CLAUDE.md, install dependencies or invoke the superclaude package. "
++               f"Write only under the requested safe output {artifacts}; when the actual --output is forbidden, refuse without creating it. "
++               "Follow the actual loaded root command and bundled protocol, including genuine independent calibration/citation gates; no invented agent results or convergence. "
++               "If native tools are named Agent rather than Task, use Agent with the exact plugin-qualified registered subagent type. "
++               "Use real opus/sonnet/haiku slot aliases already configured by this environment and their actual diversity; do not invent an external model. "
++               "All --no-promote requests forbid moves/archive/promotion mutations. Return the actual report/contract paths and honest status. "
++               "You may serialize return-contract.yaml as JSON, which is valid YAML, for machine readability; preserve all protocol fields and semantics. "
++               f"Every delegated Agent brief must explicitly bind audit_repo_root={project}, allowed evidence roots to that project or the actual frozen snapshot, allowed output to {artifacts}, and plugin resources to {RUNTIME / 'plugin'}. Propagate this to all debate/fault-finder/scoring/merge workers; never read the ancestor checkout's pyproject.toml, CLAUDE.md, package or project mirrors. Exact permitted role cwd paths are launch_cwd={cwd} and audit_repo_root={project}; repeat this policy and both exact paths in EVERY secondary handoff, including advocates/scorers/merge/final validator. This declared test profile is stricter: scoped native permissions deny shell cd/pushd/popd, freezing cwd at the exact launch directory. Use absolute file paths and git -C; do not bypass denials or enter outputs/snapshots/resources as cwd. "
++               "Use the available uv for every Python subprocess. Do not invoke global or unrelated built-in skills as substitutes for missing framework resources. Never print provider credentials or credential environment values.")
++    command = [shutil.which("claude"), "--setting-sources", "user", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
++               "--plugin-dir", str(RUNTIME / "plugin"), "--print", "--output-format", "stream-json", "--verbose",
++               "--forward-subagent-text", "--model", "opus", "--restricted", "--add-dir", str(project), str(case), str(RUNTIME / "plugin"),
++               "--permission-mode", "acceptEdits", "--permission-prompts", "none",
++               "--allowed-tools", "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill", "--tools", "Read,Grep,Glob,Bash,Write,Edit,Agent,Skill",
++               "--disallowed-tools", "Bash(cd *)", "Bash(cd)", "Bash(pushd *)", "Bash(pushd)", "Bash(popd *)", "Bash(popd)",
++               "--append-system-prompt", context, prompt]
++    if not args.persist_session:
++        command.insert(-1, "--no-session-persistence")
++    baseline = json.loads((RUNTIME / "fixture-contents.json").read_text())
++    record = {"case": args.case, "attempt": args.attempt, "state": "running", "command": command, "cwd": str(cwd),
++              "environment": {key: value for key, value in env.items() if not key.startswith("ANTHROPIC_")},
++              "provider_variable_names_only": provider_keys, "framework_executable_absent": True,
++              "runtime_tools_probe": absence.stdout, "timeout_seconds": args.timeout,
++              "started_monotonic": time.monotonic()}
++    record["plugin_sha256_at_launch"] = {path: sha(RUNTIME / "plugin" / path) for path in baseline["actual_plugin_copy_sha256"]}
++    record["fixture_manifest_sha256"] = sha(RUNTIME / "fixture-contents.json")
++    if record["plugin_sha256_at_launch"] != baseline["actual_plugin_copy_sha256"]:
++        raise SystemExit("Plugin drift before launch: no native audit started")
++    dump(case / "execution.json", record)
++    with (case / "stdout.jsonl").open("w") as stdout, (case / "stderr.txt").open("w") as stderr:
++        process = subprocess.Popen(command, cwd=cwd, env=env, stdout=stdout, stderr=stderr, start_new_session=True)
++        try:
++            rc = process.wait(timeout=args.timeout)
++            record.update({"state": "exited", "returncode": rc})
++        except subprocess.TimeoutExpired:
++            os.killpg(process.pid, signal.SIGTERM)
++            try:
++                process.wait(timeout=15)
++            except subprocess.TimeoutExpired:
++                os.killpg(process.pid, signal.SIGKILL)
++                process.wait()
++            record.update({"state": "timeout", "returncode": process.returncode})
++    record["duration_seconds"] = time.monotonic() - record["started_monotonic"]
++    record["changed_plugin_files"] = [path for path, digest in baseline["actual_plugin_copy_sha256"].items() if not (RUNTIME / "plugin" / path).is_file() or sha(RUNTIME / "plugin" / path) != digest]
++    record["added_plugin_files"] = sorted({str(path.relative_to(RUNTIME / "plugin")) for path in (RUNTIME / "plugin").rglob("*") if path.is_file()} - set(baseline["actual_plugin_copy_sha256"]))
++    record["fixture_staged_files"] = subprocess.check_output(["git", "ls-files"], cwd=project, text=True).splitlines()
++    fixture_head = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=project, capture_output=True, text=True)
++    record["fixture_head_created"] = fixture_head.returncode == 0
++    record["changed_audit_inputs"] = [path for path, digest in baseline["audit_input_sha256"].items() if not (project / path).is_file() or sha(project / path) != digest]
++    events = []
++    for line in (case / "stdout.jsonl").read_text().splitlines():
++        try:
++            event = json.loads(line)
++        except json.JSONDecodeError:
++            continue
++        if event.get("type") == "system" and event.get("subtype") == "init":
++            dump(case / "native-init.json", event)
++        if event.get("type") == "result":
++            record["native_result"] = event
++        if event.get("type") == "assistant":
++            for block in blocks(event):
++                if block.get("type") == "tool_use":
++                    events.append({"parent_tool_use_id": event.get("parent_tool_use_id"), "tool": block.get("name"), "input": block.get("input")})
++    dump(case / "role-and-tool-calls.json", events)
++    record["artifact_files"] = [str(path.relative_to(case)) for path in case.rglob("*") if path.is_file() and not any(part in ("home", "config") for part in path.relative_to(case).parts)]
++    dump(case / "execution.json", record)
++    print(json.dumps({key: record.get(key) for key in ("case", "state", "returncode", "duration_seconds", "changed_plugin_files", "changed_audit_inputs")}, indent=2))
++    print(case)
++    raise SystemExit(record["state"] != "exited" or record["returncode"] != 0 or bool(record["changed_plugin_files"]) or bool(record["changed_audit_inputs"]) or bool(record["added_plugin_files"]) or bool(record["fixture_staged_files"]) or record["fixture_head_created"])
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/commands/sc-reflect.md b/commands/sc-reflect.md
+index acf77130..f9ca4e71 100644
+--- a/commands/sc-reflect.md
++++ b/commands/sc-reflect.md
+@@ -1,88 +1,220 @@
+ ---
+ name: reflect
+-description: "Task reflection and validation using Serena MCP analysis capabilities"
+-category: special
+-complexity: standard
+-mcp-servers: [serena]
+-personas: []
++description: "Pre-execution coverage and post-execution deviation audits with independent calibration, restricted heterogeneous reviewers, real adversarial merge, and citation validation"
++category: analysis
++complexity: advanced
++mcp-servers: [auggie, serena, context7, tavily]
++personas: [analyzer, qa, refactorer]
++argument-hint: "[--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref-or-path>|--commit-range <range>|--task-log <path>] [--scope <path>] [--tier 1|2|auto] [--depth quick|standard|deep] [--reviewers 2|3] [--output <dir>] [--no-mcp] [--no-promote] [--remediate] | legacy: --type task --analyze|--validate with real inputs"
+ ---
+ 
+-# /sc:sc-reflect - Task Reflection and Validation
++# /sc:sc-reflect - Tiered Reflection and Validation
+ 
+-## Triggers
+-- Task completion requiring validation and quality assessment
+-- Session progress analysis and reflection on work accomplished
+-- Cross-session learning and insight capture for project improvement
+-- Quality gates requiring comprehensive task adherence verification
++## Purpose and activation
+ 
+-## Usage
+-```
+-/sc:sc-reflect [--type task|session|completion] [--analyze] [--validate]
+-```
++Audit a proposed plan against its driving specification (pre), or completed work
++against its specification/tasklist and actual evidence (post). This is an audit,
++not a generic session summary or a self-confirming completion claim. The physical
++command filename is retained; its native frontend is `/sc:sc-reflect`.
+ 
+-## Behavioral Flow
+-1. **Analyze**: Examine current task state and session progress using Serena reflection tools
+-2. **Validate**: Assess task adherence, completion quality, and requirement fulfillment
+-3. **Reflect**: Apply deep analysis of collected information and session insights
+-4. **Document**: Update session metadata and capture learning insights
+-5. **Optimize**: Provide recommendations for process improvement and quality enhancement
+-
+-Key behaviors:
+-- Serena MCP integration for comprehensive reflection analysis and task validation
+-- Bridge between TodoWrite patterns and advanced Serena analysis capabilities
+-- Session lifecycle integration with cross-session persistence and learning capture
+-- Performance-critical operations with <200ms core reflection and validation
+-## MCP Integration
+-- **Serena MCP**: Mandatory integration for reflection analysis, task validation, and session metadata
+-- **Reflection Tools**: think_about_task_adherence, think_about_collected_information, think_about_whether_you_are_done
+-- **Memory Operations**: Cross-session persistence with read_memory, write_memory, list_memories
+-- **Performance Critical**: <200ms for core reflection operations, <1s for checkpoint creation
+-
+-## Tool Coordination
+-- **TodoRead/TodoWrite**: Bridge between traditional task management and advanced reflection analysis
+-- **think_about_task_adherence**: Validates current approach against project goals and session objectives
+-- **think_about_collected_information**: Analyzes session work and information gathering completeness
+-- **think_about_whether_you_are_done**: Evaluates task completion criteria and remaining work identification
+-- **Memory Tools**: Session metadata updates and cross-session learning capture
+-
+-## Key Patterns
+-- **Task Validation**: Current approach → goal alignment → deviation identification → course correction
+-- **Session Analysis**: Information gathering → completeness assessment → quality evaluation → insight capture
+-- **Completion Assessment**: Progress evaluation → completion criteria → remaining work → decision validation
+-- **Cross-Session Learning**: Reflection insights → memory persistence → enhanced project understanding
++**MANDATORY:** Invoke `Skill sc:sc-reflect-protocol` with the resolved arguments
++before executing the audit waves. The bundled implementation is
++`${CLAUDE_PLUGIN_ROOT}/skills/sc-reflect-protocol/SKILL.md`. Never load a global
++framework copy, project development mirror, checkout source tree or package
++wrapper. All `refs/...` reads are relative to that bundled skill directory.
++The command's validation and return obligations below bind that handoff; this
++file does not replace or reimplement the protocol's debate/scoring machinery.
++In the protocol, logical `Task` delegation means the client's native Agent tool,
++using the exact registered plugin-qualified subagent type and model slot.
+ 
+-## Examples
++## Native audit-root binding
+ 
+-### Task Adherence Reflection
+-```
+-/sc:sc-reflect --type task --analyze
+-# Validates current approach against project goals
+-# Identifies deviations and provides course correction recommendations
+-```
++Resolve `audit_repo_root` from the explicit scope/input paths, never from the
++plugin's location or a shell cwd used to read plugin resources. For Git inputs,
++use the nearest actual Git root of the selected scope/input directory through a
++read-only `git -C <directory> rev-parse --show-toplevel`. For a standalone pre
++review without Git, use the explicit input set's common directory. Record that
++root and the actual selected inputs in the audit log before delegation.
+ 
+-### Session Progress Analysis
+-```
+-/sc:sc-reflect --type session --validate
+-# Comprehensive analysis of session work and information gathering
+-# Quality assessment and gap identification for project improvement
+-```
++EVERY Agent brief, including adversarial advocates, fault-finders, scorers and
++merge-executor, must carry this root, its allowed input/snapshot roots, output
++root and the required plugin-resource root. Propagate the same boundary through
++secondary handoffs. Missing configuration in the audited repository is an
++explicit absence/gap: never fill it by reading an ancestor checkout's
++`pyproject.toml`, `CLAUDE.md`, development mirrors, or package resources. Keep
++shell cwd at the launch directory or the selected audit root; read plugin assets
++by absolute path rather than changing cwd into their containing checkout.
++Record the exact `launch_cwd` once, before any shell transition. EVERY secondary
++handoff, including each advocate, scoring worker, merge-executor and final
++validator, must repeat both exact permitted cwd paths (`launch_cwd` and
++`audit_repo_root`) and the same policy. A generic `/tmp` allowance is not the
++recorded launch directory. No role may enter the output/artifacts, adversarial,
++snapshot or plugin-resource directories as its cwd, even in a nested worker or
++compound shell command. Use absolute paths for all artifact/resource I/O and
++read-only `git -C <audit_repo_root>` operations. Do not send relative artifact
++paths that require a worker to change into their directory. A denied directory
++change is not permission to bypass the constraint: retry the operation with
++absolute paths while retaining cwd, not a weaker guard.
++Restricted reviewers retain the stricter frozen-snapshot-only boundary.
+ 
+-### Completion Validation
+-```
+-/sc:sc-reflect --type completion
+-# Evaluates task completion criteria against actual progress
+-# Determines readiness for task completion and identifies remaining blockers
+-```
++Pass an explicit available model slot whenever model class is load-bearing, and
++record the actual returned provider model as well as the requested slot. An
++omitted Agent model inherits the caller; it is not evidence of a Sonnet slot.
++For Tier 1, prefer a Sonnet-slot card author and an available disjoint calibrator
++(Opus when those configured aliases differ), then retain the protocol's actual
++alias, executor exclusion and degraded-diversity rules. Tier-2 card calibration
++must still use a class outside the reviewer set when available; never invent a
++fourth model when the three configured slots are already reviewers.
++
++## Input and mode resolution
++
++- **Pre:** `--spec <path>` is required. `--tasklist <path>` is recommended.
++- **Post:** supply `--diff <ref-or-path>`, `--commit-range <range>`, OR
++  `--task-log <path>`. A tasklist and driving spec are recommended, not mandatory.
++- `--commit-range` is a diff-source alternative BEFORE every hard input guard.
++  Resolve genuine Git refs read-only; do not invent commits or substitute another
++  range. A supplied diff file is read as evidence, not applied to the repository.
++- An explicit `--mode pre|post` wins. Otherwise the bundled six-rule first-match
++  resolution applies: diff/range/task-log implies post; modified scope and
++  completed-artifact combinations may imply post; spec with a proposed tasklist
++  (or spec alone for coverage-only review) implies pre. Unresolved mode STOPs.
++- Read and validate every supplied input path. An empty, unreadable or unresolved
++  input is not evidence. Under-specified deep inputs must STOP rather than invent
++  work to review. No spec/tasklist/diff/range/task-log means STOP.
++- Pre without a spec STOPs. Post without any of diff/range/task-log STOPs.
++  Merely providing a tasklist or spec does not satisfy a post audit.
++
++### Supported legacy task mapping
++
++| Legacy flags | Resolved mode | Real inputs still required |
++|---|---|---|
++| `--type task --analyze` | `--mode pre` | `--spec`; proposed tasklist recommended |
++| `--type task --validate` | `--mode post` | diff, commit-range, or task-log; tasklist recommended |
+ 
+-## Boundaries
++The words `session` and `completion` are not supported `--type` values. Neither
++legacy flag pair authorizes an input-free audit. Reject ambiguous analyze AND
++validate. When modern and legacy mode flags conflict, STOP and report the
++conflict and ignored legacy flags; do not silently audit the wrong mode.
+ 
+-**Will:**
+-- Perform comprehensive task reflection and validation using Serena MCP analysis tools
+-- Bridge TodoWrite patterns with advanced reflection capabilities for enhanced task management
+-- Provide cross-session learning capture and session lifecycle integration
++## Output and input safety (before any write)
+ 
+-**Will Not:**
+-- Operate without proper Serena MCP integration and reflection tool access
+-- Override task completion decisions without proper adherence and quality validation
+-- Bypass session integrity checks and cross-session persistence requirements
++Resolve the output through its nearest existing ancestor and pin that realpath
++for the run. Use `.dev/reflect/<mode>-<slug>-<timestamp>/` unless `--output <dir>`
++is supplied. Reject `..` components, symlink escapes, and any output that equals
++or contains an explicit input or the audited work-unit root. Compare resolved
++path components, never string prefixes. Prior reports used as inputs require a
++fresh run directory, never overwriting their evidence. Retain the protocol's
++input-tree hash and drift checks and its precise current-output/cache exclusions.
+ 
++Refuse output in `.claude/skills`, `.claude/agents`, `.claude/commands`, or equal
++to, inside, or containing any plugin distribution directory:
++`${CLAUDE_PLUGIN_ROOT}/skills`, `${CLAUDE_PLUGIN_ROOT}/agents`,
++`${CLAUDE_PLUGIN_ROOT}/commands`, `${CLAUDE_PLUGIN_ROOT}/.claude-plugin`.
++Do not create a forbidden directory or artifact to report its refusal.
++For precondition refusal, return a truthful stopped-precondition result inline;
++write a refusal contract only if an independently safe output is available.
++
++## Audit flow and native role binding
++
++1. **Ground the inputs and evidence.** Load the needed bundled refs on demand.
++   Build the real spec-to-task coverage map for pre, or task/spec-to-work map and
++   four-category deviation register for post. Read actual cited files, not just
++   summaries or commit messages. Authorized / Necessary / Drift / Regression are
++   the four classes; insufficient evidence goes to the separate Grounding Gaps.
++2. **Always run Tier 1.** Use `sc:sc-requirements-analyst` for coverage and
++   `sc:sc-root-cause-analyst` or `sc:sc-self-review` for a grounded card as directed
++   by the protocol. Persist the actual card before calibration.
++3. **Independent blind calibration.** Invoke `sc:confidence-calibrator` on the
++   finished card and bundled five-dimension reflection rubric, without formation
++   context. Persist its returned scores and arithmetic mean. Choose a model class
++   outside the reviewer class set when available; honestly mark degraded
++   diversity when not. Never label inline scoring independent calibration.
++   **Blind does not mean evidence-blind:** the card and rubric are the supplied
++   inputs, but the calibrator MUST independently Read the card's cited artifacts
++   at the cited ranges, within the bound audit/snapshot roots, before scoring
++   Citation grounding. Say this explicitly in EVERY calibration assignment.
++   Never instruct it to read "only those two files" or forbid citation checks.
++   Exclude the formation trail and other reviewers' scores, not the real evidence
++   the finished card cites. Persist its actual citation spot-check results and
++   five scores; missing/unreadable evidence is recorded honestly, not verified.
++4. **Tier routing.** Default `--tier auto` and `--depth standard` use the actual
++   calibrated confidence and structural rules. `--tier 1`/`--depth quick` pins
++   Tier 1; `--tier 2`/`--depth deep` forces the supported Tier-2 path. Keep the
++   source thresholds, budget constraints, executor exclusion and disjoint-set
++   rules. Do not silently satisfy forced Tier 2 with an inline single pass.
++5. **Tier 2 when reached.** Spawn 2-3 distinct model-class reviewers as the fixed
++   **`sc:reflect-reviewer`** type with brief-supplied personas, never all-tools
++   specialist substitutes. Provision the REAL native selected-input snapshot
++   using the bundled inline recipe first, including relevant dirty/new files and
++   pinned scoped membership/hash checks before dispatch and after review. Rewrite
++   all brief paths through its provenance manifest. A snapshot that is not MCP
++   indexed uses native Read/Grep/Glob with an explicit degraded marker, never
++   live-project MCP lookup. Keep reviewers read-only; the orchestrator persists
++   their returned findings. Independently calibrate EVERY reviewer card.
++6. **Real adversarial merge.** Invoke `Skill sc:sc-adversarial-protocol` in Mode A
++   with the calibrated cards. `sc:debate-orchestrator` coordinates actual
++   advocates/debate/scoring and `sc:merge-executor` executes its actual merge plan.
++   Consume the producer's `artifacts_dir` as `adversarial_artifacts_dir`. Verify the
++   returned merged file on disk; render/persist the merged verdict as
++   `<output>/adversarial/merged-verdict.yaml` with `merge_method: adversarial`
++   from that actual result, never inventing convergence or replacing debate with
++   inline consensus. Honor the protocol's parse/missing-file/MALFORMED retry and
++   loud F1/F2/F3 fallback contracts. Fallback is not successful adversarial proof.
++7. **Mandatory final evidence gate.** Synthesize the bundled report template,
++   then invoke **`sc:evidence-validator`** on the real draft to re-Read citations.
++   Persist its returned validation, drop unfounded citations, recompute affected
++   coverage, and apply the protocol's partial/vacuous-success rules. Only then
++   finalize `REPORT.md` and the versioned `return-contract.yaml`. A missing or
++   crashed validator uses only the loud source-defined partial fallback, never a
++   fabricated independent pass. Use `sc:confidence-check` before actionable chat
++   recommendations.
++8. **Return actual results.** Surface report/contract paths, resolved mode, tier,
++   calibrated confidence, pre coverage or post class counts, citation drops,
++   degradation/grounding gaps, merge method and promotion/remediation disposition.
++   Persist the step audit log and role/model/calibration/merge artifacts required
++   by the bundled contract. A native process exiting zero is not an audit verdict.
++
++## MCP absence, remediation and mutation boundaries
++
++MCP integrations are optional. With `--no-mcp` or absent exposed MCP tools, use
++native Read/Grep/Glob, skip unavailable memory/diagnostic/verification/research
++capabilities, and emit the corresponding loud degraded/partial/grounding-gap
++result. Do not claim unperformed symbolic, dynamic or external verification.
++The Serena `think_about_*` tools are optional checkpoint signals, never the sole
++reflection mechanism or a hard installation prerequisite.
++
++Without `--remediate`, never enter Tier-3 handoff. This plugin does NOT bundle
++`sc-workflow-protocol`, `task-builder`, `rf-task-builder`, `tech-research` or
++`audit-validator`. Optional spot-check auditing uses the stricter bundled
++`sc:evidence-validator` fallback. An explicit remediation request must report
++`remediation_unavailable: true`, name the missing selected builder, retain the
++report and set `remediation_task_path`, `remediation_plan_path`, `task_file_path`
++and `handoff_memory_key` to null, `remediation_accepted: false`. No substitute plan,
++installation, corrective executor, `/task`, or `/sc:sc-implement` is launched.
++
++Waves 0-6 are read-only outside the output. `--no-promote` suppresses Wave 7; honor
++it without moves, archive writes or mutation. Otherwise promotion follows ONLY
++the bundled strict gate, collision, hash and explicit override rules. Never
++stage, commit, push, or auto-execute remediation as part of reflection.
++
++## Separate package readiness surface
++
++Detection-contract readiness is NOT a pre/post audit. Its separate command is
++`superclaude reflect contract-status [--validate] --repo <owner/repo> --pr <number>`.
++It requires the separately installed **`superclaude` package executable**, which
++this plugin does not bundle. If absent, report readiness UNAVAILABLE and do not
++run an audit, import package code, install anything or impersonate the CLI.
++That readiness surface diagnoses/validates existing evidence only; it does not
++arm a monitor, modify PR state, push, reply, resolve, retrigger or dump raw payloads.
++
++## Examples
++
++```text
++/sc:sc-reflect --mode pre --spec spec.md --tasklist proposed.md --tier 1 --no-promote
++/sc:sc-reflect --mode post --diff changes.patch --spec spec.md --tier 1 --no-promote
++/sc:sc-reflect --mode post --task-log execution.log --no-promote
++/sc:sc-reflect --mode post --commit-range <real-range> --no-promote
++/sc:sc-reflect --mode post --diff changes.patch --tier 2 --reviewers 2 --no-promote
++/sc:sc-reflect --type task --analyze --spec spec.md --tasklist proposed.md --no-promote
++/sc:sc-reflect --type task --validate --task-log execution.log --no-promote
++```

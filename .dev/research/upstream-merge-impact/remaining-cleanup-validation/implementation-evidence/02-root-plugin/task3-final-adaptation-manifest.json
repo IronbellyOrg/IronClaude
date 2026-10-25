@@ -1,0 +1,869 @@
+{
+  "task": 3,
+  "status": "resources-generated-runtime-unverified",
+  "calibration_authorization": "calibration-scope-revision.json",
+  "native_compatibility_authorization": "native-compatibility-scope-revision.json",
+  "resources": [
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "destination": "skills/sc-reflect-protocol/SKILL.md",
+      "source_sha256": "889d2b12da76dc6cc7005a405c853336c3dca6eb2759206b9351f0787c70681e",
+      "destination_sha256": "8c9b8eb9f7d6e7b1cbfc592ac90f30fb567c26da430feebeaf659a98bd9ed262",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc:reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-adversarial\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-adversarial-protocol",
+          "count": 13,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])confidence\\-check(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:confidence-check",
+          "count": 3,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])confidence\\-calibrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:confidence-calibrator",
+          "count": 9,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 25,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])reflect\\-reviewer(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:reflect-reviewer",
+          "count": 6,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])reuse\\-auditor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:reuse-auditor",
+          "count": 7,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])root\\-cause\\-analyst(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-root-cause-analyst",
+          "count": 5,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])self\\-review(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-self-review",
+          "count": 5,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])requirements\\-analyst(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-requirements-analyst",
+          "count": 4,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])socratic\\-mentor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-socratic-mentor",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "literal",
+          "old": "~/.claude/agents/confidence-calibrator.md",
+          "new": "${CLAUDE_PLUGIN_ROOT}/agents/confidence-calibrator.md",
+          "count": 1,
+          "reason": "plugin-root file lookup"
+        },
+        {
+          "kind": "literal",
+          "old": "~/.claude/agents/evidence-validator.md",
+          "new": "${CLAUDE_PLUGIN_ROOT}/agents/evidence-validator.md",
+          "count": 1,
+          "reason": "plugin-root file lookup"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:reflect(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-reflect",
+          "count": 9,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:implement(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-implement",
+          "count": 13,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "literal",
+          "old": "/sc:adversarial",
+          "new": "Skill sc:sc-adversarial-protocol",
+          "count": 1,
+          "reason": "bundled skill, no unregistered adversarial command"
+        },
+        {
+          "kind": "literal",
+          "old": "probe its existence via `mcp__serena__list_memories` for the skill's existence indicator OR a no-op `Skill('sc:sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:",
+          "new": "check that `sc:sc-adversarial-protocol` appears in the native registered skills AND Read `${CLAUDE_PLUGIN_ROOT}/skills/sc-adversarial-protocol/SKILL.md` for local existence. This is a resource check only: NEVER invoke Skill with `--help` or run another audit as a probe. If registration or local existence is missing:",
+          "count": 1,
+          "reason": "safe plugin-local registered-resource existence check"
+        },
+        {
+          "kind": "literal",
+          "old": "STOP with explicit install instruction (per sc-brainstorm Wave 0 pattern)",
+          "new": "surface the explicit unavailable/fallback outcome from the plugin-local pre-dispatch gate; never install or search outside this plugin",
+          "count": 1,
+          "reason": "honest optional-unavailable boundary"
+        },
+        {
+          "kind": "literal",
+          "old": "*Replaces with:* `Skill sc-brainstorm-protocol` (upstream).",
+          "new": "*Upstream-only alternative, UNAVAILABLE in plugin-only operation:* sc-brainstorm-protocol (not a resource to invoke).",
+          "count": 1,
+          "reason": "brainstorm provenance is not a required dispatch"
+        },
+        {
+          "kind": "literal",
+          "old": "| `rf-qa` |",
+          "new": "| `sc:reflect-reviewer` (structural persona; historical rf-qa) |",
+          "count": 1,
+          "reason": "existing restricted reviewer role mapping"
+        },
+        {
+          "kind": "literal",
+          "old": "| `rf-qa-qualitative` |",
+          "new": "| `sc:reflect-reviewer` (document persona; historical rf-qa-qualitative) |",
+          "count": 1,
+          "reason": "existing restricted reviewer role mapping"
+        },
+        {
+          "kind": "literal",
+          "old": "| `rf-qa` / `rf-qa-qualitative` fails in Wave 3 |",
+          "new": "| `sc:reflect-reviewer` structural / document persona fails in Wave 3 |",
+          "count": 1,
+          "reason": "restricted reviewer failure mapping"
+        },
+        {
+          "kind": "literal",
+          "old": "## 12. Eval Rubric",
+          "new": "## 12. Eval Rubric\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not run or load its checkout/eval/build resources.",
+          "count": 1,
+          "reason": "excluded maintainer-only context"
+        },
+        {
+          "kind": "literal",
+          "old": "## 13. Build Path Decision",
+          "new": "## 13. Build Path Decision\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not run or load its checkout/eval/build resources.",
+          "count": 1,
+          "reason": "excluded maintainer-only context"
+        },
+        {
+          "kind": "literal",
+          "old": "## 17.5 Ops Integration",
+          "new": "## 17.5 Ops Integration\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not run or load its checkout/eval/build resources.",
+          "count": 1,
+          "reason": "excluded maintainer-only context"
+        },
+        {
+          "kind": "literal",
+          "old": "## 17.6 Testability Map",
+          "new": "## 17.6 Testability Map\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not run or load its checkout/eval/build resources.",
+          "count": 1,
+          "reason": "excluded maintainer-only context"
+        },
+        {
+          "kind": "literal",
+          "old": "## 18. Spec Reference",
+          "new": "## 18. Spec Reference\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not run or load its checkout/eval/build resources.",
+          "count": 1,
+          "reason": "excluded maintainer-only context"
+        },
+        {
+          "kind": "literal",
+          "old": "Neither `--spec`, `--tasklist`, nor `--diff` provided.",
+          "new": "None of `--spec`, `--tasklist`, `--diff`/`--commit-range`, or `--task-log` provided.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: generic no-input STOP accepts the supported log-only post input"
+        },
+        {
+          "kind": "literal",
+          "old": "**`--diff` OR `--commit-range`** flag present",
+          "new": "**`--diff`, `--commit-range`, OR `--task-log`** flag present",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: post-mode evidence is diff OR task log"
+        },
+        {
+          "kind": "literal",
+          "old": "or path to a diff file (required for UC-2)",
+          "new": "or path to a diff file (UC-2 requires this OR `--task-log`)",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: post minimum declaration"
+        },
+        {
+          "kind": "literal",
+          "old": "`--task-log <path>` \u2014 task execution log (optional, UC-2 only)",
+          "new": "`--task-log <path>` \u2014 task execution log (UC-2 only; required when no diff/commit-range is supplied)",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: post minimum declaration"
+        },
+        {
+          "kind": "literal",
+          "old": "(1) the `tasklist_path` itself (always present in UC-2);",
+          "new": "(1) the `tasklist_path` itself (when supplied), plus `task_log_path` and a `--diff` file when supplied;",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: optional tasklist and actual post evidence participate in snapshot"
+        },
+        {
+          "kind": "literal",
+          "old": "(first two entries of `file_list`)",
+          "new": "(named entries of `file_list`, null when an optional input is absent)",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: optional tasklist hash is not a fabricated mandatory input"
+        },
+        {
+          "kind": "literal",
+          "old": "  tasklist: <hex>\n",
+          "new": "  tasklist: <hex> | null\n",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: optional tasklist digest declaration"
+        },
+        {
+          "kind": "literal",
+          "old": "**Step 0.5e (reviewer-isolation snapshot gate \u2014 L2, opt-in via `--isolate-reviewers`).** When reviewer isolation is enabled (flag-gated opt-in; OFF by default so today's #153 dirty-tree-audit behavior is unchanged), the wrapper grounds the two ClaudeProcess review children (the Tier-1 audit child and the adversarial scorer) in an isolated `git worktree` snapshot rather than the live shared worktree, so those children never read another session's mid-commit state; and \u2014 via L1 + L1b \u2014 no reviewer of any class can mutate the repository it is auditing (reliability / data-loss-prevention). (The text-in/out Tier-2 swarm workers still read the live tasklist path in v1 \u2014 see item 4 and the honest `snapshot-children-only` telemetry value; closing their read surface is the deferred \"design (a)\" follow-up.) The gate runs in the Python wrapper (`cli/reflect/{config,runner,ensemble}.py`) AFTER the dry-run gate (FR-12 unaffected), and proceeds:\n\n1. **Cleanliness probe** \u2014 compute `audit_tree_dirty` = the tracked, in-scope (`git diff --name-only <base>`) paths that are dirty in `git status --porcelain=v1`. Untracked entries do not count. Fail-closed: any git error \u2192 treat as dirty.\n2. **STOP-on-non-committable predicate (COR-1)** \u2014 `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 \u2014 the fail-closed contract is unchanged) and `reason \u2208 {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.\n3. **Snapshot creation (COR-2 / A-2)** \u2014 on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so serena/auggie stay indexed).\n4. **Grounding-root redirect (scope: ClaudeProcess children only, v1)** \u2014 the snapshot grounds the two live-CWD review children: the Tier-1 audit child and the adversarial scorer both run with `cwd = <snapshot>`, never the live shared worktree. The text-in/out Tier-2 swarm workers hold NO repo CWD; in v1 their review target is still sourced from the live tasklist path (NOT yet derived from `<snapshot>`), so isolation covers the two ClaudeProcess children but not the swarm-worker read surface. The telemetry value `snapshot-children-only` (below) reports this scope honestly rather than overclaiming full `snapshot` isolation. (Closing the swarm-worker read surface \u2014 deriving their target from `<snapshot>` \u2014 is the deferred \"design (a)\" follow-up; the mutation incident vector is independently closed by L1 + L1b for every reviewer class regardless.)\n5. **`finally` teardown (A-3)** \u2014 the snapshot is always removed via `git worktree remove --force` (never `rm -rf` / `git stash`), on success / STOP / exception, while the always-write sidecar still emits inside the try.\n\nTelemetry `reviewer_isolation` (`disabled` | `snapshot-children-only` | `stopped-precondition`), `audit_tree_dirty`, and `reviewer_grounding_root` are emitted to the sidecar (the only guaranteed emission on a STOP) and the Tier-2 contract. `snapshot-children-only` is the honest value when a snapshot was created: only the ClaudeProcess children are snapshot-`cwd`-grounded.\n\n",
+          "new": "**Step 0.5e (native selected-input snapshot provisioning \u2014 L2).** This is the\nnative plugin route, not the package wrapper. At Wave 0 select/reserve the frozen\ninput set; at Step 3B.0, AFTER T1/verification evidence exists and BEFORE any fixed\nread-only reviewer is spawned, the ORCHESTRATOR provisions the actual snapshot.\nEvery restricted reviewer requires this gate, even without `--isolate-reviewers`.\nThe Python wrapper's opt-in git-worktree snapshot and its `snapshot-children-only`\ntelemetry are unavailable package behavior, NOT proof supplied by this plugin.\n\n1. Apply every pinned-output, explicit-input-overlap, traversal, symlink and plugin\n   distribution guard FIRST. Create a fresh run output, never reuse a prior\n   snapshot or delete intermediates. Keep snapshot files under this pinned output.\n2. Enumerate the COMPLETE selected audit state into `<output>/selected-inputs.json`:\n   explicit spec, optional tasklist, task-log/diff file, all in-scope changed files\n   from the requested ref/diff, relevant dirty tracked files, relevant untracked/new\n   files discovered from scoped `git ls-files --others --exclude-standard` and the\n   task log, linked evidence and needed dependency sources. Include existing/base\n   evidence for deletions as captured diff/base artifacts; do not invent a current\n   deleted file. Do not infer that `git diff` includes new files. Resolve narrowing\n   scope against both changed paths AND new/log-declared paths. Freeze all files a\n   reviewer may cite or inspect, not just the hunks. Missing/unreadable inputs or an\n   incomplete enumeration block reviewer dispatch. Never copy `.git` or plugin\n   distribution directories wholesale.\n3. Schema: `{\"enumeration_complete\": true, \"coverage_basis\": \"<requested diff,\n   scope, dirty/new discovery and links>\", \"files\": [{\"source\": \"<absolute path>\",\n   \"kind\": \"audit-input\" | \"run-evidence\"}]}`. `run-evidence` is ONLY this run's\n   already-written T1 card, coverage matrix, captured verification/base/diff and\n   other ledgers under the pinned output; it is not an explicit user input and is\n   not added to the audited input-tree hash. Every explicit user input stays\n   subject to the original output/input overlap guard. Do not include the snapshot\n   itself or later reviewer outputs in the selection. Supply the exact selection\n   path to the recipe below. Capture current working-tree bytes, not HEAD-only.\n4. Use the following stdlib recipe INLINE through native Bash, for example\n   `uv run --no-project python - <repo-root> <pinned-output> <selection-json>` with\n   the code block as stdin. It imports no package, installs nothing and writes no\n   new production module. `uv` and `git` must actually be available to this\n   orchestrator; otherwise report snapshot provisioning unavailable and STOP\n   reviewer dispatch, never fall back to live roots. The recipe refuses stale\n   output, symlinks and missing/non-regular inputs, captures before/copy/after\n   SHA256 plus source Git inventory, retains a provenance manifest, and makes\n   frozen copies read-only. A nonzero exit or non-verified manifest blocks dispatch.\n5. Supply `reviewer_grounding_root: <output>/reviewer-snapshot/root` and\n   `snapshot_kind: native-selected-inputs`, `native_reviewer_snapshot: verified`,\n   `native_reviewer_snapshot_manifest_path: <output>/reviewer-snapshot/provenance-manifest.json`\n   to every brief per `refs/reviewer-spec.md`. Do NOT emit wrapper\n   `reviewer_isolation: snapshot-children-only`. Rewrite every source/evidence path\n   through the manifest; no live-root fallback. An unindexed snapshot uses native\n   Read/Grep/Glob with a loud MCP-unindexed degraded marker.\n6. Run this SAME inline recipe with\n   `uv run --no-project python - --verify <provenance-manifest>` immediately before\n   dispatch and after reviewers finish. Source or frozen-copy hash mismatch means\n   `input_drift` / `native_snapshot_drift`, `status: partial`, no acceptance of those\n   reviewer findings and no promotion. Keep failed snapshots and intermediates;\n   choose a new run/output for retry. No teardown deletion or package wrapper.\n\n<!-- native-snapshot-recipe:start -->\n```python\n\"\"\"Task-owned source for the exact inline native snapshot recipe in the bundled skill.\"\"\"\n\nimport hashlib\nimport json\nimport os\nimport stat\nimport subprocess\nimport sys\nfrom pathlib import Path\n\n\ndef digest(data):\n    return hashlib.sha256(data).hexdigest()\n\n\ndef under(path, root):\n    return path == root or root in path.parents\n\n\ndef regular(path):\n    if not path.is_absolute() or \"..\" in path.parts:\n        raise ValueError(\"snapshot input must be an absolute, traversal-free path\")\n    if path.resolve(strict=True) != path or not stat.S_ISREG(path.lstat().st_mode):\n        raise ValueError(\"snapshot input must be a regular file with no symlink components\")\n    return path.read_bytes()\n\n\ndef git_state(repo, output):\n    command = [\"git\", \"status\", \"--porcelain=v1\", \"-z\", \"--untracked-files=all\", \"--\", \".\"]\n    if under(output, repo):\n        command.append(\":(exclude)\" + output.relative_to(repo).as_posix())\n    result = subprocess.run(command, cwd=repo, capture_output=True, check=True, timeout=30)\n    return result.stdout.hex()\n\n\ndef verify(manifest_path):\n    manifest = json.loads(regular(manifest_path))\n    if manifest[\"status\"] != \"verified\":\n        raise ValueError(\"snapshot manifest was not verified\")\n    root = Path(manifest[\"reviewer_grounding_root\"])\n    if root.resolve(strict=True) != root:\n        raise ValueError(\"snapshot root was retargeted\")\n    for row in manifest[\"files\"]:\n        snapshot = Path(row[\"snapshot_path\"])\n        if not under(snapshot, root):\n            raise ValueError(\"manifest copy escapes snapshot root\")\n        if digest(regular(snapshot)) != row[\"sha256_copy\"]:\n            raise ValueError(\"snapshot copy changed: \" + str(snapshot))\n        if digest(regular(Path(row[\"source_path\"]))) != row[\"sha256_after\"]:\n            raise ValueError(\"audited source changed: \" + row[\"source_path\"])\n    return {\"status\": \"verified\", \"reviewer_grounding_root\": str(root), \"files\": len(manifest[\"files\"])}\n\n\ndef provision(repo, output, selection_path):\n    repo = repo.resolve(strict=True)\n    output = output.resolve(strict=True)\n    selection = json.loads(regular(selection_path))\n    if selection.get(\"enumeration_complete\") is not True or not selection.get(\"coverage_basis\"):\n        raise ValueError(\"explicit complete selected-input enumeration and coverage basis required\")\n    items = selection[\"files\"]\n    if not items:\n        raise ValueError(\"empty snapshot selection\")\n    # All protocol output/input/distribution guards MUST already have passed.\n    destination = output / \"reviewer-snapshot\"\n    destination.mkdir(exist_ok=False)\n    root = destination / \"root\"\n    root.mkdir()\n    manifest_path = destination / \"provenance-manifest.json\"\n    manifest = {\"status\": \"pending\", \"snapshot_kind\": \"native-selected-inputs\", \"source_repo_root\": str(repo),\n                \"reviewer_grounding_root\": str(root), \"selection_path\": str(selection_path),\n                \"selection_sha256\": digest(regular(selection_path)), \"coverage_basis\": selection[\"coverage_basis\"],\n                \"enumeration_complete\": True, \"files\": []}\n    try:\n        before_state = git_state(repo, output)\n        manifest[\"source_git_status_before_hex\"] = before_state\n        payloads = []\n        seen = set()\n        for item in items:\n            source = Path(item[\"source\"])\n            kind = item[\"kind\"]\n            if kind not in (\"audit-input\", \"run-evidence\") or under(source, destination):\n                raise ValueError(\"invalid source kind or recursive snapshot source\")\n            if kind == \"audit-input\" and under(source, output):\n                raise ValueError(\"explicit audited input overlaps output\")\n            if kind == \"run-evidence\":\n                if not under(source, output):\n                    raise ValueError(\"run-evidence must be produced within pinned output\")\n                relative = Path(\"__run_evidence__\") / source.relative_to(output)\n            elif under(source, repo):\n                relative = source.relative_to(repo)\n                if relative.parts[0] in (\"__external__\", \"__run_evidence__\"):\n                    raise ValueError(\"reserved snapshot namespace collision\")\n            else:\n                relative = Path(\"__external__\") / digest(str(source).encode()) / source.name\n            target = root / relative\n            if target in seen:\n                raise ValueError(\"duplicate selected path or snapshot collision\")\n            seen.add(target)\n            content = regular(source)\n            payloads.append((source, target, kind, content))\n        for source, target, kind, content in payloads:\n            target.parent.mkdir(parents=True, exist_ok=True)\n            with target.open(\"xb\") as handle:\n                handle.write(content)\n                handle.flush()\n                os.fsync(handle.fileno())\n            target.chmod(0o444)\n            copied = digest(regular(target))\n            before = digest(content)\n            after = digest(regular(source))\n            manifest[\"files\"].append({\"kind\": kind, \"source_path\": str(source), \"snapshot_path\": str(target),\n                                      \"sha256_before\": before, \"sha256_copy\": copied, \"sha256_after\": after})\n            if not before == copied == after:\n                raise ValueError(\"source/copy hash mismatch: \" + str(source))\n        # Re-read EVERY source after ALL copies, not merely just after its own copy.\n        for row in manifest[\"files\"]:\n            if digest(regular(Path(row[\"source_path\"]))) != row[\"sha256_before\"]:\n                raise ValueError(\"input changed during snapshot: \" + row[\"source_path\"])\n        after_state = git_state(repo, output)\n        manifest[\"source_git_status_after_hex\"] = after_state\n        if after_state != before_state or digest(regular(selection_path)) != manifest[\"selection_sha256\"]:\n            raise ValueError(\"selection or source git inventory changed during snapshot\")\n        manifest[\"status\"] = \"verified\"\n        for folder in sorted((path for path in root.rglob(\"*\") if path.is_dir()), reverse=True):\n            folder.chmod(0o555)\n        root.chmod(0o555)\n    except Exception as error:\n        manifest[\"status\"] = \"failed\"\n        manifest[\"failure_reason\"] = str(error)\n        raise\n    finally:\n        # Preserve failed and successful snapshots/intermediates; NEVER teardown.\n        manifest_path.write_text(json.dumps(manifest, indent=2) + \"\\n\")\n    return verify(manifest_path)\n\n\nif __name__ == \"__main__\":\n    try:\n        if sys.argv[1] == \"--verify\":\n            result = verify(Path(sys.argv[2]))\n        else:\n            result = provision(Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]))\n        print(json.dumps(result))\n    except Exception as error:\n        print(json.dumps({\"status\": \"failed\", \"reason\": str(error)}))\n        raise SystemExit(1)\n```\n<!-- native-snapshot-recipe:end -->\n\n",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: real native selected-state snapshot provider replaces unavailable wrapper provider"
+        },
+        {
+          "kind": "literal",
+          "old": "reviewers ground in an isolated `git worktree` snapshot, never the live tree",
+          "new": "reviewers ground in a real frozen native selected-input snapshot, never the live tree",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: native snapshot mechanism is not a package git-worktree claim"
+        },
+        {
+          "kind": "literal",
+          "old": "Before spawning N reviewers, materialize one brief per reviewer",
+          "new": "Before spawning N reviewers, provision and verify the native Step-0.5e snapshot, rewrite every reviewer path through its provenance manifest per `refs/reviewer-spec.md`, then materialize one brief per reviewer",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: mandatory snapshot-grounded brief handoff"
+        },
+        {
+          "kind": "prefix",
+          "text": "\n## Plugin-local resource resolution (binding)\n\nThis distribution runs without the Python package, global framework installation,\nproject development mirrors, or other plugins. Resolve all file reads from this\nplugin: `${CLAUDE_PLUGIN_ROOT}/skills/<directory>/SKILL.md` and\n`${CLAUDE_PLUGIN_ROOT}/agents/<filename>.md`. A `refs/<file>` path is relative to\nthe loaded skill directory, never the audited project's working directory.\nFrontmatter logical names do not override native filename/directory identities.\nUse the qualified names below for EVERY delegation, including tables and shorthand\n`Task(...)` directives. Do not scan global directories, install dependencies, or\nsubstitute an all-tools reviewer when a registered resource is absent.\n\n| Resource | Native invocation | Local file |\n|---|---|---|\n| Reflection | `Skill sc:sc-reflect-protocol` | `${CLAUDE_PLUGIN_ROOT}/skills/sc-reflect-protocol/SKILL.md` |\n| Adversarial merge | `Skill sc:sc-adversarial-protocol` | `${CLAUDE_PLUGIN_ROOT}/skills/sc-adversarial-protocol/SKILL.md` |\n| Recommendation confidence | `Skill sc:confidence-check` | `${CLAUDE_PLUGIN_ROOT}/skills/confidence-check/SKILL.md` |\n| Calibration | `Task(sc:confidence-calibrator)` | `${CLAUDE_PLUGIN_ROOT}/agents/confidence-calibrator.md` |\n| Evidence gate | `Task(sc:evidence-validator)` | `${CLAUDE_PLUGIN_ROOT}/agents/evidence-validator.md` |\n| Restricted reviewer | `Task(sc:reflect-reviewer)` | `${CLAUDE_PLUGIN_ROOT}/agents/reflect-reviewer.md` |\n| Reuse search | `Task(sc:reuse-auditor)` | `${CLAUDE_PLUGIN_ROOT}/agents/reuse-auditor.md` |\n| Debate coordination | `Task(sc:debate-orchestrator)` | `${CLAUDE_PLUGIN_ROOT}/agents/debate-orchestrator.md` |\n| Merge execution | `Task(sc:merge-executor)` | `${CLAUDE_PLUGIN_ROOT}/agents/merge-executor.md` |\n| Root-cause specialist | `Task(sc:sc-root-cause-analyst)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-root-cause-analyst.md` |\n| Completion specialist | `Task(sc:sc-self-review)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-self-review.md` |\n| Coverage specialist | `Task(sc:sc-requirements-analyst)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-requirements-analyst.md` |\n| Optional probing specialist | `Task(sc:sc-socratic-mentor)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-socratic-mentor.md` |\n\nThe root reflection command is `/sc:sc-reflect`. Adversarial command examples\nbelow mean the bundled `Skill sc:sc-adversarial-protocol`, not a separate command.\nDynamic advocates, fault-finders and scorers are native Task workers using the\ninline briefs and model selection below, not missing named framework agents.\nThe reflection Tier-2 pool ALWAYS uses `sc:reflect-reviewer` with brief-supplied\npersonas; historical `rf-qa` / `rf-qa-qualitative` mentions describe structural\nand document lenses, not alternate agent types to load.\n\n### Optional unavailable resources (binding pre-dispatch gate)\n\n`tech-research`, `audit-validator`, `sc-workflow-protocol` (including the logical\nspelling `sc:workflow-protocol`), `task-builder` and `rf-task-builder` are\n**UNAVAILABLE in this plugin-only distribution**. Do not invoke them, search a\nglobal installation, copy them in, install them, or substitute another executor.\nBefore every optional dispatch described below, apply its source-defined fallback:\n\n- Research: skip optional external best-practice lookup, record the missing\n  resource and a loud degraded/grounding-gap warning; never claim it was checked.\n- Spot-check auditor: use `sc:evidence-validator` alone (the source's stricter\n  fallback), retaining the mandatory final citation gate.\n- Remediation: without `--remediate`, never enter Wave 6. With an explicit request,\n  surface `remediation_unavailable: true`, name the unavailable selected builder,\n  keep the report, and emit `remediation_task_path: null`,\n  `remediation_plan_path: null`, `task_file_path: null`,\n  `remediation_accepted: false`, `handoff_memory_key: null`. Do not offer the other\n  unavailable route as a working alternative, author a substitute plan, or run\n  `/task` or `/sc:sc-implement`. The detailed source handoff phases below are\n  unavailable integration documentation, not executable plugin-only instructions.\n- MCPs are optional: check actual exposed tools; apply the specific native\n  Grep/Glob/Read fallback and degraded/partial markers below. No fake successful\n  memory, diagnostic, verification, external lookup, or reachability result.\n\nMissing REQUIRED registered resources instead take the explicit failure/partial\nfallback below; fallback evidence is never proof of a successful real merge,\nindependent calibration or evidence gate.\n\n### Distribution output guard (before any write)\n\nRetain all input overlap, pinned-realpath, traversal and symlink guards below.\nAdditionally refuse output equal to, inside, or containing any plugin distribution\ncomponent directory: `${CLAUDE_PLUGIN_ROOT}/skills`, `/agents`, `/commands`, or\n`/.claude-plugin` (each suffix is relative to the same plugin root). Compare\nresolved path components through the nearest existing ancestor, not string\nprefixes; reject symlink aliases too. Never write audit artifacts into plugin\nresources. Apply this guard to nested pipeline phases and every output override.\n\n### Maintainer-only and external-package material\n\nSource provenance, reverse-caller tables, framework registration, eval/build/CI,\ncheckout maintenance, and historical incident references below are maintainer-only\ncontext, unavailable in plugin-only operation. They are NOT resources to read,\nsteps to run, files to create, or instructions to install the framework. In\nparticular `refs/grader-extensions.md`, `refs/cost-profile.yaml`, source specs and\neval workspaces are not bundled runtime dependencies. Budget preflight uses the\ninline numeric table; no caller cost-profile file is read by this skill.\nPackage `superclaude reflect contract-status` readiness and Python-wrapper-only\nisolation/auto-fix behavior require a separately available `superclaude` executable\nand its package. This plugin does NOT bundle that prerequisite, import package\ncode, implement its wrapper, or launch a remediation executor. A readiness request\nwithout that executable returns explicitly unavailable, not a UC-1/UC-2 audit.\n\n",
+          "reason": "explicit plugin-local resolver and availability/output boundaries"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md",
+      "destination": "skills/sc-reflect-protocol/refs/input-resolution.md",
+      "source_sha256": "a05c3fff21e93824b5a6ece801b8b2199ef29326bce673fbd0fb135959289730",
+      "destination_sha256": "bd30f6a723b3f566b328bb1e22197f91de58df0377b9b9bf2f6efbbdfc377709",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-adversarial\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-adversarial-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:reflect(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-reflect",
+          "count": 8,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "literal",
+          "old": "Neither `--spec`, `--tasklist`, nor `--diff` provided.",
+          "new": "None of `--spec`, `--tasklist`, `--diff`/`--commit-range`, or `--task-log` provided.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: generic no-input STOP accepts the supported log-only post input"
+        },
+        {
+          "kind": "literal",
+          "old": "**`--diff` OR `--commit-range`** flag present",
+          "new": "**`--diff`, `--commit-range`, OR `--task-log`** flag present",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: post-mode evidence is diff OR task log"
+        },
+        {
+          "kind": "literal",
+          "old": "Tasklist file. Required for UC-2; recommended for UC-1 if a tasklist already exists.",
+          "new": "Tasklist file. Recommended for UC-2, not required; recommended for UC-1 if a tasklist already exists.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: tasklist recommended, not a post precondition"
+        },
+        {
+          "kind": "literal",
+          "old": "or path to a diff file. Required for UC-2.",
+          "new": "or path to a diff file. UC-2 requires this OR `--task-log`.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: diff-or-log minimum"
+        },
+        {
+          "kind": "literal",
+          "old": "Task execution log. Optional, UC-2 only.",
+          "new": "Task execution log, UC-2 only. Required when no diff/commit-range is supplied.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: diff-or-log minimum"
+        },
+        {
+          "kind": "literal",
+          "old": "Hard-STOP cases that prevent invocation (verbatim from \u00a73.3):",
+          "new": "Hard-STOP cases that prevent invocation (consistent with \u00a73.3):",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: adapted minimum is not verbatim stale source"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md",
+      "destination": "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+      "source_sha256": "ce762fd47f632e986770cad331e851e62d5376f0ce250b138d516828aae37050",
+      "destination_sha256": "23f8f7ce92c54bc6618712bc9fbe44eb42f4cc887876d8567a87dd503a6fbd32",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-adversarial\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-adversarial-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])confidence\\-calibrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:confidence-calibrator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "literal",
+          "old": "{Aligned, Refinement, Drift, Regression}",
+          "new": "{Authorized, Necessary, Drift, Regression}",
+          "count": 1,
+          "reason": "approved classification compatibility only"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+      "destination": "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+      "source_sha256": "ccf1c2dca5952fe52aea0ad16ac02339b81bf3f2c0f0b1b1bfda93624ee8390c",
+      "destination_sha256": "ccf1c2dca5952fe52aea0ad16ac02339b81bf3f2c0f0b1b1bfda93624ee8390c",
+      "changes": []
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/coverage-mapping.md",
+      "destination": "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+      "source_sha256": "97b567e4dcb4ad90e875a0f9f64b4f8451f587f91d7a9bac61754e9fda3daafe",
+      "destination_sha256": "d7c294a2150ccf755172dce88c28a7a923c45aae8680e7ce1dd8ee9cf8e4f968",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])requirements\\-analyst(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-requirements-analyst",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md",
+      "destination": "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+      "source_sha256": "1a94e099e7db621ae678330557c3db54a3af3583399a66d04eb00a08afc2b996",
+      "destination_sha256": "cd6bf5a3da9a91fe5fe75f527086362ceec8390e9f56e52409e66efb03849d4b",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-adversarial\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-adversarial-protocol",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 5,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])reflect\\-reviewer(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:reflect-reviewer",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "literal",
+          "old": "## Brief template",
+          "new": "## Native snapshot handoff (required before reviewer dispatch)\n\nConsume the REAL `native-selected-inputs` snapshot and its verified provenance\nmanifest from SKILL.md Step 0.5e. Never set `reviewer_grounding_root` to the live\ncheckout, the output parent, or an unpopulated directory. The snapshot captures\nthe selected current working-tree bytes, including relevant dirty tracked and\nuntracked/new files, not only a committed revision. Do not use or claim the\nseparately unavailable Python wrapper's `snapshot-children-only` isolation.\n\nKeep exactly the three brief sections below. Put the snapshot-root path,\nprovenance-manifest path, `snapshot_kind: native-selected-inputs`, and a\n`source_path -> snapshot_path` map in the existing **Grounding hunks** section,\nnot a fourth section. Rewrite ALL reviewer-facing paths, including `spec_path`,\noptional `tasklist_path`, task-log, diff evidence, prior reports, T1-card excerpt\ncitations, verification/hierarchy/runtime ledgers, coverage citations and linked\nevidence, through that manifest. Excerpts remain verbatim apart from mechanical\ncitation-path relocation. Preserve original locations in the provenance map for\nlater report rendering. A missing mapping blocks dispatch: expand the selected\nset and create a NEW frozen snapshot, never point back at the live tree.\n\nThe brief permits native Read/Grep/Glob ONLY within the snapshot root. MCP calls\nare permitted only when the orchestrator has verified that their actual project\nor index root is this exact snapshot. Otherwise prohibit live-root MCP lookups\nand use native Read/Grep/Glob with `reviewer_grounding_degraded:\n[\"snapshot-mcp-unindexed\"]`; never query the live project or claim symbolic\ncoverage that did not run. A needed but uncopied file becomes an explicit\nevidence gap, not a live-root escape. Keep the fixed `sc:reflect-reviewer`\ntools/permission allowlist unchanged; never replace it with an all-tools agent.\nThe reviewer RETURNS findings and runs no shell/git commands.\n\nRe-verify snapshot and source hashes immediately before dispatch AND after all\nreviewers return. A mismatch blocks acceptance of those findings and records\ninput/snapshot drift; retain all evidence. The orchestrator translates returned\nsnapshot citations back through the verified map only for final report\nrendering, then the independent evidence-validator re-Reads the original source\nand the manifest. Snapshot citations themselves still resolve on retained disk.\n\n## Brief template",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: real snapshot path mapping, retained evidence and honest MCP fallback"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/report-template.md",
+      "destination": "skills/sc-reflect-protocol/refs/report-template.md",
+      "source_sha256": "841cd247391b48ca416436a20729ecc6773ddf0e760d2483c967c9e2032c5e62",
+      "destination_sha256": "308cb65ae88b6f07f801227a9cd91338437c77fc2c12d797bab5e442f196fba5",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 5,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/runtime-surface.md",
+      "destination": "skills/sc-reflect-protocol/refs/runtime-surface.md",
+      "source_sha256": "ddfd2d95c5440154e3c59a74e0a5d8b9388474b04f2dd36d8ef99320e7682143",
+      "destination_sha256": "af86bb07dd2e8e82111d7b7d3dbc7aaeb696c5b663264ff0d6c91e12c6200a26",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md",
+      "destination": "skills/sc-reflect-protocol/refs/ops-integration.md",
+      "source_sha256": "b0ab5d204516d61370d82611f4dd2dbe69757e45e787f1477ecd993a38896b21",
+      "destination_sha256": "d4caea09c6616435b8f57a67d873ad174c5099f7997870f99fbdf24ab80993ac",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "prefix",
+          "text": "> Maintainer-only source context: checkout build/sync/CI/hook/installation instructions below are unavailable in plugin-only operation. Never execute them or read checkout resources as audit prerequisites. Runtime WARN message bodies remain usable; optional MCP absence follows the native fallback contract.\n\n",
+          "reason": "maintainer context is not plugin runtime"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md",
+      "destination": "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+      "source_sha256": "7ee8e6de04186aaf42ed1b2984a3acc8fe4a33282116487188580a290d7e4064",
+      "destination_sha256": "7ee8e6de04186aaf42ed1b2984a3acc8fe4a33282116487188580a290d7e4064",
+      "changes": []
+    },
+    {
+      "source": "src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md",
+      "destination": "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+      "source_sha256": "9ae015ad0d1ba4fcef7a1bc974548e337ab87241150a8dc0457850cf8d91d548",
+      "destination_sha256": "29b0befedab664ef97975dbb1ff4c83dec0864a6293f0b7872f47439d37d2ce5",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])root\\-cause\\-analyst(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-root-cause-analyst",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])self\\-review(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-self-review",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:reflect(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-reflect",
+          "count": 6,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:implement(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-implement",
+          "count": 13,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:workflow(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-workflow",
+          "count": 1,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "prefix",
+          "text": "> Plugin-only availability gate: `sc-workflow-protocol`, `sc:workflow-protocol`, `task-builder`, and `rf-task-builder` are UNAVAILABLE. With `--remediate`, surface the selected missing builder and report path, set `remediation_unavailable: true`, both remediation paths and `task_file_path` null, `remediation_accepted: false`, and `handoff_memory_key: null`. Never run the phases or substitute an executor. The source integration contract below is retained as unavailable documentation only. Python wrapper behavior requires the separately installed package, not bundled here.\n\n",
+          "reason": "explicit opt-in unavailable boundary"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-adversarial-protocol/SKILL.md",
+      "destination": "skills/sc-adversarial-protocol/SKILL.md",
+      "source_sha256": "b910a6d1006c271067263eb8799094d7ac24904cbfa02ff979a6d486fbd8b82e",
+      "destination_sha256": "e19154d65c93b5d26c89126d7415a59ffbf6154fc434fce82b8b8cb8eef38fc5",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc:adversarial\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-adversarial-protocol",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])debate\\-orchestrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:debate-orchestrator",
+          "count": 4,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])merge\\-executor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:merge-executor",
+          "count": 3,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:analyze(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-analyze",
+          "count": 1,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "literal",
+          "old": "/sc:adversarial",
+          "new": "Skill sc:sc-adversarial-protocol",
+          "count": 13,
+          "reason": "bundled skill, no unregistered adversarial command"
+        },
+        {
+          "kind": "literal",
+          "old": "`~/.claude/commands/sc/spawn.md` Rule 2.5",
+          "new": "the caller's Stage 1 branch-trace provenance (spawn Rule 2.5; no external command read)",
+          "count": 1,
+          "reason": "branch-trace is caller evidence; inline enumeration remains mandatory fallback"
+        },
+        {
+          "kind": "literal",
+          "old": "defined in agents/merge-executor.md",
+          "new": "defined in ${CLAUDE_PLUGIN_ROOT}/agents/merge-executor.md",
+          "count": 1,
+          "reason": "precise plugin-local agent definition lookup"
+        },
+        {
+          "kind": "literal",
+          "old": "### Framework Registration (T06.04)",
+          "new": "### Framework Registration (T06.04)\n\n> Maintainer-only source context, unavailable in plugin-only operation. Do not update framework configuration from this skill.",
+          "count": 1,
+          "reason": "no package/framework registration mutation"
+        },
+        {
+          "kind": "literal",
+          "old": "Full 25-criterion qualitative rubric with CEV",
+          "new": "Full 30-criterion qualitative rubric with CEV",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: exact stale forward-pass count, CEV/algorithm unchanged"
+        },
+        {
+          "kind": "literal",
+          "old": "Same 25-criterion rubric with CEV (independent evaluation)",
+          "new": "Same 30-criterion rubric with CEV (independent evaluation)",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: exact stale reverse-pass count, independence/algorithm unchanged"
+        },
+        {
+          "kind": "prefix",
+          "text": "\n## Plugin-local resource resolution (binding)\n\nThis distribution runs without the Python package, global framework installation,\nproject development mirrors, or other plugins. Resolve all file reads from this\nplugin: `${CLAUDE_PLUGIN_ROOT}/skills/<directory>/SKILL.md` and\n`${CLAUDE_PLUGIN_ROOT}/agents/<filename>.md`. A `refs/<file>` path is relative to\nthe loaded skill directory, never the audited project's working directory.\nFrontmatter logical names do not override native filename/directory identities.\nUse the qualified names below for EVERY delegation, including tables and shorthand\n`Task(...)` directives. Do not scan global directories, install dependencies, or\nsubstitute an all-tools reviewer when a registered resource is absent.\n\n| Resource | Native invocation | Local file |\n|---|---|---|\n| Reflection | `Skill sc:sc-reflect-protocol` | `${CLAUDE_PLUGIN_ROOT}/skills/sc-reflect-protocol/SKILL.md` |\n| Adversarial merge | `Skill sc:sc-adversarial-protocol` | `${CLAUDE_PLUGIN_ROOT}/skills/sc-adversarial-protocol/SKILL.md` |\n| Recommendation confidence | `Skill sc:confidence-check` | `${CLAUDE_PLUGIN_ROOT}/skills/confidence-check/SKILL.md` |\n| Calibration | `Task(sc:confidence-calibrator)` | `${CLAUDE_PLUGIN_ROOT}/agents/confidence-calibrator.md` |\n| Evidence gate | `Task(sc:evidence-validator)` | `${CLAUDE_PLUGIN_ROOT}/agents/evidence-validator.md` |\n| Restricted reviewer | `Task(sc:reflect-reviewer)` | `${CLAUDE_PLUGIN_ROOT}/agents/reflect-reviewer.md` |\n| Reuse search | `Task(sc:reuse-auditor)` | `${CLAUDE_PLUGIN_ROOT}/agents/reuse-auditor.md` |\n| Debate coordination | `Task(sc:debate-orchestrator)` | `${CLAUDE_PLUGIN_ROOT}/agents/debate-orchestrator.md` |\n| Merge execution | `Task(sc:merge-executor)` | `${CLAUDE_PLUGIN_ROOT}/agents/merge-executor.md` |\n| Root-cause specialist | `Task(sc:sc-root-cause-analyst)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-root-cause-analyst.md` |\n| Completion specialist | `Task(sc:sc-self-review)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-self-review.md` |\n| Coverage specialist | `Task(sc:sc-requirements-analyst)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-requirements-analyst.md` |\n| Optional probing specialist | `Task(sc:sc-socratic-mentor)` | `${CLAUDE_PLUGIN_ROOT}/agents/sc-socratic-mentor.md` |\n\nThe root reflection command is `/sc:sc-reflect`. Adversarial command examples\nbelow mean the bundled `Skill sc:sc-adversarial-protocol`, not a separate command.\nDynamic advocates, fault-finders and scorers are native Task workers using the\ninline briefs and model selection below, not missing named framework agents.\nThe reflection Tier-2 pool ALWAYS uses `sc:reflect-reviewer` with brief-supplied\npersonas; historical `rf-qa` / `rf-qa-qualitative` mentions describe structural\nand document lenses, not alternate agent types to load.\n\n### Optional unavailable resources (binding pre-dispatch gate)\n\n`tech-research`, `audit-validator`, `sc-workflow-protocol` (including the logical\nspelling `sc:workflow-protocol`), `task-builder` and `rf-task-builder` are\n**UNAVAILABLE in this plugin-only distribution**. Do not invoke them, search a\nglobal installation, copy them in, install them, or substitute another executor.\nBefore every optional dispatch described below, apply its source-defined fallback:\n\n- Research: skip optional external best-practice lookup, record the missing\n  resource and a loud degraded/grounding-gap warning; never claim it was checked.\n- Spot-check auditor: use `sc:evidence-validator` alone (the source's stricter\n  fallback), retaining the mandatory final citation gate.\n- Remediation: without `--remediate`, never enter Wave 6. With an explicit request,\n  surface `remediation_unavailable: true`, name the unavailable selected builder,\n  keep the report, and emit `remediation_task_path: null`,\n  `remediation_plan_path: null`, `task_file_path: null`,\n  `remediation_accepted: false`, `handoff_memory_key: null`. Do not offer the other\n  unavailable route as a working alternative, author a substitute plan, or run\n  `/task` or `/sc:sc-implement`. The detailed source handoff phases below are\n  unavailable integration documentation, not executable plugin-only instructions.\n- MCPs are optional: check actual exposed tools; apply the specific native\n  Grep/Glob/Read fallback and degraded/partial markers below. No fake successful\n  memory, diagnostic, verification, external lookup, or reachability result.\n\nMissing REQUIRED registered resources instead take the explicit failure/partial\nfallback below; fallback evidence is never proof of a successful real merge,\nindependent calibration or evidence gate.\n\n### Distribution output guard (before any write)\n\nRetain all input overlap, pinned-realpath, traversal and symlink guards below.\nAdditionally refuse output equal to, inside, or containing any plugin distribution\ncomponent directory: `${CLAUDE_PLUGIN_ROOT}/skills`, `/agents`, `/commands`, or\n`/.claude-plugin` (each suffix is relative to the same plugin root). Compare\nresolved path components through the nearest existing ancestor, not string\nprefixes; reject symlink aliases too. Never write audit artifacts into plugin\nresources. Apply this guard to nested pipeline phases and every output override.\n\n### Maintainer-only and external-package material\n\nSource provenance, reverse-caller tables, framework registration, eval/build/CI,\ncheckout maintenance, and historical incident references below are maintainer-only\ncontext, unavailable in plugin-only operation. They are NOT resources to read,\nsteps to run, files to create, or instructions to install the framework. In\nparticular `refs/grader-extensions.md`, `refs/cost-profile.yaml`, source specs and\neval workspaces are not bundled runtime dependencies. Budget preflight uses the\ninline numeric table; no caller cost-profile file is read by this skill.\nPackage `superclaude reflect contract-status` readiness and Python-wrapper-only\nisolation/auto-fix behavior require a separately available `superclaude` executable\nand its package. This plugin does NOT bundle that prerequisite, import package\ncode, implement its wrapper, or launch a remediation executor. A readiness request\nwithout that executable returns explicitly unavailable, not a UC-1/UC-2 audit.\n\n",
+          "reason": "explicit plugin-local resolver and availability/output boundaries"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md",
+      "destination": "skills/sc-adversarial-protocol/refs/agent-specs.md",
+      "source_sha256": "3d2367971024dc3db1012b4dbdf046368c43b973cd7a9d7fb3d40aeff509b974",
+      "destination_sha256": "3d2367971024dc3db1012b4dbdf046368c43b973cd7a9d7fb3d40aeff509b974",
+      "changes": []
+    },
+    {
+      "source": "src/superclaude/skills/sc-adversarial-protocol/refs/artifact-templates.md",
+      "destination": "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+      "source_sha256": "26167953a653ffc003d7fc75af9251dada0451e35dcab60623ac7df0ca939fbf",
+      "destination_sha256": "1b8601615cab02a72e3dd218c0aad34c9288b61b6ac67d3548817ab2d9e7b0bb",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])merge\\-executor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:merge-executor",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "literal",
+          "old": "/sc:adversarial",
+          "new": "Skill sc:sc-adversarial-protocol",
+          "count": 1,
+          "reason": "bundled skill, no unregistered adversarial command"
+        },
+        {
+          "kind": "literal",
+          "old": "### Qualitative Summary",
+          "new": "### Invariant & Edge Case Coverage (5 criteria)\n\n| Criterion | Variant A | Evidence | Variant B | Evidence |\n|-----------|-----------|----------|-----------|----------|\n| Addresses boundary conditions for collections (empty, single-element, maximum size) | MET/NOT MET | <CEV evidence> | MET/NOT MET | <CEV evidence> |\n| Handles state variable interactions across component boundaries | MET/NOT MET | <CEV evidence> | MET/NOT MET | <CEV evidence> |\n| Identifies guard condition gaps (missing validation, unguarded type assumptions) | MET/NOT MET | <CEV evidence> | MET/NOT MET | <CEV evidence> |\n| Covers count divergence scenarios (off-by-one, inclusive/exclusive ranges) | MET/NOT MET | <CEV evidence> | MET/NOT MET | <CEV evidence> |\n| Considers interaction effects when features or components combine | MET/NOT MET | <CEV evidence> | MET/NOT MET | <CEV evidence> |\n| **Subtotal** | **<N>/5** | | **<N>/5** | |\n\n### Edge Case Floor Check\n\nVariants scoring <1/5 on Invariant & Edge Case Coverage are ineligible as base variant. When ALL variants score 0/5, suspend the floor with a warning, per `scoring-protocol.md`.\n\n| Variant | Sixth-dimension subtotal | Eligible | Floor suspended with warning |\n|---------|---------------------------|----------|------------------------------|\n| A | <N>/5 | yes/no | yes/no |\n| B | <N>/5 | yes/no | yes/no |\n\n### Qualitative Summary",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: actual sixth scorer dimension and its unchanged eligibility floor in artifact scaffold"
+        },
+        {
+          "kind": "literal",
+          "old": "| **qual_score** | **<N>/25 = <score>** | **<N>/25 = <score>** | ... |",
+          "new": "| Invariant & Edge Case Coverage | <N>/5 | <N>/5 | ... |\n| **qual_score** | **<N>/30 = <score>** | **<N>/30 = <score>** | ... |",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: existing /30 denominator, no scoring weight change"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-adversarial-protocol/refs/debate-protocol.md",
+      "destination": "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+      "source_sha256": "193aca385202094a51baef66e1071fdea2e5d0af6e12024f061cc35ed0109c34",
+      "destination_sha256": "c80ff82e909fd16a21e70a0d49192c001257097de77e7fcc8638dbc4ef17cedb",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])debate\\-orchestrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:debate-orchestrator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])merge\\-executor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:merge-executor",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:analyze(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-analyze",
+          "count": 1,
+          "reason": "preserved root filename-derived command identity"
+        },
+        {
+          "kind": "literal",
+          "old": "Qualitative layer (50%): 25-criterion additive binary rubric with CEV protocol",
+          "new": "Qualitative layer (50%): 30-criterion additive binary rubric across six dimensions with CEV protocol. Invariant & Edge Case Coverage is the sixth dimension (5 criteria); variants scoring <1/5 there are ineligible as base, unless ALL variants score 0/5, in which case suspend the floor with a warning.",
+          "count": 1,
+          "reason": "native-compatibility-scope-revision.json: summary matches existing scorer, no weight or algorithm change"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+      "destination": "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+      "source_sha256": "3dcbed1b19ca99da702dafb4544e4c02cb5af69cd0bc31135c9f0a9eb935867d",
+      "destination_sha256": "3dcbed1b19ca99da702dafb4544e4c02cb5af69cd0bc31135c9f0a9eb935867d",
+      "changes": []
+    },
+    {
+      "source": "src/superclaude/agents/confidence-calibrator.md",
+      "destination": "agents/confidence-calibrator.md",
+      "source_sha256": "e4fbe54a18af90d4667bd176bfe0682ded0e5284aa6c621c191d68f75850faf4",
+      "destination_sha256": "31943bc8a68587fa8b41eb9aed054d75f289b6feb4578136e1cf02f6ffdc0daa",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "replace_body",
+          "text": "\n# Confidence Calibrator \u2014 Independent Reflection Rubric Scoring\n\n## Triggers\n\n- Delegated via `Task(sc:confidence-calibrator)` by `sc:sc-reflect-protocol` in Wave 1D and independently for EVERY Tier-2 card in Wave 3C.\n- This bundled agent is reflection-specific, not the six-dimension troubleshooting calibrator. Never auto-activate from conversational keywords.\n\n## Role and independence\n\nYou are deliberately stripped of the card-formation context. You did not run the\ngrounding queries, draft the brief or iterate on the findings. Read only the\nfinished card, the supplied reflection rubric and cited artifacts needed to\nspot-check its evidence. Do not receive the upstream investigative trail or other\nreviewers' scores. Self-reported confidence is narrative, NEVER an input or a\nstarting point. Score one dimension at a time against the rubric anchors, not\nsocial judgement about the upstream agent. A sharp divergence is a signal to\nreport honestly, not a reason to split the difference.\n\n**DO NOT modify, edit, delete, move, or rename ANY file.** The orchestrator Writes\n`output_path` from your returned report. You do not Write. Tools, model preference,\nturn limit and `permissionMode: plan` remain the source's read-only contract.\n\n## Inputs\n\n- `card_path`: absolute path to the finished reflection card.\n- `rubric_path`: absolute path to `${CLAUDE_PLUGIN_ROOT}/skills/sc-reflect-protocol/refs/reflection-rubric.md`; resolve from the plugin root, never global/project mirrors.\n- `card_tier`: 1 or 2.\n- `flags_context`: caller's reflection flags, including tier/depth/no-escalate restrictions; these do not alter the calibrated number.\n- `output_path`: where the ORCHESTRATOR persists your returned report.\n- `now_iso` (optional): supplied ISO-8601 timestamp. Omit Timestamp and note `input_absent: now_iso` when absent; never invent a clock.\n\n## Responsibilities\n\n1. Read the actual reflection rubric at `rubric_path` before the card. Require its FIVE dimensions and arithmetic mean. Missing, unreadable or incompatible rubric means `calibration_failed: true`, `calibrated: null`, and an explicit reason; never invent a rubric or use the troubleshooting formula.\n2. Read `card_path`. Missing/empty/unparseable card means calibration failure with an explicit reason. A readable but incomplete card scores each unsupported dimension at 0.00 with Notes; absence of evidence is not weak evidence.\n3. **Spot-check evidence citations** by Reading each cited file at its cited range. Do not trust quoted snippets. A mismatch is recorded and drives Citation grounding. Remote URLs cannot be checked with Read: record `spot_check_unverifiable: <url>` for EACH remote citation. Do not cap on URL presence alone or pretend it was verified; apply the supplied anchors to the actual evidence.\n4. Score each dimension in `0.00-1.00` using the rubric's actual anchor bands:\n   - Citation grounding\n   - Coverage completeness\n   - Deviation-classification clarity\n   - Risk surface coverage\n   - Recommendation actionability\n   Classification uses exactly Authorized / Necessary / Drift / Regression, with Grounding Gaps separate, not a fifth class. Apply the rubric's contracted-sink evidence guidance within these five dimensions, not a sixth dimension.\n5. Compute `C = (citation_grounding + coverage_completeness + deviation_classification_clarity + risk_surface_coverage + recommendation_actionability) / 5`, rounded to two decimals. Show all five inputs and the unrounded mean. No six-dimension troubleshooting gates, runtime-check cross-tab, verdict-direction caps or troubleshooting C-rule caps apply to reflection.\n6. Return the score and delta. `C < 0.85` recommends ESCALATE; `C >= 0.85` returns `ORCHESTRATOR_DECIDES`, since the full priority table additionally requires scope/domain/density/coverage and asymmetric flags. The strict ceiling remains 0.90, medium floor 0.85. Never infer missing structural signals or override explicit tier/depth restrictions. The orchestrator owns the complete reflection routing rules.\n\n## Output Format\n\n```markdown\n# Calibration Report\n\n**Card under calibration**: <abs path>\n**Rubric**: <abs path>\n**Card tier**: <1|2>\n**Timestamp**: <copy now_iso; omit when absent>\n**calibration_failed**: false\n\n## Per-dimension scores\n\n| Dimension | Score | Justification (cite card content and verified evidence) |\n|-----------|-------|--------------------------------------------------------|\n| Citation grounding | <0.00-1.00> | <evidence> |\n| Coverage completeness | <0.00-1.00> | <evidence> |\n| Deviation-classification clarity | <0.00-1.00> | <evidence> |\n| Risk surface coverage | <0.00-1.00> | <evidence> |\n| Recommendation actionability | <0.00-1.00> | <evidence> |\n\n## Calculation trace\n\n- Five inputs: <list>\n- Unrounded arithmetic mean: <value>\n- **Calibrated**: <rounded C>\n- **Self-reported**: <card value or absent; NOT used in score>\n- **Delta**: <signed difference or null if self-report absent; explain>\n\n## Escalation recommendation\n\n- Recommendation: ESCALATE | ORCHESTRATOR_DECIDES\n- Reason: <C below 0.85, or full structural routing belongs to orchestrator>\n- Execution restrictions: <literal flags_context restrictions or none>\n\n## Notes\n\n- Citation mismatches and EACH `spot_check_unverifiable: <url>`.\n- Missing sections, malformed inputs and all absent optional inputs.\n```\n\nOn missing/incompatible rubric or unusable card, return the same report identity\nwith `calibration_failed: true`, `calibrated: null`, and the explicit failure\nreason instead of fabricated scores. The orchestrator records a crash, timeout\nor malformed output and may take ONLY the source-defined loud\n`calibration: inline-fallback`; it must not claim independent calibration ran.\n\n## Boundaries\n\nWill score independently, cite each score's basis, spot-check real citations,\nand return a number even when it sharply contradicts the self-report. Will NOT\nrewrite the card, propose fixes/new evidence, inherit narrative framing, score\nfrom intuition, or mutate files. Model-class selection stays with the\norchestrator's unchanged reflection disjoint-set rule: select a class outside\nthe reviewer classes when available, otherwise emit `calibrator_diversity:\ndegraded`. Every Tier-2 card uses its own independent instance in parallel.\n\n## Failure Modes\n\n- Crash/timeout/malformed output: orchestrator's explicit inline fallback, never silent success.\n- Truncated readable card: missing dimensions score 0.00 with Notes; unusable card fails as above.\n- Placebo risk: matching inline scores within \u00b10.05 does not establish independence or quality. Source meta-eval guidance is maintainer-only, not a bundled runtime dependency.\n",
+          "reason": "user-approved reflection five-dimension arithmetic-mean compatibility exception; source independence/read-only/citation discipline retained"
+        },
+        {
+          "kind": "header",
+          "old": "---\nname: confidence-calibrator\ndescription: Independently re-grades a hypothesis card against a 6-dimension rubric and returns calibrated confidence plus an escalation recommendation. Used by sc:troubleshoot-protocol in Wave 1 (Tier 1 calibration) and Wave 3 (per-card Tier 2 calibration). Designed to reduce \u2014 not eliminate \u2014 the anchoring bias of in-context self-grading by stripping the formation context.\ncategory: analysis\ntools: Read\nmodel: sonnet\nmaxTurns: 25\npermissionMode: plan\n---\n",
+          "new": "---\nname: confidence-calibrator\ndescription: Independently re-grades a reflection card against the five-dimension reflection rubric and returns its arithmetic-mean calibrated confidence. Used by sc:sc-reflect-protocol in Wave 1D and Wave 3C. Designed to reduce \u2014 not eliminate \u2014 the anchoring bias of in-context self-grading by stripping the formation context.\ncategory: analysis\ntools: Read\nmodel: sonnet\nmaxTurns: 25\npermissionMode: plan\n---\n",
+          "reason": "approved reflection-specific scoring description; tools/model/limits/permissionMode unchanged"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/agents/evidence-validator.md",
+      "destination": "agents/evidence-validator.md",
+      "source_sha256": "1a4967d25c7df508a2a46c2138d48acbbd8746ee230d988e0a1b9f211f98cc64",
+      "destination_sha256": "1a4967d25c7df508a2a46c2138d48acbbd8746ee230d988e0a1b9f211f98cc64",
+      "changes": []
+    },
+    {
+      "source": "src/superclaude/agents/reflect-reviewer.md",
+      "destination": "agents/reflect-reviewer.md",
+      "source_sha256": "53f72266f25c974e3965bbc7f7bcd8a0e1f15ece18d0220b4f7af1ee63e6ce04",
+      "destination_sha256": "9c0268470dbfd2a32788c39d0fb593a61b0eeb469667bcfcf2f1c101d7d23920",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])evidence\\-validator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:evidence-validator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])root\\-cause\\-analyst(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-root-cause-analyst",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "/sc:reflect(?![A-Za-z0-9_:\\-])",
+          "new": "/sc:sc-reflect",
+          "count": 1,
+          "reason": "preserved root filename-derived command identity"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/agents/reuse-auditor.md",
+      "destination": "agents/reuse-auditor.md",
+      "source_sha256": "275e9d653f7147a1f96ed51cba3ac58d69b105fe45ed4d0cb9a2fa9a8f6332a4",
+      "destination_sha256": "bffe41fb4e0b125ea331ddc54852ecbcd1f3da3bd75e510c635c753b674bca04",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])sc\\-reflect\\-protocol(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:sc-reflect-protocol",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])confidence\\-calibrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:confidence-calibrator",
+          "count": 2,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/agents/debate-orchestrator.md",
+      "destination": "agents/debate-orchestrator.md",
+      "source_sha256": "74976ca094187ab822e49257fbba9efc20b1fa57255bd03090a0b52ddf7c2bba",
+      "destination_sha256": "270117973caba1d0f5543fd739229488db96e4b381be9c71a7ebc56c50c11f82",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])merge\\-executor(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:merge-executor",
+          "count": 4,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        },
+        {
+          "kind": "literal",
+          "old": "/sc:adversarial",
+          "new": "Skill sc:sc-adversarial-protocol",
+          "count": 1,
+          "reason": "bundled skill, no unregistered adversarial command"
+        }
+      ]
+    },
+    {
+      "source": "src/superclaude/agents/merge-executor.md",
+      "destination": "agents/merge-executor.md",
+      "source_sha256": "b38a3670f19b3c48189486a31476fa36970da2ff369100cde86718830f1c1451",
+      "destination_sha256": "e6ff10fafcc93862c9cfea2790f492d6ad17552de51fc197e2d1002899a65d1e",
+      "changes": [
+        {
+          "kind": "regex",
+          "pattern": "(?<![A-Za-z0-9_/:.\\-])debate\\-orchestrator(?![A-Za-z0-9_/\\-]|\\.md)",
+          "new": "sc:debate-orchestrator",
+          "count": 1,
+          "reason": "verified native invocation identity; never rewrite paths/frontmatter"
+        }
+      ]
+    }
+  ],
+  "runtime_audits": "NOT RUN: Task 4"
+}

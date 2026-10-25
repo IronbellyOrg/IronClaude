@@ -1,0 +1,99 @@
+# Wave 1C Tier-1 reflection card. Author: sc:sc-root-cause-analyst, requested slot sonnet (claude-sonnet-5-5[1m] by alias; Agent tool did not echo provider model). agentId a2f63cfcd9ab353db.
+# Persisted verbatim by orchestrator. Paths are relative to audit_repo_root:
+# /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project
+reflection_card:
+  mode: pre
+  use_case: UC-1
+  deviation_classes: n/a
+  verdict: ready-with-amendments
+  verdict_rationale: >
+    All three requirements map 1:1 to tasks (spec.md:5, 8, 11 -> proposed.md:3, 6, 9).
+    The tasks paraphrase the acceptance details instead of stating them, and the plan
+    has no verification step. These gaps could let a weak implementation or test pass,
+    but they don't block execution.
+  coverage:
+    coverage_pct: 1.0
+    coverage_pct_union: 1.0
+    unmapped: []
+    notes: >
+      T-101/T-102/T-103 carry the R-001/R-002/R-003 IDs in their headings (proposed.md:3, 6, 9).
+      Coverage is by ID traceability only. The task bodies don't restate the acceptance criteria.
+  findings:
+    - id: F-1
+      severity: low
+      tag: grounded
+      claim: >
+        T-101 says "the required greeting" and doesn't restate the exact string "Hello, Ada!"
+        or the Ada input. A reader has to follow the R-001 heading back to the spec.
+      citations: ["proposed.md:4", "spec.md:6"]
+    - id: F-2
+      severity: medium
+      tag: grounded
+      claim: >
+        T-103 says "ordinary and empty-name test cases" without naming the assertions: exact
+        equality to "Hello, Ada!" for "Ada", and ValueError specifically. R-003 only requires
+        that tests "exercise" the behaviours. proposed.md:7 names ValueError for the
+        implementation task but not for the test task.
+      citations: ["proposed.md:10", "proposed.md:7", "spec.md:12", "spec.md:6", "spec.md:9"]
+    - id: F-3
+      severity: medium
+      tag: INFERRED
+      claim: >
+        "Empty name" is undefined in both documents. Only "" is clearly in scope. None,
+        whitespace-only and non-str inputs are unspecified.
+      citations: ["spec.md:9", "proposed.md:7"]
+    - id: F-4
+      severity: low
+      tag: INFERRED
+      claim: >
+        The spec defines output only for Ada. Generalising to "Hello, {name}!" for other names
+        is an assumption in both documents.
+      citations: ["spec.md:6", "proposed.md:4"]
+    - id: F-5
+      severity: low
+      tag: INFERRED
+      claim: >
+        No task runs the tests or defines done. There are no file targets, and nothing says
+        T-103 depends on T-101 and T-102.
+      citations: ["proposed.md:3", "proposed.md:6", "proposed.md:9"]
+    - id: F-6
+      severity: low
+      tag: grounded
+      claim: >
+        R-003 names no test framework, location or assertion style, and "ordinary greeting"
+        is not defined.
+      citations: ["spec.md:12", "spec.md:6"]
+  dropped_or_adjusted:
+    - "Matrix dropped_pass2_candidates valid."
+    - "GAP-001 severity lowered from medium to low."
+    - "No gap dropped as unsupported."
+    - "src/greeting.py and tests/test_greeting.py read as context only; not evidence."
+  risks:
+    - risk: "A test that catches Exception, or calls greet(\"\") without asserting, would satisfy T-103's wording and R-003 'exercise' but not the R-002 ValueError contract."
+      severity: medium
+      citations: ["proposed.md:10", "spec.md:9", "spec.md:12"]
+    - risk: "An ordinary-case test using a different name or a loose assertion passes without proving the exact 'Hello, Ada!' string."
+      severity: medium
+      citations: ["proposed.md:10", "spec.md:6"]
+    - risk: "Inconsistent handling of None/whitespace names because 'empty' is undefined."
+      severity: low
+      tag: "[INFERRED]"
+      citations: ["spec.md:9"]
+    - risk: "No run-tests step; plan could be marked complete with untested or failing code."
+      severity: low
+      tag: "[INFERRED]"
+      citations: ["proposed.md:9"]
+  recommendations:
+    - target: "proposed.md:4 (T-101 body)"
+      change: "Replace body with: 'Implement greet(name) so greet(\"Ada\") returns exactly \"Hello, Ada!\" (spec.md:6).'"
+      verifier: "A test asserts greet('Ada') == 'Hello, Ada!'."
+    - target: "proposed.md:7 (T-102 body)"
+      change: "Append: 'Empty means the empty string \"\". Behaviour for None and whitespace is out of scope unless the spec is amended.'"
+      verifier: "Reviewer confirms scope statement; a test covers greet('') raising ValueError."
+    - target: "proposed.md:10 (T-103 body)"
+      change: "Replace body with: 'Add two tests. (1) assert greet(\"Ada\") == \"Hello, Ada!\". (2) assert greet(\"\") raises ValueError specifically (e.g. pytest.raises(ValueError)). Do not catch bare Exception.'"
+      verifier: "Read the test file; test (2) names ValueError and fails if no exception is raised."
+    - target: "proposed.md: new line after line 11 (end of file)"
+      change: "Add 'T-104 Verify: run the test suite (e.g. pytest tests/); done when both tests pass. T-103 depends on T-101 and T-102.'"
+      verifier: "Test-run output shows 2 passed; dependency stated in plan text."
+  self_reported_confidence: 0.72

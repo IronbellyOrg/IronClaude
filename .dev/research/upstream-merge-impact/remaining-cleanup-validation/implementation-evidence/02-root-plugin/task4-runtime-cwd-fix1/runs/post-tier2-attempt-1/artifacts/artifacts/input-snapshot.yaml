@@ -1,0 +1,12 @@
+input_tree_sha256: 225fa9c81a28800a195cb69550e1b72a20f11258403aa2a2f1f4e70336de7bd3
+input_tree_basis: tasklist + spec + --diff file + scoped src files (no linked paths; tasklist not under a work-unit dir)
+file_list:
+  - path: changes.patch
+    sha256: f3a64946c5c80acea3f6e368b03b054443c93f4fdda274667122e1ff90f07b74
+  - path: completed.md
+    sha256: 2b1f0e46fa38fa37b236a67d8cfa0336f868880ed57394a3831fe64411a15a25
+  - path: spec.md
+    sha256: 9295c3686a66c742ceb746e92bd39ba8f41caab6fb44d20a0077469c6e620548
+  - path: src/greeting.py
+    sha256: 6c36a8baa1e2fde95175f03514d59f5b133cd8c11127983d7a2a8d7078168c35
+file_count: 4

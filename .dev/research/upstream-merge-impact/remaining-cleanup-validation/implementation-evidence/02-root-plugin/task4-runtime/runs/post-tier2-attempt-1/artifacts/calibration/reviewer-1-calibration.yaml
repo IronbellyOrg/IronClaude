@@ -1,0 +1,13 @@
+# Returned by Task(sc:confidence-calibrator, model slot: opus) agentId ac0a40c2fd31f4441; blind (card + rubric only). Persisted by orchestrator.
+card: reviewer-cards/reviewer-1-card.yaml
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku]
+calibrator_diversity: full
+dimensions: {citation_grounding: 0.80, coverage_completeness: 0.85, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.80, recommendation_actionability: 0.85}
+confidence_calibrated: 0.82
+calibrator_escalation_recommendation: ESCALATE   # C < 0.85
+orchestrator_note: >
+  Calibrator reported task-to-work-map.yaml / invocations.yaml / interaction-effects.yaml as not found. They EXIST at
+  reviewer-snapshot/root/__run_evidence__/artifacts/ and __run_evidence__/verify-logs/ (ls-verified). The miss was caused by
+  the orchestrator's calibration prompt path hint (bare name -> __run_evidence__/ without subdirectory). Scores are persisted
+  UNCHANGED (not re-run for a higher number); citation_grounding is therefore conservatively under-stated.

@@ -1,0 +1,21 @@
+{
+  "mode": "diff",
+  "target": "origin/master...HEAD",
+  "base": "4eb36b6864083c623a7c27893b3b4e7a738b6c4b",
+  "head": "0d4aa9c23f4ca2646213e0c34264a2af53d7efd0",
+  "files": [
+    ".github/workflows/README.md",
+    ".github/workflows/pull-sync-framework.yml",
+    ".github/workflows/test.yml",
+    "Makefile",
+    "docs/.framework-sync-commit",
+    "docs/getting-started/installation.md",
+    "scripts/sync_from_framework.py",
+    "scripts/uninstall_legacy.sh"
+  ],
+  "lines": 1311,
+  "chunking": "single",
+  "auggie_model": "prism-b",
+  "depth": "standard",
+  "focus": "all"
+}

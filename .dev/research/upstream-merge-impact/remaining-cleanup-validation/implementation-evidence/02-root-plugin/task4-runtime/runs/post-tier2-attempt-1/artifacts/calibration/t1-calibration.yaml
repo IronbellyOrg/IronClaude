@@ -1,0 +1,20 @@
+# Returned by Task(sc:confidence-calibrator, model slot: opus) agentId a43144a20b485a058; blind (card + rubric only).
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku]
+calibrator_diversity: full
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.95
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.90
+confidence_calibrated: 0.90
+self_reported: 0.82
+delta: +0.08
+citation_defects:
+  - "execution.log:5 misattributed: line says 'No test execution is claimed; inspect these files independently' -- the log declines to claim a run; it does not prove the audit could not run one."
+  - "'The test tool was unavailable' (G-2) has no citation."
+  - "Config-file/__init__.py absence rests on an artifact-less Glob (card admits it; inference tagged [INFERRED])."
+  - "(non-defect) doubled artifacts/ path segment is real; cited lines match."
+key_critique: "D-1 'authorized' rationale argues non-contradiction + mapping, not authorization; Necessary is a defensible alternative."

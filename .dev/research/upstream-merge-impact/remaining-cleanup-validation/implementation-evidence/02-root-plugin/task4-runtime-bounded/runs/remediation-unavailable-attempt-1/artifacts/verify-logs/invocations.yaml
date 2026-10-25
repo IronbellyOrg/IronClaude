@@ -1,0 +1,3 @@
+verification_ran: false
+verification_skip_reason: tool-unavailable   # --no-mcp: Serena execute_shell_command not exposed
+invocations: []

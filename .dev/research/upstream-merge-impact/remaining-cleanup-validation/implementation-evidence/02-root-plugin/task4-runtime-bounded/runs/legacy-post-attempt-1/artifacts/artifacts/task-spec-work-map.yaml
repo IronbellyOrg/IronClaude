@@ -1,0 +1,40 @@
+# Wave 1B UC-2 tasklist/spec -> work map (orchestrator, native Read/Grep; Serena/auggie unavailable)
+audit_repo_root: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime-bounded/fixtures/project
+diff_source: task-log (execution.log); repo has no commits (git init only), all files untracked
+grounding_mode: native-read-only (degraded: serena, auggie)
+rows:
+  - task_id: T-101
+    tasklist_ref: completed.md:6
+    requirement: R-001
+    spec_ref: spec.md:5-6
+    log_ref: execution.log:2
+    work_refs: [src/greeting.py:1-4]
+    mapped: true
+  - task_id: T-102
+    tasklist_ref: completed.md:7
+    requirement: R-002
+    spec_ref: spec.md:8-9
+    log_ref: execution.log:3
+    work_refs: [src/greeting.py:2-3]
+    mapped: true
+  - task_id: T-103
+    tasklist_ref: completed.md:8
+    requirement: R-003
+    spec_ref: spec.md:11-12
+    log_ref: execution.log:4
+    work_refs: [tests/test_greeting.py:4-5, tests/test_greeting.py:8-13]
+    mapped: true
+    note: tests/ is outside --scope src but is log-declared by T-103 and included as evidence
+unmapped_work_hunks: []
+total_work_units: 2   # src/greeting.py (1 hunk, new file), tests/test_greeting.py (new file)
+S_scope: 2
+S_domains: 2          # code (src/), tests (tests/)
+S_dev_density: 0.0
+tasklist_frontmatter_status: done   # completed.md:2
+verification:
+  ran: false
+  skip_reason: tool-unavailable     # execute_shell_command not exposed; log states no tests were executed (execution.log:5)
+runtime_surface: { tagged: [], sweep_ran: false, reason: "greet is an undecorated plain function (src/greeting.py:1); not in refs/runtime-surface.md allowlist" }
+reachability: { gate_ran: false, skip_reason: no-side-effect-requirements }
+cross_task_scan: { ran: false, reason: "requires Serena find_symbol; 3 tasks touch disjoint concerns of 1 symbol greet; not executed (degraded)" }
+reuse_sweep: { ran: false, reason: "not dispatched at Tier-1 pinned run with auggie unavailable; single trivial new symbol" }

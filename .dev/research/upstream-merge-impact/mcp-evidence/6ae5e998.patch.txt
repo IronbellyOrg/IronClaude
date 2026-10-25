@@ -1,0 +1,275 @@
+commit 6ae5e9987736dab9908260d392f1a6c89b2dcde4
+Author:     kazuki nakai <48890992+kazukinakai@users.noreply.github.com>
+AuthorDate: Tue Dec 16 00:48:01 2025 +0900
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Dec 15 21:18:01 2025 +0530
+
+    docs: add AIRIS MCP Gateway as unified installation option (#499)
+    
+    * docs: add AIRIS MCP Gateway as unified installation option
+    
+    Adds airis-mcp-gateway as an alternative MCP setup method that provides:
+    - Single SSE endpoint for all MCP servers
+    - HOT/COLD server management for token optimization
+    - Lazy loading (servers start on-demand)
+    - Unified tool discovery
+    - Web UI for management
+    
+    This addresses the complexity of managing multiple MCP servers and
+    provides token-efficient operation through selective tool advertising.
+    
+    Repository: github.com/agiletec-inc/airis-mcp-gateway
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix(docs): update AIRIS MCP Gateway installation instructions
+    
+    - Replace outdated docker-compose.dist.yml method with quick-install.sh
+    - Fix Claude Code registration command: use --transport sse instead of npx mcp-remote
+    - Update feature list: 27+ tools, 75-90% token reduction, 120s idle timeout
+    - Add verification commands (health check, tools count)
+    - Update HOT/COLD server examples with actual server names
+    - Add AIRIS Suite reference (airis-agent, mindbase, airis-workspace)
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    * fix(mcp): update airis configs to recommend airis-mcp-gateway
+    
+    - Update mcp-servers.md: remove quick-install.sh, use git clone + docker compose
+    - Update MCP_Airis-Agent.md: recommend gateway, list current tools
+    - Update MCP_Mindbase.md: recommend gateway, list current tools
+    - Add deprecation notice to airis-agent.json and mindbase.json configs
+    - Change airis-agent config from Docker to uvx
+    
+    All airis components (airis-agent, mindbase) are now included in airis-mcp-gateway.
+    Individual installation is deprecated in favor of the unified gateway.
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+    
+    ---------
+    
+    Co-authored-by: kazuki <kazuki@kazukinoMacBook-Air.local>
+    Co-authored-by: Claude Opus 4.5 <noreply@anthropic.com>
+
+diff --git a/docs/user-guide/mcp-servers.md b/docs/user-guide/mcp-servers.md
+index e3c150b5..941e79f9 100644
+--- a/docs/user-guide/mcp-servers.md
++++ b/docs/user-guide/mcp-servers.md
+@@ -167,6 +167,46 @@ export TAVILY_API_KEY="tvly-your_api_key_here"
+ - `--depth deep`: 20-40 sources, comprehensive analysis
+ - `--depth exhaustive`: 40+ sources, academic-level research
+ 
++## Unified MCP Gateway (Alternative Setup)
++
++For users who want a simpler, unified setup that manages all MCP servers through a single endpoint, **AIRIS MCP Gateway** provides:
++
++- **50 tools** from 7 default servers (airis-agent, context7, fetch, memory, sequential-thinking, serena, tavily)
++- **Single SSE endpoint** instead of 8+ separate stdio connections
++- **Lazy loading** - servers start only when needed, auto-terminate when idle
++
++### Setup
++
++```bash
++# 1. Clone and start
++git clone https://github.com/agiletec-inc/airis-mcp-gateway.git
++cd airis-mcp-gateway
++docker compose up -d
++
++# 2. Register with Claude Code
++claude mcp add --scope user --transport sse airis-mcp-gateway http://localhost:9400/sse
++```
++
++### Verify
++
++```bash
++curl http://localhost:9400/health
++curl http://localhost:9400/api/tools/combined | jq '.tools_count'
++```
++
++### Configuration
++
++Edit `mcp-config.json` to enable/disable servers, then restart:
++```bash
++docker compose restart api
++```
++
++### More Information
++
++- **Repository**: [github.com/agiletec-inc/airis-mcp-gateway](https://github.com/agiletec-inc/airis-mcp-gateway)
++
++---
++
+ ## Configuration
+ 
+ **MCP Configuration File (`~/.claude.json`):**
+diff --git a/src/superclaude/mcp/MCP_Airis-Agent.md b/src/superclaude/mcp/MCP_Airis-Agent.md
+index 02741d50..65dbc39c 100644
+--- a/src/superclaude/mcp/MCP_Airis-Agent.md
++++ b/src/superclaude/mcp/MCP_Airis-Agent.md
+@@ -7,25 +7,21 @@ Airis Agent provides confidence checking, deep research, and repository indexing
+ - **airis_confidence_check** - Validate decisions before implementation
+ - **airis_deep_research** - Comprehensive research with web search
+ - **airis_repo_index** - Index repository structure for better context
++- **airis_docs_optimize** - Optimize documentation structure
++- **airis_sync_manifest** - Sync manifest.toml with filesystem
+ 
+ ## Installation
+ 
++**Recommended: Use AIRIS MCP Gateway** (includes airis-agent + 60 other tools)
++
+ ```bash
+-superclaude mcp --servers airis-agent
++git clone https://github.com/agiletec-inc/airis-mcp-gateway.git
++cd airis-mcp-gateway
++docker compose up -d
++claude mcp add --scope user --transport sse airis-mcp-gateway http://localhost:9400/sse
+ ```
+ 
+-## Requirements
+-
+-- Docker installed and running
+-- (Optional) Workspace directory mounted at `/workspace`
+-
+-## Configuration
+-
+-The server runs as a Docker container from `ghcr.io/agiletec-inc/airis-agent:latest`.
+-
+-No additional configuration required for basic usage.
+-
+ ## Links
+ 
+-- [GitHub Repository](https://github.com/agiletec-inc/airis-agent)
+-- [Docker Image](https://ghcr.io/agiletec-inc/airis-agent)
++- [AIRIS MCP Gateway](https://github.com/agiletec-inc/airis-mcp-gateway) - Unified gateway (recommended)
++- [airis-agent Repository](https://github.com/agiletec-inc/airis-agent) - Standalone package
+diff --git a/src/superclaude/mcp/MCP_Mindbase.md b/src/superclaude/mcp/MCP_Mindbase.md
+index 50520f21..42b7ff00 100644
+--- a/src/superclaude/mcp/MCP_Mindbase.md
++++ b/src/superclaude/mcp/MCP_Mindbase.md
+@@ -4,48 +4,31 @@ MindBase provides semantic memory storage and retrieval using PostgreSQL with pg
+ 
+ ## Tools
+ 
+-- **store_memory** - Store memories with automatic embedding
+-- **search_memories** - Semantic search across stored memories
+-- **list_memories** - List all stored memories
+-- **delete_memory** - Remove specific memories
++- **conversation_save** - Save conversations with automatic embedding
++- **conversation_get** - Retrieve conversations with filtering
++- **conversation_search** - Semantic search across conversations
++- **conversation_delete** - Remove specific conversations
++- **memory_write** - Store memories (markdown + DB)
++- **memory_read** - Read memories
++- **memory_list** - List all memories
++- **memory_search** - Semantic search across memories
++- **session_create** - Create session for organizing conversations
++- **session_start** - Start/resume a session
+ 
+ ## Installation
+ 
++**Recommended: Use AIRIS MCP Gateway** (includes mindbase + 60 other tools)
++
+ ```bash
+-superclaude mcp --servers mindbase
++git clone https://github.com/agiletec-inc/airis-mcp-gateway.git
++cd airis-mcp-gateway
++docker compose up -d
++claude mcp add --scope user --transport sse airis-mcp-gateway http://localhost:9400/sse
+ ```
+ 
+-## Requirements
+-
+-- Docker installed and running
+-- PostgreSQL with pgvector extension
+-- Ollama running locally (for embeddings)
+-
+-## Configuration
+-
+-Set the following environment variables:
+-
+-| Variable | Description | Default |
+-|----------|-------------|---------|
+-| `MINDBASE_DATABASE_URL` | PostgreSQL connection string | `postgresql://mindbase:mindbase@host.docker.internal:5432/mindbase` |
+-| `OLLAMA_URL` | Ollama server URL | `http://host.docker.internal:11434` |
+-| `EMBEDDING_MODEL` | Embedding model name | `nomic-embed-text` |
+-
+-## Quick Start with Docker Compose
+-
+-```yaml
+-services:
+-  mindbase-postgres:
+-    image: pgvector/pgvector:pg17
+-    environment:
+-      POSTGRES_USER: mindbase
+-      POSTGRES_PASSWORD: mindbase
+-      POSTGRES_DB: mindbase
+-    ports:
+-      - "5432:5432"
+-```
++MindBase is managed by Docker MCP Gateway via `airis-catalog.yaml`. PostgreSQL with pgvector is included.
+ 
+ ## Links
+ 
+-- [GitHub Repository](https://github.com/kazuph/mindbase)
+-- [Docker Image](https://ghcr.io/agiletec-inc/mindbase-mcp)
++- [AIRIS MCP Gateway](https://github.com/agiletec-inc/airis-mcp-gateway) - Unified gateway (recommended)
++- [mindbase Repository](https://github.com/agiletec-inc/mindbase) - Standalone package
+diff --git a/src/superclaude/mcp/configs/airis-agent.json b/src/superclaude/mcp/configs/airis-agent.json
+index ca5311f9..819b9da8 100644
+--- a/src/superclaude/mcp/configs/airis-agent.json
++++ b/src/superclaude/mcp/configs/airis-agent.json
+@@ -1,13 +1,10 @@
+ {
++  "_notice": "DEPRECATED: Use airis-mcp-gateway instead. See https://github.com/agiletec-inc/airis-mcp-gateway",
+   "airis-agent": {
+-    "command": "docker",
++    "command": "uvx",
+     "args": [
+-      "run",
+-      "--rm",
+-      "-i",
+-      "-v", "${PWD}:/workspace",
+-      "--workdir", "/workspace",
+-      "ghcr.io/agiletec-inc/airis-agent:latest",
++      "--from",
++      "git+https://github.com/agiletec-inc/airis-agent",
+       "airis-agent-mcp"
+     ]
+   }
+diff --git a/src/superclaude/mcp/configs/mindbase.json b/src/superclaude/mcp/configs/mindbase.json
+index 5156ca6f..59accfbe 100644
+--- a/src/superclaude/mcp/configs/mindbase.json
++++ b/src/superclaude/mcp/configs/mindbase.json
+@@ -1,19 +1,13 @@
+ {
++  "_notice": "DEPRECATED: Use airis-mcp-gateway instead. See https://github.com/agiletec-inc/airis-mcp-gateway",
+   "mindbase": {
+-    "command": "docker",
++    "command": "npx",
+     "args": [
+-      "run",
+-      "--rm",
+-      "-i",
+-      "-e", "DATABASE_URL=${MINDBASE_DATABASE_URL:-postgresql://mindbase:mindbase@host.docker.internal:5432/mindbase}",
+-      "-e", "OLLAMA_URL=${OLLAMA_URL:-http://host.docker.internal:11434}",
+-      "-e", "EMBEDDING_MODEL=${EMBEDDING_MODEL:-nomic-embed-text}",
+-      "ghcr.io/agiletec-inc/mindbase-mcp:latest"
++      "-y",
++      "mcp-remote",
++      "http://localhost:8001/sse",
++      "--allow-http"
+     ],
+-    "env": {
+-      "MINDBASE_DATABASE_URL": "${MINDBASE_DATABASE_URL}",
+-      "OLLAMA_URL": "${OLLAMA_URL}",
+-      "EMBEDDING_MODEL": "${EMBEDDING_MODEL}"
+-    }
++    "_comment": "Requires airis-mcp-gateway running with mindbase enabled"
+   }
+ }

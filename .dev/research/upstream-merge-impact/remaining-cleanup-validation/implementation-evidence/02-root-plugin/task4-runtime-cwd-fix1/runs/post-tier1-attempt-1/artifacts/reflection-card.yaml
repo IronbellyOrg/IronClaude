@@ -1,0 +1,162 @@
+# Persisted by orchestrator from the Wave 1C card author's return (prose lightly condensed; every verdict, class, citation, gap, risk and recommendation unchanged).
+# author_agent: sc:sc-root-cause-analyst; requested_slot: sonnet; returned_model: claude-sonnet-5-5[1m]; agentId: a260795180f327b19
+# Paths: <output> = .../runs/post-tier1-attempt-1/artifacts ; run evidence lives at <output>/artifacts/*.yaml (i.e. artifacts/artifacts/), per protocol layout.
+reflection_card:
+  uc: UC-2
+  tier: 1
+  card_author_model: "claude-sonnet-5-5[1m] (Sonnet 5.5)"
+  tooling_note: >
+    No Serena/Auggie MCP available; native Read/Glob only. No code executed, no tests run.
+    Verification triangle unavailable (task-diff-map.yaml:34 ran:false, skip_reason: tool-unavailable).
+    No test pass/fail claim is made anywhere in this card.
+  evidence_path_note: >
+    Brief named <output>/artifacts/task-diff-map.yaml and reuse-audit.yaml; those files are at
+    <output>/artifacts/artifacts/... relative to the run dir naming. Read from actual location.
+  files_read:
+    selected_inputs:
+      - changes.patch
+      - spec.md
+      - completed.md
+      - src/greeting.py
+    not_selected_inputs:
+      - {file: tests/test_greeting.py, status: "not in diff (changes.patch:1-9 touches only src/greeting.py); outside --scope src; not a selected input"}
+      - {file: execution.log, status: "not supplied as --task-log; not a selected input"}
+      - {file: proposed.md, status: "not a selected input"}
+    run_evidence:
+      - artifacts/artifacts/task-diff-map.yaml
+      - artifacts/artifacts/reuse-audit.yaml
+
+  requirement_map:
+    - req: R-001
+      spec_cite: "spec.md:6 'The greet function MUST return the exact string Hello, Ada! for Ada.'"
+      evidence_cite: "changes.patch:9 '+    return f\"Hello, {name}!\"'; src/greeting.py:4 (identical text to patch + lines)"
+      verdict: satisfied
+      note: >
+        Static reading only: f"Hello, {name}!" with name="Ada" yields "Hello, Ada!"; the guard at
+        src/greeting.py:2 does not fire for "Ada". Not executed. Patch + lines (changes.patch:6-9) and
+        src/greeting.py:1-4 read as textually identical (consistent with task-diff-map.yaml:9); byte-identity not independently hashed by me.
+    - req: R-002
+      spec_cite: "spec.md:9 'The greet function MUST reject an empty name with ValueError.'"
+      evidence_cite: "changes.patch:7-8 '+    if not name:' / '+        raise ValueError(\"name required\")'; src/greeting.py:2-3"
+      verdict: satisfied
+      note: >
+        "" is falsy, so `if not name` raises ValueError. Guard is broader than spec (see risks RK-1/RK-2). Not executed.
+    - req: R-003
+      spec_cite: "spec.md:12 'Tests MUST exercise the ordinary greeting and empty-input rejection.'"
+      evidence_cite: "NONE in selected inputs. changes.patch:1-9 contains no test file; scope src contains only src/greeting.py (task-diff-map.yaml:11)."
+      verdict: not-demonstrated
+      note: >
+        The only test file, tests/test_greeting.py, is not in the diff, outside --scope, and not a selected
+        input. Read for grounding only: tests/test_greeting.py:4-6 asserts greet("Ada") == "Hello, Ada!";
+        tests/test_greeting.py:8-13 calls greet("") expecting ValueError. Statically consistent with R-003,
+        but unselected and unexecuted, so not demonstrated by the supplied evidence. See GG-1.
+
+  task_map:
+    - task: T-101
+      tasklist_cite: "completed.md:6 '- [x] T-101 implements R-001 ordinary greeting.'"
+      verdict: satisfied
+      evidence_cite: "changes.patch:9 / src/greeting.py:4 (return line; line-separable from guard at lines 2-3)"
+    - task: T-102
+      tasklist_cite: "completed.md:7 '- [x] T-102 implements R-002 empty-name rejection.'"
+      verdict: satisfied
+      evidence_cite: "changes.patch:7-8 / src/greeting.py:2-3"
+    - task: T-103
+      tasklist_cite: "completed.md:8 '- [x] T-103 implements R-003 both ordinary and empty-input tests.'"
+      verdict: not-demonstrated
+      evidence_cite: >
+        Checked box (completed.md:8) is the only selected-input evidence. No hunk in changes.patch:1-9 and
+        no file under --scope src implements it. Unselected corroboration: tests/test_greeting.py:1-13 (not
+        in diff / not in scope) and execution.log:4 (not a selected input).
+
+  deviations: []
+  deviations_note: >
+    No deviation classified. The only hunk (H-1, changes.patch:5-9) maps to T-101/T-102 (completed.md:6-7),
+    so Drift's "hunk does NOT map to any tasklist item" signal (deviation-taxonomy.md:62) is absent. No textual
+    contradiction of R-001/R-002, so Regression (deviation-taxonomy.md:79) is absent. Authorized/Necessary require
+    an authorizing artifact or inline rationale for an unmapped/divergent change; nothing is unmapped.
+    unmapped_hunks: 0 (task-diff-map.yaml:26). The missing T-103 evidence is a grounding gap, not a 5th class
+    (deviation-taxonomy.md:5, 132-134). Extra falsy-value behaviour is a risk, not a deviation.
+
+  grounding_gaps:
+    - hunk_ref: "completed.md:8 (T-103) / spec.md:11-12 (R-003) — no hunk exists in changes.patch:1-9"
+      evidence_missing: >
+        Test code in the supplied diff or in scope. tests/test_greeting.py is untracked, not in changes.patch,
+        and outside --scope src. Zero commits, so no timeline.
+      why_not_classifiable: >
+        A claimed deliverable has no hunk to classify; nothing maps as Authorized/Necessary/Drift/Regression;
+        not a pytest exit 5 (no run occurred).
+      next_evidence_needed: >
+        Regenerate diff including tests/ and widen --scope, or accept tests/test_greeting.py as a selected
+        input; then execute tests in a verification-capable run.
+      owner: user
+      decision_needed_by_user: true
+    - hunk_ref: "src/greeting.py:1-4 (changes.patch:5-9)"
+      evidence_missing: "Any test execution / exit code (task-diff-map.yaml:34 ran:false, tool-unavailable); execution.log:5 states 'No test execution is claimed'."
+      why_not_classifiable: >
+        Regression-via-verification requires a pytest result; none exists. Zero commits means no pre-diff
+        baseline, so 'previously-passing' cannot be established.
+      next_evidence_needed: "pytest exit code from a verification-capable run (from project root)."
+      owner: reviewer
+      decision_needed_by_user: false
+
+  regression_candidates:
+    - id: RC-1
+      status: "none demonstrated"
+      detail: >
+        No contradiction of R-001/R-002 found. Regression precondition (prior-passing test) is unestablishable
+        (zero commits, no execution). 'No evidence of regression', not 'verified no regression'.
+    - id: RC-2
+      status: "weak candidate (not a regression)"
+      detail: >
+        If tests/test_greeting.py:1 'from src.greeting import greet' fails to import (RK-4), R-003 would be
+        unmet — a coverage issue, not a regression. Unverified.
+
+  risks:
+    - id: RK-1
+      claim: "`if not name` (src/greeting.py:2) rejects every falsy value, not only \"\"."
+      detail: >
+        None, 0, False, [], {}, b"" all raise ValueError("name required"); None gets ValueError rather than a
+        TypeError a caller might expect. Spec says only 'empty name' (spec.md:9). Breadth not contradicted by
+        spec; unspecified and untested.
+    - id: RK-2
+      claim: "Whitespace-only and non-string truthy names are accepted."
+      detail: >
+        "  " is truthy -> greet("  ") returns "Hello,   !"; greet(5) returns "Hello, 5!". Whether '  ' is an
+        'empty name' under spec.md:9 is ambiguous.
+    - id: RK-3
+      claim: "Single hunk claimed by two tasks."
+      detail: >
+        greet claimed by T-101 and T-102; neither task line cites the other (task-diff-map.yaml:31-33, MEDIUM
+        invariant-probe). Per-task attribution rests on line ranges (T-102 src/greeting.py:2-3; T-101
+        src/greeting.py:4), not separate hunks. R-001 correctness depends on the guard not firing for "Ada".
+    - id: RK-4
+      claim: "[INFERRED] Import path of the unselected test may be fragile."
+      detail: >
+        tests/test_greeting.py:1 imports from `src.greeting`; fixture glob showed no src/__init__.py,
+        tests/__init__.py, conftest, or pyproject. Resolution depends on cwd/sys.path at run time. Unverified.
+    - id: RK-5
+      claim: "Untested invariants / no verification."
+      detail: >
+        Nothing executed and no test file in scope; checked boxes and 'status: done' (completed.md:2, 6-8) are
+        self-reports. reuse-audit.yaml:30 records no import-boundary/pyproject evidence in audit_repo_root;
+        reuse-audit.yaml:6 records degraded neighbour search (auggie unavailable).
+    - id: RK-6
+      claim: "No inline rationale/docstring."
+      detail: "reuse-audit.yaml:17 notes no docstring; src/greeting.py:1-4 has no comments — falsy-breadth choice undocumented."
+
+  recommendations:
+    - {id: REC-1, file: "changes.patch (regenerate) and run scope config", change: "Include tests/test_greeting.py in the audited diff and widen --scope so R-003/T-103 has a hunk.", verifier: "re-run UC-2; T-103 maps to a hunk", priority: high}
+    - {id: REC-2, file: "run harness", change: "Execute tests from project root in a verification-capable run; record exit code.", verifier: "pytest exit code recorded in verification triangle", priority: high}
+    - {id: REC-3, file: "spec.md:8-9", change: "State whether None/whitespace-only/non-str count as 'empty' and which exception applies.", verifier: "spec review", priority: medium}
+    - {id: REC-4, file: "tests/test_greeting.py", change: "If REC-3 widens the contract, add cases for None and '   ' with explicit expected exception.", verifier: "pytest over new cases", priority: medium}
+    - {id: REC-5, file: "completed.md:6-7", change: "Cross-reference T-101/T-102 (shared symbol greet) or split by line range.", verifier: "tasklist review vs task-diff-map cross_task_scan", priority: low}
+    - {id: REC-6, file: "orchestrator artifact layout", change: "Reconcile documented <output>/artifacts/ path with actual artifacts/artifacts/ nesting.", verifier: "path check in next run", priority: low}
+
+  inferred_claims:
+    - "[INFERRED] greet(\"Ada\") returns \"Hello, Ada!\" at runtime (static reading src/greeting.py:2-4; not executed)."
+    - "[INFERRED] greet(\"\") raises ValueError at runtime (src/greeting.py:2-3; not executed)."
+    - "[INFERRED] tests/test_greeting.py would satisfy R-003 if in scope and passing (tests/test_greeting.py:4-13; unselected, unexecuted)."
+    - "[INFERRED] `src.greeting` import may fail depending on pytest invocation (tests/test_greeting.py:1; no __init__.py/conftest seen)."
+    - "[INFERRED] greet(None)/greet(0)/greet(False) raise ValueError; greet('  ') returns 'Hello,   !' (src/greeting.py:2-4)."
+
+  self_confidence: 0.82

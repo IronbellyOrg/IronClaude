@@ -1,0 +1,16 @@
+{
+  "actual_read_results": [
+    {
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md",
+      "is_error": false,
+      "result_prefix": "1\t# Synthetic greeting contract\n2\t\n3\tThis fixture is synthetic audit input, not shipped product code.\n4\t\n5\t## R-001 Greeting\n6\tThe greet function MUST return the exact string Hello, Ada! for Ada.\n7\t\n8\t## R-002 Empty input\n9\tThe greet function MUST reject an empty name with ValueError.\n10\t\n11\t## R-003 Evidence\n12\tTests MUST exercise the ordinary gre"
+    },
+    {
+      "path": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/pyproject.toml",
+      "is_error": true,
+      "result_prefix": "/config/workspace/IronClaude/.dev/worktrees/ci-followup/pyproject.toml is outside /tmp/ironclaude-restricted-probe-r4uymkps, /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime; --restricted confines the file tools to the workin"
+    }
+  ],
+  "required_agents_still_registered": true,
+  "mcp_empty": true
+}

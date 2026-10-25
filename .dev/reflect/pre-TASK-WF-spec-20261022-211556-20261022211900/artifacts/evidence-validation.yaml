@@ -1,0 +1,6 @@
+citations_total: 38
+citations_checked: 38
+dropped: []
+corrections:
+  - {citation: "tasklist:124", correct: "tasklist:125 (added; 124 kept)", claim_ref: D-006}
+zero_drop_flag: true

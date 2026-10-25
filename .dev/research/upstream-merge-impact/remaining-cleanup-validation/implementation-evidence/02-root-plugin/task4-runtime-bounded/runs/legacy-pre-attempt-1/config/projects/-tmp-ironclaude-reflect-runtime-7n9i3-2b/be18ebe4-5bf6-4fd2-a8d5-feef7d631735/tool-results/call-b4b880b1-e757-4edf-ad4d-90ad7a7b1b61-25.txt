@@ -1,0 +1,252 @@
+44-### Optional unavailable resources (binding pre-dispatch gate)
+45-
+46:`tech-research`, `audit-validator`, `sc-workflow-protocol` (including the logical
+47-spelling `sc:workflow-protocol`), `task-builder` and `rf-task-builder` are
+48-**UNAVAILABLE in this plugin-only distribution**. Do not invoke them, search a
+--
+64-- MCPs are optional: check actual exposed tools; apply the specific native
+65-  Grep/Glob/Read fallback and degraded/partial markers below. No fake successful
+66:  memory, diagnostic, verification, external lookup, or reachability result.
+67-
+68-Missing REQUIRED registered resources instead take the explicit failure/partial
+--
+183-- `--budget-remaining <int>` *(P5)* — caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
+184-- **Promotion gate flags (UC-2 only — see §14.5):**
+185:  - `--no-promote` — suppress Wave 7 promotion. Default is *default-on*: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination.
+186-  - `--promote-anyway` — override `status: partial` gate condition (all other 7 conditions still apply). No effect on `status: failed`.
+187-  - `--promote-dry-run` — print the `mv` command + gate evaluation; perform no mutation.
+--
+258-            5.x Re-read input + verify input_sha256 matches snapshot (Change #10 drift guard)
+259-Wave 6:   Tier 3 — Remediation Handoff (conditional, opt-in; plan route sc:workflow → /sc:sc-implement by default, task-builder → /task only with --depth deep)
+260:Wave 7:   Promotion Mutation (UC-2 only — §14.5 strict gate; default-on, --no-promote to suppress)
+261-          —— SRP boundary: Waves 0-6 are read-only review (write only to <output>/);
+262:              Wave 7 is the SOLE wave that mutates repository state outside <output>/.
+263-              Architecturally a SIBLING phase to the review waves, not an extension.
+264-            7.1 Resolve adapter (task | sprint-release | none)
+--
+275-```
+276-
+277:[Omitted long matching line]
+278-
+279-### 4.0 Wave 0 — Detailed step additions
+--
+295-**`REFLECT_OUTPUT_ROOT` (current-output exclusion + guard).** When the work-unit directory contains this run's own `<output>`, the run's writes (`audit.log`, `artifacts/input-snapshot.yaml`, reports) would otherwise appear as "added/modified" input at the recompute and trip `input_drift` on a clean run. Therefore, at Step 0.4 and **before any write or directory creation under `<output>`** (the Step 0.8 audit log is the first write), resolve and pin the output root:
+296-
+297:1. `output_root` = realpath of `--output` (or the default), resolved through its nearest existing ancestor. Pin this exact value for the whole run. Wave 5, Wave 7 steps 7.2/7.5 and every later stage reuse the pinned value; they MUST NOT re-resolve it or accept a different `--output` (no retargeting between stages).
+298-2. Compare only by realpath **path components**, never string prefix: a `reflect-post` root never covers `reflect-post-previous`.
+299-[Omitted long context line]
+300-[Omitted long context line]
+301:[Omitted long matching line]
+302-
+303-The tree-hash is computed as:
+--
+320-```
+321-
+322:[Omitted long matching line]
+323-
+324-**Backward-compat with v1.0-pre contract.** The legacy `input_sha256: {tasklist: <hex>, spec: <hex>}` field in §9.1 is preserved as a derivable subset (named entries of `file_list`, null when an optional input is absent); both fields are emitted in v1.0. The Wave 5 drift guard uses `input_tree_sha256` as the authoritative invariant; the legacy field is recording for backward-compat consumers per §9.4 evolution policy.
+--
+806-| # | Condition | Decision |
+807-|---|-----------|----------|
+808:| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` AND NOT `surface_unreached` AND NOT `reachability_unreachable` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
+809:| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` AND NOT `surface_unreached` AND NOT `reachability_unreachable` | STOP at T1 with WARN if `S_dev_density > 0.05` |
+810-| 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
+811-| 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
+--
+820-[Omitted long context line]
+821-
+822:[Omitted long matching line]
+823-
+824-### 5.4 tier_decision.yaml audit artifact (composite-score recording)
+--
+896-5. mcp__serena__get_diagnostics_for_file <file>        # LSP-level issues
+897-5.5. mcp__serena__execute_shell_command (scoped verify) # UC-2 verification triangle (safety envelope §6.1.1)
+898:5.6. contracted-sink reachability & oracle-admissibility gate  # UC-2, side-effect-bearing reqs only; real-boot-only Regression (§6.1 step 5.6; FR-RH1)
+899-6. Re-Read each cited file:line range before quoting    # citation-grounding
+900-7. mcp__serena__find_symbol <symbol> search_deps:true   # third-party / dependency surface
+--
+908-[Omitted long context line]
+909-
+910:[Omitted long matching line]
+911-
+912:[Omitted long matching line]
+913-
+914-[Omitted long context line]
+--
+920-[Omitted long context line]
+921-
+922:[Omitted long matching line]
+923-
+924:[Omitted long matching line]
+925-
+926-- **Trigger.** A capability the driving `--spec`/`--tasklist` (spec/TDD) marks **in-scope AND enabled-by-config** is a **REQUIRED capability**. The spec declaration IS the contract — it substitutes for the `durable_sink:` annotation Step 5.6 otherwise requires, so a required capability is blocking-eligible EVEN WITHOUT any `durable_sink:` / `@sink` annotation.
+927-[Omitted long context line]
+928:[Omitted long matching line]
+929:[Omitted long matching line]
+930-
+931:This pass reuses steps 4 and 6 (no new tool class), rides the existing `reachability_unreachable`/`regression_present` gating fields, and is additive to Step 5.6 (it does not weaken the durable-sink gate's real-boot rule for annotated sinks; it adds an annotation-free blocking path for spec-declared required capabilities).
+932-
+933-[Omitted long context line]
+--
+1071-| `task-builder` | Wave 6 (T3, MDTM route only — `--remediate --depth deep`, interactive or headless) | Generate corrective MDTM task file from reflection findings; gated on user opt-in. |
+1072-| `sc:confidence-check` (skill) | Before any actionable recommendation in Wave 5 chat surface | CLAUDE.md global rule 3 — confidence ≥0.90 to proceed, 70-89% present alternatives, <70% ask. |
+1073:| `tech-research` | Wave 1B (optional, `--depth deep` only) | When the spec references frameworks/libraries by name, fetch current best-practice docs (UC-1) or current best-practice patterns to score the implementation against (UC-2). |
+1074-| `sc:evidence-validator` (agent, but skill-level dependency) | Wave 5 | Mandatory final gate (see §11.2). |
+1075-| `sc-troubleshoot-protocol` | (Reverse direction — sc-troubleshoot invokes us in its Wave 6 Phase B/D) | Pre-exec + post-exec validation of `/sc:sc-implement` (plan route) or `/task` (MDTM route) runs. |
+--
+1107-
+1108-```yaml
+1109:[Omitted long matching line]
+1110-status: success | partial | failed | dry-run
+1111-mode: pre | post
+--
+1155-verification_skip_reason: tool-unavailable|read-only-project|--no-verify|null   # FR-4
+1156-
+1157:# Runtime-surface reachability (FR-RSR — UC-2)
+1158-# MANDATORY EMISSION (FR-RSR.7): whenever runtime_surface_sweep_ran is true, ALL SIX fields
+1159-# below MUST be emitted with these EXACT names on EVERY path — REACHED, DEGRADE, and UNREACHED
+1160-# alike. Do NOT invent alternative field names (e.g. runtime_surface_reachable,
+1161:# reachability_path, static_caller_absent_is_expected); those are NOT contract fields and a
+1162-# consumer keyed on §9.3 will not see them. Record the per-symbol verdict ONLY through these
+1163-# six fields:
+--
+1173-unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (one entry per UNREACHED symbol; [] on REACHED and on DEGRADE-only runs)
+1174-
+1175:# Contracted-sink reachability / oracle-admissibility (FR-RH1 — UC-2)
+1176:reachability_gate_ran: <bool>
+1177:reachability_ledger_path: <abs path> | null          # null when the gate did not run
+1178:reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
+1179:reachability_unreachable: <int>                      # verdict==unreachable rows (each → regression_present); set by EITHER Step 5.6 real-boot durable-sink absence OR Step 5.6a static behavioral-unreachability of a spec-declared REQUIRED capability (annotation-free, no real-boot)
+1180:reachability_unproven: <int>                         # verdict==unproven rows (each → a grounding-gaps row)
+1181:reachability_real_boot_ran: <bool>                   # best-effort step-5.5 boot fired at least once
+1182:reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
+1183-
+1184-# Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
+--
+1200-input_tree_file_count: <int>          # number of files in the tree-hash; 1 for spec-only UC-1
+1201-input_tree_snapshot_path: <abs path>  # <output>/artifacts/input-snapshot.yaml
+1202:input_drift_detected: <bool>          # true if input_tree_sha256 mismatch at Wave 5 OR Wave 7 step 7.2
+1203-input_drift_diff: [<list of {path, old_sha, new_sha, change_kind: added|removed|modified}>] | null
+1204-
+--
+1211-citation_budget_policy: full_reread | sampled
+1212-evidence_validator_ran: bool
+1213:citation_revalidation_at_promotion: bool   # true when Wave 7 step 7.2 re-Read cited files (Wave 6 ran)
+1214-
+1215-# Tier 2 artifacts
+--
+1265-promotion_source: <abs path> | null
+1266-promotion_destination: <abs path> | null
+1267:promotion_log_path: <abs path> | null      # always set when Wave 7 ran
+1268:promotion_gate_passed: bool | null         # null when mode == pre or Wave 7 skipped pre-gate
+1269-promotion_skip_reason: user-flag | gate-failed | adapter-unresolved | dry-run | null
+1270-promotion_fail_reason: source_disappeared | destination_collision | mv_error | sha_mismatch | null
+--
+1278-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.8.0`.
+1279-
+1280:**Reachability field-presence & consistency (FR-RH1, R7).** The `reachability_*` block is **mandatory for every UC-2 return contract at `contract_version: "1.7.0"`** and optional/absent for UC-1. Invariants:
+1281-
+1282-```yaml
+1283-# UC-2, gate ran
+1284:if reachability_gate_ran == true:
+1285:  reachability_skip_reason: null
+1286:  reachability_ledger_path: <non-null path>
+1287:  reachability_requirements_scanned: ">= 1"
+1288-
+1289-# UC-2, no eligible side-effect requirements
+1290:if reachability_skip_reason == "no-side-effect-requirements":
+1291:  reachability_gate_ran: false
+1292:  reachability_ledger_path: null
+1293:  reachability_requirements_scanned: 0
+1294:  reachability_unreachable: 0
+1295:  reachability_unproven: 0
+1296-
+1297:# UC-2, --no-reachability (operator rollback) OR spec-and-tasklist-absent (legacy): telemetry-only
+1298:if reachability_skip_reason in ("--no-reachability", "spec-and-tasklist-absent"):
+1299:  reachability_gate_ran: false
+1300:  reachability_ledger_path: null
+1301:  reachability_requirements_scanned: 0
+1302:  reachability_unreachable: 0
+1303:  reachability_unproven: 0
+1304:  reachability_real_boot_ran: false
+1305-  # MUST NOT create a Grounding Gap, set needs_human_decision, or force status: partial
+1306-
+1307-# UC-2, unreachable (Regression) — set by EITHER path:
+1308-#   (a) Step 5.6 real-boot durable-sink absence (annotated durable_sink:/@sink), OR
+1309:#   (b) Step 5.6a static behavioral-unreachability of a spec-declared REQUIRED capability
+1310-#       (annotation-free; the spec declaration is the contract, so NO real-boot is required).
+1311:if reachability_unreachable > 0:
+1312-  regression_present: true
+1313:  verification_regressions_detected: ">= reachability_unreachable"
+1314:  # reachability_real_boot_ran: true ONLY when set via path (a); it MAY be false when the
+1315-  # unreachable verdict was set solely by the Step 5.6a static path (which does not boot).
+1316-
+1317-# UC-2, unproven (blocking annotated sink, evidence insufficient)
+1318:if reachability_unproven > 0:
+1319-  grounding_gaps_path: <non-null path>
+1320-  needs_human_decision: true
+--
+1378-| **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
+1379-| **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
+1380:| **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
+1381:[Omitted long matching line]
+1382-[Omitted long context line]
+1383-| **`task-builder` skill** | Wave 6 (T3, MDTM route only) handoff | `report_path`, `deviation_register_path`, `grounding_gaps_path`, `needs_human_decision` | Reads the three paths to materialize BUILD_REQUEST; `needs_human_decision: true` → BUILD_REQUEST template prompts for user resolution before task is built. |
+1384:| **Wave 7 promotion adapters (in-skill)** | Internal consumer | All 9-condition-gate inputs: `mode`, `status`, `tasklist_completion_pct`, `deviation_count_by_class.{drift,regression}`, `citations_dropped`, `input_drift_detected`, `needs_human_decision`, `user_decision_required`, `convergence_score`, `tier_reached`, frontmatter check | Per §14.5.2 gate; all 9 must pass for mutation; any fail → `promotion_action: skipped/rejected`. |
+1385-| **CI (`make reflect-eval` / `make reflect-eval-quick`)** | grader.py | All fields under "Per-task verdict array" + `status` + `evidence_validator_ran` + `audit_log_path` | Used to score the 6 grading dimensions in §12.1 and assert per-iteration `grading.json` thresholds. |
+1386-| **Meta-eval (`runs.jsonl` aggregator — §15.1)** | Cross-run analytics | `status`, `tier_reached`, `wave_durations_ms`, `token_usage`, `convergence_score`, `t2_model_class_diversity`, `t2_vendor_diversity` (from telemetry) | Aggregated across runs; not a per-run consumer; see §15.1 metrics export. |
+--
+1479-[Omitted long context line]
+1480-- A documented invariant in the spec or in a `@invariant` comment is violated.
+1481:[Omitted long matching line]
+1482-
+1483-**Exit-code → deviation-class taxonomy (FR-4 / C2).** A non-zero exit is **NOT** uniformly a Regression. Each verification invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently Regression):
+--
+1495-The §10.5 precedence (Regression > Drift > Necessary > Authorized) is respected **by evidence, not by assignment** — only exits the taxonomy maps to Regression set `regression_present`. (Full per-tool table including `make`/`cargo`/`npm`/`tsc` is enumerated during eval-authoring, OQ-M9.)
+1496-
+1497:**Contracted-sink reachability / oracle-admissibility → deviation-class (FR-RH1, §6.1 step 5.6).** Mapped by evidence, never by assignment:
+1498-
+1499-| Reachability / oracle evidence | Class | Effect |
+1500-|---|---|---|
+1501:| Real boot ran and observed the contracted sink **absent** | **Regression** | `reachability_unreachable += 1`; `verification_regressions_detected += 1`; `regression_present: true` (trips §5.3 rule 3) |
+1502:| Blocking annotated sink present, but static binding absence / discarded emitter result / unresolved sink identity / oracle mismatch / real-boot-unavailable (no real-boot proof) | **Grounding Gap** (§10.6) | one `grounding-gaps.yaml` row; `reachability_unproven += 1`; `needs_human_decision: true`; Tier-1 preserved |
+1503-| Binding present, emitter result checked, oracle observes the contracted sink | **none** | `reachable` — clean |
+1504-
+1505:**Skip / fallback are NOT deviations.** `--no-reachability`, `spec-and-tasklist-absent`, and `no-side-effect-requirements` are telemetry-only skips, and semantic-only classification without an explicit `durable_sink:` / `@sink` annotation is advisory telemetry only: none of these may create a Grounding Gap, increment `reachability_unproven`, set `needs_human_decision`, or change `status`.
+1506-
+1507-**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
+--
+1560-A runtime-surface finding with reduced verdict `UNREACHED` per §6.1 step 4b / `refs/runtime-surface.md` is **NOT a deviation class** — it **MAPS onto the existing 4 by evidence** (mirroring §10.8's finding-modifier shape and §10.4's by-evidence counter discipline). The mapping is totally ordered:
+1561-
+1562:1. **DEGRADE first:** if the oracle/rootwalk/comment/language/backend path could not soundly decide reachability, there is no decided UNREACHED verdict to map. Route to **§10.6 Grounding Gaps** with `needs_human_decision: true` and `status: partial`; do not write the finding to `deviation-ledger.yaml`.
+1563:2. **Contradiction next:** a decided UNREACHED that contradicts a reachability acceptance criterion (for example, "user can reach X") maps to **§10.4 Regression** and increments ONLY `deviation_count_by_class.regression`. It NEVER increments `verification_regressions_detected`, which remains exit-code-sourced from §6.1 step 5.5 / §10.4.
+1564:3. **Unmapped fallback:** a decided UNREACHED with no tasklist mapping and no contradicted reachability criterion maps to **§10.3 Drift**.
+1565-
+1566-If a decided UNREACHED is both contradiction and unmapped, **Regression wins** by §10.5 precedence; rationale or missing mapping does not override a contradiction. There is **no** 5th runtime-surface deviation class and no `deviation_count_by_class.runtime_surface` (or equivalent) counter (§17.7). Blocking counts flow only through the existing Drift/Regression counters of the class chosen by evidence.
+1567-
+1568:**Risk guard (spec §7).** False `UNREACHED → Regression` on idiomatic wiring can trigger unconditional T2/T3 and TurnLedger rollback, so counter hygiene is mandatory: Regression increments only `deviation_count_by_class.regression`; `verification_regressions_detected` remains exit-code-sourced and is never incremented by runtime-surface reachability evidence.
+1569-
+1570:### 10.10 Contracted-sink reachability / oracle-admissibility (finding modifier — NOT a 5th deviation class, FR-RH1)
+1571-
+1572:[Omitted long matching line]
+1573-
+1574:1. **Real-boot sink absent → §10.4 Regression.** Only when a best-effort step-5.5 boot (under the §6.1.1 envelope) observed the contracted sink absent: `reachability_unreachable += 1`, `verification_regressions_detected += 1`, `regression_present: true` (trips §5.3 rule 3). Static binding absence / discarded emitter / oracle mismatch / real-boot-unavailable can NEVER set `regression_present`.
+1575:2. **Blocking annotated sink, evidence insufficient → §10.6 Grounding Gap.** `reachability_unproven += 1`, one `grounding-gaps.yaml` row, `needs_human_decision: true`, Tier-1 preserved.
+1576-3. **Binding present, emitter result checked, oracle observes the contracted sink → none (reachable, clean).**
+1577-
+1578:[Omitted long matching line]
+1579-
+1580----
+--
+1720-- `checkpoint_logged` — verify `audit.log` includes a row for a named checkpoint (scripted Serena think-checkpoints, audit-emit per-step).
+1721-- `deviation_class_matches` — given an annotated deviation in the eval fixture, verify the report's deviation register tags the same diff hunk with the same class.
+1722:- `path_exists` / `path_does_not_exist` — Wave 7 promotion-assertion types added per §14.5.7; verify source/destination paths after a promotion mutation step (or that they DON'T exist when the mutation is supposed to have moved them).
+1723-- `falsifier_skeleton_present` — verifies that `falsifier-suite/<case>.yaml` exists, parses, and either has `status: skeleton-pending-iteration-3-fixture` (emitting `skeleton_present: true`) OR `status: active` (meeting the canonical assertion). See §12.5.
+1724-
+--
+1866-| Serena unavailable | Fall back to Grep/Glob; skip `get_diagnostics_for_file`; mark `degraded: ["serena"]` | Continue |
+1867-| Verification triangle unavailable (FR-4: `execute_shell_command` context-excluded OR `read_only: true` OR `--no-verify`) | Continue: emit `verification_ran: false` + `verification_skip_reason: tool-unavailable\|read-only-project\|--no-verify`; degrade §10.4 Regression detection to the task-log claim with a Grounding Gap entry; emit the loud `[reflect][WARN]` from the ops-integration WARN catalog | Continue |
+1868:| Context7 unavailable in `--depth deep` UC-1 | Skip best-practice external lookup; mark `degraded: ["context7"]` | Continue |
+1869-| `--no-mcp` set | Run with native tools only; WARN that quality is degraded | None |
+
+[Showing results with pagination = limit: 250]

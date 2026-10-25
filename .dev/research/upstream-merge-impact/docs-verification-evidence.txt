@@ -1,0 +1,110 @@
+Documentation unit: independent source/Git checks. Exit 1 for git grep means no match, not execution failure.
+Initial helper attempt could not find an rg executable in subprocess PATH. Recovered with git grep over tracked source. Earlier interactive-shell rg searches also completed; one broader search reported missing retired bin/ directory.
+
+===== CHECK 1 =====
+Command: ['git', 'diff-tree', '--no-commit-id', '--name-status', '-r', '4e5e3759', '--', 'README-ja.md', 'README-kr.md', 'README-zh.md', 'PLANNING.md', 'KNOWLEDGE.md', 'CHANGELOG.md', 'README.md', 'VERSION']
+Exit: 0
+D	CHANGELOG.md
+D	KNOWLEDGE.md
+D	PLANNING.md
+D	README-ja.md
+D	README-kr.md
+D	README-zh.md
+M	README.md
+M	VERSION
+
+
+===== CHECK 2 =====
+Command: ['git', 'diff-tree', '--no-commit-id', '--name-status', '-r', 'd36591ee', '--', 'docs/mistakes/test_database_connection-2025-11-14.md', 'docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md', 'docs/mistakes/unknown-2025-11-14.md']
+Exit: 0
+D	docs/mistakes/test_database_connection-2025-11-14.md
+D	docs/mistakes/test_reflexion_with_real_exception-2025-11-14.md
+D	docs/mistakes/unknown-2025-11-14.md
+
+
+===== CHECK 3 =====
+Command: ['git', 'show', '--format=short', '--unified=0', '5d660ca9', '--', 'src/superclaude/__init__.py', 'pyproject.toml']
+Exit: 0
+commit 5d660ca9ab8adae4c26914acc4d61b51a7329d83
+Author: Ironbelly <ryan@ironbelly.com>
+
+    feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)
+
+diff --git a/pyproject.toml b/pyproject.toml
+index 03cd2292..32fa63d1 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -7 +7 @@ name = "superclaude"
+-version = "4.2.0"
++version = "4.3.5"
+diff --git a/src/superclaude/__init__.py b/src/superclaude/__init__.py
+index cc53e27f..6ffc408d 100644
+--- a/src/superclaude/__init__.py
++++ b/src/superclaude/__init__.py
+@@ -8 +8 @@ Provides pytest plugin for enhanced testing and optional skills system.
+-__version__ = "4.2.0"
++__version__ = "4.3.5"
+
+
+===== CHECK 4 =====
+Command: ['git', 'show', '--format=short', '--name-status', 'fe24f9c5', '--', 'docs/research/llm-agent-token-efficiency-2025.md', 'docs/research/reflexion-integration-2025.md', 'docs/research/task-tool-parallel-execution-results.md']
+Exit: 0
+commit fe24f9c55fc030a3d994b0b7b37d2e018865a192
+Author: Ryan wiancko <ryan@ironbelly.com>
+
+    docs: drop stale research notes and move suites guide
+
+D	docs/research/llm-agent-token-efficiency-2025.md
+D	docs/research/reflexion-integration-2025.md
+D	docs/research/task-tool-parallel-execution-results.md
+
+
+===== CHECK 5 =====
+Command: ['git', 'show', '--format=short', '--name-status', '3ae238b1', '--', 'plugins/superclaude/commands/sc.md']
+Exit: 0
+commit 3ae238b178fb7c67ca02809d24745de620c2bd50
+Author: Ryan wiancko <ryan@ironbelly.com>
+
+    chore: drop unused commands and sequential/magic/chrome-devtools MCPs
+
+D	plugins/superclaude/commands/sc.md
+
+
+===== CHECK 6 =====
+Command: ['git', 'grep', '-n', '-E', 'ReflexionMemory|class Reflexion|reflexion_memory\\.py|error_search_tool|reflexion\\.jsonl\\.example|mindbase_used', '--', 'src', 'scripts', 'tests']
+Exit: 0
+src/superclaude/pm_agent/reflexion.py:33:class ReflexionPattern:
+
+
+===== CHECK 7 =====
+Command: ['git', 'grep', '-n', '-E', 'memory-system|WORKFLOW_METRICS_SCHEMA|docs/user-guide/commands|mcp-integration-policy|reflexion\\.jsonl\\.example', '--', 'src', 'plugins', 'scripts', 'tests', 'docs']
+Exit: 0
+docs/memory/README.md:38:**User Guide**: See [docs/user-guide/memory-system.md](../user-guide/memory-system.md)
+docs/memory/README.md:40:### reflexion.jsonl.example
+docs/memory/README.md:71:**Schema**: See [WORKFLOW_METRICS_SCHEMA.md](WORKFLOW_METRICS_SCHEMA.md)
+docs/memory/README.md:83:#### WORKFLOW_METRICS_SCHEMA.md
+docs/memory/README.md:155:- `reflexion.jsonl.example` (template)
+docs/memory/README.md:276:- **User Guide**: [docs/user-guide/memory-system.md](../user-guide/memory-system.md)
+docs/memory/last_session.md:56:**Created**: `docs/memory/WORKFLOW_METRICS_SCHEMA.md`
+docs/memory/last_session.md:276:  ✅ docs/memory/WORKFLOW_METRICS_SCHEMA.md
+docs/memory/next_actions.md:258:- ✅ `docs/memory/WORKFLOW_METRICS_SCHEMA.md` (spec)
+docs/user-guide/memory-system.md:179:See `docs/memory/reflexion.jsonl.example` for sample entries.
+src/superclaude/skills/tech-research/SKILL.md:127:All persistent artifacts go to the task folder `${TASK_DIR}` (see Variable Reference above). The topic slug is derived from the research question (e.g., `locomotion-params`, `ade-hot-reload`, `agent-memory-system`) and used in the TASK_ID.
+
+
+===== CHECK 8 =====
+Command: ['git', 'grep', '-n', '-E', 'Smithery|smithery', '--', 'README.md', 'src', 'tests', 'scripts', '.github']
+Exit: 0
+src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md:14:- Raw MCP server marketplaces (`mcpservers.org`, `mcp.directory`, `lobehub`, `smithery`). MCP servers are a different abstraction from Claude Code plugins / skills; the user did not opt in. Do **not** surface MCP servers under `--plugin` unless the user explicitly asks for one in their original request, in which case label them clearly as MCP servers (not as plugins or skills) in the output.
+
+
+===== CHECK 9 =====
+Command: ['git', 'grep', '-n', '-E', 'docs/memory|mindbase|reflexion', '--', 'src/superclaude/agents/pm-agent.md', 'src/superclaude/commands/pm.md', 'src/superclaude/skills/sc-pm-protocol/SKILL.md']
+Exit: 1
+
+
+
+Filesystem presence: src/superclaude/core/pm_init/reflexion_memory.py = False
+Filesystem presence: superclaude/core/pm_init/reflexion_memory.py = False
+Filesystem presence: bin = False
+Filesystem presence: plugins/superclaude/manifest/metadata.json = False

@@ -1,0 +1,32 @@
+# Wave 1B coverage matrix (UC-1). Pass 1 = orchestrator deterministic regex; Pass 2 = sc:sc-requirements-analyst (sonnet), returned verbatim summary below.
+spec: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/spec.md
+tasklist: /config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/research/upstream-merge-impact/remaining-cleanup-validation/implementation-evidence/02-root-plugin/task4-runtime/fixtures/project/proposed.md
+pass1_parsed_count: 3
+pass2_inferred_count: 0
+rows:
+  - {requirement_id: R-001, spec_cite: "spec.md:5-6", matched_task_ids: [T-101], match_method: exact, source: parsed, semantic_fidelity: partial}
+  - {requirement_id: R-002, spec_cite: "spec.md:8-9", matched_task_ids: [T-102], match_method: exact, source: parsed, semantic_fidelity: full}
+  - {requirement_id: R-003, spec_cite: "spec.md:11-12", matched_task_ids: [T-103], match_method: exact, source: parsed, semantic_fidelity: full-borderline}
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+unmapped_requirements_union: []
+coverage_undefined: false
+coverage_degraded: null
+total_tasks: 3
+S_scope: 3            # UC-1 tasklist-item count
+S_domains: 2          # code (T-101/T-102) + tests (T-103); tasklist names no file paths, domains inferred from task text
+S_dev_density: 0.0    # (0 unmapped + 0 missing_implementations) / 3
+missing_implementations_count: 0
+implementation_coverage_pct: null   # find_implementations kind-guard never fired (Serena unavailable; no abstract symbols)
+requirements_analyst_findings:
+  semantic_fidelity:
+    - {requirement_id: R-001, task_id: T-101, verdict: partial, spec_cite: "spec.md:6", task_cite: "proposed.md:4", note: "Task omits the literal 'Hello, Ada!' / exactness acceptance criterion; 'the required greeting' is an unverifiable back-pointer."}
+    - {requirement_id: R-002, task_id: T-102, verdict: full, spec_cite: "spec.md:9", task_cite: "proposed.md:7"}
+    - {requirement_id: R-003, task_id: T-103, verdict: full, spec_cite: "spec.md:12", task_cite: "proposed.md:10", note: "Does not require asserting exact string or ValueError; latent weakness inherited from T-101."}
+  ambiguities:
+    - {cite: "spec.md:6", note: "Only Ada example; general template unstated."}
+    - {cite: "spec.md:9", note: "'Empty' undefined (\"\" vs whitespace/None/non-str); message unspecified."}
+    - {cite: "spec.md:12", note: "'Ordinary greeting' and 'exercise' (assertion strength) undefined."}
+    - {cite: "spec.md:6", note: "No language/module path/signature; T-101 supplies greet(name) (proposed.md:4) but no file location or test framework."}
+  omissions: ["none at ID level", "partial: R-001 exactness not carried into T-101", "partial: T-103 lacks assertion requirements"]

@@ -1,0 +1,12 @@
+# Wave 3C blind calibration of reviewer-2-card.md — sc:confidence-calibrator, requested slot opus, reported model claude-opus-5-5[1m], agentId aca9a83b042e7e5fb
+card: reviewer-cards/reviewer-2-card.md
+reviewer: {persona: qa, slot: haiku, model: "grok-4.7[1m]", vendor: xAI}
+calibrator_model_class: opus
+calibrator_diversity: full
+citation_spot_checks: {checked: 17, verified: 14, mismatch: 1, unverifiable: 2}
+mismatches: ["card states changes.patch is 10 lines; actual 9 lines"]
+unverifiable: ["'8 snapshot files' count (Read cannot list dirs; consistent with files found)", "'brief verification line' (brief not in snapshot)"]
+scores: {citation_grounding: 0.88, coverage_completeness: 0.92, deviation_classification_clarity: 0.95, risk_surface_coverage: 0.88, recommendation_actionability: 0.92}
+arithmetic: "(0.88+0.92+0.95+0.88+0.92)/5 = 4.55/5 = 0.910"
+confidence_calibrated: 0.91
+self_reported_confidence: 0.76

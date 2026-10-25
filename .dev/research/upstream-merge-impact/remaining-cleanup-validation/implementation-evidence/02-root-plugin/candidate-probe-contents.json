@@ -1,0 +1,134 @@
+[
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+    "destination": "skills/sc-reflect-protocol/SKILL.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/input-resolution.md",
+    "destination": "skills/sc-reflect-protocol/refs/input-resolution.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md",
+    "destination": "skills/sc-reflect-protocol/refs/reflection-rubric.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+    "destination": "skills/sc-reflect-protocol/refs/deviation-taxonomy.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/coverage-mapping.md",
+    "destination": "skills/sc-reflect-protocol/refs/coverage-mapping.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md",
+    "destination": "skills/sc-reflect-protocol/refs/reviewer-spec.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/report-template.md",
+    "destination": "skills/sc-reflect-protocol/refs/report-template.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/runtime-surface.md",
+    "destination": "skills/sc-reflect-protocol/refs/runtime-surface.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md",
+    "destination": "skills/sc-reflect-protocol/refs/ops-integration.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/promotion-adapters.md",
+    "destination": "skills/sc-reflect-protocol/refs/promotion-adapters.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md",
+    "destination": "skills/sc-reflect-protocol/refs/remediation-handoff.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-adversarial-protocol/SKILL.md",
+    "destination": "skills/sc-adversarial-protocol/SKILL.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md",
+    "destination": "skills/sc-adversarial-protocol/refs/agent-specs.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-adversarial-protocol/refs/artifact-templates.md",
+    "destination": "skills/sc-adversarial-protocol/refs/artifact-templates.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-adversarial-protocol/refs/debate-protocol.md",
+    "destination": "skills/sc-adversarial-protocol/refs/debate-protocol.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+    "destination": "skills/sc-adversarial-protocol/refs/scoring-protocol.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/confidence-calibrator.md",
+    "destination": "agents/confidence-calibrator.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/evidence-validator.md",
+    "destination": "agents/evidence-validator.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/reflect-reviewer.md",
+    "destination": "agents/reflect-reviewer.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/reuse-auditor.md",
+    "destination": "agents/reuse-auditor.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/debate-orchestrator.md",
+    "destination": "agents/debate-orchestrator.md",
+    "source_exists": true,
+    "destination_exists": false
+  },
+  {
+    "source": "src/superclaude/agents/merge-executor.md",
+    "destination": "agents/merge-executor.md",
+    "source_exists": true,
+    "destination_exists": false
+  }
+]
