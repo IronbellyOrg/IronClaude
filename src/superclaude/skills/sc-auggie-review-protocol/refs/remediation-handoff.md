@@ -148,7 +148,7 @@ If the user closes the session mid-chain, the skill writes the chain's state to 
 }
 ```
 
-When the user re-invokes the skill with `--resume <output_dir>`, the chain picks up at the recorded phase. A state file written with the older key names ignores `task_file_path` and `task_reflect_*` and keeps `plan_path`; if `plan_path` is absent, the chain restarts at Phase B.
+When the user re-invokes the skill with `--resume <output_dir>`, the chain picks up at the recorded phase. A state file written with the older key names ignores `task_file_path` and `task_reflect_*` and keeps `plan_path`. If the recorded phase's input is absent from the state, re-run the phase that produces it: `plan_path` (needed by Phases C, D and E) comes from Phase B, and `spec_path` (needed by Phase B) comes from Phase A, so a state with neither restarts at Phase A. If an older state has no `plan_path` and was recorded at Phase D or E, tell the user before resuming that anything already executed from its retired task file is not tracked by this chain.
 
 ## Anti-patterns to avoid
 
