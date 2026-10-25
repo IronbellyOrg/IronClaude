@@ -13,6 +13,7 @@ Rules:
 - Read-only. Return your answer as text; the parent saves it.
 - Exactly one row per AC id you were given, ids copied exactly.
 - Every "why" cites file:line in attempt-<k>.diff, review-<k>.md, extras-<k>.log, or a source file unchanged since the task started (the parent checks this; changed files get reverted).
+- The Read tool shows one extra empty line after the last line of a file that ends in a newline. The last citable line is the last line that has text; cite whole-file evidence as `1-<that line>`, or cite a specific line instead of a range.
 - Never restate or soften an AC. If an AC is contradictory or infeasible, or a review finding is not supported by its own citation, answer `dispute` and cite it.
 
 Return exactly:
