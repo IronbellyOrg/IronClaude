@@ -6,8 +6,9 @@ place fails. Every review `--depth` (quick, standard, deep) dispatches to ONE
 chain: /sc:design -> sc:workflow (which runs its own `/sc:reflect --mode pre`)
 -> user-run /sc:implement -> /sc:reflect --mode post. The removed `--depth deep`
 route (task-builder -> MDTM task file -> user-run /task) must not come back in
-any file of the primitive. Reads SOURCE files, not the installed or `.claude/`
-copies.
+any file of the primitive. A legacy remediation-state.json resumes at the phase
+that produces whichever input the state lacks. Reads SOURCE files, not the
+installed or `.claude/` copies.
 """
 
 from __future__ import annotations
@@ -126,3 +127,23 @@ def test_removed_deep_route_is_gone_from_the_primitive():
             if LEGACY_KEYS.search(ln) and "ignore" not in ln:
                 offenders.append(f"{rel}:{no} [legacy key kept]")
     assert offenders == []
+
+
+# Resuming a remediation-state.json: restart at the phase that produces the input
+# the state lacks. Pins the rule's structure, not its exact wording.
+def _resume_rule() -> str:
+    return _line(REF, "When the user re-invokes the skill with `--resume")
+
+
+def test_resume_without_spec_or_plan_restarts_at_phase_a():
+    rule = _resume_rule()
+    assert re.search(r"`spec_path`[^.]*comes from Phase A", rule)
+    assert re.search(r"\bneither\b[^.]*restarts at Phase A", rule)
+
+
+def test_resume_without_plan_reruns_phase_b_not_an_unconditional_fallback():
+    rule = _resume_rule()
+    assert re.search(r"`plan_path`[^.]*comes from Phase B", rule)
+    # The rejected rule sent every state lacking plan_path straight to Phase B,
+    # skipping the design step for a state interrupted in Phase A.
+    assert not re.search(r"`plan_path` is absent, the chain restarts at Phase B", rule)
