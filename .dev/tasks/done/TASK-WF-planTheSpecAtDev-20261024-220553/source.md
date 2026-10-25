@@ -1,0 +1,1 @@
+Plan the spec at .dev/tasks/to-do/TASK-WF-mergedOutput-20261024-165151/source.md, treat every finding in .dev/reflect/pre-mergedOutput-20261024165806/adversarial/merged-verdict.yaml and .dev/reflect/pre-planTheSpecAtDev-20261024183538/adversarial/merged-verdict.yaml as a required correction, and fix findings F-01, F-02 and F-12 of the second file as deliberate spec corrections

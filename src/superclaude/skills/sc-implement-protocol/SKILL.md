@@ -90,7 +90,7 @@ First match:
 
 Else STOP `E-NO-AC` **before** any edit for that task. Single-word or empty-intent titles (`auth`, `make it better`, whitespace) are not AC. AC ids are `Ti.ACk` in source order.
 
-Global constraints for `extra`: `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
+Global constraints (a quoted breach is `quoted-constraint-breach`, `refs/qa.md`): `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
 
 ### Parallel
 
@@ -98,7 +98,7 @@ Default sequential in source order. Parallel only when the source marks a set in
 
 ### Reviewer mode (no flag)
 
-Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
+Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. An inline review may complete a task only with zero findings and only when the task's notes file holds no line after line 1; an inline review whose findings, or the notes file, would let the task complete with any minor or note is discarded and re-run once as a fresh Task subagent with the closed template and a saved `prompt-<k>-<j>.md` (`refs/qa.md`). Every repair re-review is a fresh subagent. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
 
 ## Loop (Q0–Q8)
 
@@ -113,22 +113,21 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
              `git update-ref "refs/superclaude/implement/<slug>/T<id>" "$start"` (managed: `<slug>` is the package id)
            Only when the snapshot is a tree: write `<retries>/T<id>/q0-head` (the 40-hex of `git rev-parse HEAD`; `refs/retry.md`) after the snapshot and **before** the start line is appended.
            If write-tree fails, `start=$(git rev-parse HEAD 2>/dev/null)` (HEAD is already a ref). If that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
-           On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator.
+           On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator. The task's reviewed-tree refs `retry/T<rid>/r<k>-<j>` (`refs/qa.md`) are deleted at `complete` once `first=` and `origin=` are written; sweep refs are kept.
            Read Ti text + AC ids + global constraints.
 Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
-           Drive-by files not implied by the AC are `extra`.
+           A drive-by file not implied by the AC is blocking only when a confirmed `quoted-constraint-breach` or `harmful-effect` applies; otherwise it is a minor that stays in `files=` and goes to notes.
 Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
            Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index for this snapshot (that is not the `.dev/tasks/` rule: `.dev/tasks/` is always staged, `git add .dev/tasks`). An empty `git diff` with new untracked writes is not `cannot-verify`.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
-             - extra_scope: hunks not mapped to any AC / instruction
-             - misunderstood: ACs whose implementation contradicts the AC text
+             - finding lines with the four checklist answers and one anchor per `yes` (`refs/qa.md`)
            Do not trust the implementer's report.
-Q4 VERDICT Apply refs/qa.md order. Closed enum only.
-Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
+Q4 VERDICT The parent derives each finding's severity (anchor Read-back, origin, inherited cap) and applies the `refs/qa.md` order over confirmed blocking findings only. Closed enum only.
+Q5 FIX     If Q4 is not compliant: because `minor` and `note` findings never change the verdict, only a confirmed `blocking` finding or a non-finding `cannot-verify` step reaches this fix pass, and a `cannot-verify` with no blocker keeps this same route. The fixer first writes the family probe (`refs/qa.md`, Family probe), then exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the Repair round (confirmed blockers only) and then the retry ladder in refs/retry.md take over.
 Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
-Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
+Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. User acceptance (Ruling): `refs/qa.md` Halt table. Write ledger line(s). Flush before the next task.
 Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
 ```
 
@@ -152,13 +151,13 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
 
 ### Whole-list review
 
-**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass).
+**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass). The pass applies the FINAL derived test of `refs/qa.md` and stays advisory.
 
 **Managed packages.** Not advisory and never skipped: every archive attempt runs the fresh FINAL and the helper archive in `refs/managed-workspace.md`, even for N=1 and on resume.
 
 ## Done
 
-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-3-b.md` (`refs/retry.md`, Model ladder). Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
 
 Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
 

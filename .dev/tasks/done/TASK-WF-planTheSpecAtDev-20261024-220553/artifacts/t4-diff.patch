@@ -1,0 +1,240 @@
+diff --git a/plugins/superclaude/commands/implement.md b/plugins/superclaude/commands/implement.md
+index 978ce225..1596e5f3 100644
+--- a/plugins/superclaude/commands/implement.md
++++ b/plugins/superclaude/commands/implement.md
+@@ -143,4 +143,4 @@ The full behavioral specification is in the protocol skill at
+ 
+ ## Completion
+ 
+-The run is done when every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus an operator `Ruling:`). Suggest `/sc:test` and `/sc:git` only as optional next steps.
++The run is done when every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus an operator `Ruling:`). A `compliant` line may carry open minor/note findings recorded in the task's notes file. Suggest `/sc:test` and `/sc:git` only as optional next steps.
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index c5a495f6..cec2c0a1 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -157,7 +157,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ## Done
+ 
+-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
++Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+ 
+ Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 20da1f3f..941f34f0 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -48,6 +48,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
+ - `<verdict>` ∈ `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`
+ - `<ac-list>` = comma-separated `T{i}.AC{k}` (no spaces)
+ - `<ev-list>` = comma-separated evidence tokens. Paths **may contain spaces**. The field ends at ` extras=lint:`. Tokens: `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`. Do not put commas in paths.
++- `notes@<path>:<start>-<end>` = evidence token pointing at the task's notes file (`refs/qa.md`); never an AC citation. Managed form: `notes@./artifacts/retries/T<id>/notes.md:<a>-<b>`.
+ - `<lx>`,`<tx>` ∈ `pass` | `fail` | `skip`
+ - `<sx>` ∈ `pass` | `fail` | `skip` | `unrelated-red`
+ - `<file-list>` = comma-separated repo-relative paths (paths may contain spaces; do not insert spaces after commas)
+@@ -56,7 +57,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
+ ^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=(.+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
+ ```
+ 
+-`complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
++`complete` on the verdict line **only if** `verdict=compliant`. `compliant` may carry open minor/note findings recorded in the notes file (`refs/qa.md`). Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
+ 
+ ## Ruling line (user-authorized, executor-recorded)
+ 
+@@ -173,6 +174,12 @@ Compliant complete:
+ T1: complete verdict=compliant ac=T1.AC1 evidence=src/foo.py:12,T1.AC1 extras=lint:skip,typecheck:skip,test:skip files=src/foo.py
+ ```
+ 
++Compliant complete with notes (open minors recorded in the notes file):
++
++```
++T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@docs/user-guide/memory-system.md:12,T1.AC2@docs/user-guide/memory-system.md:40,T1.AC3@docs/memory/README.md:8,T1.AC4@docs/memory/README.md:21,notes@.dev/implement/03-memory-docs-f5865990/retries/T1/notes.md:1-3 extras=lint:skip,typecheck:skip,test:skip files=docs/user-guide/memory-system.md,docs/memory/README.md
++```
++
+ Blocked missing:
+ 
+ ```
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index d7beae24..c5404680 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -179,6 +179,36 @@ Every review at every attempt may raise a new blocker (any confirmed checklist `
+ 
+ A non-blocking `late` finding is a note. A finding whose flagged text is absent from the current tree is `resolved` in the re-check, is not carried to notes, and keeps its recorded `first=` and `origin=`.
+ 
++## Notes file and accepted-minor path
++
++**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route rule that Task 10 of this plan adds).
++
++- The folder already exists for every tree-snapshot task, because Q0 writes `q0-head` there, and the revert domain excludes `<retries>`, so notes survive any revert. A task whose start is `nogit` or a HEAD fallback has no `q0-head`; it creates the folder when it first writes the file.
++- Fail closed: if the file cannot be written, STOP `E-RESUME-NEEDED reason=ref-failed`, with no ledger line and no `blocked` line.
++
++**Notes keep every minor of the final chain (deliberate SPEC correction of FR-020).** Every review that fails appends its `minor` and `note` findings to the notes file at once, tagged with its review id `r<k>-<j>`, before any later review can overwrite `review-<k>.md`. The passing review's minors and notes, and any capped finding of the final tree, are written at `complete`. The `complete` rewrite keeps, as lines 2 to m, every line of the current tree chain (all reviews since the latest Q0 rebuild, meaning since the task's `start` or its latest revert) whose flagged text is still in the final tree, plus every dispute line of the current `start`; every other line (lines of reverted trees and lines whose text is gone) follows line m, prefixed `superseded `. The `notes@` token cites lines 1 to m.
++
++**Token rule.** A notes file holding any line after line 1 gets a `notes@<path>:1-<m>` token in `evidence=` on the `complete` line; a file holding only `superseded ` lines after line 1 gets the token `notes@<path>:1-1`; no file means no token. A review chain with no minors and no notes writes no notes file. The token is never an AC citation (`refs/ledger.md`).
++
++**Automatic accepted-minor path.** When a review has no `blocking` finding, the orchestrator does three things and asks the user nothing:
++
++1. Write the notes file (above).
++2. Run Q6 extras.
++3. Append the `complete verdict=compliant … notes@…` line (`refs/ledger.md`).
++
++| | Accepted-minor | Ruling (Halt table above) |
++|---|---|---|
++| Who decides | Severity derived by the parent from the reviewer's checklist answers and anchors, plus the mechanical origin caps | The user, in the current conversation |
++| Covers | `minor` and `note` only | Any explained gap, blockers included |
++| Ledger | `compliant` verdict plus a `notes@` token | A `Ruling:` line, then `complete` with the unchanged non-compliant verdict |
++| Writes a `Ruling:` line | Never | Always |
++
++The Ruling path is unchanged and remains the only exit from a halt. Conditions on the accepted-minor path:
++
++- A task completes with recorded minors only after a fresh subagent review (see "Subagent prompt").
++- When no FINAL that can block will run (legacy N=1, legacy `--skip-final-review`, or any legacy run, whose FINAL is advisory), the run's final summary prints every recorded minor with its checklist answers. The summary is informational and never asks the user anything.
++- A batch task whose A2 has only minor or note findings completes on this path instead of halting `batch`. A batch A2 with a confirmed blocker still halts `batch`.
++
+ ## Halt table
+ 
+ | Verdict after Q4 (or after Q5 re-QA) | Action | T{i+1}? |
+diff --git a/src/superclaude/commands/implement.md b/src/superclaude/commands/implement.md
+index 978ce225..1596e5f3 100644
+--- a/src/superclaude/commands/implement.md
++++ b/src/superclaude/commands/implement.md
+@@ -143,4 +143,4 @@ The full behavioral specification is in the protocol skill at
+ 
+ ## Completion
+ 
+-The run is done when every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus an operator `Ruling:`). Suggest `/sc:test` and `/sc:git` only as optional next steps.
++The run is done when every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus an operator `Ruling:`). A `compliant` line may carry open minor/note findings recorded in the task's notes file. Suggest `/sc:test` and `/sc:git` only as optional next steps.
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index c5a495f6..cec2c0a1 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -157,7 +157,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ## Done
+ 
+-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
++Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+ 
+ Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 20da1f3f..941f34f0 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -48,6 +48,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
+ - `<verdict>` ∈ `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`
+ - `<ac-list>` = comma-separated `T{i}.AC{k}` (no spaces)
+ - `<ev-list>` = comma-separated evidence tokens. Paths **may contain spaces**. The field ends at ` extras=lint:`. Tokens: `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`. Do not put commas in paths.
++- `notes@<path>:<start>-<end>` = evidence token pointing at the task's notes file (`refs/qa.md`); never an AC citation. Managed form: `notes@./artifacts/retries/T<id>/notes.md:<a>-<b>`.
+ - `<lx>`,`<tx>` ∈ `pass` | `fail` | `skip`
+ - `<sx>` ∈ `pass` | `fail` | `skip` | `unrelated-red`
+ - `<file-list>` = comma-separated repo-relative paths (paths may contain spaces; do not insert spaces after commas)
+@@ -56,7 +57,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
+ ^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=(.+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
+ ```
+ 
+-`complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
++`complete` on the verdict line **only if** `verdict=compliant`. `compliant` may carry open minor/note findings recorded in the notes file (`refs/qa.md`). Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
+ 
+ ## Ruling line (user-authorized, executor-recorded)
+ 
+@@ -173,6 +174,12 @@ Compliant complete:
+ T1: complete verdict=compliant ac=T1.AC1 evidence=src/foo.py:12,T1.AC1 extras=lint:skip,typecheck:skip,test:skip files=src/foo.py
+ ```
+ 
++Compliant complete with notes (open minors recorded in the notes file):
++
++```
++T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@docs/user-guide/memory-system.md:12,T1.AC2@docs/user-guide/memory-system.md:40,T1.AC3@docs/memory/README.md:8,T1.AC4@docs/memory/README.md:21,notes@.dev/implement/03-memory-docs-f5865990/retries/T1/notes.md:1-3 extras=lint:skip,typecheck:skip,test:skip files=docs/user-guide/memory-system.md,docs/memory/README.md
++```
++
+ Blocked missing:
+ 
+ ```
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index d7beae24..c5404680 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -179,6 +179,36 @@ Every review at every attempt may raise a new blocker (any confirmed checklist `
+ 
+ A non-blocking `late` finding is a note. A finding whose flagged text is absent from the current tree is `resolved` in the re-check, is not carried to notes, and keeps its recorded `first=` and `origin=`.
+ 
++## Notes file and accepted-minor path
++
++**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route rule that Task 10 of this plan adds).
++
++- The folder already exists for every tree-snapshot task, because Q0 writes `q0-head` there, and the revert domain excludes `<retries>`, so notes survive any revert. A task whose start is `nogit` or a HEAD fallback has no `q0-head`; it creates the folder when it first writes the file.
++- Fail closed: if the file cannot be written, STOP `E-RESUME-NEEDED reason=ref-failed`, with no ledger line and no `blocked` line.
++
++**Notes keep every minor of the final chain (deliberate SPEC correction of FR-020).** Every review that fails appends its `minor` and `note` findings to the notes file at once, tagged with its review id `r<k>-<j>`, before any later review can overwrite `review-<k>.md`. The passing review's minors and notes, and any capped finding of the final tree, are written at `complete`. The `complete` rewrite keeps, as lines 2 to m, every line of the current tree chain (all reviews since the latest Q0 rebuild, meaning since the task's `start` or its latest revert) whose flagged text is still in the final tree, plus every dispute line of the current `start`; every other line (lines of reverted trees and lines whose text is gone) follows line m, prefixed `superseded `. The `notes@` token cites lines 1 to m.
++
++**Token rule.** A notes file holding any line after line 1 gets a `notes@<path>:1-<m>` token in `evidence=` on the `complete` line; a file holding only `superseded ` lines after line 1 gets the token `notes@<path>:1-1`; no file means no token. A review chain with no minors and no notes writes no notes file. The token is never an AC citation (`refs/ledger.md`).
++
++**Automatic accepted-minor path.** When a review has no `blocking` finding, the orchestrator does three things and asks the user nothing:
++
++1. Write the notes file (above).
++2. Run Q6 extras.
++3. Append the `complete verdict=compliant … notes@…` line (`refs/ledger.md`).
++
++| | Accepted-minor | Ruling (Halt table above) |
++|---|---|---|
++| Who decides | Severity derived by the parent from the reviewer's checklist answers and anchors, plus the mechanical origin caps | The user, in the current conversation |
++| Covers | `minor` and `note` only | Any explained gap, blockers included |
++| Ledger | `compliant` verdict plus a `notes@` token | A `Ruling:` line, then `complete` with the unchanged non-compliant verdict |
++| Writes a `Ruling:` line | Never | Always |
++
++The Ruling path is unchanged and remains the only exit from a halt. Conditions on the accepted-minor path:
++
++- A task completes with recorded minors only after a fresh subagent review (see "Subagent prompt").
++- When no FINAL that can block will run (legacy N=1, legacy `--skip-final-review`, or any legacy run, whose FINAL is advisory), the run's final summary prints every recorded minor with its checklist answers. The summary is informational and never asks the user anything.
++- A batch task whose A2 has only minor or note findings completes on this path instead of halting `batch`. A batch A2 with a confirmed blocker still halts `batch`.
++
+ ## Halt table
+ 
+ | Verdict after Q4 (or after Q5 re-QA) | Action | T{i+1}? |
+diff --git a/tests/skills/test_workflow_archive.py b/tests/skills/test_workflow_archive.py
+index ed360e99..aaf4dd5d 100644
+--- a/tests/skills/test_workflow_archive.py
++++ b/tests/skills/test_workflow_archive.py
+@@ -1127,3 +1127,39 @@ def test_symlinked_brief_file_is_rejected(tmp_path):
+     pk.final(state="0" * 64)
+     fails(pk, "E-ARCHIVE-PACKAGE")
+     assert not pk.done.exists()
++
++
++# --- notes@ evidence token (accepted-minor path) ------------------------------------
++NOTES_EXAMPLE = (
++    "T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 "
++    "evidence=T1.AC1@docs/user-guide/memory-system.md:12,"
++    "T1.AC2@docs/user-guide/memory-system.md:40,T1.AC3@docs/memory/README.md:8,"
++    "T1.AC4@docs/memory/README.md:21,"
++    "notes@.dev/implement/03-memory-docs-f5865990/retries/T1/notes.md:1-3 "
++    "extras=lint:skip,typecheck:skip,test:skip "
++    "files=docs/user-guide/memory-system.md,docs/memory/README.md"
++)
++
++
++def test_verdict_regex_matches_notes_example_line_with_exact_files():
++    m = aw._VERDICT.match(NOTES_EXAMPLE)
++    assert m is not None
++    assert m.group(4) == "T1.AC1,T1.AC2,T1.AC3,T1.AC4"
++    assert m.group(6) == "docs/user-guide/memory-system.md,docs/memory/README.md"
++
++
++def test_field_after_files_is_swallowed_into_files():
++    line = f"T1: complete verdict=compliant ac=T1.AC1 evidence=src/a.py:1 {OK} files=src/a.py notes=x"
++    m = aw._VERDICT.match(line)
++    assert m is not None
++    assert m.group(6) == "src/a.py notes=x"
++
++
++def test_compliant_complete_with_notes_token_keeps_print_state_files(tmp_path):
++    pk = Pkg(tmp_path / "r", tasks=("1",))
++    before = aw.print_state(pk.root, pk.pkg)["files"]
++    pk.append(
++        f"T1: complete verdict=compliant ac=T1.AC1 evidence=T1.AC1@src/a.py:1,"
++        f"notes@./artifacts/retries/T1/notes.md:1-2 {OK} files=src/a.py"
++    )
++    assert aw.print_state(pk.root, pk.pkg)["files"] == before == ["src/a.py"]

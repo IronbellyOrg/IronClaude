@@ -1,0 +1,164 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index cec2c0a1..22d6c890 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -151,7 +151,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ### Whole-list review
+ 
+-**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass).
++**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass). The pass applies the FINAL derived test of `refs/qa.md` and stays advisory.
+ 
+ **Managed packages.** Not advisory and never skipped: every archive attempt runs the fresh FINAL and the helper archive in `refs/managed-workspace.md`, even for N=1 and on resume.
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md b/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+index c7744446..767a2446 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+@@ -51,7 +51,7 @@ Archive gate, **every attempt** (N=1, resume, retry; an earlier FINAL never coun
+ 1. Join every delegated writer / background task. Nothing may still be writing the package or delivery files.
+ 2. `--skip-final-review` → no FINAL and no archive: STOP `E-ARCHIVE-BLOCKED` (`--skip-final-review` prevents archiving a managed package).
+ 3. State: `uv run --no-project python "<skill base>/scripts/archive_workspace.py" --root "<checkout>" --package "<checkout>/.dev/tasks/to-do/<slug>" --print-state` → JSON `{"status": "state", "state": "<sha256>", "files": [...]}` (the plan/source/delivery-file digest; `files` = every repo-relative path named in a ledger `files=` field, so list every delivery file there). Failure → STOP `E-ARCHIVE-BLOCKED` with the helper's code.
+-4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it. For a user-accepted gap, verify the current outcome still matches the recorded scoped acceptance and cite the unmet AC honestly; any new or changed unaccepted gap → `issues`. Do not mark unmet AC as met or change the non-compliant task verdict.
++4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it. For a user-accepted gap, verify the current outcome still matches the recorded scoped acceptance and cite the unmet AC honestly; any new or changed unaccepted gap → `issues`. Do not mark unmet AC as met or change the non-compliant task verdict. The reviewer applies the FINAL derived test of `refs/qa.md`: a notes entry whose answers are all `no` is never `issues`, and a notes entry with a confirmed `yes` is `issues`.
+ 5. Re-run step 3. If `state` changed during the review, discard the result and repeat from step 1. Otherwise append (after all task lines and the latest `PLAN:` pin):
+ 
+ ```
+@@ -84,3 +84,4 @@ An existing `.archiving` marker always stops. If a run was killed mid-archive th
+ | real direct package under to-do/done, no symlink escape, schema/slug/contract, pins vs disk, every task complete (matching task Ruling for unchanged non-compliant verdict fields), FINAL pass last and bound to the current state digest, no existing marker, no-replace move, recovery token | **executable** (`scripts/archive_workspace.py`, tested in `tests/skills/test_workflow_archive.py`) |
+ | concurrent writers on one package, non-cooperating checkout writers | unsupported; not claimed. The retry ladder reverts a non-cooperating writer's edits to files in the task's revert domain; they are kept only in the sweep refs (`refs/retry.md`) |
+ | delivery files missing from every ledger `files=` field, and `./artifacts/*` content | not covered by the state digest; only the FINAL reviewer (protocol) can notice stale evidence |
++| saved reviewer prompt (`<retries>/T<id>/prompt-<k>.md`) matches the reviewer template outside the slots | **protocol** (the FINAL reviewer compares them; no executable check can prove what a prompt contained) |
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index c5404680..102a47a9 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -231,6 +231,46 @@ The executor MUST automatically append the existing three-field Ruling, identify
+ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cost-if-wrong>
+ ```
+ 
++## Interruption table per attempt
++
++| Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |
++|---|---|---|---|---|
++| A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |
++| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
++| A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
++| A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
++| A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |
++| legacy FINAL | `blocking` only, advisory (never reopens a task) | never | never (summary only) | no |
++| managed FINAL | `blocking` only (`issues`) | `blocking` only (`E-ARCHIVE-BLOCKED`) | `blocking` only | no |
++
++Mapping: high = any confirmed checklist `yes` = `blocking`; medium, IMPORTANT without a `yes`, low-medium, low and cosmetic = `minor` or `note`. Every minor and note is recorded in the notes file and cleared: no halt, no Ruling, no user prompt, at every row. "Cleared" means recorded and closed, not necessarily edited. The FINAL still runs. The only non-finding interrupts are the STOP rows of the STOP table in `SKILL.md` (see "Closed list of interrupts" below).
++
++## Closed list of interrupts
++
++Each line names the path, when it fires and why it stays.
++
++1. `E-HALT-QA` after a ladder halt (`ladder-end`, `advice-rejected`, `no-runner-up`, `brief-invalid`, `budget`, `batch`, `no-snapshot`, `head-moved`, `no-evidence`): reachable only after an attempt failed on a confirmed blocker that a repair could not close. Kept because a real failure must block and the revert guards protect data. The halt message and any Ruling request list blocking findings only.
++2. `dispute` halt: only when the adviser disputes a blocking finding or the AC itself. Kept because a disputed AC is a user decision.
++3. `E-NO-RULING`: reachable only when someone tries to continue past a non-compliant verdict, which now exists only with a blocker. Kept as the user-acceptance safety gate.
++4. `operator-review`: user-initiated after a halt, never started by automation.
++5. `E-RESUME-NEEDED` (`reviewer-down` after a second paperwork-only or unparseable review, `ref-failed` including a notes file that cannot be written, incomplete revert, adviser agent missing): infrastructure, never about a finding; it asks the user to re-run, not to fix anything. Kept because continuing would record an unverified completion or risk data loss.
++6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
++7. `E-ARCHIVE-BLOCKED` (managed): FINAL `issues` naming a blocking defect at the end state (see "FINAL derived test" below), `--skip-final-review` on a managed package, or a helper refusal. Kept because FINAL is never waived.
++
++No other path may stop automation or prompt the user. Every halt message and Ruling request lists blocking findings only. A minors-only replay writes no `halt` and no `Ruling:` line.
++
++## FINAL derived test
++
++This is the single statement for both FINALs (the managed archive FINAL and the legacy Whole-list review).
++
++- Both FINALs read the notes, probe, prompt and review files in `<retries>/T<id>/`, apply the severity test of "## Severity model" with the anchor Read-back to the end state, and return `issues` only for a blocking defect. The legacy FINAL applies the same test and stays advisory.
++- A notes entry whose answers are all `no` is cited `noted` and is not an unmet AC; a notes entry with a confirmed `yes` is `issues` even when its line labels it minor.
++- History: a blocking line of a `review-*.md` that a later status line or a later repair file marks `resolved`, and a notes line prefixed `superseded `, is history. FINAL judges the end state, not those lines.
++- Saved prompts: compare each `prompt-<k>.md` with the reviewer template; when the two differ outside the slots, return `issues` (managed) or record it in `FINAL:` evidence (legacy).
++- The legacy FINAL trigger depends on task status, not on the verdict value, so the accepted-minor path leaves it unchanged. The accepted-minor path writes no `FINAL:` or `ARCHIVE:` line. For N=1 there is no legacy FINAL; that is existing behaviour, not a waiver.
++
++Residual risk, stated: the FINAL is defence in depth only. Legacy N=1 runs and `--skip-final-review` runs get no FINAL re-check of the notes. The primary gate against a misgraded finding is the mechanical derivation and the anchor Read-back; for those runs the final summary prints every recorded minor.
++
+ ## Isolation (fail the rewrite if violated)
+ 
+ - Reviewer instructions include: `Do not trust the implementer's report.`
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index cec2c0a1..22d6c890 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -151,7 +151,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ### Whole-list review
+ 
+-**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass).
++**Legacy sources.** After the last task is `complete`, when N>1 and not `--skip-final-review`: one reviewer pass vs the full spec + full ledger. The pass also reads every brief named by a `retry … step=revert` record and every file in `<retries>/T<id>/`, and judges WHAT against the spec. Append `FINAL: pass|issues evidence=...`. Advisory. Do not rewrite per-task verdicts. Do not reopen completed tasks unless the operator says so. N=1: skip (the per-task review is that pass). The pass applies the FINAL derived test of `refs/qa.md` and stays advisory.
+ 
+ **Managed packages.** Not advisory and never skipped: every archive attempt runs the fresh FINAL and the helper archive in `refs/managed-workspace.md`, even for N=1 and on resume.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md b/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+index c7744446..767a2446 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+@@ -51,7 +51,7 @@ Archive gate, **every attempt** (N=1, resume, retry; an earlier FINAL never coun
+ 1. Join every delegated writer / background task. Nothing may still be writing the package or delivery files.
+ 2. `--skip-final-review` → no FINAL and no archive: STOP `E-ARCHIVE-BLOCKED` (`--skip-final-review` prevents archiving a managed package).
+ 3. State: `uv run --no-project python "<skill base>/scripts/archive_workspace.py" --root "<checkout>" --package "<checkout>/.dev/tasks/to-do/<slug>" --print-state` → JSON `{"status": "state", "state": "<sha256>", "files": [...]}` (the plan/source/delivery-file digest; `files` = every repo-relative path named in a ledger `files=` field, so list every delivery file there). Failure → STOP `E-ARCHIVE-BLOCKED` with the helper's code.
+-4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it. For a user-accepted gap, verify the current outcome still matches the recorded scoped acceptance and cite the unmet AC honestly; any new or changed unaccepted gap → `issues`. Do not mark unmet AC as met or change the non-compliant task verdict.
++4. One independent reviewer (always a Task subagent, even N=1; `refs/qa.md` isolation rules) gets the current full plan, the full ledger, and the current contents of each listed delivery file. Pass absolute paths (include the package root so `./artifacts/` tokens resolve) or inline contents; the reviewer must read the real current files. It verifies every task's AC against the real files and returns `pass` or `issues` with `path:line` evidence. Missing or unverifiable evidence → `issues`, as `refs/qa.md` (Managed FINAL review) defines it. For a user-accepted gap, verify the current outcome still matches the recorded scoped acceptance and cite the unmet AC honestly; any new or changed unaccepted gap → `issues`. Do not mark unmet AC as met or change the non-compliant task verdict. The reviewer applies the FINAL derived test of `refs/qa.md`: a notes entry whose answers are all `no` is never `issues`, and a notes entry with a confirmed `yes` is `issues`.
+ 5. Re-run step 3. If `state` changed during the review, discard the result and repeat from step 1. Otherwise append (after all task lines and the latest `PLAN:` pin):
+ 
+ ```
+@@ -84,3 +84,4 @@ An existing `.archiving` marker always stops. If a run was killed mid-archive th
+ | real direct package under to-do/done, no symlink escape, schema/slug/contract, pins vs disk, every task complete (matching task Ruling for unchanged non-compliant verdict fields), FINAL pass last and bound to the current state digest, no existing marker, no-replace move, recovery token | **executable** (`scripts/archive_workspace.py`, tested in `tests/skills/test_workflow_archive.py`) |
+ | concurrent writers on one package, non-cooperating checkout writers | unsupported; not claimed. The retry ladder reverts a non-cooperating writer's edits to files in the task's revert domain; they are kept only in the sweep refs (`refs/retry.md`) |
+ | delivery files missing from every ledger `files=` field, and `./artifacts/*` content | not covered by the state digest; only the FINAL reviewer (protocol) can notice stale evidence |
++| saved reviewer prompt (`<retries>/T<id>/prompt-<k>.md`) matches the reviewer template outside the slots | **protocol** (the FINAL reviewer compares them; no executable check can prove what a prompt contained) |
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index c5404680..102a47a9 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -231,6 +231,46 @@ The executor MUST automatically append the existing three-field Ruling, identify
+ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cost-if-wrong>
+ ```
+ 
++## Interruption table per attempt
++
++| Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |
++|---|---|---|---|---|
++| A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |
++| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
++| A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
++| A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
++| A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |
++| legacy FINAL | `blocking` only, advisory (never reopens a task) | never | never (summary only) | no |
++| managed FINAL | `blocking` only (`issues`) | `blocking` only (`E-ARCHIVE-BLOCKED`) | `blocking` only | no |
++
++Mapping: high = any confirmed checklist `yes` = `blocking`; medium, IMPORTANT without a `yes`, low-medium, low and cosmetic = `minor` or `note`. Every minor and note is recorded in the notes file and cleared: no halt, no Ruling, no user prompt, at every row. "Cleared" means recorded and closed, not necessarily edited. The FINAL still runs. The only non-finding interrupts are the STOP rows of the STOP table in `SKILL.md` (see "Closed list of interrupts" below).
++
++## Closed list of interrupts
++
++Each line names the path, when it fires and why it stays.
++
++1. `E-HALT-QA` after a ladder halt (`ladder-end`, `advice-rejected`, `no-runner-up`, `brief-invalid`, `budget`, `batch`, `no-snapshot`, `head-moved`, `no-evidence`): reachable only after an attempt failed on a confirmed blocker that a repair could not close. Kept because a real failure must block and the revert guards protect data. The halt message and any Ruling request list blocking findings only.
++2. `dispute` halt: only when the adviser disputes a blocking finding or the AC itself. Kept because a disputed AC is a user decision.
++3. `E-NO-RULING`: reachable only when someone tries to continue past a non-compliant verdict, which now exists only with a blocker. Kept as the user-acceptance safety gate.
++4. `operator-review`: user-initiated after a halt, never started by automation.
++5. `E-RESUME-NEEDED` (`reviewer-down` after a second paperwork-only or unparseable review, `ref-failed` including a notes file that cannot be written, incomplete revert, adviser agent missing): infrastructure, never about a finding; it asks the user to re-run, not to fix anything. Kept because continuing would record an unverified completion or risk data loss.
++6. Input and integrity STOPs (`E-NO-SOURCE`, `E-SOURCE-MISSING`, `E-NO-TASKS`, `E-NO-AC`, `E-LEGACY`, `E-LEDGER-CORRUPT`, `E-LEDGER-PATH`, `E-MANAGED-INVALID`, `E-MANAGED-CONFLICT`, `E-PLAN-CHANGED`, `E-ARCHIVE-MARKER`): occur before or outside per-task QA. Kept unchanged.
++7. `E-ARCHIVE-BLOCKED` (managed): FINAL `issues` naming a blocking defect at the end state (see "FINAL derived test" below), `--skip-final-review` on a managed package, or a helper refusal. Kept because FINAL is never waived.
++
++No other path may stop automation or prompt the user. Every halt message and Ruling request lists blocking findings only. A minors-only replay writes no `halt` and no `Ruling:` line.
++
++## FINAL derived test
++
++This is the single statement for both FINALs (the managed archive FINAL and the legacy Whole-list review).
++
++- Both FINALs read the notes, probe, prompt and review files in `<retries>/T<id>/`, apply the severity test of "## Severity model" with the anchor Read-back to the end state, and return `issues` only for a blocking defect. The legacy FINAL applies the same test and stays advisory.
++- A notes entry whose answers are all `no` is cited `noted` and is not an unmet AC; a notes entry with a confirmed `yes` is `issues` even when its line labels it minor.
++- History: a blocking line of a `review-*.md` that a later status line or a later repair file marks `resolved`, and a notes line prefixed `superseded `, is history. FINAL judges the end state, not those lines.
++- Saved prompts: compare each `prompt-<k>.md` with the reviewer template; when the two differ outside the slots, return `issues` (managed) or record it in `FINAL:` evidence (legacy).
++- The legacy FINAL trigger depends on task status, not on the verdict value, so the accepted-minor path leaves it unchanged. The accepted-minor path writes no `FINAL:` or `ARCHIVE:` line. For N=1 there is no legacy FINAL; that is existing behaviour, not a waiver.
++
++Residual risk, stated: the FINAL is defence in depth only. Legacy N=1 runs and `--skip-final-review` runs get no FINAL re-check of the notes. The primary gate against a misgraded finding is the mechanical derivation and the anchor Read-back; for those runs the final summary prints every recorded minor.
++
+ ## Isolation (fail the rewrite if violated)
+ 
+ - Reviewer instructions include: `Do not trust the implementer's report.`

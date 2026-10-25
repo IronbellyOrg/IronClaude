@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-planTheSpecAtDev-20261024-182838
+plan_path: ./TASK-WF-planTheSpecAtDev-20261024-182838.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /config/workspace/IronClaude/.dev/worktrees/Implement_Loosen/.dev/reflect/pre-planTheSpecAtDev-20261024183538/REPORT.md
+unresolved:
+  - "Advisory reflect (--mode pre) verdict fail: 27 findings (2 high, 11 medium, 14 low) in .dev/reflect/pre-planTheSpecAtDev-20261024183538/adversarial/merged-verdict.yaml; the 2 high are SPEC contradictions the plan copies. The plan was not edited from these findings."

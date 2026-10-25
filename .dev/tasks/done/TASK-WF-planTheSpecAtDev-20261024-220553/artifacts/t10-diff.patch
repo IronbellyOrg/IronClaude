@@ -1,0 +1,350 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index 5ff62de8..0f9c06ee 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -157,7 +157,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ## Done
+ 
+-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
++Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-3-b.md` (`refs/retry.md`, Model ladder). Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+ 
+ Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index f120ed78..50470847 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -181,7 +181,7 @@ A non-blocking `late` finding is a note. A finding whose flagged text is absent
+ 
+ ## Notes file and accepted-minor path
+ 
+-**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route rule that Task 10 of this plan adds).
++**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route dispute rule of procedure step 3 in `refs/retry.md`).
+ 
+ - The folder already exists for every tree-snapshot task, because Q0 writes `q0-head` there, and the revert domain excludes `<retries>`, so notes survive any revert. A task whose start is `nogit` or a HEAD fallback has no `q0-head`; it creates the folder when it first writes the file.
+ - Fail closed: if the file cannot be written, STOP `E-RESUME-NEEDED reason=ref-failed`, with no ledger line and no `blocked` line.
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 37f04086..1695dd47 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -8,7 +8,7 @@ Loaded when A2 (the one fix pass) still fails review, or when resume finds a `re
+ |---|---|---|---|
+ | A1 | executor (Q1, unchanged) | Q0 snapshot | original AC (Q3-Q4, unchanged) |
+ | A2 | executor, one fix pass (Q5, unchanged) | A1 result | original AC |
+-| A3 | executor, following brief 3 from one adviser one rung up the model ladder (one adviser on the top rung when the executor's rung is unknown), or two advisers on the top rung when the executor is known to be on the top rung (see "Model ladder") | Q0 snapshot (A1+A2 reverted) | original AC |
++| A3 | executor, following brief 3 from **two** advisers spawned in one message, one from each model family: adviser A from the executor's own family one rung up (the top rung when the executor is already on top or its tier is unknown), adviser B from the other family (see "Model ladder") | Q0 snapshot (A1+A2 reverted) | original AC |
+ | A4 | executor, following brief 4 from **two** advisers on the top rung, one chosen by the procedure step 4 check | Q0 snapshot (A3 reverted) | original AC |
+ | A5 | executor, following brief 5: the escalation-2 **runner-up** advice, which the parent refactors with the lessons from A4's failure (no new adviser) | Q0 snapshot (A4 reverted) | original AC |
+ | A5 fails | `blocked`, then `halt review=5 reason=ladder-end`; HALT `E-HALT-QA` (existing code, existing `fix \| ruling \| resume` options) | | |
+@@ -70,8 +70,8 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+ 
+ 2. **Procedure step 2, the diff.** Write `attempt-<k>.diff` = `git -C "$top" diff --no-renames "$start" <checkpoint tree> -- <every path of the checkpoint tree's revert domain, each as ':(literal)<p>'>` (the domain of The revert, computed with the checkpoint tree in place of `now`). Kept so the adviser, which has no Bash, can read the failed change. Cap the file at 256 KiB and end a cut file with the line `[truncated at 256 KiB; the full change is in the checkpoint tree until the task completes]`. On resume it is rebuilt from the recorded sha.
+ 
+-3. **Adviser(s).** Spawn **before** reverting so they can read the live failed tree (model choice: Model ladder). With two advisers, spawn both in one message and save both answers only after both return; neither has Write, so neither sees the other's answer. The parent saves each answer verbatim as `advice-<n>.md` (two advisers: `advice-<n>-a.md`, `advice-<n>-b.md`), with a header naming the ladder entry used. This matches the existing read-only-agent pattern, where the agent returns its report and the orchestrator writes it. The answer contains:
+-   - `outcome: ready | dispute`. `dispute` when the AC is contradictory or infeasible, or a review finding is not supported by its own citations.
++3. **Advisers.** Spawn **before** reverting so they can read the live failed tree (model choice: Model ladder). Spawn both in one message and save both answers only after both return; neither has Write, so neither sees the other's answer. Advisers and fixers get the finding lines verbatim, never a paraphrase, with regressions first. The parent saves each answer verbatim as `advice-<n>-a.md` and `advice-<n>-b.md`, with a header naming the ladder entry used. This matches the existing read-only-agent pattern, where the agent returns its report and the orchestrator writes it. The answer contains:
++   - `outcome: ready | dispute`. `dispute` when the AC is contradictory or infeasible, or a review finding is not supported by its own citations. A `dispute` counts as one only when it names a blocking finding of `review-<k>.md` or the AC itself. A dispute of a minor or note is written to the notes file as a dispute line in the format of "Notes file" in `refs/qa.md`, and the answer is treated as `ready` for the parent check.
+    - For `ready`: one row per original `Ti.ACk`: why earlier attempts missed it, and the change to make. Every citation points to a file that survives the revert: `attempt-<k>.diff:<line>`, `review-<k>.md:<line>`, `extras-<k>.log:<line>`, or a source file unchanged since the task started (the parent checks this, below).
+    - `differs-by:` the single decision that differs from every earlier approach.
+    - Numbered steps, which become `T<id>_brief-<n>.md`. The adviser never copies or restates the AC; the parent adds the verbatim AC block (procedure step 6), and the reviewer always uses the original AC.
+@@ -83,11 +83,11 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+    Spawn the adviser by agent type, using the first of these that is available: (1) `implement-retry-adviser` itself (a CLI install, or the project `.claude/agents/` copy); (2) the plugin-scoped type that ends in `:implement-retry-adviser` and carries the same plugin prefix as this skill's own plugin-scoped name (do not guess the plugin prefix). Never use another plugin's type with that suffix. If neither is available, or the Agent call fails because it is not installed, STOP `E-RESUME-NEEDED reason=adviser-missing` with no ledger line and print `run superclaude install (or make sync-dev in this repository) or install the SuperClaude plugin, then re-run the same command`. Any other call error fails the check, as above.
+    - No answer passes: spawn one fresh critique adviser for this escalation (same rung), given the failed checks; save it as `advice-<n>-c.md`. If it also fails, append `halt review=<k> reason=<r>` with r = `advice-rejected` and STOP `E-HALT-QA`.
+    - One answer passes: it wins.
+-   - Two pass: the parent compares them and records why. The winner is the answer whose rows cite more distinct `review-<k>.md:<line>` findings; on a tie, `-a` wins. This is a mechanical comparison with no claim that it picks the more correct brief. The loser is the runner-up and its file is kept as is. The pick line that opens `T<id>_brief-<n>.md` is defined in procedure step 6.
++   - Two pass: the parent compares them and records why. The winner is the answer whose rows cite more distinct blocking findings of `review-<k>.md` (`review-<k>.md:<line>`; minors and notes are not counted); on a tie, `-a` wins. This is a mechanical comparison with no claim that it picks the more correct brief. The loser is the runner-up and its file is kept as is. The pick line that opens `T<id>_brief-<n>.md` is defined in procedure step 6.
+ 
+    On a resume into an escalation whose advice was not yet recorded (Resume row O in `refs/ledger.md`), the parent re-spawns its advisers and overwrites that escalation's advice files. The spawn caps in Cost and caps count per pass.
+ 
+-5. **Procedure step 5, `dispute` stops and reverts nothing.** If any answer that passes its check is a `dispute`, append `halt review=<k> reason=<r>` with r = `dispute` and STOP `E-HALT-QA`, listing the advice file and the recorded checkpoint sha. A dispute is the operator's call (Ruling path, `refs/qa.md`).
++5. **Procedure step 5, `dispute` stops and reverts nothing.** If any answer that passes its check is a `dispute` that names a blocking finding of `review-<k>.md` or the AC itself, append `halt review=<k> reason=<r>` with r = `dispute` and STOP `E-HALT-QA`, listing the advice file and the recorded checkpoint sha. A dispute is the operator's call (Ruling path, `refs/qa.md`).
+ 
+    Every halt in procedure steps 3-5 leaves failed attempt k in the worktree; nothing has been reverted.
+ 
+@@ -103,7 +103,6 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+ 
+    Pick-line forms:
+    - two answers pass: `pick: advice-<n>-<x>.md; runner-up: advice-<n>-<y>.md; reason: <a> vs <b> review findings cited` or `…; reason: tie, -a` (procedure step 4);
+-   - one adviser was spawned and its answer passed: `pick: advice-<n>.md; runner-up: none; reason: single adviser`;
+    - two advisers, one passed: `pick: advice-<n>-<x>.md; runner-up: none; reason: only passing answer`;
+    - the critique answer passed: `pick: advice-<n>-c.md; runner-up: none; reason: critique adviser`;
+    - n = 5: `pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`.
+@@ -138,7 +137,7 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ - The runner-up is the escalation-2 answer that passed the procedure step 4 check and lost the pick. If there is none (only one answer passed, or the critique adviser was used), append `halt review=4 reason=no-runner-up` and STOP `E-HALT-QA`. (`review=4` is the k-rule value: the last ladder record is `retry n=5 step=open`, so k = 4.)
+ - The parent writes `T<id>_brief-5.md` in the one layout of procedure step 6: the pick line `pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`; the task heading; the verbatim `Acceptance criteria:` block; `Steps:` with the runner-up's steps as refactored, keeping any A4 step the review shows did work (citing `review-4.md:<line>` or `attempt-4.diff:<line>`); the `lessons from A4:` block with one line per A4 failure finding citing `review-4.md:<line>`; and a last `differs-by:` line naming how brief 5 differs from brief 4. Procedure step 6 then only appends `retry n=5 step=revert …`.
+-- The parent checks `T<id>_brief-5.md` before procedure step 6. It fails if any of these holds: the `Acceptance criteria:` block is not byte-equal to the AC QUALIFY output; the runner-up file `advice-4-<y>.md` named on the pick line did not pass the escalation-2 parent check (its `Ti.ACk` rows, one per AC id, stay in that file); `review-4.md` has a failure finding with no `lessons from A4:` line citing it; any citation in the steps or the lessons block does not Read back, or (for a source file) fails the citation-stability rule (procedure step 4) against attempt 4's checkpoint tree; the `differs-by:` line is empty or equal to `T<id>_brief-4.md`'s `differs-by:` line. A failed check → append `halt review=4 reason=brief-invalid` and STOP `E-HALT-QA`. There is no critique round, because no adviser is involved. The `retry n=5 step=revert` record for `T<id>_brief-5.md` carries `supersedes=T<id>_brief-4.md`.
++- The parent checks `T<id>_brief-5.md` before procedure step 6. It fails if any of these holds: the `Acceptance criteria:` block is not byte-equal to the AC QUALIFY output; the runner-up file `advice-4-<y>.md` named on the pick line did not pass the escalation-2 parent check (its `Ti.ACk` rows, one per AC id, stay in that file); `review-4.md` has a failure finding with no `lessons from A4:` line citing it (a failure finding is a blocking finding of `review-4.md`; minors and notes need no `lessons from A4:` line); any citation in the steps or the lessons block does not Read back, or (for a source file) fails the citation-stability rule (procedure step 4) against attempt 4's checkpoint tree; the `differs-by:` line is empty or equal to `T<id>_brief-4.md`'s `differs-by:` line. A failed check → append `halt review=4 reason=brief-invalid` and STOP `E-HALT-QA`. There is no critique round, because no adviser is involved. The `retry n=5 step=revert` record for `T<id>_brief-5.md` carries `supersedes=T<id>_brief-4.md`.
+ - If A5 fails, procedure step 0 records its evidence and `blocked` line, then append `halt review=5 reason=ladder-end` and STOP `E-HALT-QA` with no checkpoint and no revert: the A5 tree stays for the operator, as today's halt leaves A2's.
+ 
+ ### Model ladder
+@@ -147,20 +146,30 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ **Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2_Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2_Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
+ 
+-**Escalation rule.** Executor known on rung i below the top: escalation 1 = 1 adviser on rung i+1. Executor known on the top rung: escalation 1 = 2 advisers on the top rung. Tier unknown: escalation 1 = 1 adviser on the top rung (so the two escalations still differ). Escalation 2 = 2 advisers on the top rung, always. A critique adviser uses its escalation's rung. Primary-ladder example: an executor on `T2_Model02` or `T2_Model01` gets 1 adviser on `T1_Model02`, then 2 on `T1_Model01`; on `T3_Model01`, 1 on `T2_Model02`; on `T1_Model02`, 1 on `T1_Model01`. Worked example with the fallback ladder:
++**Escalation rule.** Escalation 1 always spawns two advisers in one message, never one, from different model families. The family is read from the model id with any trailing `[...]` suffix stripped: a `claude-` prefix is Claude, a `gpt-` prefix is GPT.
++- `advice-3-a.md`: the executor's own model family, one rung up the active ladder; the top rung when the executor is already on the top rung or its tier is unknown.
++- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1_Model01`, else `T1_Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
++- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1_Model01` when the executor is not already on it, else `T1_Model02`, else the same T1 model).
++- The pick uses the two-answer rule of procedure step 4 (a tie goes to `-a`); the critique adviser uses adviser A's model.
+ 
+-| Executor tier | Escalation 1 (A3) | Escalation 2 (A4) |
+-|---|---|---|
+-| `haiku` | 1× `sonnet` | 2× `opus` |
+-| `sonnet` | 1× `opus` | 2× `opus` |
+-| `opus` (known) | 2× `opus` (spec requirement) | 2× `opus` |
+-| unknown | 1× `opus` (so the two escalations still differ) | 2× `opus` |
++Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2_Model02` or `T2_Model01` gets adviser A on `T1_Model02` and adviser B on the GPT T1 model, then 2 on `T1_Model01`; on `T3_Model01`, adviser A on `T2_Model02`; on `T1_Model02`, adviser A on `T1_Model01`. Worked example with the fallback ladder:
++
++| Executor tier | Escalation 1 (A3), adviser A | Escalation 1 (A3), adviser B | Escalation 2 (A4) |
++|---|---|---|---|
++| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |
++| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |
++| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |
++| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |
++
++**Resolving adviser B.** Before spawning, the parent resolves adviser B's model id and writes it on line 1 of `advice-3-b.md`: `model: <id> family: <claude|gpt> rung: <T1|top>`. When no model of the other family can be reached, the parent spawns adviser B on the strongest reachable model and writes `family-fallback: <reason>` on that header line; the final summary lists every such fallback. This never STOPs and never prompts the user: a missing model is configuration, not a finding. The verified spawn path for a GPT T1 model on this install:
++
++GPT spawn path: none verified; family-fallback applies
+ 
+ The adviser's effort is pinned by `effort:` in its agent file; do not rely on any per-call effort setting. The model tier comes from the Agent call's `model` parameter.
+ 
+ ### Cost and caps
+ 
+-Cost per escalated task, counted rather than measured: escalation 1 adds 1 adviser spawn (2 when the executor is known to be on the top rung), escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
++Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
+ 
+ Each review may also spawn one reviewer respawn (up to 18 reviewer spawns per task). Each crash during a review adds one Row V re-review (Resume in `refs/ledger.md`). A resume into an escalation whose advice was not recorded spawns that escalation's advisers again (counted per pass). Each resume after a halt adds one operator review. Per run: at most `RETRY_BUDGET` tasks enter the ladder (When the ladder runs, check 4).
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index 5ff62de8..0f9c06ee 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -157,7 +157,7 @@ Extra `fail` does not change the spec verdict. A task MUST NOT be marked `compli
+ 
+ ## Done
+ 
+-Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
++Every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus operator Ruling). Print the ledger path. A `compliant` line may carry a `notes@` token (complete with notes, `refs/qa.md`). When no FINAL that can block ran (any legacy run, including N=1 and `--skip-final-review`), the final summary also prints lines 2 to m of each task's notes file with their checklist answers, informational only, asking the user nothing. The final summary also prints every `family-fallback:` header line of an `advice-3-b.md` (`refs/retry.md`, Model ladder). Suggest `/sc:test` and `/sc:git` only as optional next steps, not gates.
+ 
+ Legacy: if all tasks already `complete` on invoke: STOP `already complete: <ledger path>`.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index f120ed78..50470847 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -181,7 +181,7 @@ A non-blocking `late` finding is a note. A finding whose flagged text is absent
+ 
+ ## Notes file and accepted-minor path
+ 
+-**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route rule that Task 10 of this plan adds).
++**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route dispute rule of procedure step 3 in `refs/retry.md`).
+ 
+ - The folder already exists for every tree-snapshot task, because Q0 writes `q0-head` there, and the revert domain excludes `<retries>`, so notes survive any revert. A task whose start is `nogit` or a HEAD fallback has no `q0-head`; it creates the folder when it first writes the file.
+ - Fail closed: if the file cannot be written, STOP `E-RESUME-NEEDED reason=ref-failed`, with no ledger line and no `blocked` line.
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/retry.md b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 37f04086..1695dd47 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -8,7 +8,7 @@ Loaded when A2 (the one fix pass) still fails review, or when resume finds a `re
+ |---|---|---|---|
+ | A1 | executor (Q1, unchanged) | Q0 snapshot | original AC (Q3-Q4, unchanged) |
+ | A2 | executor, one fix pass (Q5, unchanged) | A1 result | original AC |
+-| A3 | executor, following brief 3 from one adviser one rung up the model ladder (one adviser on the top rung when the executor's rung is unknown), or two advisers on the top rung when the executor is known to be on the top rung (see "Model ladder") | Q0 snapshot (A1+A2 reverted) | original AC |
++| A3 | executor, following brief 3 from **two** advisers spawned in one message, one from each model family: adviser A from the executor's own family one rung up (the top rung when the executor is already on top or its tier is unknown), adviser B from the other family (see "Model ladder") | Q0 snapshot (A1+A2 reverted) | original AC |
+ | A4 | executor, following brief 4 from **two** advisers on the top rung, one chosen by the procedure step 4 check | Q0 snapshot (A3 reverted) | original AC |
+ | A5 | executor, following brief 5: the escalation-2 **runner-up** advice, which the parent refactors with the lessons from A4's failure (no new adviser) | Q0 snapshot (A4 reverted) | original AC |
+ | A5 fails | `blocked`, then `halt review=5 reason=ladder-end`; HALT `E-HALT-QA` (existing code, existing `fix \| ruling \| resume` options) | | |
+@@ -70,8 +70,8 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+ 
+ 2. **Procedure step 2, the diff.** Write `attempt-<k>.diff` = `git -C "$top" diff --no-renames "$start" <checkpoint tree> -- <every path of the checkpoint tree's revert domain, each as ':(literal)<p>'>` (the domain of The revert, computed with the checkpoint tree in place of `now`). Kept so the adviser, which has no Bash, can read the failed change. Cap the file at 256 KiB and end a cut file with the line `[truncated at 256 KiB; the full change is in the checkpoint tree until the task completes]`. On resume it is rebuilt from the recorded sha.
+ 
+-3. **Adviser(s).** Spawn **before** reverting so they can read the live failed tree (model choice: Model ladder). With two advisers, spawn both in one message and save both answers only after both return; neither has Write, so neither sees the other's answer. The parent saves each answer verbatim as `advice-<n>.md` (two advisers: `advice-<n>-a.md`, `advice-<n>-b.md`), with a header naming the ladder entry used. This matches the existing read-only-agent pattern, where the agent returns its report and the orchestrator writes it. The answer contains:
+-   - `outcome: ready | dispute`. `dispute` when the AC is contradictory or infeasible, or a review finding is not supported by its own citations.
++3. **Advisers.** Spawn **before** reverting so they can read the live failed tree (model choice: Model ladder). Spawn both in one message and save both answers only after both return; neither has Write, so neither sees the other's answer. Advisers and fixers get the finding lines verbatim, never a paraphrase, with regressions first. The parent saves each answer verbatim as `advice-<n>-a.md` and `advice-<n>-b.md`, with a header naming the ladder entry used. This matches the existing read-only-agent pattern, where the agent returns its report and the orchestrator writes it. The answer contains:
++   - `outcome: ready | dispute`. `dispute` when the AC is contradictory or infeasible, or a review finding is not supported by its own citations. A `dispute` counts as one only when it names a blocking finding of `review-<k>.md` or the AC itself. A dispute of a minor or note is written to the notes file as a dispute line in the format of "Notes file" in `refs/qa.md`, and the answer is treated as `ready` for the parent check.
+    - For `ready`: one row per original `Ti.ACk`: why earlier attempts missed it, and the change to make. Every citation points to a file that survives the revert: `attempt-<k>.diff:<line>`, `review-<k>.md:<line>`, `extras-<k>.log:<line>`, or a source file unchanged since the task started (the parent checks this, below).
+    - `differs-by:` the single decision that differs from every earlier approach.
+    - Numbered steps, which become `T<id>_brief-<n>.md`. The adviser never copies or restates the AC; the parent adds the verbatim AC block (procedure step 6), and the reviewer always uses the original AC.
+@@ -83,11 +83,11 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+    Spawn the adviser by agent type, using the first of these that is available: (1) `implement-retry-adviser` itself (a CLI install, or the project `.claude/agents/` copy); (2) the plugin-scoped type that ends in `:implement-retry-adviser` and carries the same plugin prefix as this skill's own plugin-scoped name (do not guess the plugin prefix). Never use another plugin's type with that suffix. If neither is available, or the Agent call fails because it is not installed, STOP `E-RESUME-NEEDED reason=adviser-missing` with no ledger line and print `run superclaude install (or make sync-dev in this repository) or install the SuperClaude plugin, then re-run the same command`. Any other call error fails the check, as above.
+    - No answer passes: spawn one fresh critique adviser for this escalation (same rung), given the failed checks; save it as `advice-<n>-c.md`. If it also fails, append `halt review=<k> reason=<r>` with r = `advice-rejected` and STOP `E-HALT-QA`.
+    - One answer passes: it wins.
+-   - Two pass: the parent compares them and records why. The winner is the answer whose rows cite more distinct `review-<k>.md:<line>` findings; on a tie, `-a` wins. This is a mechanical comparison with no claim that it picks the more correct brief. The loser is the runner-up and its file is kept as is. The pick line that opens `T<id>_brief-<n>.md` is defined in procedure step 6.
++   - Two pass: the parent compares them and records why. The winner is the answer whose rows cite more distinct blocking findings of `review-<k>.md` (`review-<k>.md:<line>`; minors and notes are not counted); on a tie, `-a` wins. This is a mechanical comparison with no claim that it picks the more correct brief. The loser is the runner-up and its file is kept as is. The pick line that opens `T<id>_brief-<n>.md` is defined in procedure step 6.
+ 
+    On a resume into an escalation whose advice was not yet recorded (Resume row O in `refs/ledger.md`), the parent re-spawns its advisers and overwrites that escalation's advice files. The spawn caps in Cost and caps count per pass.
+ 
+-5. **Procedure step 5, `dispute` stops and reverts nothing.** If any answer that passes its check is a `dispute`, append `halt review=<k> reason=<r>` with r = `dispute` and STOP `E-HALT-QA`, listing the advice file and the recorded checkpoint sha. A dispute is the operator's call (Ruling path, `refs/qa.md`).
++5. **Procedure step 5, `dispute` stops and reverts nothing.** If any answer that passes its check is a `dispute` that names a blocking finding of `review-<k>.md` or the AC itself, append `halt review=<k> reason=<r>` with r = `dispute` and STOP `E-HALT-QA`, listing the advice file and the recorded checkpoint sha. A dispute is the operator's call (Ruling path, `refs/qa.md`).
+ 
+    Every halt in procedure steps 3-5 leaves failed attempt k in the worktree; nothing has been reverted.
+ 
+@@ -103,7 +103,6 @@ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Esca
+ 
+    Pick-line forms:
+    - two answers pass: `pick: advice-<n>-<x>.md; runner-up: advice-<n>-<y>.md; reason: <a> vs <b> review findings cited` or `…; reason: tie, -a` (procedure step 4);
+-   - one adviser was spawned and its answer passed: `pick: advice-<n>.md; runner-up: none; reason: single adviser`;
+    - two advisers, one passed: `pick: advice-<n>-<x>.md; runner-up: none; reason: only passing answer`;
+    - the critique answer passed: `pick: advice-<n>-c.md; runner-up: none; reason: critique adviser`;
+    - n = 5: `pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`.
+@@ -138,7 +137,7 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ - The runner-up is the escalation-2 answer that passed the procedure step 4 check and lost the pick. If there is none (only one answer passed, or the critique adviser was used), append `halt review=4 reason=no-runner-up` and STOP `E-HALT-QA`. (`review=4` is the k-rule value: the last ladder record is `retry n=5 step=open`, so k = 4.)
+ - The parent writes `T<id>_brief-5.md` in the one layout of procedure step 6: the pick line `pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`; the task heading; the verbatim `Acceptance criteria:` block; `Steps:` with the runner-up's steps as refactored, keeping any A4 step the review shows did work (citing `review-4.md:<line>` or `attempt-4.diff:<line>`); the `lessons from A4:` block with one line per A4 failure finding citing `review-4.md:<line>`; and a last `differs-by:` line naming how brief 5 differs from brief 4. Procedure step 6 then only appends `retry n=5 step=revert …`.
+-- The parent checks `T<id>_brief-5.md` before procedure step 6. It fails if any of these holds: the `Acceptance criteria:` block is not byte-equal to the AC QUALIFY output; the runner-up file `advice-4-<y>.md` named on the pick line did not pass the escalation-2 parent check (its `Ti.ACk` rows, one per AC id, stay in that file); `review-4.md` has a failure finding with no `lessons from A4:` line citing it; any citation in the steps or the lessons block does not Read back, or (for a source file) fails the citation-stability rule (procedure step 4) against attempt 4's checkpoint tree; the `differs-by:` line is empty or equal to `T<id>_brief-4.md`'s `differs-by:` line. A failed check → append `halt review=4 reason=brief-invalid` and STOP `E-HALT-QA`. There is no critique round, because no adviser is involved. The `retry n=5 step=revert` record for `T<id>_brief-5.md` carries `supersedes=T<id>_brief-4.md`.
++- The parent checks `T<id>_brief-5.md` before procedure step 6. It fails if any of these holds: the `Acceptance criteria:` block is not byte-equal to the AC QUALIFY output; the runner-up file `advice-4-<y>.md` named on the pick line did not pass the escalation-2 parent check (its `Ti.ACk` rows, one per AC id, stay in that file); `review-4.md` has a failure finding with no `lessons from A4:` line citing it (a failure finding is a blocking finding of `review-4.md`; minors and notes need no `lessons from A4:` line); any citation in the steps or the lessons block does not Read back, or (for a source file) fails the citation-stability rule (procedure step 4) against attempt 4's checkpoint tree; the `differs-by:` line is empty or equal to `T<id>_brief-4.md`'s `differs-by:` line. A failed check → append `halt review=4 reason=brief-invalid` and STOP `E-HALT-QA`. There is no critique round, because no adviser is involved. The `retry n=5 step=revert` record for `T<id>_brief-5.md` carries `supersedes=T<id>_brief-4.md`.
+ - If A5 fails, procedure step 0 records its evidence and `blocked` line, then append `halt review=5 reason=ladder-end` and STOP `E-HALT-QA` with no checkpoint and no revert: the A5 tree stays for the operator, as today's halt leaves A2's.
+ 
+ ### Model ladder
+@@ -147,20 +146,30 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ **Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2_Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2_Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
+ 
+-**Escalation rule.** Executor known on rung i below the top: escalation 1 = 1 adviser on rung i+1. Executor known on the top rung: escalation 1 = 2 advisers on the top rung. Tier unknown: escalation 1 = 1 adviser on the top rung (so the two escalations still differ). Escalation 2 = 2 advisers on the top rung, always. A critique adviser uses its escalation's rung. Primary-ladder example: an executor on `T2_Model02` or `T2_Model01` gets 1 adviser on `T1_Model02`, then 2 on `T1_Model01`; on `T3_Model01`, 1 on `T2_Model02`; on `T1_Model02`, 1 on `T1_Model01`. Worked example with the fallback ladder:
++**Escalation rule.** Escalation 1 always spawns two advisers in one message, never one, from different model families. The family is read from the model id with any trailing `[...]` suffix stripped: a `claude-` prefix is Claude, a `gpt-` prefix is GPT.
++- `advice-3-a.md`: the executor's own model family, one rung up the active ladder; the top rung when the executor is already on the top rung or its tier is unknown.
++- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1_Model01`, else `T1_Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
++- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1_Model01` when the executor is not already on it, else `T1_Model02`, else the same T1 model).
++- The pick uses the two-answer rule of procedure step 4 (a tie goes to `-a`); the critique adviser uses adviser A's model.
+ 
+-| Executor tier | Escalation 1 (A3) | Escalation 2 (A4) |
+-|---|---|---|
+-| `haiku` | 1× `sonnet` | 2× `opus` |
+-| `sonnet` | 1× `opus` | 2× `opus` |
+-| `opus` (known) | 2× `opus` (spec requirement) | 2× `opus` |
+-| unknown | 1× `opus` (so the two escalations still differ) | 2× `opus` |
++Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2_Model02` or `T2_Model01` gets adviser A on `T1_Model02` and adviser B on the GPT T1 model, then 2 on `T1_Model01`; on `T3_Model01`, adviser A on `T2_Model02`; on `T1_Model02`, adviser A on `T1_Model01`. Worked example with the fallback ladder:
++
++| Executor tier | Escalation 1 (A3), adviser A | Escalation 1 (A3), adviser B | Escalation 2 (A4) |
++|---|---|---|---|
++| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |
++| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |
++| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |
++| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |
++
++**Resolving adviser B.** Before spawning, the parent resolves adviser B's model id and writes it on line 1 of `advice-3-b.md`: `model: <id> family: <claude|gpt> rung: <T1|top>`. When no model of the other family can be reached, the parent spawns adviser B on the strongest reachable model and writes `family-fallback: <reason>` on that header line; the final summary lists every such fallback. This never STOPs and never prompts the user: a missing model is configuration, not a finding. The verified spawn path for a GPT T1 model on this install:
++
++GPT spawn path: none verified; family-fallback applies
+ 
+ The adviser's effort is pinned by `effort:` in its agent file; do not rely on any per-call effort setting. The model tier comes from the Agent call's `model` parameter.
+ 
+ ### Cost and caps
+ 
+-Cost per escalated task, counted rather than measured: escalation 1 adds 1 adviser spawn (2 when the executor is known to be on the top rung), escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
++Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
+ 
+ Each review may also spawn one reviewer respawn (up to 18 reviewer spawns per task). Each crash during a review adds one Row V re-review (Resume in `refs/ledger.md`). A resume into an escalation whose advice was not recorded spawns that escalation's advisers again (counted per pass). Each resume after a halt adds one operator review. Per run: at most `RETRY_BUDGET` tasks enter the ladder (When the ladder runs, check 4).
+ 
+diff --git a/tests/skills/test_task_workspace_lifecycle.py b/tests/skills/test_task_workspace_lifecycle.py
+index 390cffc0..303f1a3e 100644
+--- a/tests/skills/test_task_workspace_lifecycle.py
++++ b/tests/skills/test_task_workspace_lifecycle.py
+@@ -569,7 +569,6 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
+         "6. a last line `differs-by: <text>`",
+         "`pick: advice-<n>-<x>.md; runner-up: advice-<n>-<y>.md; reason: <a> vs <b> review findings cited`",
+         "`…; reason: tie, -a`",
+-        "`pick: advice-<n>.md; runner-up: none; reason: single adviser`",
+         "`pick: advice-<n>-<x>.md; runner-up: none; reason: only passing answer`",
+         "`pick: advice-<n>-c.md; runner-up: none; reason: critique adviser`",
+         "`pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`",
+@@ -586,10 +585,10 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
+     assert "The two ladders are never mixed." in r
+     assert "never used as an adviser" in r and "`T2_Model01` is on par" in r
+     for row in (
+-        "| `haiku` | 1× `sonnet` | 2× `opus` |",
+-        "| `sonnet` | 1× `opus` | 2× `opus` |",
+-        "| `opus` (known) | 2× `opus` (spec requirement) | 2× `opus` |",
+-        "| unknown | 1× `opus` (so the two escalations still differ) | 2× `opus` |",
++        "| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |",
++        "| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |",
++        "| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |",
++        "| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |",
+     ):
+         assert row in r, row
+     # Ruling eligibility rule (a)/(b)
+diff --git a/tests/skills/test_implement_adviser_family.py b/tests/skills/test_implement_adviser_family.py
+new file mode 100644
+index 00000000..578499d1
+--- /dev/null
++++ b/tests/skills/test_implement_adviser_family.py
+@@ -0,0 +1,77 @@
++"""Escalation-1 adviser family choice of sc-implement-protocol (SPEC FR-034, FR-035).
++
++Enforcement type: STATIC - a pure-function reference of the FR-034 choice
++(SPEC AC-18) and the pinned GPT spawn path (SPEC AC-19, V1 F-10).
++"""
++
++from pathlib import Path
++
++_RETRY = (
++    Path(__file__).resolve().parents[2]
++    / "src/superclaude/skills/sc-implement-protocol/refs/retry.md"
++).read_text(encoding="utf-8")
++
++# Verified on 2026-10-25 (package artifacts/t10-spawn-path.md): no GPT alias, no full-id path.
++GPT_SPAWN_PATH = "none verified; family-fallback applies"
++
++CLAUDE_TOP = "claude-opus-5-5"
++GPT_T1 = "gpt-6.1-sol"
++
++
++def _family(model_id):
++    m = (model_id or "").split("[", 1)[0]
++    return "claude" if m.startswith("claude-") else "gpt" if m.startswith("gpt-") else None
++
++
++def escalation_1(executor, gpt_t1=GPT_T1, claude_top=CLAUDE_TOP):
++    """Return [adviser A, adviser B] as header dicts, per FR-034/FR-035."""
++    fam = _family(executor)
++    if fam == "gpt":
++        a = {"model": gpt_t1, "family": "gpt", "rung": "T1"}
++        want_b = "claude"
++    else:  # Claude, neither family or unknown: adviser A is the Claude top rung
++        a = {"model": claude_top, "family": "claude", "rung": "top"}
++        want_b = "gpt"
++    if want_b == "claude":
++        b = {"model": claude_top, "family": "claude", "rung": "top"}
++    elif gpt_t1 and _family(gpt_t1) == "gpt":
++        b = {"model": gpt_t1, "family": "gpt", "rung": "T1"}
++    else:
++        b = {
++            "model": claude_top,
++            "family": "claude",
++            "rung": "top",
++            "family-fallback": "no reachable GPT T1 model",
++        }
++    return [a, b]
++
++
++def header(b):
++    line = f"model: {b['model']} family: {b['family']} rung: {b['rung']}"
++    if "family-fallback" in b:
++        line += f" family-fallback: {b['family-fallback']}"
++    return line
++
++
++def test_ac18_two_families_and_gpt_is_t1():
++    for ex in ("claude-sonnet-5-5", "claude-opus-5-5", GPT_T1 + "[1m]", "grok-4.7", None):
++        a, b = escalation_1(ex)
++        assert a["family"] != b["family"], ex
++        for adv in (a, b):
++            if adv["family"] == "gpt":
++                assert adv["rung"] == "T1", ex
++
++
++def test_ac19_spawn_path_pinned():
++    lines = [ln for ln in _RETRY.splitlines() if ln.startswith("GPT spawn path: ")]
++    assert lines == ["GPT spawn path: " + GPT_SPAWN_PATH]
++
++
++def test_ac19_no_gpt_reachable_gives_fallback_header_and_no_stop():
++    assert GPT_SPAWN_PATH == "none verified; family-fallback applies"
++    assert "`family-fallback: <reason>`" in _RETRY
++    assert "never STOPs and never prompts the user" in _RETRY
++    _, b = escalation_1("claude-opus-5-5", gpt_t1=None)
++    h = header(b)
++    assert h.startswith("model: ") and "family-fallback: " in h
++    assert "STOP" not in h

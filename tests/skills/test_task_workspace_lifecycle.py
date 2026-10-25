@@ -527,7 +527,10 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
     ):
         assert r.count(heading + "\n") == 1, heading
     # parallel rules (a)-(c), word for word
-    assert "> " + _PARALLEL_RULES + "\n" in r
+    assert (
+        "Parallel batches: rules (a) to (c) in `SKILL.md` Parallel. A batch task gets no retry ladder (check 2).\n"
+        in r
+    )
     # per-run cap predicate: other tasks with a retry step=open record, never itself
     assert (
         "if at least `RETRY_BUDGET` **other** tasks in this ledger have a "
@@ -569,7 +572,6 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
         "6. a last line `differs-by: <text>`",
         "`pick: advice-<n>-<x>.md; runner-up: advice-<n>-<y>.md; reason: <a> vs <b> review findings cited`",
         "`…; reason: tie, -a`",
-        "`pick: advice-<n>.md; runner-up: none; reason: single adviser`",
         "`pick: advice-<n>-<x>.md; runner-up: none; reason: only passing answer`",
         "`pick: advice-<n>-c.md; runner-up: none; reason: critique adviser`",
         "`pick: refactor of advice-4-<y>.md; runner-up: none; reason: escalation 3`",
@@ -577,17 +579,19 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
         assert token in r, token
     # recounted cost sentence
     assert (
-        "Worst case: 5 reviews instead of 2, and at most 6 adviser spawns "
+        "Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair "
+        "re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, "
+        "`refs/qa.md`), and at most 6 adviser spawns "
         "(2 at escalation 1, 2 at escalation 2, plus 2 critiques)."
     ) in r
     # model ladder: both ladder sentences and the four fallback rows, exactly
     assert "The two ladders are never mixed." in r
     assert "never used as an adviser" in r and "`T2_Model01` is on par" in r
     for row in (
-        "| `haiku` | 1× `sonnet` | 2× `opus` |",
-        "| `sonnet` | 1× `opus` | 2× `opus` |",
-        "| `opus` (known) | 2× `opus` (spec requirement) | 2× `opus` |",
-        "| unknown | 1× `opus` (so the two escalations still differ) | 2× `opus` |",
+        "| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |",
+        "| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |",
+        "| `opus` (known) | 1× `opus` (top rung) | 1× GPT T1 | 2× `opus` |",
+        "| unknown | 1× `opus` (top rung, so the two escalations still differ) | 1× GPT T1 | 2× `opus` |",
     ):
         assert row in r, row
     # Ruling eligibility rule (a)/(b)
@@ -791,7 +795,10 @@ def test_parallel_rules_identical_in_skill_and_retry_ref():  # STATIC
     ):
         assert kept in para
     assert "After a parallel batch, each task still gets" not in skill
-    assert "> " + _PARALLEL_RULES + "\n" in _impl("refs/retry.md")
+    assert (
+        "Parallel batches: rules (a) to (c) in `SKILL.md` Parallel. A batch task gets no retry ladder (check 2).\n"
+        in _impl("refs/retry.md")
+    )
 
 
 _TOUCHED_RULE = (

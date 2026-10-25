@@ -1127,3 +1127,39 @@ def test_symlinked_brief_file_is_rejected(tmp_path):
     pk.final(state="0" * 64)
     fails(pk, "E-ARCHIVE-PACKAGE")
     assert not pk.done.exists()
+
+
+# --- notes@ evidence token (accepted-minor path) ------------------------------------
+NOTES_EXAMPLE = (
+    "T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 "
+    "evidence=T1.AC1@docs/user-guide/memory-system.md:12,"
+    "T1.AC2@docs/user-guide/memory-system.md:40,T1.AC3@docs/memory/README.md:8,"
+    "T1.AC4@docs/memory/README.md:21,"
+    "notes@.dev/implement/03-memory-docs-f5865990/retries/T1/notes.md:1-3 "
+    "extras=lint:skip,typecheck:skip,test:skip "
+    "files=docs/user-guide/memory-system.md,docs/memory/README.md"
+)
+
+
+def test_verdict_regex_matches_notes_example_line_with_exact_files():
+    m = aw._VERDICT.match(NOTES_EXAMPLE)
+    assert m is not None
+    assert m.group(4) == "T1.AC1,T1.AC2,T1.AC3,T1.AC4"
+    assert m.group(6) == "docs/user-guide/memory-system.md,docs/memory/README.md"
+
+
+def test_field_after_files_is_swallowed_into_files():
+    line = f"T1: complete verdict=compliant ac=T1.AC1 evidence=src/a.py:1 {OK} files=src/a.py notes=x"
+    m = aw._VERDICT.match(line)
+    assert m is not None
+    assert m.group(6) == "src/a.py notes=x"
+
+
+def test_compliant_complete_with_notes_token_keeps_print_state_files(tmp_path):
+    pk = Pkg(tmp_path / "r", tasks=("1",))
+    before = aw.print_state(pk.root, pk.pkg)["files"]
+    pk.append(
+        f"T1: complete verdict=compliant ac=T1.AC1 evidence=T1.AC1@src/a.py:1,"
+        f"notes@./artifacts/retries/T1/notes.md:1-2 {OK} files=src/a.py"
+    )
+    assert aw.print_state(pk.root, pk.pkg)["files"] == before == ["src/a.py"]
