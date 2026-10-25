@@ -1,0 +1,390 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index fb7cc7eb..4c53819e 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -90,7 +90,7 @@ First match:
+ 
+ Else STOP `E-NO-AC` **before** any edit for that task. Single-word or empty-intent titles (`auth`, `make it better`, whitespace) are not AC. AC ids are `Ti.ACk` in source order.
+ 
+-Global constraints for `extra`: `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
++Global constraints (a quoted breach is `quoted-constraint-breach`, `refs/qa.md`): `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
+ 
+ ### Parallel
+ 
+@@ -116,17 +116,16 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
+            On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator.
+            Read Ti text + AC ids + global constraints.
+ Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
+-           Drive-by files not implied by the AC are `extra`.
++           A drive-by file not implied by the AC is blocking only when a confirmed `quoted-constraint-breach` or `harmful-effect` applies; otherwise it is a minor that stays in `files=` and goes to notes.
+ Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
+            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
+            Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index for this snapshot (that is not the `.dev/tasks/` rule: `.dev/tasks/` is always staged, `git add .dev/tasks`). An empty `git diff` with new untracked writes is not `cannot-verify`.
+ Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
+              - For each Ti.ACk: met | unmet + citation
+-             - extra_scope: hunks not mapped to any AC / instruction
+-             - misunderstood: ACs whose implementation contradicts the AC text
++             - finding lines with the four checklist answers and one anchor per `yes` (`refs/qa.md`)
+            Do not trust the implementer's report.
+-Q4 VERDICT Apply refs/qa.md order. Closed enum only.
+-Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
++Q4 VERDICT The parent derives each finding's severity (anchor Read-back, origin, inherited cap) and applies the `refs/qa.md` order over confirmed blocking findings only. Closed enum only.
++Q5 FIX     If Q4 is not compliant: because `minor` and `note` findings never change the verdict, only a confirmed `blocking` finding or a non-finding `cannot-verify` step reaches this fix pass, and a `cannot-verify` with no blocker keeps this same route. Exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
+ Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
+ Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
+ Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index ac05f2f2..9e1bf34c 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -12,26 +12,79 @@ One reviewer per review; never 2+ reviewer agents for the same review. No Part 2
+ 
+ ## Compare the diff to
+ 
+-- that task's AC (`Ti.ACk`) — for informal/prompt sources this is the source text itself; extra = anything not asked there
++- that task's AC (`Ti.ACk`) — for informal/prompt sources this is the source text itself; extra comes only from a confirmed `harmful-effect` or `quoted-constraint-breach` finding
+ - parent spec constraints (`## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`)
+ - explicit instructions on the task ("do not X", "file Y only")
+ 
+ | Label | Meaning |
+ |-------|---------|
+-| Missing | AC/instruction not in the diff |
+-| Extra | behavior/files/API the brief did not ask for |
++| Missing | AC/instruction not in the diff, with a confirmed B1 or B2 finding |
++| Extra | behavior/files/API the brief did not ask for, with a confirmed B3 or B4 finding |
+ | Misunderstood | work present but solves the wrong thing |
+ 
+ ## Citations
+ 
+ For each AC of Ti, cite `path:line` in the produced diff (or `Ti.ACk@path:line`).
+ 
+-Bare `Ti.ACk` only names an unmet/unverifiable AC. It is not sufficient evidence for `compliant`.
++Every AC mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an `unmet` mark also lists the finding ids behind it. This rule is part of the Verdict owner correction below (a deliberate SPEC correction). A bare `Ti.ACk` is not sufficient evidence for `compliant`.
+ 
+ Invalid evidence: `the component works`, `tests pass`, `as implemented above`, line-less paths, a bare `Ti.ACk` on a `compliant` line, citations into files not in this task's touched set unless the AC required reading them (then cite the source spec `path:line`).
+ 
+ A verdict with **zero citations** is invalid → treat as `cannot-verify`.
+ 
++## Severity model
++
++Every finding has exactly one severity, derived by the parent from the finding's checklist answers, never read from the reviewer's wording:
++
++| Severity | Definition |
++|---|---|
++| `blocking` | At least one checklist answer is `yes` and its anchor passed the parent's Read-back, and the inherited cap (text with origin `inherited`) does not apply. |
++| `minor` | All four answers are `no`, and the finding is a real defect in what this task delivered: ambiguous wording, a missing or mismatched evidence entry for a claim the reviewer verified true. |
++| `note` | All four answers are `no`, and the finding is cosmetic, a "consider changing" suggestion, or has origin `inherited` or `late`; also any finding whose only `yes` failed its Read-back. |
++
++**Four checklist answers; the blocking triggers.** Every finding carries four factual answers, each `yes` or `no`. Each answer is the confirmation of one blocking trigger, so the trigger names stay as a glossary:
++
++| Answer | Trigger | `yes` when |
++|---|---|---|
++| `ac-outcome-missing` | B1 unmet AC | Output an AC requires is absent, or contradicts the AC text, or an evidence claim the reviewer could not verify has no evidence row (Evidence-type AC). |
++| `false-claim` | B2 wrong statement | A claim in delivered text or code is false against live source, a recipe or instruction followed as written does not do what the text says it does, or a span an earlier review accepted is later shown false. |
++| `harmful-effect` | B3 harmful effect | Code or a recipe added or changed by this task writes, appends, chmods or deletes tracked or production data, mutates state outside the task's declared outputs, or exposes a secret. |
++| `quoted-constraint-breach` | B4 constraint breach | The diff violates a parent `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable` item or an explicit task instruction ("## Compare the diff to" above), including editing text the plan reserves for another task, and the reviewer can quote that text. |
++
++"Cannot verify" (formerly B5) is not a per-finding severity. It stays the existing `cannot-verify` step of the verdict order ("## Verdict (exactly one)"); an evidence claim the reviewer could not verify is `ac-outcome-missing=yes` anchored on the AC words.
++
++**Who assigns severity.** The reviewer answers the four questions and cites one anchor per `yes`. The parent orchestrator then derives the severity mechanically and Reads each anchor back once:
++
++- `ac-outcome-missing`: the quoted AC words are byte-present in the AC.
++- `false-claim`: the cited live-source `path:line` holds the contradicting text.
++- `harmful-effect`: the cited diff line is the write.
++- `quoted-constraint-breach`: the quoted text is byte-present in the plan Constraints or a task instruction.
++
++A finding whose only `yes` fails its Read-back is a note. The reviewer's prose label (low, IMPORTANT, MINOR or any other) is never read. There is no second model pass: one reviewer per review ("## Reviewer contract"), and the Read-back is a file check, not a judgment.
++
++**Derivation and vocabulary mapping.** Any confirmed `yes` gives `blocking`, except that a finding on inherited text is capped at note by the inherited cap. All `no` gives `minor`, or `note` when the finding is cosmetic or its origin is `inherited` or `late`. Mapping of the words a reviewer might use: high = any confirmed checklist `yes` = `blocking`; medium, IMPORTANT without a `yes`, low-medium, low and cosmetic = `minor` or `note`.
++
++**Evidence-type AC.** For an AC that asks for evidence, the AC is unmet only when:
++
++- the evidence artifact is absent (`ac-outcome-missing=yes`);
++- a cited evidence row is false (`false-claim=yes`); or
++- a claim the reviewer could not verify has no evidence row (`ac-outcome-missing=yes`, anchored on the AC words).
++
++A claim the reviewer verified true but that lacks a row, and a saved script/output pair that does not match when the reviewer reproduced the claim itself, are all-`no` findings: `minor`. The reviewer may not widen the AC (for example from "each corrected behavior" to "every sentence asserting a fact").
++
++**Fix cost and the ponytail lens.** The fix-cost question ("is the fix worth its lines") lives in the `fix=` field of every finding. Over-engineering observations are notes. A ponytail-style judgment never changes a checklist answer, so it never changes a severity or a verdict; never deletes or shrinks text an AC requires; and never reduces the set of sites a family probe listed (it may pick the smaller fix per listed site). The protocol never invokes the `ponytail-review` plugin, so its absence changes nothing.
++
++**Precedence over the output style.** Inside `/sc:implement` this protocol severity model governs per-task QA and both FINALs (managed and legacy). This precedence covers the session's output style and the copy of it that the SubagentStart hook injects into every subagent, reviewers and advisers included: only `blocking` findings may fail an attempt, halt or prompt the user.
++
++## Verdict owner (deliberate SPEC correction)
++
++This rule is a deliberate SPEC correction of FR-006, which contradicts itself on who produces the verdict. The reviewer returns, per AC, `met` or `unmet`, each with a `path:line` or `Ti.ACk@path:line` citation; an `unmet` mark also lists the finding ids behind it; plus its finding lines, and no verdict. After the anchor Read-back, the origin fields and the inherited cap, the parent runs the closed order of "## Verdict (exactly one)" over the parent-confirmed blocking findings only and records the result as the verdict, once; nobody rewrites a recorded verdict.
++
++- An AC counts as unmet only when a parent-confirmed B1 or B2 blocker is attached to it.
++- A confirmed B1 or B2 finding with `ac=scope` is attached to every AC whose cited text or file it touches, or to every AC of the task when it touches none, so a review with any confirmed blocker never yields `compliant`.
++- An `unmet` mark whose listed findings are all non-blocking after the Read-back and the inherited cap counts as met with its citation.
++- Only an `unmet` mark that lists no finding, or a mark with no citation, is reviewer paperwork: the review is unparseable; respawn the reviewer once with the same input, and if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down` (`refs/retry.md`).
++
+ ## Verdict (exactly one)
+ 
+ Closed enum: `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`.
+@@ -51,6 +104,31 @@ If both missing and extra: verdict `missing`. Record extra findings on the same
+ 
+ `cannot-verify` is not a pass. Empty diff after "done" → `cannot-verify`. AC not observable from the diff and no check/log/test added → `cannot-verify`. `nogit` and no written-path list → `cannot-verify`.
+ 
++Inputs to the order (the enum and the order are unchanged; only their inputs are the parent-confirmed findings):
++
++- An AC is unmet only when a B1 or B2 finding is attached to it.
++- `misunderstood` requires a B1 finding of the "contradicts" kind.
++- `extra_scope` is non-empty only for B3 or B4 findings.
++- An AC claim the reviewer cannot verify (formerly B5) gives `cannot-verify` through the existing order.
++- `minor` and `note` findings never change the verdict. A review whose findings are all `minor` or `note` yields `compliant`, provided every met AC has a citation (step 6 above).
++- An empty diff whose AC are all met by a cited live-source `path:line` is `compliant`; an empty diff without such a citation stays `cannot-verify`.
++
++## Review file format
++
++`<retries>/T<id>/review-<k>.md` starts with one header line holding the task's `start` sha and the 40-hex of the reviewed tree, then the reviewer's AC marks and citations verbatim, then one finding per line:
++
++```
++F<k>.<j> sev=<blocking|minor|note> trigger=<B1|B2|B3|B4|none> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>] first=<start|A<m>> origin=<inherited|late|fix-induced|new|unknown>: <text>
++```
++
++- The reviewer writes `ac=`, `at=`, `anchor=`, `chk=`, `family=` (short, reviewer-chosen, reused for findings of the same defect form), `fix=`, the optional `covers=<quoted AC clause or constraint>` and the text. `covers=` is the escape from the inherited cap: the parent Reads it back like `quoted-constraint-breach`, and only a quote byte-present in the AC or the plan Constraints lifts the cap.
++- The parent writes `sev=`, `trigger=`, `first=` and `origin=`; the reviewer never writes these four keys.
++- There is no locality key on a finding: whether a fix is local is the parent's decision.
++- The file also holds one status line per prior blocking finding: `F<m>.<j> resolved|open|regressed`.
++- Finding ids: `j` counts reviews within attempt k. A re-review inside attempt k continues the j numbering of the earlier reviews of attempt k, so a finding id `F<k>.<j>` is never reused within a task.
++
++When it is written: the parent writes `review-<k>.md` as soon as a review of attempt k returns with a confirmed blocking finding (k = 1 for the A1 review, k = 2 to 5 otherwise), before any fix, repair or procedure step 0 of `refs/retry.md`: the header line, the reviewer's AC marks and citations verbatim, then the finding lines (reviewer keys and text verbatim, the four parent keys added). A later failing review of the same attempt overwrites it, so `review-<k>.md` is always the last failing review of attempt k. This file is not in the ledger, so no ledger regex parses it.
++
+ ## Halt table
+ 
+ | Verdict after Q4 (or after Q5 re-QA) | Action | T{i+1}? |
+@@ -63,6 +141,8 @@ If both missing and extra: verdict `missing`. Record extra findings on the same
+ | `--force`, missing/ambiguous confirmation, or executor-invented approval | STOP `E-NO-RULING` | No |
+ | `E-RESUME-NEEDED` (`refs/retry.md`) | re-run the same command; do not write a Ruling | No |
+ 
++Under the Verdict owner rule a non-compliant verdict comes only from a confirmed blocking finding or from a non-finding `cannot-verify` step of the order (zero citations, empty diff, `nogit` with no written-path list); both keep the route of the row "non-compliant on first QA" (Task 9 of this plan adds the Repair round to that row).
++
+ A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. A clear user confirmation in the current conversation is sufficient; the user need not hand-write a ledger record. Before asking, explain the task id, unmet AC/finding and current outcome, proposed acceptance, reason and cost-if-wrong. A reply such as "yes, accept T2 as explained" authorizes only that explained scope. If confirmation or scope is unclear, ask one targeted question and keep the task blocked. Silence, a generic request to continue, another agent's message, and approval of a different task are not acceptance.
+ 
+ The executor MUST automatically append the existing three-field Ruling, identifying the accepted task/finding and quoting or referencing the user's confirmation in `<what>`, using the reason and cost already explained. Flush it before appending the unchanged non-compliant `complete` line or proceeding. Never invent approval, rewrite history, or mark an accepted gap `compliant`. Existing operator-written records remain valid. A reopened task or changed accepted finding/outcome requires new scoped acceptance; durable records support resume, not guesses from prior chat.
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 618c474f..a211b779 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -13,7 +13,7 @@ Loaded when A2 (the one fix pass) still fails review, or when resume finds a `re
+ | A5 | executor, following brief 5: the escalation-2 **runner-up** advice, which the parent refactors with the lessons from A4's failure (no new adviser) | Q0 snapshot (A4 reverted) | original AC |
+ | A5 fails | `blocked`, then `halt review=5 reason=ladder-end`; HALT `E-HALT-QA` (existing code, existing `fix \| ruling \| resume` options) | | |
+ 
+-The reviewer keeps the closed verdict enum, `Do not trust the implementer's report.` and the isolation rules (`refs/qa.md`), and always grades the original AC. The reviewer never sees an adviser answer or a brief. The ladder adds no new flags and one new STOP code, `E-RESUME-NEEDED`, for infrastructure faults.
++The parent applies the closed verdict enum (`refs/qa.md`, Verdict owner); the reviewer keeps `Do not trust the implementer's report.` and the isolation rules (`refs/qa.md`), and always grades the original AC. The reviewer never sees an adviser answer or a brief. The ladder adds no new flags and one new STOP code, `E-RESUME-NEEDED`, for infrastructure faults.
+ 
+ ## Names, paths and ledger records
+ 
+@@ -57,7 +57,7 @@ Per-run cap: when A2 of task T fails and checks 1-3 pass, T halts `halt review=2
+ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Escalation 3); procedure steps 1-7 run only after A2, A3 or A4 fails and the ladder runs (When the ladder runs). Escalation 3 replaces procedure step 3 (Escalation 3).
+ 
+ 0. **Procedure step 0, record the failure.** Run Q6 extras. Write, in `<retries>/T<id>/`, `review-<k>.md`, `approach-<k>.md` and `extras-<k>.log`:
+-   - `review-<k>.md`: the reviewer's verdict and citations, verbatim.
++   - `review-<k>.md`: written when the review returned (`refs/qa.md`, review file format); write it now only if it does not already hold the current `start` and this attempt's last failing review.
+    - `approach-<k>.md`: at most 10 lines from the executor covering what it built, why it chose that approach, and which AC it believed it met where. Labeled as implementer claims.
+    - `extras-<k>.log`: the raw Q6 output, when extras ran. The ledger keeps only `test:fail`, and the adviser cannot run tests.
+ 
+@@ -444,7 +444,7 @@ Every ladder halt is written before any restore of a revert, with two exceptions
+ 
+ **Transient stops.** Code `E-RESUME-NEEDED reason=<reviewer-down|erase-incomplete|ref-failed|adviser-missing>`. It writes no ledger line, consumes no attempt and never moves k. Printed text: `E-RESUME-NEEDED: <reason>. Something outside the step failed. Re-run the same command; do not write a Ruling.` `erase-incomplete` also lists the residual paths or the `UNBOUND` line; `adviser-missing` also prints the install command (procedure step 4).
+ 
+-Reviewer: if a review returns no parseable verdict, respawn the reviewer once with the same input; if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down`. For attempts 3-5 the last record is then `retry step=review`, so resume re-runs only the review (Resume row V in `refs/ledger.md`). For attempts 1-2, resume behaves as today.
++Reviewer: if a review is unparseable or paperwork-only (`refs/qa.md`), respawn the reviewer once with the same input; if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down`. For attempts 3-5 the last record is then `retry step=review`, so resume re-runs only the review (Resume row V in `refs/ledger.md`). For attempts 1-2, resume behaves as today.
+ 
+ **Ruling eligibility rule.** A `T<id>: Ruling:` line is eligible iff (a) a `halt` record follows the task's latest `blocked` line, the Ruling comes after that `halt`, and no verdict line lies between that `halt` and the Ruling; or (b) the task has no `retry` and no `halt` record, the Ruling comes after its latest `blocked` line, and no verdict line lies between them.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index fb7cc7eb..4c53819e 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -90,7 +90,7 @@ First match:
+ 
+ Else STOP `E-NO-AC` **before** any edit for that task. Single-word or empty-intent titles (`auth`, `make it better`, whitespace) are not AC. AC ids are `Ti.ACk` in source order.
+ 
+-Global constraints for `extra`: `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
++Global constraints (a quoted breach is `quoted-constraint-breach`, `refs/qa.md`): `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`.
+ 
+ ### Parallel
+ 
+@@ -116,17 +116,16 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
+            On task `complete`, delete the Q0 pin `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"` and the task's checkpoint refs (`refs/retry.md`); keep its sweep refs. The final summary lists each kept sweep ref with one `git update-ref -d <ref>` line for the operator.
+            Read Ti text + AC ids + global constraints.
+ Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
+-           Drive-by files not implied by the AC are `extra`.
++           A drive-by file not implied by the AC is blocking only when a confirmed `quoted-constraint-breach` or `harmful-effect` applies; otherwise it is a minor that stays in `files=` and goes to notes.
+ Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
+            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
+            Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index for this snapshot (that is not the `.dev/tasks/` rule: `.dev/tasks/` is always staged, `git add .dev/tasks`). An empty `git diff` with new untracked writes is not `cannot-verify`.
+ Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
+              - For each Ti.ACk: met | unmet + citation
+-             - extra_scope: hunks not mapped to any AC / instruction
+-             - misunderstood: ACs whose implementation contradicts the AC text
++             - finding lines with the four checklist answers and one anchor per `yes` (`refs/qa.md`)
+            Do not trust the implementer's report.
+-Q4 VERDICT Apply refs/qa.md order. Closed enum only.
+-Q5 FIX     If Q4 is not compliant: exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
++Q4 VERDICT The parent derives each finding's severity (anchor Read-back, origin, inherited cap) and applies the `refs/qa.md` order over confirmed blocking findings only. Closed enum only.
++Q5 FIX     If Q4 is not compliant: because `minor` and `note` findings never change the verdict, only a confirmed `blocking` finding or a non-finding `cannot-verify` step reaches this fix pass, and a `cannot-verify` with no blocker keeps this same route. Exactly one fix pass, re-run Q2–Q4 once. If still not compliant, the retry ladder in refs/retry.md takes over.
+ Q6 EXTRAS  Detect and run lint/typecheck/tests if present. Record extras. Never overwrite Q4.
+ Q7 GATE    Apply the Halt table in refs/qa.md and the ladder in refs/retry.md. Clear user confirmation in the current conversation is sufficient after the scoped gap, reason and cost are explained; automatically record it as the existing Ruling, never ask the user to hand-write records or invent approval. Write ledger line(s). Flush before the next task.
+ Q8 NEXT    Only if complete (compliant, or non-compliant plus operator Ruling). Else STOP.
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index ac05f2f2..9e1bf34c 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -12,26 +12,79 @@ One reviewer per review; never 2+ reviewer agents for the same review. No Part 2
+ 
+ ## Compare the diff to
+ 
+-- that task's AC (`Ti.ACk`) — for informal/prompt sources this is the source text itself; extra = anything not asked there
++- that task's AC (`Ti.ACk`) — for informal/prompt sources this is the source text itself; extra comes only from a confirmed `harmful-effect` or `quoted-constraint-breach` finding
+ - parent spec constraints (`## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable`)
+ - explicit instructions on the task ("do not X", "file Y only")
+ 
+ | Label | Meaning |
+ |-------|---------|
+-| Missing | AC/instruction not in the diff |
+-| Extra | behavior/files/API the brief did not ask for |
++| Missing | AC/instruction not in the diff, with a confirmed B1 or B2 finding |
++| Extra | behavior/files/API the brief did not ask for, with a confirmed B3 or B4 finding |
+ | Misunderstood | work present but solves the wrong thing |
+ 
+ ## Citations
+ 
+ For each AC of Ti, cite `path:line` in the produced diff (or `Ti.ACk@path:line`).
+ 
+-Bare `Ti.ACk` only names an unmet/unverifiable AC. It is not sufficient evidence for `compliant`.
++Every AC mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an `unmet` mark also lists the finding ids behind it. This rule is part of the Verdict owner correction below (a deliberate SPEC correction). A bare `Ti.ACk` is not sufficient evidence for `compliant`.
+ 
+ Invalid evidence: `the component works`, `tests pass`, `as implemented above`, line-less paths, a bare `Ti.ACk` on a `compliant` line, citations into files not in this task's touched set unless the AC required reading them (then cite the source spec `path:line`).
+ 
+ A verdict with **zero citations** is invalid → treat as `cannot-verify`.
+ 
++## Severity model
++
++Every finding has exactly one severity, derived by the parent from the finding's checklist answers, never read from the reviewer's wording:
++
++| Severity | Definition |
++|---|---|
++| `blocking` | At least one checklist answer is `yes` and its anchor passed the parent's Read-back, and the inherited cap (text with origin `inherited`) does not apply. |
++| `minor` | All four answers are `no`, and the finding is a real defect in what this task delivered: ambiguous wording, a missing or mismatched evidence entry for a claim the reviewer verified true. |
++| `note` | All four answers are `no`, and the finding is cosmetic, a "consider changing" suggestion, or has origin `inherited` or `late`; also any finding whose only `yes` failed its Read-back. |
++
++**Four checklist answers; the blocking triggers.** Every finding carries four factual answers, each `yes` or `no`. Each answer is the confirmation of one blocking trigger, so the trigger names stay as a glossary:
++
++| Answer | Trigger | `yes` when |
++|---|---|---|
++| `ac-outcome-missing` | B1 unmet AC | Output an AC requires is absent, or contradicts the AC text, or an evidence claim the reviewer could not verify has no evidence row (Evidence-type AC). |
++| `false-claim` | B2 wrong statement | A claim in delivered text or code is false against live source, a recipe or instruction followed as written does not do what the text says it does, or a span an earlier review accepted is later shown false. |
++| `harmful-effect` | B3 harmful effect | Code or a recipe added or changed by this task writes, appends, chmods or deletes tracked or production data, mutates state outside the task's declared outputs, or exposes a secret. |
++| `quoted-constraint-breach` | B4 constraint breach | The diff violates a parent `## Constraints` / `## Out of scope` / `## Non-goals` / `## Non-negotiable` item or an explicit task instruction ("## Compare the diff to" above), including editing text the plan reserves for another task, and the reviewer can quote that text. |
++
++"Cannot verify" (formerly B5) is not a per-finding severity. It stays the existing `cannot-verify` step of the verdict order ("## Verdict (exactly one)"); an evidence claim the reviewer could not verify is `ac-outcome-missing=yes` anchored on the AC words.
++
++**Who assigns severity.** The reviewer answers the four questions and cites one anchor per `yes`. The parent orchestrator then derives the severity mechanically and Reads each anchor back once:
++
++- `ac-outcome-missing`: the quoted AC words are byte-present in the AC.
++- `false-claim`: the cited live-source `path:line` holds the contradicting text.
++- `harmful-effect`: the cited diff line is the write.
++- `quoted-constraint-breach`: the quoted text is byte-present in the plan Constraints or a task instruction.
++
++A finding whose only `yes` fails its Read-back is a note. The reviewer's prose label (low, IMPORTANT, MINOR or any other) is never read. There is no second model pass: one reviewer per review ("## Reviewer contract"), and the Read-back is a file check, not a judgment.
++
++**Derivation and vocabulary mapping.** Any confirmed `yes` gives `blocking`, except that a finding on inherited text is capped at note by the inherited cap. All `no` gives `minor`, or `note` when the finding is cosmetic or its origin is `inherited` or `late`. Mapping of the words a reviewer might use: high = any confirmed checklist `yes` = `blocking`; medium, IMPORTANT without a `yes`, low-medium, low and cosmetic = `minor` or `note`.
++
++**Evidence-type AC.** For an AC that asks for evidence, the AC is unmet only when:
++
++- the evidence artifact is absent (`ac-outcome-missing=yes`);
++- a cited evidence row is false (`false-claim=yes`); or
++- a claim the reviewer could not verify has no evidence row (`ac-outcome-missing=yes`, anchored on the AC words).
++
++A claim the reviewer verified true but that lacks a row, and a saved script/output pair that does not match when the reviewer reproduced the claim itself, are all-`no` findings: `minor`. The reviewer may not widen the AC (for example from "each corrected behavior" to "every sentence asserting a fact").
++
++**Fix cost and the ponytail lens.** The fix-cost question ("is the fix worth its lines") lives in the `fix=` field of every finding. Over-engineering observations are notes. A ponytail-style judgment never changes a checklist answer, so it never changes a severity or a verdict; never deletes or shrinks text an AC requires; and never reduces the set of sites a family probe listed (it may pick the smaller fix per listed site). The protocol never invokes the `ponytail-review` plugin, so its absence changes nothing.
++
++**Precedence over the output style.** Inside `/sc:implement` this protocol severity model governs per-task QA and both FINALs (managed and legacy). This precedence covers the session's output style and the copy of it that the SubagentStart hook injects into every subagent, reviewers and advisers included: only `blocking` findings may fail an attempt, halt or prompt the user.
++
++## Verdict owner (deliberate SPEC correction)
++
++This rule is a deliberate SPEC correction of FR-006, which contradicts itself on who produces the verdict. The reviewer returns, per AC, `met` or `unmet`, each with a `path:line` or `Ti.ACk@path:line` citation; an `unmet` mark also lists the finding ids behind it; plus its finding lines, and no verdict. After the anchor Read-back, the origin fields and the inherited cap, the parent runs the closed order of "## Verdict (exactly one)" over the parent-confirmed blocking findings only and records the result as the verdict, once; nobody rewrites a recorded verdict.
++
++- An AC counts as unmet only when a parent-confirmed B1 or B2 blocker is attached to it.
++- A confirmed B1 or B2 finding with `ac=scope` is attached to every AC whose cited text or file it touches, or to every AC of the task when it touches none, so a review with any confirmed blocker never yields `compliant`.
++- An `unmet` mark whose listed findings are all non-blocking after the Read-back and the inherited cap counts as met with its citation.
++- Only an `unmet` mark that lists no finding, or a mark with no citation, is reviewer paperwork: the review is unparseable; respawn the reviewer once with the same input, and if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down` (`refs/retry.md`).
++
+ ## Verdict (exactly one)
+ 
+ Closed enum: `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`.
+@@ -51,6 +104,31 @@ If both missing and extra: verdict `missing`. Record extra findings on the same
+ 
+ `cannot-verify` is not a pass. Empty diff after "done" → `cannot-verify`. AC not observable from the diff and no check/log/test added → `cannot-verify`. `nogit` and no written-path list → `cannot-verify`.
+ 
++Inputs to the order (the enum and the order are unchanged; only their inputs are the parent-confirmed findings):
++
++- An AC is unmet only when a B1 or B2 finding is attached to it.
++- `misunderstood` requires a B1 finding of the "contradicts" kind.
++- `extra_scope` is non-empty only for B3 or B4 findings.
++- An AC claim the reviewer cannot verify (formerly B5) gives `cannot-verify` through the existing order.
++- `minor` and `note` findings never change the verdict. A review whose findings are all `minor` or `note` yields `compliant`, provided every met AC has a citation (step 6 above).
++- An empty diff whose AC are all met by a cited live-source `path:line` is `compliant`; an empty diff without such a citation stays `cannot-verify`.
++
++## Review file format
++
++`<retries>/T<id>/review-<k>.md` starts with one header line holding the task's `start` sha and the 40-hex of the reviewed tree, then the reviewer's AC marks and citations verbatim, then one finding per line:
++
++```
++F<k>.<j> sev=<blocking|minor|note> trigger=<B1|B2|B3|B4|none> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>] first=<start|A<m>> origin=<inherited|late|fix-induced|new|unknown>: <text>
++```
++
++- The reviewer writes `ac=`, `at=`, `anchor=`, `chk=`, `family=` (short, reviewer-chosen, reused for findings of the same defect form), `fix=`, the optional `covers=<quoted AC clause or constraint>` and the text. `covers=` is the escape from the inherited cap: the parent Reads it back like `quoted-constraint-breach`, and only a quote byte-present in the AC or the plan Constraints lifts the cap.
++- The parent writes `sev=`, `trigger=`, `first=` and `origin=`; the reviewer never writes these four keys.
++- There is no locality key on a finding: whether a fix is local is the parent's decision.
++- The file also holds one status line per prior blocking finding: `F<m>.<j> resolved|open|regressed`.
++- Finding ids: `j` counts reviews within attempt k. A re-review inside attempt k continues the j numbering of the earlier reviews of attempt k, so a finding id `F<k>.<j>` is never reused within a task.
++
++When it is written: the parent writes `review-<k>.md` as soon as a review of attempt k returns with a confirmed blocking finding (k = 1 for the A1 review, k = 2 to 5 otherwise), before any fix, repair or procedure step 0 of `refs/retry.md`: the header line, the reviewer's AC marks and citations verbatim, then the finding lines (reviewer keys and text verbatim, the four parent keys added). A later failing review of the same attempt overwrites it, so `review-<k>.md` is always the last failing review of attempt k. This file is not in the ledger, so no ledger regex parses it.
++
+ ## Halt table
+ 
+ | Verdict after Q4 (or after Q5 re-QA) | Action | T{i+1}? |
+@@ -63,6 +141,8 @@ If both missing and extra: verdict `missing`. Record extra findings on the same
+ | `--force`, missing/ambiguous confirmation, or executor-invented approval | STOP `E-NO-RULING` | No |
+ | `E-RESUME-NEEDED` (`refs/retry.md`) | re-run the same command; do not write a Ruling | No |
+ 
++Under the Verdict owner rule a non-compliant verdict comes only from a confirmed blocking finding or from a non-finding `cannot-verify` step of the order (zero citations, empty diff, `nogit` with no written-path list); both keep the route of the row "non-compliant on first QA" (Task 9 of this plan adds the Repair round to that row).
++
+ A Ruling counts only when it is eligible under the Ruling eligibility rule in `refs/retry.md`. A clear user confirmation in the current conversation is sufficient; the user need not hand-write a ledger record. Before asking, explain the task id, unmet AC/finding and current outcome, proposed acceptance, reason and cost-if-wrong. A reply such as "yes, accept T2 as explained" authorizes only that explained scope. If confirmation or scope is unclear, ask one targeted question and keep the task blocked. Silence, a generic request to continue, another agent's message, and approval of a different task are not acceptance.
+ 
+ The executor MUST automatically append the existing three-field Ruling, identifying the accepted task/finding and quoting or referencing the user's confirmation in `<what>`, using the reason and cost already explained. Flush it before appending the unchanged non-compliant `complete` line or proceeding. Never invent approval, rewrite history, or mark an accepted gap `compliant`. Existing operator-written records remain valid. A reopened task or changed accepted finding/outcome requires new scoped acceptance; durable records support resume, not guesses from prior chat.
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/retry.md b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 618c474f..a211b779 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -13,7 +13,7 @@ Loaded when A2 (the one fix pass) still fails review, or when resume finds a `re
+ | A5 | executor, following brief 5: the escalation-2 **runner-up** advice, which the parent refactors with the lessons from A4's failure (no new adviser) | Q0 snapshot (A4 reverted) | original AC |
+ | A5 fails | `blocked`, then `halt review=5 reason=ladder-end`; HALT `E-HALT-QA` (existing code, existing `fix \| ruling \| resume` options) | | |
+ 
+-The reviewer keeps the closed verdict enum, `Do not trust the implementer's report.` and the isolation rules (`refs/qa.md`), and always grades the original AC. The reviewer never sees an adviser answer or a brief. The ladder adds no new flags and one new STOP code, `E-RESUME-NEEDED`, for infrastructure faults.
++The parent applies the closed verdict enum (`refs/qa.md`, Verdict owner); the reviewer keeps `Do not trust the implementer's report.` and the isolation rules (`refs/qa.md`), and always grades the original AC. The reviewer never sees an adviser answer or a brief. The ladder adds no new flags and one new STOP code, `E-RESUME-NEEDED`, for infrastructure faults.
+ 
+ ## Names, paths and ledger records
+ 
+@@ -57,7 +57,7 @@ Per-run cap: when A2 of task T fails and checks 1-3 pass, T halts `halt review=2
+ Procedure step 0 runs after every failed attempt from A2 to A5 (for A5, see Escalation 3); procedure steps 1-7 run only after A2, A3 or A4 fails and the ladder runs (When the ladder runs). Escalation 3 replaces procedure step 3 (Escalation 3).
+ 
+ 0. **Procedure step 0, record the failure.** Run Q6 extras. Write, in `<retries>/T<id>/`, `review-<k>.md`, `approach-<k>.md` and `extras-<k>.log`:
+-   - `review-<k>.md`: the reviewer's verdict and citations, verbatim.
++   - `review-<k>.md`: written when the review returned (`refs/qa.md`, review file format); write it now only if it does not already hold the current `start` and this attempt's last failing review.
+    - `approach-<k>.md`: at most 10 lines from the executor covering what it built, why it chose that approach, and which AC it believed it met where. Labeled as implementer claims.
+    - `extras-<k>.log`: the raw Q6 output, when extras ran. The ledger keeps only `test:fail`, and the adviser cannot run tests.
+ 
+@@ -444,7 +444,7 @@ Every ladder halt is written before any restore of a revert, with two exceptions
+ 
+ **Transient stops.** Code `E-RESUME-NEEDED reason=<reviewer-down|erase-incomplete|ref-failed|adviser-missing>`. It writes no ledger line, consumes no attempt and never moves k. Printed text: `E-RESUME-NEEDED: <reason>. Something outside the step failed. Re-run the same command; do not write a Ruling.` `erase-incomplete` also lists the residual paths or the `UNBOUND` line; `adviser-missing` also prints the install command (procedure step 4).
+ 
+-Reviewer: if a review returns no parseable verdict, respawn the reviewer once with the same input; if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down`. For attempts 3-5 the last record is then `retry step=review`, so resume re-runs only the review (Resume row V in `refs/ledger.md`). For attempts 1-2, resume behaves as today.
++Reviewer: if a review is unparseable or paperwork-only (`refs/qa.md`), respawn the reviewer once with the same input; if that fails too, STOP `E-RESUME-NEEDED reason=reviewer-down`. For attempts 3-5 the last record is then `retry step=review`, so resume re-runs only the review (Resume row V in `refs/ledger.md`). For attempts 1-2, resume behaves as today.
+ 
+ **Ruling eligibility rule.** A `T<id>: Ruling:` line is eligible iff (a) a `halt` record follows the task's latest `blocked` line, the Ruling comes after that `halt`, and no verdict line lies between that `halt` and the Ruling; or (b) the task has no `retry` and no `halt` record, the Ruling comes after its latest `blocked` line, and no verdict line lies between them.
+ 

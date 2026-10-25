@@ -48,6 +48,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 - `<verdict>` ∈ `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`
 - `<ac-list>` = comma-separated `T{i}.AC{k}` (no spaces)
 - `<ev-list>` = comma-separated evidence tokens. Paths **may contain spaces**. The field ends at ` extras=lint:`. Tokens: `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`. Do not put commas in paths.
+- `notes@<path>:<start>-<end>` = evidence token pointing at the task's notes file (`refs/qa.md`); never an AC citation. Managed form: `notes@./artifacts/retries/T<id>/notes.md:<a>-<b>`.
 - `<lx>`,`<tx>` ∈ `pass` | `fail` | `skip`
 - `<sx>` ∈ `pass` | `fail` | `skip` | `unrelated-red`
 - `<file-list>` = comma-separated repo-relative paths (paths may contain spaces; do not insert spaces after commas)
@@ -56,7 +57,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 ^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=(.+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
 ```
 
-`complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
+`complete` on the verdict line **only if** `verdict=compliant`. `compliant` may carry open minor/note findings recorded in the notes file (`refs/qa.md`). Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.
 
 ## Ruling line (user-authorized, executor-recorded)
 
@@ -64,7 +65,7 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 ```
 
-Em dashes as shown (` — `). Three non-empty fields. A clear user confirmation in the current conversation is sufficient: the executor MUST automatically append this line, recording the explained task/finding and the user's confirmation provenance in `<what>`, with the explained reason and cost. See `refs/qa.md` for the confirmation gate. The user need not format or edit ledger text. Existing operator-written records remain valid; the grammar is unchanged. No confirmation or unclear scope means STOP `E-NO-RULING`, never infer approval.
+Em dashes as shown. Three non-empty fields. On clear user confirmation the executor MUST automatically append this line; the confirmation gate is the Halt table in `refs/qa.md`.
 
 ```
 ^T([0-9A-Za-z.-]+): Ruling: .+ — .+ — .+$
@@ -137,7 +138,9 @@ Trust ledger + git history after compaction. Do not ask the user to paste prior 
 
 ### Per-task resume table
 
-Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`.
+Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`. Before any row except Row 1 runs for a task with a tree `start`, every `r<k>-<j>` ref of the task is re-pinned from its recorded tree (review header or repair `applied tree=` line, `refs/qa.md`), so Rows V, S, H, B and X re-pin as well.
+
+Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
 
 Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
 
@@ -147,15 +150,15 @@ First match wins; the row order is part of the rule:
 
 | Row | Condition | Action |
 |---|---|---|
-| 1 | Latest verdict is `complete` | Skip. Delete the Q0 pin and checkpoint refs if they still exist; keep sweep refs. |
+| 1 | Latest verdict is `complete` | Skip. Delete the Q0 pin and checkpoint refs if they still exist; keep sweep refs. Also delete the task's `r<k>-<j>` refs. |
 | R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
 | P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
 | H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
-| V | Last record is `retry n=<n> step=review` | Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise procedure step 0 with k = n. |
+| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
 | X | Last record is `retry n=<n> step=revert` | Run `sc_retry_revert` directly: its ledger binding and guards (tail, tree, HEAD, evidence) are the re-check, and exit 2 maps to the halt after any move-back or keep of failed-attempt artifacts (`refs/retry.md`, The revert). Otherwise the revert re-runs (idempotent: fresh `now`, create-only sweep), then procedure step 7. |
-| O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
+| O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha and every `r<k>-<j>` ref from its recorded tree, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
 | B | Last record is a `blocked` line and the task has a `retry` record | k from the k rule (here the n of the latest `retry`, because this `blocked` follows its `step=review`). k = 5 → append `halt review=5 reason=ladder-end` → STOP. Otherwise continue at the ladder-condition checks for this k, then procedure step 1. |
-| S | Start line only | A1, as today. |
+| S | Start line only | If a `repair-2-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
 
 ## Examples (must match)
 
@@ -169,6 +172,12 @@ Compliant complete:
 
 ```
 T1: complete verdict=compliant ac=T1.AC1 evidence=src/foo.py:12,T1.AC1 extras=lint:skip,typecheck:skip,test:skip files=src/foo.py
+```
+
+Compliant complete with notes (open minors recorded in the notes file):
+
+```
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4 evidence=T1.AC1@docs/user-guide/memory-system.md:12,T1.AC2@docs/user-guide/memory-system.md:40,T1.AC3@docs/memory/README.md:8,T1.AC4@docs/memory/README.md:21,notes@.dev/implement/03-memory-docs-f5865990/retries/T1/notes.md:1-3 extras=lint:skip,typecheck:skip,test:skip files=docs/user-guide/memory-system.md,docs/memory/README.md
 ```
 
 Blocked missing:

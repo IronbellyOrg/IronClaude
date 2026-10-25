@@ -1,0 +1,152 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+index 4c53819e..367a29e9 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -98,7 +98,7 @@ Default sequential in source order. Parallel only when the source marks a set in
+ 
+ ### Reviewer mode (no flag)
+ 
+-Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
++Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. An inline review may complete a task only with zero findings and only when the task's notes file holds no line after line 1; an inline review whose findings, or the notes file, would let the task complete with any minor or note is discarded and re-run once as a fresh Task subagent with the closed template and a saved `prompt-<k>-<j>.md` (`refs/qa.md`). Every repair re-review is a fresh subagent. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
+ 
+ ## Loop (Q0–Q8)
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index 9e1bf34c..93932e21 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -163,8 +163,56 @@ Same isolation as above: `Do not trust the implementer's report.` One fresh suba
+ 
+ ## Subagent prompt (when not inline)
+ 
+-Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task. If compacted mid-run, remaining QA uses the subagent. Once a run switches to subagent mode it stays there; reviews of A3-A5, re-run reviews and operator reviews are always subagents.
++Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Else one Task. If compacted mid-run, remaining QA uses the subagent. Once a run switches to subagent mode it stays there; reviews of A3-A5, re-run reviews and operator reviews are always subagents.
+ 
+-Prompt the subagent with: this file, the task brief, global constraints, the diff (or diff path), start sha. Require the closed verdict + citations. Do not trust the implementer's report.
++An inline review may complete a task only with zero findings and only when the task's notes file holds no line after line 1 (earlier failing reviews append their minors there). An inline review whose findings, or the notes file, would let the task complete with any minor or note is discarded and re-run once as a fresh Task subagent with the closed template below and a saved `prompt-<k>-<j>.md`. Every repair re-review is a fresh subagent.
++
++Every review, inline or subagent, uses this one closed template. The orchestrator fills only the seven slots, from the sources named below, and may not add, remove or reword any criterion, whether it comes from an output style, the session or its own judgment. Inline reviews use the same template text.
++
++```
++Review one task for spec compliance.
++
++Task brief: {task_brief}
++Global constraints: {global_constraints}
++Start sha: {start_sha}
++Diff against the start snapshot: {diff}
++Delta diff from the previous reviewed tree (empty on the first review): {delta_diff}
++Earlier blocking findings of this start (empty on the first review): {prior_findings}
++Saved-probe re-check hit locations (may be empty): {recheck_list}
++
++Do not trust the implementer's report.
++
++First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
++
++For every finding answer four questions, each yes or no:
++1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
++2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
++3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
++4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
++
++Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
++
++Write one line per finding:
++F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
++Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
++
++Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+ 
+ You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
++The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.
++```
++
++Slot sources:
++
++- `{task_brief}`: the Ti text and its AC ids; `{global_constraints}`: the plan's constraint sections; `{diff}`: the Q3 diff ("## Reviewer contract"); `{start_sha}`: the task's `start` sha.
++- A1 failure record: when the A1 review fails, the orchestrator writes `<retries>/T<id>/review-1.md` with its header ("## Review file format"), pins the `r1-1` tree (Task 3 of this plan defines the pin) and writes no ledger line.
++- `{prior_findings}` holds the earlier blocking finding lines of this `start` byte for byte, never minors or notes. The reviewer marks each `resolved`, `open` or `regressed` and never cites the slot.
++- `{delta_diff}` holds `git diff <previous pinned reviewed tree> -- <touched files>` from A2 on, as context beside the full diff.
++- `{recheck_list}` holds the hit locations of re-run saved probes (Task 8 of this plan defines the probe).
++
++These are reviewer outputs and parent-run searches, not implementer claims or adviser text; paraphrase is forbidden.
++
++Saved prompts and paperwork-only reviews:
++
++- The orchestrator saves the exact prompt of review `r<k>-<j>` as `<retries>/T<id>/prompt-<k>-<j>.md`, line 1 the `start` sha, so no saved prompt is overwritten. Both FINALs (managed and legacy) compare every saved prompt with this template outside the slots, and return `issues` (managed) or record it in `FINAL:` evidence (legacy) when they differ.
++- A review whose only failure is reviewer paperwork (an AC mark with no citation or a bare or malformed one, an `unmet` mark that lists no finding id, or a missing or unparseable checklist answer) is unparseable: respawn once with the same input; a second such review is `E-RESUME-NEEDED reason=reviewer-down` (`refs/retry.md`). It never fails the attempt and never starts the ladder. An `unmet` mark whose listed findings are all non-blocking after the Read-back and the inherited cap is not paperwork; it counts as met with its citation ("## Verdict owner").
+diff --git a/src/superclaude/skills/sc-implement-protocol/SKILL.md b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+index 4c53819e..367a29e9 100644
+--- a/src/superclaude/skills/sc-implement-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-implement-protocol/SKILL.md
+@@ -98,7 +98,7 @@ Default sequential in source order. Parallel only when the source marks a set in
+ 
+ ### Reviewer mode (no flag)
+ 
+-Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
++Inline, same session, when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Every other review (A3-A5, a review re-run by Resume row V, an operator review by rows P or H) is a fresh Task subagent (prompt from `refs/qa.md`), never spawned as `fork`. An inline review may complete a task only with zero findings and only when the task's notes file holds no line after line 1; an inline review whose findings, or the notes file, would let the task complete with any minor or note is discarded and re-run once as a fresh Task subagent with the closed template and a saved `prompt-<k>-<j>.md` (`refs/qa.md`). Every repair re-review is a fresh subagent. Same verdict schema. If compacted mid-run, remaining QA uses the subagent. A managed archive-gate FINAL is always a subagent.
+ 
+ ## Loop (Q0–Q8)
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index 9e1bf34c..93932e21 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -163,8 +163,56 @@ Same isolation as above: `Do not trust the implementer's report.` One fresh suba
+ 
+ ## Subagent prompt (when not inline)
+ 
+-Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task. If compacted mid-run, remaining QA uses the subagent. Once a run switches to subagent mode it stays there; reviews of A3-A5, re-run reviews and operator reviews are always subagents.
++Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted, and the review is the first in-flow review of A1 or A2. Else one Task. If compacted mid-run, remaining QA uses the subagent. Once a run switches to subagent mode it stays there; reviews of A3-A5, re-run reviews and operator reviews are always subagents.
+ 
+-Prompt the subagent with: this file, the task brief, global constraints, the diff (or diff path), start sha. Require the closed verdict + citations. Do not trust the implementer's report.
++An inline review may complete a task only with zero findings and only when the task's notes file holds no line after line 1 (earlier failing reviews append their minors there). An inline review whose findings, or the notes file, would let the task complete with any minor or note is discarded and re-run once as a fresh Task subagent with the closed template below and a saved `prompt-<k>-<j>.md`. Every repair re-review is a fresh subagent.
++
++Every review, inline or subagent, uses this one closed template. The orchestrator fills only the seven slots, from the sources named below, and may not add, remove or reword any criterion, whether it comes from an output style, the session or its own judgment. Inline reviews use the same template text.
++
++```
++Review one task for spec compliance.
++
++Task brief: {task_brief}
++Global constraints: {global_constraints}
++Start sha: {start_sha}
++Diff against the start snapshot: {diff}
++Delta diff from the previous reviewed tree (empty on the first review): {delta_diff}
++Earlier blocking findings of this start (empty on the first review): {prior_findings}
++Saved-probe re-check hit locations (may be empty): {recheck_list}
++
++Do not trust the implementer's report.
++
++First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
++
++For every finding answer four questions, each yes or no:
++1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
++2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
++3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
++4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
++
++Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
++
++Write one line per finding:
++F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
++Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
++
++Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+ 
+ You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
++The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.
++```
++
++Slot sources:
++
++- `{task_brief}`: the Ti text and its AC ids; `{global_constraints}`: the plan's constraint sections; `{diff}`: the Q3 diff ("## Reviewer contract"); `{start_sha}`: the task's `start` sha.
++- A1 failure record: when the A1 review fails, the orchestrator writes `<retries>/T<id>/review-1.md` with its header ("## Review file format"), pins the `r1-1` tree (Task 3 of this plan defines the pin) and writes no ledger line.
++- `{prior_findings}` holds the earlier blocking finding lines of this `start` byte for byte, never minors or notes. The reviewer marks each `resolved`, `open` or `regressed` and never cites the slot.
++- `{delta_diff}` holds `git diff <previous pinned reviewed tree> -- <touched files>` from A2 on, as context beside the full diff.
++- `{recheck_list}` holds the hit locations of re-run saved probes (Task 8 of this plan defines the probe).
++
++These are reviewer outputs and parent-run searches, not implementer claims or adviser text; paraphrase is forbidden.
++
++Saved prompts and paperwork-only reviews:
++
++- The orchestrator saves the exact prompt of review `r<k>-<j>` as `<retries>/T<id>/prompt-<k>-<j>.md`, line 1 the `start` sha, so no saved prompt is overwritten. Both FINALs (managed and legacy) compare every saved prompt with this template outside the slots, and return `issues` (managed) or record it in `FINAL:` evidence (legacy) when they differ.
++- A review whose only failure is reviewer paperwork (an AC mark with no citation or a bare or malformed one, an `unmet` mark that lists no finding id, or a missing or unparseable checklist answer) is unparseable: respawn once with the same input; a second such review is `E-RESUME-NEEDED reason=reviewer-down` (`refs/retry.md`). It never fails the attempt and never starts the ladder. An `unmet` mark whose listed findings are all non-blocking after the Read-back and the inherited cap is not paperwork; it counts as met with its citation ("## Verdict owner").

@@ -1,0 +1,17 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/Implement_Loosen
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 254 items
+
+tests/skills/test_workflow_archive.py .................................. [ 13%]
+........................................................................ [ 41%]
+.......................................................................  [ 69%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 79%]
+...............................................                          [ 98%]
+tests/skills/test_task_workspace_smoke.py ....                           [100%]
+
+============================= 254 passed in 1.77s ==============================
