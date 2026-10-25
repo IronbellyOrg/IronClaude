@@ -332,14 +332,14 @@ duration_sec: <N>
    - Review URL (if posted)
 3. **Offer the remediation chain** (only if `--remediation-offer` AND `findings_count.critical + findings_count.high > 0`):
    - Read `refs/remediation-handoff.md` and use the exact prompt template there.
-   - The offer must list the five phases, name the route (plan, or mdtm when `--depth deep` was requested), and ask one yes/no question.
-4. If the user accepts, select the route from the review `--depth` the user requested: `quick`/`standard` → **plan route**; `deep` → **MDTM route** (see `refs/remediation-handoff.md`, "Route selection"):
-   - **Phase A** (both routes): Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
-   - **Phase B**: plan route → build `remediation-workflow-source.md` (spec copy + `## References` + any `## Review Feedback` from `remediation-review-notes.md`, list syntax flattened with every line's text kept) and invoke `Skill sc:workflow-protocol` on THAT file (not the bare spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/tasks/to-do/<id>/<id>.md`; MDTM route → invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
-   - **Phase C**: plan route → consume the pre-review `sc:workflow` already ran (`reflect_status` / `reflect_report_path` in its return contract; do not re-run `/sc:reflect --mode pre`); MDTM route → `/sc:reflect --type task --analyze` against the new task file
+   - The offer must list the five phases and ask one yes/no question.
+4. If the user accepts, run the same chain for every review `--depth` (see `refs/remediation-handoff.md`):
+   - **Phase A**: Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
+   - **Phase B**: build `remediation-workflow-source.md` (spec copy + `## References` + any `## Review Feedback` from `remediation-review-notes.md`, list syntax flattened with every line's text kept) and invoke `Skill sc:workflow-protocol` on THAT file (not the bare spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/tasks/to-do/<id>/<id>.md`
+   - **Phase C**: consume the pre-review `sc:workflow` already ran (`reflect_status` / `reflect_report_path` in its return contract; do not re-run `/sc:reflect --mode pre`)
    - If the Phase C review flags issues, surface them and ask the user whether to refactor or accept-as-is
-   - **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <pkg>/<id>.md` (plan route) or `/task <path>` (MDTM route) — the skill does NOT auto-execute
-   - **Phase E**: After execution completes, invoke `/sc:reflect --mode post --spec <remediation-spec.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` (plan route; `<pkg-now>` = `to-do/<id>` or `done/<id>` after implement archives it) or `/sc:reflect --type task --validate` (MDTM route) BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
+   - **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <pkg>/<id>.md` — the skill does NOT auto-execute
+   - **Phase E**: After execution completes, invoke `/sc:reflect --mode post --spec <remediation-spec.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` (`<pkg-now>` = `to-do/<id>` or `done/<id>` after implement archives it) BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
 5. Return the structured output contract.
 
 **Exit criteria**: Report posted (if applicable), remediation chain offered (if applicable), output contract returned.
@@ -353,7 +353,7 @@ duration_sec: <N>
 - Catch narrow bugs **and** architectural/anti-pattern risks (the rubric in `refs/severity-rubric.md` defines both categories explicitly)
 - Post the markdown report to the PR automatically (per the user's stated default — they opted in by running the command on a PR)
 - Attach inline comments for Critical/High findings, anchored to real lines in the diff
-- Offer a deterministic remediation chain (`/sc:design` → `sc:workflow` → `/sc:reflect`-pre → user-run `/sc:implement` → `/sc:reflect`-post; with `--depth deep`, `task-builder` → `/task` replaces the workflow/implement pair) and wait for explicit user acceptance before starting
+- Offer a deterministic remediation chain (`/sc:design` → `sc:workflow` → `/sc:reflect`-pre → user-run `/sc:implement` → `/sc:reflect`-post) and wait for explicit user acceptance before starting
 - Persist the full audit (raw Auggie JSON, validation results, dedupe decisions, severity remaps) for traceability
 
 ## Will Not Do
@@ -363,7 +363,7 @@ duration_sec: <N>
 - Include findings whose file:line cannot be validated against a real file
 - Modify code under review (advisory only)
 - Auto-trigger the remediation chain — that step is always user-gated
-- Auto-commit after the remediation chain — `/sc:reflect --type task --validate` is the final gate before the user commits manually
+- Auto-commit after the remediation chain — `/sc:reflect --mode post` is the final gate before the user commits manually
 - Run on diffs > 5000 lines without `--force` (no useful signal at that scale; recommend scoping down)
 - Trust Auggie's self-reported severity — always remap via the rubric
 
@@ -378,7 +378,7 @@ duration_sec: <N>
 | Auggie chunk fails after retry | Continue with remaining chunks; status `partial`; note in audit and report header | Findings from successful chunks still produced |
 | Findings all fail file:line grounding | Emit `REVIEW.md` with empty findings sections and a clear "review inconclusive — Auggie findings could not be grounded" notice; status `partial` | Do not post to PR in this case |
 | `gh pr review` post fails | Save the body to `<output-dir>/REVIEW.md`, surface the path to the user, status `partial` | None |
-| Task-builder skill not available | Surface the remediation spec path and stop; do not fail the whole review | None |
+| `sc:workflow` unavailable | Surface the remediation spec path and stop; do not fail the whole review | None |
 | User declines remediation offer | Return success; report still posted | None |
 | Diff > 5000 lines without `--force` | STOP at Wave 1 with "diff too large; rerun with `--focus` or `--force`" | None |
 

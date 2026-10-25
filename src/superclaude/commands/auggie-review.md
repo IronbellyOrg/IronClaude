@@ -50,7 +50,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 | `--depth` | `standard` | `quick` (auggie single-pass, ~2min), `standard` (auggie + Claude synthesis, ~5min), `deep` (auggie + per-persona Claude passes + cross-reference, ~10-15min) |
 | `--post-pr` | `true` when target is a PR | Auto-post the markdown report as a `gh pr review --comment`. Inline comments for `Critical` and `High` findings via `gh api`. **No confirmation prompt — the user opted in by invoking the command on a PR.** |
 | `--no-post-pr` | — | Generate the report only; do not touch GitHub |
-| `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` → `sc:workflow` → `/sc:reflect --mode pre` → user-run `/sc:implement` → `/sc:reflect --mode post`. With `--depth deep`, `task-builder` → `/task` (and `/sc:reflect --type task --analyze|--validate`) replaces the workflow/implement pair |
+| `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` → `sc:workflow` → `/sc:reflect --mode pre` → user-run `/sc:implement` → `/sc:reflect --mode post` |
 | `--no-remediation-offer` | — | Suppress the remediation chain offer |
 | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
 | `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
@@ -119,7 +119,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 # - Auggie answers architecture-level questions; Claude grounds findings in real files
 ```
 
-### Default remediation chain (plan route)
+### Remediation chain
 
 ```text
 /sc:auggie-review 62
@@ -131,18 +131,6 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 #   5. /sc:reflect --mode post                 → pre-commit validation
 ```
 
-### Deep review with MDTM remediation chain
-
-```text
-/sc:auggie-review 62 --depth deep
-# After report posts, user accepts the remediation offer (route = mdtm):
-#   1. /sc:design <report-path> --type architecture --format spec  → remediation spec
-#   2. Invoke task-builder skill on the spec  → MDTM task file
-#   3. /sc:reflect --type task --analyze       → tasklist sanity check
-#   4. User sign-off OR refactor task          → user runs /task <path>
-#   5. /sc:reflect --type task --validate      → pre-commit validation
-```
-
 ## Boundaries
 
 **Will:**
@@ -152,7 +140,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - Auto-post the report to the PR when the target is a PR (no confirmation; the user opted in by invoking the command)
 - Attach inline `gh` review comments for Critical and High findings, anchored to real file:line in the diff
 - Validate every Auggie-emitted file:line citation against the actual file before including it (no hallucinated locations in the report)
-- Offer the `/sc:design` → `sc:workflow` → `/sc:reflect` → `/sc:implement` remediation chain after the report posts (`task-builder` → `/task` only when `--depth deep`), gated on user confirmation
+- Offer the `/sc:design` → `sc:workflow` → `/sc:reflect` → `/sc:implement` remediation chain after the report posts, gated on user confirmation
 - Write the full markdown report, raw Auggie JSON, and an audit log to `--output-dir` for later reference
 
 **Will Not:**
@@ -168,8 +156,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ## Related Commands
 
 - **`/sc:design`** — Used in the remediation chain to convert review findings into an architecture/component remediation spec
-- **`/sc:reflect`** — Pre + post gates in the remediation chain. Plan route: the pre gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`; `--type task --analyze|--validate` on the MDTM route
-- **`/sc:workflow`** → **`/sc:implement`** — Default remediation route: workflow turns the design spec into a tasklist package (and runs its own `/sc:reflect --mode pre`), the user runs implement
-- **`task-builder` skill** — Only with `--depth deep`: invoked between `/sc:design` and execution to produce an MDTM task file for `/task`
+- **`/sc:reflect`** — Pre + post gates in the remediation chain. The pre gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`
+- **`/sc:workflow`** → **`/sc:implement`** — Remediation chain: workflow turns the design spec into a tasklist package (and runs its own `/sc:reflect --mode pre`), the user runs implement
 - **`/sc:adversarial`** — Complementary; use `/sc:adversarial` when you need multi-model debate on a single artifact, vs this command's auggie-centric whole-diff review
 - **`/sc:cleanup-audit`** — Complementary; whole-repo audit vs this command's diff/PR-scoped review
