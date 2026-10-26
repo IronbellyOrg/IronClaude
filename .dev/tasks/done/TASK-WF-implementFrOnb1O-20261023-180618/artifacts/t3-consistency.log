@@ -1,0 +1,10 @@
+Prose section vs routing row, src/superclaude/core/HOW-WE-WORK.md after Task 3 (2026-10-23):
+3.2 (lines 91-108) vs feature-existing (line 322): both /sc:workflow <spec file> then /sc:implement .dev/tasks/to-do/<id>/<id>.md; level-4-sized feature -> 3.13 / task-file. AGREE.
+3.4 (lines 123-138) vs bug (line 326): 3b /sc:workflow --depth quick, 3c /sc:workflow at default depth, both then /sc:implement; --fix offers a /sc:workflow plan, --fix --depth deep a task file (level 4, 3.13). AGREE.
+3.7 step 3 (line 170) vs cleanup notes (line 333): large refactor -> /sc:workflow <spec file> as a feature (3.2 / feature-existing), level-4-sized -> 3.13. AGREE.
+3.11 step 4 (line 203) vs review-pr (line 338): row step 4 is /sc:auggie-review --diff ... --no-post-pr; the row does not describe the remediation offer, so nothing contradicts the corrected prose. AGREE.
+level 5 (line 19) vs research-first (line 323): step 2 /sc:workflow "<what to build> as recommended in <report path>...", step 3 /sc:implement; /task-builder then /task only for level-4-sized builds (notes). AGREE.
+shape-idea (line 325) vs 3.1 step 1 (line 53) and 3.6 row (line 153): no-PRD build -> /sc:workflow <path to merged-requirements.md>; --handoff task only for level-4-sized work. AGREE.
+task-file (line 321) vs level 4 (line 18) and 3.13 (line 222): from-scratch whole project or major component, nearly needs a PRD and TDD; section 1, 3.13. AGREE.
+simple-plan (line 320) vs level 3 (line 17) and 3.3 step 2 (line 114): planned change, clear requirements, many files, more than one session. AGREE.
+No row's step sequence runs /sc:workflow followed by /task: research-first and bug follow /sc:workflow with /sc:implement; /task appears only after /task-builder (task-file steps; research-first notes' level-4 alternative; full-spec phase task files).

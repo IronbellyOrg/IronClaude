@@ -1,0 +1,5 @@
+old tie-break: errors=['line 1: tie-break without the level 3 versus 4 exception']
+old hard limit: errors=['line 1: old hard limit sends larger work to level 4']
+new tie-break: errors=[]
+old level 4 cell: errors=["level 4 'Use this when' lists 'many files'", "level 4 'Use this when' lists 'more than one session'"]
+current guide level 4 cell: errors=[]

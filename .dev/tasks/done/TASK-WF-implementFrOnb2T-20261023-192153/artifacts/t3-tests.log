@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck/.venv/bin/python3
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collecting ... collected 3 items
+
+tests/docs/test_onboarding_deck.py::test_every_deck_command_and_flag_is_in_the_guide PASSED [ 33%]
+tests/docs/test_onboarding_deck.py::test_deck_keeps_its_build_commit_footer PASSED [ 66%]
+tests/docs/test_onboarding_deck.py::test_checks_catch_planted_failures PASSED [100%]
+
+============================== 3 passed in 0.07s ===============================
+
+$ uv run ruff check tests/docs/test_onboarding_deck.py
+All checks passed!
+$ uv run ruff format --check tests/docs/test_onboarding_deck.py
+Would reformat: tests/docs/test_onboarding_deck.py
+1 file would be reformatted
+
+# After ruff format (formatting only)
+tests/docs/test_onboarding_deck.py::test_every_deck_command_and_flag_is_in_the_guide PASSED [ 33%]
+tests/docs/test_onboarding_deck.py::test_deck_keeps_its_build_commit_footer PASSED [ 66%]
+tests/docs/test_onboarding_deck.py::test_checks_catch_planted_failures PASSED [100%]
+
+============================== 3 passed in 0.13s ===============================
+$ uv run ruff check tests/docs/test_onboarding_deck.py
+All checks passed!
+$ uv run ruff format --check tests/docs/test_onboarding_deck.py
+1 file already formatted
+
+# Non-vacuous check: tokens the test extracts from the real deck
+claim texts: 213 distinct tokens: 35
+['--monitor', '--no-post-pr', '--plugin', '/ccsession-tag', '/code-review', '/prd', '/roadmap', '/sc:adversarial', '/sc:auggie-review', '/sc:brainstorm', '/sc:cleanup', '/sc:cleanup-audit', '/sc:design', '/sc:document', '/sc:explain', '/sc:help', '/sc:implement', '/sc:improve', '/sc:load', '/sc:pr-submit', '/sc:recommend', '/sc:reflect', '/sc:research', '/sc:roadmap', '/sc:save', '/sc:spec-panel', '/sc:task', '/sc:troubleshoot', '/sc:workflow', '/security-review', '/task', '/task-builder', '/tdd', '/tech-reference', '/tech-research']

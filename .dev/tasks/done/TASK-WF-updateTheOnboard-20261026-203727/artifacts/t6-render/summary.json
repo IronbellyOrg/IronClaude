@@ -1,0 +1,121 @@
+{
+ "checked_at": "2026-10-26T21:48:42Z (render file time; final deck text, after the slide 5 and 10 trims)",
+ "url": "doctype wrapper of the deck served from /tmp/onb-serve on 127.0.0.1:8765",
+ "pdf_pages_light": 15,
+ "pdf_pages_dark": 15,
+ "network": [
+  "http://127.0.0.1:8765/index.html",
+  "https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+  "https://fonts.gstatic.com/s/bigshouldersdisplay/v24/fC1_PZJEZG-e9gHhdI4-NBbfd2ys3SjJCx1czNDu.woff2",
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgg.woff2",
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYY.woff2"
+ ],
+ "console_errors": [],
+ "runs": [
+  {
+   "width": 1280,
+   "scheme": "light",
+   "slides": 15,
+   "svgs": 6,
+   "scrollWidth": 1280,
+   "innerWidth": 1280,
+   "minContrast": 5.39,
+   "splitCode": []
+  },
+  {
+   "width": 1280,
+   "scheme": "dark",
+   "slides": 15,
+   "svgs": 6,
+   "scrollWidth": 1280,
+   "innerWidth": 1280,
+   "minContrast": 5.67,
+   "splitCode": []
+  },
+  {
+   "width": 375,
+   "scheme": "light",
+   "slides": 15,
+   "svgs": 6,
+   "scrollWidth": 375,
+   "innerWidth": 375,
+   "minContrast": 5.39,
+   "splitCode": []
+  },
+  {
+   "width": 375,
+   "scheme": "dark",
+   "slides": 15,
+   "svgs": 6,
+   "scrollWidth": 375,
+   "innerWidth": 375,
+   "minContrast": 5.67,
+   "splitCode": []
+  }
+ ],
+ "svg_overflow": [],
+ "print_slide_heights_css_px": [
+  [
+   "s1",
+   455
+  ],
+  [
+   "s2",
+   597
+  ],
+  [
+   "s3",
+   781
+  ],
+  [
+   "s4",
+   662
+  ],
+  [
+   "s5",
+   968
+  ],
+  [
+   "s6",
+   839
+  ],
+  [
+   "s7",
+   388
+  ],
+  [
+   "s8",
+   768
+  ],
+  [
+   "s9",
+   677
+  ],
+  [
+   "s10",
+   1011
+  ],
+  [
+   "s11",
+   619
+  ],
+  [
+   "s12",
+   444
+  ],
+  [
+   "s13",
+   701
+  ],
+  [
+   "s14",
+   414
+  ],
+  [
+   "s15",
+   626
+  ]
+ ],
+ "note": "A4 printable height with 14mm margins is about 1016 CSS px; every slide fits, so 15 PDF pages"
+}

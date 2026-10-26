@@ -1,0 +1,98 @@
+diff --git a/docs/user-guide/commands.md b/docs/user-guide/commands.md
+index 13f8fd09..b2eba2d4 100644
+--- a/docs/user-guide/commands.md
++++ b/docs/user-guide/commands.md
+@@ -40,7 +40,7 @@ This page is the per-command reference: exact syntax, options, and what each com
+ | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
+ | [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
+ | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
+-| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Short checked plan for a few files (level 3) | `workflow.md` | Only with `--handoff implement` |
++| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked plan for any planned change, including many files or more than one session (level 3, the default) | `workflow.md` | Only with `--handoff implement` |
+ | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
+ | `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
+ | `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
+@@ -67,7 +67,7 @@ This page is the per-command reference: exact syntax, options, and what each com
+ | Command | Purpose | File | Changes files? |
+ |---------|---------|------|----------------|
+ | [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
+-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a task file you run with `/task`) |
++| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a `/sc:workflow` plan you run with `/sc:implement`; with `--depth deep`, a task file you run with `/task`) |
+ | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
+ | [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
+ | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
+@@ -291,7 +291,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
+ 
+ **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
+ 
+-**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/task-builder` then `/task`, and a new product or major feature to `/prd`, `/tdd`, `/roadmap`.
++**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, planned multi-file or multi-session work to `/sc:workflow` then `/sc:implement` (`/task-builder` then `/task` only for a from-scratch build whose spec nearly needs a PRD and TDD), and a new product or major feature to `/prd`, `/tdd`, `/roadmap`.
+ 
+ **What it does:**
+ 
+@@ -453,7 +453,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
+ 
+ ### `/sc:roadmap` - Roadmap Generator
+ 
+-**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`); for the default planning route use `/roadmap`, which writes a task file for every phase (see [How We Work](how-we-work.md), section 5).
++**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`); for the default roadmap route use `/roadmap`, which writes a task file for every phase (see [How We Work](how-we-work.md), section 5).
+ 
+ **Syntax:**
+ 
+@@ -503,7 +503,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
+ 
+ ### `/sc:spawn` - Meta-System Task Orchestration
+ 
+-**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/task-builder` then `/task` instead (level 4 in [How We Work](how-we-work.md)).
++**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)); `/task-builder` then `/task` (level 4) only for a from-scratch build whose spec nearly needs a PRD and TDD.
+ 
+ **What it does:**
+ 
+@@ -548,7 +548,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
+ 
+ ### `/sc:task` - Enhanced Task Management
+ 
+-**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow --depth quick` or `/task-builder`).
++**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow --depth quick` by default; `/task-builder` only for level-4 work).
+ 
+ **What it does:**
+ 
+@@ -692,7 +692,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
+ 
+ ### `/sc:workflow` - Implementation Plan Generator
+ 
+-**When to use:** A few files with clear scope that fit in one or two sessions (level 3 in [How We Work](how-we-work.md)); always pass `--depth quick`. It writes a phased plan (`<id>.md`, named like its package directory). For a PRD or TDD use `/roadmap`; for many files or multi-session work use `/task-builder`.
++**When to use:** Any planned change with clear requirements, including work that touches many files or takes more than one session (level 3 in [How We Work](how-we-work.md), the default); always pass `--depth quick`. It writes a phased plan (`<id>.md`, named like its package directory). For a PRD or TDD use `/roadmap`; use `/task-builder` only for a whole project or major component built from scratch, from a spec that nearly needs a PRD and TDD (level 4).
+ 
+ **What it does:**
+ 
+@@ -803,7 +803,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
+ 
+ ### `/sc:implement` - Feature Implementation
+ 
+-**When to use:** Execute a written plan, spec or task list (or an inline prompt) one step at a time, with a reviewer check of each step against its acceptance criteria. For work that spans more than one session or many files, see [How We Work](how-we-work.md).
++**When to use:** Execute a written plan, spec or task list (or an inline prompt) one step at a time, with a reviewer check of each step against its acceptance criteria. This is the default way to build planned work, including work that spans many files or more than one session (level 3 in [How We Work](how-we-work.md)).
+ 
+ **What it does:**
+ 
+@@ -924,7 +924,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
+ 
+ ### `/sc:improve` - Code Improvement
+ 
+-**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and use `/task-builder` (see [How We Work](how-we-work.md), section 3.7).
++**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and plan it with `/sc:workflow` (`/task-builder` only for a level-4-sized refactor; see [How We Work](how-we-work.md), section 3.7).
+ 
+ **What it does:**
+ 
+diff --git a/docs/user-guide/session-management.md b/docs/user-guide/session-management.md
+index 7c69ddd7..e60f2e37 100644
+--- a/docs/user-guide/session-management.md
++++ b/docs/user-guide/session-management.md
+@@ -122,7 +122,7 @@ To pick up work in a new conversation, use section 3.12 ("Resume after a crash o
+ 
+ # Phase completion pattern with memory
+ /sc:save --type all --checkpoint
+-/task-builder "Phase 2: payment and order processing"   # larger work goes through a task file (see How We Work)
++/sc:workflow "Phase 2: payment and order processing"   # planned work goes through a /sc:workflow plan, run with /sc:implement (see How We Work)
+ ```
+ 
+ ## Per-Turn Session Context Envelope (v4.3+)

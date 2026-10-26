@@ -1,0 +1,60 @@
+diff --git a/tmp/tmp.CrQ5gmqpjD/before.html b/docs/onboarding/ironclaude-onboarding.html
+index 6a2656d8..f19e9774 100644
+--- a/tmp/tmp.CrQ5gmqpjD/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -347,12 +347,12 @@
+ <section class="slide" id="s6" aria-labelledby="s6-h">
+   <p class="eyebrow"><b>06</b> · Planning · HOW-WE-WORK sections 1, 3.12 and 5</p>
+   <h2 id="s6-h">Two planners</h2>
+-  <p class="lead"><code>/sc:workflow</code> with <code>/sc:implement</code> is the default. <code>/task-builder</code> with <code>/task</code> is the rare, heavy option for level 4.</p>
++  <p class="lead"><code>/sc:workflow</code> with <code>/sc:implement</code> is the ordinary default for planned implementation. <code>/task-builder</code> with <code>/task</code> is for explicit or exceptional task-file (MDTM) work, level 4.</p>
+   <p><code>/sc:workflow</code> writes a plan in which every step has acceptance criteria: a written definition of "done" for that step.</p>
+   <figure class="diagram mid">
+     <svg viewBox="0 0 760 330" role="img" aria-labelledby="d4-t d4-d">
+       <title id="d4-t">Two planner pairs</title>
+-      <desc id="d4-d">Left, the default: /sc:workflow writes a plan folder, /sc:implement runs it step by step and, on Linux, moves the folder to done (elsewhere it stays in to-do on purpose). Right, rare: /task-builder writes a task file checklist, /task runs it with reviewer panels.</desc>
++      <desc id="d4-d">Left, the ordinary default: /sc:workflow writes a plan folder; /sc:implement runs it step by step with compliance checks, then a final independent review, and on Linux moves the folder to done (elsewhere it stays in to-do on purpose). Right, explicit or exceptional: /task-builder writes a task file checklist; /task runs it with reviewer panels after each phase except setup, then tests and a final audit.</desc>
+       <defs>
+         <marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+         <marker id="aha4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+@@ -368,9 +368,9 @@
+       <path class="d-line-acc" d="M190,216 L190,236" marker-end="url(#aha4)"/>
+       <rect class="d-box" x="20" y="240" width="340" height="72" rx="8"/>
+       <text class="d-ts" x="36" y="260">progress.md: one line per step;</text>
+-      <text class="d-ts" x="36" y="280">a reviewer checks each step, then a</text>
+-      <text class="d-ts" x="36" y="300">final review; on Linux, moves to done/</text>
+-      <text class="d-tw" x="400" y="24">RARE · level 4 only</text>
++      <text class="d-ts" x="36" y="280">step checks, then a final independent</text>
++      <text class="d-ts" x="36" y="300">review; on Linux, moves to done/</text>
++      <text class="d-tw" x="400" y="24">EXPLICIT OR EXCEPTIONAL · level 4</text>
+       <rect class="d-box-warn" x="400" y="36" width="340" height="40" rx="8"/><text class="d-tm" x="416" y="61">/task-builder</text>
+       <path class="d-line" d="M570,76 L570,96" marker-end="url(#ah4)"/>
+       <rect class="d-box" x="400" y="100" width="340" height="52" rx="8"/>
+@@ -382,15 +382,14 @@
+       <rect class="d-box" x="400" y="240" width="340" height="72" rx="8"/>
+       <text class="d-ts" x="416" y="260">A reviewer panel after each phase but</text>
+       <text class="d-ts" x="416" y="280">setup; then tests and a final audit.</text>
+-      <text class="d-ts" x="416" y="300">Takes much longer, costs far more.</text>
++      <text class="d-ts" x="416" y="300">Resume with the same executor.</text>
+     </svg>
+     <figcaption class="cap">What each pair leaves on disk.</figcaption>
+   </figure>
+   <ul>
+-    <li><strong>Run each plan with its own partner.</strong> Folders named <code>TASK-WF-*</code> are <code>/sc:workflow</code> plans: run them with <code>/sc:implement</code>, never with <code>/task</code>. A task file from <code>/task-builder</code> runs with <code>/task</code>.</li>
+-    <li>Agents must never choose <code>/task-builder</code> or <code>/task</code> as the planner on their own, unless a skill or command you started runs them as one of its own steps (slide 13).</li>
++    <li><strong>Run each plan with its own executor.</strong> Folders named <code>TASK-WF-*</code> are <code>/sc:workflow</code> plans: run them with <code>/sc:implement</code>, never with <code>/task</code>. An existing MDTM task file goes directly to <code>/task</code>, without rebuilding it.</li>
+   </ul>
+-  <p class="story">In the meeting <code>/sc:workflow</code> was described as "task builder light": faster and cheaper. It assumes you have done your homework, or lets you tell it plainly in a prompt what to plan. The rule of thumb given there: a plan made by an <code>sc:</code> command is followed up by an <code>sc:</code> command, and a plan from a plain slash command, for the most part, by a plain one. The guide's rule wins: a task file always runs with <code>/task</code>, whichever command built it.</p>
++  <p class="story">In the meeting <code>/sc:workflow</code> was described as "task builder light": faster and cheaper. It assumes you have done your homework, or lets you tell it plainly in a prompt what to plan. The rule of thumb given there: a plan made by an <code>sc:</code> command is followed up by an <code>sc:</code> command, and a plan from a plain slash command, for the most part, by a plain one. The guide's rule wins: when an approved plan already exists, use its own executor and do not rebuild it. A <code>/sc:workflow</code> package runs with <code>/sc:implement</code>; an existing MDTM task file runs with <code>/task</code>.</p>
+ </section>
+ 
+ <section class="slide" id="s7" aria-labelledby="s7-h">
+@@ -563,7 +562,7 @@
+       </tbody>
+     </table>
+   </div>
+-  <div class="trap"><b>An agent picking the heavy planner.</b> The guide's rule: an agent must never choose <code>/task-builder</code> or <code>/task</code> as the planner on its own. It may use them only when you name the command, or after you confirm once you have been told it takes much longer and costs far more than <code>/sc:workflow</code>. This does not apply when a skill or command you started runs them as one of its own steps.</div>
++  <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, already have an MDTM task to run, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery. File count, several sessions, an existing spec, risk or drift alone never select them (guide sections 1 and 5).</div>
+   <p class="story">The sign, as described in the meeting: a long run starts and many reviewer or quality-check (QA) helper agents, called subagents, start in the background without you asking for them.</p>
+   <div class="trap"><b><code>/sc:save</code> is not a way to resume.</b> Use the steps on slide 11.</div>
+ </section>

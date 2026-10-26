@@ -1,0 +1,22 @@
+docs/user-guide/session-management.md:111:2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
+docs/user-guide/session-management.md:218:3. Keep unfinished work in its own files (a task file or a plan) so it can be resumed; project memory does not resume it
+docs/user-guide/brainstorm.md:16:| Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/task-builder` |
+docs/user-guide/brainstorm.md:56:| `--handoff` | `none` | Post-merge action: `none`, `design` (text recommend), `tasklist` (invoke), `task` (invoke task-builder). |
+docs/user-guide/brainstorm.md:67:- `--handoff task` requires `task-builder` skill; `--handoff tasklist` requires `sc-tasklist-protocol`. Brainstorm STOPs rather than silently downgrading.
+docs/user-guide/brainstorm.md:76:6. **Wave 4 — Handoff (flag-gated)**: invoke `/sc:tasklist` or `/task-builder`, or print text recommendation for `/sc:design`.
+docs/user-guide/brainstorm.md:174:| `task` | Invoke `Skill task-builder` with domain-detected template | `task-builder` |
+docs/user-guide/brainstorm.md:188:| `/task-builder` | Wave 4 invoked handoff |
+docs/user-guide/brainstorm.md:227:        └── task      → invoke /task-builder
+docs/user-guide/commands.md:43:| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked plan for any planned change, including many files or more than one session (level 3, the default) | `workflow.md` | Only with `--handoff implement` |
+docs/user-guide/commands.md:70:| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a `/sc:workflow` plan you run with `/sc:implement`; with `--depth deep`, a task file you run with `/t
+docs/user-guide/commands.md:278:**When to use:** Load Serena project memory (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or 
+docs/user-guide/commands.md:294:**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, planned multi-file or multi-ses
+docs/user-guide/commands.md:456:**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the so
+docs/user-guide/commands.md:506:**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)); `/task-b
+docs/user-guide/commands.md:551:**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs
+docs/user-guide/commands.md:609:| `--resume <task file>` | - | Continue an interrupted TDD session |
+docs/user-guide/commands.md:695:**When to use:** Any planned change with clear requirements, including work that touches many files or takes more than one session (level 3 in [How We Work](how-we-work.md), the default); always pass `--depth quick`. It writes a
+docs/user-guide/commands.md:736:- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
+docs/user-guide/commands.md:806:**When to use:** Execute a written plan, spec or task list (or an inline prompt) one step at a time, with a reviewer check of each step against its acceptance criteria. This is the default way to build planned work, including wo
+docs/user-guide/commands.md:927:**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and plan it with `/sc:workflow` (`/task-buil
+docs/user-guide/commands.md:1333:**Engine vs. skill:** The wrapper does not re-implement reflection. It launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess** (so Tier-2 heterogeneous fan-out is preserved — a nested call would coll

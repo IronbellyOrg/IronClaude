@@ -4,6 +4,13 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### onboarding deck: a 15-slide page for new team members, built from the routing guide
+
+#### Added (onboarding deck)
+
+- `docs/onboarding/ironclaude-onboarding.html`: a single-page onboarding deck (15 slides, 6 inline diagrams, light and dark themes, prints one slide per page) that explains why IronClaude exists, how a command and its skill are built, how to pick a process level, the two planners, the path from idea to pull request, review and shipping with the four `--monitor` ceilings, where work is saved, how to resume, and the common traps. It follows `src/superclaude/core/HOW-WE-WORK.md` at commit adaa28d9 and links to it for every command; stories from the onboarding meeting are marked as such. A comment at the top of the file says to update the deck in the same PR when the guide changes in a way a slide depends on.
+- `tests/docs/test_onboarding_deck.py`: checks that every command and flag the deck shows (in code and inside its diagrams) appears in the guide, with `--plugin` checked against `src/superclaude/commands/recommend.md`, and that the deck keeps its "Built from HOW-WE-WORK.md at commit" footer.
+
 ### ccsession: Orca's Claude launches go through ccsession and ask for a session name
 
 #### Added (ccsession Orca launch)
