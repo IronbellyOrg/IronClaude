@@ -12,6 +12,8 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
     home = Path.home() if home is None else Path(home)
     skill = home / ".claude" / "skills" / "ccsession-tag"
     wrapper = skill / "ccsession"
+    # Orca's Claude command (Settings > Agents > Claude > Command).
+    orca_wrapper = skill / "ccsession-orca"
     hook = skill / "hooks" / "session-start.sh"
     example = skill / "ccsession.env.example"
     if (
@@ -19,6 +21,7 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
         or skill.is_symlink()
         or not wrapper.is_file()
         or wrapper.is_symlink()
+        or orca_wrapper.is_symlink()
         or hook.parent.is_symlink()
         or not hook.is_file()
         or hook.is_symlink()
@@ -27,21 +30,29 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
     ):
         return False, f"ccsession skill files missing or symlinked in {skill}"
 
-    dest = home / ".local" / "bin" / "ccsession"
+    bin_dir = home / ".local" / "bin"
+    dest = bin_dir / "ccsession"
     env = home / ".claude" / "ccsession.env"
     if (env.exists() or env.is_symlink()) and not env.is_file():
         return False, f"ccsession env path is not a file: {env}"
+    unmanaged = []
+    # A skill installed before ccsession-orca existed is kept by a plain
+    # `superclaude install`; ccsession still works, and `update` adds the file.
+    scripts = [wrapper, orca_wrapper] if orca_wrapper.is_file() else [wrapper]
     try:
-        wrapper.chmod(0o755)
         hook.chmod(0o755)
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        collision = (dest.exists() or dest.is_symlink()) and not (
-            dest.is_symlink() and dest.resolve() == wrapper.resolve()
-        )
-        if not collision:
-            if dest.is_symlink():
-                dest.unlink()
-            dest.symlink_to(wrapper)
+        bin_dir.mkdir(parents=True, exist_ok=True)
+        for script in scripts:
+            script.chmod(0o755)
+            link = bin_dir / script.name
+            if (link.exists() or link.is_symlink()) and not (
+                link.is_symlink() and link.resolve() == script.resolve()
+            ):
+                unmanaged.append(link)
+                continue
+            if link.is_symlink():
+                link.unlink()
+            link.symlink_to(script)
         if not env.exists() and not env.is_symlink():
             staged_path = None
             try:
@@ -74,9 +85,15 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
 
     if not env.is_file():
         return False, f"ccsession env path is not a file: {env}"
-    if collision:
-        return (
-            True,
-            f"ccsession installed; warning: {dest} is unmanaged; leaving it unchanged",
+    warnings = []
+    if unmanaged:
+        paths = ", ".join(str(link) for link in unmanaged)
+        verb, it = ("is", "it") if len(unmanaged) == 1 else ("are", "them")
+        warnings.append(f"{paths} {verb} unmanaged; leaving {it} unchanged")
+    if orca_wrapper not in scripts:
+        warnings.append(
+            f"{orca_wrapper.name} is not in {skill}; run 'superclaude update' to add it"
         )
+    if warnings:
+        return True, "ccsession installed; warning: " + "; ".join(warnings)
     return True, f"ccsession wired at {dest}"

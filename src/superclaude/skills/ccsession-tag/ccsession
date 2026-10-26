@@ -19,6 +19,19 @@
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
+#   ccsession [<topic>] [options] --claude-args <claude args>
+#                             Everything after --claude-args goes to Claude Code
+#                             exactly as given; none of it is read as a label or
+#                             an option
+#   ccsession --ask [<hint>]  List this folder's saved sessions, ask for a session
+#                             name and print it (empty: untagged). The hint goes
+#                             in the question's brackets. Exit 1: not asked (no
+#                             terminal, or keys already waiting), no answer within
+#                             CCSESSION_ASK_TIMEOUT seconds (unset or 0: no
+#                             limit), or end of input; exit 130: Ctrl+C
+#   ccsession-orca [<claude args>]
+#                             Orca's Claude command: asks for a name, then starts
+#                             Claude through ccsession (see ccsession-orca)
 #   Coder workspaces (tier mode, when the workspace env defines T<N>_WINDOW):
 #   ccsession <topic>         Start or resume on the default tier (CCSESSION_DEFAULT_TIER)
 #   ccsession <topic> --tier <tier>
@@ -77,7 +90,9 @@ CCSESSION_DIR="$(cd "$(dirname "$_self")" && pwd)"
 CCSESSION_MODELS="$CCSESSION_DIR/models.py"
 
 # Extract --shim and --profile from anywhere in the args; every other
-# argument passes through to Claude Code unchanged.
+# argument passes through to Claude Code unchanged. --claude-args ends
+# ccsession's own arguments: the rest go to Claude Code as given, after any
+# label. A plain "--" is an ordinary argument, passed on to Claude Code.
 USE_SHIM=0
 SHIM_FLAG=0
 PROFILE=""
@@ -86,8 +101,16 @@ MODEL_ARG=""
 MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
 MODEL_POS=0
 _args=()
+CLAUDE_PASSTHROUGH=()
+PASSTHROUGH_GIVEN=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --claude-args)
+      shift
+      CLAUDE_PASSTHROUGH=("$@")
+      PASSTHROUGH_GIVEN=1
+      break
+      ;;
     -shim|--shim)
       USE_SHIM=1
       SHIM_FLAG=1
@@ -702,6 +725,79 @@ list_sessions() {
   fi
 }
 
+ask_session_name() {
+  # ccsession --ask: the session-name question for a person opening a terminal
+  # (ccsession-orca, the Coder New Terminal hook). The list and the question go
+  # to stderr, so a caller reads the answer with name=$(ccsession --ask).
+  local hint="${1:-Enter = untagged, Ctrl+C = plain shell}"
+  [ -t 0 ] && [ -t 2 ] || return 1
+  # Keys already waiting (an agent or paste is typing): leave them to whatever
+  # runs next. A line-mode terminal only reports complete lines as readable, so
+  # look with line mode briefly off; any typed byte, even without Enter, counts.
+  # python3, not `read -t 0`: bash 3.2 (macOS) fails that without looking.
+  local tty_mode="" waiting=1
+  # Ctrl+C from here on puts the terminal mode back before ending the question.
+  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT
+  tty_mode=$(stty -g 2>/dev/null) && stty -icanon min 0 time 0 2>/dev/null
+  python3 -c 'import select, sys; sys.exit(0 if select.select([0], [], [], 0)[0] else 1)' 2>/dev/null \
+    && waiting=0
+  [ -n "$tty_mode" ] && stty "$tty_mode" 2>/dev/null
+  if [ "$waiting" = 0 ]; then
+    trap - INT
+    return 1
+  fi
+  # A name resumes only in the folder it was started in, so list this folder's
+  # sessions, not every folder's. Nothing is shown when the folder has none.
+  local name sessions line
+  sessions=$(list_sessions "$(slugify "$(pwd)")")
+  case "$sessions" in
+    ''|'No labeled sessions'*|$'\n''No labeled sessions'*) : ;;
+    *)
+      # Palette tokens (Coder's design-tokens.sh) when exported and on a
+      # terminal; NO_COLOR or missing tokens give plain text.
+      local bold="" accent="" dim="" reset=""
+      if [ -z "${NO_COLOR:-}" ]; then
+        bold=${ANSI_FG_EMPHASIS-} accent=${ANSI_ACCENT_PRIMARY-}
+        dim=${ANSI_FG_DIM-} reset=${ANSI_RESET-}
+      fi
+      printf '\n%sSaved sessions in %s (type a name to resume it):%s\n' \
+        "$bold" "${PWD/#"$HOME"/\~}" "$reset" >&2
+      # list_sessions prints a folder heading, then "  <name><padding><details>"
+      # rows; the heading is replaced by the line above.
+      while IFS= read -r line; do
+        if [[ $line =~ ^"  "([^ ]+)( +)(.*)$ ]]; then
+          printf '  %s%s%s%s%s%s%s\n' "$accent" "${BASH_REMATCH[1]}" "$reset" \
+            "${BASH_REMATCH[2]}" "$dim" "${BASH_REMATCH[3]}" "$reset" >&2
+        fi
+      done <<< "$sessions"
+      printf '%sSessions from other folders: ccsession --list%s\n\n' "$dim" "$reset" >&2
+      ;;
+  esac
+  # A caller with something waiting on it (Orca's supervised workers time out
+  # at 60s) sets CCSESSION_ASK_TIMEOUT so an unanswered question gives up.
+  local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-0}"
+  case "$limit" in
+    '' | *[!0-9]* | 0) : ;;
+    *) read_opts=(-t "$limit") ;;
+  esac
+  # Ctrl+C ends the question with its own status; the line after ^C stays clean.
+  trap 'echo >&2; exit 130' INT
+  # A name that is not a valid label asks again (validate_label says why). A
+  # leading "-" would reach ccsession as an option, never as a name.
+  while :; do
+    read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " name ||
+      { echo >&2; return 1; }
+    [ -z "$name" ] && break
+    if [[ $name == -* ]]; then
+      echo "ccsession: invalid label '$name' (cannot start with '-')" >&2
+      continue
+    fi
+    validate_label "$name" >/dev/null && break
+  done
+  trap - INT
+  printf '%s\n' "$name"
+}
+
 show_help() {
   awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
   if [ "$TIER_MODE" = 1 ]; then
@@ -744,6 +840,10 @@ case "${1:-}" in
     list_sessions "$(slugify "$(pwd)")"
     exit 0
     ;;
+  --ask)
+    ask_session_name "${2:-}"
+    exit $?
+    ;;
   --rm)
     [ -n "${2:-}" ] || { echo "Usage: ccsession --rm <topic>" >&2; exit 2; }
     RM_TOPIC=$(validate_label "$2") || exit 2
@@ -761,9 +861,9 @@ case "${1:-}" in
 esac
 
 # Preserve the original no-argument help behavior only when nothing at all
-# was selected (no topic, no profile, no shim).
+# was selected (no topic, no profile, no shim, no --claude-args).
 if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ -z "$TIER_ARG" ] && [ -z "$MODEL_ARG" ] && \
-  [ "$SHIM_FLAG" != 1 ]; then
+  [ "$SHIM_FLAG" != 1 ] && [ "$PASSTHROUGH_GIVEN" != 1 ]; then
   show_help
   exit 0
 fi
@@ -799,6 +899,7 @@ fi
 
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
+  set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
   echo "[ccsession] Starting untagged session"
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
@@ -809,6 +910,7 @@ fi
 
 TOPIC=$(validate_label "$1") || exit 2
 shift
+set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
 
 WS_SLUG=$(slugify "$(pwd)")
 TOPIC_DIR="$PROJECTS_DIR/$WS_SLUG/topics"

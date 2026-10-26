@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import fcntl
 import gzip
 import http.server
 import json
 import os
+import pty
 import runpy
+import select
 import socket
 import stat
 import subprocess
 import sys
+import termios
 import threading
 import time
 import urllib.request
@@ -900,6 +904,10 @@ def test_installer_wires_complete_package_without_overwriting_secrets(
     assert "Install complete" in first.stdout
     assert command_link.is_symlink()
     assert command_link.resolve() == target / "ccsession"
+    orca_link = home / ".local" / "bin" / "ccsession-orca"
+    assert orca_link.is_symlink()
+    assert orca_link.resolve() == target / "ccsession-orca"
+    assert os.access(orca_link, os.X_OK)
     assert (target / "local-gateway-alias-proxy.py").exists()
     assert (target / "SKILL.md").exists()
     assert not stale_plan.exists()
@@ -1153,6 +1161,28 @@ def _label_launch(
     return result.stdout, (topics / "demo.txt").exists()
 
 
+def test_rm_removes_an_existing_label_that_starts_with_a_dash(tmp_path: Path) -> None:
+    # Older /ccsession-tag versions could write one; it must stay removable.
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    work.mkdir(parents=True)
+    topics = (
+        home / ".claude" / "projects" / str(work.resolve()).replace("/", "-") / "topics"
+    )
+    topics.mkdir(parents=True)
+    (topics / "-old.txt").write_text("abc12345-0000-0000-0000-000000000000\n")
+    env = {**os.environ, "HOME": str(home)}
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--rm", "-old"],
+        env=env,
+        cwd=work,
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not (topics / "-old.txt").exists()
+
+
 def test_label_with_missing_transcript_starts_new_session(tmp_path: Path) -> None:
     stdout, label_kept = _label_launch(tmp_path, transcript=False)
     assert "has no saved conversation; starting a new one" in stdout
@@ -1207,3 +1237,465 @@ def test_private_addon_profiles_never_download_model_data(
         assert server.statuses == [200]
     finally:
         server.close()
+
+
+def test_claude_args_passes_the_rest_to_claude_unchanged(tmp_path: Path) -> None:
+    # After --claude-args nothing is a label or a ccsession option, and the
+    # marker itself is not passed on.
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=True,
+        args=("demo", "--claude-args", "--shim", "--help", "x y"),
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[-5:] == [
+        "--resume",
+        "abc12345-0000-0000-0000-000000000000",
+        "--shim",
+        "--help",
+        "x y",
+    ]
+
+
+def test_plain_double_dash_still_reaches_claude(tmp_path: Path) -> None:
+    # Claude Code's own end-of-options marker keeps protecting a dash-led prompt.
+    stdout, _ = _label_launch(
+        tmp_path, transcript=True, args=("demo", "--", "-weird prompt")
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[-2:] == ["--", "-weird prompt"]
+
+
+# ccsession-orca: Orca's Claude command. Each launch runs the real wrapper and
+# the real ccsession against a fake claude that records its argv and env, and a
+# fake shim that ccsession reuses.
+ORCA = SKILL_DIR / "ccsession-orca"
+ORCA_QUESTION = "Session name (Enter or Ctrl+C = untagged; untagged after 30s): "
+ORCA_FLAGS = ["--dangerously-skip-permissions", "--allowedTools=Grep"]
+SESSION_ID = "abc12345-0000-0000-0000-000000000000"
+
+
+def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
+    tools = tmp_path / "tools"
+    for directory in (tmp_path / "home", tmp_path / "work", tools):
+        directory.mkdir(exist_ok=True)
+    fake = tools / "claude-record"
+    fake.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json, os, sys, termios\n"
+        "keys = ('ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN')\n"
+        "try:\n"
+        "    icanon = bool(termios.tcgetattr(0)[3] & termios.ICANON)\n"
+        "except termios.error:\n"
+        "    icanon = None  # stdin is not a terminal\n"
+        "with open(os.environ['FAKE_CLAUDE_RECORD'], 'w') as f:\n"
+        "    json.dump({'argv': sys.argv[1:], 'icanon': icanon,\n"
+        "               'topic': os.environ.get('CLAUDE_TOPIC'),\n"
+        "               'base_url': os.environ.get('ANTHROPIC_BASE_URL'),\n"
+        "               'env_names': sorted(os.environ),\n"
+        "               'set': {k: bool(os.environ.get(k)) for k in keys}}, f)\n"
+    )
+    fake.chmod(0o700)
+    (tools / "lsof").write_text("#!/bin/sh\nprintf '4242\\n'\n")
+    (tools / "lsof").chmod(0o700)
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k
+        not in (
+            "ANTHROPIC_API_KEY",
+            "ANTHROPIC_AUTH_TOKEN",
+            "LITELLM_API_KEY",
+            "CC_CLAUDE_FLAGS",
+            "CCSESSION_AUTOSTART",
+            "CCSESSION_ASK_TIMEOUT",
+            "CLAUDE_TOPIC",
+        )
+    }
+    env.update(
+        {
+            "HOME": str(tmp_path / "home"),
+            "PATH": f"{tools}:{env['PATH']}",
+            "CLAUDE_BIN": str(fake),
+            "FAKE_CLAUDE_RECORD": str(tmp_path / "record.json"),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+            "ANTHROPIC_BASE_URL": "http://gateway.example:4000/cli",
+            "CC_SHIM_PORT": "4555",
+            "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+            # Both carry the same key, as in a Coder workspace shell.
+            "ANTHROPIC_API_KEY": "k",
+            "ANTHROPIC_AUTH_TOKEN": "k",
+            **extra,
+        }
+    )
+    digest = subprocess.run(
+        [sys.executable, str(MODELS), "settings-digest"],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    health = json.dumps(
+        {
+            "service": "ccsession-gateway-alias-proxy",
+            "upstream": "http://gateway.example:4000/cli",
+            "port": 4555,
+            "model_data": "t",
+            "tiers": {},
+            "show_all": False,
+            "settings": digest,
+            "code": SHIM_CODE,
+        }
+    )
+    (tools / "curl").write_text(f"#!/bin/sh\nprintf '%s\\n' '{health}'\n")
+    (tools / "curl").chmod(0o700)
+    return env
+
+
+def _seed_label(tmp_path: Path, name: str) -> None:
+    projects = tmp_path / "home" / ".claude" / "projects"
+    work = (tmp_path / "work").resolve()
+    topics = projects / str(work).replace("/", "-") / "topics"
+    topics.mkdir(parents=True, exist_ok=True)
+    (topics / f"{name}.txt").write_text(f"{SESSION_ID}\n")
+    (topics.parent / f"{SESSION_ID}.jsonl").write_text("{}\n")
+
+
+def _read_pty(fd: int, until: str | None = None, timeout: float = 60) -> str:
+    """Read the terminal until the text appears, or until the program closes it."""
+    out = b""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if until is not None and until.encode() in out:
+            break
+        if not select.select([fd], [], [], 0.2)[0]:
+            continue
+        try:
+            chunk = os.read(fd, 4096)
+        except OSError:  # Linux: EIO once every holder of the terminal is gone
+            break
+        if not chunk:
+            break
+        out += chunk
+    return out.decode(errors="replace")
+
+
+def _spawn_on_pty(
+    command: list[str], env: dict[str, str], cwd: Path, typed_ahead: str = "", **io
+) -> tuple[subprocess.Popen, int]:
+    """Start a command whose controlling terminal is a fresh pseudo-terminal."""
+    master, slave = pty.openpty()
+    if typed_ahead:
+        os.write(master, typed_ahead.encode())
+    streams = {"stdin": slave, "stdout": slave, "stderr": slave, **io}
+    proc = subprocess.Popen(
+        command,
+        env=env,
+        cwd=cwd,
+        start_new_session=True,
+        # The terminal must be the controlling one, or Ctrl+C sends no SIGINT.
+        preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+        **streams,
+    )
+    os.close(slave)
+    return proc, master
+
+
+def _orca_tty(
+    tmp_path: Path,
+    *args: str,
+    keys: str | None,
+    env: dict[str, str] | None = None,
+    typed_ahead: str = "",
+) -> tuple[str, dict]:
+    """Launch ccsession-orca on a terminal. keys=None: expect no question."""
+    env = env or _orca_env(tmp_path)
+    proc, master = _spawn_on_pty(
+        [str(ORCA), *args], env, tmp_path / "work", typed_ahead
+    )
+    try:
+        output = ""
+        if keys is not None:
+            output = _read_pty(master, until=ORCA_QUESTION)
+            assert ORCA_QUESTION in output, output
+            os.write(master, keys.encode())
+        output += _read_pty(master)
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    return output, json.loads((tmp_path / "record.json").read_text())
+
+
+def _orca_no_tty(tmp_path: Path, *args: str, **extra: str) -> tuple[str, dict]:
+    result = subprocess.run(
+        [str(ORCA), *args],
+        env=_orca_env(tmp_path, **extra),
+        cwd=tmp_path / "work",
+        stdin=subprocess.DEVNULL,
+        text=True,
+        capture_output=True,
+        timeout=60,
+        check=True,
+    )
+    return result.stdout + result.stderr, json.loads(
+        (tmp_path / "record.json").read_text()
+    )
+
+
+def _assert_through_shim(record: dict) -> None:
+    assert record["base_url"] == "http://127.0.0.1:4555"
+    # One credential reaches Claude Code, never both.
+    assert record["set"] == {"ANTHROPIC_API_KEY": False, "ANTHROPIC_AUTH_TOKEN": True}
+
+
+def test_orca_name_starts_a_labeled_session_through_the_shim(tmp_path: Path) -> None:
+    output, record = _orca_tty(tmp_path, keys="orca-demo\r")
+    assert "Starting new session labeled 'orca-demo'" in output
+    assert record["topic"] == "orca-demo"
+    assert record["argv"] == ORCA_FLAGS
+    _assert_through_shim(record)
+
+
+def test_orca_saved_name_is_listed_and_resumes_before_the_prompt(
+    tmp_path: Path,
+) -> None:
+    _seed_label(tmp_path, "demo")
+    output, record = _orca_tty(tmp_path, "fix it", keys="demo\r")
+    assert "Saved sessions in" in output
+    assert "demo" in output.split(ORCA_QUESTION)[0]
+    assert record["topic"] == "demo"
+    assert record["argv"] == [*ORCA_FLAGS, "--resume", SESSION_ID, "fix it"]
+
+
+@pytest.mark.parametrize("keys", ["\r", "\x03"], ids=["enter", "ctrl-c"])
+def test_orca_enter_or_ctrl_c_starts_untagged(tmp_path: Path, keys: str) -> None:
+    output, record = _orca_tty(tmp_path, "the prompt", keys=keys)
+    assert "Starting untagged session" in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "the prompt"]
+    _assert_through_shim(record)
+    # The question's default time limit is not left in Claude's environment.
+    assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
+
+
+def _slow_probe(tmp_path: Path) -> None:
+    # The keys-waiting probe runs while line mode is off; a python3 shim that
+    # pauses before it leaves time to press Ctrl+C inside that window.
+    real = subprocess.run(
+        ["sh", "-c", "command -v python3"], capture_output=True, text=True
+    ).stdout.strip()
+    shim = tmp_path / "tools" / "python3"
+    shim.write_text(
+        f'#!/bin/sh\ncase "$*" in *select.select*) sleep 3 ;; esac\nexec {real} "$@"\n'
+    )
+    shim.chmod(0o700)
+
+
+def test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal(
+    tmp_path: Path,
+) -> None:
+    # A Ctrl+C before the question appears used to kill ccsession before it put
+    # line mode back, and Claude then started on that terminal.
+    env = _orca_env(tmp_path)
+    _slow_probe(tmp_path)
+    proc, master = _spawn_on_pty([str(ORCA), "the prompt"], env, tmp_path / "work")
+    try:
+        time.sleep(1)
+        os.write(master, b"\x03")
+        output = _read_pty(master)
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert ORCA_QUESTION not in output
+    # The probe was interrupted; its traceback must not reach the terminal.
+    assert "KeyboardInterrupt" not in output
+    record = json.loads((tmp_path / "record.json").read_text())
+    assert record["icanon"] is True
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "the prompt"]
+
+
+def test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path)
+    _slow_probe(tmp_path)
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(
+        [str(SKILL_DIR / "ccsession"), "--ask"],
+        env=env,
+        cwd=tmp_path / "work",
+        stdin=slave,
+        stdout=subprocess.PIPE,
+        stderr=slave,
+        start_new_session=True,
+        preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+    )
+    try:
+        time.sleep(1)
+        os.write(master, b"\x03")
+        assert proc.communicate(timeout=30)[0] == b""
+        assert proc.returncode == 130
+        # The terminal outlives the process: line mode must be back on.
+        assert termios.tcgetattr(slave)[3] & termios.ICANON
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(slave)
+        os.close(master)
+
+
+def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
+    # A name starting with "-" would reach ccsession as an option (--help prints
+    # help and exits, so Claude never starts) or Claude as a flag.
+    env = _orca_env(tmp_path)
+    proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
+    try:
+        assert ORCA_QUESTION in _read_pty(master, until=ORCA_QUESTION)
+        for bad in (b"bad/name", b"--help", b"-x"):
+            os.write(master, bad + b"\r")
+            again = _read_pty(master, until=ORCA_QUESTION)
+            assert "invalid label" in again and again.count(ORCA_QUESTION) == 1
+        os.write(master, b"good\r")
+        _read_pty(master)
+        assert proc.wait(timeout=60) == 0
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert json.loads((tmp_path / "record.json").read_text())["topic"] == "good"
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("--resume", SESSION_ID),
+        ("--resume", SESSION_ID, "--fork-session"),
+        (f"--resume={SESSION_ID}",),
+        ("--continue",),
+    ],
+    ids=["resume", "resume-fork", "resume-equals", "continue"],
+)
+def test_orca_resume_skips_the_question(tmp_path: Path, args: tuple[str, ...]) -> None:
+    _seed_label(tmp_path, "demo")
+    output, record = _orca_tty(tmp_path, *args, keys=None)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+    _assert_through_shim(record)
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "fix the 'login' bug and say \"done\"",
+        "-p looks like a flag",
+        "--shim",
+        "--help",
+        "demo",
+        "two words; $(not run) `either`",
+    ],
+)
+def test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label(
+    tmp_path: Path, prompt: str
+) -> None:
+    # "demo" is a saved label: read as one, the launch would resume it.
+    _seed_label(tmp_path, "demo")
+    output, record = _orca_no_tty(tmp_path, prompt)
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, prompt]
+    assert "Resuming" not in output
+
+
+def test_orca_prefill_passes_through_and_its_text_is_not_a_flag(
+    tmp_path: Path,
+) -> None:
+    # The prefill text "--resume" is input-box text, so the question is asked.
+    output, record = _orca_tty(tmp_path, "--prefill", "--resume", keys="\r")
+    assert record["argv"] == [*ORCA_FLAGS, "--prefill", "--resume"]
+    output, record = _orca_no_tty(tmp_path, "--prefill", "draft 'text' here")
+    assert record["argv"] == [*ORCA_FLAGS, "--prefill", "draft 'text' here"]
+
+
+def test_orca_without_a_terminal_never_asks(tmp_path: Path) -> None:
+    output, record = _orca_no_tty(tmp_path, "hello")
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "hello"]
+    _assert_through_shim(record)
+
+
+def test_orca_autostart_off_never_asks(tmp_path: Path) -> None:
+    env = _orca_env(tmp_path, CCSESSION_AUTOSTART="0")
+    output, record = _orca_tty(tmp_path, "hello", keys=None, env=env)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "hello"]
+
+
+def test_orca_unanswered_question_starts_untagged(tmp_path: Path) -> None:
+    # Orca's supervised workers fail when Claude is not ready within 60s.
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="1")
+    proc, master = _spawn_on_pty([str(ORCA), "task"], env, tmp_path / "work")
+    try:
+        shown = _read_pty(master, until="untagged after 1s): ")
+        assert "untagged after 1s): " in shown
+        output = _read_pty(master)
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert "Starting untagged session" in output
+    record = json.loads((tmp_path / "record.json").read_text())
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "task"]
+
+
+def test_orca_keys_already_typed_skip_the_question(tmp_path: Path) -> None:
+    # Something typing into the tab before the question would become the name.
+    output, record = _orca_tty(tmp_path, keys=None, typed_ahead="x")
+    assert "Session name" not in output
+    assert record["topic"] is None
+
+
+def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
+    env = _orca_env(tmp_path)
+    _seed_label(tmp_path, "demo")
+    command = [str(SKILL_DIR / "ccsession"), "--ask"]
+    question = "Session name (Enter = untagged, Ctrl+C = plain shell): "
+    proc, master = _spawn_on_pty(
+        command, env, tmp_path / "work", stdout=subprocess.PIPE
+    )
+    try:
+        shown = _read_pty(master, until=question)
+        assert "Saved sessions in" in shown and "demo" in shown
+        os.write(master, b"demo\r")
+        assert proc.communicate(timeout=30)[0] == b"demo\n"
+        assert proc.returncode == 0
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+    proc, master = _spawn_on_pty(
+        command, env, tmp_path / "work", stdout=subprocess.PIPE
+    )
+    try:
+        _read_pty(master, until=question)
+        os.write(master, b"\x03")
+        assert proc.communicate(timeout=30)[0] == b""
+        assert proc.returncode == 130
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+    no_tty = subprocess.run(
+        command, env=env, stdin=subprocess.DEVNULL, capture_output=True
+    )
+    assert (no_tty.returncode, no_tty.stdout) == (1, b"")

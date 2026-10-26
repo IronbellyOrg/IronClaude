@@ -4,6 +4,18 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: Orca's Claude launches go through ccsession and ask for a session name
+
+#### Added (ccsession Orca launch)
+
+- `ccsession-orca`, installed and linked into `~/.local/bin/ccsession-orca` next to `ccsession` (by `superclaude install` and by the skill's `install.sh`). Set it as Orca's **Settings > Agents > Claude > Command** so picking Claude directly in Orca starts through ccsession (shim, tier model settings, one credential) instead of bare `claude`. It lists this folder's saved sessions and asks `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`; a name runs `ccsession <name> --shim`, Enter, Ctrl+C or no answer within `CCSESSION_ASK_TIMEOUT` seconds (default 30, `0` for no limit) runs `ccsession --shim`. The limit keeps Orca's supervised workers starting: Orca launches them with the same command and fails one whose Claude is not ready within 60 seconds. It does not ask when Orca resumes or continues a session (`--resume`, `--fork-session`, `--continue`), without a terminal, when keys were already typed into the tab, or with `CCSESSION_AUTOSTART=0`. Orca's prompt, `--prefill <text>` and resume flags reach Claude Code unchanged. If an older ccsession skill is still installed, `superclaude install` wires `ccsession` as before and warns that `superclaude update` adds `ccsession-orca`; `superclaude doctor` checks the new link.
+- `ccsession --ask [<hint>]`: the session-name question as one command, for `ccsession-orca` and the Coder New Terminal hook. It prints the saved-session list and the question on the terminal and only the chosen name on standard output (empty for untagged), asks again after an invalid name, and exits 1 when it did not ask, got no answer within `CCSESSION_ASK_TIMEOUT` seconds (unset or `0`: no limit) or input ended, 130 on Ctrl+C.
+- `ccsession ... --claude-args <claude args>`: everything after `--claude-args` goes to Claude Code exactly as given, after any label, and is never read as a label or a ccsession option. A plain `--` is still passed on to Claude Code as before.
+
+#### Changed (ccsession Orca launch)
+
+- `/ccsession-tag` and the session-name question no longer accept a name that starts with `-`. `ccsession -name` always read such a name as an option, so it could never be resumed. `ccsession --rm` still removes an existing one.
+
 ### pr-submit — origin-first target, `--pr`, dead hook references and `--yes` removed
 
 #### Fixed (pr-submit cleanup)

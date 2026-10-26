@@ -18,6 +18,7 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | File | What it is |
 |---|---|
 | `ccsession` | The `ccsession` shell command |
+| `ccsession-orca` | Orca's Claude command: asks for a session name, then runs ccsession |
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
 | `ccsession-models.json` | Profiles and the curated model list (data only) |
 | `models.py` | Checks for, validates, and caches the latest model data |
@@ -48,7 +49,8 @@ superclaude install
 # In an IronClaude checkout, ./update.sh also refreshes ccsession.
 ```
 
-This installs the skill, links `~/.local/bin/ccsession`, seeds
+This installs the skill, links `~/.local/bin/ccsession` and
+`~/.local/bin/ccsession-orca`, seeds
 `~/.claude/ccsession.env` if absent, and registers its SessionStart hook.
 `superclaude update` and `./update.sh` refresh the packaged files without
 overwriting your env file. No gateway is required for session naming.
@@ -121,6 +123,9 @@ ccsession notes --shim       # same, but with the extra gateway models available
 ccsession --list             # every named session on this machine
 ccsession --here             # named sessions for this folder only
 ccsession --rm notes         # forget the name (the conversation itself is kept)
+ccsession notes --claude-args "fix it"
+                             # everything after --claude-args goes to Claude Code
+                             # as given, never read as a name or a ccsession option
 ```
 
 Inside a running Claude session you can name it after the fact:
@@ -131,6 +136,46 @@ Inside a running Claude session you can name it after the fact:
 
 Names are per folder. The same name in two different projects points at two
 different conversations, which is what you usually want.
+
+---
+
+## Claude launched from Orca
+
+When you pick Claude directly in Orca (the + button, a new workspace or branch
+with Claude, the agent picker), Orca runs plain `claude`, which skips
+ccsession. To route those launches through ccsession, set Orca's
+**Settings > Agents > Claude > Command** to the absolute path of the link, for
+example:
+
+```
+/home/coder/.local/bin/ccsession-orca
+```
+
+Orca accepts one executable there, with no arguments. Each Orca launch then:
+
+- Lists this folder's saved sessions and asks
+  `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
+  starts or resumes that session; Enter, Ctrl+C, or no answer within 30
+  seconds starts an untagged one, so the tab never ends at a dead prompt. A
+  name that is not a valid label (for example one starting with `-`) is asked
+  again.
+- Skips the question when Orca resumes or continues a session
+  (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
+  when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
+- Runs through the shim, and passes Orca's own arguments (its prompt,
+  `--prefill <text>`, resume flags) to Claude Code unchanged, after
+  ccsession's `--claude-args`, so a prompt is never read as a session name.
+
+Orca also uses this command for supervised workers (`orca orchestration
+worker-start`), and fails a worker whose Claude is not ready within 60 seconds.
+The 30-second limit keeps those workers starting. Change it with
+`CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever).
+
+The question itself is `ccsession --ask [<hint>]`: it prints the list and the
+question on the terminal and only the chosen name on standard output (empty
+for untagged). It exits 1 when it did not ask (no terminal, or keys already
+waiting), got no answer within `CCSESSION_ASK_TIMEOUT` seconds (unset or `0`:
+no limit), or input ended, and 130 on Ctrl+C.
 
 ---
 
@@ -370,7 +415,7 @@ or the names will not line up.
 ## Uninstall
 
 ```bash
-rm ~/.local/bin/ccsession
+rm ~/.local/bin/ccsession ~/.local/bin/ccsession-orca
 rm -rf ~/.claude/skills/ccsession-tag
 ```
 

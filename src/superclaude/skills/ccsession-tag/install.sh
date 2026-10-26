@@ -5,8 +5,9 @@
 #   1. Copies the skill folder to ~/.claude/skills/ccsession-tag/ (if not
 #      already there), so the slash command is discovered in every workspace
 #      and the install survives the source folder being deleted/moved.
-#   2. Symlinks the shell wrapper into ~/.local/bin/ccsession, pointing at
-#      the user-level copy.
+#   2. Symlinks the shell wrapper into ~/.local/bin/ccsession, and Orca's
+#      Claude command into ~/.local/bin/ccsession-orca, pointing at the
+#      user-level copy.
 #   3. Creates ~/.claude/ccsession.env from the template if it doesn't exist.
 #   4. Registers the SessionStart hook in ~/.claude/settings.json (idempotent
 #      merge — preserves existing hooks, backs up before writing, safe on
@@ -42,6 +43,7 @@ rm -f "$TARGET_SKILL_DIR/PLAN-context-save-load.md"
 
 # Make sure scripts in the target are executable
 chmod +x "$TARGET_SKILL_DIR/ccsession"
+chmod +x "$TARGET_SKILL_DIR/ccsession-orca"
 chmod +x "$TARGET_SKILL_DIR/hooks/session-start.sh"
 chmod +x "$TARGET_SKILL_DIR/install.sh"
 echo ""
@@ -50,8 +52,11 @@ echo ""
 BIN_DIR="$HOME/.local/bin"
 mkdir -p "$BIN_DIR"
 ln -sfn "$TARGET_SKILL_DIR/ccsession" "$BIN_DIR/ccsession"
-echo "[2/4] Linked shell wrapper:"
+# Orca's Claude command (Settings > Agents > Claude > Command).
+ln -sfn "$TARGET_SKILL_DIR/ccsession-orca" "$BIN_DIR/ccsession-orca"
+echo "[2/4] Linked shell wrappers:"
 echo "      $BIN_DIR/ccsession -> $TARGET_SKILL_DIR/ccsession"
+echo "      $BIN_DIR/ccsession-orca -> $TARGET_SKILL_DIR/ccsession-orca"
 echo ""
 
 # 3. Env file (user secrets, kept outside the skill folder so it's never

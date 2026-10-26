@@ -1,0 +1,80 @@
+#!/bin/bash
+# ccsession-orca: Orca's Claude command, which starts Claude through ccsession
+#
+# Part of the 'ccsession' skill. Symlinked from ~/.local/bin/ccsession-orca by
+# install.sh in this skill's directory, next to ccsession.
+#
+# Orca runs bare `claude` when someone picks Claude directly (the + button, a
+# new workspace or branch with Claude, the agent picker). Set Orca's
+# Settings > Agents > Claude > Command to this file's absolute path, for
+# example /home/coder/.local/bin/ccsession-orca (Orca takes one executable, no
+# arguments). Each launch then gets ccsession's shim, model settings and single
+# credential, and is asked for a session name first, like a New Terminal.
+#
+# Orca's own arguments (a prompt, --prefill <text>, --resume <id>
+# [--fork-session]) reach Claude unchanged: they go after ccsession's
+# --claude-args, so a prompt is never read as a session name or a ccsession
+# option.
+#
+# The question (ccsession --ask) is asked only when someone can answer it:
+# stdin and stdout are terminals, Orca is not resuming or continuing a
+# session, and CCSESSION_AUTOSTART is not 0. A name starts or resumes that
+# ccsession. Enter, Ctrl+C, end of input, keys already waiting, or a question
+# that is not asked all start an untagged session: Orca expects Claude to
+# start in this tab, so it never ends up at a dead prompt.
+#
+# An unanswered question starts untagged after CCSESSION_ASK_TIMEOUT seconds
+# (default 30; 0 waits for ever). Orca also starts supervised workers with
+# this command and fails one whose Claude is not ready within 60 seconds.
+
+set -e
+
+# ccsession sits next to the real script; resolve the ~/.local/bin symlink.
+# Plain readlink in a loop because older macOS readlink has no -f.
+_self="$0"
+while [ -L "$_self" ]; do
+  _link="$(readlink "$_self")"
+  case "$_link" in
+    /*) _self="$_link" ;;
+    *) _self="$(dirname "$_self")/$_link" ;;
+  esac
+done
+CCSESSION="$(cd "$(dirname "$_self")" && pwd)/ccsession"
+
+ask=1
+[ -t 0 ] && [ -t 1 ] || ask=0
+[ "${CCSESSION_AUTOSTART:-1}" = 0 ] && ask=0
+# A resume names its own session; a label would start a different one. The
+# --prefill value is text for the input box, never a flag.
+_skip=0
+for _arg in "$@"; do
+  if [ "$_skip" = 1 ]; then
+    _skip=0
+    continue
+  fi
+  case "$_arg" in
+    --prefill) _skip=1 ;;
+    --resume|--resume=*|-r|--continue|-c) ask=0 ;;
+  esac
+done
+
+name=""
+if [ "$ask" = 1 ]; then
+  ask_timeout="${CCSESSION_ASK_TIMEOUT:-30}"
+  hint="Enter or Ctrl+C = untagged"
+  case "$ask_timeout" in
+    '' | *[!0-9]* | 0) : ;;
+    *) hint="$hint; untagged after ${ask_timeout}s" ;;
+  esac
+  # Ctrl+C reaches this script too; a trap (not an ignore, which ccsession
+  # would inherit) keeps it running so it can start the untagged session.
+  trap ':' INT
+  name=$(CCSESSION_ASK_TIMEOUT="$ask_timeout" "$CCSESSION" --ask "$hint") || name=""
+  trap - INT
+fi
+
+# In tier mode the shim is always on; --shim asks for it everywhere else.
+if [ -n "$name" ]; then
+  exec "$CCSESSION" "$name" --shim --claude-args "$@"
+fi
+exec "$CCSESSION" --shim --claude-args "$@"
