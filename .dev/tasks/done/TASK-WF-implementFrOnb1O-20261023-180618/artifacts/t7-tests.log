@@ -1,0 +1,20 @@
+$ grep -rn "larger, longer, or riskier" src/ plugins/
+rc=1
+$ grep -rn "choose the heavier one" src/ plugins/
+src/superclaude/core/CLAUDE.md:48:Decide how much process a job needs before you start. Use the first row that fits. If you are unsure betwe
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:9:Every job falls into one of six levels. Find the first row that describes your
+src/superclaude/core/HOW-WE-WORK.md:9:Every job falls into one of six levels. Find the first row that describes your job. If you are unsure 
+plugins/superclaude/skills/sc-recommend/SKILL.md:58:**Match the goal to one routing row.** A row matches when the goal states the situation 
+src/superclaude/skills/sc-recommend/SKILL.md:58:**Match the goal to one routing row.** A row matches when the goal states the situation in a
+
+$ uv run pytest (Task 7 gate)
+
+============================= 151 passed in 1.00s ==============================
+$ make verify-sync
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync rc=0
+$ grep -rn "choose the heavier one" src/ plugins/ | wc -l  vs  | grep -c "unsure between levels 3 and 4"
+total=5 with_exception=5

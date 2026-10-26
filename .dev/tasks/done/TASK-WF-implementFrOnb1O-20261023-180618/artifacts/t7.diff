@@ -1,0 +1,105 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 44b9c988..3b6549b1 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,18 @@ All notable changes to IronClaude are documented in this file.
+ 
+ ## [Unreleased]
+ 
++### routing — `/sc:workflow` is the default planner; `/task-builder` is for level 4 only
++
++#### Changed (default planner)
++
++- The routing guide (`HOW-WE-WORK.md`), its copy in core `CLAUDE.md`, and the plugin copy now make level 3 (`/sc:workflow` then `/sc:implement`) the default for any planned change with clear requirements, including work that touches many files or takes more than one session. Level 4 (`/task-builder` then `/task`) is now only for building a whole project or major component from scratch, from a spec complex enough that it nearly warrants a PRD and TDD.
++- Tie-break: "If you are unsure between levels 3 and 4, choose level 3. If you are unsure between any other two rows, choose the heavier one." The hard limit now reads "level 3 by default, level 4 only for the large spec-driven builds described in level 4". The same wording is in the `sc-recommend` skill, its reference file, their plugin copies, and the `/sc:recommend` CLI prompt; the skill's tie rule no longer lets a level-4 row win a tie against a level-3 row.
++- New rule in the guide and core `CLAUDE.md`: never choose `/task-builder` or `/task` as the planner on your own; use them only when the user names the command or confirms after being told the cost. Skills and commands that run them as one of their own steps (for example `/tech-research`, `/prd`, `/tdd`, `/roadmap`) are exempt.
++- Guide sections 2, 3.1 step 1, 3.2, 3.3, 3.4, 3.6, 3.7, 3.8 and 3.11 and the routing rows `simple-plan`, `task-file`, `feature-existing` (now level 3, no `--spec` flag), `research-first`, `shape-idea` and `bug` now send planned work to `/sc:workflow`. The stand-alone task-file walk-through moved to the new section 3.13. The level 6 route (`/prd`, `/tdd`, `/roadmap`) is unchanged.
++- Corrected descriptions: `/sc:troubleshoot --fix` and `/sc:auggie-review` offer a `/sc:workflow` plan by default (a task file only with `--depth deep`); the guide said they offered a task file.
++- `docs/user-guide/commands.md` and `docs/user-guide/session-management.md` match the new levels.
++- New regression tests in `tests/core/test_how_we_work_routing_table.py` fail if the old tie-break or hard-limit wording returns anywhere under `src/` or `plugins/`, or if level 4 again lists "many files" or "more than one session" as a trigger.
++
+ ### pr-submit — default monitor level 3; every PR instruction uses `--monitor 3`
+ 
+ #### Changed (pr-submit)
+diff --git a/tests/core/test_how_we_work_routing_table.py b/tests/core/test_how_we_work_routing_table.py
+index 011dbdef..625c0069 100644
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -354,3 +354,77 @@ def test_named_mandatory_flags_are_on_their_steps(command, flag):
+                 f"{row['id']} step {label}: {flag} not mandatory"
+             )
+     assert checked, f"no review-pr or confirm-built step runs {command}"
++
++
++# FR-ONB.1 (default planner): /sc:workflow is the default for planned work and
++# /task-builder is reserved for level 4. The old tie-break ("choose the heavier
++# one" with no level 3 versus 4 exception) and the old hard limit ("level 4 for
++# anything larger, longer, or riskier") pushed agents to /task-builder. They are
++# copied into the core CLAUDE.md, the sc-recommend skill, its plugin copies and
++# the /sc:recommend CLI prompt, so the check scans every .md and .py file under
++# src/ and plugins/.
++_TIE_BREAK = "choose the heavier one"
++_TIE_BREAK_EXCEPTION = "unsure between levels 3 and 4"
++_OLD_HARD_LIMIT = "larger, longer, or riskier"
++_LEVEL_4_SIZE_TRIGGERS = ("many files", "more than one session")
++
++
++def _default_planner_errors(text: str) -> list[str]:
++    errors = []
++    for n, line in enumerate(text.splitlines(), 1):
++        if _TIE_BREAK in line and _TIE_BREAK_EXCEPTION not in line:
++            errors.append(f"line {n}: tie-break without the level 3 versus 4 exception")
++        if _OLD_HARD_LIMIT in line:
++            errors.append(f"line {n}: old hard limit sends larger work to level 4")
++    return errors
++
++
++def _level_4_trigger_errors(level_block: str) -> list[str]:
++    rows = [r for r in _table_rows(level_block) if _cells(r)[0].startswith("**4.")]
++    assert len(rows) == 1, "level table must have exactly one level 4 row"
++    use_when = _cells(rows[0])[1]
++    return [
++        f"level 4 'Use this when' lists {phrase!r}"
++        for phrase in _LEVEL_4_SIZE_TRIGGERS
++        if phrase in use_when
++    ]
++
++
++def test_default_planner_wording_holds_in_src_and_plugins():
++    errors = []
++    for root in (_REPO / "src", _REPO / "plugins"):
++        for path in sorted(root.rglob("*")):
++            if path.suffix not in (".md", ".py") or not path.is_file():
++                continue
++            rel = path.relative_to(_REPO)
++            errors += [
++                f"{rel}: {e}"
++                for e in _default_planner_errors(path.read_text(encoding="utf-8"))
++            ]
++    assert not errors, errors
++
++
++def test_level_4_is_not_triggered_by_size_alone():
++    assert not _level_4_trigger_errors(_block(_text(), _LEVEL_BEGIN, _LEVEL_END))
++
++
++def test_default_planner_checks_catch_the_old_wording():
++    old_tie_break = "If you are unsure between two rows, choose the heavier one."
++    old_hard_limit = (
++        "level 3 for a few files with clear scope, "
++        "level 4 for anything larger, longer, or riskier."
++    )
++    assert _default_planner_errors(old_tie_break)
++    assert _default_planner_errors(old_hard_limit)
++    new_tie_break = (
++        "If you are unsure between levels 3 and 4, choose level 3. If you are "
++        "unsure between any other two rows, choose the heavier one."
++    )
++    assert not _default_planner_errors(new_tie_break)
++    old_level_block = (
++        "| Level | Use this when | What you run | What you end up with |\n"
++        "|---|---|---|---|\n"
++        "| **4. Build and run a task file** | The work touches many files, will take "
++        "more than one session, or must not drift from what was agreed. | x | y |\n"
++    )
++    assert len(_level_4_trigger_errors(old_level_block)) == 2

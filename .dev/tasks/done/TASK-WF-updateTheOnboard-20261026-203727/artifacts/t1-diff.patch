@@ -1,0 +1,54 @@
+diff --git a/tmp/tmp.Zpv6ByfV48/before.html b/docs/onboarding/ironclaude-onboarding.html
+index e03f00d9..6a2656d8 100644
+--- a/tmp/tmp.Zpv6ByfV48/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -314,32 +314,34 @@
+ <section class="slide" id="s5" aria-labelledby="s5-h">
+   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
+   <h2 id="s5-h">Pick your level</h2>
+-  <p>Every job falls into one of six levels. Find the first one that describes your job. If you are unsure between levels 3 and 4, choose level 3. If you are unsure between any other two, choose the heavier one.</p>
+-  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 by default, level 4 only for the large spec-driven builds described in level 4. The one exception is <code>/sc:cleanup</code> and <code>/sc:improve</code> run on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards.</p>
++  <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
++  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. Naming a command directly does not waive the written plan.</p>
+   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
+   <figure class="diagram mid">
+-    <svg viewBox="0 0 760 412" role="img" aria-labelledby="d3-t d3-d">
++    <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
+       <title id="d3-t">Level ladder</title>
+-      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan. The one exception is /sc:cleanup and /sc:improve run on a folder.</desc>
++      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder.</desc>
+       <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
+-      <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd → /roadmap</text>
++      <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
+       <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
+       <text class="d-tb" x="36" y="104">5 · Research first</text><text class="d-tm" x="440" y="104">/tech-research</text>
+       <rect class="d-box-warn" x="20" y="130" width="720" height="48" rx="8"/>
+-      <text class="d-tb" x="36" y="160">4 · Build and run a task file (rare)</text><text class="d-tm" x="440" y="160">/task-builder → /task</text>
++      <text class="d-tb" x="36" y="160">4 · Explicit or exceptional task-file work</text><text class="d-tm" x="440" y="160">/task-builder → /task</text>
+       <rect class="d-box-acc" x="20" y="186" width="720" height="48" rx="8"/>
+-      <text class="d-tb" x="36" y="216">3 · Follow a simple checked plan (default)</text><text class="d-tm" x="440" y="216">/sc:workflow → /sc:implement</text>
++      <text class="d-tb" x="36" y="216">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="216">/sc:workflow → /sc:implement</text>
+       <path class="d-line-warn" d="M20,252 L740,252"/>
+-      <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count), needs a written plan</text>
+-      <text class="d-tw" x="36" y="296">The one exception: /sc:cleanup and /sc:improve run on a folder</text>
+-      <rect class="d-box" x="20" y="308" width="720" height="44" rx="8"/>
+-      <text class="d-tb" x="36" y="336">2 · Make a small, direct change</text><text class="d-tm" x="440" y="336">/sc:task, or a plain edit</text>
+-      <rect class="d-box" x="20" y="360" width="720" height="44" rx="8"/>
+-      <text class="d-tb" x="36" y="388">1 · Ask a question</text><text class="d-tm" x="440" y="388">ask, or /sc:explain</text>
++      <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
++      <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
++      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder</text>
++      <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
++      <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:task, or a plain edit</text>
++      <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
++      <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
+     </svg>
+-    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to <code>/sc:cleanup</code> and <code>/sc:improve</code> run on a folder), level 3 is the default; level 4 is only for the large spec-driven builds described in level 4.</figcaption>
++    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder), a written plan is normally level 3, not automatically level 4.</figcaption>
+   </figure>
+-  <p>Level 4 is for building a whole project or major component from scratch, from a spec complex enough that it nearly warrants a PRD and TDD (a product requirements document and a technical design document), when you or your lead chose the extra time and tokens. Level 3 is the default for any planned change, including work that touches many files or takes more than one session.</p>
++  <p>Level 4 is for when you explicitly choose the task-file (MDTM) format, already have an MDTM task to run, or have an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, several sessions, an existing spec, PRD or TDD (a product requirements document or a technical design document), risk or drift concerns alone never make work level 4: a twelve-file feature across several sessions is still level 3.</p>
++  <p>After the level 6 documents, ordinary implementation planning is level 3: <code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution. <code>/roadmap</code> is only for when you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
+ </section>
+ 
+ <section class="slide" id="s6" aria-labelledby="s6-h">

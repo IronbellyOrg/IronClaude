@@ -1,0 +1,7 @@
+# wc -l, 2026-10-26T21:42:29Z
+   214 src/superclaude/commands/troubleshoot.md
+   711 src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+   925 total
+deck D2 labels:
+279:      <text class="d-ts" x="34" y="42">1 · Command (214 lines)</text>
+283:      <text class="d-ts" x="34" y="134">2 · Skill: the pipeline (711 lines)</text>

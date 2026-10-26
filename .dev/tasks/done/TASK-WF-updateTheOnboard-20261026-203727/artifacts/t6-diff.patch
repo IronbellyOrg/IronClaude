@@ -1,0 +1,89 @@
+diff --git a/tmp/tmp.42gPfUsnVH/before.html b/docs/onboarding/ironclaude-onboarding.html
+index ed915685..0d6755ac 100644
+--- a/tmp/tmp.42gPfUsnVH/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -340,8 +340,7 @@
+     </svg>
+     <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder), a written plan is normally level 3, not automatically level 4.</figcaption>
+   </figure>
+-  <p>Level 4 is for when you explicitly choose the task-file (MDTM) format, already have an MDTM task to run, or have an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, several sessions, an existing spec, PRD or TDD (a product requirements document or a technical design document), risk or drift concerns alone never make work level 4: a twelve-file feature across several sessions is still level 3.</p>
+-  <p>After the level 6 documents, ordinary implementation planning is level 3: <code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution. <code>/roadmap</code> is only for when you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
++  <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
+ </section>
+ 
+ <section class="slide" id="s6" aria-labelledby="s6-h">
+@@ -427,7 +426,7 @@
+       <path class="d-line" d="M662,118 L672,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M828,118 L838,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
+-      <text class="d-ts" x="10" y="200">Level 6, a new product or major feature others build against: /prd, then /tdd, then Plan and Implement as usual; /roadmap only if explicitly chosen (guide 3.1).</text>
++      <text class="d-ts" x="10" y="200">Level 6, a new product or major feature others build against: /prd, then /tdd, then Plan and Implement as usual; /roadmap only if explicitly chosen or exceptionally justified (guide 3.1).</text>
+       <text class="d-ts" x="10" y="224">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide 3.1 step 7).</text>
+     </svg>
+     <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
+@@ -444,7 +443,7 @@
+     <div class="card"><h3>Check it is not already built</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;goal&gt;"</span> <span class="nw">--plugin</span></code> searches the Claude plugin marketplaces and community skill repositories instead of the local commands.</p><p class="story">The meeting's advice: before you build anything, look for someone who already built it, then fork it or use it.</p></div>
+     <div class="card"><h3>Get an expert critique</h3><p><code>/sc:spec-panel</code> has a panel of named requirements experts critique a spec. It only reports; you decide what to apply.</p></div>
+   </div>
+-  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 step 5). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
++  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 steps 3 and 5). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
+ </section>
+ 
+ <section class="slide" id="s9" aria-labelledby="s9-h">
+@@ -521,8 +520,7 @@
+     </svg>
+     <figcaption class="cap">The PR loop at <code>--monitor 3</code>, the full loop, and the three lower ceilings. You choose exactly one and pass it explicitly.</figcaption>
+   </figure>
+-  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (use it when the review app is missing or you are not sure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (the automatic tests and checks GitHub runs on the PR), pushes those fixes, and replies to and resolves the threads it fixed.</p>
+-  <p>The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
++  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (no review app, or unsure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (the automatic tests and checks GitHub runs on the PR), pushes those fixes, and replies to and resolves the threads it fixed. The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
+ </section>
+ 
+ <section class="slide" id="s11" aria-labelledby="s11-h">
+@@ -593,13 +591,13 @@
+       <thead><tr><th>Level or job</th><th>Commands</th><th>Guide section</th></tr></thead>
+       <tbody>
+         <tr><td>1 · Ask a question</td><td>Ask in plain English, or <code>/sc:explain</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
+-        <tr><td>2 · Small, direct change</td><td><code>/sc:task</code>, or a plain edit, then run the test</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
+-        <tr><td>3 · Checked plan (default)</td><td><code>/sc:workflow</code> → <code>/sc:implement</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#32-add-a-feature-to-an-existing-system-no-prd-needed">3.2</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
+-        <tr><td>4 · Task file (rare)</td><td><code>/task-builder</code> → <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#313-build-and-run-a-task-file-level-4">3.13</a></td></tr>
+-        <tr><td>5 · Research first</td><td><code>/tech-research</code>, then <code>/sc:workflow</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
+-        <tr><td>6 · Full specification</td><td><code>/prd</code> → <code>/tdd</code> → <code>/roadmap</code> → <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
++        <tr><td>2 · Make a small, direct change</td><td><code>/sc:task</code>, or a plain edit, then run the test</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
++        <tr><td>3 · Follow a checked implementation plan</td><td><code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#32-add-a-feature-to-an-existing-system-no-prd-needed">3.2</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
++        <tr><td>4 · Explicit or exceptional task-file work</td><td><code>/task-builder</code> → <code>/task</code>; an existing MDTM task goes straight to <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
++        <tr><td>5 · Research first</td><td><code>/tech-research</code>; stop at the report, or plan with <code>/sc:workflow</code> if you decide to build</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
++        <tr><td>6 · Write a full specification</td><td><code>/prd</code> → <code>/tdd</code>; then <code>/sc:workflow</code> → <code>/sc:implement</code> if implementation is requested (<code>/roadmap</code> only if explicitly chosen or exceptionally justified)</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
+         <tr><td>Fix a bug</td><td><code>/sc:troubleshoot</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#34-fix-a-bug">3.4</a></td></tr>
+-        <tr><td>Review and ship</td><td><code>/code-review</code>, <code>/sc:auggie-review</code>, <code>/sc:pr-submit --monitor 3</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-your-work-and-open-a-pull-request">3.11</a></td></tr>
++        <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/code-review</code>, <code>/sc:auggie-review</code>, then <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
+         <tr><td>Resume</td><td>The same command again, or <code>ccsession &lt;name&gt;</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session">3.12</a></td></tr>
+         <tr><td>Unsure</td><td><code>/sc:recommend</code>, <code>/sc:help</code>, your lead</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows">4</a></td></tr>
+       </tbody>
+@@ -611,7 +609,7 @@
+ </main>
+ 
+ <footer>
+-  <p>Built from HOW-WE-WORK.md at commit 070399eb. Note: this deck already follows the Part A guide changes (the level wording, the hard limit, section 3.13 and the default planner), which are not yet committed; until they are, the guide on GitHub does not show them.</p>
++  <p>Built from HOW-WE-WORK.md at commit adaa28d9.</p>
+   <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>.</p>
+ </footer>
+ 
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 7f795ca4..827c530c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,13 @@ All notable changes to IronClaude are documented in this file.
+ 
+ ## [Unreleased]
+ 
++### onboarding deck: a 15-slide page for new team members, built from the routing guide
++
++#### Added (onboarding deck)
++
++- `docs/onboarding/ironclaude-onboarding.html`: a single-page onboarding deck (15 slides, 6 inline diagrams, light and dark themes, prints one slide per page) that explains why IronClaude exists, how a command and its skill are built, how to pick a process level, the two planners, the path from idea to pull request, review and shipping with the four `--monitor` ceilings, where work is saved, how to resume, and the common traps. It follows `src/superclaude/core/HOW-WE-WORK.md` at commit adaa28d9 and links to it for every command; stories from the onboarding meeting are marked as such. A comment at the top of the file says to update the deck in the same PR when the guide changes in a way a slide depends on.
++- `tests/docs/test_onboarding_deck.py`: checks that every command and flag the deck shows (in code and inside its diagrams) appears in the guide, with `--plugin` checked against `src/superclaude/commands/recommend.md`, and that the deck keeps its "Built from HOW-WE-WORK.md at commit" footer.
++
+ ### ccsession: Orca's Claude launches go through ccsession and ask for a session name
+ 
+ #### Added (ccsession Orca launch)
