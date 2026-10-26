@@ -735,12 +735,17 @@ ask_session_name() {
   # runs next. A line-mode terminal only reports complete lines as readable, so
   # look with line mode briefly off; any typed byte, even without Enter, counts.
   # python3, not `read -t 0`: bash 3.2 (macOS) fails that without looking.
-  local tty_mode waiting=1
+  local tty_mode="" waiting=1
+  # Ctrl+C from here on puts the terminal mode back before ending the question.
+  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT
   tty_mode=$(stty -g 2>/dev/null) && stty -icanon min 0 time 0 2>/dev/null
-  python3 -c 'import select, sys; sys.exit(0 if select.select([0], [], [], 0)[0] else 1)' \
+  python3 -c 'import select, sys; sys.exit(0 if select.select([0], [], [], 0)[0] else 1)' 2>/dev/null \
     && waiting=0
   [ -n "$tty_mode" ] && stty "$tty_mode" 2>/dev/null
-  [ "$waiting" = 0 ] && return 1
+  if [ "$waiting" = 0 ]; then
+    trap - INT
+    return 1
+  fi
   # A name resumes only in the folder it was started in, so list this folder's
   # sessions, not every folder's. Nothing is shown when the folder has none.
   local name sessions line

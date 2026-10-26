@@ -1282,10 +1282,14 @@ def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
     fake = tools / "claude-record"
     fake.write_text(
         "#!/usr/bin/env python3\n"
-        "import json, os, sys\n"
+        "import json, os, sys, termios\n"
         "keys = ('ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN')\n"
+        "try:\n"
+        "    icanon = bool(termios.tcgetattr(0)[3] & termios.ICANON)\n"
+        "except termios.error:\n"
+        "    icanon = None  # stdin is not a terminal\n"
         "with open(os.environ['FAKE_CLAUDE_RECORD'], 'w') as f:\n"
-        "    json.dump({'argv': sys.argv[1:],\n"
+        "    json.dump({'argv': sys.argv[1:], 'icanon': icanon,\n"
         "               'topic': os.environ.get('CLAUDE_TOPIC'),\n"
         "               'base_url': os.environ.get('ANTHROPIC_BASE_URL'),\n"
         "               'env_names': sorted(os.environ),\n"
@@ -1474,6 +1478,75 @@ def test_orca_enter_or_ctrl_c_starts_untagged(tmp_path: Path, keys: str) -> None
     _assert_through_shim(record)
     # The question's default time limit is not left in Claude's environment.
     assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
+
+
+def _slow_probe(tmp_path: Path) -> None:
+    # The keys-waiting probe runs while line mode is off; a python3 shim that
+    # pauses before it leaves time to press Ctrl+C inside that window.
+    real = subprocess.run(
+        ["sh", "-c", "command -v python3"], capture_output=True, text=True
+    ).stdout.strip()
+    shim = tmp_path / "tools" / "python3"
+    shim.write_text(
+        f'#!/bin/sh\ncase "$*" in *select.select*) sleep 3 ;; esac\nexec {real} "$@"\n'
+    )
+    shim.chmod(0o700)
+
+
+def test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal(
+    tmp_path: Path,
+) -> None:
+    # A Ctrl+C before the question appears used to kill ccsession before it put
+    # line mode back, and Claude then started on that terminal.
+    env = _orca_env(tmp_path)
+    _slow_probe(tmp_path)
+    proc, master = _spawn_on_pty([str(ORCA), "the prompt"], env, tmp_path / "work")
+    try:
+        time.sleep(1)
+        os.write(master, b"\x03")
+        output = _read_pty(master)
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert ORCA_QUESTION not in output
+    # The probe was interrupted; its traceback must not reach the terminal.
+    assert "KeyboardInterrupt" not in output
+    record = json.loads((tmp_path / "record.json").read_text())
+    assert record["icanon"] is True
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "the prompt"]
+
+
+def test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path)
+    _slow_probe(tmp_path)
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(
+        [str(SKILL_DIR / "ccsession"), "--ask"],
+        env=env,
+        cwd=tmp_path / "work",
+        stdin=slave,
+        stdout=subprocess.PIPE,
+        stderr=slave,
+        start_new_session=True,
+        preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+    )
+    try:
+        time.sleep(1)
+        os.write(master, b"\x03")
+        assert proc.communicate(timeout=30)[0] == b""
+        assert proc.returncode == 130
+        # The terminal outlives the process: line mode must be back on.
+        assert termios.tcgetattr(slave)[3] & termios.ICANON
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(slave)
+        os.close(master)
 
 
 def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
