@@ -53,6 +53,8 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
     home = Path.home() if home is None else Path(home)
     skill = home / ".claude/skills/ccsession-tag"
     wrapper = skill / "ccsession"
+    # Orca's Claude command (Settings > Agents > Claude > Command).
+    orca_wrapper = skill / "ccsession-orca"
     bin_path = home / ".local/bin/ccsession"
     settings = home / ".claude/settings.json"
     missing = [
@@ -60,17 +62,20 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
         for path in (
             skill,
             wrapper,
+            orca_wrapper,
             skill / "hooks/session-start.sh",
             home / ".claude/ccsession.env",
         )
         if not (path.is_dir() if path == skill else path.is_file())
     ]
-    if not bin_path.is_symlink() or bin_path.resolve() != wrapper.resolve():
-        missing.append(
-            f"{bin_path}: collision"
-            if bin_path.exists() or bin_path.is_symlink()
-            else str(bin_path)
-        )
+    for script in (wrapper, orca_wrapper):
+        link = bin_path.parent / script.name
+        if not link.is_symlink() or link.resolve() != script.resolve():
+            missing.append(
+                f"{link}: collision"
+                if link.exists() or link.is_symlink()
+                else str(link)
+            )
 
     try:
         data = json.loads(settings.read_text(encoding="utf-8"))

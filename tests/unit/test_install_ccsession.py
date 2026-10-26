@@ -20,6 +20,7 @@ def home(tmp_path):
     )
     for name in (
         "ccsession",
+        "ccsession-orca",
         "hooks/session-start.sh",
         "ccsession.env.example",
         "install.sh",
@@ -35,11 +36,25 @@ def test_wire_creates_symlink_and_env(home):
     dest = home / ".local/bin/ccsession"
     env = home / ".claude/ccsession.env"
     assert dest.is_symlink() and dest.resolve() == (skill / "ccsession").resolve()
+    orca = home / ".local/bin/ccsession-orca"
+    assert orca.is_symlink() and orca.resolve() == (skill / "ccsession-orca").resolve()
+    assert (skill / "ccsession-orca").stat().st_mode & 0o111
     assert env.read_bytes() == (skill / "ccsession.env.example").read_bytes()
     assert env.stat().st_mode & 0o777 == 0o600
     assert (skill / "ccsession").stat().st_mode & 0o111
     assert (skill / "hooks/session-start.sh").stat().st_mode & 0o111
     assert not (home / ".claude/settings.json").exists()
+
+
+def test_wire_older_skill_without_orca_wrapper_still_succeeds(home):
+    # A plain `superclaude install` keeps an existing skill, which may predate
+    # ccsession-orca; ccsession must still be wired and the install must pass.
+    (home / ".claude/skills/ccsession-tag/ccsession-orca").unlink()
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    assert "superclaude update" in msg
+    assert (home / ".local/bin/ccsession").is_symlink()
+    assert not (home / ".local/bin/ccsession-orca").exists()
 
 
 def test_wire_leaves_existing_env_and_settings(home):
@@ -56,7 +71,9 @@ def test_wire_leaves_existing_env_and_settings(home):
     assert b"secret-token" not in wire_ccsession(home)[1].encode()
 
 
-@pytest.mark.parametrize("script", ["ccsession", "hooks/session-start.sh"])
+@pytest.mark.parametrize(
+    "script", ["ccsession", "ccsession-orca", "hooks/session-start.sh"]
+)
 def test_symlinked_script_cannot_expose_existing_env(home, script):
     env = home / ".claude/ccsession.env"
     env.write_bytes(b"private-token")
@@ -115,9 +132,11 @@ def test_failed_env_copy_leaves_no_partial_seed(home, monkeypatch):
     assert env.stat().st_mode & 0o777 == 0o600
 
 
+@pytest.mark.parametrize("name", ["ccsession", "ccsession-orca"])
 @pytest.mark.parametrize("kind", ["file", "foreign_symlink"])
-def test_wire_refuses_unmanaged_binary(home, kind):
-    dest = home / ".local/bin/ccsession"
+def test_wire_refuses_unmanaged_binary(home, kind, name):
+    dest = home / ".local/bin" / name
+    other = home / ".local/bin" / ({"ccsession", "ccsession-orca"} - {name}).pop()
     dest.parent.mkdir(parents=True)
     if kind == "file":
         dest.write_text("my binary")
@@ -127,6 +146,9 @@ def test_wire_refuses_unmanaged_binary(home, kind):
     ok, msg = wire_ccsession(home)
     assert ok and "warning" in msg.lower()
     assert (dest.readlink() if dest.is_symlink() else dest.read_bytes()) == original
+    # The other launcher is still linked.
+    skill = home / ".claude/skills/ccsession-tag"
+    assert other.resolve() == (skill / other.name).resolve()
     assert (home / ".claude/ccsession.env").exists()
 
 

@@ -85,6 +85,7 @@ def ccsession_home(tmp_path, monkeypatch):
     (skill / "hooks").mkdir(parents=True)
     (skill / "SKILL.md").write_text("skill")
     (skill / "ccsession").write_text("wrapper")
+    (skill / "ccsession-orca").write_text("orca wrapper")
     (skill / "hooks/session-start.sh").write_text("hook")
     (tmp_path / ".claude/ccsession.env").write_text("secret-value")
     settings = tmp_path / ".claude/settings.json"
@@ -109,6 +110,7 @@ def ccsession_home(tmp_path, monkeypatch):
     bin_path = tmp_path / ".local/bin/ccsession"
     bin_path.parent.mkdir(parents=True)
     bin_path.symlink_to(skill / "ccsession")
+    (bin_path.parent / "ccsession-orca").symlink_to(skill / "ccsession-orca")
     monkeypatch.setenv("PATH", str(bin_path.parent))
     return tmp_path
 
@@ -117,9 +119,11 @@ def ccsession_home(tmp_path, monkeypatch):
     "missing",
     [
         ".claude/skills/ccsession-tag/ccsession",
+        ".claude/skills/ccsession-tag/ccsession-orca",
         ".claude/skills/ccsession-tag/hooks/session-start.sh",
         ".claude/ccsession.env",
         ".local/bin/ccsession",
+        ".local/bin/ccsession-orca",
         ".claude/settings.json",
     ],
 )
@@ -148,9 +152,10 @@ def test_ccsession_doctor_reports_missing_skill(ccsession_home):
     assert "ccsession-tag" in str(result["details"])
 
 
+@pytest.mark.parametrize("name", ["ccsession", "ccsession-orca"])
 @pytest.mark.parametrize("kind", ["file", "foreign_symlink"])
-def test_ccsession_doctor_reports_collision(ccsession_home, kind):
-    binary = ccsession_home / ".local/bin/ccsession"
+def test_ccsession_doctor_reports_collision(ccsession_home, kind, name):
+    binary = ccsession_home / ".local/bin" / name
     binary.unlink()
     if kind == "file":
         binary.write_text("user file")

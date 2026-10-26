@@ -22,6 +22,9 @@ The user invokes this command with a label as the argument, e.g.
 
    - The label MUST match `^[A-Za-z0-9._-]+$` (only letters, digits, dot,
      underscore, dash) AND MUST NOT be `.` or `..`.
+   - The label MUST NOT start with `-`: `ccsession -name` reads it as an
+     option, so such a label could never be resumed. If it does, STOP and tell
+     the user: *"Invalid label: it cannot start with a dash."*
    - If it contains anything else — a space, `/`, `\`, `..`, a quote (`'` or
      `"`), `` ` ``, `$`, `;`, `&`, `|`, `(`, newline, or any other character —
      STOP and tell the user: *"Invalid label — use only letters, digits, dot,
@@ -49,6 +52,9 @@ The user invokes this command with a label as the argument, e.g.
    case "$LABEL" in
      *[!A-Za-z0-9._-]*)
        echo "ERROR: invalid label '$LABEL' (allowed chars: A-Z a-z 0-9 . _ -)" >&2
+       exit 1 ;;
+     -*)
+       echo "ERROR: invalid label '$LABEL' (cannot start with '-')" >&2
        exit 1 ;;
    esac
 
