@@ -18,13 +18,17 @@
 #   Extra local profiles can be added in ~/.config/ccsession/profiles.d/*.sh
 #   A label resumes the same project session regardless of profile or shim.
 #   ccsession --list          List all labeled sessions across all workspaces
-#   ccsession --here          List labeled sessions for the current workspace only
+#   ccsession --here          List labeled sessions for this repo only (names are
+#                             shared by every worktree, branch and copy of a repo)
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
+#   ccsession --key           Print the name-list key for this folder
+#   ccsession --migrate-names Copy names saved per folder (older versions) into
+#                             their repo's list; runs once by itself
 #   ccsession [<topic>] [options] --claude-args <claude args>
 #                             Everything after --claude-args goes to Claude Code
 #                             exactly as given; none of it is read as a label or
 #                             an option
-#   ccsession --ask [<hint>]  List this folder's saved sessions, ask for a session
+#   ccsession --ask [<hint>]  List this repo's saved sessions, ask for a session
 #                             name and print it (empty: untagged). The hint goes
 #                             in the question's brackets. Exit 1: not asked (no
 #                             terminal, or keys already waiting), no answer within
@@ -89,6 +93,146 @@ while [ -L "$_self" ]; do
 done
 CCSESSION_DIR="$(cd "$(dirname "$_self")" && pwd)"
 CCSESSION_MODELS="$CCSESSION_DIR/models.py"
+
+slugify() {
+  # Claude Code's path encoding: replace / with -
+  echo "$1" | sed 's|/|-|g'
+}
+
+# Session names belong to the repo, not the folder: every worktree, branch and
+# copy of a repo shares one name list. The list lives where it always did
+# (~/.claude/projects/<key>/topics); only what the key is made from changed.
+# It is the repo's network origin as host/path (credentials, port, query and a
+# trailing .git removed, host lowercased), else the main worktree's folder (a
+# repo without one; for a separate or bare git folder, that folder), else the
+# current folder (not a git repo, as before).
+# Runs in a subshell so GIT_DIR and friends from the caller never redirect it.
+name_key() (
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
+  local origin path host common
+  origin=$(git config --get remote.origin.url 2>/dev/null) || origin=""
+  origin=${origin%%[?#]*}
+  host="" path=""
+  case "$origin" in
+    file://*) : ;;  # a local path is not a network identity
+    *://*)
+      path=${origin#*://}
+      host=${path%%/*}
+      path=${path#"$host"}
+      ;;
+    [!/.]?*:*)  # scp form [user@]host:path (no "/" before ":", not a drive letter)
+      host=${origin%%:*}
+      case "$host" in
+        */*) host="" ;;
+        *) path=/${origin#*:} ;;
+      esac
+      ;;
+  esac
+  host=${host##*@}
+  host=${host%%:*}
+  host=$(printf '%s' "$host" | tr '[:upper:]' '[:lower:]')
+  while [ "${path%/}" != "$path" ]; do path=${path%/}; done
+  path=${path%.git}
+  while [ "${path%/}" != "$path" ]; do path=${path%/}; done
+  while [ "${path#*//}" != "$path" ]; do path=${path//\/\//\/}; done
+  case "$host$path" in
+    '' | *[!A-Za-z0-9._/~+-]* | */./* | */../* | */. | */..) : ;;
+    *)
+      if [ -n "$host" ] && [ -n "${path#/}" ]; then
+        slugify "$host$path"
+        return
+      fi
+      ;;
+  esac
+  if common=$(git rev-parse --git-common-dir 2>/dev/null) &&
+    common=$(cd "$common" 2>/dev/null && pwd -P); then
+    # A separate or bare git folder records no main checkout: key on it.
+    case "$common" in
+      */.git) slugify "${common%/.git}" ;;
+      *) slugify "$common" ;;
+    esac
+    return
+  fi
+  slugify "$(pwd)"
+)
+
+NAMES_MIGRATED="$PROJECTS_DIR/.ccsession-names-by-repo"
+# Marks a per-folder list whose names were copied to its repo's list. A marked
+# list is never copied again (so --rm stays permanent) and --list skips it.
+LIST_MIGRATED=".ccsession-moved-to-repo"
+
+migrate_names() {
+  # Copies names saved per folder (before names followed the repo) into each
+  # repo's list, once per old list. Copies only: the old files stay, nothing is
+  # overwritten, and a name the repo list already uses for another session is
+  # copied as <name>-<folder> (then -2, -3...). Lists are taken newest first, so
+  # the most recently used folder keeps the plain name. Folders that no longer
+  # exist are skipped. Returns non-zero if any list could not be copied.
+  local topics folder key target file name tmp dest base n failed=0 list_ok
+  [ -d "$PROJECTS_DIR" ] || return 0
+  while IFS= read -r topics; do
+    topics=${topics%/.cwd}
+    [ -f "$topics/$LIST_MIGRATED" ] && continue
+    folder=$(head -n 1 "$topics/.cwd" 2>/dev/null) || { failed=1; continue; }
+    case "$folder" in /*) ;; *) continue ;; esac
+    # Only a genuine old per-folder list (named after the folder it records);
+    # a repo's own list also has a .cwd (the folder last used) and stays put.
+    [ "$topics" = "$PROJECTS_DIR/$(slugify "$folder")/topics" ] || continue
+    [ -d "$folder" ] || continue
+    key=$(cd "$folder" 2>/dev/null && name_key) || { failed=1; continue; }
+    target="$PROJECTS_DIR/$key/topics"
+    [ "$topics" = "$target" ] && continue
+    list_ok=1
+    for file in "$topics"/*.txt; do
+      [ -f "$file" ] || continue
+      name=$(basename "$file" .txt)
+      # Copy aside, then publish with ln, which never replaces an existing
+      # name: a label the hook or /ccsession-tag writes meanwhile is kept.
+      tmp=$(mkdir -p "$target" && mktemp "$target/.ccsession-copy.XXXXXX") &&
+        cp -p "$file" "$tmp" || { rm -f "$tmp"; list_ok=0; continue; }
+      dest="$target/$name.txt"
+      base="$target/$name-$(basename "$folder" | tr -c 'A-Za-z0-9._\n-' '-')"
+      n=1
+      while :; do
+        if ln "$tmp" "$dest" 2>/dev/null; then
+          [ -f "$target/.cwd" ] || echo "$folder" > "$target/.cwd" || true
+          break
+        fi
+        [ -f "$dest" ] || { list_ok=0; break; }
+        cmp -s "$file" "$dest" && break  # already there
+        if [ "$n" = 1 ]; then dest="$base.txt"; else dest="$base-$n.txt"; fi
+        n=$((n + 1))
+      done
+      rm -f "$tmp"
+    done
+    if [ "$list_ok" = 1 ]; then
+      : > "$topics/$LIST_MIGRATED" || failed=1
+    else
+      failed=1
+    fi
+  done < <(ls -t "$PROJECTS_DIR"/*/topics/.cwd 2>/dev/null)
+  # Done for everyday use even if a list failed; the next explicit
+  # --migrate-names (every install) retries the lists left unmarked.
+  : > "$NAMES_MIGRATED" || true
+  [ "$failed" = 0 ]
+}
+
+ensure_names_migrated() {
+  [ -f "$NAMES_MIGRATED" ] || migrate_names 2>/dev/null || true
+}
+
+# Fast paths that need no settings, env file or model data. The SessionStart
+# hook and /ccsession-tag use --key so all three agree on the name list.
+case "${1:-}" in
+  --key)
+    name_key
+    exit 0
+    ;;
+  --migrate-names)
+    migrate_names
+    exit 0
+    ;;
+esac
 
 # Extract --shim and --profile from anywhere in the args; every other
 # argument passes through to Claude Code unchanged. --claude-args ends
@@ -550,11 +694,6 @@ export_selection() {
   fi
 }
 
-slugify() {
-  # Claude Code's path encoding: replace / with -
-  echo "$1" | sed 's|/|-|g'
-}
-
 validate_label() {
   # Guard a user-supplied topic label before it is interpolated into a file
   # path ("$TOPIC_DIR/$LABEL.txt"). Rejects empty, path separators, '..'
@@ -672,6 +811,9 @@ list_sessions() {
     local ws_slug
     ws_slug=$(basename "$(dirname "$ws_dir")")
     [ -n "$scope_slug" ] && [ "$ws_slug" != "$scope_slug" ] && continue
+    # An old per-folder list already copied to its repo's list (never the
+    # list this folder reads its names from).
+    [ -f "$ws_dir/$LIST_MIGRATED" ] && [ "$ws_slug" != "$scope_slug" ] && continue
 
     local first=1
     for topic_file in "$ws_dir"/*.txt; do
@@ -685,6 +827,11 @@ list_sessions() {
       topic=$(basename "$topic_file" .txt)
       uuid=$(cat "$topic_file")
       jsonl="$(dirname "$ws_dir")/$uuid.jsonl"
+      # Claude Code keeps the conversation under the folder it ran in, which
+      # is not where a repo's name list lives; take the newest copy.
+      if [ ! -f "$jsonl" ]; then
+        jsonl=$(ls -t "$PROJECTS_DIR"/*/"$uuid".jsonl 2>/dev/null | head -n 1) || jsonl=""
+      fi
 
       if [ ! -f "$jsonl" ]; then
         printf '  %-22s  %s  %s\n' "$topic" "(transcript missing)" "${uuid:0:8}"
@@ -747,10 +894,11 @@ ask_session_name() {
     trap - INT
     return 1
   fi
-  # A name resumes only in the folder it was started in, so list this folder's
-  # sessions, not every folder's. Nothing is shown when the folder has none.
+  # List this repo's sessions (every worktree and copy of it), not every
+  # repo's. Nothing is shown when the repo has none.
   local name sessions line
-  sessions=$(list_sessions "$(slugify "$(pwd)")")
+  ensure_names_migrated
+  sessions=$(list_sessions "$(name_key)")
   case "$sessions" in
     ''|'No labeled sessions'*|$'\n''No labeled sessions'*) : ;;
     *)
@@ -834,11 +982,13 @@ case "${1:-}" in
     exit 0
     ;;
   --list)
+    ensure_names_migrated
     list_sessions ""
     exit 0
     ;;
   --here)
-    list_sessions "$(slugify "$(pwd)")"
+    ensure_names_migrated
+    list_sessions "$(name_key)"
     exit 0
     ;;
   --ask)
@@ -848,7 +998,8 @@ case "${1:-}" in
   --rm)
     [ -n "${2:-}" ] || { echo "Usage: ccsession --rm <topic>" >&2; exit 2; }
     RM_TOPIC=$(validate_label "$2") || exit 2
-    WS_SLUG=$(slugify "$(pwd)")
+    ensure_names_migrated
+    WS_SLUG=$(name_key)
     TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$RM_TOPIC.txt"
     if [ -f "$TOPIC_FILE" ]; then
       rm "$TOPIC_FILE"
@@ -926,7 +1077,8 @@ TOPIC=$(validate_label "$1") || exit 2
 shift
 set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
 
-WS_SLUG=$(slugify "$(pwd)")
+ensure_names_migrated
+WS_SLUG=$(name_key)
 TOPIC_DIR="$PROJECTS_DIR/$WS_SLUG/topics"
 TOPIC_FILE="$TOPIC_DIR/$TOPIC.txt"
 
@@ -934,9 +1086,15 @@ mkdir -p "$TOPIC_DIR"
 # Cache the real workspace path so --list can show it accurately even when the
 # directory name contains dashes (slug encoding is lossy).
 echo "$(pwd)" > "$TOPIC_DIR/.cwd"
+rm -f "$TOPIC_DIR/$LIST_MIGRATED"  # a list written to again is live
 
 # Exported so the SessionStart hook can pick it up and write the label file.
 export CLAUDE_TOPIC="$TOPIC"
+# The hook writes the label only for a Claude in this folder: one started
+# elsewhere that inherited CLAUDE_TOPIC (a pipeline in another worktree of the
+# same repo) must not take over the name.
+CCSESSION_TOPIC_CWD=$(pwd -P)
+export CCSESSION_TOPIC_CWD
 orca_terminal_title "$TOPIC"
 
 # The label is written when a session starts, but Claude Code only saves the

@@ -57,6 +57,9 @@ ln -sfn "$TARGET_SKILL_DIR/ccsession-orca" "$BIN_DIR/ccsession-orca"
 echo "[2/4] Linked shell wrappers:"
 echo "      $BIN_DIR/ccsession -> $TARGET_SKILL_DIR/ccsession"
 echo "      $BIN_DIR/ccsession-orca -> $TARGET_SKILL_DIR/ccsession-orca"
+# Session names now belong to the repo; copy names saved per folder by older
+# versions into their repo's list (copies only, safe to repeat).
+"$TARGET_SKILL_DIR/ccsession" --migrate-names 2>/dev/null || true
 echo ""
 
 # 3. Env file (user secrets, kept outside the skill folder so it's never

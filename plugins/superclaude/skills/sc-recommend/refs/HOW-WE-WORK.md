@@ -226,7 +226,7 @@ Pass the one selected monitor value explicitly. A stronger project rule can requ
 
 There are two ways to resume. Use the first if you set it up; the second always works.
 
-**1. Reopen the conversation (ccsession).** Do this before you need it: inside Claude, run `/ccsession-tag <name>` (letters, digits, `.`, `_`, `-`). Later, from a terminal in the same folder, run `ccsession <name>` to reopen that conversation. `ccsession --here` lists the names for the current folder. `superclaude install` sets this up; `~/.local/bin` must be on your `PATH`.
+**1. Reopen the conversation (ccsession).** Do this before you need it: inside Claude, run `/ccsession-tag <name>` (letters, digits, `.`, `_`, `-`). Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` to reopen that conversation. `ccsession --here` lists the names for this repo. `superclaude install` sets this up; `~/.local/bin` must be on your `PATH`.
 
 **2. Restart from the work's own files.** This works in a brand-new conversation.
 

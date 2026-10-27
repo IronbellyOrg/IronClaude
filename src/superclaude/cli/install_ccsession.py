@@ -80,6 +80,22 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
                 capture_output=True,
                 timeout=30,
             )
+        # Session names now belong to the repo; copy names saved per folder by
+        # older versions into their repo's list (once per list, copies only).
+        # A plain install can keep an older skill whose ccsession would read
+        # the option as a launch, so ask only one that knows it.
+        if b"--migrate-names)" in wrapper.read_bytes():
+            try:
+                subprocess.run(
+                    [str(wrapper), "--migrate-names"],
+                    check=False,
+                    capture_output=True,
+                    stdin=subprocess.DEVNULL,
+                    timeout=60,
+                    env={**os.environ, "HOME": str(home)},
+                )
+            except subprocess.TimeoutExpired:
+                pass  # ccsession finishes the move itself on first use.
     except (OSError, subprocess.SubprocessError) as exc:
         return False, f"Could not wire ccsession: {exc}"
 

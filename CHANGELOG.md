@@ -4,6 +4,18 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: session names belong to the repo, not the folder
+
+#### Changed (ccsession names per repo)
+
+- Session names are shared by every worktree, branch and copy of a repo. A name started in one worktree is listed and resumed from any other, and a fresh copy of the repo (for example Orca adding the project again as a new folder) still sees its names. Names stay where they always were (`~/.claude/projects/<key>/topics/<name>.txt`) and the key is made by the same function (`/` becomes `-`); only its input changed: the repo's network `origin` as host and path (credentials, port, query, host case and a trailing `.git` ignored, for example `github.com-IronbellyOrg-IronClaude`), else the main worktree's folder for a repo without a network origin (none, or a local-path or relative origin; for a separate or bare git folder, that folder), else the current folder outside git (unchanged). `ccsession`, `--here`, `--rm`, the session-name question, the SessionStart hook and `/ccsession-tag` all use it, and listings find each conversation under whichever folder it ran in. Claude Code already resumes a session from any folder.
+- The SessionStart hook saves a name only for the Claude that ccsession started in its own folder, so a Claude started elsewhere that inherits the label (for example a pipeline in another worktree of the same repo) no longer takes the name over.
+
+#### Added (ccsession names per repo)
+
+- `ccsession --key` prints the name-list key for the current folder; the SessionStart hook and `/ccsession-tag` use it so all three agree.
+- `ccsession --migrate-names` copies names that older versions saved per folder into their repo's list, once per old list (each copied list is marked, so a name removed with `--rm` stays removed). It runs by itself on first use; `superclaude install` and the skill's `install.sh` run it too, which retries only lists that failed. Copies only: the old files stay but drop out of `--list`, nothing is overwritten, the most recently used folder keeps a shared name, another session with that name is copied as `<name>-<folder>` (then `-2`, `-3`), and lists whose folder no longer exists are skipped. A repo's own list is never treated as an old one.
+
 ### ccsession — per-user start tier and tier list (`CCSESSION_ACCESS`)
 
 #### Added (ccsession)
