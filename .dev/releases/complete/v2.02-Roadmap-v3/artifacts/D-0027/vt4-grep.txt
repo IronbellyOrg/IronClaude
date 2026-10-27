@@ -1,3 +1,0 @@
-# D-0027
-
-VT4: Pseudo-CLI elimination. PASS. grep -c 'sc:adversarial --' returns 0.
