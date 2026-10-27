@@ -121,7 +121,7 @@ part of this package, and it belongs in no git repository.
 ccsession notes              # start or resume the session named "notes"
 ccsession notes --shim       # same, but with the extra gateway models available
 ccsession --list             # every named session on this machine
-ccsession --here             # named sessions for this folder only
+ccsession --here             # named sessions for this repo only
 ccsession --rm notes         # forget the name (the conversation itself is kept)
 ccsession notes --claude-args "fix it"
                              # everything after --claude-args goes to Claude Code
@@ -134,8 +134,22 @@ Inside a running Claude session you can name it after the fact:
 /ccsession-tag notes
 ```
 
-Names are per folder. The same name in two different projects points at two
-different conversations, which is what you usually want.
+Names are per repo. Every worktree, branch and copy of a repo (same `origin`)
+shares one list, so a session named in one worktree resumes from any other,
+and a fresh copy of the repo still sees its names. The same name in two
+different repos points at two different conversations. A folder that is not a
+git repo keeps its own list, as before.
+
+Older versions kept one list per folder. The first run of this version copies
+those names into their repo's list, once per old list (`ccsession
+--migrate-names`, which every install also runs, retrying only lists that
+failed). The old files stay but drop out of `--list`, nothing is overwritten,
+the most recently used folder keeps a shared name, and another session with
+the same name is copied as `<name>-<folder>` (then `-2`, `-3`).
+
+A labeled session's name is saved only by the Claude that ccsession started
+in that folder, so a Claude started elsewhere that inherits the label (for
+example a pipeline run in another worktree) never takes the name over.
 
 ---
 
@@ -153,7 +167,7 @@ example:
 
 Orca accepts one executable there, with no arguments. Each Orca launch then:
 
-- Lists this folder's saved sessions and asks
+- Lists this repo's saved sessions and asks
   `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
   starts or resumes that session; Enter, Ctrl+C, or no answer within 30
   seconds starts an untagged one, so the tab never ends at a dead prompt. A
@@ -457,8 +471,13 @@ or the names will not line up.
 
 ## Storage layout
 
-- Label pointers live at `~/.claude/projects/<workspace-slug>/topics/<label>.txt`.
-- The `.cwd` file beside them records the real workspace path for listings.
+- Label pointers live at `~/.claude/projects/<key>/topics/<label>.txt`. The key
+  is the repo's network `origin` as host and path with `/` turned into `-`
+  (for example `github.com-IronbellyOrg-IronClaude`; credentials, port, query
+  and host case ignored). Without a network origin (none, or a local path such
+  as a clone made with `git clone /path/repo`), the main worktree's folder;
+  outside a git repo, the current folder. `ccsession --key` prints it.
+- The `.cwd` file beside them records the folder last used, for listings.
 - Claude Code owns the conversation transcripts in the neighboring `.jsonl`
   files. ccsession resumes them but does not modify their contents.
 

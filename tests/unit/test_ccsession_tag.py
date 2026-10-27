@@ -1784,3 +1784,394 @@ def test_title_untouched_outside_orca(tmp_path: Path) -> None:
     output, claude = _title_launch(tmp_path, "demo", orca=False)
     assert b"\x1b]0;" not in output
     assert claude == {"disable": "", "resume": ""}
+
+
+# Session names belong to the repo, not the folder: every worktree, branch and
+# copy of a repo shares one name list under ~/.claude/projects/<key>/topics.
+
+
+def _git_env(home: Path) -> dict[str, str]:
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if not k.startswith("GIT_")
+        and k not in ("CLAUDE_TOPIC", "CCSESSION_TOPIC_CWD", "CLAUDE_ENV_FILE")
+    }
+    env["HOME"] = str(home)
+    return env
+
+
+def _git(cwd: Path, *args: str) -> None:
+    subprocess.run(
+        ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", *args],
+        cwd=cwd,
+        env=_git_env(cwd),
+        check=True,
+        capture_output=True,
+    )
+
+
+def _repo_with_worktree(tmp_path: Path, origin: str | None) -> tuple[Path, Path]:
+    main = tmp_path / "repo"
+    main.mkdir()
+    _git(main, "init", "-q")
+    if origin:
+        _git(main, "remote", "add", "origin", origin)
+    _git(main, "commit", "-q", "--allow-empty", "-m", "init")
+    worktree = tmp_path / "wt-feature"
+    _git(main, "worktree", "add", "-q", "-b", "feature", str(worktree))
+    return main, worktree
+
+
+def _name_key(cwd: Path, home: Path) -> str:
+    return subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--key"],
+        cwd=cwd,
+        env=_git_env(home),
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://github.com/Org/Repo",
+        "https://github.com/Org/Repo.git",
+        "https://github.com/Org/Repo/",
+        "https://user:REDACTED@github.com/Org/Repo.git",  # pragma: allowlist secret
+        "git@github.com:Org/Repo.git",
+        "ssh://git@github.com/Org/Repo.git",
+    ],
+)
+def test_name_key_is_the_repo_origin_in_every_worktree(
+    tmp_path: Path, origin: str
+) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, origin)
+    (main / "sub").mkdir()
+    home = tmp_path / "home"
+    keys = {_name_key(folder, home) for folder in (main, worktree, main / "sub")}
+    # Same slug function as before (/ becomes -); credentials never kept.
+    assert keys == {"github.com-Org-Repo"}
+
+
+def test_name_key_without_origin_is_the_main_worktree(tmp_path: Path) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, origin=None)
+    home = tmp_path / "home"
+    expected = str(main.resolve()).replace("/", "-")
+    assert _name_key(main, home) == expected
+    assert _name_key(worktree, home) == expected
+
+
+def test_name_key_outside_git_is_the_folder_as_before(tmp_path: Path) -> None:
+    folder = tmp_path / "plain"
+    folder.mkdir()
+    assert _name_key(folder, tmp_path / "home") == str(folder).replace("/", "-")
+
+
+def test_name_from_one_worktree_resumes_in_another(tmp_path: Path) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    session = "abc12345-0000-0000-0000-000000000000"
+    projects = home / ".claude" / "projects"
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    (topics / "demo.txt").write_text(f"{session}\n")
+    # Claude Code saved the conversation under the folder it ran in.
+    started = projects / str(worktree).replace("/", "-")
+    started.mkdir()
+    (started / f"{session}.jsonl").write_text("{}\n")
+    fake = tmp_path / "claude-args"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n"
+    )
+    fake.chmod(0o700)
+    env = _git_env(home)
+    env.update(
+        {"CLAUDE_BIN": str(fake), "CCSESSION_ENV_FILE": str(tmp_path / "none.env")}
+    )
+    for folder in (main, worktree):
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "demo"],
+            cwd=folder,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        launched = json.loads(result.stdout.strip().splitlines()[-1])
+        assert launched[-2:] == ["--resume", session]
+        here = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--here"],
+            cwd=folder,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        # The listing finds the conversation under the folder it ran in.
+        line = next(ln for ln in here.stdout.splitlines() if "demo" in ln)
+        assert "transcript missing" not in line
+
+
+def test_session_start_hook_saves_the_name_under_the_repo(tmp_path: Path) -> None:
+    _, worktree = _repo_with_worktree(tmp_path, "git@github.com:Org/Repo.git")
+    home = tmp_path / "home"
+    env = _git_env(home)
+    env["CLAUDE_TOPIC"] = "demo"
+    env.pop("CLAUDE_ENV_FILE", None)
+    payload = json.dumps({"session_id": "sid-1", "cwd": str(worktree)})
+    subprocess.run(
+        ["bash", str(SKILL_DIR / "hooks" / "session-start.sh")],
+        input=payload,
+        env=env,
+        text=True,
+        check=True,
+    )
+    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
+    assert (topics / "demo.txt").read_text().strip() == "sid-1"
+    assert (topics / ".cwd").read_text().strip() == str(worktree)
+
+
+def test_ccsession_tag_command_saves_the_name_under_the_repo(tmp_path: Path) -> None:
+    _, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo.git")
+    home = tmp_path / "home"
+    skill = (SKILL_DIR / "SKILL.md").read_text()
+    block = skill.split("3. Run this bash command", 1)[1]
+    block = block.split("```bash\n", 1)[1].split("```", 1)[0]
+    script = "\n".join(line[3:] for line in block.splitlines())
+    script = script.replace("<LABEL>", "demo")
+    env = _git_env(home)
+    env.update(
+        {
+            "CLAUDE_PROJECT_DIR": str(worktree),
+            "CLAUDE_SESSION_ID": "sid-2",
+            # The ccsession under test, not one installed on this machine.
+            "PATH": f"{SKILL_DIR}:{env['PATH']}",
+        }
+    )
+    subprocess.run(["bash", "-c", script], cwd=worktree, env=env, check=True)
+    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
+    assert (topics / "demo.txt").read_text().strip() == "sid-2"
+
+
+def test_names_saved_per_folder_move_to_the_repo_once(tmp_path: Path) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    projects = home / ".claude" / "projects"
+
+    def old_list(folder: Path, names: dict[str, str]) -> Path:
+        topics = projects / str(folder).replace("/", "-") / "topics"
+        topics.mkdir(parents=True)
+        (topics / ".cwd").write_text(f"{folder}\n")
+        for name, session in names.items():
+            (topics / f"{name}.txt").write_text(f"{session}\n")
+        return topics
+
+    main_list = old_list(main, {"alpha": "s-a", "shared": "s-main"})
+    wt_list = old_list(worktree, {"beta": "s-b", "shared": "s-wt"})
+    # The worktree was used last, so it keeps the plain name "shared".
+    os.utime(main_list / ".cwd", (1_000_000_000, 1_000_000_000))
+    # A list whose folder no longer exists is left where it is.
+    gone_list = old_list(tmp_path / "deleted-folder", {"gamma": "s-g"})
+    env = _git_env(home)
+
+    def ccsession(*args: str, cwd: Path = worktree) -> str:
+        return subprocess.run(
+            [str(SKILL_DIR / "ccsession"), *args],
+            cwd=cwd,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout
+
+    here = ccsession("--here")
+    repo = projects / "github.com-Org-Repo" / "topics"
+    moved = {p.stem: p.read_text().strip() for p in repo.glob("*.txt")}
+    # Copies only; the other session with a taken name stays reachable under
+    # <name>-<folder>.
+    assert moved == {
+        "alpha": "s-a",
+        "beta": "s-b",
+        "shared": "s-wt",
+        "shared-repo": "s-main",
+    }
+    for name in ("alpha", "beta", "shared-repo"):
+        assert name in here
+    assert (main_list / "alpha.txt").exists() and (wt_list / "beta.txt").exists()
+    assert (gone_list / "gamma.txt").exists() and "gamma" not in moved
+    assert (projects / ".ccsession-names-by-repo").exists()
+    # The copied per-folder lists no longer show up as duplicates in --list.
+    assert ccsession("--list").count("alpha") == 1
+
+    # Each old list is copied once: a removed name stays removed and a later
+    # file in an old list is not picked up, however often installs re-run it.
+    assert "Removed label" in ccsession("--rm", "alpha", cwd=main)
+    (main_list / "late.txt").write_text("s-late\n")
+    for _ in range(2):
+        ccsession("--migrate-names")
+    after = {p.stem: p.read_text().strip() for p in repo.glob("*.txt")}
+    assert after == {k: v for k, v in moved.items() if k != "alpha"}
+
+
+def test_migration_keeps_going_past_an_unreadable_list(tmp_path: Path) -> None:
+    main, _ = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    projects = home / ".claude" / "projects"
+    bad = projects / "-a-bad" / "topics"
+    bad.mkdir(parents=True)
+    (bad / ".cwd").write_text(f"{main}\n")
+    (bad / ".cwd").chmod(0)
+    good = projects / str(main).replace("/", "-") / "topics"
+    good.mkdir(parents=True)
+    (good / ".cwd").write_text(f"{main}\n")
+    (good / "keep.txt").write_text("s-keep\n")
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--migrate-names"],
+        env=_git_env(home),
+        capture_output=True,
+    )
+    (bad / ".cwd").chmod(0o600)
+    repo = projects / "github.com-Org-Repo" / "topics"
+    assert (repo / "keep.txt").read_text() == "s-keep\n"
+    if os.geteuid() != 0:  # root can read the file anyway
+        # Reported, and left unmarked so the next install retries that list;
+        # everyday launches stop rescanning (the done marker is written).
+        assert result.returncode != 0
+        assert not (bad / ".ccsession-moved-to-repo").exists()
+    assert (projects / ".ccsession-names-by-repo").exists()
+
+
+def test_migration_never_hides_a_repo_list_whose_last_folder_moved_on(
+    tmp_path: Path,
+) -> None:
+    # A repo list's .cwd is just the folder last used. If that folder's origin
+    # changes, the list must stay visible to the repo's other clones.
+    home = tmp_path / "home"
+    clones = []
+    for name in ("a", "b"):
+        clone = tmp_path / name
+        clone.mkdir()
+        _git(clone, "init", "-q")
+        _git(clone, "remote", "add", "origin", "git@github.com:Org/Repo.git")
+        clones.append(clone)
+    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    (topics / ".cwd").write_text(f"{clones[0]}\n")
+    (topics / "notes.txt").write_text("s-notes\n")
+    _git(clones[0], "remote", "set-url", "origin", "git@github.com:Me/Fork.git")
+    env = _git_env(home)
+    subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--migrate-names"], env=env, check=True
+    )
+    here = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--here"],
+        cwd=clones[1],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout
+    assert "notes" in here
+    assert not (topics / ".ccsession-moved-to-repo").exists()
+    assert not (home / ".claude" / "projects" / "github.com-Me-Fork").exists()
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        ".",
+        "..",
+        "../Repo.git",
+        "/srv/repos/Repo",
+        "file:///srv/repos/Repo",
+        "https://user:pa/ss@github.com/Org/Repo",
+        "relative/dir:foo",
+        "C:/x/y",
+    ],
+)
+def test_name_key_ignores_local_relative_or_unsafe_origins(
+    tmp_path: Path, origin: str
+) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, origin)
+    home = tmp_path / "home"
+    expected = str(main.resolve()).replace("/", "-")
+    assert _name_key(main, home) == expected
+    assert _name_key(worktree, home) == expected
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://github.com/Org/Repo.git?token=abc#frag",
+        "ssh://git@github.com:22/Org/Repo.git",
+        "HTTPS://GitHub.com:443/Org/Repo//",
+        "https://github.com//Org//Repo.git",
+        "git@github.com:/Org/Repo.git",
+    ],
+)
+def test_name_key_drops_query_port_and_case(tmp_path: Path, origin: str) -> None:
+    main, _ = _repo_with_worktree(tmp_path, origin)
+    assert _name_key(main, tmp_path / "home") == "github.com-Org-Repo"
+
+
+def test_name_key_ignores_git_dir_from_the_environment(tmp_path: Path) -> None:
+    main, _ = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    env = _git_env(tmp_path / "home")
+    env["GIT_DIR"] = str(main / ".git")
+    key = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--key"],
+        cwd=plain,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    assert key == str(plain).replace("/", "-")
+
+
+def test_nested_claude_in_another_worktree_keeps_the_parent_name(
+    tmp_path: Path,
+) -> None:
+    main, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
+    env = _git_env(home)
+    env.pop("CLAUDE_ENV_FILE", None)
+    # ccsession labeled the session in the main folder...
+    env.update({"CLAUDE_TOPIC": "notes", "CCSESSION_TOPIC_CWD": str(main.resolve())})
+
+    def hook(session: str, cwd: Path) -> None:
+        payload = json.dumps({"session_id": session, "cwd": str(cwd)})
+        subprocess.run(
+            ["bash", str(SKILL_DIR / "hooks" / "session-start.sh")],
+            input=payload,
+            env=env,
+            text=True,
+            check=True,
+        )
+
+    hook("parent-sid", main)
+    # ...and a claude started by a pipeline in a worktree inherits the label.
+    hook("child-sid", worktree)
+    assert (topics / "notes.txt").read_text().strip() == "parent-sid"
+
+
+def test_symlinked_hook_still_saves_under_the_repo(tmp_path: Path) -> None:
+    _, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    link = tmp_path / "hooks" / "ccs.sh"
+    link.parent.mkdir()
+    link.symlink_to(SKILL_DIR / "hooks" / "session-start.sh")
+    env = _git_env(home)
+    env.pop("CLAUDE_ENV_FILE", None)
+    env.pop("CCSESSION_TOPIC_CWD", None)
+    env["CLAUDE_TOPIC"] = "linked"
+    payload = json.dumps({"session_id": "sid-l", "cwd": str(worktree)})
+    subprocess.run(["bash", str(link)], input=payload, env=env, text=True, check=True)
+    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
+    assert (topics / "linked.txt").read_text().strip() == "sid-l"

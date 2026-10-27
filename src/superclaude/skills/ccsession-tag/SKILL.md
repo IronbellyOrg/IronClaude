@@ -61,7 +61,21 @@ The user invokes this command with a label as the argument, e.g.
    WS_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
    WS_SLUG=$(echo "$WS_DIR" | sed 's|/|-|g')
    PROJECT_DIR="$HOME/.claude/projects/$WS_SLUG"
-   TOPIC_DIR="$PROJECT_DIR/topics"
+   # Names belong to the repo (shared by its worktrees and copies): ccsession
+   # --key gives the list's key. Use the installed ccsession, then the
+   # project's .claude copy, then PATH, asking only one that knows --key; the
+   # folder's own key if none does.
+   NAME_KEY=""
+   for CCS in "$HOME/.claude/skills/ccsession-tag/ccsession" \
+     "$WS_DIR/.claude/skills/ccsession-tag/ccsession" "$(command -v ccsession)"; do
+     [ -n "$CCS" ] && [ -x "$CCS" ] && grep -q -- '--key)' "$CCS" 2>/dev/null || continue
+     NAME_KEY=$(cd "$WS_DIR" && "$CCS" --key 2>/dev/null) || NAME_KEY=""
+     [ -n "$NAME_KEY" ] && break
+   done
+   case "$NAME_KEY" in
+     '' | . | .. | */*) NAME_KEY="$WS_SLUG" ;;
+   esac
+   TOPIC_DIR="$HOME/.claude/projects/$NAME_KEY/topics"
 
    # Resolve current session ID: prefer the env var set by the session-start
    # hook; otherwise fall back to "newest .jsonl in this workspace's project
@@ -83,6 +97,8 @@ The user invokes this command with a label as the argument, e.g.
    # Cache the real workspace path so listing logic can show it accurately
    # even when the dir name contains dashes (slug encoding is lossy).
    echo "$WS_DIR" > "$TOPIC_DIR/.cwd"
+   # A list written to again is live: never hide it as already moved.
+   rm -f "$TOPIC_DIR/.ccsession-moved-to-repo"
 
    echo "Tagged session ${SESSION_ID:0:8} as '$LABEL' in $(basename "$WS_DIR")"
    echo "Resume next time with: ccsession $LABEL"
@@ -95,10 +111,12 @@ The user invokes this command with a label as the argument, e.g.
 
 - Re-tagging is allowed; running again with a different label overwrites the
   pointer. The underlying transcript is untouched.
-- Labels are per-workspace. Two workspaces can each have their own
-  `brownfield` without collision.
+- Labels are per repo: every worktree, branch and copy of a repo shares one
+  list, so a label tagged in one resumes from the others. Two different repos
+  can each have their own `brownfield` without collision.
 - This command writes only two tiny files under
-  `~/.claude/projects/<workspace-slug>/topics/` — a `<label>.txt` containing
-  the session UUID, and a `.cwd` containing the real workspace path.
+  `~/.claude/projects/<key>/topics/` (`<key>` from `ccsession --key`) — a
+  `<label>.txt` containing the session UUID, and a `.cwd` containing the real
+  workspace path.
 - The shell-side counterpart is `ccsession` — see this skill's README for
   install instructions.

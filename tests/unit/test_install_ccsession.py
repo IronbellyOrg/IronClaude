@@ -46,6 +46,36 @@ def test_wire_creates_symlink_and_env(home):
     assert not (home / ".claude/settings.json").exists()
 
 
+def test_wire_moves_names_saved_per_folder_into_the_repo_list(home, tmp_path):
+    # Install copies names that older versions saved per folder into the
+    # repo's list, in the home being installed, never the caller's own home.
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    for args in (("init", "-q"), ("remote", "add", "origin", "git@host:Org/R.git")):
+        subprocess.run(["git", *args], cwd=repo, env=git_env, check=True)
+    old = home / ".claude/projects" / str(repo).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{repo}\n")
+    (old / "notes.txt").write_text("sid-notes\n")
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    moved = home / ".claude/projects/host-Org-R/topics/notes.txt"
+    assert moved.read_text() == "sid-notes\n"
+    assert (old / "notes.txt").exists()
+
+
+def test_wire_never_asks_an_older_ccsession_to_move_names(home):
+    # A plain install can keep an older skill; its ccsession would read
+    # --migrate-names as a launch and start claude.
+    wrapper = home / ".claude/skills/ccsession-tag/ccsession"
+    marker = home / "launched"
+    wrapper.write_text(f'#!/bin/sh\necho "$@" > "{marker}"\n')
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    assert not marker.exists()
+
+
 def test_wire_older_skill_without_orca_wrapper_still_succeeds(home):
     # A plain `superclaude install` keeps an existing skill, which may predate
     # ccsession-orca; ccsession must still be wired and the install must pass.
