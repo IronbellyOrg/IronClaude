@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a problem with Orca
+description: Report a problem
 title: '[Bug]: '
 type: Bug
 labels:
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form for Orca bugs. Include enough detail for someone else to reproduce the issue.
+        Use this form for bugs. Include enough detail for someone else to reproduce the issue.
 
         Please write your issue in English.
 
@@ -27,8 +27,8 @@ body:
   - type: input
     id: orca_version
     attributes:
-      label: Orca version
-      description: Include the exact Orca version if you can. You can find it in `Orca > About Orca`.
+      label: version
+      description: Include the exact version if you can. 
       placeholder: v0.14.2
     validations:
       required: false
