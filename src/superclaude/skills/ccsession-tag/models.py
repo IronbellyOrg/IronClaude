@@ -16,6 +16,8 @@ live in the workspace env file (`export T2Model01=...`, `T2_WINDOW=...`), read
 on every launch so a changed file applies without a new shell. This file names
 only which env variables make up each tier. Tier mode is on when a tier window
 variable (`T<N>_WINDOW`) exists; the Mac has none and keeps the profiles.
+CCSESSION_ACCESS in the same file sets, per Coder username, the start tier and
+the tiers that user is offered (see user_access).
 
 Commands (used by the ccsession script):
   refresh [--wait SECONDS]  fetch a newer copy if one exists; prints one line
@@ -61,9 +63,21 @@ _TIER = re.compile(r"^tier([0-9]{1,2})$")
 _SLOT = re.compile(r"^T([0-9]{1,2})Model[0-9]{2}$")
 # Only these names are taken from the workspace env file; nothing is executed.
 _ENV_NAME = re.compile(
-    r"^(T[0-9]{1,2}Model[0-9]{2}(_WINDOW)?|T[0-9]{1,2}_WINDOW|CCSESSION_DEFAULT_TIER)$"
+    r"^(T[0-9]{1,2}Model[0-9]{2}(_WINDOW)?|T[0-9]{1,2}_WINDOW|CCSESSION_DEFAULT_TIER"
+    r"|CCSESSION_ACCESS)$"
 )
 _ENV_LINE = re.compile(r"^\s*export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*?)\s*$")
+# One CCSESSION_ACCESS entry: <username>=<start tier>[:<tier>,...]; the tier
+# names themselves are checked once the owner's entry is found.
+_ACCESS_ENTRY = re.compile(r"^[A-Za-z0-9._-]{1,64}=[A-Za-z0-9]*(:[A-Za-z0-9,]*)?$")
+# The one guarded form of the CCSESSION_ACCESS line, read like a plain export;
+# and the key read_defaults_file uses to report an unreadable setting.
+ACCESS_PROBLEM = "CCSESSION_ACCESS problem"
+_ACCESS_START = re.compile(r"(?<![A-Za-z0-9_])CCSESSION_")
+_ACCESS_END = re.compile(r"ACCESS(?![A-Za-z0-9_])")
+_ACCESS_GUARD = re.compile(
+    r'^\s*\[\s+-z\s+"\$\{CCSESSION_ACCESS:-\}"\s+\]\s+&&\s+(export\s+CCSESSION_ACCESS=.*)$'
+)
 DEFAULTS_FILE = "/etc/aidev02/aienv.d/defaults.sh"
 DEFAULT_WINDOW = 200000  # what Claude Code assumes for a model it does not know
 ONE_MILLION = 1000000
@@ -340,22 +354,67 @@ def read_defaults_file(path: Path) -> dict:
     """Parse tier settings from the workspace env file. Never sources it.
 
     Takes only `export NAME=value` lines whose NAME is a tier setting; quotes
-    around the value are dropped. Returns {} when the file cannot be read.
+    around the value and a trailing ` # comment` are dropped, as in bash.
+    Returns {} when the file cannot be read. Lines end at newlines only, as in
+    bash; a byte that is not UTF-8 never discards the file.
+
+    CCSESSION_ACCESS limits users, so a line about it that is misread could
+    open every tier. Its name may therefore appear on one line only, comments
+    included: `export CCSESSION_ACCESS=...`, or the allowlist's
+    `[ -z "${CCSESSION_ACCESS:-}" ] && export CCSESSION_ACCESS=...`. Anything
+    else (a second line, `+=`, `eval`, a mention in another value or in any
+    comment) is recorded as a problem, and user_access stops every launch that
+    has an owner name. Comments count because telling a real one apart from a
+    quoted `#` or a string spanning lines needs a full shell parser. Bash also
+    builds the name from pieces (`CCSESSION_""ACCESS`, `CCSESSION_ACCES\\S`,
+    `CCSESSION_${UNSET}ACCESS`), so a line counts when, with quotes and `\\`
+    removed, `CCSESSION_` is followed anywhere later by `ACCESS` ending a word;
+    NUL bytes are dropped first, as bash drops them. ccsession does not run the
+    shell, so a name assembled in other ways (split inside `CCSESSION_` or
+    `ACCESS`, or from pieces on different lines) is not caught; the central
+    file is reviewed, and the limit is advisory anyway.
     """
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
+        text = path.read_bytes().decode("utf-8", errors="replace")
+    except OSError:
         return {}
-    out = {}
-    for line in lines:
-        m = _ENV_LINE.match(line)
-        if not m or not _ENV_NAME.match(m.group(1)):
+    out, access_lines = {}, []
+    for line in text.replace("\0", "").split("\n"):
+        if _names_access(re.sub(r"[\"'\\]", "", line)):
+            access_lines.append(line.strip())
             continue
-        value = m.group(2)
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
-            value = value[1:-1]
-        out[m.group(1)] = value
+        m = _ENV_LINE.match(line)
+        if m and _ENV_NAME.match(m.group(1)):
+            out[m.group(1)] = _env_value(m.group(2))
+    if access_lines:
+        guard = _ACCESS_GUARD.match(access_lines[0])
+        m = _ENV_LINE.match(guard.group(1) if guard else access_lines[0])
+        if len(access_lines) == 1 and m and m.group(1) == "CCSESSION_ACCESS":
+            out["CCSESSION_ACCESS"] = _env_value(m.group(2))
+        else:
+            out[ACCESS_PROBLEM] = (
+                "CCSESSION_ACCESS must be set by one line, "
+                'export CCSESSION_ACCESS="...", and named nowhere else, '
+                f"comments included (found: {access_lines})"
+            )
     return out
+
+
+def _names_access(line: str) -> bool:
+    """`CCSESSION_` starting a word, then `ACCESS` ending a word later on."""
+    start = _ACCESS_START.search(line)
+    return bool(start and _ACCESS_END.search(line, start.end()))
+
+
+def _env_value(value: str) -> str:
+    """An export's value as bash reads it: quotes and a trailing comment dropped.
+
+    A `#` starts a comment only after whitespace, as in bash: in `"a"#b` the
+    `#b` is part of the value, so that value is kept as written (quotes and
+    all) and CCSESSION_ACCESS refuses it rather than silently dropping `#b`.
+    """
+    quoted = re.match(r"""^(["'])(.*?)\1(?:\s+#.*)?\s*$""", value)
+    return quoted.group(2) if quoted else re.sub(r"\s+#.*$", "", value)
 
 
 def tier_env(env=None) -> dict:
@@ -400,7 +459,110 @@ def tier_number(name: str) -> str:
     return m.group(1)
 
 
-def resolve_tiers(data=None, tenv=None) -> dict:
+def owner_name(env=None) -> str:
+    """The Coder username of the workspace owner ("" outside Coder).
+
+    The Coder agent sets CODER_WORKSPACE_OWNER_NAME for every process it
+    starts; Orca terminals get it from the template's Orca launcher.
+    """
+    env = os.environ if env is None else env
+    return env.get("CODER_WORKSPACE_OWNER_NAME", "").strip()
+
+
+def user_access(defined, tenv, env=None) -> dict:
+    """Which tiers the workspace owner may use, and the tier they start on.
+
+    CCSESSION_ACCESS in the workspace env file holds space-separated entries
+    `<coder username>=<start tier>[:<tier>,<tier>,...]`, for example
+    `alice=tier1:tier0,tier1,tier2,tier3 bob=tier2:tier2,tier3`. No tier list
+    means every tier. An owner without an entry (or no owner name) starts on
+    CCSESSION_DEFAULT_TIER with every tier. Anything that may have been meant
+    to limit this owner raises ValueError, so the launch stops rather than
+    opening every tier: a broken or repeated entry of theirs, or any piece of
+    the value that is not a `name=...` entry (a stray space splits an entry,
+    and the leftover could be anyone's).
+    """
+    defined = list(defined)
+    user = owner_name(env)
+    out = {
+        "user": user,
+        "listed": False,
+        "start": "",
+        "allowed": defined,
+        "defined": defined,
+    }
+    if not user:
+        return out
+    if tenv.get(ACCESS_PROBLEM):
+        raise ValueError(tenv[ACCESS_PROBLEM])
+    mine = []
+    for entry in tenv.get("CCSESSION_ACCESS", "").split():
+        if not _ACCESS_ENTRY.match(entry):
+            raise ValueError(
+                f"CCSESSION_ACCESS: {entry!r} is not <username>=<start tier>[:<tier>,...]"
+            )
+        if entry.partition("=")[0].lower() == user.lower():
+            mine.append(entry)
+    if len(mine) > 1:
+        raise ValueError(f"CCSESSION_ACCESS has {len(mine)} entries for {user}")
+    for entry in mine:
+        start, colon, listed = entry.partition("=")[2].partition(":")
+        try:
+            if colon and not listed:
+                raise ValueError("empty tier list after ':'")
+            start = f"tier{tier_number(start)}"
+            allowed = (
+                [f"tier{tier_number(t)}" for t in listed.split(",")]
+                if listed
+                else defined
+            )
+        except ValueError as exc:
+            raise ValueError(f"CCSESSION_ACCESS entry {entry!r}: {exc}") from None
+        for t in (start, *allowed):
+            if t not in defined:
+                raise ValueError(
+                    f"CCSESSION_ACCESS entry {entry!r}: {t} is not a defined tier "
+                    f"(defined: {', '.join(defined) or 'none'})"
+                )
+        if start not in allowed:
+            raise ValueError(
+                f"CCSESSION_ACCESS entry {entry!r}: start tier {start} is not in its tier list"
+            )
+        out.update(
+            listed=True, start=start, allowed=[t for t in defined if t in allowed]
+        )
+        return out
+    return out
+
+
+def tier_access(data=None, tenv=None, env=None) -> tuple:
+    """(every defined tier, the owner's access) with the same data and settings."""
+    tenv = tier_env() if tenv is None else tenv
+    every = _all_tiers(data, tenv)
+    return every, user_access(every, tenv, env)
+
+
+def unavailable(name: str, access) -> str:
+    """Why a tier cannot be used: not defined, or not on the owner's list."""
+    if access and name in access["defined"] and name not in access["allowed"]:
+        return (
+            f"{name} is not available to {access['user']} "
+            f"(available: {', '.join(access['allowed'])})"
+        )
+    return f"{name} is not defined"
+
+
+def resolve_tiers(data=None, tenv=None, env=None) -> dict:
+    """The tiers the workspace owner may use (see user_access), in tier order.
+
+    Raises ValueError naming the first missing or invalid variable, or a
+    broken CCSESSION_ACCESS entry for this owner.
+    """
+    every, access = tier_access(data, tenv, env)
+    return {k: v for k, v in every.items() if k in access["allowed"]}
+
+
+def _all_tiers(data=None, tenv=None) -> dict:
     """Return {tier name: {label, window, models: [(slot, model, window)]}}.
 
     Raises ValueError naming the first missing or invalid variable.
@@ -497,6 +659,7 @@ def _settings_key(env=None, tenv=None) -> list:
         "CCSESSION_TIERS",
         "CCSESSION_COOLDOWN_SECONDS",
         "CCSESSION_FIRST_BYTE_TIMEOUT",
+        "CODER_WORKSPACE_OWNER_NAME",  # which tiers the shim offers
     ):
         if env.get(name):
             key.append(f"{name}={env[name]}")
@@ -557,6 +720,20 @@ def resolve(name: str) -> int:
     return 3
 
 
+def _note_owner_unknown(access) -> None:
+    """Say so when CCSESSION_ACCESS is set but cannot apply (no owner name),
+    for example in an Orca terminal on an image that does not pass it on."""
+    tenv = tier_env()
+    if not access["user"] and (
+        tenv.get("CCSESSION_ACCESS", "").strip() or tenv.get(ACCESS_PROBLEM)
+    ):
+        print(
+            "[ccsession] NOTE: workspace owner unknown (no CODER_WORKSPACE_OWNER_NAME); "
+            "CCSESSION_ACCESS not applied",
+            file=sys.stderr,
+        )
+
+
 def main(argv) -> int:
     command = argv[1] if len(argv) > 1 else ""
     if command == "refresh":
@@ -572,13 +749,15 @@ def main(argv) -> int:
     if command == "tier-resolve" and len(argv) > 2:
         try:
             name = f"tier{tier_number(argv[2])}"
-            tier = resolve_tiers().get(name)
+            every, access = tier_access()
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
+        tier = every.get(name) if name in access["allowed"] else None
         if not tier:
-            print(f"ccsession: unknown tier {argv[2]!r}", file=sys.stderr)
+            print(f"ccsession: {unavailable(name, access)}", file=sys.stderr)
             return 3
+        _note_owner_unknown(access)
         print(f"PROFILE_MODEL=claude-gw-{name}[1m]")
         print(f"PROFILE_CONTEXT={tier['window']}")
         print(f"PROFILE_COMPACT_WINDOW={tier['window']}")
@@ -601,11 +780,33 @@ def main(argv) -> int:
         if not _ID.match(model):
             print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
             return 3
+        bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
         try:
-            window, where = model_window(model)
+            every, access = tier_access()
+            # The picker ids the shim shows this owner: it names their tiers'
+            # models first, in tier order, so alike names get the same -2, -3.
+            mine = [
+                m
+                for name, tier in every.items()
+                if name in access["allowed"]
+                for _, m, _ in tier["models"]
+            ]
+            picker = {alias: m for m, alias in assign_aliases(mine).items()}
+            # A -2 picker id takes its own model's window, not the default.
+            window, where = model_window(picker.get(bare, model))
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
+        # An owner limited to some tiers may name only those tiers' models.
+        if access["allowed"] != access["defined"]:
+            if bare not in set(mine) | set(picker):
+                print(
+                    f"ccsession: {bare} is not in a tier available to {access['user']} "
+                    f"(available: {', '.join(access['allowed'])})",
+                    file=sys.stderr,
+                )
+                return 3
+        _note_owner_unknown(access)
         if where.startswith("not in any tier"):
             print(
                 f"[ccsession] WARNING: {model} is {where}; using a {window} token window",
@@ -627,17 +828,26 @@ def main(argv) -> int:
         return 0
     if command == "tiers":
         try:
-            tiers = resolve_tiers()
+            every, access = tier_access()
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
-        default = tier_env().get("CCSESSION_DEFAULT_TIER", "")
+        tiers = {k: v for k, v in every.items() if k in access["allowed"]}
+        default = access["start"] or tier_env().get("CCSESSION_DEFAULT_TIER", "")
         for name, t in tiers.items():
             mark = "1" if name == default else "0"
             models = ", ".join(m for _, m, _ in t["models"])
             print("\x1f".join((name, t["label"], str(t["window"]), models, mark)))
         return 0
     if command == "default-tier":
+        try:
+            _, access = tier_access()
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        if access["listed"]:
+            print(access["start"])
+            return 0
         value = tier_env().get("CCSESSION_DEFAULT_TIER", "")
         if not value:
             print(
@@ -700,11 +910,23 @@ def main(argv) -> int:
         path = defaults_path()
         if tier_mode():
             source = str(path) if path.is_file() else "environment"
+            access = None
             try:
-                names = ", ".join(resolve_tiers(data))
+                every, access = tier_access(data)
+                names = ", ".join(every)
             except ValueError as exc:
                 names = f"invalid ({exc})"
             print(f"Tier mode:          on (settings from {source}); tiers: {names}")
+            if access and access["listed"]:
+                print(
+                    f"Access:             {access['user']} starts on {access['start']}; "
+                    f"tiers: {', '.join(access['allowed'])} (CCSESSION_ACCESS)"
+                )
+            elif access:
+                who = access["user"] or "owner unknown (no CODER_WORKSPACE_OWNER_NAME)"
+                print(
+                    f"Access:             {who}: not listed; default tier, every tier"
+                )
         else:
             print("Tier mode:          off (no T<N>_WINDOW in the workspace env)")
         return 0
