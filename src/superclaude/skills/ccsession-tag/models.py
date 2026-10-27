@@ -780,15 +780,9 @@ def main(argv) -> int:
         if not _ID.match(model):
             print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
             return 3
+        bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
         try:
-            window, where = model_window(model)
             every, access = tier_access()
-        except ValueError as exc:
-            print(f"ccsession: {exc}", file=sys.stderr)
-            return 3
-        # An owner limited to some tiers may name only those tiers' models.
-        if access["allowed"] != access["defined"]:
-            bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
             # The picker ids the shim shows this owner: it names their tiers'
             # models first, in tier order, so alike names get the same -2, -3.
             mine = [
@@ -797,8 +791,15 @@ def main(argv) -> int:
                 if name in access["allowed"]
                 for _, m, _ in tier["models"]
             ]
-            ok = set(mine) | set(assign_aliases(mine).values())
-            if bare not in ok:
+            picker = {alias: m for m, alias in assign_aliases(mine).items()}
+            # A -2 picker id takes its own model's window, not the default.
+            window, where = model_window(picker.get(bare, model))
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        # An owner limited to some tiers may name only those tiers' models.
+        if access["allowed"] != access["defined"]:
+            if bare not in set(mine) | set(picker):
                 print(
                     f"ccsession: {bare} is not in a tier available to {access['user']} "
                     f"(available: {', '.join(access['allowed'])})",

@@ -2217,9 +2217,15 @@ def test_limited_user_may_name_a_suffixed_picker_id(tmp_path: Path) -> None:
     # Tier 2 (bob's) gets grok-4.7 and grok/4.7: both sanitize to claude-gw-grok-4.7.
     text = ACCESS_BLOCK.replace("export T2Model04=glm-5.3", "export T2Model04=grok/4.7")
     bob = {"defaults": text, "CODER_WORKSPACE_OWNER_NAME": "bob"}
-    for model in ("claude-gw-grok-4.7", "claude-gw-grok-4.7-2", "grok/4.7"):
-        rc, _, err, _ = _launch(tmp_path, "work", "--model", model, **bob)
+    # Each id gets its own model's window (grok-4.7: 500000, grok/4.7: 1000000).
+    for model, window in (
+        ("claude-gw-grok-4.7", "500000"),
+        ("claude-gw-grok-4.7-2", "1000000"),
+        ("grok/4.7", "1000000"),
+    ):
+        rc, _, err, seen = _launch(tmp_path, "work", "--model", model, **bob)
         assert rc == 0, (model, err)
+        assert seen["context"] == window, (model, seen["context"])
     rc, _, err, _ = _launch(tmp_path, "work", "--model", "claude-gw-grok-4.7-3", **bob)
     assert rc == 2 and "not in a tier available to bob" in err
 
