@@ -1,0 +1,12 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Suite: real, evals: 17
+E3: id=E3 title='SessionStart unmatched (session-init) hook fires'
+E3.inputs: ({'prompt': '/quit'},)
+E3.expects (raw rows from manifest): ({'file': {'path': 'state/session-init.log', 'exists': True}}, {'file': {'path': 'logs/session-events.jsonl', 'exists': True, 'contains': '"type":"session_init"'}}, {'exit_code': {'equals': 0}})
+
+=== Expect.from_mapping round-trip ===
+  expects[0]: {'file': {'path': 'state/session-init.log', 'exists': True}} -> file (callable)
+  expects[1]: {'file': {'path': 'logs/session-events.jsonl', 'exists': True, 'contains': '"type":"session_init"'}} -> file (callable)
+  expects[2]: {'exit_code': {'equals': 0}} -> exit_code (callable)
+
+All expects rows resolve cleanly.

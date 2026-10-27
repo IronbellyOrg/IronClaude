@@ -1,0 +1,39 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 26 items
+
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_constants_are_canonical PASSED [  3%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_is_eligible_for_tagged_spec PASSED [  7%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_is_eligible_for_tagged_spec_alongside_other_caps PASSED [ 11%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_not_eligible_for_untagged_spec PASSED [ 15%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_not_eligible_when_only_other_caps_present PASSED [ 19%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[FAIL] PASSED [ 23%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[ERRORED] PASSED [ 26%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[TIMEOUT] PASSED [ 30%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[PASS] PASSED [ 34%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[SKIPPED] PASSED [ 38%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[INTERRUPTED] PASSED [ 42%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[XFAIL] PASSED [ 46%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[XPASS] PASSED [ 50%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_untagged_even_on_fail PASSED [ 53%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_adds_mcp_server_flaky_artifact PASSED [ 57%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_preserves_existing_artifacts PASSED [ 61%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_is_idempotent PASSED [ 65%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_max_attempts_is_two PASSED [ 69%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_module_level_helpers_agree_with_policy PASSED [ 73%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_no_policy_means_no_retry_even_on_flaky_failure PASSED [ 76%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_runner_does_not_retry_untagged_eval PASSED [ 80%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_runner_retries_once_on_mcp_flaky_failure PASSED [ 84%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_retry_recovery_returns_pass_with_artifact PASSED [ 88%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_retry_skips_when_first_attempt_passes PASSED [ 92%]
+tests/cli/eval/test_mcp_retry_once.py::TestPolicyCompatibility::test_policy_does_not_unlock_nonzero_retry_count PASSED [ 96%]
+tests/cli/eval/test_mcp_retry_once.py::TestPolicyCompatibility::test_runner_accepts_policy_without_home_factory PASSED [100%]
+
+============================== 26 passed in 0.16s ==============================

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/anti-instincts-gate-unified.md",
+  "spec_hash": "acd5f492f522ea8ea53efec9a4b97ac26217c77ece8c18f49e14e717a08d2bc6",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-20T14:17:44.699856+00:00",
+  "steps": {
+    "spec-fidelity": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/spec-fidelity.md",
+      "started_at": "2026-03-20T14:16:28.682968+00:00",
+      "completed_at": "2026-03-20T14:17:44.694492+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/wiring-verification.md",
+      "started_at": "2026-03-20T14:17:44.694824+00:00",
+      "completed_at": "2026-03-20T14:17:44.699254+00:00"
+    },
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/extraction.md",
+      "started_at": "2026-03-20T13:32:41.776112+00:00",
+      "completed_at": "2026-03-20T13:34:59.800144+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/roadmap-opus-architect.md",
+      "started_at": "2026-03-20T13:34:59.801010+00:00",
+      "completed_at": "2026-03-20T13:39:27.838770+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/roadmap-haiku-architect.md",
+      "started_at": "2026-03-20T13:34:59.801460+00:00",
+      "completed_at": "2026-03-20T13:36:50.818849+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/diff-analysis.md",
+      "started_at": "2026-03-20T13:39:27.839461+00:00",
+      "completed_at": "2026-03-20T13:40:26.850217+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/debate-transcript.md",
+      "started_at": "2026-03-20T13:40:26.851127+00:00",
+      "completed_at": "2026-03-20T13:42:00.866119+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/base-selection.md",
+      "started_at": "2026-03-20T13:42:00.867080+00:00",
+      "completed_at": "2026-03-20T13:42:54.877338+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/roadmap.md",
+      "started_at": "2026-03-20T13:42:54.877884+00:00",
+      "completed_at": "2026-03-20T13:45:25.897988+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.1_Anti-instincts__/test-strategy.md",
+      "started_at": "2026-03-20T13:45:25.899909+00:00",
+      "completed_at": "2026-03-20T13:46:59.913665+00:00"
+    }
+  },
+  "fidelity_status": "fail"
+}

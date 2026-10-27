@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/v3.3-requirements-spec.md",
+  "spec_hash": "bd1808abb7a25833c92c49fafbe1a65d53c2a65bb9eb7eba584da11bc4f57859",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "deep",
+  "last_run": "2026-03-23T03:27:18.693616+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/extraction.md",
+      "started_at": "2026-03-23T03:08:27.917860+00:00",
+      "completed_at": "2026-03-23T03:10:16.936323+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/roadmap-opus-architect.md",
+      "started_at": "2026-03-23T03:10:16.939664+00:00",
+      "completed_at": "2026-03-23T03:14:02.969418+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/roadmap-haiku-architect.md",
+      "started_at": "2026-03-23T03:10:16.941082+00:00",
+      "completed_at": "2026-03-23T03:12:28.957003+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/diff-analysis.md",
+      "started_at": "2026-03-23T03:14:02.970497+00:00",
+      "completed_at": "2026-03-23T03:15:12.981388+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/debate-transcript.md",
+      "started_at": "2026-03-23T03:15:12.981852+00:00",
+      "completed_at": "2026-03-23T03:16:41.993580+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/base-selection.md",
+      "started_at": "2026-03-23T03:16:41.994490+00:00",
+      "completed_at": "2026-03-23T03:17:36.003326+00:00"
+    },
+    "merge": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/roadmap.md",
+      "started_at": "2026-03-23T03:20:54.038896+00:00",
+      "completed_at": "2026-03-23T03:27:18.090476+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/turnledger-integration/v3.3-TurnLedger-Validation/wiring-verification.md",
+      "started_at": "2026-03-23T03:27:18.090980+00:00",
+      "completed_at": "2026-03-23T03:27:18.693492+00:00"
+    }
+  }
+}

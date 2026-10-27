@@ -1,0 +1,163 @@
+=== make sync-dev ===
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:   19 directories
+   Agents:   35 files
+   Commands: 40 files
+   Hooks:    8 files
+
+=== uv run superclaude install -f ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Usage: superclaude install [OPTIONS]
+Try 'superclaude install --help' for help.
+
+Error: No such option: -f
+=== uv run superclaude install --force ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+📦 Installing core framework files to ~/.claude/...
+
+✅ Installed 12 core framework files:
+   - BUSINESS_PANEL_EXAMPLES.md
+   - BUSINESS_SYMBOLS.md
+   - CLAUDE.md
+   - COMMANDS.md
+   - FLAGS.md
+   - MCP.md
+   - MODES.md
+   - ORCHESTRATOR.md
+   - PERSONAS.md
+   - PRINCIPLES.md
+   - RESEARCH_CONFIG.md
+   - RULES.md
+
+📁 Installation directory: /config/.claude
+
+📦 Installing slash commands to /config/.claude/commands/sc...
+
+✅ Installed 41 commands:
+   - /help
+   - /select-tool
+   - /roadmap
+   - /reflect
+   - /release-split
+   - /workflow
+   - /document
+   - /sc
+   - /load
+   - /implement
+   - /index
+   - /cleanup-audit
+   - /build
+   - /adversarial
+   - /troubleshoot
+   - /explain
+   - /cli-portify
+   - /task
+   - /save
+   - /research
+   - /business-panel
+   - /analyze
+   - /tdd
+   - /estimate
+   - /recommend
+   - /README
+   - /git
+   - /design
+   - /spec-panel
+   - /tasklist
+   - /review-translation
+   - /cleanup
+   - /test
+   - /brainstorm
+   - /pm
+   - /validate-tests
+   - /index-repo
+   - /agent
+   - /improve
+   - /spawn
+   - /validate-roadmap
+
+📁 Installation directory: /config/.claude/commands/sc
+
+💡 Tip: Restart Claude Code to use the new commands
+
+📦 Installing agents to ~/.claude/agents/...
+
+✅ Installed 35 agents:
+   - audit-analyzer
+   - audit-comparator
+   - audit-consolidator
+   - audit-scanner
+   - audit-validator
+   - backend-architect
+   - business-panel-experts
+   - debate-orchestrator
+   - deep-research-agent
+   - deep-research
+   - devops-architect
+   - frontend-architect
+   - learning-guide
+   - merge-executor
+   - performance-engineer
+   - pm-agent
+   - python-expert
+   - quality-engineer
+   - refactoring-expert
+   - repo-index
+   - requirements-analyst
+   - rf-analyst
+   - rf-assembler
+   - rf-qa-qualitative
+   - rf-qa
+   - rf-task-builder
+   - rf-task-executor
+   - rf-task-researcher
+   - rf-team-lead
+   - root-cause-analyst
+   - security-engineer
+   - self-review
+   - socratic-mentor
+   - system-architect
+   - technical-writer
+
+📁 Installation directory: /config/.claude/agents
+
+📦 Installing skills to ~/.claude/skills/...
+
+✅ Installed 19 skills:
+   - confidence-check
+   - prd
+   - sc-adversarial-protocol
+   - sc-cleanup-audit-protocol
+   - sc-cli-portify-protocol
+   - sc-pm-protocol
+   - sc-recommend-protocol
+   - sc-release-split-protocol
+   - sc-review-translation-protocol
+   - sc-roadmap-protocol
+   - sc-task-protocol
+   - sc-tasklist-protocol
+   - sc-validate-roadmap-protocol
+   - sc-validate-tests-protocol
+   - task
+   - task-builder
+   - tdd
+   - tech-reference
+   - tech-research
+
+📁 Installation directory: /config/.claude/skills
+
+📦 Installing hooks to ~/.claude/hooks/...
+
+✅ Copied 8 hook script(s) to /config/.claude/hooks:
+   - freshness-session-start.sh
+   - freshness-user-prompt.sh
+   - freshness-pre-edit.sh
+   - freshness-post-read.sh
+   - freshness-file-changed.sh
+   - freshness-subagent-start.sh
+   - freshness-subagent-stop.sh
+   - session-init.sh
+
+📋 settings.json merge: events=7 added=8
+💾 Backup: /config/.claude/settings.json.bak.20260512T225700Z

@@ -1,0 +1,12 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Suite: real, evals: 17
+E4: id=E4 title='SessionStart matcher=* freshness hook fires'
+E4.inputs: ({'prompt': '/quit'},)
+E4.expects (raw rows from manifest): ({'file': {'path': 'logs/freshness.jsonl', 'exists': True}}, {'file': {'path': 'logs/freshness.jsonl', 'exists': True, 'contains': '"type":"session_start"'}}, {'exit_code': {'equals': 0}})
+
+=== Expect.from_mapping round-trip ===
+  expects[0]: {'file': {'path': 'logs/freshness.jsonl', 'exists': True}} -> file (callable)
+  expects[1]: {'file': {'path': 'logs/freshness.jsonl', 'exists': True, 'contains': '"type":"session_start"'}} -> file (callable)
+  expects[2]: {'exit_code': {'equals': 0}} -> exit_code (callable)
+
+All expects rows resolve cleanly.

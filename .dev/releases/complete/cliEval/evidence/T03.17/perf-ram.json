@@ -1,0 +1,19 @@
+{
+  "baseline_rss_bytes": 45490176,
+  "ceiling_bytes": 2415919104,
+  "ceiling_text": "2.25 GB",
+  "deliverable": "D-0059",
+  "delta_rss_bytes": 262144,
+  "delta_rss_gb": 0.0002,
+  "host_free_ram_bytes": 96715968512,
+  "host_free_ram_gb": 90.07,
+  "host_platform": "Linux-6.8.0-111-generic-x86_64-with-glibc2.39",
+  "host_xfail_reason": null,
+  "nfr": "NFR-PERF2",
+  "parallel": 15,
+  "peak_rss_bytes": 45752320,
+  "roadmap_row": "R-059",
+  "spec_count": 15,
+  "task": "T03.17",
+  "within_ceiling": true
+}

@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: null
+composite_score: 8.5
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1.5
+escalation_reason: "--depth deep forces Tier 2 regardless of rubric"

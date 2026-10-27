@@ -1,0 +1,4 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+=== All matchers ===
+E1: covers ['mcp__auggie__.*']
+E2.1: covers ['mcp__auggie__.*']

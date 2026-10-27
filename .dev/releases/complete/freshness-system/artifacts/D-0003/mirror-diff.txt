@@ -1,0 +1,20 @@
+# D-0003 — Mirror diff src vs plugins
+
+```
+$ diff -r src/superclaude/hooks/scripts plugins/superclaude/hooks/scripts
+(empty output - directories identical)
+```
+
+All 7 stubs present in both `src/superclaude/hooks/scripts/` and `plugins/superclaude/hooks/scripts/` with identical content and mode 0755.
+
+## Files identical
+
+- freshness-file-changed.sh
+- freshness-post-read.sh
+- freshness-pre-edit.sh
+- freshness-session-start.sh
+- freshness-subagent-start.sh
+- freshness-subagent-stop.sh
+- freshness-user-prompt.sh
+
+No additional files in plugins/scripts/ beyond the 7 mirrored stubs.

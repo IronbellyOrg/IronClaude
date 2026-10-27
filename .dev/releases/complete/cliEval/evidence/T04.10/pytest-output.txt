@@ -1,0 +1,29 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 16 items
+
+tests/cli/eval/test_eval_run.py::test_eval_run_help_lists_all_twelve_flags PASSED [  6%]
+tests/cli/eval/test_eval_run.py::test_eval_run_help_documents_clamping_band PASSED [ 12%]
+tests/cli/eval/test_eval_run.py::test_parallel_zero_clamps_to_one PASSED [ 18%]
+tests/cli/eval/test_eval_run.py::test_parallel_sixteen_clamps_to_fifteen PASSED [ 25%]
+tests/cli/eval/test_eval_run.py::test_timeout_mult_zero_exits_hard_fail PASSED [ 31%]
+tests/cli/eval/test_eval_run.py::test_timeout_mult_negative_exits_hard_fail PASSED [ 37%]
+tests/cli/eval/test_eval_run.py::test_max_disk_mb_negative_exits_hard_fail PASSED [ 43%]
+tests/cli/eval/test_eval_run.py::test_output_dir_outside_allowlist_exits_scratch_root_violation PASSED [ 50%]
+tests/cli/eval/test_eval_run.py::test_suite_not_found_exits_2 PASSED     [ 56%]
+tests/cli/eval/test_eval_run.py::test_unknown_eval_id_exits_2 PASSED     [ 62%]
+tests/cli/eval/test_eval_run.py::test_run_real_suite_no_pty_skips_e1_and_exits_clean PASSED [ 68%]
+tests/cli/eval/test_eval_run.py::test_run_json_emits_summary_to_stdout PASSED [ 75%]
+tests/cli/eval/test_eval_run.py::test_run_verbose_emits_summary_line PASSED [ 81%]
+tests/cli/eval/test_eval_run.py::test_run_junit_writes_xml_artifact PASSED [ 87%]
+tests/cli/eval/test_eval_run.py::test_run_no_pty_full_suite_skips_every_eval PASSED [ 93%]
+tests/cli/eval/test_eval_run.py::test_d0072_spec_documents_flag_wiring PASSED [100%]
+
+============================== 16 passed in 0.53s ==============================

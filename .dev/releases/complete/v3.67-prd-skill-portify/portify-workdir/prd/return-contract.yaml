@@ -1,0 +1,52 @@
+artifacts:
+- /config/workspace/SuperClaude_Framework/.dev/portify-workdir/prd/results/component-inventory.md
+- /config/workspace/SuperClaude_Framework/.dev/portify-workdir/prd/results/portify-analysis.md
+- /config/workspace/SuperClaude_Framework/.dev/portify-workdir/prd/results/portify-analysis.md
+completed_steps:
+- validate-config
+- discover-components
+error_message: pipeline failed
+gate_results:
+  discover-components: pass
+  protocol-mapping: timeout
+  validate-config: pass
+outcome: TIMEOUT
+phases:
+- name: prerequisites
+  status: pending
+  steps_completed: 0
+  steps_total: 2
+- name: analysis
+  status: pending
+  steps_completed: 0
+  steps_total: 2
+- name: specification
+  status: pending
+  steps_completed: 0
+  steps_total: 2
+- name: synthesis
+  status: pending
+  steps_completed: 0
+  steps_total: 1
+remaining_steps:
+- analysis-synthesis
+- user-review-p1
+- step-graph-design
+- models-gates-design
+- prompts-executor-design
+- pipeline-spec-assembly
+- user-review-p2
+- release-spec-synthesis
+- panel-review
+resume_command: superclaude cli-portify run --resume analysis-synthesis
+status: failed
+step_timings:
+- duration_seconds: 0.0
+  step_name: validate-config
+- duration_seconds: 0.0
+  step_name: discover-components
+- duration_seconds: 0.0
+  step_name: protocol-mapping
+suggested_resume_budget: 225
+timing:
+  total_duration: 0.0

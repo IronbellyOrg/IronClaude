@@ -1,0 +1,5 @@
+# Deviation Ledger — Phase 6 (Resume, Crash Recovery & Manifest)
+# 4-category taxonomy: authorized / necessary / drift / regression
+# Empty = zero deviations detected
+
+deviations: []

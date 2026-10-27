@@ -1,0 +1,10 @@
+merged_output_path: /config/workspace/IronClaude/.dev/releases/current/task-builder-merge/merged-output.md
+convergence_score: 0.88
+artifacts_dir: /config/workspace/IronClaude/.dev/releases/current/task-builder-merge/adversarial/
+status: success
+base_variant: PR-03-dnsp-synthetic-finding
+unresolved_conflicts: 3
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []

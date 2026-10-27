@@ -1,0 +1,20 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Suite: real, evals: 17
+E6: id=E6 title='PreToolUse Edit matcher fires'
+E6.inputs: ({'prompt': "Use the Write tool to create a file named edited.txt under the current working directory with the single line 'before'."}, {'prompt': "Use the Edit tool on edited.txt to replace 'before' with 'edited'."}, {'prompt': '/quit'})
+E6.expects (raw rows from manifest): (
+  {'file': {'path': 'logs/freshness.jsonl', 'exists': True}},
+  {'file': {'path': 'logs/freshness.jsonl', 'exists': True, 'contains': '"type":"pre_edit"'}},
+  {'file': {'path': 'logs/freshness.jsonl', 'exists': True, 'contains': '"matcher":"Edit"'}},
+  {'file': {'path': 'edited.txt', 'exists': True}},
+  {'exit_code': {'equals': 0}},
+)
+
+=== Expect.from_mapping round-trip ===
+  expects[0]: ... -> file (callable)
+  expects[1]: ... -> file (callable)
+  expects[2]: ... -> file (callable)
+  expects[3]: ... -> file (callable)
+  expects[4]: ... -> exit_code (callable)
+
+All expects rows resolve cleanly.

@@ -1,0 +1,68 @@
+deviation_ledger_version: "1.0"
+deviations:
+  - id: D-1
+    task_id: T07.11/T07.12
+    class: necessary
+    hunk_ref: n/a (process-level)
+    detection_signals:
+      - execution-log.jsonl phase_complete status: error
+      - exit_code: 1
+      - tasklist amendment documents proxy outage 2026-06-01 16:09-16:28 UTC
+    gold_standard_ref: tasklist phase-7-tasklist.md lines 690-716
+    classification_rationale: >
+      Divergence forced by external LLM proxy outage. Documented inline in
+      tasklist amendment. Rerun protocol authorized and completed successfully.
+    default_remediation: None — recovery complete.
+    severity: LOW
+    regression_candidate: false
+
+  - id: D-2
+    task_id: T07.12
+    class: authorized
+    hunk_ref: tasklist/phase-7-cp2.md
+    detection_signals:
+      - CP2 checkpoint absent in original sprint run
+      - tasklist amendment authorizes rerun with narrowed scope
+      - rerun produced phase-7-cp2.md (26 987 bytes)
+    gold_standard_ref: tasklist phase-7-tasklist.md lines 690-716
+    classification_rationale: >
+      Explicitly approved by authoritative tasklist amendment. Rerun bundle
+      preserved at tasklist/rerun-phase-7b/.
+    default_remediation: None — artifact present.
+    severity: LOW
+    regression_candidate: false
+
+  - id: D-3
+    task_id: suite-wide
+    class: authorized
+    hunk_ref: n/a (test-suite level)
+    detection_signals:
+      - full swarm suite 3 failures pre-documented in CP4
+      - OQ-7.1 (INV-002 tmux-subprocess audit, 2 hits)
+      - OQ-7.2 (UV-enforcement scanner docstring flag, 1 hit)
+    gold_standard_ref: tasklist/phase-7-cp4.md "Invariants posture" section
+    classification_rationale: >
+      Explicitly approved carry-forwards from CP1/CP3. CP4 documents both as
+      non-gate-blocking and recommends Phase 8 hardening.
+    default_remediation: Defer to Phase 8 (M8) per CP4.
+    severity: LOW
+    regression_candidate: false
+
+  - id: D-4
+    task_id: T07.11
+    class: drift
+    hunk_ref: tests/swarm/test_detached_mode.py (absent)
+    detection_signals:
+      - tasklist T07.11 prescribes tests/swarm/test_detached_mode.py
+      - file does not exist on disk
+      - git log --all shows no history for this path
+      - no commit body or inline comment explains substitution
+      - equivalent coverage exists in test_tmux_detached.py + test_tmux_fallback.py
+    gold_standard_ref: tasklist phase-7-tasklist.md T07.11 Acceptance Criterion #4
+    classification_rationale: >
+      Silent substitution of prescribed verification file. Deliverable
+      (commands.py --detached) is present and functional, but the named
+      test file is absent without documented rationale.
+    default_remediation: Authorize-or-revert — backfill test file or update tasklist.
+    severity: LOW
+    regression_candidate: false

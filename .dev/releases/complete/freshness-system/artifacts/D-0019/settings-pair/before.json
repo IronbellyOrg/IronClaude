@@ -1,0 +1,5 @@
+{
+  "model": "opus[1m]",
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
+}

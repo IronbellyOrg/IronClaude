@@ -1,0 +1,214 @@
+{
+  "run_id": "224608Z-fd761175",
+  "started_at": "2026-05-21T22:46:08Z",
+  "finished_at": "2026-05-21T22:46:08Z",
+  "duration_sec": 0.1097137089818716,
+  "suite": "/config/workspace/IronClaude/src/superclaude/cli/eval/suites/real.yaml",
+  "manifest_version": "1.0",
+  "parallel": 8,
+  "counts": {
+    "manifest_n": 17,
+    "expanded_n_prime": 17,
+    "kept_k": 17,
+    "skipped_s": 0,
+    "kept_plus_skipped_equals_n_prime": true
+  },
+  "totals": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "errored": 0,
+    "interrupted": 0,
+    "timeout": 0
+  },
+  "evals": [
+    {
+      "eval_id": "E1",
+      "title": "auggie-first sticky lifecycle — set then clear",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E2.1",
+      "title": "auggie matcher coverage — mcp__auggie__*",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E2.2",
+      "title": "auggie matcher coverage — mcp__auggie-mcp__*",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E2.3",
+      "title": "auggie matcher coverage — mcp__airis-mcp-gateway__auggie_*",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E3",
+      "title": "SessionStart unmatched (session-init) hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E4",
+      "title": "SessionStart matcher=* freshness hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E5",
+      "title": "UserPromptSubmit freshness hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E6",
+      "title": "PreToolUse Edit matcher fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E7",
+      "title": "PreToolUse Write matcher fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E8",
+      "title": "PreToolUse serena matcher fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E9",
+      "title": "PostToolUse Read async hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E10",
+      "title": "SubagentStart hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E11",
+      "title": "SubagentStop hook fires",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E12",
+      "title": "Hook deploy idempotency",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E13",
+      "title": "Hook stderr error fails open",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E14",
+      "title": "Concurrent SessionStart bursts",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    },
+    {
+      "eval_id": "E15",
+      "title": "hook timeout fails open with telemetry",
+      "status": "PASS",
+      "duration_sec": 0.0,
+      "expects": [],
+      "skip_reason": null,
+      "skip_flag_triggered": null,
+      "artifacts": {},
+      "error_class": null
+    }
+  ],
+  "artifacts": {}
+}

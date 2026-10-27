@@ -1,0 +1,42 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 29 items
+
+tests/cli/eval/test_eval_context.py::test_eval_context_has_required_fields PASSED [  3%]
+tests/cli/eval/test_eval_context.py::test_eval_context_field_order_constant_matches_dataclass PASSED [  6%]
+tests/cli/eval/test_eval_context.py::test_eval_context_is_frozen PASSED  [ 10%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[eval_spec] PASSED [ 13%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[home] PASSED [ 17%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[home_path] PASSED [ 20%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[artifacts_dir] PASSED [ 24%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[run_dir] PASSED [ 27%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[env] PASSED [ 31%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[stdout_path] PASSED [ 34%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[stderr_path] PASSED [ 37%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[transcript_path] PASSED [ 41%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[jsonl_paths] PASSED [ 44%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[exit_code] PASSED [ 48%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[stdout] PASSED [ 51%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[stderr] PASSED [ 55%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[duration_sec] PASSED [ 58%]
+tests/cli/eval/test_eval_context.py::test_eval_context_every_field_is_frozen[artifacts] PASSED [ 62%]
+tests/cli/eval/test_eval_context.py::test_eval_context_env_is_mapping_proxy PASSED [ 65%]
+tests/cli/eval/test_eval_context.py::test_eval_context_jsonl_paths_is_mapping_proxy PASSED [ 68%]
+tests/cli/eval/test_eval_context.py::test_eval_context_artifacts_is_mapping_proxy PASSED [ 72%]
+tests/cli/eval/test_eval_context.py::test_eval_context_direct_construction_also_wraps_mappings PASSED [ 75%]
+tests/cli/eval/test_eval_context.py::test_eval_context_factory_isolates_env_from_caller_mutation PASSED [ 79%]
+tests/cli/eval/test_eval_context.py::test_from_runner_state_resolves_home_path_from_home PASSED [ 82%]
+tests/cli/eval/test_eval_context.py::test_from_runner_state_raises_when_home_not_setup PASSED [ 86%]
+tests/cli/eval/test_eval_context.py::test_from_runner_state_keyword_only_arguments PASSED [ 89%]
+tests/cli/eval/test_eval_context.py::test_from_runner_state_is_deterministic PASSED [ 93%]
+tests/cli/eval/test_eval_context.py::test_from_runner_state_field_values_round_trip PASSED [ 96%]
+tests/cli/eval/test_eval_context.py::test_eval_context_reexported_from_package PASSED [100%]
+
+============================== 29 passed in 0.14s ==============================

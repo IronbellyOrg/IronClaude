@@ -1,0 +1,21 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+I001 [*] Import block is un-sorted or un-formatted
+ --> src/superclaude/cli/eval/_probe_evidence_synth/probe.py:1:1
+  |
+1 | import anthropic
+  | ^^^^^^^^^^^^^^^^
+2 | _ = anthropic
+  |
+help: Organize imports
+
+TID251 `anthropic` is banned: FR-G1: in-process anthropic SDK imports are banned. Use the real `claude` subprocess via PtyDriver (cli/eval/pty_driver.py) or ClaudeProcessAdapter (cli/eval/claude_process.py).
+ --> src/superclaude/cli/eval/_probe_evidence_synth/probe.py:1:8
+  |
+1 | import anthropic
+  |        ^^^^^^^^^
+2 | _ = anthropic
+  |
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option.
+exit=1

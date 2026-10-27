@@ -1,0 +1,1 @@
+{"event": "checkpoint_verification", "phase": 1, "expected": ["/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/checkpoints/CP-P01-END.md"], "found": [], "missing": ["/config/workspace/SuperClaude_Framework/.dev/releases/current/v3.7-task-unified-v2/test-run/checkpoints/CP-P01-END.md"], "timestamp": "2026-04-23T20:14:58.744894+00:00"}

@@ -1,0 +1,10 @@
+merged_output_path: ".dev/releases/current/v3.0_unified-audit-gating/adversarial/merged-spec.md"
+convergence_score: 0.92
+artifacts_dir: ".dev/releases/current/v3.0_unified-audit-gating/adversarial/"
+status: "success"
+base_variant: "Variant B (Wiring Verification Gate v2.0)"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

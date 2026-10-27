@@ -1,0 +1,19 @@
+=== ls src/superclaude/cli/eval/pty/ ===
+total 24
+drwxr-xr-x 2 abc abc 4096 May 20 07:23 .
+drwxr-xr-x 5 abc abc 4096 May 20 07:27 ..
+-rw-r--r-- 1 abc abc 4970 May 20 07:23 CHECKLIST.md
+-rw-r--r-- 1 abc abc 4162 May 20 07:23 PROVENANCE.md
+
+=== grep -c ptytest NOTICE ===
+4
+exit_code: 0
+
+=== ls tests/cli/eval/test_pty_vendor.py ===
+ls: cannot access '/config/workspace/IronClaude/tests/cli/eval/test_pty_vendor.py': No such file or directory
+
+=== ls artifacts/D-0023 ===
+ls: cannot access '/config/workspace/IronClaude/.dev/releases/current/cliEval/artifacts/D-0023/': No such file or directory
+
+=== ls evidence/T02.01 ===
+ls: cannot access '/config/workspace/IronClaude/.dev/releases/current/cliEval/evidence/T02.01/': No such file or directory

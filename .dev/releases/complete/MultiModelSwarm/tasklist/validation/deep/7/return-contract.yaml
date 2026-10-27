@@ -1,0 +1,221 @@
+contract_version: "1.2.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/audit.log
+confidence_calibrated: 0.91
+escalation_rule_matched: null
+onboarding_ran: false
+
+tasklist_completion_pct: 0.952
+deviation_count_by_class:
+  authorized: 2
+  necessary: 1
+  drift: 1
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/deviation-ledger.yaml
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: true
+verification_invocations: 1
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+input_sha256:
+  tasklist: 4b9d2c86f39704e7e22b467287e9684ec69a77907164e53fa03134f60ff28774
+  spec: f498ee9f68308d28432f378ce0279effe4a036497fff0035ee7c7adda7822fdb
+input_tree_sha256: "computed_at_wave_0"
+input_tree_file_count: 4
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/reviewer-card-r1.md
+  - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/reviewer-card-r2.md
+  - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/reviewer-card-r3.md
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/adversarial
+adversarial_convergence_score: 0.88
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+
+per_task_verdicts:
+  - task_id: T07.01
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_tui.py
+  - task_id: T07.02
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_tmux_detached.py
+  - task_id: T07.03
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_inv012_tui_opt_in.py
+  - task_id: T07.04
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_status_cmd.py
+  - task_id: T07.05
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_logs_cmd.py
+  - task_id: T07.06
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tasklist/phase-7-cp1.md
+  - task_id: T07.07
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_attach_cmd.py
+  - task_id: T07.08
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_kill_cmd.py
+  - task_id: T07.09
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_scaffold_cmd.py
+  - task_id: T07.10
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: docs/swarm/monitoring-patterns.md
+  - task_id: T07.11
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.75
+    evidence_anchor: tests/swarm/test_tmux_detached.py
+  - task_id: T07.12
+    status: success
+    deviation_class: authorized
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tasklist/phase-7-cp2.md
+  - task_id: T07.13
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_done_sentinel.py
+  - task_id: T07.14
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_three_layer_artifacts.py
+  - task_id: T07.15
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_contract_surface.py
+  - task_id: T07.16
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: pyproject.toml
+  - task_id: T07.17
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_tmux_fallback.py
+  - task_id: T07.18
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tasklist/phase-7-cp3.md
+  - task_id: T07.19
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tests/swarm/test_no_external_frameworks.py
+  - task_id: T07.20
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: docs/swarm/transport-limits.md
+  - task_id: T07.21
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 1.00
+    evidence_anchor: tasklist/phase-7-cp4.md
+
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: skipped
+promotion_adapter: sprint-release
+promotion_source: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm
+promotion_destination: /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm
+promotion_log_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/7/artifacts/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

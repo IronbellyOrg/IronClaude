@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 17 items
+
+tests/cli/eval/test_summary_schema.py::test_schema_file_exists_under_canonical_path PASSED [  5%]
+tests/cli/eval/test_summary_schema.py::test_schema_is_draft_2020_12 PASSED [ 11%]
+tests/cli/eval/test_summary_schema.py::test_schema_top_level_required_fields PASSED [ 17%]
+tests/cli/eval/test_summary_schema.py::test_schema_counts_required_subfields PASSED [ 23%]
+tests/cli/eval/test_summary_schema.py::test_schema_totals_required_subfields PASSED [ 29%]
+tests/cli/eval/test_summary_schema.py::test_schema_status_enum_matches_runtime_model PASSED [ 35%]
+tests/cli/eval/test_summary_schema.py::test_valid_minimal_fixture_validates PASSED [ 41%]
+tests/cli/eval/test_summary_schema.py::test_valid_full_fixture_validates PASSED [ 47%]
+tests/cli/eval/test_summary_schema.py::test_invalid_missing_required_top_level_field_fails PASSED [ 52%]
+tests/cli/eval/test_summary_schema.py::test_invalid_bad_status_fails PASSED [ 58%]
+tests/cli/eval/test_summary_schema.py::test_invalid_missing_counts_subfield_fails PASSED [ 64%]
+tests/cli/eval/test_summary_schema.py::test_run_summary_to_dict_validates_for_empty_run PASSED [ 70%]
+tests/cli/eval/test_summary_schema.py::test_run_summary_to_dict_validates_with_pass_outcome PASSED [ 76%]
+tests/cli/eval/test_summary_schema.py::test_run_summary_to_dict_validates_partial_summary_path PASSED [ 82%]
+tests/cli/eval/test_summary_schema.py::test_schema_parallel_clamped_range PASSED [ 88%]
+tests/cli/eval/test_summary_schema.py::test_schema_parallel_lower_bound PASSED [ 94%]
+tests/cli/eval/test_summary_schema.py::test_load_summary_schema_returns_fresh_mapping_each_call PASSED [100%]
+
+============================== 17 passed in 0.16s ==============================

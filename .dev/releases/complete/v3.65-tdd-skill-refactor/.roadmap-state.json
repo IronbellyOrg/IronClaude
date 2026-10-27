@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/tdd-refactor-spec.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "e7625477c2901d9bb2caec18dd0a131cd5a57d276c7e47d5a4b5d46fc15726a2",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "quick",
+  "last_run": "2026-04-03T06:22:49.548244+00:00",
+  "steps": {
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/spec-fidelity.md",
+      "started_at": "2026-04-03T06:20:07.879620+00:00",
+      "completed_at": "2026-04-03T06:22:48.898051+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/wiring-verification.md",
+      "started_at": "2026-04-03T06:22:48.898384+00:00",
+      "completed_at": "2026-04-03T06:22:49.547195+00:00"
+    },
+    "deviation-analysis": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/spec-deviations.md",
+      "started_at": "2026-04-03T06:22:49.547310+00:00",
+      "completed_at": "2026-04-03T06:22:49.547497+00:00"
+    },
+    "remediate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/remediation-tasklist.md",
+      "started_at": "2026-04-03T06:22:49.547623+00:00",
+      "completed_at": "2026-04-03T06:22:49.548056+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/anti-instinct-audit.md",
+      "started_at": "2026-04-03T05:55:30.636042+00:00",
+      "completed_at": "2026-04-03T05:55:30.648422+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/test-strategy.md",
+      "started_at": "2026-04-03T05:55:30.648506+00:00",
+      "completed_at": "2026-04-03T05:57:16.666269+00:00"
+    },
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/extraction.md",
+      "started_at": "2026-04-03T03:33:08.140985+00:00",
+      "completed_at": "2026-04-03T03:35:02.154353+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/roadmap-opus-architect.md",
+      "started_at": "2026-04-03T03:35:02.157010+00:00",
+      "completed_at": "2026-04-03T03:49:12.269550+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/roadmap-haiku-architect.md",
+      "started_at": "2026-04-03T03:35:02.157249+00:00",
+      "completed_at": "2026-04-03T03:36:02.165913+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/diff-analysis.md",
+      "started_at": "2026-04-03T03:49:12.270006+00:00",
+      "completed_at": "2026-04-03T03:50:13.279644+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/debate-transcript.md",
+      "started_at": "2026-04-03T03:50:13.279893+00:00",
+      "completed_at": "2026-04-03T03:51:40.292073+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/base-selection.md",
+      "started_at": "2026-04-03T03:51:40.292374+00:00",
+      "completed_at": "2026-04-03T03:52:49.301663+00:00"
+    },
+    "merge": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/backlog/tdd-skill-refactor/roadmap.md",
+      "started_at": "2026-04-03T03:55:18.320971+00:00",
+      "completed_at": "2026-04-03T03:57:38.338899+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "fail",
+    "timestamp": "2026-04-03T06:26:54.589440+00:00"
+  }
+}

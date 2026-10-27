@@ -1,0 +1,15 @@
+[fixture] cycle-1 producer witness mtime=1779048347 sha=faf35998b8e21d6c block_sha=708b81303f70b8e6
+INV-002: re-extracted verdict for /tmp/inv002-rX0zIZ/TASK-DEMO/ cycle=2 producer_mtime=2026-05-17T20:05:49Z producer_sha256=612d8cd48aa60d93 block_sha256=b2619c23c8b4680a
+PASS (a): cycle-2 spawn carries cycle-2 verdict (TB-Add-3 PASS row present)
+PASS (b): cycle-2 spawn does NOT contain cycle-1's stale FAIL row
+PASS (c): cycle-1 vs cycle-2 byte-diff is non-zero (2 diff lines at verdict-table region)
+PASS (d): re-extract log line emitted with mtime + sha256 witnesses
+
+----- byte-diff cycle-1 → cycle-2 (verdict-table region) -----
+19c19
+< | TB-Add-3 | Clarification adjacency                | FAIL    | items 4, 7 missing Open-Question refs  |
+---
+> | TB-Add-3 | Clarification adjacency                | PASS    | items 4, 7 now reference OQ-1/OQ-2     |
+----- end byte-diff -----
+
+ALL ASSERTIONS PASS — INV-002 freshness rule operational.

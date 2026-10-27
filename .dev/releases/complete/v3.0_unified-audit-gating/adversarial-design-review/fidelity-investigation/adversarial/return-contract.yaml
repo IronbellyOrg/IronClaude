@@ -1,0 +1,10 @@
+merged_output_path: null  # Compare-only mode — no merge needed; analysis is the deliverable
+convergence_score: 0.85  # 85% agreement on key finding: none of the 3 specs fix the actual broken gate
+artifacts_dir: ".dev/releases/current/v3.0_unified-audit-gating/adversarial-design-review/fidelity-investigation/adversarial/"
+status: "success"
+base_variant: null  # Compare mode — no base selection; all 3 specs evaluated equally
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

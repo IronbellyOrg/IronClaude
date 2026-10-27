@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/brainstorms/20260529-multimodel-swarm-COMPARE/merged-requirements.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "9a45a50c62bbb035176b89ca725c8c7ad4f1aaa9d5eb363746401c5de5c89fa6",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-05-29T15:54:51.113749+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/extraction.md",
+      "started_at": "2026-05-29T15:26:25.858546+00:00",
+      "completed_at": "2026-05-29T15:30:19.884901+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/roadmap-opus-architect.md",
+      "started_at": "2026-05-29T15:30:19.889412+00:00",
+      "completed_at": "2026-05-29T15:40:20.953968+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/roadmap-haiku-architect.md",
+      "started_at": "2026-05-29T15:30:19.889795+00:00",
+      "completed_at": "2026-05-29T15:36:45.931680+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/diff-analysis.md",
+      "started_at": "2026-05-29T15:40:20.962465+00:00",
+      "completed_at": "2026-05-29T15:41:36.173082+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/debate-transcript.md",
+      "started_at": "2026-05-29T15:41:36.173440+00:00",
+      "completed_at": "2026-05-29T15:44:26.396661+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/base-selection.md",
+      "started_at": "2026-05-29T15:44:26.397288+00:00",
+      "completed_at": "2026-05-29T15:45:19.614838+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/roadmap.md",
+      "started_at": "2026-05-29T15:45:19.615205+00:00",
+      "completed_at": "2026-05-29T15:54:49.888130+00:00"
+    },
+    "anti-instinct": {
+      "status": "FAIL",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/anti-instinct-audit.md",
+      "started_at": "2026-05-29T15:54:49.903858+00:00",
+      "completed_at": "2026-05-29T15:54:49.950507+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/releases/Current/MultiModelSwarm/wiring-verification.md",
+      "started_at": "2026-05-29T15:54:49.950773+00:00",
+      "completed_at": "2026-05-29T15:54:51.113601+00:00"
+    }
+  }
+}

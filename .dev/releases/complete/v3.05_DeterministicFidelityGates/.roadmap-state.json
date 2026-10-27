@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/deterministic-fidelity-gate-requirements.md",
+  "spec_hash": "6d4ba285ce1cfef9888feec7f7b683b419fcb30a33b1203bf444529c0478e781",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-20T14:04:39.607858+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/extraction.md",
+      "started_at": "2026-03-20T13:40:48.373809+00:00",
+      "completed_at": "2026-03-20T13:43:30.398744+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/roadmap-opus-architect.md",
+      "started_at": "2026-03-20T13:43:30.400579+00:00",
+      "completed_at": "2026-03-20T13:45:39.420069+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/roadmap-haiku-architect.md",
+      "started_at": "2026-03-20T13:43:30.400802+00:00",
+      "completed_at": "2026-03-20T13:45:30.418469+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/diff-analysis.md",
+      "started_at": "2026-03-20T13:45:39.421428+00:00",
+      "completed_at": "2026-03-20T13:46:50.436478+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/debate-transcript.md",
+      "started_at": "2026-03-20T13:46:50.436751+00:00",
+      "completed_at": "2026-03-20T13:53:23.498689+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/base-selection.md",
+      "started_at": "2026-03-20T13:53:23.499262+00:00",
+      "completed_at": "2026-03-20T13:54:12.508696+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/roadmap.md",
+      "started_at": "2026-03-20T13:54:12.509266+00:00",
+      "completed_at": "2026-03-20T13:57:30.539110+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/test-strategy.md",
+      "started_at": "2026-03-20T13:57:30.540675+00:00",
+      "completed_at": "2026-03-20T13:59:26.556715+00:00"
+    },
+    "spec-fidelity": {
+      "status": "PASS",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/spec-fidelity.md",
+      "started_at": "2026-03-20T14:03:36.592172+00:00",
+      "completed_at": "2026-03-20T14:04:39.602666+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.05_DeterministicFidelityGates/wiring-verification.md",
+      "started_at": "2026-03-20T14:04:39.603396+00:00",
+      "completed_at": "2026-03-20T14:04:39.607608+00:00"
+    }
+  },
+  "fidelity_status": "pass",
+  "validation": {
+    "status": "pass",
+    "timestamp": "2026-03-20T14:09:56.656972+00:00"
+  }
+}

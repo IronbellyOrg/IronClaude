@@ -1,0 +1,147 @@
+contract_version: "1.2.0"
+status: partial
+mode: post
+tier_reached: 1
+report_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/5/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/5/audit.log"
+confidence_calibrated: 0.92
+escalation_rule_matched: 1
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 0.77
+deviation_count_by_class:
+  authorized: 1
+  necessary: 3
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+
+# Input integrity
+input_sha256:
+  tasklist: "sha256-of-phase-5-tasklist.md"
+  spec: "sha256-of-roadmap.md"
+input_tree_sha256: "not-computed-native-mode"
+input_tree_file_count: 2
+input_tree_snapshot_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/5/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 47
+citations_revalidated: 47
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+
+# Tier 2 artifacts
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: true
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+# Per-task verdicts
+per_task_verdicts:
+  - task_id: "T05.01"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "reduce.py:555-724"
+  - task_id: "T05.02"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "merge.py:50-57"
+  - task_id: "T05.03"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "reduce.py:158-216"
+  - task_id: "T05.04"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "reduce.py:269-305"
+  - task_id: "T05.05"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "merge.py:1-58 + boundary-guard.yml"
+  - task_id: "T05.06"
+    status: partial
+    deviation_class: necessary
+    citations_dropped: 0
+    per_task_validation_strength: 0.80
+    evidence_anchor: "phase-5-cp1.md not found"
+  - task_id: "T05.07"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "reduce.py:369-394"
+  - task_id: "T05.08"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "test_merge_loc_ceiling.py"
+  - task_id: "T05.09"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "test_merge_mechanical_only.py"
+  - task_id: "T05.10"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "test_no_scoring_engine.py"
+  - task_id: "T05.10a"
+    status: partial
+    deviation_class: necessary
+    citations_dropped: 0
+    per_task_validation_strength: 0.80
+    evidence_anchor: "phase-5-cp2.md not found"
+  - task_id: "T05.11"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: "test_merge_no_transforms.py"
+  - task_id: "T05.12"
+    status: partial
+    deviation_class: necessary
+    citations_dropped: 0
+    per_task_validation_strength: 0.80
+    evidence_anchor: "phase-5-cp3.md not found"
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null

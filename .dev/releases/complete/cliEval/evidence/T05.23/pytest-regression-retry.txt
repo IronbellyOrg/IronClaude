@@ -1,0 +1,61 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 48 items
+
+tests/cli/eval/test_retry_policy.py::test_default_retry_count_is_zero PASSED [  2%]
+tests/cli/eval/test_retry_policy.py::test_fail_outcome_does_not_retry PASSED [  4%]
+tests/cli/eval/test_retry_policy.py::test_errored_outcome_does_not_retry PASSED [  6%]
+tests/cli/eval/test_retry_policy.py::test_non_zero_retry_count_rejected PASSED [  8%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[-1] PASSED [ 10%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[2] PASSED [ 12%]
+tests/cli/eval/test_retry_policy.py::test_other_non_zero_retry_count_rejected[10] PASSED [ 14%]
+tests/cli/eval/test_retry_policy.py::test_explicit_zero_retry_count_accepted PASSED [ 16%]
+tests/cli/eval/test_retry_policy.py::test_mcp_flaky_tag_constant_defined PASSED [ 18%]
+tests/cli/eval/test_retry_policy.py::test_monkeypatched_runner_confirms_no_retry_loop PASSED [ 20%]
+tests/cli/eval/test_retry_policy.py::test_retry_docs_present_and_describe_subset_path PASSED [ 22%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_constants_are_canonical PASSED [ 25%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_is_eligible_for_tagged_spec PASSED [ 27%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_is_eligible_for_tagged_spec_alongside_other_caps PASSED [ 29%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_not_eligible_for_untagged_spec PASSED [ 31%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_policy_not_eligible_when_only_other_caps_present PASSED [ 33%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[FAIL] PASSED [ 35%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[ERRORED] PASSED [ 37%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_retry_on_flaky_status_for_tagged_spec[TIMEOUT] PASSED [ 39%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[PASS] PASSED [ 41%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[SKIPPED] PASSED [ 43%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[INTERRUPTED] PASSED [ 45%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[XFAIL] PASSED [ 47%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_on_non_flaky_status[XPASS] PASSED [ 50%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_should_not_retry_untagged_even_on_fail PASSED [ 52%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_adds_mcp_server_flaky_artifact PASSED [ 54%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_preserves_existing_artifacts PASSED [ 56%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_annotate_is_idempotent PASSED [ 58%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_max_attempts_is_two PASSED [ 60%]
+tests/cli/eval/test_mcp_retry_once.py::TestRetryOncePolicyUnit::test_module_level_helpers_agree_with_policy PASSED [ 62%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_no_policy_means_no_retry_even_on_flaky_failure PASSED [ 64%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_runner_does_not_retry_untagged_eval PASSED [ 66%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_runner_retries_once_on_mcp_flaky_failure PASSED [ 68%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_retry_recovery_returns_pass_with_artifact PASSED [ 70%]
+tests/cli/eval/test_mcp_retry_once.py::TestEvalRunnerRetryIntegration::test_retry_skips_when_first_attempt_passes PASSED [ 72%]
+tests/cli/eval/test_mcp_retry_once.py::TestPolicyCompatibility::test_policy_does_not_unlock_nonzero_retry_count PASSED [ 75%]
+tests/cli/eval/test_mcp_retry_once.py::TestPolicyCompatibility::test_runner_accepts_policy_without_home_factory PASSED [ 77%]
+tests/cli/eval/test_runner_class.py::test_run_returns_eval_outcome PASSED [ 79%]
+tests/cli/eval/test_runner_class.py::test_run_returns_fail_when_expect_fails PASSED [ 81%]
+tests/cli/eval/test_runner_class.py::test_jsonl_log_written_with_required_events PASSED [ 83%]
+tests/cli/eval/test_runner_class.py::test_jsonl_format_is_deterministic PASSED [ 85%]
+tests/cli/eval/test_runner_class.py::test_assertion_event_includes_index_and_name PASSED [ 87%]
+tests/cli/eval/test_runner_class.py::test_outcome_event_records_final_status PASSED [ 89%]
+tests/cli/eval/test_runner_class.py::test_run_returns_timeout_when_observe_hangs PASSED [ 91%]
+tests/cli/eval/test_runner_class.py::test_timeout_event_recorded_in_jsonl PASSED [ 93%]
+tests/cli/eval/test_runner_class.py::test_no_timeout_when_spec_timeout_unset PASSED [ 95%]
+tests/cli/eval/test_runner_class.py::test_keyboard_interrupt_in_expect_propagates PASSED [ 97%]
+tests/cli/eval/test_runner_class.py::test_log_dir_relpath_constant PASSED [100%]
+
+============================== 48 passed in 1.32s ==============================
