@@ -1,2 +1,0 @@
-installed copy exists: /config/.claude/output-styles/pragmatic.md
-diff-rc=0

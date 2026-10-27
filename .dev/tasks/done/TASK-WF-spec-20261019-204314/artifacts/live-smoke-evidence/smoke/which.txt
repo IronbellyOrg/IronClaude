@@ -1,3 +1,0 @@
-/home/coder/.local/bin/superclaude
-/home/coder/.local/bin/superclaude
-/usr/local/bin/superclaude
