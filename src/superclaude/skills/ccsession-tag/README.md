@@ -177,6 +177,17 @@ for untagged). It exits 1 when it did not ask (no terminal, or keys already
 waiting), got no answer within `CCSESSION_ASK_TIMEOUT` seconds (unset or `0`:
 no limit), or input ended, and 130 on Ctrl+C.
 
+### Tab title in Orca
+
+In any Orca terminal (`ORCA_PANE_KEY` set), ccsession sets the tab title to
+`<label> · Claude Code`, or `Claude Code` for an untagged session, and starts
+Claude Code with `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` so it keeps that title.
+Orca's web and mobile server treats a pane as running Claude only while its
+title contains the word "claude"; Claude Code's own title is its AI
+conversation name, so without this a resumed session dropped out of the Orca
+Web sidebar and the phone. Renaming the tab in Orca still works. Other
+terminals keep Claude Code's own titles.
+
 ---
 
 ## Tiers (Coder workspaces)

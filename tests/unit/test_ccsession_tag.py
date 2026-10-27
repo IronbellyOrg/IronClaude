@@ -1699,3 +1699,88 @@ def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
         command, env=env, stdin=subprocess.DEVNULL, capture_output=True
     )
     assert (no_tty.returncode, no_tty.stdout) == (1, b"")
+
+
+def _title_launch(
+    tmp_path: Path, *args: str, orca: bool = True
+) -> tuple[bytes, dict[str, str]]:
+    """Launch ccsession on a terminal; return its output and what Claude was given."""
+    fake = tmp_path / "claude-title"
+    fake.write_text(
+        """#!/usr/bin/env python3
+import json, os, sys
+print(json.dumps({"disable": os.environ.get("CLAUDE_CODE_DISABLE_TERMINAL_TITLE", ""),
+                  "resume": sys.argv[sys.argv.index("--resume") + 1]
+                  if "--resume" in sys.argv else ""}))
+"""
+    )
+    fake.chmod(0o700)
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("ORCA_PANE_KEY", "CLAUDE_CODE_DISABLE_TERMINAL_TITLE")
+    }
+    env.update(
+        {
+            "HOME": str(tmp_path),
+            "CLAUDE_BIN": str(fake),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+        }
+    )
+    if orca:
+        env["ORCA_PANE_KEY"] = "tab-1:leaf-1"
+    master, slave = pty.openpty()
+    try:
+        subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", "claude", *args],
+            env=env,
+            cwd=tmp_path,
+            stdin=subprocess.DEVNULL,
+            stdout=slave,
+            stderr=subprocess.DEVNULL,
+            check=True,
+            timeout=60,
+        )
+    finally:
+        os.close(slave)
+    output = b""
+    while True:
+        try:
+            chunk = os.read(master, 65536)
+        except OSError:
+            break
+        if not chunk:
+            break
+        output += chunk
+    os.close(master)
+    # The title escape has no newline, so Claude's line follows it on the same line.
+    last = output.decode().strip().splitlines()[-1]
+    return output, json.loads(last[last.index("{") :])
+
+
+def test_orca_terminal_title_keeps_claude_recognisable(tmp_path: Path) -> None:
+    # Untagged: plain "Claude Code", and Claude Code must not overwrite it.
+    output, claude = _title_launch(tmp_path)
+    assert b"\x1b]0;Claude Code\x07" in output
+    assert claude == {"disable": "1", "resume": ""}
+
+    # A new labelled session carries its label.
+    output, claude = _title_launch(tmp_path, "demo")
+    assert "\x1b]0;demo · Claude Code\x07".encode() in output
+    assert claude == {"disable": "1", "resume": ""}
+
+    # Resuming by label: the case Orca dropped at once (Claude's title is its AI name).
+    topics = (
+        tmp_path / ".claude" / "projects" / str(tmp_path).replace("/", "-") / "topics"
+    )
+    (topics / "demo.txt").write_text("session-1\n")
+    (topics.parent / "session-1.jsonl").write_text("{}\n")
+    output, claude = _title_launch(tmp_path, "demo")
+    assert "\x1b]0;demo · Claude Code\x07".encode() in output
+    assert claude == {"disable": "1", "resume": "session-1"}
+
+
+def test_title_untouched_outside_orca(tmp_path: Path) -> None:
+    output, claude = _title_launch(tmp_path, "demo", orca=False)
+    assert b"\x1b]0;" not in output
+    assert claude == {"disable": "", "resume": ""}

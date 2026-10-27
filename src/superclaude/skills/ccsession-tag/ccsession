@@ -897,10 +897,23 @@ if [ "$USE_SHIM" = 1 ] && [ -n "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_A
   unset ANTHROPIC_API_KEY
 fi
 
+# In an Orca terminal, ccsession owns the tab title: "<label> · Claude Code", or "Claude Code"
+# untagged. Orca's web and mobile server decides a pane still runs Claude by reading the word
+# "claude" in its title. Claude Code's own title is its AI conversation name (no "claude" in it,
+# and no ✳ in Orca), so a resumed session, or one that last answered without a tool, dropped out
+# of Orca Web and the phone. CLAUDE_CODE_DISABLE_TERMINAL_TITLE stops Claude Code overwriting it.
+orca_terminal_title() {
+  [ -n "${ORCA_PANE_KEY:-}" ] || return 0
+  export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+  [ -t 1 ] && printf '\033]0;%s\007' "${1:+$1 · }Claude Code"
+  return 0
+}
+
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
   echo "[ccsession] Starting untagged session"
+  orca_terminal_title
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
   else
@@ -923,6 +936,7 @@ echo "$(pwd)" > "$TOPIC_DIR/.cwd"
 
 # Exported so the SessionStart hook can pick it up and write the label file.
 export CLAUDE_TOPIC="$TOPIC"
+orca_terminal_title "$TOPIC"
 
 # The label is written when a session starts, but Claude Code only saves the
 # conversation after the first message, and a transcript can be deleted later.
