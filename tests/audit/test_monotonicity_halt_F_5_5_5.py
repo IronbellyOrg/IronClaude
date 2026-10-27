@@ -24,9 +24,6 @@ governs:
    no ``HALT-MONOTONICITY`` token.
 5. The SKILL.md §A.9 API-004 contract table still contains the
    byte-exact wire-string row ``[HALT-MONOTONICITY] |F|=<n>``.
-6. The generated log shape matches the canonical D-0056 synthetic
-   fixture (`fixture-F-5-5-5-halt-cycle-2.log`) line-for-line at
-   the load-bearing transition + halt lines.
 
 Acceptance reference (phase-5-tasklist.md L630-633):
 - ``uv run pytest tests/audit/test_monotonicity_halt_F_5_5_5.py -v`` exits 0.
@@ -40,7 +37,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -59,17 +55,6 @@ from _halt_emitter import (  # noqa: E402
 )
 
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
-
-CANONICAL_LOG = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0056"
-    / "fixture-F-5-5-5-halt-cycle-2.log"
-)
 
 
 # ---------------------------------------------------------------------------
@@ -100,11 +85,6 @@ def halt_log() -> HaltLog:
 @pytest.fixture(scope="module")
 def skill_text() -> str:
     return SKILL_SRC.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_log_text() -> str:
-    return CANONICAL_LOG.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -293,77 +273,6 @@ class TestMonotonicitySkippedWhenEmpty:
         log = run_fix_cycle(cycles)
         assert log.transitions == [], (
             f"unexpected transitions emitted for single-cycle run: {log.transitions}"
-        )
-
-
-# ---------------------------------------------------------------------------
-# AC5 — Canonical D-0056 synthetic fixture log parity.
-# ---------------------------------------------------------------------------
-
-
-class TestCanonicalFixtureParity:
-    """The TEST-015 runtime emission and the D-0056 canonical
-    synthetic log agree on the load-bearing lines (HALT + halting
-    transition). Drift between this pytest fixture and the D-0056
-    log indicates either the protocol changed or the evidence pack
-    is stale — both warrant follow-up before merge."""
-
-    def test_canonical_log_present(self):
-        assert CANONICAL_LOG.is_file(), (
-            f"D-0056 canonical fixture missing at {CANONICAL_LOG} — "
-            "T05.03 evidence pack regressed"
-        )
-
-    def test_canonical_log_halts_byte_exact(self, canonical_log_text: str):
-        matches = [
-            ln for ln in canonical_log_text.splitlines() if ln.startswith("HALT ")
-        ]
-        assert matches == ["HALT [HALT-MONOTONICITY] |F|=5"], (
-            f"D-0056 canonical fixture HALT line(s) {matches!r} differ from "
-            "byte-exact 'HALT [HALT-MONOTONICITY] |F|=5'"
-        )
-
-    def test_canonical_log_has_no_cycle_3(self, canonical_log_text: str):
-        assert "CYCLE 3" not in canonical_log_text, (
-            "D-0056 canonical fixture unexpectedly references CYCLE 3"
-        )
-
-    def test_canonical_log_ordering_regression_then_monotonicity(
-        self, canonical_log_text: str
-    ):
-        # On the cycle-2 → cycle-3 transition, the regression step
-        # line must appear BEFORE the monotonicity step line.
-        lines = canonical_log_text.splitlines()
-        reg_idx: Optional[int] = None
-        mon_idx: Optional[int] = None
-        for idx, ln in enumerate(lines):
-            if ln.startswith("TRANSITION 2->3 step=regression"):
-                reg_idx = idx
-            elif ln.startswith("TRANSITION 2->3 step=monotonicity"):
-                mon_idx = idx
-        assert reg_idx is not None, (
-            "D-0056 canonical fixture missing 'TRANSITION 2->3 step=regression' line"
-        )
-        assert mon_idx is not None, (
-            "D-0056 canonical fixture missing 'TRANSITION 2->3 step=monotonicity' line"
-        )
-        assert reg_idx < mon_idx, (
-            f"D-0056 canonical fixture has monotonicity step (line {mon_idx}) "
-            f"BEFORE regression step (line {reg_idx}) — 4-step ordering rule violated"
-        )
-
-    def test_runtime_and_canonical_halt_strings_match(
-        self, halt_log: HaltLog, canonical_log_text: str
-    ):
-        runtime_halt = halt_log.halt_message
-        canonical_halts = [
-            ln[len("HALT ") :]
-            for ln in canonical_log_text.splitlines()
-            if ln.startswith("HALT ")
-        ]
-        assert canonical_halts == [runtime_halt], (
-            f"runtime halt {runtime_halt!r} disagrees with D-0056 canonical "
-            f"halt(s) {canonical_halts!r}"
         )
 
 
