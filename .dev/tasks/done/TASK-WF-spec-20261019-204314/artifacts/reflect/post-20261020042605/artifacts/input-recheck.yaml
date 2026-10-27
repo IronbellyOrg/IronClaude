@@ -1,8 +1,0 @@
-{
-  "input_drift_detected": false,
-  "old_sha": "5142787cf9e3e33e4e620174502e566ec7a4b8a4477f595d2e9fcd28939e6bb6",
-  "new_sha": "5142787cf9e3e33e4e620174502e566ec7a4b8a4477f595d2e9fcd28939e6bb6",
-  "input_drift_diff": [],
-  "file_count": 62,
-  "output_root": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605"
-}

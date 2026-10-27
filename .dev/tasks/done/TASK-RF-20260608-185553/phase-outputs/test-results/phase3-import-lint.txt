@@ -1,5 +1,0 @@
-runner ok
----RUFF CHECK---
-All checks passed!
----RUFF FORMAT---
-5 files already formatted
