@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "total_analyzed": 7,
+  "slip_count": 0,
+  "intentional_count": 4,
+  "pre_approved_count": 2,
+  "ambiguous_count": 1,
+  "routing_fix_roadmap": 0,
+  "routing_no_action": 7,
+  "records": [
+    {
+      "stable_id": "3e4c9f76934ade12",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'src/\\' in spec manifest not found in roadmap",
+      "location": "spec:file:src/\\",
+      "source_layer": "structural",
+      "status": "AMBIGUOUS",
+      "classification": "AMBIGUOUS",
+      "rationale": "Malformed manifest path (trailing escape with no character) — extraction tokenization artifact, not a real deliverable",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "c7efc393ec717fba",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'src/superclaude/examples/prd_template.md' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/examples/prd_template.md",
+      "source_layer": "structural",
+      "status": "PRE_APPROVED",
+      "classification": "PRE_APPROVED",
+      "rationale": "Template files in src/superclaude/examples/ are input scaffolding for skill consumers, not deliverables of this release",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "524dada14d0b840a",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'src/superclaude/examples/tdd_template.md' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/examples/tdd_template.md",
+      "source_layer": "structural",
+      "status": "PRE_APPROVED",
+      "classification": "PRE_APPROVED",
+      "rationale": "TDD template is input scaffolding; not a deliverable of this release",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "2be5b51c4064ebb3",
+      "dimension": "nfrs",
+      "severity": "HIGH",
+      "description": "Security primitive 'encryption' from spec NFRs not addressed in roadmap",
+      "location": "spec:nfr:security:encryption",
+      "source_layer": "structural",
+      "status": "INTENTIONAL",
+      "classification": "INTENTIONAL",
+      "rationale": "This release does not introduce or modify any cryptographic surface; portfolio-wide carryover deferred per PRD §12.2",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "6c16b1b954f3ce69",
+      "dimension": "nfrs",
+      "severity": "MEDIUM",
+      "description": "Security primitive 'hash' from spec NFRs not addressed in roadmap",
+      "location": "spec:nfr:security:hash",
+      "source_layer": "structural",
+      "status": "INTENTIONAL",
+      "classification": "INTENTIONAL",
+      "rationale": "Release's dedup-key composition (INV-012) is logical identity not cryptographic hash; portfolio carryover out of scope",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "3f534425f9cb6cc2",
+      "dimension": "nfrs",
+      "severity": "HIGH",
+      "description": "NFR threshold '<1%' not addressed in roadmap",
+      "location": "spec:nfr:threshold:<1%",
+      "source_layer": "structural",
+      "status": "INTENTIONAL",
+      "classification": "INTENTIONAL",
+      "rationale": "Portfolio-wide threshold not bound to any release deliverable; local thresholds explicit in NFR-CONV.4 and MET-* rows",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    },
+    {
+      "stable_id": "a6452d2ef2e7470c",
+      "dimension": "nfrs",
+      "severity": "HIGH",
+      "description": "NFR threshold '<2%' not addressed in roadmap",
+      "location": "spec:nfr:threshold:<2%",
+      "source_layer": "structural",
+      "status": "INTENTIONAL",
+      "classification": "INTENTIONAL",
+      "rationale": "Portfolio-wide threshold not bound to any release deliverable; local thresholds explicit in NFR-CONV.4 and MET-* rows",
+      "routing": "no-action",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/current/task-builder-merge/roadmap.md"
+      ]
+    }
+  ]
+}

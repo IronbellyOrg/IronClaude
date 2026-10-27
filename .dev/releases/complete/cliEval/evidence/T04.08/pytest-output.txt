@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 19 items
+
+tests/cli/eval/test_expect_duration.py::test_duration_no_bounds_passes_informationally PASSED [  5%]
+tests/cli/eval/test_expect_duration.py::test_duration_no_bounds_records_zero_duration PASSED [ 10%]
+tests/cli/eval/test_expect_duration.py::test_duration_max_sec_passes_when_under_budget PASSED [ 15%]
+tests/cli/eval/test_expect_duration.py::test_duration_max_sec_passes_at_boundary PASSED [ 21%]
+tests/cli/eval/test_expect_duration.py::test_duration_max_sec_fails_when_over_budget PASSED [ 26%]
+tests/cli/eval/test_expect_duration.py::test_duration_min_sec_passes_when_above_floor PASSED [ 31%]
+tests/cli/eval/test_expect_duration.py::test_duration_min_sec_passes_at_boundary PASSED [ 36%]
+tests/cli/eval/test_expect_duration.py::test_duration_min_sec_fails_when_below_floor PASSED [ 42%]
+tests/cli/eval/test_expect_duration.py::test_duration_both_bounds_pass_when_within_window PASSED [ 47%]
+tests/cli/eval/test_expect_duration.py::test_duration_both_bounds_fail_via_max_sec PASSED [ 52%]
+tests/cli/eval/test_expect_duration.py::test_duration_both_bounds_fail_via_min_sec PASSED [ 57%]
+tests/cli/eval/test_expect_duration.py::test_duration_both_bounds_max_evaluated_before_min PASSED [ 63%]
+tests/cli/eval/test_expect_duration.py::test_duration_max_only_does_not_fail_on_missing_min_bound PASSED [ 68%]
+tests/cli/eval/test_expect_duration.py::test_duration_min_only_does_not_fail_on_missing_max_bound PASSED [ 73%]
+tests/cli/eval/test_expect_duration.py::test_from_mapping_threads_duration_max_sec PASSED [ 78%]
+tests/cli/eval/test_expect_duration.py::test_from_mapping_threads_duration_both_bounds PASSED [ 84%]
+tests/cli/eval/test_expect_duration.py::test_from_mapping_threads_duration_no_bounds PASSED [ 89%]
+tests/cli/eval/test_expect_duration.py::test_duration_result_carries_primitive_name_and_timing PASSED [ 94%]
+tests/cli/eval/test_expect_duration.py::test_duration_failure_traceback_field_is_none_for_predicate_miss PASSED [100%]
+
+============================== 19 passed in 0.23s ==============================

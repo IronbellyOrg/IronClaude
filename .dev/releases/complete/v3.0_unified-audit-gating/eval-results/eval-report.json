@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-03-19T11:58:24",
+  "runs": [
+    {
+      "name": "local-A",
+      "passed": 168,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "duration": 0.508,
+      "failures": []
+    },
+    {
+      "name": "local-B",
+      "passed": 168,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "duration": 0.505,
+      "failures": []
+    }
+  ],
+  "consistency": {
+    "local_identical": true,
+    "duration_variance_pct": 0.6
+  },
+  "comparison": {}
+}

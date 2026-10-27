@@ -1,0 +1,200 @@
+contract_version: "1.2.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/8/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/8/artifacts/audit.log
+confidence_calibrated: 0.88
+escalation_rule_matched: null
+onboarding_ran: false
+
+tasklist_completion_pct: 0.25
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 4
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/8/REPORT.md
+grounding_gaps_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/8/artifacts/grounding-gaps.yaml
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: tool-unavailable
+
+input_sha256:
+  tasklist: null
+  spec: null
+input_tree_sha256: null
+input_tree_file_count: 2
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/8/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+citations_total: 12
+citations_revalidated: 12
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: true
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+remediation_offered: false
+remediation_accepted: false
+task_file_path: null
+handoff_memory_key: null
+
+cannot_validate_without_user_input: true
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+
+per_task_verdicts:
+  - task_id: T08.01
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: src/superclaude/skills/sc-bare-review/SKILL.md
+  - task_id: T08.02
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_non_claude_caller.py (missing)
+  - task_id: T08.03
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.60
+    evidence_anchor: pyproject.toml
+  - task_id: T08.04
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: docs/dev/migration-skill.md
+  - task_id: T08.05
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: src/superclaude/cli/main.py
+  - task_id: T08.06
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tasklist/checkpoints/phase-8-cp1.md (missing)
+  - task_id: T08.07
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.90
+    evidence_anchor: src/superclaude/skills/sc-bare-review/scripts/
+  - task_id: T08.08
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.90
+    evidence_anchor: docs/swarm/release-notes-v1.md
+  - task_id: T08.09
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_imm_suite.py (missing)
+  - task_id: T08.10
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_inv_suite.py (missing)
+  - task_id: T08.11
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.90
+    evidence_anchor: tests/swarm/test_bare_review_parity.py (missing)
+  - task_id: T08.12
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tasklist/checkpoints/phase-8-cp2.md (missing)
+  - task_id: T08.13
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_validate_lenses_ci.py (missing)
+  - task_id: T08.14
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_subprocess_caller.py (missing)
+  - task_id: T08.15
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_merge_mechanical_only.py (missing)
+  - task_id: T08.16
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tasklist/checkpoints/phase-8-cp3.md (missing)
+  - task_id: T08.17
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tests/swarm/test_resume_crash_recovery.py (missing)
+  - task_id: T08.18
+    status: failed
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: tasklist/checkpoints/phase-8-cp4.md (missing)
+
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: skipped
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

@@ -1,0 +1,42 @@
+merged_output_path: ".dev/releases/current/task-builder-merge/prompt-refactor/merged-output.md"
+convergence_score: 0.82
+artifacts_dir: ".dev/releases/current/task-builder-merge/prompt-refactor/"
+status: "success"
+base_variant: "quality-engineer:--persona-qa"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []
+
+# Field details
+fields_explained:
+  merged_output_path: "Refactored orchestration prompt — the final deliverable for the user"
+  convergence_score: "0.82 — above 0.80 threshold; CONVERGED"
+  artifacts_dir: "Contains source-prompt.md, 3 variant-*.md, 3 critique-*.md, diff-analysis.md, debate-transcript.md, base-selection.md, refactor-plan.md, merge-log.md, merged-output.md, this return-contract.yaml"
+  status: "All 5 protocol steps completed; post-merge validation passes; user-intent preserved"
+  base_variant: "Variant 3 selected — score 0.977 (V1: 0.904, V2: 0.849)"
+  unresolved_conflicts: "0 — all 3 contradictions (X-001/X-002/X-003) resolved during merge"
+  fallback_mode: "false — no fallback paths triggered"
+  failure_stage: "null — no failures"
+  invocation_method: "skill-direct via /sc:adversarial command in chat"
+  unaddressed_invariants: "empty — AD-1 (invariant probe Round 2.5) skipped per depth=quick"
+
+deviations:
+  - "Variant generation fused with Round 1 advocacy (single Agent call per persona)"
+  - "Depth=quick — Round 2/2.5/3 skipped; AD-1/AD-2 not run"
+  - "Single-pass qualitative scoring — winner outside 5% margin justifies skip of dual-pass"
+  - "Merge executed by orchestrator rather than merge-executor agent"
+  - "Compressed CEV in base-selection.md to stay within context budget"
+
+protocol_artifacts:
+  - "source-prompt.md (initial source artifact)"
+  - "variant-1-architect.md, variant-2-analyzer.md, variant-3-qa.md (Mode B generated variants)"
+  - "critique-1-architect.md, critique-2-analyzer.md, critique-3-qa.md (Round 1 advocacy)"
+  - "diff-analysis.md (Step 1)"
+  - "debate-transcript.md (Step 2)"
+  - "base-selection.md (Step 3)"
+  - "refactor-plan.md (Step 4)"
+  - "merged-output.md (Step 5 — final refactored prompt)"
+  - "merge-log.md (Step 5 execution log)"
+  - "return-contract.yaml (this file)"

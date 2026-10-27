@@ -1,0 +1,18 @@
+# Synthetic execution-log fixture — T05.03 / D-0056 / R-092
+# Gate B demonstration: regression precedence. When a regression
+# flip is detected on cycle transition n → n+1, the regression
+# emitter fires and the monotonicity emitter is NOT consulted on
+# that transition, even though the cardinality condition
+# |F_{n+1}| >= |F_n| would otherwise have satisfied step 2 of the
+# 4-step ordering rule. Scenario: |F_1|=5 with Item 3.2 PASSing,
+# |F_2|=5 with Item 3.2 FAILing — cardinality is non-shrinking,
+# but the regression step exits first per SKILL.md:1052-1054.
+
+CYCLE 1 START   gate=research-gate counter=1/3
+CYCLE 1 END     gate=research-gate |F_1|=5 fails=[2.1,5.4,7.1,9.3,11.1] pass=[1.1,3.2,4.2,6.1,8.2,10.1]
+TRANSITION 1->2 step=regression  verdict=PASS (no PASS→FAIL flips; cycle-1 PASS set = {1.1,3.2,4.2,6.1,8.2,10.1})
+TRANSITION 1->2 step=monotonicity verdict=PROCEED (|F_1|=5 > 0, cycle 2 not yet observed; loop continues into cycle 2)
+CYCLE 2 START   gate=research-gate counter=2/3
+CYCLE 2 END     gate=research-gate |F_2|=5 fails=[2.1,3.2,5.4,7.1,9.3] pass=[1.1,4.2,6.1,8.2,10.1,11.1]
+TRANSITION 2->3 step=regression  verdict=HALT  Item 3.2 flipped PASS@1 → FAIL@2 (dedup-key=3.2; previously PASS at cycle 1, now FAIL)
+HALT Regression detected on Item 3.2 — previously PASS at cycle 1, now FAIL. Halt overrides monotonicity check.

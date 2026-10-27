@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/artifacts/pass-no-report-fix-spec.md",
+  "spec_hash": "8c21f3d26a155a3c59940165a9af291737fdcbc560ab27ab42d649f56cc51d0d",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-16T14:31:09.001385+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/extraction.md",
+      "started_at": "2026-03-16T14:17:23.861189+00:00",
+      "completed_at": "2026-03-16T14:19:26.878170+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/roadmap-opus-architect.md",
+      "started_at": "2026-03-16T14:19:26.878918+00:00",
+      "completed_at": "2026-03-16T14:20:36.890886+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/roadmap-haiku-architect.md",
+      "started_at": "2026-03-16T14:19:26.879115+00:00",
+      "completed_at": "2026-03-16T14:20:38.891673+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/diff-analysis.md",
+      "started_at": "2026-03-16T14:20:38.892022+00:00",
+      "completed_at": "2026-03-16T14:21:40.902789+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/debate-transcript.md",
+      "started_at": "2026-03-16T14:21:40.903028+00:00",
+      "completed_at": "2026-03-16T14:23:08.918111+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/base-selection.md",
+      "started_at": "2026-03-16T14:23:08.918406+00:00",
+      "completed_at": "2026-03-16T14:24:19.930680+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/roadmap.md",
+      "started_at": "2026-03-16T14:24:19.930907+00:00",
+      "completed_at": "2026-03-16T14:26:30.953881+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/test-strategy.md",
+      "started_at": "2026-03-16T14:26:30.954523+00:00",
+      "completed_at": "2026-03-16T14:27:55.971677+00:00"
+    },
+    "spec-fidelity": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v2.25.5-PreFlightExecutor/roadmap-pass-no-report-fix/spec-fidelity.md",
+      "started_at": "2026-03-16T14:29:33.987865+00:00",
+      "completed_at": "2026-03-16T14:31:09.000936+00:00"
+    }
+  },
+  "fidelity_status": "fail"
+}

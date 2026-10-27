@@ -1,0 +1,55 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-06-04-phase2-deep-2",
+  "skill": "sc-reflect",
+  "skill_version": "1.2.0",
+  "mode": "post",
+  "tier_reached": 2,
+  "status": "failed",
+  "wall_clock_ms": 0,
+  "calibration": {
+    "calibrator_diversity": "degraded",
+    "calibrated_confidence_initial": 0.89,
+    "calibrated_confidence_final": 0.89,
+    "calibration_delta": 0.0
+  },
+  "ensemble": {
+    "t2_model_class_diversity": "degraded",
+    "t2_vendor_diversity": "single",
+    "t2_effective_diversity": "model-only",
+    "reviewer_count": 3,
+    "executor_class_resolved": false,
+    "executor_exclusion_degraded": false
+  },
+  "evidence_validator": {
+    "ran": true,
+    "citations_total": 17,
+    "citations_revalidated": 17,
+    "citations_dropped": 0,
+    "citations_dropped_extrapolated": 0,
+    "drop_rate": 0.0,
+    "budget_policy": "full_reread"
+  },
+  "deviation_counts": {
+    "authorized": 0,
+    "necessary": 0,
+    "drift": 1,
+    "regression": 3,
+    "total": 4
+  },
+  "adversarial": {
+    "convergence_score": null,
+    "merge_method": "single-reviewer-fallback",
+    "adversarial_unavailable": false,
+    "fallback_path": null
+  },
+  "promotion": {
+    "action": "not-applicable",
+    "gate_conditions_passed": 0,
+    "gate_conditions_total": 9,
+    "cross_fs": false
+  },
+  "degraded_components": ["manual-reflect-execution", "no-adversarial-merge-artifact"],
+  "input_drift_detected": false,
+  "needs_human_decision": false
+}

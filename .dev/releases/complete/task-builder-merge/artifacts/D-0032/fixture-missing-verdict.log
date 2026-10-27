@@ -1,0 +1,12 @@
+=== Scenario A: report absent ===
+PASS (a-1) report-absence detected — orchestrator would emit INV-002-no-producer-artifact halt-A.10-before-A.10.5 and STOP before A.10.5
+=== Scenario B: report present, no VERDICT line ===
+PASS (b-1) report-present detected
+PASS (b-2) no-VERDICT-line detected — orchestrator would emit INV-002-no-verdict-line halt-A.10-before-A.10.5 and STOP before A.10.5
+=== Scenario C: report present, VERDICT: PASS — control-case ===
+PASS (c-1) well-formed VERDICT line detected — orchestrator would route via 'Handling the verdict' branch 1 (PASS) and proceed to A.10.5
+
+=== ANTI-INFLATION BYTE-STABILITY CHECK ===
+PASS: rf-qa-qualitative.md:766-775 byte-identical in both src and .claude (sha256 0570c6b474686734d8a69e62adcd825d3c0b3e421ef4a12ef114703d1deec59c)
+
+ALL ASSERTIONS PASS — halt-A.10-before-A.10.5 lever operational, anti-inflation block byte-stable.

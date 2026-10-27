@@ -1,0 +1,144 @@
+{
+  "findings": [
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'docs/guides/SuperClaude-Developer-Guide-Commands-Skills-Agents.md' in spec manifest not found in roadmap",
+      "location": "spec:file:docs/guides/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "File 'src/superclaude/examples/release-spec-template.md' in spec manifest not found in roadmap",
+      "location": "spec:file:src/superclaude/examples/release-spec-template.md",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-1' not found in spec",
+      "location": "roadmap:SC-1",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-10' not found in spec",
+      "location": "roadmap:SC-10",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-11' not found in spec",
+      "location": "roadmap:SC-11",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-12' not found in spec",
+      "location": "roadmap:SC-12",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-2' not found in spec",
+      "location": "roadmap:SC-2",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-3' not found in spec",
+      "location": "roadmap:SC-3",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-4' not found in spec",
+      "location": "roadmap:SC-4",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-5' not found in spec",
+      "location": "roadmap:SC-5",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-6' not found in spec",
+      "location": "roadmap:SC-6",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-7' not found in spec",
+      "location": "roadmap:SC-7",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-8' not found in spec",
+      "location": "roadmap:SC-8",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    },
+    {
+      "id": "UNKNOWN",
+      "severity": "BLOCKING",
+      "description": "Roadmap references ID 'SC-9' not found in spec",
+      "location": "roadmap:SC-9",
+      "fix_guidance": "",
+      "files_affected": [],
+      "status": "ACTIVE",
+      "deviation_class": "UNCLASSIFIED"
+    }
+  ]
+}

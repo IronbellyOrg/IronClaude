@@ -1,0 +1,54 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 781 items
+
+tests/cli/eval/test_atomic_setup.py ...................                  [  2%]
+tests/cli/eval/test_capability_classifications.py ....................   [  4%]
+tests/cli/eval/test_capability_dataclass.py ................             [  7%]
+tests/cli/eval/test_capability_gates.py ..................               [  9%]
+tests/cli/eval/test_capability_report.py ..........                      [ 10%]
+tests/cli/eval/test_claude_process_adapter.py .............              [ 12%]
+tests/cli/eval/test_config.py ......                                     [ 13%]
+tests/cli/eval/test_containment.py ..............................        [ 16%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 19%]
+tests/cli/eval/test_describe.py .........................                [ 22%]
+tests/cli/eval/test_doctor.py ............................               [ 26%]
+tests/cli/eval/test_doctor_version.py .............                      [ 27%]
+tests/cli/eval/test_eval_context.py .............................        [ 31%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 35%]
+...............................                                          [ 39%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 42%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 45%]
+tests/cli/eval/test_eval_result.py ................                      [ 47%]
+tests/cli/eval/test_expect_failure.py .............                      [ 49%]
+tests/cli/eval/test_expect_result.py ............                        [ 51%]
+tests/cli/eval/test_hard_guard_real_home.py ......                       [ 51%]
+tests/cli/eval/test_home_isolation.py ...........................        [ 55%]
+tests/cli/eval/test_home_isolation_extend.py ........................... [ 58%]
+...........                                                              [ 60%]
+tests/cli/eval/test_hook_adapter.py ............                         [ 61%]
+tests/cli/eval/test_isolation_dataclass.py ............................. [ 65%]
+...                                                                      [ 65%]
+tests/cli/eval/test_isolation_layers_probe.py .............              [ 67%]
+tests/cli/eval/test_list.py ...................                          [ 69%]
+tests/cli/eval/test_path_containment.py ................................ [ 74%]
+...............                                                          [ 75%]
+tests/cli/eval/test_path_traversal.py ...............                    [ 77%]
+tests/cli/eval/test_perf_home_setup.py .                                 [ 77%]
+tests/cli/eval/test_pty_driver.py .....................                  [ 80%]
+tests/cli/eval/test_pty_stream.py ..............................         [ 84%]
+tests/cli/eval/test_schema_id_rejection.py ....................          [ 87%]
+tests/cli/eval/test_schema_load.py .............                         [ 88%]
+tests/cli/eval/test_schema_validate.py ..............                    [ 90%]
+tests/cli/eval/test_scratch_root_allowlist.py ...................        [ 92%]
+tests/cli/eval/test_scratch_root_policy.py ................              [ 95%]
+tests/cli/eval/test_suite_loader.py .........................            [ 98%]
+tests/cli/eval/test_symlink_attacks.py ..............                    [100%]
+
+============================= 781 passed in 8.34s ==============================

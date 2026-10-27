@@ -1,0 +1,72 @@
+deviations:
+  - id: F1
+    class: regression
+    severity: HIGH
+    tasks: [T01.01, T01.06, T01.29]
+    title: UV enforcement test fails on forbidden python -m in swarm source
+    evidence:
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:29-37
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/roadmap.md:77-78
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/docs/swarm/runbook.md:6-20
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/commands.py:782-784
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/commands.py:879-886
+    verifier: uv run pytest tests/swarm/test_uv_enforcement.py -v
+  - id: F2
+    class: regression
+    severity: HIGH
+    tasks: [T01.05, T01.06, T01.12, T01.29]
+    title: make verify-sync is not green
+    evidence:
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:149-181
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/roadmap.md:72-82
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:959-964
+    command_evidence: "make verify-sync exited 2; DIFFERS: sc-bare-review; only in src/superclaude/skills/sc-bare-review/: scripts"
+    verifier: make verify-sync
+  - id: F3
+    class: regression
+    severity: HIGH
+    tasks: [T01.10, T01.13, T01.14, T01.15, T01.16, T01.17, T01.19, T01.20, T01.21, T01.22, T01.23, T01.24, T01.25, T01.26, T01.27, T01.28, T01.29]
+    title: All 20 DM dataclasses are not frozen
+    evidence:
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:0-3
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:959-964
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/models.py:87-88
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-cp5.md:13-19
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-cp5.md:40-48
+    command_evidence: "Runtime probe printed __dataclass_params__.frozen == False for all 20 DM classes."
+    verifier: uv run python -c '<frozen flag probe>'
+  - id: F4
+    class: regression
+    severity: MEDIUM
+    tasks: [T01.29]
+    title: CP5 checkpoint evidence is stale and not valid for current SwarmPost worktree
+    evidence:
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md:959-970
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-cp5.md:6-9
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-cp5.md:40-56
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_cli_registration.py:0-20
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_cli_registration.py:69-90
+    verifier: regenerate CP5 from current worktree after gates pass
+  - id: F5
+    class: authorized
+    severity: LOW
+    tasks: [T01.23]
+    title: LensEntry includes later-phase normalizer_strategy field
+    evidence:
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/roadmap.md:95-98
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/models.py:707-720
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_lensentry.py:0-20
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_lensentry.py:40-61
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_lensentry.py:83-90
+      - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/roadmap.md:149-151
+    verifier: document as authorized expansion in CP5/phase log
+  - id: F6
+    class: drift
+    severity: LOW
+    tasks: [T01.01]
+    title: CI workflow does not directly use uv run pytest for swarm lanes
+    evidence:
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/docs/swarm/runbook.md:13-20
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/.github/workflows/test.yml:54-61
+      - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/.github/workflows/test.yml:101-107
+    verifier: update workflow or clarify AC-001 scope

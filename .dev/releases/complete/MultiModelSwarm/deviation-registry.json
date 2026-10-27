@@ -1,0 +1,886 @@
+{
+  "schema_version": 1,
+  "release_id": "MultiModelSwarm",
+  "spec_hash": "9a45a50c62bbb035176b89ca725c8c7ad4f1aaa9d5eb363746401c5de5c89fa6",
+  "runs": [
+    {
+      "run_number": 1,
+      "timestamp": "2026-05-31T18:08:56.434856+00:00",
+      "spec_hash": "9a45a50c62bbb035176b89ca725c8c7ad4f1aaa9d5eb363746401c5de5c89fa6",
+      "roadmap_hash": "0ff976dfbe5e0b28c99c1aac2044a623ecb059f32c7de2fbd03a60d4494358f5",
+      "budget_snapshot": {
+        "consumed": 10,
+        "reimbursed": 0,
+        "available": 51,
+        "initial": 61
+      },
+      "structural_high_count": 52,
+      "semantic_high_count": 0,
+      "total_high_count": 52
+    },
+    {
+      "run_number": 2,
+      "timestamp": "2026-05-31T18:11:53.198649+00:00",
+      "spec_hash": "9a45a50c62bbb035176b89ca725c8c7ad4f1aaa9d5eb363746401c5de5c89fa6",
+      "roadmap_hash": "72d28516b28044b02e1c87d3befb6fd3be324aee422b55f5a15f70196a3aa041",
+      "budget_snapshot": {
+        "consumed": 28,
+        "reimbursed": 0,
+        "available": 33,
+        "initial": 61
+      },
+      "structural_high_count": 46,
+      "semantic_high_count": 0,
+      "total_high_count": 46
+    },
+    {
+      "run_number": 3,
+      "timestamp": "2026-05-31T18:14:39.264267+00:00",
+      "spec_hash": "9a45a50c62bbb035176b89ca725c8c7ad4f1aaa9d5eb363746401c5de5c89fa6",
+      "roadmap_hash": "72d28516b28044b02e1c87d3befb6fd3be324aee422b55f5a15f70196a3aa041",
+      "budget_snapshot": {
+        "consumed": 46,
+        "reimbursed": 24,
+        "available": 39,
+        "initial": 61
+      },
+      "structural_high_count": 46,
+      "semantic_high_count": 0,
+      "total_high_count": 46
+    }
+  ],
+  "findings": {
+    "689d27a47ba3691a": {
+      "stable_id": "689d27a47ba3691a",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'docs/swarm-design-rationale.md' in spec manifest not found in roadmap",
+      "location": "spec:file:docs/swarm-design-rationale.md",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "437a040a5483047d": {
+      "stable_id": "437a040a5483047d",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/swarm/test_concurrency_python_only.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/swarm/test_concurrency_python_only.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "6b3bc53df30cf51c": {
+      "stable_id": "6b3bc53df30cf51c",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/swarm/test_custom_prompt_dir_injection_guard.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/swarm/test_custom_prompt_dir_injection_guard.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "4d3451a646eb0ca2": {
+      "stable_id": "4d3451a646eb0ca2",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/swarm/test_escape_hatch_guard_parity.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/swarm/test_escape_hatch_guard_parity.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "a1c8e628aa902fb8": {
+      "stable_id": "a1c8e628aa902fb8",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/swarm/test_resume_regenerates_merge.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/swarm/test_resume_regenerates_merge.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "12efd3c6ba29813e": {
+      "stable_id": "12efd3c6ba29813e",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/swarm/test_resume_uses_manifest_lens.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/swarm/test_resume_uses_manifest_lens.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "a8c2e7d4707ff738": {
+      "stable_id": "a8c2e7d4707ff738",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-001' not found in spec",
+      "location": "roadmap:FR-001",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "9374991efa2bf925": {
+      "stable_id": "9374991efa2bf925",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-002' not found in spec",
+      "location": "roadmap:FR-002",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "ece5e1ab9260732d": {
+      "stable_id": "ece5e1ab9260732d",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-003' not found in spec",
+      "location": "roadmap:FR-003",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "c0d25cffb613c428": {
+      "stable_id": "c0d25cffb613c428",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-004' not found in spec",
+      "location": "roadmap:FR-004",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "2cceaa5e51fb2f3d": {
+      "stable_id": "2cceaa5e51fb2f3d",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-005' not found in spec",
+      "location": "roadmap:FR-005",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "002aa3cb64dc9d8e": {
+      "stable_id": "002aa3cb64dc9d8e",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-006' not found in spec",
+      "location": "roadmap:FR-006",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "191c0885aab9136d": {
+      "stable_id": "191c0885aab9136d",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-007' not found in spec",
+      "location": "roadmap:FR-007",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d2f6c9652df280a1": {
+      "stable_id": "d2f6c9652df280a1",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-008' not found in spec",
+      "location": "roadmap:FR-008",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "007b6ac69b40b692": {
+      "stable_id": "007b6ac69b40b692",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-009' not found in spec",
+      "location": "roadmap:FR-009",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "45d9fa946e26e836": {
+      "stable_id": "45d9fa946e26e836",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-010' not found in spec",
+      "location": "roadmap:FR-010",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "6fb660ede4cb7888": {
+      "stable_id": "6fb660ede4cb7888",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-011' not found in spec",
+      "location": "roadmap:FR-011",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d7fefb5f645ba71c": {
+      "stable_id": "d7fefb5f645ba71c",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-012' not found in spec",
+      "location": "roadmap:FR-012",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "e2101a527a4eec45": {
+      "stable_id": "e2101a527a4eec45",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-013' not found in spec",
+      "location": "roadmap:FR-013",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "1d613e1321276cb5": {
+      "stable_id": "1d613e1321276cb5",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-014' not found in spec",
+      "location": "roadmap:FR-014",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "3b428b5ddf61e94c": {
+      "stable_id": "3b428b5ddf61e94c",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-015' not found in spec",
+      "location": "roadmap:FR-015",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d42b16259a3e9f73": {
+      "stable_id": "d42b16259a3e9f73",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-016' not found in spec",
+      "location": "roadmap:FR-016",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "f3ee990de3eabfc3": {
+      "stable_id": "f3ee990de3eabfc3",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-017' not found in spec",
+      "location": "roadmap:FR-017",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "9e5a326cfbdd7e2c": {
+      "stable_id": "9e5a326cfbdd7e2c",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-018' not found in spec",
+      "location": "roadmap:FR-018",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "3231b9de4890118c": {
+      "stable_id": "3231b9de4890118c",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-019' not found in spec",
+      "location": "roadmap:FR-019",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "8e135617e6adca12": {
+      "stable_id": "8e135617e6adca12",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-020' not found in spec",
+      "location": "roadmap:FR-020",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "eefc98e686b0e444": {
+      "stable_id": "eefc98e686b0e444",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-021' not found in spec",
+      "location": "roadmap:FR-021",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "88ed1bd5a885a0f8": {
+      "stable_id": "88ed1bd5a885a0f8",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-022' not found in spec",
+      "location": "roadmap:FR-022",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "9baed593748a5520": {
+      "stable_id": "9baed593748a5520",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-023' not found in spec",
+      "location": "roadmap:FR-023",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d39f219f60312651": {
+      "stable_id": "d39f219f60312651",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-024' not found in spec",
+      "location": "roadmap:FR-024",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "336640e876d56f36": {
+      "stable_id": "336640e876d56f36",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-025' not found in spec",
+      "location": "roadmap:FR-025",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d5f899f1e70c5fe0": {
+      "stable_id": "d5f899f1e70c5fe0",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-026' not found in spec",
+      "location": "roadmap:FR-026",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "277035810b4e41ec": {
+      "stable_id": "277035810b4e41ec",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-027' not found in spec",
+      "location": "roadmap:FR-027",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "be11894ba7cf0f57": {
+      "stable_id": "be11894ba7cf0f57",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-028' not found in spec",
+      "location": "roadmap:FR-028",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "f3bf6e1fd8ec2cb0": {
+      "stable_id": "f3bf6e1fd8ec2cb0",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-029' not found in spec",
+      "location": "roadmap:FR-029",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "0c945c52849641de": {
+      "stable_id": "0c945c52849641de",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'FR-030' not found in spec",
+      "location": "roadmap:FR-030",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "90377281a3082abe": {
+      "stable_id": "90377281a3082abe",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-001' not found in spec",
+      "location": "roadmap:NFR-001",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "c348c7842a01350b": {
+      "stable_id": "c348c7842a01350b",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-002' not found in spec",
+      "location": "roadmap:NFR-002",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "c3daa49181cbc42b": {
+      "stable_id": "c3daa49181cbc42b",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-003' not found in spec",
+      "location": "roadmap:NFR-003",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "d23d200e9070f795": {
+      "stable_id": "d23d200e9070f795",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-004' not found in spec",
+      "location": "roadmap:NFR-004",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "3fd971cc1a855dea": {
+      "stable_id": "3fd971cc1a855dea",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-005' not found in spec",
+      "location": "roadmap:NFR-005",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "bcc22a921c326b80": {
+      "stable_id": "bcc22a921c326b80",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-006' not found in spec",
+      "location": "roadmap:NFR-006",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "5dfed286143dee50": {
+      "stable_id": "5dfed286143dee50",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-007' not found in spec",
+      "location": "roadmap:NFR-007",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "c73844a36cc11abf": {
+      "stable_id": "c73844a36cc11abf",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-008' not found in spec",
+      "location": "roadmap:NFR-008",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "0ae8b97549931b4f": {
+      "stable_id": "0ae8b97549931b4f",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-009' not found in spec",
+      "location": "roadmap:NFR-009",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "933d1dd555b26ca3": {
+      "stable_id": "933d1dd555b26ca3",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-010' not found in spec",
+      "location": "roadmap:NFR-010",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "66eceb8c62e42072": {
+      "stable_id": "66eceb8c62e42072",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-011' not found in spec",
+      "location": "roadmap:NFR-011",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "028aa5af737e66dd": {
+      "stable_id": "028aa5af737e66dd",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-012' not found in spec",
+      "location": "roadmap:NFR-012",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "c88a74ef13511afc": {
+      "stable_id": "c88a74ef13511afc",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-013' not found in spec",
+      "location": "roadmap:NFR-013",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "54c2151942e7b8db": {
+      "stable_id": "54c2151942e7b8db",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-014' not found in spec",
+      "location": "roadmap:NFR-014",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "b7ad1caa3a253c9d": {
+      "stable_id": "b7ad1caa3a253c9d",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-015' not found in spec",
+      "location": "roadmap:NFR-015",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    },
+    "ed4f4a438e58babf": {
+      "stable_id": "ed4f4a438e58babf",
+      "dimension": "signatures",
+      "severity": "HIGH",
+      "description": "Roadmap references ID 'NFR-016' not found in spec",
+      "location": "roadmap:NFR-016",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md"
+      ]
+    }
+  }
+}

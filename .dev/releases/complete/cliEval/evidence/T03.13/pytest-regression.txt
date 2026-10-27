@@ -1,0 +1,5 @@
+  /config/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/pty.py:95: DeprecationWarning: This process (pid=163823) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+    pid, fd = os.forkpty()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 911 passed, 1 warning in 10.12s ========================

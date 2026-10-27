@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 19 items
+
+tests/cli/eval/test_run_report.py::test_writer_raises_on_n_prime_vs_k_mismatch PASSED [  5%]
+tests/cli/eval/test_run_report.py::test_reporter_contract_violation_exit_code_is_two PASSED [ 10%]
+tests/cli/eval/test_run_report.py::test_render_markdown_raises_on_mismatch PASSED [ 15%]
+tests/cli/eval/test_run_report.py::test_render_json_raises_on_mismatch PASSED [ 21%]
+tests/cli/eval/test_run_report.py::test_render_junit_raises_on_mismatch PASSED [ 26%]
+tests/cli/eval/test_run_report.py::test_skipped_rows_present_in_evals_with_skip_reason PASSED [ 31%]
+tests/cli/eval/test_run_report.py::test_writer_emits_markdown_and_json PASSED [ 36%]
+tests/cli/eval/test_run_report.py::test_writer_emits_junit_when_requested PASSED [ 42%]
+tests/cli/eval/test_run_report.py::test_writer_creates_missing_output_dir PASSED [ 47%]
+tests/cli/eval/test_run_report.py::test_render_markdown_is_byte_stable PASSED [ 52%]
+tests/cli/eval/test_run_report.py::test_render_json_is_byte_stable PASSED [ 57%]
+tests/cli/eval/test_run_report.py::test_render_junit_is_byte_stable PASSED [ 63%]
+tests/cli/eval/test_run_report.py::test_writer_json_validates_against_summary_schema PASSED [ 68%]
+tests/cli/eval/test_run_report.py::test_markdown_contains_headline_and_result PASSED [ 73%]
+tests/cli/eval/test_run_report.py::test_markdown_lists_skipped_with_reason PASSED [ 78%]
+tests/cli/eval/test_run_report.py::test_junit_maps_status_to_correct_child_tag PASSED [ 84%]
+tests/cli/eval/test_run_report.py::test_junit_testsuite_attributes_reflect_counts PASSED [ 89%]
+tests/cli/eval/test_run_report.py::test_writer_handles_partial_summary_with_interrupted_row PASSED [ 94%]
+tests/cli/eval/test_run_report.py::test_reporter_contract_violation_message_includes_counts PASSED [100%]
+
+============================== 19 passed in 0.14s ==============================

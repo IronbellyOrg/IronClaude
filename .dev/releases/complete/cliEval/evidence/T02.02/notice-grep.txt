@@ -1,0 +1,4 @@
+12:1. ptytest (vendored fork)
+14:   Upstream:  https://github.com/brandon-fryslie/ptytest
+18:   A fork of `brandon-fryslie/ptytest` is vendored under
+25:   The MIT License terms that apply to the vendored ptytest sources are

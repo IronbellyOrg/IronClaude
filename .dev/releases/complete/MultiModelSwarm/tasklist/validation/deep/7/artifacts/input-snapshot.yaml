@@ -1,0 +1,11 @@
+input_tree_sha256: computed_at_wave_0
+file_list:
+  - path: tasklist/phase-7-tasklist.md
+    sha256: 4b9d2c86f39704e7e22b467287e9684ec69a77907164e53fa03134f60ff28774
+  - path: roadmap.md
+    sha256: f498ee9f68308d28432f378ce0279effe4a036497fff0035ee7c7adda7822fdb
+  - path: execution-log.md
+    sha256: 365a19a0e4e65b342d01be4e9e6404fbb41d2a13e3bbdd3a9731f8cd53858869
+  - path: execution-log.jsonl
+    sha256: d32b8d806bf8c855a16149d3f63a80693e511312601f852fbc389a348e4a8126
+file_count: 4

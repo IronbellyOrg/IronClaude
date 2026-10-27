@@ -1,0 +1,42 @@
+$ uv run pytest tests/cli/test_install_hooks.py -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+plugins: superclaude-4.2.0
+collected 13 items
+
+tests/cli/test_install_hooks.py::test_case_1_missing_target_creates PASSED         [  7%]
+tests/cli/test_install_hooks.py::test_case_2_empty_target_settings PASSED          [ 15%]
+tests/cli/test_install_hooks.py::test_case_3_unrelated_events_preserved PASSED     [ 23%]
+tests/cli/test_install_hooks.py::test_case_4a_same_event_different_matcher PASSED  [ 30%]
+tests/cli/test_install_hooks.py::test_case_4b_collision_skipped_without_force PASSED  [ 38%]
+tests/cli/test_install_hooks.py::test_case_4c_collision_replaced_with_force PASSED [ 46%]
+tests/cli/test_install_hooks.py::test_case_5_malformed_target_refused PASSED       [ 53%]
+tests/cli/test_install_hooks.py::test_case_6_permission_denied PASSED              [ 61%]
+tests/cli/test_install_hooks.py::test_case_7_backup_before_write PASSED            [ 69%]
+tests/cli/test_install_hooks.py::test_case_8_atomic_write_no_partial PASSED        [ 76%]
+tests/cli/test_install_hooks.py::test_backup_path_format PASSED                    [ 84%]
+tests/cli/test_install_hooks.py::test_session_id_validator PASSED                  [ 92%]
+tests/cli/test_install_hooks.py::test_smoke_install_then_reinstall_force PASSED    [100%]
+
+============================== 13 passed in 0.18s ==============================
+
+# 8 acceptance-required cases + 5 bonus cases. All green.
+
+Coverage map (test → acceptance-criterion):
+1. test_case_1_missing_target_creates       → "Missing target file (creates)"
+2. test_case_2_empty_target_settings        → "Empty target settings.json"
+3. test_case_3_unrelated_events_preserved   → "Existing top-level hooks key with unrelated events"
+4. test_case_4a_same_event_different_matcher → "Existing same-event with different matcher"
+5. test_case_4b_collision_skipped_without_force → "Existing same-event+same-matcher (collision)"
+6. test_case_4c_collision_replaced_with_force → (--force variant of 4b)
+7. test_case_5_malformed_target_refused     → "Malformed target JSON (graceful refuse)"
+8. test_case_6_permission_denied            → "Permission denied (clear error message)"
+9. test_case_7_backup_before_write          → "Backup before write"
+10. test_case_8_atomic_write_no_partial     → "Atomic write rollback on crash"
+
+Bonus:
+11. test_backup_path_format
+12. test_session_id_validator
+13. test_smoke_install_then_reinstall_force (end-to-end)

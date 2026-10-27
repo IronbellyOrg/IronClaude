@@ -1,0 +1,15 @@
+{
+  "step": "validate-config",
+  "valid": true,
+  "cli_name_kebab": "prd",
+  "cli_name_snake": "prd",
+  "workflow_path_resolved": "/config/workspace/SuperClaude_Framework/src/superclaude/skills/prd",
+  "output_dir": "/config/workspace/SuperClaude_Framework/.dev/portify-workdir/prd",
+  "errors": [],
+  "duration_seconds": 0.00015735812485218048,
+  "command_path": "",
+  "skill_dir": "/config/workspace/SuperClaude_Framework/src/superclaude/skills/prd",
+  "target_type": "",
+  "agent_count": 0,
+  "warnings": []
+}

@@ -1,0 +1,35 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 22 items
+
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_executes_all_seven_steps_in_order PASSED [  4%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_setup_exception_yields_errored PASSED [  9%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_deploy_hooks_exception_yields_errored PASSED [ 13%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_spawn_exception_yields_errored PASSED [ 18%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_inject_exception_yields_errored PASSED [ 22%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_observe_exception_yields_errored PASSED [ 27%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_expect_raise_yields_errored PASSED [ 31%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_passes_when_all_expects_pass PASSED [ 36%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_empty_expects_yields_pass PASSED [ 40%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_failing_expect_yields_fail PASSED [ 45%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_mixed_results_yields_fail PASSED [ 50%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_keep_true_on_errored PASSED [ 54%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_keep_true_on_fail PASSED [ 59%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_keep_false_on_pass_by_default PASSED [ 63%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_keep_true_on_pass_when_requested PASSED [ 68%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_error_swallowed_callback_invoked PASSED [ 72%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_teardown_error_without_callback_is_silent PASSED [ 77%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_keyboard_interrupt_propagates_with_teardown[sigint] PASSED [ 81%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_keyboard_interrupt_propagates_with_teardown[sysexit] PASSED [ 86%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_keyboard_interrupt_in_expect_propagates PASSED [ 90%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_passes_observed_state_into_eval_context PASSED [ 95%]
+tests/cli/eval/test_eval_lifecycle.py::test_run_eval_outcome_includes_observed_artifacts PASSED [100%]
+
+============================== 22 passed in 0.15s ==============================

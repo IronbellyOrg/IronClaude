@@ -1,0 +1,17 @@
+{
+  "budget_sec": 600,
+  "budget_text": "10 minutes",
+  "deliverable": "D-0062",
+  "duration_sec": 0.008907,
+  "host_free_ram_bytes": 97542557696,
+  "host_free_ram_gb": 90.84,
+  "host_platform": "Linux-6.8.0-111-generic-x86_64-with-glibc2.39",
+  "host_xfail_reason": null,
+  "nfr": "NFR-PERF3",
+  "parallel": 8,
+  "roadmap_row": "R-062",
+  "spec_count": 15,
+  "subset_rerun_doc": "docs/eval/runtime.md",
+  "task": "T03.21",
+  "within_budget": true
+}

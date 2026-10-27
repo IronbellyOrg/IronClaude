@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/complete/v2.26-roadmap-v5/v2.25-spec-merged.md",
+  "spec_hash": "27d4d4f788d5f001dc0ab8692db6823d9709e306504fb5cbf9b14cc1954806a6",
+  "agents": [
+    {
+      "model": "haiku",
+      "persona": "analyzer"
+    },
+    {
+      "model": "opus",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-03-20T14:42:59.188024+00:00",
+  "steps": {
+    "extract": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/v2.26-roadmap-v5/extraction.md",
+      "started_at": "2026-03-20T14:39:52.047279+00:00",
+      "completed_at": "2026-03-20T14:42:59.079167+00:00"
+    },
+    "wiring-verification": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/complete/v2.26-roadmap-v5/wiring-verification.md",
+      "started_at": "2026-03-20T14:42:59.079400+00:00",
+      "completed_at": "2026-03-20T14:42:59.187792+00:00"
+    }
+  }
+}

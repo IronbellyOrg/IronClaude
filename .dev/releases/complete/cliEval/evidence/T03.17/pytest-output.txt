@@ -1,0 +1,59 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 46 items
+
+tests/cli/eval/test_perf_resource_bounds.py::TestPerfResourceBoundsAtMaxParallel::test_peak_rss_within_ceiling_at_parallel_fifteen PASSED [  2%]
+tests/cli/eval/test_perf_resource_bounds.py::TestPerfResourceBoundsAtMaxParallel::test_perf_ram_report_schema_is_stable PASSED [  4%]
+tests/cli/eval/test_doctor.py::test_version_probe_passes_on_supported_release PASSED [  6%]
+tests/cli/eval/test_doctor.py::test_version_probe_passes_on_higher_release PASSED [  8%]
+tests/cli/eval/test_doctor.py::test_version_probe_fails_below_min PASSED [ 10%]
+tests/cli/eval/test_doctor.py::test_version_probe_fails_when_unparseable PASSED [ 13%]
+tests/cli/eval/test_doctor.py::test_version_probe_fails_when_callable_returns_none PASSED [ 15%]
+tests/cli/eval/test_doctor.py::test_version_probe_catches_callable_exception PASSED [ 17%]
+tests/cli/eval/test_doctor.py::test_claude_home_passes_when_directory_exists PASSED [ 19%]
+tests/cli/eval/test_doctor.py::test_claude_home_fails_when_missing PASSED [ 21%]
+tests/cli/eval/test_doctor.py::test_ptytest_vendored_passes_when_init_present PASSED [ 23%]
+tests/cli/eval/test_doctor.py::test_ptytest_vendored_soft_skips_when_absent PASSED [ 26%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_appends_three_supplementary_rows PASSED [ 28%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_clean_host_has_no_hard_failures PASSED [ 30%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_missing_claude_binary_is_hard PASSED [ 32%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_missing_claude_home_is_hard PASSED [ 34%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_below_min_version_is_hard PASSED [ 36%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_no_mcp_flag_forces_soft_skip PASSED [ 39%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_accepts_gate_override PASSED [ 41%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_exits_zero_on_clean_host PASSED [ 43%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_json_payload_matches_report_contract PASSED [ 45%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_json_is_deterministic_across_invocations PASSED [ 47%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_exits_two_when_hard_capability_missing PASSED [ 50%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_json_exit_two_includes_hard_failures_in_payload PASSED [ 52%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_no_mcp_flag_propagates_to_skip_flags PASSED [ 54%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_check_coverage_flag_is_accepted PASSED [ 56%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_check_coverage_marker_emitted_in_json PASSED [ 58%]
+tests/cli/eval/test_doctor.py::test_render_checklist_lists_every_row PASSED [ 60%]
+tests/cli/eval/test_doctor.py::test_render_hard_failure_artifact_lists_each_failure PASSED [ 63%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_returns_none_below_threshold PASSED [ 65%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_returns_none_when_parallel_not_supplied PASSED [ 67%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_passes_when_budget_met PASSED [ 69%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_warns_when_budget_short PASSED [ 71%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_warns_when_probe_returns_none PASSED [ 73%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_handles_probe_exception PASSED [ 76%]
+tests/cli/eval/test_doctor.py::test_free_ram_check_fires_at_threshold_minus_one_pass PASSED [ 78%]
+tests/cli/eval/test_doctor.py::test_default_free_ram_probe_returns_positive_or_none PASSED [ 80%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_appends_ram_row_when_parallel_15 PASSED [ 82%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_omits_ram_row_below_threshold PASSED [ 84%]
+tests/cli/eval/test_doctor.py::test_build_doctor_report_records_ram_short_as_soft_skip PASSED [ 86%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_parallel_15_low_ram_emits_2_25_gb_warning PASSED [ 89%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_parallel_15_with_ample_ram_does_not_warn PASSED [ 91%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_parallel_8_does_not_run_ram_check PASSED [ 93%]
+tests/cli/eval/test_doctor.py::test_cli_doctor_json_payload_records_ram_short_row PASSED [ 95%]
+tests/cli/eval/test_doctor.py::test_ram_ceiling_bytes_matches_text PASSED [ 97%]
+tests/cli/eval/test_doctor.py::test_doctor_payload_extends_capability_report_contract PASSED [100%]
+
+============================== 46 passed in 0.67s ==============================

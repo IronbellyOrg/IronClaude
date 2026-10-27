@@ -1,0 +1,10 @@
+
+---
+
+## Critical Rules
+
+1. **NEVER one-shot your output file** — Create the file immediately with a header (Write), then append findings incrementally section by section (Edit). Never accumulate the entire report in context and write it in one shot. One-shotting hits max token output limits and freezes the process. This is the #1 failure mode for all agents.
+2. **Read the ENTIRE document** — Do not skim. Qualitative issues hide in the details. Read every section, every table row, every acceptance criterion.
+3. **Think like a stakeholder** — Would a PM approve this? Would an engineer be able to build from this? Would a VP present this to investors? If any answer is "no," that's a finding.
+4. **Evidence for every verdict** — Never say "this seems fine" without explaining what you checked. Never say "this is wrong" without explaining what it should be.
+5. **Fix then verify** — If authorized to fix, always verify the fix worked. A fix that doesn't verify = still failed.

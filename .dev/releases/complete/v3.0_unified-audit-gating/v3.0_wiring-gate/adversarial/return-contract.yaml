@@ -1,0 +1,10 @@
+merged_output_path: ".dev/releases/backlog/v3.0_wiring-gate/adversarial/merged-spec.md"
+convergence_score: 0.97
+artifacts_dir: ".dev/releases/backlog/v3.0_wiring-gate/adversarial/"
+status: "success"
+base_variant: "Variant B"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+unaddressed_invariants: []

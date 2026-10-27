@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/spec-refactor-plan-merged.md",
+  "spec_hash": "071879761a7f69b316514f361b99372e2860085315bf89a7e805b551ff84e8b4",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "haiku",
+      "persona": "architect"
+    }
+  ],
+  "depth": "deep",
+  "last_run": "2026-03-18T03:38:43.934992+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/extraction.md",
+      "started_at": "2026-03-18T03:11:52.656480+00:00",
+      "completed_at": "2026-03-18T03:14:46.682266+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/roadmap-opus-architect.md",
+      "started_at": "2026-03-18T03:14:46.684244+00:00",
+      "completed_at": "2026-03-18T03:19:15.729433+00:00"
+    },
+    "generate-haiku-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/roadmap-haiku-architect.md",
+      "started_at": "2026-03-18T03:14:46.686321+00:00",
+      "completed_at": "2026-03-18T03:16:23.701623+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/diff-analysis.md",
+      "started_at": "2026-03-18T03:19:15.730646+00:00",
+      "completed_at": "2026-03-18T03:20:25.743177+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/debate-transcript.md",
+      "started_at": "2026-03-18T03:20:25.743457+00:00",
+      "completed_at": "2026-03-18T03:22:00.763017+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/base-selection.md",
+      "started_at": "2026-03-18T03:22:00.763369+00:00",
+      "completed_at": "2026-03-18T03:23:18.777081+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/roadmap.md",
+      "started_at": "2026-03-18T03:26:40.814308+00:00",
+      "completed_at": "2026-03-18T03:34:11.882266+00:00"
+    },
+    "test-strategy": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude/.dev/releases/current/v3.0_unified-audit-gating/test-strategy.md",
+      "started_at": "2026-03-18T03:36:13.905807+00:00",
+      "completed_at": "2026-03-18T03:38:43.934440+00:00"
+    }
+  }
+}

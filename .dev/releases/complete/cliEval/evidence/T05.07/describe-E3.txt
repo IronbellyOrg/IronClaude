@@ -1,0 +1,20 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+id: E3
+title: SessionStart unmatched (session-init) hook fires
+category: hook-lifecycle
+timeout_sec: 60
+isolation:
+  home_strategy: ephemeral
+inputs:
+- prompt: /quit
+expects:
+- file:
+    path: state/session-init.log
+    exists: true
+- file:
+    path: logs/session-events.jsonl
+    exists: true
+    contains: '"type":"session_init"'
+- exit_code:
+    equals: 0
+no_pty: skip

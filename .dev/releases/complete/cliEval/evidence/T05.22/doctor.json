@@ -1,0 +1,153 @@
+=== Supplementary evidence: doctor JSON payload ===
+Command: uv run superclaude eval doctor --suite real --check-coverage --json
+---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+{
+  "blocked_evals": [],
+  "coverage_gate": {
+    "requested": true,
+    "result": {
+      "artifacts": {},
+      "coverage_map": {
+        "mcp__auggie__.*": [
+          "E1",
+          "E2.1"
+        ],
+        "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*": [
+          "E1",
+          "E2.1",
+          "E2.3"
+        ],
+        "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*": [
+          "E1",
+          "E2.1",
+          "E2.2",
+          "E2.3"
+        ]
+      },
+      "covered": [
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*"
+        },
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
+        },
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*"
+        }
+      ],
+      "matchers": [
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*"
+        },
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
+        },
+        {
+          "event": "PostToolUse",
+          "pattern": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*"
+        }
+      ],
+      "missing": [],
+      "passed": true
+    },
+    "status": "passed"
+  },
+  "hard_failures": [],
+  "report": [
+    {
+      "description": "Claude CLI on PATH",
+      "detail": "/config/.local/bin/claude",
+      "failure_mode": "hard",
+      "name": "binary.claude",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "GNU make on PATH",
+      "detail": "/usr/bin/make",
+      "failure_mode": "hard",
+      "name": "binary.make",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "jq JSON processor on PATH",
+      "detail": "/usr/bin/jq",
+      "failure_mode": "hard",
+      "name": "binary.jq",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "git VCS on PATH",
+      "detail": "/usr/bin/git",
+      "failure_mode": "hard",
+      "name": "binary.git",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "Auggie MCP server reachable",
+      "detail": "/config/.nvm/versions/node/v22.22.0/bin/auggie",
+      "failure_mode": "skip",
+      "name": "mcp_server.auggie",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "auggie-mcp MCP server reachable",
+      "detail": "MCP server binary not on PATH",
+      "failure_mode": "skip",
+      "name": "mcp_server.auggie-mcp",
+      "passed": false,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "AIRIS MCP gateway reachable",
+      "detail": "MCP server binary not on PATH",
+      "failure_mode": "skip",
+      "name": "mcp_server.airis-mcp-gateway",
+      "passed": false,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "Claude CLI >= 0.5.0",
+      "detail": "claude 2.1.147",
+      "failure_mode": "hard",
+      "name": "claude.min_version",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "~/.claude/ directory exists",
+      "detail": "/config/.claude",
+      "failure_mode": "hard",
+      "name": "filesystem.claude_home",
+      "passed": true,
+      "skipped_by_flag": false
+    },
+    {
+      "description": "ptytest vendored under cli/eval/pty/",
+      "detail": "/config/workspace/IronClaude/src/superclaude/cli/eval/pty/__init__.py not found (vendored at M2)",
+      "failure_mode": "skip",
+      "name": "vendored.ptytest",
+      "passed": false,
+      "skipped_by_flag": false
+    }
+  ],
+  "skip_flags": [],
+  "soft_skips": [
+    "mcp_server.auggie-mcp",
+    "mcp_server.airis-mcp-gateway",
+    "vendored.ptytest"
+  ],
+  "soft_xfails": []
+}
+---
+Exit code: 0
