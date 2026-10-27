@@ -223,6 +223,40 @@ sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
 auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
 
+**Per-user tiers.** `CCSESSION_ACCESS` in the same workspace env file sets,
+for each Coder username, the tier ccsession starts on and the tiers it offers:
+
+```bash
+export CCSESSION_ACCESS="alice=tier1 bob=tier2:tier2,tier3"
+```
+
+Entries are space-separated `<username>=<start tier>[:<tier>,<tier>,...]`
+(names match without regard to case; `tier2` and `2` both work). No tier list
+means every tier. A user who is not listed, or a terminal that does not know
+its owner, starts on `CCSESSION_DEFAULT_TIER` with every tier. The owner comes
+from `CODER_WORKSPACE_OWNER_NAME`, which the Coder agent sets. For a limited
+user, `--help` and `/model` show only their tiers, `--tier` and `--model`
+refuse anything outside them, and the shim refuses requests for other tiers.
+A broken or repeated entry for this user stops their launch with the reason,
+rather than opening every tier. Set it on one line with a literal value,
+`export CCSESSION_ACCESS="..."` (or the allowlist's
+`[ -z "${CCSESSION_ACCESS:-}" ] && export CCSESSION_ACCESS="..."`), and do not
+name it on any other line of the file, comments included (to switch it off,
+set it to `""` rather than commenting it out). Another line naming it, a
+`${...}` value, or a piece of the value that is not a `name=...` entry (for
+example from a stray space) stops ccsession for every Coder user, listed or
+not, including running sessions' tier requests, until it is fixed. Because ccsession re-reads the file on
+every launch and every request, a pushed change applies without a restart.
+`ccsession --models-status` shows the owner's access.
+
+The limit is advisory. It sets what ccsession offers by default, and the
+workspace owner can undo it from their own environment
+(`CODER_WORKSPACE_OWNER_NAME`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+or call a model directly with their gateway key. Only a gateway key limited to
+those models enforces it. ccsession reads the file without running it, so a
+setting whose name is deliberately assembled from pieces (for example across
+two lines) is not seen; the central file is changed only through review.
+
 No time limit ever applies once a model has started answering: a reply may
 think or stream for hours. The only ccsession timer is, for streamed tier
 requests, a 5-minute wait for the gateway to accept the request (it normally
@@ -235,12 +269,14 @@ failure.
 | `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on |
 | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
 | `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
+| `CCSESSION_ACCESS` (workspace env) | Per Coder username: start tier and the tiers offered (see Per-user tiers above) |
+| `CODER_WORKSPACE_OWNER_NAME` | Workspace owner's Coder username (set by the Coder agent); picks the `CCSESSION_ACCESS` entry |
 | `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
 | `CCSESSION_TIERS=0` | Turn tier mode off |
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
 | `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
-| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
+| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 
 ---
@@ -361,7 +397,10 @@ profile's number to something the model can really handle.
 
 ## After you edit the shim
 
-Restart it and clear the saved list, then open a new session:
+Restart it and clear the saved list, then open a new session. This recipe is
+for the base port (a Mac with default settings). In a Coder workspace the port
+depends on the workspace owner and the settings, so use the simpler
+alternative below.
 
 ```bash
 (

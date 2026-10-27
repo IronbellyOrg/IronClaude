@@ -7,7 +7,8 @@
 # Usage:
 #   ccsession <topic>         Resume or start a Claude session labeled <topic>
 #   ccsession <topic> -shim   Same, but route through the local model-alias shim
-#                             (auto-starts it on 127.0.0.1:4010 if not running,
+#                             (auto-starts it on 127.0.0.1:4010, or a port near it
+#                             for other settings, if not running;
 #                             enables gateway model discovery)
 #   ccsession --shim          Start an untagged session routed through the shim
 #   ccsession --profile <name> [--shim]

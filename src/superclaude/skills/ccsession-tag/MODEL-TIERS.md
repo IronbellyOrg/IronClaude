@@ -23,6 +23,8 @@ One place to see which model sits in which tier, and the evals and prices that p
 
 Tier numbers match the Coder env slots (`T0Model01` is Tier 0). Prices are USD per million tokens
 (input / cached input / output). ccsession's default tier is Tier 2 (`CCSESSION_DEFAULT_TIER=tier2`).
+Per-user start tiers and tier lists come from `CCSESSION_ACCESS` in the same Coder env file
+(see the README's "Per-user tiers").
 
 | Tier | Role | Models (gateway id) | Intelligence | Price range | Context window | ccsession profile |
 |---|---|---|---|---|---|---|

@@ -4,6 +4,12 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession — per-user start tier and tier list (`CCSESSION_ACCESS`)
+
+#### Added (ccsession)
+
+- In Coder workspaces, `CCSESSION_ACCESS` in the workspace env file (`defaults.sh`) sets, per Coder username, the tier ccsession starts on and the tiers it offers: space-separated `<username>=<start tier>[:<tier>,<tier>,...]` entries, no tier list meaning every tier. The owner is read from `CODER_WORKSPACE_OWNER_NAME` (set by the Coder agent). A user who is not listed starts on `CCSESSION_DEFAULT_TIER` with every tier, as before. For a limited user, `--help`, the shim's `/model` list and the shim's tier routing cover only their tiers, and `--tier` / `--model` refuse anything outside them. A broken or repeated entry for the current user stops the launch with the reason; a piece of the value that is not a `name=...` entry, a `${...}` value, or the name on any line other than that one export (comments included) stops every launch that has an owner name. `ccsession --models-status` shows the owner's access, and a launch notes when `CCSESSION_ACCESS` is set but the owner is unknown. Each owner name gets its own shim. The env file reader now also drops a trailing ` # comment` after a value, splits lines at newlines only, and no longer discards the whole file for a byte that is not UTF-8, as bash does. The limit is advisory: the owner can undo it from their own environment or call a model with their gateway key; only a gateway key limited to those models enforces it.
+
 ### ccsession: sessions stay listed in Orca Web and on phones
 
 #### Fixed (ccsession Orca title)

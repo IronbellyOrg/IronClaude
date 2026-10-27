@@ -179,10 +179,12 @@ def curation():
     picker = data["picker"]
     tenv = model_data.tier_env()
     on = model_data.tier_mode(tenv=tenv)
-    tiers, problem = {}, ""
+    tiers, problem, access = {}, "", None
     if on:
         try:
-            tiers = model_data.resolve_tiers(data, tenv)
+            # Only the tiers the workspace owner may use (CCSESSION_ACCESS).
+            every, access = model_data.tier_access(data, tenv)
+            tiers = {k: v for k, v in every.items() if k in access["allowed"]}
         except ValueError as exc:
             problem = str(exc)
     return {
@@ -193,6 +195,7 @@ def curation():
         "tier_mode": on,
         "tiers": tiers,
         "tier_problem": problem,
+        "access": access,
     }
 
 
@@ -696,7 +699,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         rules = curation()
         tier = rules["tiers"].get(name)
         if not tier:
-            why = rules["tier_problem"] or f"{name} is not defined"
+            why = rules["tier_problem"] or model_data.unavailable(name, rules["access"])
             audit(f"TIER {name}: cannot route ({why})")
             return self._send_error_json(
                 400, "invalid_request_error", f"ccsession {name}: {why}"
