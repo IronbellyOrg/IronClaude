@@ -475,8 +475,9 @@ or the names will not line up.
   is the repo's network `origin` as host and path with `/` turned into `-`
   (for example `github.com-IronbellyOrg-IronClaude`; credentials, port, query
   and host case ignored). Without a network origin (none, or a local path such
-  as a clone made with `git clone /path/repo`), the main worktree's folder;
-  outside a git repo, the current folder. `ccsession --key` prints it.
+  as a clone made with `git clone /path/repo`), the main worktree's folder
+  (for a separate or bare git folder, that folder); outside a git repo, the
+  current folder. `ccsession --key` prints it.
 - The `.cwd` file beside them records the folder last used, for listings.
 - Claude Code owns the conversation transcripts in the neighboring `.jsonl`
   files. ccsession resumes them but does not modify their contents.

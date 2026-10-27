@@ -107,7 +107,7 @@ The command takes no description argument. It decides what to record from the cu
 
 To pick up work in a new conversation, use section 3.12 ("Resume after a crash or a lost session") of the routing guide, [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session), which `superclaude install` copies to `~/.claude/HOW-WE-WORK.md`. It gives two ways:
 
-1. **Reopen the conversation.** This only works if you tagged the conversation before you lost it: inside Claude, run `/ccsession-tag <name>`. Later, from a terminal in the same folder, run `ccsession <name>`. `ccsession --here` lists the names for the current folder. `~/.local/bin` must be on your `PATH`.
+1. **Reopen the conversation.** This only works if you tagged the conversation before you lost it: inside Claude, run `/ccsession-tag <name>`. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>`. `ccsession --here` lists the names for this repo. `~/.local/bin` must be on your `PATH`.
 2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
 `/sc:load` restores Serena project memory, which helps Claude remember project decisions, but it does not resume a task or a plan.

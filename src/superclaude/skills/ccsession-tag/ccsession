@@ -104,7 +104,8 @@ slugify() {
 # (~/.claude/projects/<key>/topics); only what the key is made from changed.
 # It is the repo's network origin as host/path (credentials, port, query and a
 # trailing .git removed, host lowercased), else the main worktree's folder (a
-# repo without one), else the current folder (not a git repo, as before).
+# repo without one; for a separate or bare git folder, that folder), else the
+# current folder (not a git repo, as before).
 # Runs in a subshell so GIT_DIR and friends from the caller never redirect it.
 name_key() (
   unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
@@ -145,9 +146,12 @@ name_key() (
   esac
   if common=$(git rev-parse --git-common-dir 2>/dev/null) &&
     common=$(cd "$common" 2>/dev/null && pwd -P); then
+    # A separate or bare git folder records no main checkout: key on it.
     case "$common" in
-      */.git) slugify "${common%/.git}"; return ;;
+      */.git) slugify "${common%/.git}" ;;
+      *) slugify "$common" ;;
     esac
+    return
   fi
   slugify "$(pwd)"
 )
@@ -164,7 +168,7 @@ migrate_names() {
   # copied as <name>-<folder> (then -2, -3...). Lists are taken newest first, so
   # the most recently used folder keeps the plain name. Folders that no longer
   # exist are skipped. Returns non-zero if any list could not be copied.
-  local topics folder key target file name dest base n failed=0 list_ok
+  local topics folder key target file name tmp dest base n failed=0 list_ok
   [ -d "$PROJECTS_DIR" ] || return 0
   while IFS= read -r topics; do
     topics=${topics%/.cwd}
@@ -182,23 +186,24 @@ migrate_names() {
     for file in "$topics"/*.txt; do
       [ -f "$file" ] || continue
       name=$(basename "$file" .txt)
+      # Copy aside, then publish with ln, which never replaces an existing
+      # name: a label the hook or /ccsession-tag writes meanwhile is kept.
+      tmp=$(mkdir -p "$target" && mktemp "$target/.ccsession-copy.XXXXXX") &&
+        cp -p "$file" "$tmp" || { rm -f "$tmp"; list_ok=0; continue; }
       dest="$target/$name.txt"
-      if [ -f "$dest" ]; then
-        cmp -s "$file" "$dest" && continue
-        base="$target/$name-$(basename "$folder" | tr -c 'A-Za-z0-9._\n-' '-')"
-        dest="$base.txt"
-        n=2
-        while [ -f "$dest" ] && ! cmp -s "$file" "$dest"; do
-          dest="$base-$n.txt"
-          n=$((n + 1))
-        done
-        [ -f "$dest" ] && continue
-      fi
-      if ! { mkdir -p "$target" && cp -p "$file" "$dest"; }; then
-        list_ok=0
-        continue
-      fi
-      [ -f "$target/.cwd" ] || echo "$folder" > "$target/.cwd" || true
+      base="$target/$name-$(basename "$folder" | tr -c 'A-Za-z0-9._\n-' '-')"
+      n=1
+      while :; do
+        if ln "$tmp" "$dest" 2>/dev/null; then
+          [ -f "$target/.cwd" ] || echo "$folder" > "$target/.cwd" || true
+          break
+        fi
+        [ -f "$dest" ] || { list_ok=0; break; }
+        cmp -s "$file" "$dest" && break  # already there
+        if [ "$n" = 1 ]; then dest="$base.txt"; else dest="$base-$n.txt"; fi
+        n=$((n + 1))
+      done
+      rm -f "$tmp"
     done
     if [ "$list_ok" = 1 ]; then
       : > "$topics/$LIST_MIGRATED" || failed=1

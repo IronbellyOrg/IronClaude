@@ -10,6 +10,7 @@ import os
 import pty
 import runpy
 import select
+import shutil
 import socket
 import stat
 import subprocess
@@ -1864,6 +1865,22 @@ def test_name_key_without_origin_is_the_main_worktree(tmp_path: Path) -> None:
     assert _name_key(worktree, home) == expected
 
 
+def test_name_key_with_a_separate_git_dir_is_that_git_dir(tmp_path: Path) -> None:
+    # git records no main checkout for --separate-git-dir, so the shared git
+    # folder is the key: the checkout, its subfolders and worktrees agree.
+    meta = tmp_path / "meta"
+    meta.mkdir()
+    main = tmp_path / "repo"
+    _git(tmp_path, "init", "-q", f"--separate-git-dir={meta / 'repo'}", str(main))
+    _git(main, "commit", "-q", "--allow-empty", "-m", "init")
+    worktree = tmp_path / "wt"
+    _git(main, "worktree", "add", "-q", "-b", "feature", str(worktree))
+    (main / "sub").mkdir()
+    home = tmp_path / "home"
+    keys = {_name_key(folder, home) for folder in (main, main / "sub", worktree)}
+    assert keys == {str((meta / "repo").resolve()).replace("/", "-")}
+
+
 def test_name_key_outside_git_is_the_folder_as_before(tmp_path: Path) -> None:
     folder = tmp_path / "plain"
     folder.mkdir()
@@ -2014,6 +2031,41 @@ def test_names_saved_per_folder_move_to_the_repo_once(tmp_path: Path) -> None:
         ccsession("--migrate-names")
     after = {p.stem: p.read_text().strip() for p in repo.glob("*.txt")}
     assert after == {k: v for k, v in moved.items() if k != "alpha"}
+
+
+def test_migration_never_overwrites_a_label_written_meanwhile(tmp_path: Path) -> None:
+    # A cp shim plays the SessionStart hook: just before migration's copy runs,
+    # it saves a newer label under the same name in the repo's list.
+    main, _ = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    home = tmp_path / "home"
+    projects = home / ".claude" / "projects"
+    old = projects / str(main).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{main}\n")
+    (old / "name.txt").write_text("s-legacy\n")
+    repo = projects / "github.com-Org-Repo" / "topics"
+    shim = tmp_path / "bin"
+    shim.mkdir()
+    (shim / "cp").write_text(
+        "#!/bin/bash\n"
+        '[ -e "$RACE_DEST" ] || { mkdir -p "${RACE_DEST%/*}"; '
+        'echo s-newer > "$RACE_DEST"; }\n'
+        f'exec {shutil.which("cp")} "$@"\n'
+    )
+    (shim / "cp").chmod(0o755)
+    env = _git_env(home)
+    env["PATH"] = f"{shim}:{env['PATH']}"
+    env["RACE_DEST"] = str(repo / "name.txt")
+    subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--migrate-names"],
+        cwd=main,
+        env=env,
+        check=True,
+        capture_output=True,
+    )
+    labels = {p.name: p.read_text() for p in repo.glob("*.txt")}
+    assert labels == {"name.txt": "s-newer\n", "name-repo.txt": "s-legacy\n"}
+    assert not list(repo.glob(".ccsession-copy.*"))
 
 
 def test_migration_keeps_going_past_an_unreadable_list(tmp_path: Path) -> None:
