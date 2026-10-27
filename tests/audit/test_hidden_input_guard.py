@@ -36,11 +36,9 @@ This module verifies the contract holds at three layers:
    annotations remain byte-equal across two reads — the same
    invariant pattern as NFR-CONV.9 / D-0088 §6).
 
-5. **PR-05 disposition layer (TestPR05RemainsRejectedForPhase1)** —
-   `release-spec.md` and `roadmap.md` carry the DEFERRED-to-Phase-2
-   / REJECTED-for-Phase-1 disposition for PR-05 (Tier-History
-   Advisory). Drift in this disposition would re-activate the
-   hidden-input risk.
+The PR-05 deferral itself was a planning decision recorded in the
+task-builder-merge release notes; it is not checked here, because a
+test should fail on shipped code, not on old planning documents.
 
 Run: ``uv run pytest tests/audit/test_hidden_input_guard.py -v``
 """
@@ -69,17 +67,6 @@ RF_TASK_BUILDER_PATH = (
 )
 TB_SKILL_PATH = (
     REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
-)
-RELEASE_SPEC_PATH = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "release-spec.md"
-)
-ROADMAP_PATH = (
-    REPO_ROOT / ".dev" / "releases" / "complete" / "task-builder-merge" / "roadmap.md"
 )
 
 EC_HEADING = "## Execution Context"
@@ -148,8 +135,6 @@ class TestFixturesExist:
     def test_rule_artifact_paths_exist(self):
         assert RF_TASK_BUILDER_PATH.is_file()
         assert TB_SKILL_PATH.is_file()
-        assert RELEASE_SPEC_PATH.is_file()
-        assert ROADMAP_PATH.is_file()
 
 
 # ---------------------------------------------------------------------------
@@ -333,44 +318,6 @@ class TestTwoReadsByteEqual:
         second = _read_bytes(fixture_path)
         assert first == second, f"two reads of {fixture_path.name} diverged"
         assert _md5(first) == _md5(second)
-
-
-# ---------------------------------------------------------------------------
-# 5. PR-05 disposition layer
-# ---------------------------------------------------------------------------
-
-
-class TestPR05RemainsRejectedForPhase1:
-    """PR-05 Tier-History Advisory MUST remain DEFERRED-to-Phase-2 /
-    REJECTED-for-Phase-1 (release-spec §2.1 + roadmap)."""
-
-    def test_release_spec_pr05_deferred(self):
-        text = RELEASE_SPEC_PATH.read_text(encoding="utf-8")
-        # Look for the release-spec line that pins the disposition.
-        pat = re.compile(r"PR-05[^.\n]*deferred to Phase-2", re.IGNORECASE)
-        assert pat.search(text), (
-            "release-spec.md must declare PR-05 DEFERRED to Phase-2; "
-            "disposition pin missing"
-        )
-
-    def test_roadmap_pr05_phase2_disposition(self):
-        text = ROADMAP_PATH.read_text(encoding="utf-8")
-        # Roadmap row carrying PR-05 with Phase-2 cadence.
-        assert "PR-05" in text, "roadmap.md missing PR-05 disposition row"
-        # The roadmap notes "Phase-2 deferral" and the OPEN-PR05
-        # re-evaluation cadence.
-        assert "Phase-2" in text and "OPEN-PR05" in text, (
-            "roadmap.md PR-05 row should pin Phase-2 deferral and OPEN-PR05 trigger"
-        )
-
-    def test_nfr_conv_3_row_pins_pr05_rejection_for_phase1(self):
-        """The NFR-CONV.3 acceptance criterion explicitly carries
-        the `PR-05-advisory-mechanism:remains-REJECTED-for-Phase-1`
-        clause. Drift here would re-open the hidden-input pathway."""
-        text = ROADMAP_PATH.read_text(encoding="utf-8")
-        assert "PR-05-advisory-mechanism:remains-REJECTED-for-Phase-1" in text, (
-            "roadmap.md NFR-CONV.3 row missing the explicit PR-05 rejection clause"
-        )
 
 
 # ---------------------------------------------------------------------------

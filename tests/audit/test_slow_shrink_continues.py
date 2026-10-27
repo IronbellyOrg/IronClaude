@@ -23,10 +23,7 @@ TEST-016) and asserting:
 4. Replacing ``|F|=5,4`` with ``|F|=5,5`` flips the verdict to HALT —
    constructive proof that the X-003 rejection is load-bearing
    (without it, slow shrink would also halt under a rate threshold).
-5. The generated log shape matches the canonical D-0060 synthetic
-   fixture (``fixture-slow-shrink-F-5-4.log``) at the load-bearing
-   transition + cycle-3 spawn lines.
-6. The SKILL.md §A.9 API-004 contract block still encodes the
+5. The SKILL.md §A.9 API-004 contract block still encodes the
    strict-non-shrink predicate (``|F_{n+1}| >= |F_n|``), and the
    SKILL.md text rejects a rate-of-shrink threshold parameter.
 
@@ -42,7 +39,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -62,17 +58,6 @@ from _halt_emitter import (  # noqa: E402
 )
 
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
-
-CANONICAL_LOG = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0060"
-    / "fixture-slow-shrink-F-5-4.log"
-)
 
 
 # ---------------------------------------------------------------------------
@@ -165,11 +150,6 @@ def counterfactual_non_shrink_log() -> HaltLog:
 @pytest.fixture(scope="module")
 def skill_text() -> str:
     return SKILL_SRC.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_log_text() -> str:
-    return CANONICAL_LOG.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -353,90 +333,4 @@ class TestCounterfactualNonShrinkHalts:
     ):
         assert 3 not in counterfactual_non_shrink_log.cycles_started, (
             "counterfactual |F|=5,5 unexpectedly attempted cycle 3"
-        )
-
-
-# ---------------------------------------------------------------------------
-# AC5 — Canonical D-0060 synthetic fixture log parity.
-# ---------------------------------------------------------------------------
-
-
-class TestCanonicalFixtureParity:
-    """The TEST-017 runtime emission and the D-0060 canonical
-    synthetic log agree on the load-bearing lines (no HALT, cycle 3
-    attempted, monotonicity PROCEED at transition 1->2). Drift
-    between this pytest fixture and the D-0060 log indicates either
-    the protocol changed or the evidence pack is stale."""
-
-    def test_canonical_log_present(self):
-        assert CANONICAL_LOG.is_file(), (
-            f"D-0060 canonical fixture missing at {CANONICAL_LOG} — "
-            "T05.08 evidence pack regressed"
-        )
-
-    def test_canonical_log_has_no_halt(self, canonical_log_text: str):
-        halt_lines = [
-            ln for ln in canonical_log_text.splitlines() if ln.startswith("HALT ")
-        ]
-        assert halt_lines == [], (
-            f"D-0060 canonical fixture HALT line(s) {halt_lines!r} — "
-            "X-003 rejection regressed in the evidence pack"
-        )
-
-    def test_canonical_log_has_cycle_3(self, canonical_log_text: str):
-        assert "CYCLE 3 START" in canonical_log_text, (
-            "D-0060 canonical fixture missing 'CYCLE 3 START' — slow "
-            "shrink must continue to cycle 3 per X-003 rejection"
-        )
-
-    def test_canonical_log_no_monotonicity_token(self, canonical_log_text: str):
-        # The fixture asserts ZERO ``HALT-MONOTONICITY`` lines in the
-        # log per the in-file machine-checkable assertion block. The
-        # template string ``[HALT-MONOTONICITY]`` IS referenced in the
-        # API-004 contract sha256 line at the header (informational),
-        # so we restrict the check to ``^HALT ...`` lines.
-        halt_mon_lines = [
-            ln
-            for ln in canonical_log_text.splitlines()
-            if ln.startswith("HALT ") and "HALT-MONOTONICITY" in ln
-        ]
-        assert halt_mon_lines == [], (
-            f"D-0060 canonical fixture has HALT-MONOTONICITY lines: {halt_mon_lines!r}"
-        )
-
-    def test_canonical_log_monotonicity_proceeds_at_transition_1_2(
-        self, canonical_log_text: str
-    ):
-        # On the cycle-1 → cycle-2 transition, the monotonicity step
-        # line records PROCEED (strict shrink).
-        lines = canonical_log_text.splitlines()
-        mon_idx: Optional[int] = None
-        for idx, ln in enumerate(lines):
-            if ln.startswith("TRANSITION 1->2 step=monotonicity"):
-                mon_idx = idx
-                assert "PROCEED" in ln, (
-                    f"D-0060 monotonicity step at line {idx} did not record "
-                    f"PROCEED: {ln!r}"
-                )
-                break
-        assert mon_idx is not None, (
-            "D-0060 canonical fixture missing 'TRANSITION 1->2 step=monotonicity' line"
-        )
-
-    def test_canonical_log_proceed_respawn_at_transition_1_2(
-        self, canonical_log_text: str
-    ):
-        # Step 4 (proceed) re-spawns cycle 3 per SKILL.md L1057.
-        lines = canonical_log_text.splitlines()
-        proceed_idx: Optional[int] = None
-        for idx, ln in enumerate(lines):
-            if ln.startswith("TRANSITION 1->2 step=proceed"):
-                proceed_idx = idx
-                assert "re-spawn cycle 3" in ln, (
-                    f"D-0060 proceed step at line {idx} did not record "
-                    f"'re-spawn cycle 3': {ln!r}"
-                )
-                break
-        assert proceed_idx is not None, (
-            "D-0060 canonical fixture missing 'TRANSITION 1->2 step=proceed' line"
         )

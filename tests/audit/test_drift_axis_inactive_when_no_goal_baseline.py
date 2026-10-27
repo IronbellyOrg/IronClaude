@@ -6,11 +6,6 @@ subsection under "Five Adversarial Axes" binds the literal annotation
 cell value, NOT in Recommendations) when the AX-1 Drift axis is INACTIVE
 because no BUILD_REQUEST.GOAL verbatim baseline is available.
 
-Also verifies that the canonical fixture under
-``artifacts/D-0045/fixture-goal-baseline-absent.md`` emits the literal
-``drift-axis-inactive`` annotation inside the Summary block, demonstrating
-the rule is operationally honoured.
-
 Acceptance reference (phase-4-tasklist.md T04.14 AC):
 - ``uv run pytest tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py -v`` exits 0.
 - TEST-013 asserts ``drift-axis-inactive`` literal annotation in Summary block.
@@ -30,16 +25,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 AGENT_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 AGENT_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa-qualitative.md"
-FIXTURE = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0045"
-    / "fixture-goal-baseline-absent.md"
-)
 
 ANNOTATION = "drift-axis-inactive"
 
@@ -92,58 +77,6 @@ class TestDriftAnnotationRulePresent:
         ), (
             f"rule must explicitly forbid `{ANNOTATION}` as an Axis-column cell value in {AGENT_SRC}"
         )
-
-
-class TestDriftFixtureEmitsAnnotation:
-    """The canonical GOAL-baseline-absent fixture emits the annotation in the
-    Summary block."""
-
-    def test_fixture_exists(self):
-        assert FIXTURE.is_file(), f"missing canonical fixture at {FIXTURE}"
-
-    def test_fixture_contains_literal_annotation(self):
-        text = FIXTURE.read_text(encoding="utf-8")
-        assert ANNOTATION in text, (
-            f"fixture must contain literal `{ANNOTATION}` annotation: {FIXTURE}"
-        )
-
-    def test_annotation_appears_inside_summary_block(self):
-        """The literal annotation MUST appear inside the `## Summary` section
-        (between `## Summary` and the next `## ` heading)."""
-        text = FIXTURE.read_text(encoding="utf-8")
-        lines = text.splitlines()
-        summary_start = -1
-        summary_end = len(lines)
-        for idx, line in enumerate(lines):
-            if line.strip().lower() == "## summary":
-                summary_start = idx + 1
-                continue
-            if (
-                summary_start != -1
-                and line.startswith("## ")
-                and line.strip().lower() != "## summary"
-            ):
-                summary_end = idx
-                break
-        assert summary_start != -1, f"`## Summary` heading not found in {FIXTURE}"
-        summary_body = "\n".join(lines[summary_start:summary_end])
-        assert ANNOTATION in summary_body, (
-            f"`{ANNOTATION}` must appear inside the Summary block; "
-            f"summary body was: {summary_body!r}"
-        )
-
-    def test_annotation_not_in_axis_column_cells(self):
-        """The literal annotation MUST NOT appear as an Items-Reviewed
-        Axis-column cell value (i.e., between two `|` table separators)."""
-        text = FIXTURE.read_text(encoding="utf-8")
-        # Match `| <something containing drift-axis-inactive> |` in a table row.
-        cell_re = re.compile(r"\|\s*[^|]*" + re.escape(ANNOTATION) + r"[^|]*\s*\|")
-        for line in text.splitlines():
-            if line.lstrip().startswith("|") and cell_re.search(line):
-                pytest.fail(
-                    f"`{ANNOTATION}` must not appear as an Axis-column cell value; "
-                    f"offending row: {line!r}"
-                )
 
 
 class TestDriftAnnotationSourceMirrorParity:
