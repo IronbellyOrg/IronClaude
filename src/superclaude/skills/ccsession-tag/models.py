@@ -407,8 +407,13 @@ def _names_access(line: str) -> bool:
 
 
 def _env_value(value: str) -> str:
-    """An export's value as bash reads it: quotes and a trailing comment dropped."""
-    quoted = re.match(r"""^(["'])(.*?)\1\s*(?:#.*)?$""", value)
+    """An export's value as bash reads it: quotes and a trailing comment dropped.
+
+    A `#` starts a comment only after whitespace, as in bash: in `"a"#b` the
+    `#b` is part of the value, so that value is kept as written (quotes and
+    all) and CCSESSION_ACCESS refuses it rather than silently dropping `#b`.
+    """
+    quoted = re.match(r"""^(["'])(.*?)\1(?:\s+#.*)?\s*$""", value)
     return quoted.group(2) if quoted else re.sub(r"\s+#.*$", "", value)
 
 
@@ -784,12 +789,15 @@ def main(argv) -> int:
         # An owner limited to some tiers may name only those tiers' models.
         if access["allowed"] != access["defined"]:
             bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
-            ok = {
-                spelling
-                for name in access["allowed"]
-                for _, m, _ in every[name]["models"]
-                for spelling in (m, gateway_alias(m))
-            }
+            # The picker ids the shim shows this owner: it names their tiers'
+            # models first, in tier order, so alike names get the same -2, -3.
+            mine = [
+                m
+                for name, tier in every.items()
+                if name in access["allowed"]
+                for _, m, _ in tier["models"]
+            ]
+            ok = set(mine) | set(assign_aliases(mine).values())
             if bare not in ok:
                 print(
                     f"ccsession: {bare} is not in a tier available to {access['user']} "

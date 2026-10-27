@@ -2045,6 +2045,12 @@ def test_access_lines_bash_accepts_never_open_every_tier(tmp_path: Path) -> None
     text = TIER_BLOCK + guard + '"bob=tier2:tier2"  # limited\n'
     assert _access("bob", text, tmp_path)["allowed"] == ["tier2"]
     assert not _access("bob", TIER_BLOCK + guard + '""\n', tmp_path)["listed"]
+    # Without whitespace a `#` is part of the value in bash ("a"#b is a#b), so
+    # it is never dropped as a comment: the whole value is refused instead.
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="alice=tier2:tier2"#bob=tier1:tier1\n'
+    for owner in ("alice", "bob", "carol"):
+        with pytest.raises(ValueError, match="is not <username>="):
+            _access(owner, text, tmp_path)
     # A value this parser does not evaluate stops the launch.
     text = (
         TIER_BLOCK + 'export CCSESSION_ACCESS="${CCSESSION_ACCESS:-bob=tier2:tier2}"\n'
@@ -2203,6 +2209,19 @@ def test_limited_user_gets_only_their_tiers(tmp_path: Path) -> None:
     for model in ("grok-4.7", "claude-gw-gpt-6-luna[1m]"):
         rc, _, err, seen = _launch(tmp_path, "work", "--model", model, **bob)
         assert rc == 0, err
+
+
+def test_limited_user_may_name_a_suffixed_picker_id(tmp_path: Path) -> None:
+    """Two allowed models whose names sanitize alike: the shim shows the second
+    as -2, and --model accepts that id too (PR #310 review)."""
+    # Tier 2 (bob's) gets grok-4.7 and grok/4.7: both sanitize to claude-gw-grok-4.7.
+    text = ACCESS_BLOCK.replace("export T2Model04=glm-5.3", "export T2Model04=grok/4.7")
+    bob = {"defaults": text, "CODER_WORKSPACE_OWNER_NAME": "bob"}
+    for model in ("claude-gw-grok-4.7", "claude-gw-grok-4.7-2", "grok/4.7"):
+        rc, _, err, _ = _launch(tmp_path, "work", "--model", model, **bob)
+        assert rc == 0, (model, err)
+    rc, _, err, _ = _launch(tmp_path, "work", "--model", "claude-gw-grok-4.7-3", **bob)
+    assert rc == 2 and "not in a tier available to bob" in err
 
 
 def test_broken_entry_stops_the_launch_with_the_reason(tmp_path: Path) -> None:
