@@ -4,6 +4,12 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: sessions stay listed in Orca Web and on phones
+
+#### Fixed (ccsession Orca title)
+
+- In an Orca terminal (`ORCA_PANE_KEY` set), ccsession now sets the tab title to `<label> · Claude Code`, or `Claude Code` for an untagged session, and starts Claude Code with `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` so Claude Code keeps that title. Orca's web and mobile server decides that a pane still runs Claude by reading the word "claude" in its title. Claude Code's own title is its AI conversation name, without a ✳ in Orca, so a resumed session that already had a name dropped out of the Orca Web sidebar and the phone at once (or showed an unclickable row), and a new one dropped after any answer that used no tool. The Orca desktop app reads Claude's status directly and was never affected. Other terminals keep Claude Code's own titles. A `claude --resume` started without ccsession is not covered.
+
 ### ccsession: Orca's Claude launches go through ccsession and ask for a session name
 
 #### Added (ccsession Orca launch)
