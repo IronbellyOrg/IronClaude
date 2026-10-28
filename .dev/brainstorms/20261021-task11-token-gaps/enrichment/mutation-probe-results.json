@@ -1,0 +1,6932 @@
+{
+ "named": [
+  [
+   "G1a REQ-012 Any claim",
+   "survives",
+   []
+  ],
+  [
+   "G1b REQ-012 anchors swapped",
+   "survives",
+   []
+  ],
+  [
+   "G2a REQ-008 keeps every consequence",
+   "survives",
+   []
+  ],
+  [
+   "G2b REQ-010 drop 'all consequences listed'",
+   "survives",
+   []
+  ],
+  [
+   "G2c REQ-009 drop 'every other table condition'",
+   "survives",
+   []
+  ],
+  [
+   "G3a REQ-037 SKILL w2 failed->partial",
+   "survives",
+   []
+  ],
+  [
+   "G3b REQ-037 gate preflight failed->partial",
+   "survives",
+   []
+  ],
+  [
+   "G3c REQ-037 status map moved to partial",
+   "survives",
+   []
+  ],
+  [
+   "G3d allowed-tools sentence deleted (SKILL)",
+   "survives",
+   []
+  ],
+  [
+   "G3e allowed-tools sentence deleted (gate)",
+   "survives",
+   []
+  ],
+  [
+   "G4 REQ-004 agent r5 Emit->Move to cross-cutting",
+   "survives",
+   []
+  ],
+  [
+   "G5a REQ-022 every mode",
+   "survives",
+   []
+  ],
+  [
+   "G5b REQ-022 local_read sentence deleted",
+   "survives",
+   []
+  ],
+  [
+   "G6a REQ-026 lowest-rank",
+   "survives",
+   []
+  ],
+  [
+   "G6b REQ-026 count votes",
+   "survives",
+   []
+  ],
+  [
+   "G6c REQ-026 non-defect sentence deleted",
+   "survives",
+   []
+  ],
+  [
+   "G7 REQ-018 rubric cap inverted",
+   "survives",
+   []
+  ],
+  [
+   "G7b REQ-018 gate cap inverted",
+   "caught",
+   [
+    "check_at24"
+   ]
+  ],
+  [
+   "G8a REQ-013 table intro deleted",
+   "survives",
+   []
+  ],
+  [
+   "G8b REQ-013 Verified def (table copy) deleted",
+   "survives",
+   []
+  ],
+  [
+   "G9 REQ-021 head-object fallback deleted",
+   "survives",
+   []
+  ],
+  [
+   "G10a REQ-005 SKILL not downgraded -> downgraded",
+   "survives",
+   []
+  ],
+  [
+   "G10b REQ-005 gate never converted deleted",
+   "survives",
+   []
+  ],
+  [
+   "S1 REQ-003 'For every behavioral claim'",
+   "NOMATCH",
+   []
+  ],
+  [
+   "S2 REQ-014 'The row is then A7'",
+   "survives",
+   []
+  ],
+  [
+   "S3 REQ-016 runtime_reproduced exception",
+   "survives",
+   []
+  ],
+  [
+   "S4 REQ-019 one entry per applicable row",
+   "survives",
+   []
+  ],
+  [
+   "S5 REQ-023 distinct current ref",
+   "survives",
+   []
+  ],
+  [
+   "S6 REQ-020 snapshot base null",
+   "survives",
+   []
+  ],
+  [
+   "S7 REQ-026 equal rank",
+   "caught",
+   [
+    "check_at24"
+   ]
+  ]
+ ],
+ "flip_total": 467,
+ "flip_surv": [
+  [
+   "skill",
+   7,
+   "\\bnot\\b",
+   "l ---  <!-- Extended metadata (for documentation, not parsed): category: quality complexity: advanced m"
+  ],
+  [
+   "skill",
+   22,
+   "\\bnot\\b",
+   "ew. Findings that cannot be grounded are dropped, not downgraded. This is non-negotiable \u2014 a \"review\" f"
+  ],
+  [
+   "skill",
+   38,
+   "\\bnot\\b",
+   " |  **STOP** if:  - Target cannot be resolved (PR not found, ref doesn't exist, path missing) - For PR "
+  ],
+  [
+   "skill",
+   45,
+   "\\bnot\\b",
+   " `--focus` to scope down) - The PR base branch is not the repo's default branch (mention in report head"
+  ],
+  [
+   "skill",
+   46,
+   "\\bnot\\b",
+   " untracked files: list them in the WARN. They are not review inputs.  ## Output Contract  The skill ret"
+  ],
+  [
+   "skill",
+   63,
+   "\\bnot\\b",
+   "kipped, input was truncated, or any candidate was not fully admitted | | `dropped_count` | int | Findin"
+  ],
+  [
+   "skill",
+   64,
+   "\\bnot\\b",
+   " | int | Findings dropped because file:line could not be validated | | `remediation_offered` | boolean "
+  ],
+  [
+   "skill",
+   90,
+   "\\bnot\\b",
+   " - `git rev-parse --is-inside-work-tree` (STOP if not in repo)    - For PR mode: `gh auth status` (STOP"
+  ],
+  [
+   "skill",
+   120,
+   "\\bnot\\b",
+   " (PR mode, `head_match: false` \u2014 fork PRs and PRs not checked out): validate in-diff findings against t"
+  ],
+  [
+   "skill",
+   120,
+   "\\bnot\\b",
+   "findings against the new side of `diff.patch`; do not Read the local file as evidence; do not query Ser"
+  ],
+  [
+   "skill",
+   120,
+   "\\bnot\\b",
+   "atch`; do not Read the local file as evidence; do not query Serena; keep out-of-diff findings as candid"
+  ],
+  [
+   "skill",
+   120,
+   "\\bnot\\b",
+   "tes with `in_diff: false` (admission decides). Do not STOP and do not `gh pr checkout`.  **Exit criteri"
+  ],
+  [
+   "skill",
+   120,
+   "\\bnot\\b",
+   "f: false` (admission decides). Do not STOP and do not `gh pr checkout`.  **Exit criteria**: Target reso"
+  ],
+  [
+   "skill",
+   141,
+   "\\bnot\\b",
+   "`), return status `success` with all counts 0. Do not spawn agents. Do not post. Skip Waves 2-4. 7. Det"
+  ],
+  [
+   "skill",
+   141,
+   "\\bnot\\b",
+   "ccess` with all counts 0. Do not spawn agents. Do not post. Skip Waves 2-4. 7. Determine chunking strat"
+  ],
+  [
+   "skill",
+   164,
+   "\\bnot\\b",
+   "performance, qa) **once each on the whole diff**, not once per chunk. 4. The agent returns the findings"
+  ],
+  [
+   "skill",
+   167,
+   "\\bnot\\b",
+   "* (before Wave 3): run `jq --version`. If `jq` is not available, the status is `failed` with reason `in"
+  ],
+  [
+   "skill",
+   167,
+   "\\bnot\\b",
+   "`audit.log` are still written. `allowed-tools` is not a prerequisite check.  **Exit criteria**: One or "
+  ],
+  [
+   "skill",
+   180,
+   "\\bnot\\b",
+   "ile` and `line` go to a `needs-grounding` bucket (not auto-dropped \u2014 see step 3). 3. **File:line valida"
+  ],
+  [
+   "skill",
+   182,
+   "\\bnot\\b",
+   "his check is dropped into `dropped_ungrounded[]`, not downgraded.    - For PR/diff mode, additionally n"
+  ],
+  [
+   "skill",
+   184,
+   "\\bnot\\b",
+   " succeeds, promote the finding into admission; if not, drop and log.    - \"Nothing calls this\" is not a"
+  ],
+  [
+   "skill",
+   185,
+   "\\bnot\\b",
+   "f not, drop and log.    - \"Nothing calls this\" is not a dead-code finding unless `Grep` under `src/`, `"
+  ],
+  [
+   "skill",
+   189,
+   "\\bnot\\b",
+   "l`. The agent's self-reported severity is a hint, not authoritative \u2014 apply the rubric uniformly. 5b. *"
+  ],
+  [
+   "skill",
+   250,
+   "\\bnot\\b",
+   "servations  <Only Medium and Low defects that are not anchored to a single file:line \u2014 layering concern"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnot\\b",
+   "invoke `Skill sc:workflow-protocol` on THAT file (not the bare spec) with `--depth standard --handoff n"
+  ],
+  [
+   "skill",
+   322,
+   "\\bnot\\b",
+   " `reflect_report_path` in its return contract; do not re-run `/sc:reflect --mode pre`); MDTM route \u2192 `/"
+  ],
+  [
+   "skill",
+   325,
+   "\\bnot\\b",
+   "he user commits. Block on validation failures, do not proceed to commit suggestion. 5. Return the struc"
+  ],
+  [
+   "skill",
+   360,
+   "\\bnot\\b",
+   "and a clear \"review inconclusive \u2014 findings could not be grounded\" notice; status `partial` | Do not po"
+  ],
+  [
+   "skill",
+   360,
+   "\\bnot\\b",
+   "ld not be grounded\" notice; status `partial` | Do not post to PR in this case | | `gh pr review` post f"
+  ],
+  [
+   "skill",
+   362,
+   "\\bnot\\b",
+   "r, status `partial` | None | | Task-builder skill not available | Surface the remediation spec path and"
+  ],
+  [
+   "skill",
+   362,
+   "\\bnot\\b",
+   " | Surface the remediation spec path and stop; do not fail the whole review | None | | User declines re"
+  ],
+  [
+   "skill",
+   24,
+   "\\bnever\\b",
+   "**Absence rule**: a miss from Serena or any index never proves absence. Only a Grep or Read that cites it"
+  ],
+  [
+   "skill",
+   60,
+   "\\bnever\\b",
+   "D.md`, the local record of non-defect candidates (never posted) | | `disposition_count` | object | `{defe"
+  ],
+  [
+   "skill",
+   70,
+   "\\bnever\\b",
+   "ntry/exit criteria. Refs are loaded **per-wave**, never pre-loaded.  ```text Wave 0: Resolve & Validate T"
+  ],
+  [
+   "skill",
+   161,
+   "\\bnever\\b",
+   " be minutes behind the working tree, so a hint is never evidence and a missing caller proves nothing. If "
+  ],
+  [
+   "skill",
+   184,
+   "\\bnever\\b",
+   "ferencing_symbols`, then `Read`. Serena output is never cited without that Read. If grounding succeeds, p"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnever\\b",
+   "are spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yieldin"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnever\\b",
+   "ard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/"
+  ],
+  [
+   "skill",
+   20,
+   "\\bonly\\b",
+   "`diff.patch` under the head-mismatch rule) is the only evidence that may appear in the report.  **Halluc"
+  ],
+  [
+   "skill",
+   58,
+   "\\bonly\\b",
+   "ow: N, nit: N}`. Counts unmerged admitted defects only, keeps this shape, and equals the ledger's `findi"
+  ],
+  [
+   "skill",
+   137,
+   "\\bonly\\b",
+   "field of `gh pr view`    - Diff: `git diff --name-only <base>...HEAD` (implicit: `git diff --name-only <"
+  ],
+  [
+   "skill",
+   137,
+   "\\bonly\\b",
+   "e-only <base>...HEAD` (implicit: `git diff --name-only <merge-base>`) 3. For snapshot mode, build the fi"
+  ],
+  [
+   "skill",
+   161,
+   "\\bonly\\b",
+   "/diff mode, `standard`/`deep`, `head_match: true` only):** spawn one `codebase-memory-scout` agent via `"
+  ],
+  [
+   "skill",
+   191,
+   "\\bonly\\b",
+   "d` uses this structure and holds unmerged defects only:  ````markdown # Code Review: <target>  **Target*"
+  ],
+  [
+   "skill",
+   207,
+   "\\bonly\\b",
+   "t, recommendation (block | request-changes | nits-only | approve-ish). Name findings only by id; cite no"
+  ],
+  [
+   "skill",
+   207,
+   "\\bonly\\b",
+   "changes | nits-only | approve-ish). Name findings only by id; cite no file:line here.>  Not admitted: <U"
+  ],
+  [
+   "skill",
+   230,
+   "\\bonly\\b",
+   "excluded consequence and the `Qualification` line only when the defect is qualified)  ### \ud83d\udfe0 High (should"
+  ],
+  [
+   "skill",
+   264,
+   "\\bonly\\b",
+   "d the Cross-Cutting section hold unmerged defects only. There is no separate section for non-defects; th"
+  ],
+  [
+   "skill",
+   297,
+   "\\bonly\\b",
+   "emediation offer.  **Steps**:  1. **Post to PR** (only if target is PR AND `--post-pr` AND status is not"
+  ],
+  [
+   "skill",
+   311,
+   "\\bonly\\b",
+   "`--request-changes`; this is a `--comment` review only. The human merges; the skill advises. 2. **Surfac"
+  ],
+  [
+   "skill",
+   316,
+   "\\bonly\\b",
+   "L (if posted) 3. **Offer the remediation chain** (only if `--remediation-offer` AND status is not `faile"
+  ],
+  [
+   "skill",
+   336,
+   "\\bonly\\b",
+   ":line before including it in the report - Publish only admitted defects; keep unproven, rejected, intent"
+  ],
+  [
+   "skill",
+   345,
+   "\\bonly\\b",
+   "e-review` invocation or a programmatic skill call only - Use `gh pr review --approve` or `--request-chan"
+  ],
+  [
+   "skill",
+   349,
+   "\\bonly\\b",
+   "ADMITTED.md` - Modify code under review (advisory only) - Auto-trigger the remediation chain \u2014 that step"
+  ],
+  [
+   "skill",
+   3,
+   "\\bevery\\b",
+   "gie-reviewer agent reviews a git/gh-defined diff, every finding is grounded by Read, the report posts to "
+  ],
+  [
+   "skill",
+   59,
+   "\\bevery\\b",
+   "Absolute path to `candidates.json`, the ledger of every grounded candidate and its disposition | | `not_a"
+  ],
+  [
+   "skill",
+   145,
+   "\\bevery\\b",
+   "tory    - > 5000 lines: STOP unless `--force`, at every depth; report \"diff too large; rerun with `--focu"
+  ],
+  [
+   "skill",
+   162,
+   "\\bevery\\b",
+   " Spawn the `auggie-reviewer` agent via `Task`, at every depth, in batched messages, at most five runs in "
+  ],
+  [
+   "skill",
+   175,
+   "\\bevery\\b",
+   "*Load `refs/claim-gate.md`** at step 3b: it holds every admission rule, the ledger schema and the invaria"
+  ],
+  [
+   "skill",
+   180,
+   "\\bevery\\b",
+   "les and mint an id `<findings-file-stem>#<n>` for every entry, with one `n` sequence across `findings[]` "
+  ],
+  [
+   "skill",
+   186,
+   "\\bevery\\b",
+   "**Admission**: read `refs/claim-gate.md`. Re-Read every line the `claim` cites, then give each grounded c"
+  ],
+  [
+   "skill",
+   187,
+   "\\bevery\\b",
+   ": record `introduced_in` and `current_status` for every candidate by the section \"Attribution\" of `refs/c"
+  ],
+  [
+   "skill",
+   189,
+   "\\bevery\\b",
+   "s/severity-rubric.md`, for unmerged defects only; every other record has `severity: null`. The agent's se"
+  ],
+  [
+   "skill",
+   190,
+   "\\bevery\\b",
+   "md`, including `run_status`, `findings_count` and every candidate's `evidence_sources`. All three are wri"
+  ],
+  [
+   "skill",
+   269,
+   "\\bevery\\b",
+   "d` is mandatory and is generated from the ledger: every non-defect record with its id, title, disposition"
+  ],
+  [
+   "skill",
+   271,
+   "\\bevery\\b",
+   "it` is 0. 7. Write `<output-dir>/audit.log` with: every agent run (pass + duration + outcome), every find"
+  ],
+  [
+   "skill",
+   271,
+   "\\bevery\\b",
+   "ith: every agent run (pass + duration + outcome), every finding with grounding result, every admission de"
+  ],
+  [
+   "skill",
+   271,
+   "\\bevery\\b",
+   " + outcome), every finding with grounding result, every admission decision with its row ids, every dedupe"
+  ],
+  [
+   "skill",
+   271,
+   "\\bevery\\b",
+   "esult, every admission decision with its row ids, every dedupe decision, every severity remap, dropped fi"
+  ],
+  [
+   "skill",
+   271,
+   "\\bevery\\b",
+   "decision with its row ids, every dedupe decision, every severity remap, dropped findings with reasons, an"
+  ],
+  [
+   "skill",
+   321,
+   "\\bevery\\b",
+   "tion-review-notes.md`, list syntax flattened with every line's text kept) and invoke `Skill sc:workflow-p"
+  ],
+  [
+   "skill",
+   334,
+   "\\bevery\\b",
+   "e `auggie-reviewer` agent as the review engine at every depth - Validate every finding's file:line before"
+  ],
+  [
+   "skill",
+   335,
+   "\\bevery\\b",
+   "nt as the review engine at every depth - Validate every finding's file:line before including it in the re"
+  ],
+  [
+   "skill",
+   346,
+   "\\bstrictly\\b",
+   "`gh pr review --approve` or `--request-changes` \u2014 strictly `--comment` - Include findings whose file:line ca"
+  ],
+  [
+   "skill",
+   18,
+   "\\bmust\\b",
+   "Request, local diff, or file snapshot. The review must catch **both** narrow bugs (off-by-one, null-dere"
+  ],
+  [
+   "skill",
+   22,
+   "\\bmust\\b",
+   "ract**: Every finding emitted in the final report must cite a `file:line` that exists in the repo at the"
+  ],
+  [
+   "skill",
+   318,
+   "\\bmust\\b",
+   "e the exact prompt template there.    - The offer must list the five phases, name the route (plan, or md"
+  ],
+  [
+   "skill",
+   54,
+   "\\bfailed\\b",
+   " dropped for hallucination, or a chunk skipped), `failed` | | `report_path` | string | Absolute path to th"
+  ],
+  [
+   "skill",
+   167,
+   "\\bfailed\\b",
+   "ersion`. If `jq` is not available, the status is `failed` with reason `invariant_check_unavailable`; `REVI"
+  ],
+  [
+   "skill",
+   273,
+   "\\bfailed\\b",
+   "md` and `audit.log` are written on every status, `failed` included.  **Exit criteria**: `REVIEW.md`, `NOT-"
+  ],
+  [
+   "skill",
+   180,
+   "\\bat least\\b",
+   "ns[]` of the same file. Each finding should carry at least: `title`, `file`, `line` (or `line_range`), `seve"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnone\\b",
+   "t the bare spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`),"
+  ],
+  [
+   "skill",
+   24,
+   "\\bnever\\b",
+   "**Absence rule**: a miss from Serena or any index never proves absence. Only a Grep or Read that cites it"
+  ],
+  [
+   "skill",
+   60,
+   "\\bnever\\b",
+   "D.md`, the local record of non-defect candidates (never posted) | | `disposition_count` | object | `{defe"
+  ],
+  [
+   "skill",
+   70,
+   "\\bnever\\b",
+   "ntry/exit criteria. Refs are loaded **per-wave**, never pre-loaded.  ```text Wave 0: Resolve & Validate T"
+  ],
+  [
+   "skill",
+   161,
+   "\\bnever\\b",
+   " be minutes behind the working tree, so a hint is never evidence and a missing caller proves nothing. If "
+  ],
+  [
+   "skill",
+   184,
+   "\\bnever\\b",
+   "ferencing_symbols`, then `Read`. Serena output is never cited without that Read. If grounding succeeds, p"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnever\\b",
+   "are spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yieldin"
+  ],
+  [
+   "skill",
+   321,
+   "\\bnever\\b",
+   "ard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/"
+  ],
+  [
+   "skill",
+   60,
+   "\\bdefect\\b",
+   "ath to `NOT-ADMITTED.md`, the local record of non-defect candidates (never posted) | | `disposition_count`"
+  ],
+  [
+   "skill",
+   186,
+   "\\bdefect\\b",
+   "each grounded candidate exactly one disposition (`defect`, `unproven`, `rejected`, `intentional_limitation"
+  ],
+  [
+   "skill",
+   186,
+   "\\bdefect\\b",
+   "Admission table\" and \"Refutation record\". Only a `defect` is graded and published. 3c. **Attribution**: re"
+  ],
+  [
+   "skill",
+   230,
+   "\\bdefect\\b",
+   "quence and the `Qualification` line only when the defect is qualified)  ### \ud83d\udfe0 High (should fix before merg"
+  ],
+  [
+   "skill",
+   234,
+   "\\bdefect\\b",
+   "ore merge)  (same structure; a High cross-cutting defect is also a heading entry here)  ### \ud83d\udfe1 Medium (fix "
+  ],
+  [
+   "skill",
+   265,
+   "\\bdefect\\b",
+   "o `NOT-ADMITTED.md`.    - Every Critical and High defect, including a cross-cutting one, is a heading entr"
+  ],
+  [
+   "skill",
+   266,
+   "\\bdefect\\b",
+   "ems starting with `<!-- id: <id> -->`.    - Every defect entry carries its `**Evidence kind**` line and, w"
+  ],
+  [
+   "skill",
+   269,
+   "\\bdefect\\b",
+   "atory and is generated from the ledger: every non-defect record with its id, title, disposition, reason ro"
+  ],
+  [
+   "skill",
+   348,
+   "\\bdefect\\b",
+   " be validated against a real file - Publish a non-defect candidate (unproven, rejected, intentional limita"
+  ],
+  [
+   "gate",
+   5,
+   "\\bnot\\b",
+   " This gate checks evidence and structure; it does not prove a model followed it.  ## Dispositions  Ever"
+  ],
+  [
+   "gate",
+   14,
+   "\\bnot\\b",
+   "proven` | The evidence is missing, speculative or not verified. Kept locally. | | `rejected` | A verifi"
+  ],
+  [
+   "gate",
+   15,
+   "\\bnot\\b",
+   " or schema refutes the claim, or the mechanism is not present in the target. Kept locally. | | `intenti"
+  ],
+  [
+   "gate",
+   23,
+   "\\bnot\\b",
+   "ation grounding is a drop. A cited line that does not exist, or whose snippet does not match, goes to `"
+  ],
+  [
+   "gate",
+   23,
+   "\\bnot\\b",
+   "d line that does not exist, or whose snippet does not match, goes to `dropped_ungrounded[]` with its re"
+  ],
+  [
+   "gate",
+   56,
+   "\\bnot\\b",
+   "pleted as written\". Examples: a required input is not supplied, two instructions cannot both be satisfi"
+  ],
+  [
+   "gate",
+   67,
+   "\\bnot\\b",
+   "| | A2 | The triggering input is shown refused or not produced by the verified producer or schema | `re"
+  ],
+  [
+   "gate",
+   71,
+   "\\bnot\\b",
+   " speculative`; class-required evidence missing or not verified (REQ-006, REQ-007); every consequence ex"
+  ],
+  [
+   "gate",
+   134,
+   "\\bnot\\b",
+   "he definition the admitted harm meets, so it need not equal the final tier: rubric step 4 can drop a pr"
+  ],
+  [
+   "gate",
+   174,
+   "\\bnot\\b",
+   "s_not_block`, with that citation. A group that is not a defect has nothing to answer: its blocking cita"
+  ],
+  [
+   "gate",
+   174,
+   "\\bnot\\b",
+   "answer: its blocking citation is the reason it is not a defect. - **Strict dominance.** The group is a "
+  ],
+  [
+   "gate",
+   226,
+   "\\bnot\\b",
+   "scanned. Text such as `(id: x)` in a paragraph is not a tag. - Entry boundaries: column-0 field bullets"
+  ],
+  [
+   "gate",
+   227,
+   "\\bnot\\b",
+   "nder a heading entry belong to that entry and are not entries. A heading entry runs to the next heading"
+  ],
+  [
+   "gate",
+   227,
+   "\\bnot\\b",
+   "indented, so a non-blank line at column 0 that is not a list item also ends it. - Every Critical and Hi"
+  ],
+  [
+   "gate",
+   236,
+   "\\bnot\\b",
+   "t` or any candidate's `evidence_sources`. It does not judge whether a guard really blocks or a sentence"
+  ],
+  [
+   "gate",
+   248,
+   "\\bnot\\b",
+   "available (for example `command -v jq`). If it is not, the status is `failed` with reason `invariant_ch"
+  ],
+  [
+   "gate",
+   248,
+   "\\bnot\\b",
+   "`audit.log` are still written. `allowed-tools` is not a prerequisite check.  ```jq # Invariant program "
+  ],
+  [
+   "gate",
+   19,
+   "\\bnever\\b",
+   " other disposition has `severity: null`. Doubt is never expressed as a lower severity.  ## Location groun"
+  ],
+  [
+   "gate",
+   23,
+   "\\bnever\\b",
+   " to `dropped_ungrounded[]` with its reason and is never converted to another disposition.  Head-mismatch "
+  ],
+  [
+   "gate",
+   172,
+   "\\bnever\\b",
+   "- **Members.** Keep all member ids and citations; never count votes. The group root (the decider, `merged"
+  ],
+  [
+   "gate",
+   177,
+   "\\bnever\\b",
+   "n_citation` only when its own is null. Losers are never graded, counted, rendered or remediated on their "
+  ],
+  [
+   "gate",
+   184,
+   "\\bnever\\b",
+   "hema id stays at version 1 because the schema has never been released.  Top-level fields:  | Field | Cont"
+  ],
+  [
+   "gate",
+   194,
+   "\\bnever\\b",
+   "null` or absent while the check runs; the program never reads it | | `candidates[]` | One record per grou"
+  ],
+  [
+   "gate",
+   226,
+   "\\bnever\\b",
+   "atching, so excerpts and quoted template text are never scanned. Text such as `(id: x)` in a paragraph is"
+  ],
+  [
+   "gate",
+   240,
+   "\\bnever\\b",
+   ". Exit 0 means every invariant holds. The program never reads `jq_exit`, which is `null` or absent while "
+  ],
+  [
+   "gate",
+   241,
+   "\\bnever\\b",
+   "so an empty ledger or empty report yields `true`, never \"no output\". - The program is passed with `-f`, s"
+  ],
+  [
+   "gate",
+   3,
+   "\\bonly\\b",
+   "ates are published as defects. Location grounding only proves that a cited line exists. The claim gate a"
+  ],
+  [
+   "gate",
+   5,
+   "\\bonly\\b",
+   "`severity_hint` and `disposition_hint` are inputs only. This gate checks evidence and structure; it does"
+  ],
+  [
+   "gate",
+   48,
+   "\\bonly\\b",
+   "ders best supported.  - The admitted record keeps only supported consequences in `claim.harm`. Every oth"
+  ],
+  [
+   "gate",
+   66,
+   "\\bonly\\b",
+   "ry verified entrypoint blocks the trigger, or the only path to `observed_at` is a seam whose documented "
+  ],
+  [
+   "gate",
+   92,
+   "\\bonly\\b",
+   "## Synthetic input  Synthetic input is admissible only through `producer`: the input must be accepted by"
+  ],
+  [
+   "gate",
+   152,
+   "\\bonly\\b",
+   "` hop in a defect's `evidence_sources[]` is legal only when that value is `match`.  ### Explicit diff co"
+  ],
+  [
+   "gate",
+   161,
+   "\\bonly\\b",
+   " `unchecked`, and is set to `present` or `absent` only when a distinct current ref is known. - Snapshot "
+  ],
+  [
+   "gate",
+   172,
+   "\\bonly\\b",
+   "rs[]`, its own first; an unmerged singleton lists only its own id. Every other member record has `member"
+  ],
+  [
+   "gate",
+   175,
+   "\\bonly\\b",
+   ". - **Strict dominance.** The group is a `defect` only if the decider strictly outranks every non-defect"
+  ],
+  [
+   "gate",
+   177,
+   "\\bonly\\b",
+   " and it takes the decider's `refutation_citation` only when its own is null. Losers are never graded, co"
+  ],
+  [
+   "gate",
+   204,
+   "\\bonly\\b",
+   " `disposition_hint`. After admission `harm` holds only supported consequences. - `evidence_sources[]` ha"
+  ],
+  [
+   "gate",
+   229,
+   "\\bonly\\b",
+   "Findings`. - Top-level list-item entries are used only for Nits (in the Nits subsection of `## Findings`"
+  ],
+  [
+   "gate",
+   229,
+   "\\bonly\\b",
+   "ng Observations`. Cross-Cutting list items appear only in that section. - Each defect entry carries `**E"
+  ],
+  [
+   "gate",
+   231,
+   "\\bonly\\b",
+   "nd qualification. - A `path:line` pattern appears only inside defect entries, except in the header block"
+  ],
+  [
+   "gate",
+   241,
+   "\\bonly\\b",
+   "ull` or absent while it runs. - The program reads only the slurped ledger and the raw `REVIEW.md` text. "
+  ],
+  [
+   "gate",
+   5,
+   "\\bevery\\b",
+   "`claim` block as input; the orchestrator re-Reads every cited line before it relies on it. \"Verified\" in "
+  ],
+  [
+   "gate",
+   49,
+   "\\bevery\\b",
+   "t` when at least one consequence is supported and every other table condition holds. - Severity is graded"
+  ],
+  [
+   "gate",
+   66,
+   "\\bevery\\b",
+   "sition | |---|---|---| | A1 | A verified guard on every verified entrypoint blocks the trigger, or the on"
+  ],
+  [
+   "gate",
+   71,
+   "\\bevery\\b",
+   "dence missing or not verified (REQ-006, REQ-007); every consequence excluded; `harm` equal to the cited `"
+  ],
+  [
+   "gate",
+   172,
+   "\\bevery\\b",
+   "oup root (the decider, `merged_into: null`) lists every member id in `members[]`, its own first; an unmer"
+  ],
+  [
+   "gate",
+   174,
+   "\\bevery\\b",
+   "* When the group's final disposition is `defect`, every blocking citation recorded on any member (its `re"
+  ],
+  [
+   "gate",
+   177,
+   "\\bevery\\b",
+   " a non-defect group has `severity: null`. So that every per-record invariant holds for a loser, it also c"
+  ],
+  [
+   "gate",
+   177,
+   "\\bevery\\b",
+   "the rest of the decider's final admission fields (every field except `id`, `members`, `merged_into`, `fil"
+  ],
+  [
+   "gate",
+   206,
+   "\\bevery\\b",
+   "f_new_side`. - `run_status`, `findings_count` and every candidate's `evidence_sources[]` are all written "
+  ],
+  [
+   "gate",
+   206,
+   "\\bevery\\b",
+   "e all written before the invariant check runs, so every invariant is evaluable from `candidates.json` and"
+  ],
+  [
+   "gate",
+   216,
+   "\\bevery\\b",
+   "ss`. - `REVIEW.md` and `audit.log` are written on every status.  The reported status equals the ledger's "
+  ],
+  [
+   "gate",
+   240,
+   "\\bevery\\b",
+   "candidates.json` and in `audit.log`. Exit 0 means every invariant holds. The program never reads `jq_exit"
+  ],
+  [
+   "gate",
+   245,
+   "\\bevery\\b",
+   "ys. - J3 and the other per-defect checks apply to every record whose disposition is `defect`, merged lose"
+  ],
+  [
+   "gate",
+   176,
+   "\\bhighest\\b",
+   "ct`. - **Non-defect groups.** The group takes the highest-rank member's disposition. Equal rank gives `unpr"
+  ],
+  [
+   "gate",
+   92,
+   "\\bmust\\b",
+   " is admissible only through `producer`: the input must be accepted by the verified producer, schema or a"
+  ],
+  [
+   "gate",
+   174,
+   "\\bmust\\b",
+   "tion`, or a `refutation[]` entry marked `blocks`) must be answered in the decider's `refutation[]` as `c"
+  ],
+  [
+   "gate",
+   172,
+   "\\bfirst\\b",
+   "l`) lists every member id in `members[]`, its own first; an unmerged singleton lists only its own id. Eve"
+  ],
+  [
+   "gate",
+   231,
+   "\\bfirst\\b",
+   "ect entries, except in the header block above the first section. - `REVIEW.md` has no `## Not Admitted` h"
+  ],
+  [
+   "gate",
+   199,
+   "\\bfailed\\b",
+   "nding | | `run_status` | `success`, `partial` or `failed`: the status computed under \"Status mapping\" befo"
+  ],
+  [
+   "gate",
+   214,
+   "\\bfailed\\b",
+   "findings dropped at grounding, a skipped chunk or failed agent run, or a failed PR post) and is also the s"
+  ],
+  [
+   "gate",
+   214,
+   "\\bfailed\\b",
+   "unding, a skipped chunk or failed agent run, or a failed PR post) and is also the status whenever `coverag"
+  ],
+  [
+   "gate",
+   248,
+   "\\bfailed\\b",
+   "le `command -v jq`). If it is not, the status is `failed` with reason `invariant_check_unavailable`, and `"
+  ],
+  [
+   "gate",
+   177,
+   "\\bnon-null\\b",
+   "severity`. A loser of a defect group has the same non-null severity; a loser of a non-defect group has `seve"
+  ],
+  [
+   "gate",
+   177,
+   "\\bnon-null\\b",
+   "elds in the next sentence). A loser keeps its own non-null `refutation_citation` and its own `refutation[]` "
+  ],
+  [
+   "gate",
+   52,
+   "\\bnon-empty\\b",
+   "luded_consequences[]`. - Rendering: a defect with non-empty `excluded_consequences[]` gets one line per exclu"
+  ],
+  [
+   "gate",
+   19,
+   "\\bnever\\b",
+   " other disposition has `severity: null`. Doubt is never expressed as a lower severity.  ## Location groun"
+  ],
+  [
+   "gate",
+   23,
+   "\\bnever\\b",
+   " to `dropped_ungrounded[]` with its reason and is never converted to another disposition.  Head-mismatch "
+  ],
+  [
+   "gate",
+   172,
+   "\\bnever\\b",
+   "- **Members.** Keep all member ids and citations; never count votes. The group root (the decider, `merged"
+  ],
+  [
+   "gate",
+   177,
+   "\\bnever\\b",
+   "n_citation` only when its own is null. Losers are never graded, counted, rendered or remediated on their "
+  ],
+  [
+   "gate",
+   184,
+   "\\bnever\\b",
+   "hema id stays at version 1 because the schema has never been released.  Top-level fields:  | Field | Cont"
+  ],
+  [
+   "gate",
+   194,
+   "\\bnever\\b",
+   "null` or absent while the check runs; the program never reads it | | `candidates[]` | One record per grou"
+  ],
+  [
+   "gate",
+   226,
+   "\\bnever\\b",
+   "atching, so excerpts and quoted template text are never scanned. Text such as `(id: x)` in a paragraph is"
+  ],
+  [
+   "gate",
+   240,
+   "\\bnever\\b",
+   ". Exit 0 means every invariant holds. The program never reads `jq_exit`, which is `null` or absent while "
+  ],
+  [
+   "gate",
+   241,
+   "\\bnever\\b",
+   "so an empty ledger or empty report yields `true`, never \"no output\". - The program is passed with `-f`, s"
+  ],
+  [
+   "gate",
+   13,
+   "\\bdefect\\b",
+   "position:  | Disposition | Meaning | |---|---| | `defect` | The claim is supported: a violated requirement"
+  ],
+  [
+   "gate",
+   19,
+   "\\bdefect\\b",
+   "explains the claimed harm. Kept locally. |  Only `defect` carries a severity. Every other disposition has "
+  ],
+  [
+   "gate",
+   52,
+   "\\bdefect\\b",
+   "sted in `excluded_consequences[]`. - Rendering: a defect with non-empty `excluded_consequences[]` gets one"
+  ],
+  [
+   "gate",
+   52,
+   "\\bdefect\\b",
+   " `NOT-ADMITTED.md` lists the same lines under the defect's id.  ## Narrow contract defects  A `protocol_li"
+  ],
+  [
+   "gate",
+   100,
+   "\\bdefect\\b",
+   "a documented supported configuration. A qualified defect whose category is not `security` or `data-integri"
+  ],
+  [
+   "gate",
+   104,
+   "\\bdefect\\b",
+   " and is not capped.  ## Refutation record  Every `defect` carries `refutation[]` with one entry per applic"
+  ],
+  [
+   "gate",
+   114,
+   "\\bdefect\\b",
+   "l: lines src/app/service.py = 412`.  A structural defect's mechanical fact (Claim classes) uses the `mecha"
+  ],
+  [
+   "gate",
+   126,
+   "\\bdefect\\b",
+   "tical:1` to `critical:4` | 1 exploitable security defect; 2 data-integrity defect; 3 crash on startup or d"
+  ],
+  [
+   "gate",
+   126,
+   "\\bdefect\\b",
+   "| 1 exploitable security defect; 2 data-integrity defect; 3 crash on startup or default path; 4 regulatory"
+  ],
+  [
+   "gate",
+   126,
+   "\\bdefect\\b",
+   "artup or default path; 4 regulatory or compliance defect | | High | `high:1` to `high:6` | 1 latent securi"
+  ],
+  [
+   "gate",
+   127,
+   "\\bdefect\\b",
+   "gh:6` | 1 latent security weakness; 2 correctness defect on a non-default path; 3 resource leak; 4 API con"
+  ],
+  [
+   "gate",
+   134,
+   "\\bdefect\\b",
+   "ow:2`, `low:3`, `nit:1`, `nit:2`, `nit:3`.  Every defect's `severity_basis` is one of these ids. The id na"
+  ],
+  [
+   "gate",
+   134,
+   "\\bdefect\\b",
+   "final tier: rubric step 4 can drop a pre-existing defect one tier. A qualified defect whose `severity_basi"
+  ],
+  [
+   "gate",
+   134,
+   "\\bdefect\\b",
+   " drop a pre-existing defect one tier. A qualified defect whose `severity_basis` is a `critical:<n>` id is "
+  ],
+  [
+   "gate",
+   152,
+   "\\bdefect\\b",
+   "rget.head_object_check`. A `head_object` hop in a defect's `evidence_sources[]` is legal only when that va"
+  ],
+  [
+   "gate",
+   166,
+   "\\bdefect\\b",
+   "; `diff` and `snapshot` are current state. A `pr` defect that was fixed later keeps `defect` with `current"
+  ],
+  [
+   "gate",
+   166,
+   "\\bdefect\\b",
+   " state. A `pr` defect that was fixed later keeps `defect` with `current_status: absent` and `remediation_e"
+  ],
+  [
+   "gate",
+   174,
+   "\\bdefect\\b",
+   "n union.** When the group's final disposition is `defect`, every blocking citation recorded on any member "
+  ],
+  [
+   "gate",
+   174,
+   "\\bdefect\\b",
+   "block`, with that citation. A group that is not a defect has nothing to answer: its blocking citation is t"
+  ],
+  [
+   "gate",
+   174,
+   "\\bdefect\\b",
+   ": its blocking citation is the reason it is not a defect. - **Strict dominance.** The group is a `defect` "
+  ],
+  [
+   "gate",
+   175,
+   "\\bdefect\\b",
+   "a defect. - **Strict dominance.** The group is a `defect` only if the decider strictly outranks every non-"
+  ],
+  [
+   "gate",
+   176,
+   "\\bdefect\\b",
+   "` with reason `other:mechanism_conflict`. - **Non-defect groups.** The group takes the highest-rank member"
+  ],
+  [
+   "gate",
+   177,
+   "\\bdefect\\b",
+   "copy the decider's final `severity`. A loser of a defect group has the same non-null severity; a loser of "
+  ],
+  [
+   "gate",
+   177,
+   "\\bdefect\\b",
+   " has the same non-null severity; a loser of a non-defect group has `severity: null`. So that every per-rec"
+  ],
+  [
+   "gate",
+   222,
+   "\\bdefect\\b",
+   "Report tag grammar  `REVIEW.md` has one place per defect. Tags are how the invariant check ties report ent"
+  ],
+  [
+   "gate",
+   228,
+   "\\bdefect\\b",
+   "list item also ends it. - Every Critical and High defect, including a cross-cutting one, is a heading entr"
+  ],
+  [
+   "gate",
+   230,
+   "\\bdefect\\b",
+   "ng list items appear only in that section. - Each defect entry carries `**Evidence kind**: <evidence_kind>"
+  ],
+  [
+   "gate",
+   231,
+   "\\bdefect\\b",
+   "tion. - A `path:line` pattern appears only inside defect entries, except in the header block above the fir"
+  ],
+  [
+   "gate",
+   245,
+   "\\bdefect\\b",
+   " to list the failing keys. - J3 and the other per-defect checks apply to every record whose disposition is"
+  ],
+  [
+   "gate",
+   245,
+   "\\bdefect\\b",
+   "hecks apply to every record whose disposition is `defect`, merged losers included (they copy the decider's"
+  ],
+  [
+   "gate",
+   245,
+   "\\bdefect\\b",
+   "fields, see Mechanism dedupe). J8 applies to each defect decider whose group has more than one record. - A"
+  ],
+  [
+   "prompts",
+   3,
+   "\\bnot\\b",
+   " findings as parseable JSON in its final message, not free-form markdown.  Every finding category asks "
+  ],
+  [
+   "prompts",
+   5,
+   "\\bnot\\b",
+   "egory asks the agent to cross-reference the repo, not to reason only from the diff in isolation. The ag"
+  ],
+  [
+   "prompts",
+   27,
+   "\\bnot\\b",
+   " If false, cite only the new side of the diff; do not Read the local file as evidence and do not query "
+  ],
+  [
+   "prompts",
+   27,
+   "\\bnot\\b",
+   "ff; do not Read the local file as evidence and do not query Serena. Read the diff, then investigate wit"
+  ],
+  [
+   "prompts",
+   32,
+   "\\bnot\\b",
+   "ocus area, search for the patterns described \u2014 do not just react to what's visible in the diff. Use Gre"
+  ],
+  [
+   "prompts",
+   38,
+   "\\bnot\\b",
+   "ence is tolerated and stripped before parsing. Do not include explanatory prose outside it. Do not writ"
+  ],
+  [
+   "prompts",
+   38,
+   "\\bnot\\b",
+   ". Do not include explanatory prose outside it. Do not write files. The shape is:  {   \"findings\": [    "
+  ],
+  [
+   "prompts",
+   52,
+   "\\bnot\\b",
+   "-3 sentences with a concrete change \u2014 what to do, not 'consider improving'>\",       \"cross_references\":"
+  ],
+  [
+   "prompts",
+   119,
+   "\\bnot\\b",
+   "everity_hint`. - Never claim live frequency. - Do not invent file paths. If you remember a file existin"
+  ],
+  [
+   "prompts",
+   120,
+   "\\bnot\\b",
+   "us area, aim for the highest-signal 3-5 findings, not an exhaustive list. The orchestrator will dedupe "
+  ],
+  [
+   "prompts",
+   121,
+   "\\bnot\\b",
+   "n a focus area if the area is genuinely clean. Do not pad. - For PR mode: prefer findings whose cited l"
+  ],
+  [
+   "prompts",
+   123,
+   "\\bnot\\b",
+   "pling): put them in `cross_cutting_observations`, not `findings`, since they don't have a single line. "
+  ],
+  [
+   "prompts",
+   180,
+   "\\bnot\\b",
+   "t, performance, qa), once each on the whole diff, not once per chunk. Each persona prompt is the main `"
+  ],
+  [
+   "prompts",
+   114,
+   "\\bnever\\b",
+   "ou have Read. A Serena or index result is a hint, never evidence, and a miss never proves absence; only a"
+  ],
+  [
+   "prompts",
+   114,
+   "\\bnever\\b",
+   "ndex result is a hint, never evidence, and a miss never proves absence; only a Grep or Read citing its pa"
+  ],
+  [
+   "prompts",
+   174,
+   "\\bnever\\b",
+   "napshot` for every candidate, and snapshot output never says \"introduced\", \"regression\" or \"this PR\".  --"
+  ],
+  [
+   "prompts",
+   5,
+   "\\bonly\\b",
+   " agent to cross-reference the repo, not to reason only from the diff in isolation. The agent can still m"
+  ],
+  [
+   "prompts",
+   27,
+   "\\bonly\\b",
+   " the local checkout: {HEAD_MATCH}. If false, cite only the new side of the diff; do not Read the local f"
+  ],
+  [
+   "prompts",
+   49,
+   "\\bonly\\b",
+   "indings>,       \"in_diff\": <true|false \u2014 set true only if your cited line falls inside the diff hunks>, "
+  ],
+  [
+   "prompts",
+   114,
+   "\\bonly\\b",
+   " never evidence, and a miss never proves absence; only a Grep or Read citing its pattern and root does. "
+  ],
+  [
+   "prompts",
+   122,
+   "\\bonly\\b",
+   "iff: true`). Out-of-diff findings are allowed but only when the diff makes them newly relevant (e.g., a "
+  ],
+  [
+   "prompts",
+   178,
+   "\\bonly\\b",
+   "s PR\".  ---  ## Persona-specialized prompts (used only in `--depth deep`)  For deep reviews the skill al"
+  ],
+  [
+   "prompts",
+   194,
+   "\\bonly\\b",
+   "icious. - Don't put severity caps in the prompt (\"only return high-severity findings\") \u2014 let the agent s"
+  ],
+  [
+   "prompts",
+   32,
+   "\\bevery\\b",
+   " Grep and Serena.  ## Focus areas  You MUST cover every focus area listed below. For each focus area, sea"
+  ],
+  [
+   "prompts",
+   115,
+   "\\bevery\\b",
+   "p or Read citing its pattern and root does. - For every behavioral claim, trace a production entrypoint o"
+  ],
+  [
+   "prompts",
+   146,
+   "\\bevery\\b",
+   " this should follow?`  For `--focus all`, include every block above.  ---  ## Template: `snapshot-review-"
+  ],
+  [
+   "prompts",
+   155,
+   "\\bevery\\b",
+   " their current state. There is no diff baseline \u2014 every line is in scope.  ## Context  Target: snapshot o"
+  ],
+  [
+   "prompts",
+   172,
+   "\\bevery\\b",
+   " irrelevant (snapshot mode), the agent should set every finding's `in_diff` to `false` and the orchestrat"
+  ],
+  [
+   "prompts",
+   174,
+   "\\bevery\\b",
+   "ords `introduced_in: not_applicable_snapshot` for every candidate, and snapshot output never says \"introd"
+  ],
+  [
+   "prompts",
+   120,
+   "\\bhighest\\b",
+   " leave it out. - For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list. The "
+  ],
+  [
+   "prompts",
+   36,
+   "\\bmust\\b",
+   "LOCK}  ## Output contract (STRICT \u2014 your response must match this exactly)  Your final message is a sing"
+  ],
+  [
+   "prompts",
+   114,
+   "\\bmust\\b",
+   "ported, or null.  ## Quality bar  - Every finding must cite a real file:line you have Read. A Serena or "
+  ],
+  [
+   "prompts",
+   59,
+   "\\bnone\\b",
+   " convention the code violates; empty if you found none>\",         \"intent_sources\": [\"<path:line of comm"
+  ],
+  [
+   "prompts",
+   63,
+   "\\bnone\\b",
+   "ribes the step, that reaches observed_at; null if none>\",           \"producer\": \"<path:line of the produ"
+  ],
+  [
+   "prompts",
+   64,
+   "\\bnone\\b",
+   "tract that supplies the triggering input; null if none>\",           \"guards_checked\": [\"<path:line of ea"
+  ],
+  [
+   "prompts",
+   114,
+   "\\bnever\\b",
+   "ou have Read. A Serena or index result is a hint, never evidence, and a miss never proves absence; only a"
+  ],
+  [
+   "prompts",
+   114,
+   "\\bnever\\b",
+   "ndex result is a hint, never evidence, and a miss never proves absence; only a Grep or Read citing its pa"
+  ],
+  [
+   "prompts",
+   174,
+   "\\bnever\\b",
+   "napshot` for every candidate, and snapshot output never says \"introduced\", \"regression\" or \"this PR\".  --"
+  ],
+  [
+   "prompts",
+   73,
+   "\\bdefect\\b",
+   "ocumentation>\\\"}>\",         \"disposition_hint\": \"<defect | unproven | rejected | intentional_limitation | "
+  ],
+  [
+   "prompts",
+   99,
+   "\\bdefect\\b",
+   "as in findings[]>\",         \"disposition_hint\": \"<defect | unproven | rejected | intentional_limitation | "
+  ],
+  [
+   "rubric",
+   3,
+   "\\bnot\\b",
+   "e reviewer's `severity_hint` is a starting point, not authoritative. After Wave 3 grounding completes, "
+  ],
+  [
+   "rubric",
+   5,
+   "\\bnot\\b",
+   " pass produced the finding.  ## Why a rubric (and not just trust the reviewer)  Severity drift is the m"
+  ],
+  [
+   "rubric",
+   9,
+   "\\bnot\\b",
+   "ion terms** (block merge? request changes? nit?), not just adjectives. That's what reviewers actually c"
+  ],
+  [
+   "rubric",
+   28,
+   "\\bnot\\b",
+   "at least one of:  - **Latent security weakness**: not directly exploitable today but trivially exploita"
+  ],
+  [
+   "rubric",
+   28,
+   "\\bnot\\b",
+   "te endpoint, broad CORS, weak password hash (when not user-facing yet), `eval()` of a constructed-but-c"
+  ],
+  [
+   "rubric",
+   43,
+   "\\bnot\\b",
+   "on, message chains, etc., visible at one site but not yet widespread. - **Test gap on non-trivial logic"
+  ],
+  [
+   "rubric",
+   52,
+   "\\bnot\\b",
+   "s opportunistic (a refactor adjacent to the diff, not required by it), OR - The pattern exists elsewher"
+  ],
+  [
+   "rubric",
+   71,
+   "\\bnot\\b",
+   "mented supported configuration, whose category is not `security` or `data-integrity` and whose harm doe"
+  ],
+  [
+   "rubric",
+   71,
+   "\\bnot\\b",
+   "security` or `data-integrity` and whose harm does not meet a Critical definition (including the regulat"
+  ],
+  [
+   "rubric",
+   114,
+   "\\bnot\\b",
+   "alibration examples  These exist so the rubric is not just abstract \u2014 pin the algorithm to real shapes."
+  ],
+  [
+   "rubric",
+   146,
+   "\\bnot\\b",
+   "ory: `tests` - Function is called from one place, not on the critical path - Confidence: `high` - **Rem"
+  ],
+  [
+   "rubric",
+   176,
+   "\\bnot\\b",
+   "ss of counts) | **Inconclusive** \u2014 the review did not cover all of its input; do not read the absence o"
+  ],
+  [
+   "rubric",
+   176,
+   "\\bnot\\b",
+   "* \u2014 the review did not cover all of its input; do not read the absence of findings as a clean result | "
+  ],
+  [
+   "rubric",
+   179,
+   "\\bnot\\b",
+   "*Approve with comments** \u2014 Items worth fixing but not blocking | | No defects admitted (a non-empty led"
+  ],
+  [
+   "rubric",
+   61,
+   "\\bnever\\b",
+   "gle sub-section of the report (one-line per nit), never get inline comments, and never block merge.  ## A"
+  ],
+  [
+   "rubric",
+   61,
+   "\\bnever\\b",
+   "one-line per nit), never get inline comments, and never block merge.  ## Admission precedes grading  In `"
+  ],
+  [
+   "rubric",
+   165,
+   "\\bnever\\b",
+   "that fail file:line grounding (handled in Wave 3, never reach the rubric) - Findings about formatting tha"
+  ],
+  [
+   "rubric",
+   28,
+   "\\bonly\\b",
+   "able if a precondition changes (e.g., an internal-only endpoint becomes external; a trusted-input functi"
+  ],
+  [
+   "rubric",
+   35,
+   "\\bonly\\b",
+   "n `--depth standard` they get the summary listing only.  ### \ud83d\udfe1 Medium \u2014 Fix in this PR if cheap, otherwi"
+  ],
+  [
+   "rubric",
+   53,
+   "\\bonly\\b",
+   "rn exists elsewhere in the codebase and fixing it only here would be inconsistent.  ### \ud83d\udcac Nit \u2014 Style, n"
+  ],
+  [
+   "rubric",
+   59,
+   "\\bonly\\b",
+   " Style: blank line conventions, import ordering \u2014 only if the repo has a documented convention and this "
+  ],
+  [
+   "rubric",
+   65,
+   "\\bonly\\b",
+   "ing  In `/sc:auggie-review`, the remap below runs only after the admission step of `refs/claim-gate.md` "
+  ],
+  [
+   "rubric",
+   86,
+   "\\bonly\\b",
+   " High | \u2014 | | `data-integrity` | High | Critical (only if persists corruption) | | `correctness` | Mediu"
+  ],
+  [
+   "rubric",
+   87,
+   "\\bonly\\b",
+   "orruption) | | `correctness` | Medium | Critical (only if default-path crash) | | `concurrency` | Medium"
+  ],
+  [
+   "rubric",
+   88,
+   "\\bonly\\b",
+   "lt-path crash) | | `concurrency` | Medium | High (only if realistic trigger documented) | | `resource-le"
+  ],
+  [
+   "rubric",
+   91,
+   "\\bonly\\b",
+   "mers are in-repo) | | `performance` | Low | High (only if measured impact) | | `architecture` | Medium |"
+  ],
+  [
+   "rubric",
+   96,
+   "\\bonly\\b",
+   "m (if on critical path) / Low (otherwise) | High (only if breaking-change w/o test) | | `docs` | Low | M"
+  ],
+  [
+   "rubric",
+   102,
+   "\\bonly\\b",
+   " etc.). If Critical and low confidence, downgrade only if the orchestrator's grounding pass also flagged"
+  ],
+  [
+   "rubric",
+   105,
+   "\\bonly\\b",
+   " **Apply diff-locality adjustment** (PR/diff mode only):    - `in_diff: true` \u2192 no change    - `in_diff:"
+  ],
+  [
+   "rubric",
+   142,
+   "\\bonly\\b",
+   " ### Example: missing test on a new helper called only once  - Reviewer `severity_hint`: `high` - Catego"
+  ],
+  [
+   "rubric",
+   181,
+   "\\bonly\\b",
+   "no findings | **Looks good** \u2014 Minor observations only |  This recommendation is the report's first-para"
+  ],
+  [
+   "rubric",
+   3,
+   "\\bevery\\b",
+   " authoritative. After Wave 3 grounding completes, every finding is remapped through this rubric so the re"
+  ],
+  [
+   "rubric",
+   73,
+   "\\bevery\\b",
+   "not capped.  Steps 1 to 4 below are unchanged for every other consumer of this rubric.  ## Severity-remap"
+  ],
+  [
+   "rubric",
+   177,
+   "\\bmust\\b",
+   "itical > 0` | **Block merge** \u2014 Critical findings must be resolved or explicitly accepted by the human r"
+  ],
+  [
+   "rubric",
+   19,
+   "\\bfirst\\b",
+   " fail in some edge case\" \u2014 \"this will fail on the first run.\" - **Regulatory / compliance defect** for a "
+  ],
+  [
+   "rubric",
+   183,
+   "\\bfirst\\b",
+   "tions only |  This recommendation is the report's first-paragraph verdict. It does NOT translate into a `"
+  ],
+  [
+   "rubric",
+   15,
+   "\\bat least\\b",
+   "Critical \u2014 Block merge  A finding is Critical iff at least one of:  - **Exploitable security defect**: anyth"
+  ],
+  [
+   "rubric",
+   26,
+   "\\bat least\\b",
+   " \u2014 Should fix before merge  A finding is High iff at least one of:  - **Latent security weakness**: not dire"
+  ],
+  [
+   "rubric",
+   39,
+   "\\bat least\\b",
+   "otherwise file follow-up  A finding is Medium iff at least one of:  - **Code-quality issue with concrete con"
+  ],
+  [
+   "rubric",
+   180,
+   "\\bnone\\b",
+   "defects admitted** \u2014 candidates were reviewed and none met the admission rules; see `NOT-ADMITTED.md` | "
+  ],
+  [
+   "rubric",
+   61,
+   "\\bnever\\b",
+   "gle sub-section of the report (one-line per nit), never get inline comments, and never block merge.  ## A"
+  ],
+  [
+   "rubric",
+   61,
+   "\\bnever\\b",
+   "one-line per nit), never get inline comments, and never block merge.  ## Admission precedes grading  In `"
+  ],
+  [
+   "rubric",
+   165,
+   "\\bnever\\b",
+   "that fail file:line grounding (handled in Wave 3, never reach the rubric) - Findings about formatting tha"
+  ],
+  [
+   "rubric",
+   17,
+   "\\bdefect\\b",
+   "al iff at least one of:  - **Exploitable security defect**: anything that lets an unauthenticated or under"
+  ],
+  [
+   "rubric",
+   18,
+   "\\bdefect\\b",
+   "al in a file-serving endpoint. - **Data-integrity defect**: anything that can persist incorrect data, lose"
+  ],
+  [
+   "rubric",
+   20,
+   "\\bdefect\\b",
+   "il on the first run.\" - **Regulatory / compliance defect** for a project that operates under one: PII in l"
+  ],
+  [
+   "rubric",
+   29,
+   "\\bdefect\\b",
+   "ted-but-currently-trusted string. - **Correctness defect on a non-default path**: edge cases that fire oft"
+  ],
+  [
+   "rubric",
+   67,
+   "\\bdefect\\b",
+   "d defects (unmerged records whose disposition is `defect`) are graded. - A category floor applies only whe"
+  ],
+  [
+   "rubric",
+   71,
+   "\\bdefect\\b",
+   "still applies. - The qualification cap applies: a defect qualified by a documented supported configuration"
+  ],
+  [
+   "handoff",
+   23,
+   "\\bnot\\b",
+   "ation_count` is computed from it. 4. The user has not already declined a remediation offer in this sess"
+  ],
+  [
+   "handoff",
+   25,
+   "\\bnot\\b",
+   "session (avoid badgering).  If the conditions are not met, the skill returns the structured output cont"
+  ],
+  [
+   "handoff",
+   61,
+   "\\bnot\\b",
+   "path>'). ```  The offer must be a single message, not a yes/no AskUserQuestion form \u2014 the user might wa"
+  ],
+  [
+   "handoff",
+   77,
+   "\\bnot\\b",
+   "ghter type, they can override. - `--format spec`: not `code` (we're not implementing yet) and not `diag"
+  ],
+  [
+   "handoff",
+   77,
+   "\\bnot\\b",
+   "an override. - `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text"
+  ],
+  [
+   "handoff",
+   77,
+   "\\bnot\\b",
+   "pec`: not `code` (we're not implementing yet) and not `diagram` (we want text that `sc:workflow` / the "
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnot\\b",
+   "on `<output_dir>/remediation-workflow-source.md` (not on the bare spec) with `--depth standard --handof"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnot\\b",
+   "ort_path`; otherwise surface the STOP code and do not retry automatically. Surface the tasklist path wi"
+  ],
+  [
+   "handoff",
+   94,
+   "\\bnot\\b",
+   "k-builder` skill is invoked via natural language, not a slash command, because it's a skill (not a comm"
+  ],
+  [
+   "handoff",
+   94,
+   "\\bnot\\b",
+   "guage, not a slash command, because it's a skill (not a command). The skill triggers on phrases like \"b"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnot\\b",
+   "\u2014 pre-execution review  **Plan route (consume, do not re-run):** `sc:workflow` Wave 4 already ran `/sc:"
+  ],
+  [
+   "handoff",
+   140,
+   "\\bnot\\b",
+   "e pass is a **pre-execution sanity check**. We're not asking \"is this task done?\" \u2014 we're asking \"is th"
+  ],
+  [
+   "handoff",
+   155,
+   "\\bnot\\b",
+   "ase D \u2014 Execution (user-driven)  The skill **does not auto-execute** the task file. It surfaces the tas"
+  ],
+  [
+   "handoff",
+   192,
+   "\\bnot\\b",
+   ": surface that, and recommend the user commit. Do not auto-commit. The recommended commit message forma"
+  ],
+  [
+   "handoff",
+   193,
+   "\\bnot\\b",
+   "ed (re-run Phase D? Open a new review? Bail?). Do not recommend commit until validate passes.  ## Resum"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnever\\b",
+   "llet or prose sentence, **keeping its full text \u2014 never delete a line** (a deleted task would also escape"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnever\\b",
+   "are spec) with `--depth standard --handoff none` (never `--handoff implement`; execution is user-initiate"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "e.md` from the spec plus these notes, so they are never lost) and re-run Phase B \u2014 this creates a **new**"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "hase B \u2014 this creates a **new** package (workflow never edits or reuses one; the tasklist is never edited"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "rkflow never edits or reuses one; the tasklist is never edited from findings); same 2-cycle cap. The rest"
+  ],
+  [
+   "handoff",
+   160,
+   "\\bnever\\b",
+   "kg>/<id>.md        (plan route; a TASK-WF package never goes to /task)        /task <task-file-path>     "
+  ],
+  [
+   "handoff",
+   14,
+   "\\bonly\\b",
+   "gn` (Phase A) runs on both routes. `sc:implement` only gets per-task QA when its source has enumerable t"
+  ],
+  [
+   "handoff",
+   18,
+   "\\bonly\\b",
+   "e offer fires  The remediation offer is presented only if **all** the following hold:  1. The review com"
+  ],
+  [
+   "handoff",
+   22,
+   "\\bonly\\b",
+   "h >= 1` \u2014 no point offering remediation for a nit-only review. `remediation_ids` is the set of unmerged,"
+  ],
+  [
+   "handoff",
+   29,
+   "\\bonly\\b",
+   "s this message verbatim to the user (substituting only the bracketed values):  ```text Review complete: "
+  ],
+  [
+   "handoff",
+   54,
+   "\\bonly\\b",
+   "ls)  Route for this review: <plan | mdtm>   (mdtm only because --depth deep was requested)  Reply 'yes' "
+  ],
+  [
+   "handoff",
+   90,
+   "\\bonly\\b",
+   "IEW.md` and the cited Critical/High files, plus \u2014 only when `<output_dir>/remediation-review-notes.md` e"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bonly\\b",
+   " also escape the workflow's coverage check, which only sees the snapshot). The workflow gate rejects lis"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bonly\\b",
+   "urce.md --tasklist <pkg>/<id>.md` (advisory, read-only). Surface `reflect_status` and `reflect_report_pa"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bonly\\b",
+   "<output_dir>/remediation-review-notes.md` (append-only; Phase B rebuilds `remediation-workflow-source.md"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bevery\\b",
+   "on-workflow-source.md` (rewritten from scratch on every pass): a copy of `<output_dir>/remediation-spec.m"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bevery\\b",
+   "ontents. Flatten list syntax in the copy: rewrite every checkbox (`- [ ]`) or numbered-list line as a pla"
+  ],
+  [
+   "handoff",
+   61,
+   "\\bmust\\b",
+   "B using existing spec at <path>'). ```  The offer must be a single message, not a yes/no AskUserQuestion"
+  ],
+  [
+   "handoff",
+   109,
+   "\\bmust\\b",
+   " surfaced <N critical, N high>      findings that must be addressed before merge. The remediation spec d"
+  ],
+  [
+   "handoff",
+   149,
+   "\\bfirst\\b",
+   "eed to Phase D (execute) or refactor the tasklist first?\" - If reflect-analyze reports **concerns**: surf"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bfailed\\b",
+   "mode pre` a second time. `reflect_status: skipped|failed` \u2192 say so and fall back to the `self-review` agen"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnone\\b",
+   "n the bare spec) with `--depth standard --handoff none` (never `--handoff implement`; execution is user-"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnever\\b",
+   "llet or prose sentence, **keeping its full text \u2014 never delete a line** (a deleted task would also escape"
+  ],
+  [
+   "handoff",
+   90,
+   "\\bnever\\b",
+   "are spec) with `--depth standard --handoff none` (never `--handoff implement`; execution is user-initiate"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "e.md` from the spec plus these notes, so they are never lost) and re-run Phase B \u2014 this creates a **new**"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "hase B \u2014 this creates a **new** package (workflow never edits or reuses one; the tasklist is never edited"
+  ],
+  [
+   "handoff",
+   128,
+   "\\bnever\\b",
+   "rkflow never edits or reuses one; the tasklist is never edited from findings); same 2-cycle cap. The rest"
+  ],
+  [
+   "handoff",
+   160,
+   "\\bnever\\b",
+   "kg>/<id>.md        (plan route; a TASK-WF package never goes to /task)        /task <task-file-path>     "
+  ],
+  [
+   "agent",
+   29,
+   "\\bnot\\b",
+   "areas - `head_match`: `false` when the PR head is not the local checkout - `depth`: `quick`, `standard`"
+  ],
+  [
+   "agent",
+   38,
+   "\\bnot\\b",
+   "alse`): cite only the new side of `diff_path`. Do not Read the local file as evidence and do not query "
+  ],
+  [
+   "agent",
+   38,
+   "\\bnot\\b",
+   "h`. Do not Read the local file as evidence and do not query Serena. Emit out-of-diff concerns as candid"
+  ],
+  [
+   "agent",
+   43,
+   "\\bnot\\b",
+   "- **Intent gaps**: PR says X, code does X-ish-but-not-quite.    - **Pattern-match defects**: hardcoded "
+  ],
+  [
+   "agent",
+   49,
+   "\\bnot\\b",
+   "ust carry the `claim` block defined there. You do not write files; the orchestrator saves your output. "
+  ],
+  [
+   "agent",
+   64,
+   "\\bnot\\b",
+   "\u2014 your output feeds the orchestrator's synthesis, not a verdict - Cite a line it has not Read, or treat"
+  ],
+  [
+   "agent",
+   65,
+   "\\bnot\\b",
+   "r's synthesis, not a verdict - Cite a line it has not Read, or treat an index miss as proof of absence "
+  ],
+  [
+   "agent",
+   37,
+   "\\bnever\\b",
+   "**Absence rule**: a miss from Serena or any index never proves absence. Only a Grep or Read that cites it"
+  ],
+  [
+   "agent",
+   14,
+   "\\bonly\\b",
+   "every depth - Never auto-activates from keywords; only invoked via the `Task` tool  ## Behavioral Mindse"
+  ],
+  [
+   "agent",
+   18,
+   "\\bonly\\b",
+   "sona pass, go deeper within that persona's domain only.  ## Inputs  The orchestrator passes you:  - `pro"
+  ],
+  [
+   "agent",
+   36,
+   "\\bonly\\b",
+   "kind of error handling?\"). Serena is a hint; cite only lines you have Read. 4. **Absence rule**: a miss "
+  ],
+  [
+   "agent",
+   55,
+   "\\bonly\\b",
+   "ead**: pull diff bodies and adjacent context; the only source of cited evidence - **Grep / Glob**: find "
+  ],
+  [
+   "agent",
+   57,
+   "\\bonly\\b",
+   "ilar patterns, prior conventions - **Bash**: read-only `git log -p --follow <file>` for history when an "
+  ],
+  [
+   "agent",
+   3,
+   "\\bevery\\b",
+   "that is the review engine of /sc:auggie-review at every depth \u2014 a general pass per chunk, plus security/a"
+  ],
+  [
+   "agent",
+   13,
+   "\\bevery\\b",
+   "e `sc:auggie-review-protocol` skill in Wave 2, at every depth - Never auto-activates from keywords; only "
+  ],
+  [
+   "agent",
+   37,
+   "\\bnever\\b",
+   "**Absence rule**: a miss from Serena or any index never proves absence. Only a Grep or Read that cites it"
+  ],
+  [
+   "command",
+   27,
+   "\\bnot\\b",
+   "its. Untracked files are listed in a WARN and are not reviewed. - **File snapshot**: `--snapshot <path>"
+  ],
+  [
+   "command",
+   30,
+   "\\bnot\\b",
+   " **STOP** if none of the above are resolvable. Do not invent a target.  ## Usage  ```bash /sc:auggie-re"
+  ],
+  [
+   "command",
+   40,
+   "\\bnot\\b",
+   "epth deep --no-post-pr          # Deep review, do not post to PR ```  ## Options  | Flag | Default | De"
+  ],
+  [
+   "command",
+   50,
+   "\\bnot\\b",
+   "`--no-post-pr` | \u2014 | Generate the report only; do not touch GitHub | | `--remediation-offer` | `true` |"
+  ],
+  [
+   "command",
+   155,
+   "\\bnot\\b",
+   "hat cannot be grounded in a real file is dropped, not promoted to \"low confidence\") - Auto-trigger the "
+  ],
+  [
+   "command",
+   163,
+   "\\bnot\\b",
+   "re gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`; `--type "
+  ],
+  [
+   "command",
+   73,
+   "\\bnever\\b",
+   " - **Serena**: caller and symbol hints. A hint is never evidence; every cited line is Read.  ## Tool Coor"
+  ],
+  [
+   "command",
+   153,
+   "\\bnever\\b",
+   "the PR (the report posts as a `--comment` review, never `--approve` or `--request-changes`) - Run a PR ta"
+  ],
+  [
+   "command",
+   15,
+   "\\bonly\\b",
+   "view - Agent Code Review  ## Triggers  **Explicit only** \u2014 this command does NOT auto-activate from conv"
+  ],
+  [
+   "command",
+   15,
+   "\\bonly\\b",
+   " like \"review\", \"audit\", or \"check\". It activates only via:  1. **Direct invocation**: User types `/sc:a"
+  ],
+  [
+   "command",
+   27,
+   "\\bonly\\b",
+   "**: `--diff <base-ref>...HEAD` (committed changes only), or, if no target is given and the working tree "
+  ],
+  [
+   "command",
+   39,
+   "\\bonly\\b",
+   " --focus security,architecture      # Focus areas only /sc:auggie-review 62 --depth deep --no-post-pr   "
+  ],
+  [
+   "command",
+   50,
+   "\\bonly\\b",
+   "R.** | | `--no-post-pr` | \u2014 | Generate the report only; do not touch GitHub | | `--remediation-offer` | "
+  ],
+  [
+   "command",
+   57,
+   "\\bonly\\b",
+   "col lives in the skill. The command file performs only:  1. **Parse arguments** \u2192 resolve target type (P"
+  ],
+  [
+   "command",
+   69,
+   "\\bonly\\b",
+   "col  Do NOT proceed with protocol execution using only this command file. The full behavioral specificat"
+  ],
+  [
+   "command",
+   145,
+   "\\bonly\\b",
+   " after the report posts (`task-builder` \u2192 `/task` only when `--depth deep`), gated on user confirmation "
+  ],
+  [
+   "command",
+   151,
+   "\\bonly\\b",
+   "\", \"check\") \u2014 explicit or programmatic invocation only - Modify any code under review (advisory only \u2014 c"
+  ],
+  [
+   "command",
+   152,
+   "\\bonly\\b",
+   "ion only - Modify any code under review (advisory only \u2014 code changes happen later via the remediation c"
+  ],
+  [
+   "command",
+   3,
+   "\\bevery\\b",
+   "arrow bugs + architectural risks + anti-patterns, every finding grounded by Read, with auto-posted PR rev"
+  ],
+  [
+   "command",
+   73,
+   "\\bevery\\b",
+   "aller and symbol hints. A hint is never evidence; every cited line is Read.  ## Tool Coordination  - **Ba"
+  ],
+  [
+   "command",
+   79,
+   "\\bevery\\b",
+   " changed files - **Read / Grep / Glob**: Validate every file:line citation against actual files - **Write"
+  ],
+  [
+   "command",
+   81,
+   "\\bevery\\b",
+   "r` - **Task**: Run the `auggie-reviewer` agent at every depth  ## Examples  ### Review a PR by number (mo"
+  ],
+  [
+   "command",
+   144,
+   "\\bevery\\b",
+   "anchored to real file:line in the diff - Validate every file:line citation against the actual file before"
+  ],
+  [
+   "command",
+   30,
+   "\\bnone\\b",
+   "ctory; no diff, full-content review)  **STOP** if none of the above are resolvable. Do not invent a targ"
+  ],
+  [
+   "command",
+   73,
+   "\\bnever\\b",
+   " - **Serena**: caller and symbol hints. A hint is never evidence; every cited line is Read.  ## Tool Coor"
+  ],
+  [
+   "command",
+   153,
+   "\\bnever\\b",
+   "the PR (the report posts as a `--comment` review, never `--approve` or `--request-changes`) - Run a PR ta"
+  ]
+ ],
+ "del_total": 1112,
+ "del_surv": [
+  [
+   "skill",
+   2,
+   "name: sc:auggie-review-protocol"
+  ],
+  [
+   "skill",
+   3,
+   "description: \"Code review protocol for PRs, local diffs, and file snapshots \u2014 the auggie-reviewer agent review"
+  ],
+  [
+   "skill",
+   4,
+   "allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *), Bash(jq *), Bash(wc *), Bash(find *), Bash(mkdir *),"
+  ],
+  [
+   "skill",
+   11,
+   "personas: [analyzer, architect, security, qa, refactorer]"
+  ],
+  [
+   "skill",
+   18,
+   "Run an evidence-based code review of a Pull Request, local diff, or file snapshot."
+  ],
+  [
+   "skill",
+   18,
+   "The review must catch **both** narrow bugs (off-by-one, null-deref, leaked resources, race conditions, untyped"
+  ],
+  [
+   "skill",
+   20,
+   "**Engine contract**: The `auggie-reviewer` agent does the review."
+  ],
+  [
+   "skill",
+   20,
+   "`git` and `gh` define the diff."
+  ],
+  [
+   "skill",
+   20,
+   "Serena may hint at callers and symbol ranges."
+  ],
+  [
+   "skill",
+   20,
+   "A Read of the file on disk (or of `diff."
+  ],
+  [
+   "skill",
+   20,
+   "patch` under the head-mismatch rule) is the only evidence that may appear in the report."
+  ],
+  [
+   "skill",
+   22,
+   "**Hallucination contract**: Every finding emitted in the final report must cite a `file:line` that exists in t"
+  ],
+  [
+   "skill",
+   22,
+   "Findings that cannot be grounded are dropped, not downgraded."
+  ],
+  [
+   "skill",
+   22,
+   "This is non-negotiable \u2014 a \"review\" full of imaginary line numbers is worse than no review."
+  ],
+  [
+   "skill",
+   24,
+   "**Absence rule**: a miss from Serena or any index never proves absence."
+  ],
+  [
+   "skill",
+   24,
+   "Only a Grep or Read that cites its pattern and root does."
+  ],
+  [
+   "skill",
+   28,
+   "The skill receives one of three target modes from `/sc:auggie-review`:"
+  ],
+  [
+   "skill",
+   30,
+   "| Mode | Required | Resolved Form |"
+  ],
+  [
+   "skill",
+   32,
+   "| **PR** | `<PR-num>` or `<PR-URL>` | `gh pr view <id> --json number,headRefName,headRefOid,baseRefName,headRe"
+  ],
+  [
+   "skill",
+   33,
+   "| **Diff** | `--diff <base>...HEAD`, or implicit (dirty tree, no target) | explicit: `git diff <base>...HEAD`;"
+  ],
+  [
+   "skill",
+   34,
+   "| **Snapshot** | `--snapshot <path>` | `find <path> -type f` (validate path exists) |"
+  ],
+  [
+   "skill",
+   38,
+   "- Target cannot be resolved (PR not found, ref doesn't exist, path missing)"
+  ],
+  [
+   "skill",
+   39,
+   "- For PR mode, `gh auth status` reports unauthed"
+  ],
+  [
+   "skill",
+   43,
+   "- Diff exceeds 1500 lines (emit a chunking-mode notice)"
+  ],
+  [
+   "skill",
+   44,
+   "- More than 30 files changed (recommend `--focus` to scope down)"
+  ],
+  [
+   "skill",
+   45,
+   "- The PR base branch is not the repo's default branch (mention in report header)"
+  ],
+  [
+   "skill",
+   46,
+   "- Implicit diff mode and `git ls-files --others --exclude-standard` lists untracked files: list them in the WA"
+  ],
+  [
+   "skill",
+   46,
+   "They are not review inputs."
+  ],
+  [
+   "skill",
+   52,
+   "| Field | Type | Description |"
+  ],
+  [
+   "skill",
+   54,
+   "| `status` | string | `success`, `partial` (some findings dropped for hallucination, or a chunk skipped), `fai"
+  ],
+  [
+   "skill",
+   55,
+   "| `report_path` | string | Absolute path to the markdown report |"
+  ],
+  [
+   "skill",
+   56,
+   "| `audit_log_path` | string | Absolute path to the audit log (findings JSON, validation results, decisions) |"
+  ],
+  [
+   "skill",
+   57,
+   "| `pr_review_url` | string | URL of the posted `gh pr review` comment (empty if `--no-post-pr` or non-PR targe"
+  ],
+  [
+   "skill",
+   64,
+   "| `dropped_count` | int | Findings dropped because file:line could not be validated |"
+  ],
+  [
+   "skill",
+   65,
+   "| `remediation_offered` | boolean | Whether the remediation chain was offered |"
+  ],
+  [
+   "skill",
+   66,
+   "| `remediation_accepted` | boolean | If offered, whether the user accepted |"
+  ],
+  [
+   "skill",
+   70,
+   "The protocol runs in five waves."
+  ],
+  [
+   "skill",
+   70,
+   "Each wave has explicit entry/exit criteria."
+  ],
+  [
+   "skill",
+   70,
+   "Refs are loaded **per-wave**, never pre-loaded."
+  ],
+  [
+   "skill",
+   73,
+   "Wave 0: Resolve & Validate Target"
+  ],
+  [
+   "skill",
+   74,
+   "Wave 1: Collect Inputs (diff, metadata, file list)"
+  ],
+  [
+   "skill",
+   75,
+   "Wave 2: Review Agent Pass     \u2190 loads refs/auggie-prompts."
+  ],
+  [
+   "skill",
+   76,
+   "Wave 3: Validate & Synthesize \u2190 loads refs/severity-rubric."
+  ],
+  [
+   "skill",
+   77,
+   "Wave 4: Post & Handoff       \u2190 loads refs/remediation-handoff."
+  ],
+  [
+   "skill",
+   84,
+   "**Preconditions**: command flags parsed;"
+  ],
+  [
+   "skill",
+   84,
+   "one of `target`, `--diff`, `--snapshot` provided, or the implicit dirty-tree diff."
+  ],
+  [
+   "skill",
+   88,
+   "Classify target mode (`pr`, `diff`, `snapshot`)."
+  ],
+  [
+   "skill",
+   90,
+   "- `git rev-parse --is-inside-work-tree` (STOP if not in repo)"
+  ],
+  [
+   "skill",
+   91,
+   "- For PR mode: `gh auth status` (STOP if unauthed)"
+  ],
+  [
+   "skill",
+   93,
+   "- PR: fetch the `gh pr view` fields above."
+  ],
+  [
+   "skill",
+   93,
+   "Compare `headRefOid` to `git rev-parse HEAD`;"
+  ],
+  [
+   "skill",
+   94,
+   "- Record `local_sha` (`git rev-parse HEAD`) and `worktree_dirty` (whether `git status --porcelain` lists chang"
+  ],
+  [
+   "skill",
+   94,
+   "`base` and `head` are the base and head refs of the target;"
+  ],
+  [
+   "skill",
+   94,
+   "snapshot mode records `base: null`."
+  ],
+  [
+   "skill",
+   95,
+   "- Diff: validate `<base>` ref exists (`git rev-parse <base>`)."
+  ],
+  [
+   "skill",
+   95,
+   "Implicit mode: resolve `git merge-base origin/<default-branch> HEAD`."
+  ],
+  [
+   "skill",
+   96,
+   "- Snapshot: validate path exists and is readable"
+  ],
+  [
+   "skill",
+   97,
+   "Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` "
+  ],
+  [
+   "skill",
+   97,
+   "dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`)."
+  ],
+  [
+   "skill",
+   98,
+   "Emit machine-readable header to the audit log:"
+  ],
+  [
+   "skill",
+   105,
+   "depth: <quick|standard|deep>"
+  ],
+  [
+   "skill",
+   120,
+   "**Head mismatch** (PR mode, `head_match: false` \u2014 fork PRs and PRs not checked out): validate in-diff findings"
+  ],
+  [
+   "skill",
+   120,
+   "do not Read the local file as evidence;"
+  ],
+  [
+   "skill",
+   120,
+   "Do not STOP and do not `gh pr checkout`."
+  ],
+  [
+   "skill",
+   122,
+   "**Exit criteria**: Target resolved, output dir created, audit log opened."
+  ],
+  [
+   "skill",
+   122,
+   "Emit \"Wave 0 complete: target=<slug> mode=<mode>\"."
+  ],
+  [
+   "skill",
+   128,
+   "**Preconditions**: Wave 0 complete."
+  ],
+  [
+   "skill",
+   132,
+   "Collect the **diff body** (skip if `--snapshot`):"
+  ],
+  [
+   "skill",
+   133,
+   "- PR: `gh pr diff <id>` \u2192 `<output-dir>/diff."
+  ],
+  [
+   "skill",
+   134,
+   "- Diff: `git diff <base>."
+  ],
+  [
+   "skill",
+   134,
+   "HEAD` (implicit: `git diff <merge-base>`, which keeps uncommitted tracked edits) \u2192 `<output-dir>/diff."
+  ],
+  [
+   "skill",
+   135,
+   "Collect the **changed-file list** (skip if `--snapshot`):"
+  ],
+  [
+   "skill",
+   136,
+   "- PR: from the `files` field of `gh pr view`"
+  ],
+  [
+   "skill",
+   137,
+   "- Diff: `git diff --name-only <base>."
+  ],
+  [
+   "skill",
+   137,
+   "HEAD` (implicit: `git diff --name-only <merge-base>`)"
+  ],
+  [
+   "skill",
+   138,
+   "For snapshot mode, build the file list via `find <path> -type f` (excluding obvious binaries: `."
+  ],
+  [
+   "skill",
+   139,
+   "Collect PR metadata if PR mode (`title`, `body`, `baseRefName`, `headRefName`, `headRefOid`, `url`)."
+  ],
+  [
+   "skill",
+   140,
+   "Compute diff size: total lines, files-changed count."
+  ],
+  [
+   "skill",
+   140,
+   "Emit `WARN` to audit log if thresholds exceeded."
+  ],
+  [
+   "skill",
+   141,
+   "**Empty diff** (zero changed lines): write a short `REVIEW."
+  ],
+  [
+   "skill",
+   141,
+   "md` (`# Code Review: <target>`, `## Findings` saying there is nothing to review, `## Audit`), return status `s"
+  ],
+  [
+   "skill",
+   142,
+   "Determine chunking strategy:"
+  ],
+  [
+   "skill",
+   143,
+   "- \u2264 1500 diff lines OR \u2264 15 files: one chunk"
+  ],
+  [
+   "skill",
+   144,
+   "- 1500-5000 lines OR 16-30 files: chunk by top-level directory"
+  ],
+  [
+   "skill",
+   145,
+   "- > 5000 lines: STOP unless `--force`, at every depth;"
+  ],
+  [
+   "skill",
+   145,
+   "rerun with `--focus` or `--force`\""
+  ],
+  [
+   "skill",
+   147,
+   "**Exit criteria**: `diff."
+  ],
+  [
+   "skill",
+   147,
+   "patch` (if applicable), `files."
+  ],
+  [
+   "skill",
+   147,
+   "json` saved under `<output-dir>/inputs/`."
+  ],
+  [
+   "skill",
+   147,
+   "Chunking strategy decided."
+  ],
+  [
+   "skill",
+   153,
+   "**Preconditions**: Wave 1 complete."
+  ],
+  [
+   "skill",
+   153,
+   "**Load `refs/auggie-prompts."
+  ],
+  [
+   "skill",
+   153,
+   "md`** for the prompt templates and the findings JSON contract."
+  ],
+  [
+   "skill",
+   157,
+   "Read `refs/auggie-prompts."
+  ],
+  [
+   "skill",
+   157,
+   "md` (NOT before now \u2014 lazy loading)."
+  ],
+  [
+   "skill",
+   158,
+   "Build the prompt from the appropriate template:"
+  ],
+  [
+   "skill",
+   159,
+   "- PR/diff: `pr-review-prompt` (interpolate title, body, diff path, file list, focus areas, `head_match`)"
+  ],
+  [
+   "skill",
+   160,
+   "- Snapshot: `snapshot-review-prompt` (interpolate file list, focus areas)"
+  ],
+  [
+   "skill",
+   161,
+   "- **Impact hints (optional;"
+  ],
+  [
+   "skill",
+   161,
+   "PR/diff mode, `standard`/`deep`, `head_match: true` only):** spawn one `codebase-memory-scout` agent via `Task"
+  ],
+  [
+   "skill",
+   161,
+   "Ask it for callers, up to 3 levels, of the functions the diff changes, as `file:line` lists."
+  ],
+  [
+   "skill",
+   161,
+   "Append the result to the prompt under the heading \"Caller hints (index may lag;"
+  ],
+  [
+   "skill",
+   161,
+   "The scout's index can be minutes behind the working tree, so a hint is never evidence and a missing caller pro"
+  ],
+  [
+   "skill",
+   161,
+   "If the agent type is unavailable or errors, record `impact_hints: unavailable` in the audit log and continue w"
+  ],
+  [
+   "skill",
+   162,
+   "Spawn the `auggie-reviewer` agent via `Task`, at every depth, in batched messages, at most five runs in flight"
+  ],
+  [
+   "skill",
+   163,
+   "- `quick` / `standard`: one general pass per chunk."
+  ],
+  [
+   "skill",
+   164,
+   "- `deep`: the general pass per chunk, plus four persona passes (security, architect, performance, qa) **once e"
+  ],
+  [
+   "skill",
+   165,
+   "The agent returns the findings JSON as its **final message**;"
+  ],
+  [
+   "skill",
+   165,
+   "The orchestrator writes it to `<output-dir>/findings-<chunk>."
+  ],
+  [
+   "skill",
+   165,
+   "json` (persona passes: `findings-<persona>."
+  ],
+  [
+   "skill",
+   165,
+   "On non-JSON output, retry that run once;"
+  ],
+  [
+   "skill",
+   165,
+   "if it still fails, log `chunk_skipped` and set status `partial`."
+  ],
+  [
+   "skill",
+   167,
+   "`allowed-tools` is not a prerequisite check."
+  ],
+  [
+   "skill",
+   169,
+   "**Exit criteria**: One or more `findings-*."
+  ],
+  [
+   "skill",
+   169,
+   "Audit log notes retries and skipped chunks."
+  ],
+  [
+   "skill",
+   175,
+   "**Load `refs/severity-rubric."
+  ],
+  [
+   "skill",
+   175,
+   "md`** for the consistent severity grading scheme."
+  ],
+  [
+   "skill",
+   175,
+   "md`** at step 3b: it holds every admission rule, the ledger schema and the invariant check."
+  ],
+  [
+   "skill",
+   179,
+   "Read `refs/severity-rubric."
+  ],
+  [
+   "skill",
+   180,
+   "json` files and mint an id `<findings-file-stem>#<n>` for every entry, with one `n` sequence across `findings["
+  ],
+  [
+   "skill",
+   180,
+   "Each finding should carry at least: `title`, `file`, `line` (or `line_range`), `severity`, `category`, `eviden"
+  ],
+  [
+   "skill",
+   180,
+   "Findings missing `file` and `line` go to a `needs-grounding` bucket (not auto-dropped \u2014 see step 3)."
+  ],
+  [
+   "skill",
+   182,
+   "- For each finding, `Read` the cited file at the cited line range (under head mismatch: match the new side of "
+  ],
+  [
+   "skill",
+   182,
+   "Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line."
+  ],
+  [
+   "skill",
+   182,
+   "A line that fails this check is dropped into `dropped_ungrounded[]`, not downgraded."
+  ],
+  [
+   "skill",
+   183,
+   "- For PR/diff mode, additionally note whether the line is within the diff hunks."
+  ],
+  [
+   "skill",
+   184,
+   "- For `needs-grounding` findings, ground in this order: `Grep`, then Serena `find_symbol` / `find_referencing_"
+  ],
+  [
+   "skill",
+   184,
+   "Serena output is never cited without that Read."
+  ],
+  [
+   "skill",
+   184,
+   "If grounding succeeds, promote the finding into admission;"
+  ],
+  [
+   "skill",
+   185,
+   "- \"Nothing calls this\" is not a dead-code finding unless `Grep` under `src/`, `plugins/`, and `tests/` returns"
+  ],
+  [
+   "skill",
+   185,
+   "Prose and Markdown findings are grounded by Read."
+  ],
+  [
+   "skill",
+   186,
+   "Re-Read every line the `claim` cites, then give each grounded candidate exactly one disposition (`defect`, `un"
+  ],
+  [
+   "skill",
+   186,
+   "Only a `defect` is graded and published."
+  ],
+  [
+   "skill",
+   188,
+   "This replaces the earlier same-line merge and the dropping of PR-caveat restatements;"
+  ],
+  [
+   "skill",
+   188,
+   "a restatement of a caveat is evaluated by admission and stays in the ledger."
+  ],
+  [
+   "skill",
+   189,
+   "every other record has `severity: null`."
+  ],
+  [
+   "skill",
+   189,
+   "The agent's self-reported severity is a hint, not authoritative \u2014 apply the rubric uniformly."
+  ],
+  [
+   "skill",
+   190,
+   "**Write the ledger** `<output-dir>/candidates."
+  ],
+  [
+   "skill",
+   190,
+   "json` by the section \"Ledger schema\" of `refs/claim-gate."
+  ],
+  [
+   "skill",
+   190,
+   "md`, including `run_status`, `findings_count` and every candidate's `evidence_sources`."
+  ],
+  [
+   "skill",
+   190,
+   "All three are written before step 6b."
+  ],
+  [
+   "skill",
+   191,
+   "md` and the local record `<output-dir>/NOT-ADMITTED."
+  ],
+  [
+   "skill",
+   191,
+   "md` uses this structure and holds unmerged defects only:"
+  ],
+  [
+   "skill",
+   196,
+   "**Target**: <PR #N | diff range | snapshot path>"
+  ],
+  [
+   "skill",
+   197,
+   "**Reviewer**: /sc:auggie-review (depth=<depth>, focus=<focus>)"
+  ],
+  [
+   "skill",
+   198,
+   "**Generated**: <YYYY-MM-DD HH:MM TZ>"
+  ],
+  [
+   "skill",
+   199,
+   "**Source PR**: <URL if applicable>"
+  ],
+  [
+   "skill",
+   200,
+   "**Base \u2194 Head**: <baseRef> \u2194 <headRef>"
+  ],
+  [
+   "skill",
+   201,
+   "**Stats**: <N> files, <N> lines, <N> findings (<N> dropped during grounding)"
+  ],
+  [
+   "skill",
+   207,
+   "<2-4 sentence executive summary: top 2-3 risks, overall sentiment, recommendation (block | request-changes | n"
+  ],
+  [
+   "skill",
+   207,
+   "Name findings only by id;"
+  ],
+  [
+   "skill",
+   216,
+   "- **File**: `path/to/file."
+  ],
+  [
+   "skill",
+   217,
+   "- **Category**: security | data-integrity | correctness | \u2026"
+  ],
+  [
+   "skill",
+   218,
+   "- **Pass**: general | security | architect | performance | qa"
+  ],
+  [
+   "skill",
+   222,
+   "<real code excerpt from the cited lines>"
+  ],
+  [
+   "skill",
+   225,
+   "- **Why this matters**: <one paragraph>"
+  ],
+  [
+   "skill",
+   228,
+   "- **Recommendation**: <concrete change>"
+  ],
+  [
+   "skill",
+   230,
+   "the `Not established` line appears once per excluded consequence and the `Qualification` line only when the de"
+  ],
+  [
+   "skill",
+   234,
+   "a High cross-cutting defect is also a heading entry here)"
+  ],
+  [
+   "skill",
+   250,
+   "<Only Medium and Low defects that are not anchored to a single file:line \u2014 layering concerns, missing abstract"
+  ],
+  [
+   "skill",
+   250,
+   "Each is one top-level list item, and each still cites the files where the pattern manifests."
+  ],
+  [
+   "skill",
+   253,
+   "ext:LINE` <where the pattern manifests>"
+  ],
+  [
+   "skill",
+   257,
+   "- Agent runs: <N> (succeeded: <N>, retried: <N>, skipped: <N>)"
+  ],
+  [
+   "skill",
+   258,
+   "- Findings dropped during grounding: <N> (see `audit."
+  ],
+  [
+   "skill",
+   259,
+   "- Persona passes: <enabled|disabled>"
+  ],
+  [
+   "skill",
+   263,
+   "md` rules (the tag grammar is in `refs/claim-gate."
+  ],
+  [
+   "skill",
+   263,
+   "md`, section \"Report tag grammar\"):"
+  ],
+  [
+   "skill",
+   264,
+   "- `## Findings` and the Cross-Cutting section hold unmerged defects only."
+  ],
+  [
+   "skill",
+   264,
+   "There is no separate section for non-defects;"
+  ],
+  [
+   "skill",
+   264,
+   "the one counts line in `## Summary` points to `NOT-ADMITTED."
+  ],
+  [
+   "skill",
+   265,
+   "- Every Critical and High defect, including a cross-cutting one, is a heading entry under `## Findings`."
+  ],
+  [
+   "skill",
+   265,
+   "Nits, and Medium or Low cross-cutting defects, are top-level list items starting with `<!-- id: <id> -->`."
+  ],
+  [
+   "skill",
+   266,
+   "- Every defect entry carries its `**Evidence kind**` line and, when present, its `Not established` lines and q"
+  ],
+  [
+   "skill",
+   267,
+   "- The section headers `# Code Review:`, `## Findings` and `## Audit` are kept."
+  ],
+  [
+   "skill",
+   270,
+   "**Invariant check**: run the single `jq` program from `refs/claim-gate."
+  ],
+  [
+   "skill",
+   270,
+   "md`, section \"Invariant check\", as `jq -e -n --slurpfile ledger <output-dir>/candidates."
+  ],
+  [
+   "skill",
+   270,
+   "json --rawfile review <output-dir>/REVIEW."
+  ],
+  [
+   "skill",
+   270,
+   "md -f <extracted block>`."
+  ],
+  [
+   "skill",
+   270,
+   "Record its exit code as `jq_exit` in `candidates."
+  ],
+  [
+   "skill",
+   275,
+   "**Exit criteria**: `REVIEW."
+  ],
+  [
+   "skill",
+   275,
+   "Audit log includes the machine-readable summary header:"
+  ],
+  [
+   "skill",
+   280,
+   "critical: <N> high: <N> medium: <N> low: <N> nit: <N>"
+  ],
+  [
+   "skill",
+   293,
+   "**Preconditions**: Wave 3 complete."
+  ],
+  [
+   "skill",
+   293,
+   "**Load `refs/remediation-handoff."
+  ],
+  [
+   "skill",
+   293,
+   "md`** for the exact phrasing and command sequence used in the remediation offer."
+  ],
+  [
+   "skill",
+   298,
+   "- Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW."
+  ],
+  [
+   "skill",
+   302,
+   "gh api repos/<owner>/<repo>/pulls/<PR>/comments \\"
+  ],
+  [
+   "skill",
+   303,
+   "-f body=\"<finding-body>\" \\"
+  ],
+  [
+   "skill",
+   304,
+   "-f commit_id=\"<headRefOid>\" \\"
+  ],
+  [
+   "skill",
+   310,
+   "- Capture the review URL from `gh pr view <PR> --json reviews -q '."
+  ],
+  [
+   "skill",
+   311,
+   "- **Never** use `--approve` or `--request-changes`;"
+  ],
+  [
+   "skill",
+   311,
+   "this is a `--comment` review only."
+  ],
+  [
+   "skill",
+   312,
+   "**Surface results to the user** in the chat:"
+  ],
+  [
+   "skill",
+   317,
+   "- Read `refs/remediation-handoff."
+  ],
+  [
+   "skill",
+   317,
+   "md` and use the exact prompt template there."
+  ],
+  [
+   "skill",
+   318,
+   "- The offer must list the five phases, name the route (plan, or mdtm when `--depth deep` was requested), and a"
+  ],
+  [
+   "skill",
+   319,
+   "If the user accepts, select the route from the review `--depth` the user requested: `quick`/`standard` \u2192 **pla"
+  ],
+  [
+   "skill",
+   319,
+   "`deep` \u2192 **MDTM route** (see `refs/remediation-handoff."
+  ],
+  [
+   "skill",
+   320,
+   "- **Phase A** (both routes): Invoke `/sc:design <REVIEW."
+  ],
+  [
+   "skill",
+   320,
+   "md path> --type architecture --format spec --output <output-dir>/remediation-spec."
+  ],
+  [
+   "skill",
+   321,
+   "- **Phase B**: plan route \u2192 build `remediation-workflow-source."
+  ],
+  [
+   "skill",
+   321,
+   "md` (spec copy + `## References` + any `## Review Feedback` from `remediation-review-notes."
+  ],
+  [
+   "skill",
+   321,
+   "md`, list syntax flattened with every line's text kept) and invoke `Skill sc:workflow-protocol` on THAT file ("
+  ],
+  [
+   "skill",
+   321,
+   "dev/tasks/to-do/<id>/<id>."
+  ],
+  [
+   "skill",
+   321,
+   "MDTM route \u2192 invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passe"
+  ],
+  [
+   "skill",
+   322,
+   "- **Phase C**: plan route \u2192 consume the pre-review `sc:workflow` already ran (`reflect_status` / `reflect_repo"
+  ],
+  [
+   "skill",
+   322,
+   "do not re-run `/sc:reflect --mode pre`);"
+  ],
+  [
+   "skill",
+   322,
+   "MDTM route \u2192 `/sc:reflect --type task --analyze` against the new task file"
+  ],
+  [
+   "skill",
+   323,
+   "- If the Phase C review flags issues, surface them and ask the user whether to refactor or accept-as-is"
+  ],
+  [
+   "skill",
+   324,
+   "- **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <pkg>/<id>."
+  ],
+  [
+   "skill",
+   324,
+   "md` (plan route) or `/task <path>` (MDTM route) \u2014 the skill does NOT auto-execute"
+  ],
+  [
+   "skill",
+   325,
+   "- **Phase E**: After execution completes, invoke `/sc:reflect --mode post --spec <remediation-spec."
+  ],
+  [
+   "skill",
+   325,
+   "md> --tasklist <pkg-now>/<id>."
+  ],
+  [
+   "skill",
+   325,
+   "md --task-log <pkg-now>/progress."
+  ],
+  [
+   "skill",
+   325,
+   "md --diff <baseline_ref>` (plan route;"
+  ],
+  [
+   "skill",
+   325,
+   "`<pkg-now>` = `to-do/<id>` or `done/<id>` after implement archives it) or `/sc:reflect --type task --validate`"
+  ],
+  [
+   "skill",
+   325,
+   "Block on validation failures, do not proceed to commit suggestion."
+  ],
+  [
+   "skill",
+   326,
+   "Return the structured output contract."
+  ],
+  [
+   "skill",
+   328,
+   "**Exit criteria**: Report posted (if applicable), remediation chain offered (if applicable), output contract r"
+  ],
+  [
+   "skill",
+   334,
+   "- Run the `auggie-reviewer` agent as the review engine at every depth"
+  ],
+  [
+   "skill",
+   335,
+   "- Validate every finding's file:line before including it in the report"
+  ],
+  [
+   "skill",
+   336,
+   "- Publish only admitted defects;"
+  ],
+  [
+   "skill",
+   336,
+   "keep unproven, rejected, intentional-limitation and documented-prerequisite records locally in `candidates."
+  ],
+  [
+   "skill",
+   337,
+   "- Catch narrow bugs **and** architectural/anti-pattern risks (the rubric in `refs/severity-rubric."
+  ],
+  [
+   "skill",
+   337,
+   "md` defines both categories explicitly)"
+  ],
+  [
+   "skill",
+   338,
+   "- Post the markdown report to the PR automatically (per the user's stated default \u2014 they opted in by running t"
+  ],
+  [
+   "skill",
+   339,
+   "- Attach inline comments for Critical/High findings, anchored to real lines in the diff"
+  ],
+  [
+   "skill",
+   340,
+   "- Offer a deterministic remediation chain (`/sc:design` \u2192 `sc:workflow` \u2192 `/sc:reflect`-pre \u2192 user-run `/sc:im"
+  ],
+  [
+   "skill",
+   340,
+   "with `--depth deep`, `task-builder` \u2192 `/task` replaces the workflow/implement pair) and wait for explicit user"
+  ],
+  [
+   "skill",
+   341,
+   "- Persist the full audit (findings JSON, validation results, dedupe decisions, severity remaps) for traceabili"
+  ],
+  [
+   "skill",
+   345,
+   "- Activate from conversational keywords \u2014 explicit `/sc:auggie-review` invocation or a programmatic skill call"
+  ],
+  [
+   "skill",
+   346,
+   "- Use `gh pr review --approve` or `--request-changes` \u2014 strictly `--comment`"
+  ],
+  [
+   "skill",
+   347,
+   "- Include findings whose file:line cannot be validated against a real file"
+  ],
+  [
+   "skill",
+   348,
+   "- Publish a non-defect candidate (unproven, rejected, intentional limitation or documented prerequisite) as a "
+  ],
+  [
+   "skill",
+   348,
+   "those records stay in `candidates."
+  ],
+  [
+   "skill",
+   349,
+   "- Modify code under review (advisory only)"
+  ],
+  [
+   "skill",
+   350,
+   "- Auto-trigger the remediation chain \u2014 that step is always user-gated"
+  ],
+  [
+   "skill",
+   351,
+   "- Auto-commit after the remediation chain \u2014 `/sc:reflect --type task --validate` is the final gate before the "
+  ],
+  [
+   "skill",
+   352,
+   "- Trust the agent's self-reported severity \u2014 always remap via the rubric"
+  ],
+  [
+   "skill",
+   356,
+   "| Scenario | Behavior | Fallback |"
+  ],
+  [
+   "skill",
+   358,
+   "| `gh` unauthed for PR mode | STOP at Wave 0 with `gh auth login` hint | None |"
+  ],
+  [
+   "skill",
+   359,
+   "| Agent run fails after retry | Continue with remaining runs; status `partial`; note in audit and report heade"
+  ],
+  [
+   "skill",
+   360,
+   "| Findings all fail file:line grounding | Emit `REVIEW.md` with empty findings sections and a clear \"review in"
+  ],
+  [
+   "skill",
+   361,
+   "| `gh pr review` post fails | Save the body to `<output-dir>/REVIEW.md`, surface the path to the user, status "
+  ],
+  [
+   "skill",
+   362,
+   "| Task-builder skill not available | Surface the remediation spec path and stop; do not fail the whole review "
+  ],
+  [
+   "skill",
+   363,
+   "| User declines remediation offer | Return success; report still posted | None |"
+  ],
+  [
+   "gate",
+   3,
+   "Wave 3 of the protocol uses this file to decide which reviewer candidates are published as defects."
+  ],
+  [
+   "gate",
+   3,
+   "Location grounding only proves that a cited line exists."
+  ],
+  [
+   "gate",
+   3,
+   "The claim gate adds one admission step after grounding and one ledger (`candidates."
+  ],
+  [
+   "gate",
+   3,
+   "json`) that feeds `REVIEW."
+  ],
+  [
+   "gate",
+   3,
+   "md`, the counts, PR posting, inline comments and the remediation offer."
+  ],
+  [
+   "gate",
+   5,
+   "The orchestrator decides."
+  ],
+  [
+   "gate",
+   5,
+   "The reviewer supplies a structured `claim` block as input;"
+  ],
+  [
+   "gate",
+   5,
+   "the orchestrator re-Reads every cited line before it relies on it."
+  ],
+  [
+   "gate",
+   5,
+   "\"Verified\" in this file means the orchestrator Read the cited line in this run."
+  ],
+  [
+   "gate",
+   5,
+   "Reviewer `confidence`, `severity_hint` and `disposition_hint` are inputs only."
+  ],
+  [
+   "gate",
+   5,
+   "This gate checks evidence and structure;"
+  ],
+  [
+   "gate",
+   5,
+   "it does not prove a model followed it."
+  ],
+  [
+   "gate",
+   9,
+   "Every grounded candidate ends with exactly one disposition:"
+  ],
+  [
+   "gate",
+   11,
+   "| Disposition | Meaning |"
+  ],
+  [
+   "gate",
+   13,
+   "| `defect` | The claim is supported: a violated requirement and a harm are both shown. Published. |"
+  ],
+  [
+   "gate",
+   14,
+   "| `unproven` | The evidence is missing, speculative or not verified. Kept locally. |"
+  ],
+  [
+   "gate",
+   15,
+   "| `rejected` | A verified guard, producer or schema refutes the claim, or the mechanism is not present in the "
+  ],
+  [
+   "gate",
+   16,
+   "| `intentional_limitation` | A verified deliberate policy states the claimed harm as its trade-off. Kept local"
+  ],
+  [
+   "gate",
+   17,
+   "| `documented_prerequisite` | A verified documented prerequisite explains the claimed harm. Kept locally. |"
+  ],
+  [
+   "gate",
+   19,
+   "Only `defect` carries a severity."
+  ],
+  [
+   "gate",
+   19,
+   "Every other disposition has `severity: null`."
+  ],
+  [
+   "gate",
+   19,
+   "Doubt is never expressed as a lower severity."
+  ],
+  [
+   "gate",
+   23,
+   "Location grounding is a drop."
+  ],
+  [
+   "gate",
+   23,
+   "A cited line that does not exist, or whose snippet does not match, goes to `dropped_ungrounded[]` with its rea"
+  ],
+  [
+   "gate",
+   29,
+   "The orchestrator derives the class from `category`:"
+  ],
+  [
+   "gate",
+   31,
+   "| Class | Categories | Required verified evidence |"
+  ],
+  [
+   "gate",
+   42,
+   "This makes literal contract defects admissible without a model run (see Narrow contract defects)."
+  ],
+  [
+   "gate",
+   46,
+   "The reviewer lists each distinct consequence as its own string;"
+  ],
+  [
+   "gate",
+   46,
+   "harm` is the one it considers best supported."
+  ],
+  [
+   "gate",
+   48,
+   "- The admitted record keeps only supported consequences in `claim."
+  ],
+  [
+   "gate",
+   50,
+   "`severity_basis` names the rubric tier definition the admitted harm meets (see severity_basis ids)."
+  ],
+  [
+   "gate",
+   52,
+   "- Rendering: a defect with non-empty `excluded_consequences[]` gets one line per excluded consequence in `REVI"
+  ],
+  [
+   "gate",
+   56,
+   "Examples: a required input is not supplied, two instructions cannot both be satisfied, or a prescribed command"
+  ],
+  [
+   "gate",
+   62,
+   "The orchestrator evaluates this table top to bottom for each candidate and records the matching row ids in `di"
+  ],
+  [
+   "gate",
+   62,
+   "\"Verified\" means the orchestrator Read the cited line in this run."
+  ],
+  [
+   "gate",
+   64,
+   "| Row | Condition | Disposition |"
+  ],
+  [
+   "gate",
+   74,
+   "In row A6, REQ-006 and REQ-007 are the requirements of the sections \"Claim classes\" and \"Protocol and instruct"
+  ],
+  [
+   "gate",
+   76,
+   "Reason strings in `disposition_reasons[]` and `excluded_consequences[]."
+  ],
+  [
+   "gate",
+   76,
+   "reason` start with a row id or `other:`."
+  ],
+  [
+   "gate",
+   76,
+   "Examples: `A6 head_mismatch_context_unavailable`, `A5 not_present_in_target`, `A6 admission_incomplete`, `othe"
+  ],
+  [
+   "gate",
+   80,
+   "a safety or availability requirement over a convenience behavior) and cites harm through a supported input."
+  ],
+  [
+   "gate",
+   104,
+   "Every `defect` carries `refutation[]` with one entry per applicable row A1 to A5."
+  ],
+  [
+   "gate",
+   104,
+   "Each entry is a string in exactly one of three forms:"
+  ],
+  [
+   "gate",
+   106,
+   "| Form | Syntax | Example |"
+  ],
+  [
+   "gate",
+   112,
+   "A second mechanical example: `mechanical: lines src/app/service."
+  ],
+  [
+   "gate",
+   114,
+   "A structural defect's mechanical fact (Claim classes) uses the `mechanical:` form."
+  ],
+  [
+   "gate",
+   116,
+   "It is the guard, producer, policy or prerequisite line."
+  ],
+  [
+   "gate",
+   116,
+   "Each such record also carries a reason row id in `disposition_reasons[]`."
+  ],
+  [
+   "gate",
+   117,
+   "It Greps under `src/`, `plugins/` and `tests/` and records the pattern and the roots."
+  ],
+  [
+   "gate",
+   122,
+   "`severity_basis` is `<tier>:<n>`, where `<n>` is the 1-based position of the matching bullet in that tier's de"
+  ],
+  [
+   "gate",
+   122,
+   "md`, section \"The five tiers\"."
+  ],
+  [
+   "gate",
+   122,
+   "The valid ids, one per bullet:"
+  ],
+  [
+   "gate",
+   124,
+   "| Tier | Ids | Bullets in order |"
+  ],
+  [
+   "gate",
+   126,
+   "| Critical | `critical:1` to `critical:4` | 1 exploitable security defect; 2 data-integrity defect; 3 crash on"
+  ],
+  [
+   "gate",
+   127,
+   "| High | `high:1` to `high:6` | 1 latent security weakness; 2 correctness defect on a non-default path; 3 reso"
+  ],
+  [
+   "gate",
+   128,
+   "| Medium | `medium:1` to `medium:5` | 1 code-quality issue with concrete consequences; 2 performance concern w"
+  ],
+  [
+   "gate",
+   129,
+   "| Low | `low:1` to `low:3` | 1 cost of fixing exceeds cost of living with it; 2 opportunistic improvement; 3 p"
+  ],
+  [
+   "gate",
+   130,
+   "| Nit | `nit:1` to `nit:3` | 1 naming; 2 comments; 3 style |"
+  ],
+  [
+   "gate",
+   132,
+   "Valid id list: `critical:1`, `critical:2`, `critical:3`, `critical:4`, `high:1`, `high:2`, `high:3`, `high:4`,"
+  ],
+  [
+   "gate",
+   134,
+   "Every defect's `severity_basis` is one of these ids."
+  ],
+  [
+   "gate",
+   134,
+   "The id names the definition the admitted harm meets, so it need not equal the final tier: rubric step 4 can dr"
+  ],
+  [
+   "gate",
+   134,
+   "A qualified defect whose `severity_basis` is a `critical:<n>` id is exempt from the Medium cap."
+  ],
+  [
+   "gate",
+   140,
+   "Wave 0 records `target{mode, base, head, head_match, local_sha, worktree_dirty, head_object_check, evidence_so"
+  ],
+  [
+   "gate",
+   140,
+   "Snapshot mode records `base: null`."
+  ],
+  [
+   "gate",
+   140,
+   "`head_object_check` is `match` or `mismatch`, or `null` when no head-object check was needed."
+  ],
+  [
+   "gate",
+   148,
+   "- Otherwise the source is `diff_new_side`, and any row that needs the head object is `unproven` with `head_mis"
+  ],
+  [
+   "gate",
+   152,
+   "Evaluate the `match` test once per review (`headRefOid` is compared before and after `gh pr diff` when the dif"
+  ],
+  [
+   "gate",
+   152,
+   "A `head_object` hop in a defect's `evidence_sources[]` is legal only when that value is `match`."
+  ],
+  [
+   "gate",
+   156,
+   "In explicit `--diff` mode the target is committed history."
+  ],
+  [
+   "gate",
+   156,
+   "Only implicit dirty-tree diff mode and snapshot mode use `local_read` of uncommitted edits."
+  ],
+  [
+   "gate",
+   156,
+   "In explicit `--diff` mode these committed reads are recorded in `evidence_sources[]` with source `local_read`;"
+  ],
+  [
+   "gate",
+   156,
+   "the `head_object` label is reserved for PR head-mismatch reads that pass the head-object check."
+  ],
+  [
+   "gate",
+   160,
+   "- Each record carries `attribution."
+  ],
+  [
+   "gate",
+   172,
+   "** Keep all member ids and citations;"
+  ],
+  [
+   "gate",
+   172,
+   "The group root (the decider, `merged_into: null`) lists every member id in `members[]`, its own first;"
+  ],
+  [
+   "gate",
+   172,
+   "an unmerged singleton lists only its own id."
+  ],
+  [
+   "gate",
+   172,
+   "Every other member record has `members: []` and `merged_into: <decider id>`, so each member id appears in exac"
+  ],
+  [
+   "gate",
+   174,
+   "A group that is not a defect has nothing to answer: its blocking citation is the reason it is not a defect."
+  ],
+  [
+   "gate",
+   176,
+   "** The group takes the highest-rank member's disposition."
+  ],
+  [
+   "gate",
+   177,
+   "A loser of a defect group has the same non-null severity;"
+  ],
+  [
+   "gate",
+   177,
+   "a loser of a non-defect group has `severity: null`."
+  ],
+  [
+   "gate",
+   177,
+   "So that every per-record invariant holds for a loser, it also copies the rest of the decider's final admission"
+  ],
+  [
+   "gate",
+   177,
+   "A loser keeps its own non-null `refutation_citation` and its own `refutation[]` entries marked `blocks`, so th"
+  ],
+  [
+   "gate",
+   177,
+   "its `refutation[]` is those entries followed by the decider's entries, and it takes the decider's `refutation_"
+  ],
+  [
+   "gate",
+   177,
+   "Losers are never graded, counted, rendered or remediated on their own."
+  ],
+  [
+   "gate",
+   179,
+   "- **Excluded consequences."
+  ],
+  [
+   "gate",
+   180,
+   "** A finding that restates a caveat in the PR description is no longer dropped."
+  ],
+  [
+   "gate",
+   184,
+   "`<output-dir>/candidates."
+  ],
+  [
+   "gate",
+   184,
+   "json` follows `schema: auggie-review-candidates/1`."
+  ],
+  [
+   "gate",
+   184,
+   "The schema id stays at version 1 because the schema has never been released."
+  ],
+  [
+   "gate",
+   188,
+   "| Field | Content |"
+  ],
+  [
+   "gate",
+   190,
+   "| `schema` | `auggie-review-candidates/1` |"
+  ],
+  [
+   "gate",
+   191,
+   "| `target` | The Attribution target fields |"
+  ],
+  [
+   "gate",
+   192,
+   "| `coverage` | `{chunks_planned, chunks_completed, chunks_skipped[], persona_passes[], input_truncated, comple"
+  ],
+  [
+   "gate",
+   193,
+   "| `admission_budget` | `{candidates_total, checked, incomplete, wall_seconds}` |"
+  ],
+  [
+   "gate",
+   194,
+   "| `jq_exit` | Exit code of the invariant check. `null` or absent while the check runs; the program never reads"
+  ],
+  [
+   "gate",
+   195,
+   "| `candidates[]` | One record per grounded finding (below) |"
+  ],
+  [
+   "gate",
+   196,
+   "| `remediation_ids[]` | Ids of unmerged, `remediation_eligible`, Critical/High defects |"
+  ],
+  [
+   "gate",
+   197,
+   "| `remediation_count` | `{critical, high}`, computed from `remediation_ids` |"
+  ],
+  [
+   "gate",
+   198,
+   "| `dropped_ungrounded[]` | `{id, reason}` for each finding dropped at grounding |"
+  ],
+  [
+   "gate",
+   199,
+   "| `run_status` | `success`, `partial` or `failed`: the status computed under \"Status mapping\" before the invar"
+  ],
+  [
+   "gate",
+   200,
+   "| `findings_count` | `{critical, high, medium, low, nit}`: the same values the Output Contract reports |"
+  ],
+  [
+   "gate",
+   202,
+   "Candidate fields: `id`, `members[]`, `mechanism_key`, `merged_into`, `disposition`, `disposition_reasons[]`, `"
+  ],
+  [
+   "gate",
+   204,
+   "- `claim` is the reviewer's claim block as verified: `observed`, `observed_at[]`, `expected`, `violated_requir"
+  ],
+  [
+   "gate",
+   204,
+   "After admission `harm` holds only supported consequences."
+  ],
+  [
+   "gate",
+   205,
+   "- `evidence_sources[]` has one `{hop, path_line, source}` entry per Read used for admission."
+  ],
+  [
+   "gate",
+   205,
+   "`hop` is one of `observed`, `entrypoint`, `producer`, `guard`, `intent`, `prerequisite`, `scope`."
+  ],
+  [
+   "gate",
+   205,
+   "`source` is one of `local_read`, `head_object`, `diff_new_side`."
+  ],
+  [
+   "gate",
+   206,
+   "- `run_status`, `findings_count` and every candidate's `evidence_sources[]` are all written before the invaria"
+  ],
+  [
+   "gate",
+   207,
+   "- Ids are `<findings-file-stem>#<n>`, with one `n` sequence across `findings[]` and `cross_cutting_observation"
+  ],
+  [
+   "gate",
+   207,
+   "Ids are unique across the ledger."
+  ],
+  [
+   "gate",
+   208,
+   "- A merged loser keeps its own record;"
+  ],
+  [
+   "gate",
+   208,
+   "the rules for its fields are in Mechanism dedupe."
+  ],
+  [
+   "gate",
+   211,
+   "`run_status` is computed before the invariant check:"
+  ],
+  [
+   "gate",
+   215,
+   "The empty-diff short-circuit stays `success`."
+  ],
+  [
+   "gate",
+   216,
+   "log` are written on every status."
+  ],
+  [
+   "gate",
+   218,
+   "The Output Contract's `findings_count` equals the ledger's `findings_count`."
+  ],
+  [
+   "gate",
+   222,
+   "md` has one place per defect."
+  ],
+  [
+   "gate",
+   222,
+   "Tags are how the invariant check ties report entries to ledger ids."
+  ],
+  [
+   "gate",
+   224,
+   "- Heading entries use `#### C1."
+  ],
+  [
+   "gate",
+   224,
+   "<Short title> (id: <id>)`: the tag `(id: <id>)` ends the heading line."
+  ],
+  [
+   "gate",
+   225,
+   "- List-item entries are top-level list items that start with `<!-- id: <id> -->` immediately after the list ma"
+  ],
+  [
+   "gate",
+   226,
+   "- Only these two tag forms are recognized."
+  ],
+  [
+   "gate",
+   226,
+   "Fenced code blocks are removed from the scanned text before matching, so excerpts and quoted template text are"
+  ],
+  [
+   "gate",
+   226,
+   "Text such as `(id: x)` in a paragraph is not a tag."
+  ],
+  [
+   "gate",
+   227,
+   "- Entry boundaries: column-0 field bullets under a heading entry belong to that entry and are not entries."
+  ],
+  [
+   "gate",
+   227,
+   "A heading entry runs to the next heading of the same or higher level."
+  ],
+  [
+   "gate",
+   227,
+   "A list-item entry runs to the next list item at the same or shallower indentation, or to the next heading;"
+  ],
+  [
+   "gate",
+   227,
+   "its continuation lines are blank or indented, so a non-blank line at column 0 that is not a list item also end"
+  ],
+  [
+   "gate",
+   228,
+   "- Every Critical and High defect, including a cross-cutting one, is a heading entry under `## Findings`."
+  ],
+  [
+   "gate",
+   229,
+   "- Top-level list-item entries are used only for Nits (in the Nits subsection of `## Findings`) and for Medium "
+  ],
+  [
+   "gate",
+   229,
+   "Cross-Cutting list items appear only in that section."
+  ],
+  [
+   "gate",
+   230,
+   "- Each defect entry carries `**Evidence kind**: <evidence_kind>` and, when present, its `Not established` line"
+  ],
+  [
+   "gate",
+   231,
+   "- A `path:line` pattern appears only inside defect entries, except in the header block above the first section"
+  ],
+  [
+   "gate",
+   232,
+   "md` has no `## Not Admitted` heading."
+  ],
+  [
+   "gate",
+   232,
+   "It has one counts line instead: `Not admitted: U unproven, R rejected, L intentional limitations, P documented"
+  ],
+  [
+   "gate",
+   236,
+   "The invariant program below checks the structure of `candidates."
+  ],
+  [
+   "gate",
+   236,
+   "json` and its consistency with `REVIEW."
+  ],
+  [
+   "gate",
+   236,
+   "It checks invariants J1 to J22 plus a shape check (`SHAPE`) that fails a ledger missing `run_status`, `finding"
+  ],
+  [
+   "gate",
+   236,
+   "It does not judge whether a guard really blocks or a sentence really states intent;"
+  ],
+  [
+   "gate",
+   236,
+   "those stay with the orchestrator."
+  ],
+  [
+   "gate",
+   238,
+   "Invocation, once per review, after `REVIEW."
+  ],
+  [
+   "gate",
+   238,
+   "md` are written and before any Wave 4 action: `jq -e -n --slurpfile ledger candidates."
+  ],
+  [
+   "gate",
+   238,
+   "json --rawfile review REVIEW."
+  ],
+  [
+   "gate",
+   238,
+   "md -f <extracted block>`."
+  ],
+  [
+   "gate",
+   240,
+   "- The exit code is recorded as `jq_exit` in `candidates."
+  ],
+  [
+   "gate",
+   240,
+   "Exit 0 means every invariant holds."
+  ],
+  [
+   "gate",
+   240,
+   "The program never reads `jq_exit`, which is `null` or absent while it runs."
+  ],
+  [
+   "gate",
+   241,
+   "- The program reads only the slurped ledger and the raw `REVIEW."
+  ],
+  [
+   "gate",
+   241,
+   "It ends in a single boolean expression, so an empty ledger or empty report yields `true`, never \"no output\"."
+  ],
+  [
+   "gate",
+   242,
+   "- The program is passed with `-f`, so no shell quoting applies."
+  ],
+  [
+   "gate",
+   242,
+   "It contains no single-quote character, so pasting it inline inside single quotes is also safe."
+  ],
+  [
+   "gate",
+   243,
+   "- Fenced code blocks are removed from `REVIEW."
+  ],
+  [
+   "gate",
+   243,
+   "Only heading-line `(id: <id>)` tags and `<!-- id: <id> -->` list-item tags are recognized (see Report tag gram"
+  ],
+  [
+   "gate",
+   244,
+   "- Each check is a key of the `checks` object (`SHAPE`, `J1` to `J22`)."
+  ],
+  [
+   "gate",
+   244,
+   "Tests and diagnostics replace the last line of the block to list the failing keys."
+  ],
+  [
+   "gate",
+   245,
+   "- J3 and the other per-defect checks apply to every record whose disposition is `defect`, merged losers includ"
+  ],
+  [
+   "gate",
+   245,
+   "J8 applies to each defect decider whose group has more than one record."
+  ],
+  [
+   "gate",
+   246,
+   "- A record is an entry of `REVIEW."
+  ],
+  [
+   "gate",
+   246,
+   "md` when it is a `####` heading under `## Findings`, a top-level list item in the Nits subsection of `## Findi"
+  ],
+  [
+   "gate",
+   248,
+   "Preflight: before Wave 3 check that `jq` is available (for example `command -v jq`)."
+  ],
+  [
+   "gate",
+   248,
+   "If it is not, the status is `failed` with reason `invariant_check_unavailable`, and `REVIEW."
+  ],
+  [
+   "gate",
+   248,
+   "`allowed-tools` is not a prerequisite check."
+  ],
+  [
+   "prompts",
+   3,
+   "These are the prompt templates the skill passes to the `auggie-reviewer` agent via `Task`."
+  ],
+  [
+   "prompts",
+   3,
+   "Each template ends with a strict JSON-output contract \u2014 the agent returns findings as parseable JSON in its fi"
+  ],
+  [
+   "prompts",
+   5,
+   "Every finding category asks the agent to cross-reference the repo, not to reason only from the diff in isolati"
+  ],
+  [
+   "prompts",
+   5,
+   "The agent can still mis-cite a line or grade severity inconsistently;"
+  ],
+  [
+   "prompts",
+   5,
+   "the skill's Wave 3 validation step compensates."
+  ],
+  [
+   "prompts",
+   11,
+   "Used for PR or diff targets."
+  ],
+  [
+   "prompts",
+   11,
+   "Interpolate the placeholders before writing the file."
+  ],
+  [
+   "prompts",
+   14,
+   "You are reviewing a code change for the repository at the workspace root."
+  ],
+  [
+   "prompts",
+   14,
+   "Your job is to identify problems \u2014 both narrow bugs and higher-level concerns \u2014 and report them as structured "
+  ],
+  [
+   "prompts",
+   18,
+   "Target: {TARGET_DESCRIPTION}"
+  ],
+  [
+   "prompts",
+   23,
+   "Files changed ({N_FILES}):"
+  ],
+  [
+   "prompts",
+   26,
+   "The full diff is available at: {DIFF_PATH}"
+  ],
+  [
+   "prompts",
+   27,
+   "Head matches the local checkout: {HEAD_MATCH}."
+  ],
+  [
+   "prompts",
+   27,
+   "If false, cite only the new side of the diff;"
+  ],
+  [
+   "prompts",
+   27,
+   "do not Read the local file as evidence and do not query Serena."
+  ],
+  [
+   "prompts",
+   28,
+   "Read the diff, then investigate with Read, Grep and Serena."
+  ],
+  [
+   "prompts",
+   32,
+   "You MUST cover every focus area listed below."
+  ],
+  [
+   "prompts",
+   32,
+   "For each focus area, search for the patterns described \u2014 do not just react to what's visible in the diff."
+  ],
+  [
+   "prompts",
+   32,
+   "Use Grep and Serena to find related call sites, similar patterns elsewhere, and prior conventions in the repo."
+  ],
+  [
+   "prompts",
+   38,
+   "Your final message is a single JSON object."
+  ],
+  [
+   "prompts",
+   38,
+   "``` fence is tolerated and stripped before parsing."
+  ],
+  [
+   "prompts",
+   38,
+   "Do not include explanatory prose outside it."
+  ],
+  [
+   "prompts",
+   43,
+   "\"title\": \"<one-line summary, sentence case, no trailing period>\","
+  ],
+  [
+   "prompts",
+   44,
+   "\"category\": \"<one of: security | data-integrity | correctness | concurrency | resource-leak | error-handling |"
+  ],
+  [
+   "prompts",
+   45,
+   "\"severity_hint\": \"<one of: critical | high | medium | low | nit \u2014 your best guess;"
+  ],
+  [
+   "prompts",
+   45,
+   "the orchestrator may remap>\","
+  ],
+  [
+   "prompts",
+   50,
+   "If you cannot copy the exact bytes, set this to null and confidence to 'low'>\","
+  ],
+  [
+   "prompts",
+   51,
+   "\"why\": \"<2-4 sentences explaining the concern in concrete terms>\","
+  ],
+  [
+   "prompts",
+   52,
+   "\"recommendation\": \"<1-3 sentences with a concrete change \u2014 what to do, not 'consider improving'>\","
+  ],
+  [
+   "prompts",
+   54,
+   "\"confidence\": \"<high | medium | low>\","
+  ],
+  [
+   "prompts",
+   59,
+   "empty if you found none>\","
+  ],
+  [
+   "prompts",
+   68,
+   "null if you cannot show one>\","
+  ],
+  [
+   "prompts",
+   77,
+   "\"cross_cutting_observations\": ["
+  ],
+  [
+   "prompts",
+   79,
+   "\"title\": \"<for findings that span multiple files and aren't anchored to a single line>\","
+  ],
+  [
+   "prompts",
+   80,
+   "\"category\": \"<as above>\","
+  ],
+  [
+   "prompts",
+   81,
+   "\"severity_hint\": \"<as above>\","
+  ],
+  [
+   "prompts",
+   82,
+   "\"affected_files\": [\"<repo-relative path>\", \"."
+  ],
+  [
+   "prompts",
+   84,
+   "\"recommendation\": \"<as above>\","
+  ],
+  [
+   "prompts",
+   85,
+   "\"confidence\": \"<as above>\","
+  ],
+  [
+   "prompts",
+   103,
+   "\"notes_for_orchestrator\": \"<optional free-form notes \u2014 chunking signals, scope you couldn't cover>\""
+  ],
+  [
+   "prompts",
+   108,
+   "Every entry of `findings` and `cross_cutting_observations` carries a `claim` object with exactly the keys show"
+  ],
+  [
+   "prompts",
+   114,
+   "- Every finding must cite a real file:line you have Read."
+  ],
+  [
+   "prompts",
+   114,
+   "A Serena or index result is a hint, never evidence, and a miss never proves absence;"
+  ],
+  [
+   "prompts",
+   114,
+   "only a Grep or Read citing its pattern and root does."
+  ],
+  [
+   "prompts",
+   119,
+   "- Do not invent file paths."
+  ],
+  [
+   "prompts",
+   119,
+   "If you remember a file existing but can't read it, leave it out."
+  ],
+  [
+   "prompts",
+   120,
+   "- For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list."
+  ],
+  [
+   "prompts",
+   120,
+   "The orchestrator will dedupe with other passes."
+  ],
+  [
+   "prompts",
+   121,
+   "- It is OK to return zero findings in a focus area if the area is genuinely clean."
+  ],
+  [
+   "prompts",
+   122,
+   "- For PR mode: prefer findings whose cited line is inside the diff (`in_diff: true`)."
+  ],
+  [
+   "prompts",
+   122,
+   "Out-of-diff findings are allowed but only when the diff makes them newly relevant (e."
+  ],
+  [
+   "prompts",
+   122,
+   ", a callsite added in the diff exposes a latent bug in a function the diff didn't touch)."
+  ],
+  [
+   "prompts",
+   123,
+   "- For higher-level findings (architecture, layering, anti-patterns, coupling): put them in `cross_cutting_obse"
+  ],
+  [
+   "prompts",
+   130,
+   "Substituted into `{FOCUS_AREA_BLOCK}` based on `--focus`:"
+  ],
+  [
+   "prompts",
+   132,
+   "- **security**: `Look for: hardcoded secrets, weak crypto, SQL/XSS injection sinks, deserialization sinks, aut"
+  ],
+  [
+   "prompts",
+   132,
+   "Cross-reference: are similar patterns hardened elsewhere in the repo? Is the new code re-using a known-good he"
+  ],
+  [
+   "prompts",
+   134,
+   "- **architecture**: `Look for: layering violations (a module reaching across boundaries that the repo conventi"
+  ],
+  [
+   "prompts",
+   134,
+   "Cross-reference: how do other modules in this repo solve the same problem? Is the new code consistent?`"
+  ],
+  [
+   "prompts",
+   136,
+   "- **quality**: `Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries, dead co"
+  ],
+  [
+   "prompts",
+   136,
+   "Cross-reference: do similar helpers exist that the new code should reuse?`"
+  ],
+  [
+   "prompts",
+   138,
+   "- **performance**: `Look for: N+1 queries, missing indexes implied by query shape, synchronous calls in async "
+  ],
+  [
+   "prompts",
+   138,
+   "Cross-reference: does the repo have profiling notes or known-hot paths this change touches?`"
+  ],
+  [
+   "prompts",
+   140,
+   "- **anti-patterns**: `Look for: god functions (> 100 lines), god classes (> 20 methods), feature envy, primiti"
+  ],
+  [
+   "prompts",
+   140,
+   "Cross-reference: are these patterns recurring (i."
+  ],
+  [
+   "prompts",
+   140,
+   ", does the diff make an existing smell worse)?`"
+  ],
+  [
+   "prompts",
+   142,
+   "- **tests**: `Look for: new code with no tests, tests that don't actually exercise the new code path, tests as"
+  ],
+  [
+   "prompts",
+   142,
+   "Cross-reference: are similar code paths in the repo tested? What pattern do those tests use?`"
+  ],
+  [
+   "prompts",
+   144,
+   "- **docs**: `Look for: new public API without docstrings, README that no longer matches code, comments that co"
+  ],
+  [
+   "prompts",
+   144,
+   "Cross-reference: does the repo have a docs convention this should follow?`"
+  ],
+  [
+   "prompts",
+   146,
+   "For `--focus all`, include every block above."
+  ],
+  [
+   "prompts",
+   152,
+   "Used for `--snapshot` targets (no diff baseline)."
+  ],
+  [
+   "prompts",
+   152,
+   "the Context section becomes:"
+  ],
+  [
+   "prompts",
+   155,
+   "You are reviewing files at the workspace root in their current state."
+  ],
+  [
+   "prompts",
+   155,
+   "There is no diff baseline \u2014 every line is in scope."
+  ],
+  [
+   "prompts",
+   159,
+   "Target: snapshot of {SNAPSHOT_PATH}"
+  ],
+  [
+   "prompts",
+   160,
+   "Files to review ({N_FILES}):"
+  ],
+  [
+   "prompts",
+   163,
+   "Read these files, then investigate with Grep and Serena."
+  ],
+  [
+   "prompts",
+   169,
+   "same Output contract and Quality bar as the pr-review-prompt ."
+  ],
+  [
+   "prompts",
+   172,
+   "When `in_diff` is irrelevant (snapshot mode), the agent should set every finding's `in_diff` to `false` and th"
+  ],
+  [
+   "prompts",
+   174,
+   "In snapshot mode the orchestrator records `introduced_in: not_applicable_snapshot` for every candidate, and sn"
+  ],
+  [
+   "prompts",
+   180,
+   "For deep reviews the skill also spawns four persona runs of the agent (security, architect, performance, qa), "
+  ],
+  [
+   "prompts",
+   180,
+   "Each persona prompt is the main `pr-review-prompt` with a single-area focus block and an additional preamble:"
+  ],
+  [
+   "prompts",
+   183,
+   "You are running a specialized {PERSONA} pass."
+  ],
+  [
+   "prompts",
+   183,
+   "A general pass covers general issues."
+  ],
+  [
+   "prompts",
+   183,
+   "Your job is to find what the main pass might have missed within {PERSONA}'s domain."
+  ],
+  [
+   "prompts",
+   183,
+   "Be deeper, more skeptical, and willing to chase indirect/long-range concerns."
+  ],
+  [
+   "prompts",
+   186,
+   "Where `{PERSONA}` is one of: `security`, `architect`, `performance`, `qa`."
+  ],
+  [
+   "prompts",
+   192,
+   "- Don't ask the agent to \"evaluate code quality\" without specifying patterns."
+  ],
+  [
+   "prompts",
+   192,
+   "It will return a smoothed-over generic checklist."
+  ],
+  [
+   "prompts",
+   193,
+   "- Don't allow free-form markdown output."
+  ],
+  [
+   "prompts",
+   193,
+   "Parser breakage is silent and pernicious."
+  ],
+  [
+   "prompts",
+   194,
+   "- Don't put severity caps in the prompt (\"only return high-severity findings\") \u2014 let the agent surface everyth"
+  ],
+  [
+   "prompts",
+   195,
+   "- Don't ask the agent to make merge/approve recommendations."
+  ],
+  [
+   "prompts",
+   195,
+   "That decision belongs to the orchestrator and ultimately the human reviewer."
+  ],
+  [
+   "rubric",
+   3,
+   "The reviewer's `severity_hint` is a starting point, not authoritative."
+  ],
+  [
+   "rubric",
+   3,
+   "After Wave 3 grounding completes, every finding is remapped through this rubric so the report grades consisten"
+  ],
+  [
+   "rubric",
+   7,
+   "Severity drift is the most common failure mode of AI code review: each invocation grades slightly differently,"
+  ],
+  [
+   "rubric",
+   7,
+   "The rubric exists to make grading reproducible \u2014 given two findings with the same factual content, they receiv"
+  ],
+  [
+   "rubric",
+   9,
+   "The rubric is intentionally explicit about what each tier means in **decision terms** (block merge? request ch"
+  ],
+  [
+   "rubric",
+   9,
+   "That's what reviewers actually care about."
+  ],
+  [
+   "rubric",
+   15,
+   "A finding is Critical iff at least one of:"
+  ],
+  [
+   "rubric",
+   17,
+   "- **Exploitable security defect**: anything that lets an unauthenticated or under-authorized actor read, modif"
+  ],
+  [
+   "rubric",
+   17,
+   "Examples: SQL injection, missing authz check on a write endpoint, hardcoded production credentials, broken cry"
+  ],
+  [
+   "rubric",
+   18,
+   "- **Data-integrity defect**: anything that can persist incorrect data, lose data, or corrupt invariants."
+  ],
+  [
+   "rubric",
+   18,
+   "Examples: missing transaction around a multi-step write, race condition in a counter, off-by-one that miswrite"
+  ],
+  [
+   "rubric",
+   19,
+   "- **Crash-on-startup or crash-on-default-path**: a null-deref, unhandled exception, or import-time failure tha"
+  ],
+  [
+   "rubric",
+   19,
+   "Not \"this could fail in some edge case\" \u2014 \"this will fail on the first run."
+  ],
+  [
+   "rubric",
+   20,
+   "- **Regulatory / compliance defect** for a project that operates under one: PII in logs that the project speci"
+  ],
+  [
+   "rubric",
+   22,
+   "Critical findings receive both a summary comment (in the main report) AND an inline `gh` comment pinned to the"
+  ],
+  [
+   "rubric",
+   26,
+   "A finding is High iff at least one of:"
+  ],
+  [
+   "rubric",
+   28,
+   "- **Latent security weakness**: not directly exploitable today but trivially exploitable if a precondition cha"
+  ],
+  [
+   "rubric",
+   28,
+   ", an internal-only endpoint becomes external;"
+  ],
+  [
+   "rubric",
+   28,
+   "a trusted-input function gets called with untrusted input)."
+  ],
+  [
+   "rubric",
+   28,
+   "Examples: missing rate-limit on a write endpoint, broad CORS, weak password hash (when not user-facing yet), `"
+  ],
+  [
+   "rubric",
+   29,
+   "- **Correctness defect on a non-default path**: edge cases that fire often enough to matter (empty list, max i"
+  ],
+  [
+   "rubric",
+   30,
+   "- **Resource leak**: file handles, sockets, database connections, goroutines, timers \u2014 anything that accumulat"
+  ],
+  [
+   "rubric",
+   31,
+   "- **API contract break**: changing a public method signature without bumping a version, breaking a documented "
+  ],
+  [
+   "rubric",
+   32,
+   "- **Concurrency hazard**: a race, deadlock potential, or missing synchronization that has a realistic trigger."
+  ],
+  [
+   "rubric",
+   33,
+   "- **Significant architectural drift**: introducing a layering violation that the codebase explicitly avoids, a"
+  ],
+  [
+   "rubric",
+   35,
+   "High findings receive inline `gh` comments in `--depth deep` mode;"
+  ],
+  [
+   "rubric",
+   35,
+   "in `--depth standard` they get the summary listing only."
+  ],
+  [
+   "rubric",
+   39,
+   "A finding is Medium iff at least one of:"
+  ],
+  [
+   "rubric",
+   41,
+   "- **Code-quality issue with concrete consequences**: a god function that's already showing pain (the diff itse"
+  ],
+  [
+   "rubric",
+   42,
+   "- **Performance concern with no immediate user impact** but with a clear trajectory toward one (N+1 in a path "
+  ],
+  [
+   "rubric",
+   43,
+   "- **Anti-pattern manifesting once**: feature envy, primitive obsession, message chains, etc."
+  ],
+  [
+   "rubric",
+   43,
+   ", visible at one site but not yet widespread."
+  ],
+  [
+   "rubric",
+   44,
+   "- **Test gap on non-trivial logic**: new branch / new function added without a test, but the function isn't on"
+  ],
+  [
+   "rubric",
+   45,
+   "- **Stale or contradictory docs** introduced by this change."
+  ],
+  [
+   "rubric",
+   51,
+   "- The issue is real but the cost of fixing it exceeds the cost of living with it, OR"
+  ],
+  [
+   "rubric",
+   52,
+   "- The improvement is opportunistic (a refactor adjacent to the diff, not required by it), OR"
+  ],
+  [
+   "rubric",
+   53,
+   "- The pattern exists elsewhere in the codebase and fixing it only here would be inconsistent."
+  ],
+  [
+   "rubric",
+   57,
+   "- Naming: snake_case vs camelCase consistency, abbreviation choices, ambiguous identifiers."
+  ],
+  [
+   "rubric",
+   58,
+   "- Comments: typos, comments that explain WHAT instead of WHY, missing trailing punctuation, etc."
+  ],
+  [
+   "rubric",
+   59,
+   "- Style: blank line conventions, import ordering \u2014 only if the repo has a documented convention and this chang"
+  ],
+  [
+   "rubric",
+   59,
+   "**Skip nits entirely if a linter/formatter (ruff, prettier, etc."
+  ],
+  [
+   "rubric",
+   59,
+   ") is configured and CI will catch them."
+  ],
+  [
+   "rubric",
+   61,
+   "Nits are condensed into a single sub-section of the report (one-line per nit), never get inline comments, and "
+  ],
+  [
+   "rubric",
+   65,
+   "In `/sc:auggie-review`, the remap below runs only after the admission step of `refs/claim-gate."
+  ],
+  [
+   "rubric",
+   65,
+   "md` (sections \"Admission table\" and \"Claim scope\")."
+  ],
+  [
+   "rubric",
+   65,
+   "The rules for auggie-review are:"
+  ],
+  [
+   "rubric",
+   77,
+   "For each finding F coming out of the reviewer:"
+  ],
+  [
+   "rubric",
+   79,
+   "**Start from the reviewer's `severity_hint`**."
+  ],
+  [
+   "rubric",
+   80,
+   "**Apply category overrides** (the category is more reliable than the hint):"
+  ],
+  [
+   "rubric",
+   82,
+   "| Category | Floor severity (cannot be downgraded below this without explicit reason) | Ceiling severity (cann"
+  ],
+  [
+   "rubric",
+   84,
+   "| `security` (when exploitable today) | Critical | \u2014 |"
+  ],
+  [
+   "rubric",
+   85,
+   "| `security` (latent) | High | \u2014 |"
+  ],
+  [
+   "rubric",
+   86,
+   "| `data-integrity` | High | Critical (only if persists corruption) |"
+  ],
+  [
+   "rubric",
+   87,
+   "| `correctness` | Medium | Critical (only if default-path crash) |"
+  ],
+  [
+   "rubric",
+   88,
+   "| `concurrency` | Medium | High (only if realistic trigger documented) |"
+  ],
+  [
+   "rubric",
+   89,
+   "| `resource-leak` | Medium | High |"
+  ],
+  [
+   "rubric",
+   90,
+   "| `api-contract` | Medium | High (if downstream consumers are in-repo) |"
+  ],
+  [
+   "rubric",
+   91,
+   "| `performance` | Low | High (only if measured impact) |"
+  ],
+  [
+   "rubric",
+   92,
+   "| `architecture` | Medium | High (if it adds a new violation; downgrade to Low if pre-existing) |"
+  ],
+  [
+   "rubric",
+   93,
+   "| `layering` / `coupling` | Medium | High (same as architecture) |"
+  ],
+  [
+   "rubric",
+   94,
+   "| `anti-pattern` | Low | Medium (Medium if the diff makes the smell worse) |"
+  ],
+  [
+   "rubric",
+   95,
+   "| `dead-code` | Low | Low |"
+  ],
+  [
+   "rubric",
+   96,
+   "| `tests` | Medium (if on critical path) / Low (otherwise) | High (only if breaking-change w/o test) |"
+  ],
+  [
+   "rubric",
+   97,
+   "| `docs` | Low | Medium (if it's a public-API change w/ stale docs) |"
+  ],
+  [
+   "rubric",
+   98,
+   "| `logging` | Low | High (PII in logs \u2192 High) |"
+  ],
+  [
+   "rubric",
+   99,
+   "| `naming` / `style` | Nit | Low |"
+  ],
+  [
+   "rubric",
+   101,
+   "**Apply confidence adjustment** (the reviewer's `confidence` field):"
+  ],
+  [
+   "rubric",
+   102,
+   "- `low` confidence \u2192 drop severity by one tier (Critical \u2192 High, High \u2192 Medium, etc."
+  ],
+  [
+   "rubric",
+   102,
+   "If Critical and low confidence, downgrade only if the orchestrator's grounding pass also flagged uncertainty."
+  ],
+  [
+   "rubric",
+   103,
+   "- `medium` confidence \u2192 no change"
+  ],
+  [
+   "rubric",
+   104,
+   "- `high` confidence \u2192 no change"
+  ],
+  [
+   "rubric",
+   105,
+   "**Apply diff-locality adjustment** (PR/diff mode only):"
+  ],
+  [
+   "rubric",
+   106,
+   "- `in_diff: true` \u2192 no change"
+  ],
+  [
+   "rubric",
+   107,
+   "- `in_diff: false` AND finding type is correctness/security on a callsite affected by the diff \u2192 no change"
+  ],
+  [
+   "rubric",
+   108,
+   "- `in_diff: false` AND finding is \"pre-existing in code the diff doesn't touch\" \u2192 drop one tier (this is the \""
+  ],
+  [
+   "rubric",
+   110,
+   "The remap result is the final severity printed in the report."
+  ],
+  [
+   "rubric",
+   114,
+   "These exist so the rubric is not just abstract \u2014 pin the algorithm to real shapes."
+  ],
+  [
+   "rubric",
+   121,
+   "execute(f\"SELECT * FROM users WHERE name = '{name}'\")"
+  ],
+  [
+   "rubric",
+   124,
+   "- Reviewer `severity_hint`: `critical`"
+  ],
+  [
+   "rubric",
+   125,
+   "- Category: `security` (exploitable today)"
+  ],
+  [
+   "rubric",
+   128,
+   "- **Remap result**: \ud83d\udd34 Critical (matches the floor for exploitable security)"
+  ],
+  [
+   "rubric",
+   136,
+   "- Reviewer `severity_hint`: `medium`"
+  ],
+  [
+   "rubric",
+   137,
+   "- Category: `anti-pattern`"
+  ],
+  [
+   "rubric",
+   140,
+   "- **Remap result**: \ud83d\udfe1 Medium (anti-pattern ceiling is Medium when the diff makes the smell worse)"
+  ],
+  [
+   "rubric",
+   144,
+   "- Reviewer `severity_hint`: `high`"
+  ],
+  [
+   "rubric",
+   146,
+   "- Function is called from one place, not on the critical path"
+  ],
+  [
+   "rubric",
+   148,
+   "- **Remap result**: \ud83d\udfe2 Low (off-critical-path test gaps cap at Low per the table;"
+  ],
+  [
+   "rubric",
+   148,
+   "floor is Medium for critical-path)"
+  ],
+  [
+   "rubric",
+   152,
+   "- Reviewer `severity_hint`: `high`"
+  ],
+  [
+   "rubric",
+   154,
+   "- `in_diff`: `false` and the diff doesn't increase the violation"
+  ],
+  [
+   "rubric",
+   155,
+   "- **Remap result**: \ud83d\udfe2 Low (PR-scope adjustment downgrades pre-existing-and-untouched)"
+  ],
+  [
+   "rubric",
+   159,
+   "- Reviewer `severity_hint`: `low`"
+  ],
+  [
+   "rubric",
+   161,
+   "- **Remap result**: \ud83d\udcac Nit (style ceiling is Nit unless there's a Low-tier reason to elevate)"
+  ],
+  [
+   "rubric",
+   165,
+   "- Findings that fail file:line grounding (handled in Wave 3, never reach the rubric)"
+  ],
+  [
+   "rubric",
+   166,
+   "- Findings about formatting that a configured formatter would fix (`ruff format`, `prettier`, etc."
+  ],
+  [
+   "rubric",
+   167,
+   "- Findings that are restatements of caveats already in the PR description"
+  ],
+  [
+   "rubric",
+   168,
+   "- Findings that are duplicates of higher-severity findings on the same file:line (dedupe step folds them in)"
+  ],
+  [
+   "rubric",
+   172,
+   "After all findings are graded, compute a single recommendation:"
+  ],
+  [
+   "rubric",
+   177,
+   "| `critical > 0` | **Block merge** \u2014 Critical findings must be resolved or explicitly accepted by the human re"
+  ],
+  [
+   "rubric",
+   178,
+   "| `critical == 0 && high > 0` | **Request changes** \u2014 High findings should be addressed before merge |"
+  ],
+  [
+   "rubric",
+   179,
+   "| `critical == 0 && high == 0 && (medium > 0 || low > 0)` | **Approve with comments** \u2014 Items worth fixing but"
+  ],
+  [
+   "rubric",
+   181,
+   "| All findings are Nit/Low or no findings | **Looks good** \u2014 Minor observations only |"
+  ],
+  [
+   "rubric",
+   183,
+   "This recommendation is the report's first-paragraph verdict."
+  ],
+  [
+   "rubric",
+   183,
+   "It does NOT translate into a `gh pr review --approve` or `--request-changes` \u2014 those decisions belong to the h"
+  ],
+  [
+   "rubric",
+   183,
+   "The report is always posted as a `--comment` review."
+  ],
+  [
+   "handoff",
+   3,
+   "After the review report is posted, the skill offers the user a deterministic remediation chain."
+  ],
+  [
+   "handoff",
+   3,
+   "This file pins the exact phrasing, ordering, and command shapes used in that handoff so the chain is reproduci"
+  ],
+  [
+   "handoff",
+   7,
+   "The route is keyed on the `--depth` the user **requested** for the review:"
+  ],
+  [
+   "handoff",
+   9,
+   "| Review `--depth` | Route | Phase B builder | Phase D user-run executor |"
+  ],
+  [
+   "handoff",
+   11,
+   "| `quick`, `standard` (default) | **Plan route** | `sc:workflow-protocol` on the remediation spec \u2192 managed pa"
+  ],
+  [
+   "handoff",
+   12,
+   "| `deep` | **MDTM route** | `task-builder` \u2192 MDTM task file | `/task <task-file>` |"
+  ],
+  [
+   "handoff",
+   14,
+   "`/sc:design` (Phase A) runs on both routes."
+  ],
+  [
+   "handoff",
+   14,
+   "`sc:implement` only gets per-task QA when its source has enumerable tasks;"
+  ],
+  [
+   "handoff",
+   14,
+   "a design spec is prose and would collapse to one task, so the plan route puts `sc:workflow` between the spec a"
+  ],
+  [
+   "handoff",
+   18,
+   "The remediation offer is presented only if **all** the following hold:"
+  ],
+  [
+   "handoff",
+   20,
+   "The review completed successfully (`status: success` or `status: partial`)."
+  ],
+  [
+   "handoff",
+   21,
+   "`--remediation-offer` is true (the default)."
+  ],
+  [
+   "handoff",
+   22,
+   "json`, and `remediation_count` is computed from it."
+  ],
+  [
+   "handoff",
+   23,
+   "The user has not already declined a remediation offer in this session (avoid badgering)."
+  ],
+  [
+   "handoff",
+   25,
+   "If the conditions are not met, the skill returns the structured output contract and stops."
+  ],
+  [
+   "handoff",
+   29,
+   "The skill emits this message verbatim to the user (substituting only the bracketed values):"
+  ],
+  [
+   "handoff",
+   32,
+   "Review complete: [N critical, N high, N medium, N low, N nits] in [report_path]"
+  ],
+  [
+   "handoff",
+   35,
+   "Would you like to run the full remediation chain on these findings?"
+  ],
+  [
+   "handoff",
+   37,
+   "Phase A \u2014 /sc:design <report_path> --type architecture --format spec"
+  ],
+  [
+   "handoff",
+   38,
+   "(produces a remediation specification document)"
+  ],
+  [
+   "handoff",
+   39,
+   "Phase B \u2014 [plan route]  /sc:workflow on the spec"
+  ],
+  [
+   "handoff",
+   40,
+   "(produces a phased tasklist package with per-task acceptance criteria)"
+  ],
+  [
+   "handoff",
+   41,
+   "[mdtm route]  task-builder skill on the spec"
+  ],
+  [
+   "handoff",
+   42,
+   "(produces an MDTM task file with evidence-backed steps)"
+  ],
+  [
+   "handoff",
+   43,
+   "Phase C \u2014 [plan route]  review the pre-review /sc:workflow already ran (/sc:reflect --mode pre)"
+  ],
+  [
+   "handoff",
+   44,
+   "[mdtm route]  /sc:reflect --type task --analyze"
+  ],
+  [
+   "handoff",
+   45,
+   "(sanity-checks the plan/tasklist before execution;"
+  ],
+  [
+   "handoff",
+   46,
+   "scope drift, weak verification criteria, missing rollback)"
+  ],
+  [
+   "handoff",
+   47,
+   "Phase D \u2014 User-driven execution"
+  ],
+  [
+   "handoff",
+   48,
+   "(the skill does NOT auto-execute;"
+  ],
+  [
+   "handoff",
+   49,
+   "[plan route] /sc:implement <pkg>/<id>."
+  ],
+  [
+   "handoff",
+   49,
+   "md   [mdtm route] /task <path>)"
+  ],
+  [
+   "handoff",
+   50,
+   "Phase E \u2014 [plan route]  /sc:reflect --mode post"
+  ],
+  [
+   "handoff",
+   51,
+   "[mdtm route]  /sc:reflect --type task --validate"
+  ],
+  [
+   "handoff",
+   52,
+   "(final gate before commit;"
+  ],
+  [
+   "handoff",
+   52,
+   "blocks if validation fails)"
+  ],
+  [
+   "handoff",
+   54,
+   "Route for this review: <plan | mdtm>   (mdtm only because --depth deep was requested)"
+  ],
+  [
+   "handoff",
+   56,
+   "Reply 'yes' to proceed with Phase A, 'no' to stop here, or name a"
+  ],
+  [
+   "handoff",
+   57,
+   "specific phase if you want to skip ahead (e."
+  ],
+  [
+   "handoff",
+   58,
+   "using existing spec at <path>')."
+  ],
+  [
+   "handoff",
+   61,
+   "The offer must be a single message, not a yes/no AskUserQuestion form \u2014 the user might want to skip phases or "
+  ],
+  [
+   "handoff",
+   65,
+   "If the user accepts, the skill invokes:"
+  ],
+  [
+   "handoff",
+   71,
+   "--output <output_dir>/remediation-spec."
+  ],
+  [
+   "handoff",
+   74,
+   "Rationale for the flag choices:"
+  ],
+  [
+   "handoff",
+   76,
+   "- `--type architecture`: even for narrow-bug findings, `/sc:design` treats the input as a structured input and"
+  ],
+  [
+   "handoff",
+   76,
+   "`architecture` is the broadest type, which is correct because reviews typically span multiple concerns."
+  ],
+  [
+   "handoff",
+   76,
+   "If the user prefers a tighter type, they can override."
+  ],
+  [
+   "handoff",
+   77,
+   "- `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text that `sc:workflow` "
+  ],
+  [
+   "handoff",
+   78,
+   "- `--output <output_dir>/remediation-spec."
+  ],
+  [
+   "handoff",
+   78,
+   "md`: keeps the artifact next to the review for traceability."
+  ],
+  [
+   "handoff",
+   82,
+   "On `/sc:design` completion:"
+  ],
+  [
+   "handoff",
+   85,
+   "- Surface the spec path to the user with a one-line summary."
+  ],
+  [
+   "handoff",
+   86,
+   "- Proceed to Phase B unless the user says stop."
+  ],
+  [
+   "handoff",
+   90,
+   "First build the workflow source `<output_dir>/remediation-workflow-source."
+  ],
+  [
+   "handoff",
+   90,
+   "md` (rewritten from scratch on every pass): a copy of `<output_dir>/remediation-spec."
+  ],
+  [
+   "handoff",
+   90,
+   "md`, plus a `## References` section pointing at `REVIEW."
+  ],
+  [
+   "handoff",
+   90,
+   "md` and the cited Critical/High files, plus \u2014 only when `<output_dir>/remediation-review-notes."
+  ],
+  [
+   "handoff",
+   90,
+   "md` exists \u2014 a `## Review Feedback` section with its contents."
+  ],
+  [
+   "handoff",
+   90,
+   "Flatten list syntax in the copy: rewrite every checkbox (`- [ ]`) or numbered-list line as a plain `- ` bullet"
+  ],
+  [
+   "handoff",
+   90,
+   "The workflow gate rejects list lines in the generated tasklist."
+  ],
+  [
+   "handoff",
+   90,
+   "Then invoke `Skill sc:workflow-protocol` on `<output_dir>/remediation-workflow-source."
+  ],
+  [
+   "handoff",
+   90,
+   "md` (not on the bare spec) with `--depth standard --handoff none` (never `--handoff implement`;"
+  ],
+  [
+   "handoff",
+   90,
+   "execution is user-initiated)."
+  ],
+  [
+   "handoff",
+   90,
+   "Never pass `--output` (retired)."
+  ],
+  [
+   "handoff",
+   90,
+   "dev/tasks/to-do/<id>/return-contract."
+  ],
+  [
+   "handoff",
+   90,
+   "yaml`: `status: success` \u2192 resolve the absolute tasklist path (package dir + package-relative `plan_path`) and"
+  ],
+  [
+   "handoff",
+   90,
+   "otherwise surface the STOP code and do not retry automatically."
+  ],
+  [
+   "handoff",
+   90,
+   "Surface the tasklist path with a one-line summary, and proceed to Phase C unless the user says stop."
+  ],
+  [
+   "handoff",
+   94,
+   "The `task-builder` skill is invoked via natural language, not a slash command, because it's a skill (not a com"
+  ],
+  [
+   "handoff",
+   94,
+   "The skill triggers on phrases like \"build a task file from."
+  ],
+  [
+   "handoff",
+   96,
+   "The skill invokes the task-builder by emitting:"
+  ],
+  [
+   "handoff",
+   102,
+   "with a BUILD_REQUEST that points at the remediation spec:"
+  ],
+  [
+   "handoff",
+   105,
+   "GOAL: Build a task file to remediate the findings in <output_dir>/REVIEW."
+  ],
+  [
+   "handoff",
+   106,
+   "following the remediation specification at <output_dir>/remediation-spec."
+  ],
+  [
+   "handoff",
+   108,
+   "WHY: Code review of <PR/diff/snapshot identifier> surfaced <N critical, N high>"
+  ],
+  [
+   "handoff",
+   109,
+   "findings that must be addressed before merge."
+  ],
+  [
+   "handoff",
+   109,
+   "The remediation spec defines"
+  ],
+  [
+   "handoff",
+   110,
+   "this task file should translate those into"
+  ],
+  [
+   "handoff",
+   111,
+   "evidence-backed, executable steps."
+  ],
+  [
+   "handoff",
+   115,
+   "BUILD_REQUEST file: <output_dir>/BUILD-REQUEST-REMEDIATION."
+  ],
+  [
+   "handoff",
+   118,
+   "Before invoking, the skill writes the BUILD-REQUEST file with GOAL, WHY, OUTPUTS, CONTEXT, and a TEMPLATE pref"
+  ],
+  [
+   "handoff",
+   120,
+   "On task-builder completion:"
+  ],
+  [
+   "handoff",
+   122,
+   "- Capture the task file path from the skill's output."
+  ],
+  [
+   "handoff",
+   123,
+   "- Surface it with a one-line summary."
+  ],
+  [
+   "handoff",
+   124,
+   "- Proceed to Phase C unless the user says stop."
+  ],
+  [
+   "handoff",
+   128,
+   "**Plan route (consume, do not re-run):** `sc:workflow` Wave 4 already ran `/sc:reflect --mode pre --spec <pkg>"
+  ],
+  [
+   "handoff",
+   128,
+   "md --tasklist <pkg>/<id>."
+  ],
+  [
+   "handoff",
+   128,
+   "md` (advisory, read-only)."
+  ],
+  [
+   "handoff",
+   128,
+   "Surface `reflect_status` and `reflect_report_path` from its return contract and handle the outcomes below."
+  ],
+  [
+   "handoff",
+   128,
+   "Never call `/sc:reflect --mode pre` a second time."
+  ],
+  [
+   "handoff",
+   128,
+   "`reflect_status: skipped|failed` \u2192 say so and fall back to the `self-review` agent on the tasklist."
+  ],
+  [
+   "handoff",
+   128,
+   "On a refactor request, append the concerns to `<output_dir>/remediation-review-notes."
+  ],
+  [
+   "handoff",
+   128,
+   "Phase B rebuilds `remediation-workflow-source."
+  ],
+  [
+   "handoff",
+   128,
+   "md` from the spec plus these notes, so they are never lost) and re-run Phase B \u2014 this creates a **new** packag"
+  ],
+  [
+   "handoff",
+   128,
+   "the tasklist is never edited from findings);"
+  ],
+  [
+   "handoff",
+   128,
+   "The rest of this phase (the concerns list and outcomes) applies to both routes."
+  ],
+  [
+   "handoff",
+   130,
+   "**MDTM route:** the skill invokes:"
+  ],
+  [
+   "handoff",
+   133,
+   "/sc:reflect --type task --analyze"
+  ],
+  [
+   "handoff",
+   136,
+   "with the new task file as the implicit current task context (or pass the task file path explicitly if the user"
+  ],
+  [
+   "handoff",
+   138,
+   "`/sc:reflect --type task --analyze` \"Validates current approach against project goals;"
+  ],
+  [
+   "handoff",
+   138,
+   "identifies deviations and provides course correction recommendations."
+  ],
+  [
+   "handoff",
+   138,
+   "\" Per its `## Behavioral Flow`, it uses Serena's `think_about_task_adherence` and `think_about_collected_infor"
+  ],
+  [
+   "handoff",
+   140,
+   "For our purposes, the analyze pass is a **pre-execution sanity check**."
+  ],
+  [
+   "handoff",
+   140,
+   "We're not asking \"is this task done?\" \u2014 we're asking \"is this task plan well-formed enough to execute?\"."
+  ],
+  [
+   "handoff",
+   140,
+   "Specifically, the skill expects the reflect output to address:"
+  ],
+  [
+   "handoff",
+   142,
+   "- Are the verification criteria for each task item strong enough to detect failure?"
+  ],
+  [
+   "handoff",
+   143,
+   "- Are there obvious scope-drift risks (task items that have grown beyond what the review findings warrant)?"
+  ],
+  [
+   "handoff",
+   144,
+   "- Is there a rollback / abort path documented?"
+  ],
+  [
+   "handoff",
+   145,
+   "- Are dependencies between task items explicit?"
+  ],
+  [
+   "handoff",
+   147,
+   "On reflect-analyze completion:"
+  ],
+  [
+   "handoff",
+   149,
+   "- If reflect-analyze reports **no significant concerns**: surface that, then ask the user \"Proceed to Phase D "
+  ],
+  [
+   "handoff",
+   150,
+   "- If reflect-analyze reports **concerns**: surface them, and ask \"Refactor the tasklist to address these, or o"
+  ],
+  [
+   "handoff",
+   151,
+   "- If the user chooses to refactor: invoke `task-builder` again with the reflect-analyze concerns appended to t"
+  ],
+  [
+   "handoff",
+   151,
+   "Cap at 2 refactor cycles to avoid infinite loops."
+  ],
+  [
+   "handoff",
+   155,
+   "The skill **does not auto-execute** the task file."
+  ],
+  [
+   "handoff",
+   155,
+   "It surfaces the task file path and the recommended execution command:"
+  ],
+  [
+   "handoff",
+   160,
+   "Run: /sc:implement <pkg>/<id>."
+  ],
+  [
+   "handoff",
+   160,
+   "a TASK-WF package never goes to /task)"
+  ],
+  [
+   "handoff",
+   161,
+   "/task <task-file-path>             (mdtm route, --depth deep)"
+  ],
+  [
+   "handoff",
+   163,
+   "When execution completes, reply 'done' or"
+  ],
+  [
+   "handoff",
+   164,
+   "'execution complete' and I'll run the final validation gate."
+  ],
+  [
+   "handoff",
+   167,
+   "Rationale: execution can be long and may want to be split across sessions;"
+  ],
+  [
+   "handoff",
+   167,
+   "forcing the user to confirm gives them control."
+  ],
+  [
+   "handoff",
+   167,
+   "Also, the user may want to spot-check the task file before running it."
+  ],
+  [
+   "handoff",
+   169,
+   "After the user signals execution is complete, proceed to Phase E."
+  ],
+  [
+   "handoff",
+   169,
+   "If the user closes the session here, the skill returns the structured output contract with `remediation_status"
+  ],
+  [
+   "handoff",
+   173,
+   "The skill invokes `/sc:reflect --mode post --spec <output_dir>/remediation-spec."
+  ],
+  [
+   "handoff",
+   173,
+   "md --tasklist <pkg-now>/<id>."
+  ],
+  [
+   "handoff",
+   173,
+   "md --task-log <pkg-now>/progress."
+  ],
+  [
+   "handoff",
+   173,
+   "md --diff <baseline_ref>` on the plan route (record `baseline_ref = git rev-parse HEAD` at Phase D;"
+  ],
+  [
+   "handoff",
+   173,
+   "dev/tasks/to-do/<id>` or, once `/sc:implement` archived the package after its final review, `."
+  ],
+  [
+   "handoff",
+   176,
+   "/sc:reflect --type task --validate"
+  ],
+  [
+   "handoff",
+   181,
+   "This is the **final gate before commit**."
+  ],
+  [
+   "handoff",
+   181,
+   "Per `/sc:reflect`'s `## Behavioral Flow`, `--validate` \"Comprehensive analysis of session work and information"
+  ],
+  [
+   "handoff",
+   181,
+   "quality assessment and gap identification."
+  ],
+  [
+   "handoff",
+   183,
+   "The validate pass checks:"
+  ],
+  [
+   "handoff",
+   185,
+   "- Were all task items completed?"
+  ],
+  [
+   "handoff",
+   186,
+   "- Do the completed artifacts satisfy the verification criteria each task item declared?"
+  ],
+  [
+   "handoff",
+   187,
+   "- Are there any new defects introduced during execution?"
+  ],
+  [
+   "handoff",
+   188,
+   "- Is the change minimal (no scope creep beyond what the original review findings required)?"
+  ],
+  [
+   "handoff",
+   192,
+   "- If validate **passes**: surface that, and recommend the user commit."
+  ],
+  [
+   "handoff",
+   192,
+   "The recommended commit message format is `fix(<scope>): remediate findings from <review-id>` with a reference "
+  ],
+  [
+   "handoff",
+   193,
+   "- If validate **fails**: surface the issues and ask the user how to proceed (re-run Phase D? Open a new review"
+  ],
+  [
+   "handoff",
+   193,
+   "Do not recommend commit until validate passes."
+  ],
+  [
+   "handoff",
+   197,
+   "If the user closes the session mid-chain, the skill writes the chain's state to `<output_dir>/remediation-stat"
+  ],
+  [
+   "handoff",
+   202,
+   "\"last_completed\": \"<phase>\","
+  ],
+  [
+   "handoff",
+   206,
+   "dev/tasks/to-do/<id>/<id>."
+  ],
+  [
+   "handoff",
+   208,
+   "\"task_reflect_analyze_result\": \"."
+  ],
+  [
+   "handoff",
+   209,
+   "\"task_reflect_validate_result\": \"."
+  ],
+  [
+   "handoff",
+   212,
+   "\"last_updated_at\": \"<iso>\""
+  ],
+  [
+   "handoff",
+   216,
+   "When the user re-invokes the skill with `--resume <output_dir>`, the chain picks up at the recorded phase."
+  ],
+  [
+   "handoff",
+   220,
+   "- **Don't auto-execute Phase D**."
+  ],
+  [
+   "handoff",
+   220,
+   "The most common failure mode of agentic remediation chains is silent execution of half-baked plans."
+  ],
+  [
+   "handoff",
+   220,
+   "The pause-for-user-confirmation pattern is intentional friction."
+  ],
+  [
+   "handoff",
+   221,
+   "- **Don't skip Phase C even if findings are \"obviously small\"**."
+  ],
+  [
+   "handoff",
+   221,
+   "The reflect-analyze pass is cheap and catches scope-drift early."
+  ],
+  [
+   "handoff",
+   222,
+   "- **Don't proceed to commit if Phase E fails**."
+  ],
+  [
+   "handoff",
+   222,
+   "The whole point of having a final validate gate is to refuse to commit broken work."
+  ],
+  [
+   "handoff",
+   223,
+   "- **Don't bundle the offer into an AskUserQuestion**."
+  ],
+  [
+   "handoff",
+   223,
+   "The user might want to start at Phase B with an existing spec, skip Phase C, etc."
+  ],
+  [
+   "handoff",
+   223,
+   "A free-form text offer preserves that flexibility."
+  ],
+  [
+   "handoff",
+   224,
+   "- **Don't badger the user**."
+  ],
+  [
+   "handoff",
+   224,
+   "If they say no, that's the final answer for this review."
+  ],
+  [
+   "agent",
+   3,
+   "description: Code-review agent that is the review engine of /sc:auggie-review at every depth \u2014 a general pass "
+  ],
+  [
+   "agent",
+   3,
+   "returns findings JSON as its final message"
+  ],
+  [
+   "agent",
+   5,
+   "tools: [Read, Grep, Glob, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols]"
+  ],
+  [
+   "agent",
+   13,
+   "- Delegated by the `sc:auggie-review-protocol` skill in Wave 2, at every depth"
+  ],
+  [
+   "agent",
+   14,
+   "- Never auto-activates from keywords;"
+  ],
+  [
+   "agent",
+   14,
+   "only invoked via the `Task` tool"
+  ],
+  [
+   "agent",
+   18,
+   "You are the review engine."
+  ],
+  [
+   "agent",
+   18,
+   "Find what a careful human reviewer would catch: narrow bugs, subtle invariants, semantic mismatches between ad"
+  ],
+  [
+   "agent",
+   18,
+   "In a persona pass, go deeper within that persona's domain only."
+  ],
+  [
+   "agent",
+   22,
+   "The orchestrator passes you:"
+  ],
+  [
+   "agent",
+   24,
+   "- `prompt`: the filled `pr-review-prompt` or `snapshot-review-prompt` (persona passes add the persona preamble"
+  ],
+  [
+   "agent",
+   25,
+   "- `target_summary`: PR title/body or diff-range description or snapshot path"
+  ],
+  [
+   "agent",
+   26,
+   "- `diff_path`: absolute path to the unified diff (if PR/diff mode)"
+  ],
+  [
+   "agent",
+   27,
+   "- `file_list`: list of changed/in-scope files for this chunk"
+  ],
+  [
+   "agent",
+   28,
+   "- `focus`: comma-separated focus areas"
+  ],
+  [
+   "agent",
+   29,
+   "- `head_match`: `false` when the PR head is not the local checkout"
+  ],
+  [
+   "agent",
+   30,
+   "- `depth`: `quick`, `standard`, or `deep`"
+  ],
+  [
+   "agent",
+   34,
+   "**Read the diff (or file list) end-to-end before forming any findings."
+  ],
+  [
+   "agent",
+   34,
+   "** A premature pass produces shallow, scattered findings."
+  ],
+  [
+   "agent",
+   35,
+   "**For each non-trivial change, pull adjacent context** with `Read` (or `mcp__serena__find_symbol`): the surrou"
+  ],
+  [
+   "agent",
+   35,
+   "Most bugs hide in the join between the new code and the unchanged code around it."
+  ],
+  [
+   "agent",
+   36,
+   "**Use `Grep` and `mcp__serena__find_referencing_symbols` for codebase-wide questions** (\"are there other call "
+  ],
+  [
+   "agent",
+   36,
+   "cite only lines you have Read."
+  ],
+  [
+   "agent",
+   37,
+   "**Absence rule**: a miss from Serena or any index never proves absence."
+  ],
+  [
+   "agent",
+   37,
+   "Only a Grep or Read that cites its pattern and root does."
+  ],
+  [
+   "agent",
+   37,
+   "\"Nothing calls this\" needs zero Grep hits under `src/`, `plugins/`, and `tests/`."
+  ],
+  [
+   "agent",
+   38,
+   "Do not Read the local file as evidence and do not query Serena."
+  ],
+  [
+   "agent",
+   39,
+   "**Form findings across categories**, with one example each so you don't pad:"
+  ],
+  [
+   "agent",
+   40,
+   "- **Invariant violations**: code that breaks an invariant the surrounding code relies on."
+  ],
+  [
+   "agent",
+   41,
+   "- **Comment / code mismatches**: docstring says one thing, code does another;"
+  ],
+  [
+   "agent",
+   42,
+   "- **Subtle correctness**: off-by-one, boundary conditions, error paths, integer-overflow, time/timezone, encod"
+  ],
+  [
+   "agent",
+   43,
+   "- **Intent gaps**: PR says X, code does X-ish-but-not-quite."
+  ],
+  [
+   "agent",
+   44,
+   "- **Pattern-match defects**: hardcoded secrets, injection sinks, broad `except` clauses \u2014 report them;"
+  ],
+  [
+   "agent",
+   45,
+   "- **Higher-level concerns**: layering, missing tests on a path that *looks* tested, symmetric helpers where on"
+  ],
+  [
+   "agent",
+   49,
+   "Your **final message** is the findings JSON defined in `sc-auggie-review-protocol/refs/auggie-prompts."
+  ],
+  [
+   "agent",
+   49,
+   "md` (`findings`, `cross_cutting_observations`, `notes_for_orchestrator`), and nothing else."
+  ],
+  [
+   "agent",
+   49,
+   "the orchestrator saves your output."
+  ],
+  [
+   "agent",
+   51,
+   "If you have no findings, return `\"findings\": []` with an honest note in `notes_for_orchestrator`."
+  ],
+  [
+   "agent",
+   55,
+   "- **Read**: pull diff bodies and adjacent context;"
+  ],
+  [
+   "agent",
+   55,
+   "the only source of cited evidence"
+  ],
+  [
+   "agent",
+   56,
+   "- **Grep / Glob**: find related call sites, similar patterns, prior conventions"
+  ],
+  [
+   "agent",
+   57,
+   "- **Bash**: read-only `git log -p --follow <file>` for history when an unfamiliar pattern needs justification;"
+  ],
+  [
+   "agent",
+   58,
+   "- **mcp__serena__find_symbol** / **find_referencing_symbols**: symbol-level hints about who calls what"
+  ],
+  [
+   "agent",
+   62,
+   "- Post to the PR (the orchestrator handles all GitHub interaction)"
+  ],
+  [
+   "agent",
+   63,
+   "- Modify any code under review or write files"
+  ],
+  [
+   "agent",
+   64,
+   "- Decide overall pass/fail \u2014 your output feeds the orchestrator's synthesis, not a verdict"
+  ],
+  [
+   "agent",
+   65,
+   "- Cite a line it has not Read, or treat an index miss as proof of absence"
+  ],
+  [
+   "agent",
+   66,
+   "- Pad findings to look thorough;"
+  ],
+  [
+   "agent",
+   66,
+   "honest empty output is preferred"
+  ],
+  [
+   "command",
+   3,
+   "description: \"Code review for PRs, local diffs, or file snapshots by the auggie-reviewer agent with Serena hin"
+  ],
+  [
+   "command",
+   7,
+   "personas: [analyzer, architect, security, qa, refactorer]"
+  ],
+  [
+   "command",
+   8,
+   "argument-hint: \"[<PR-num|PR-URL>|--diff <base>."
+  ],
+  [
+   "command",
+   8,
+   "HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] "
+  ],
+  [
+   "command",
+   15,
+   "**Explicit only** \u2014 this command does NOT auto-activate from conversational keywords like \"review\", \"audit\", o"
+  ],
+  [
+   "command",
+   17,
+   "**Direct invocation**: User types `/sc:auggie-review ."
+  ],
+  [
+   "command",
+   18,
+   "**Programmatic call**: Another `/sc:*` command invokes the `sc:auggie-review-protocol` skill directly (e."
+  ],
+  [
+   "command",
+   18,
+   "the `/sc:pr-submit` decline fallback)"
+  ],
+  [
+   "command",
+   20,
+   "The trigger discipline exists because deep reviews are expensive (several opus agent passes) and false-positiv"
+  ],
+  [
+   "command",
+   20,
+   "See \"Boundaries \u2192 Will Not\" below."
+  ],
+  [
+   "command",
+   24,
+   "**MANDATORY**: One of the following review targets:"
+  ],
+  [
+   "command",
+   26,
+   "- **Remote PR**: `<PR-number>` or `<PR-URL>` (resolved via `gh pr view`)"
+  ],
+  [
+   "command",
+   27,
+   "- **Local diff**: `--diff <base-ref>."
+  ],
+  [
+   "command",
+   27,
+   "HEAD` (committed changes only), or, if no target is given and the working tree is dirty, the implicit `git dif"
+  ],
+  [
+   "command",
+   27,
+   "Untracked files are listed in a WARN and are not reviewed."
+  ],
+  [
+   "command",
+   28,
+   "- **File snapshot**: `--snapshot <path>` (single file or directory;"
+  ],
+  [
+   "command",
+   28,
+   "no diff, full-content review)"
+  ],
+  [
+   "command",
+   30,
+   "**STOP** if none of the above are resolvable."
+  ],
+  [
+   "command",
+   35,
+   "/sc:auggie-review 62                                    # Review PR #62 (auto-detect repo)"
+  ],
+  [
+   "command",
+   36,
+   "/sc:auggie-review https://github."
+  ],
+  [
+   "command",
+   36,
+   "com/org/repo/pull/62   # Review PR by URL"
+  ],
+  [
+   "command",
+   37,
+   "/sc:auggie-review --diff origin/master."
+  ],
+  [
+   "command",
+   37,
+   "HEAD           # Review local branch changes"
+  ],
+  [
+   "command",
+   38,
+   "/sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)"
+  ],
+  [
+   "command",
+   39,
+   "/sc:auggie-review 62 --focus security,architecture      # Focus areas only"
+  ],
+  [
+   "command",
+   40,
+   "/sc:auggie-review 62 --depth deep --no-post-pr          # Deep review, do not post to PR"
+  ],
+  [
+   "command",
+   45,
+   "| Flag | Default | Description |"
+  ],
+  [
+   "command",
+   47,
+   "| `--focus` | `all` | Comma-separated subset of `security,architecture,quality,performance,anti-patterns,tests"
+  ],
+  [
+   "command",
+   48,
+   "| `--depth` | `standard` | `quick` (one agent pass per chunk), `standard` (same as quick), `deep` (plus securi"
+  ],
+  [
+   "command",
+   49,
+   "| `--post-pr` | `true` when target is a PR | Auto-post the markdown report as a `gh pr review --comment`. Inli"
+  ],
+  [
+   "command",
+   50,
+   "| `--no-post-pr` | \u2014 | Generate the report only; do not touch GitHub |"
+  ],
+  [
+   "command",
+   51,
+   "| `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` \u2192 `sc:workflow` \u2192 `"
+  ],
+  [
+   "command",
+   52,
+   "| `--no-remediation-offer` | \u2014 | Suppress the remediation chain offer |"
+  ],
+  [
+   "command",
+   53,
+   "| `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, findings JS"
+  ],
+  [
+   "command",
+   57,
+   "The full multi-wave protocol lives in the skill."
+  ],
+  [
+   "command",
+   57,
+   "The command file performs only:"
+  ],
+  [
+   "command",
+   59,
+   "**Parse arguments** \u2192 resolve target type (PR / diff / snapshot)"
+  ],
+  [
+   "command",
+   60,
+   "**Validate environment** \u2192 `gh` authed (if PR target), repo is a git working tree"
+  ],
+  [
+   "command",
+   61,
+   "**Hand off to the skill** via the Activation section below"
+  ],
+  [
+   "command",
+   62,
+   "**On skill return**, surface the report path, PR URL (if posted), and remediation-chain prompt (if enabled)"
+  ],
+  [
+   "command",
+   66,
+   "**MANDATORY**: Before executing any protocol steps, invoke:"
+  ],
+  [
+   "command",
+   67,
+   "> Skill sc:auggie-review-protocol"
+  ],
+  [
+   "command",
+   69,
+   "Do NOT proceed with protocol execution using only this command file."
+  ],
+  [
+   "command",
+   69,
+   "The full behavioral specification \u2014 agent passes, finding validation, severity rubric, PR posting, remediation"
+  ],
+  [
+   "command",
+   73,
+   "- **Serena**: caller and symbol hints."
+  ],
+  [
+   "command",
+   73,
+   "A hint is never evidence;"
+  ],
+  [
+   "command",
+   73,
+   "every cited line is Read."
+  ],
+  [
+   "command",
+   77,
+   "- **Bash(gh *)**: Fetch PR metadata and diff, post review comments"
+  ],
+  [
+   "command",
+   78,
+   "- **Bash(git *)**: Resolve diff ranges, list changed files"
+  ],
+  [
+   "command",
+   79,
+   "- **Read / Grep / Glob**: Validate every file:line citation against actual files"
+  ],
+  [
+   "command",
+   80,
+   "- **Write**: Emit the findings JSON, markdown report, and audit log under `--output-dir`"
+  ],
+  [
+   "command",
+   81,
+   "- **Task**: Run the `auggie-reviewer` agent at every depth"
+  ],
+  [
+   "command",
+   100,
+   "/sc:auggie-review --diff origin/master."
+  ],
+  [
+   "command",
+   108,
+   "/sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns"
+  ],
+  [
+   "command",
+   127,
+   "/sc:auggie-review 62 --depth deep"
+  ],
+  [
+   "command",
+   140,
+   "- Run an evidence-based code review with the `auggie-reviewer` agent over a diff defined by `git` and `gh`"
+  ],
+  [
+   "command",
+   141,
+   "- Catch both narrow bugs (off-by-one, null-deref, race conditions, leaked resources) and architectural risks ("
+  ],
+  [
+   "command",
+   142,
+   "- Auto-post the report to the PR when the target is a PR (no confirmation;"
+  ],
+  [
+   "command",
+   142,
+   "the user opted in by invoking the command)"
+  ],
+  [
+   "command",
+   143,
+   "- Attach inline `gh` review comments for Critical and High findings, anchored to real file:line in the diff"
+  ],
+  [
+   "command",
+   144,
+   "- Validate every file:line citation against the actual file before including it (no hallucinated locations in "
+  ],
+  [
+   "command",
+   145,
+   "- Offer the `/sc:design` \u2192 `sc:workflow` \u2192 `/sc:reflect` \u2192 `/sc:implement` remediation chain after the report "
+  ],
+  [
+   "command",
+   146,
+   "- Write the full markdown report, findings JSON, and an audit log to `--output-dir` for later reference"
+  ],
+  [
+   "command",
+   151,
+   "- Activate on conversational keywords (\"review\", \"audit\", \"check\") \u2014 explicit or programmatic invocation only"
+  ],
+  [
+   "command",
+   152,
+   "- Modify any code under review (advisory only \u2014 code changes happen later via the remediation chain)"
+  ],
+  [
+   "command",
+   153,
+   "- Approve, request-changes, or merge the PR (the report posts as a `--comment` review, never `--approve` or `-"
+  ],
+  [
+   "command",
+   154,
+   "- Run a PR target without an authed `gh` CLI \u2014 STOP with a clear error"
+  ],
+  [
+   "command",
+   155,
+   "- Bypass the file:line validation step (a finding that cannot be grounded in a real file is dropped, not promo"
+  ],
+  [
+   "command",
+   156,
+   "- Auto-trigger the remediation chain \u2014 that step always requires explicit user confirmation"
+  ],
+  [
+   "command",
+   157,
+   "- Post to a PR when `--no-post-pr` is specified, regardless of target type"
+  ],
+  [
+   "command",
+   162,
+   "- **`/sc:design`** \u2014 Used in the remediation chain to convert review findings into an architecture/component r"
+  ],
+  [
+   "command",
+   163,
+   "- **`/sc:reflect`** \u2014 Pre + post gates in the remediation chain."
+  ],
+  [
+   "command",
+   163,
+   "Plan route: the pre gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`"
+  ],
+  [
+   "command",
+   163,
+   "`--type task --analyze|--validate` on the MDTM route"
+  ],
+  [
+   "command",
+   164,
+   "- **`/sc:workflow`** \u2192 **`/sc:implement`** \u2014 Default remediation route: workflow turns the design spec into a "
+  ],
+  [
+   "command",
+   165,
+   "- **`task-builder` skill** \u2014 Only with `--depth deep`: invoked between `/sc:design` and execution to produce a"
+  ],
+  [
+   "command",
+   166,
+   "- **`/sc:adversarial`** \u2014 Complementary;"
+  ],
+  [
+   "command",
+   166,
+   "use `/sc:adversarial` when you need multi-model debate on a single artifact, vs this command's whole-diff revi"
+  ],
+  [
+   "command",
+   167,
+   "- **`/sc:cleanup-audit`** \u2014 Complementary;"
+  ],
+  [
+   "command",
+   167,
+   "whole-repo audit vs this command's diff/PR-scoped review"
+  ]
+ ]
+}

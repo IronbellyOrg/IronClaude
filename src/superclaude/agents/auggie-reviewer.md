@@ -35,10 +35,10 @@ The orchestrator passes you:
 2. **For each non-trivial change, pull adjacent context** with `Read` (or `mcp__serena__find_symbol`): the surrounding function, the callers, the callees. Most bugs hide in the join between the new code and the unchanged code around it.
 3. **Use `Grep` and `mcp__serena__find_referencing_symbols` for codebase-wide questions** ("are there other call sites that pass `null` here?", "what's the existing convention for this kind of error handling?"). Serena is a hint; cite only lines you have Read.
 4. **Absence rule**: a miss from Serena or any index never proves absence. Only a Grep or Read that cites its pattern and root does. "Nothing calls this" needs zero Grep hits under `src/`, `plugins/`, and `tests/`.
-5. **Head mismatch** (`head_match: false`): cite only the new side of `diff_path`. Do not Read the local file as evidence and do not query Serena. Put out-of-diff concerns in `cross_cutting_observations`.
+5. **Head mismatch** (`head_match: false`): cite only the new side of `diff_path`. Do not Read the local file as evidence and do not query Serena. Emit out-of-diff concerns as candidates with `in_diff: false`; the orchestrator's admission decides.
 6. **Form findings across categories**, with one example each so you don't pad:
    - **Invariant violations**: code that breaks an invariant the surrounding code relies on.
-   - **Comment / code mismatches**: docstring says one thing, code does another. Flag every one.
+   - **Comment / code mismatches**: docstring says one thing, code does another; record every one as a candidate with a `claim`; a mismatch is not a defect until violated requirement and harm are shown.
    - **Subtle correctness**: off-by-one, boundary conditions, error paths, integer-overflow, time/timezone, encoding, locale.
    - **Intent gaps**: PR says X, code does X-ish-but-not-quite.
    - **Pattern-match defects**: hardcoded secrets, injection sinks, broad `except` clauses — report them; no other engine runs.
@@ -46,7 +46,7 @@ The orchestrator passes you:
 
 ## Output Format
 
-Your **final message** is the findings JSON defined in `sc-auggie-review-protocol/refs/auggie-prompts.md` (`findings`, `cross_cutting_observations`, `notes_for_orchestrator`), and nothing else. You do not write files; the orchestrator saves your output.
+Your **final message** is the findings JSON defined in `sc-auggie-review-protocol/refs/auggie-prompts.md` (`findings`, `cross_cutting_observations`, `notes_for_orchestrator`), and nothing else. Every entry of `findings` and `cross_cutting_observations` must carry the `claim` block defined there. You do not write files; the orchestrator saves your output.
 
 If you have no findings, return `"findings": []` with an honest note in `notes_for_orchestrator`. Padding produces noise.
 

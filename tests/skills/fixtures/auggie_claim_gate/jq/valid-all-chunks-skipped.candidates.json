@@ -1,0 +1,45 @@
+{
+  "schema": "auggie-review-candidates/1",
+  "target": {
+    "mode": "diff",
+    "base": "origin/master",
+    "head": "HEAD",
+    "head_match": true,
+    "local_sha": "0123456789abcdef0123456789abcdef01234567",
+    "worktree_dirty": false,
+    "head_object_check": null,
+    "evidence_source": "local_read"
+  },
+  "coverage": {
+    "chunks_planned": 2,
+    "chunks_completed": 0,
+    "chunks_skipped": [
+      "chunk-1",
+      "chunk-2"
+    ],
+    "persona_passes": [],
+    "input_truncated": false,
+    "complete": false
+  },
+  "admission_budget": {
+    "candidates_total": 0,
+    "checked": 0,
+    "incomplete": 0,
+    "wall_seconds": 12
+  },
+  "candidates": [],
+  "remediation_ids": [],
+  "dropped_ungrounded": [],
+  "run_status": "partial",
+  "findings_count": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "nit": 0
+  },
+  "remediation_count": {
+    "critical": 0,
+    "high": 0
+  }
+}

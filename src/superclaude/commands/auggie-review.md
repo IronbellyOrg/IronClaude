@@ -144,6 +144,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Validate every file:line citation against the actual file before including it (no hallucinated locations in the report)
 - Offer the `/sc:design` → `sc:workflow` → `/sc:reflect` → `/sc:implement` remediation chain after the report posts (`task-builder` → `/task` only when `--depth deep`), gated on user confirmation
 - Write the full markdown report, findings JSON, and an audit log to `--output-dir` for later reference
+- Publish only admitted defects; keep unproven, rejected, intentional-limitation and documented-prerequisite records locally
 
 **Will Not:**
 
@@ -154,6 +155,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Bypass the file:line validation step (a finding that cannot be grounded in a real file is dropped, not promoted to "low confidence")
 - Auto-trigger the remediation chain — that step always requires explicit user confirmation
 - Post to a PR when `--no-post-pr` is specified, regardless of target type
+- Promote an unproven, rejected, limitation or prerequisite candidate to a finding, or express doubt as a lower severity
 
 ## Related Commands
 

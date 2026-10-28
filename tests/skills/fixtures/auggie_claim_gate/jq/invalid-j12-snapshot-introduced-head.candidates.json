@@ -1,0 +1,113 @@
+{
+  "schema": "auggie-review-candidates/1",
+  "target": {
+    "mode": "snapshot",
+    "base": null,
+    "head": "HEAD",
+    "head_match": true,
+    "local_sha": "0123456789abcdef0123456789abcdef01234567",
+    "worktree_dirty": false,
+    "head_object_check": null,
+    "evidence_source": "local_read"
+  },
+  "coverage": {
+    "chunks_planned": 1,
+    "chunks_completed": 1,
+    "chunks_skipped": [],
+    "persona_passes": [],
+    "input_truncated": false,
+    "complete": true
+  },
+  "admission_budget": {
+    "candidates_total": 1,
+    "checked": 1,
+    "incomplete": 0,
+    "wall_seconds": 12
+  },
+  "candidates": [
+    {
+      "id": "findings-snapshot#1",
+      "members": [
+        "findings-snapshot#1"
+      ],
+      "mechanism_key": "src/app/handler.py::run::findings-snapshot#1",
+      "merged_into": null,
+      "disposition": "defect",
+      "disposition_reasons": [
+        "A7"
+      ],
+      "severity": "medium",
+      "severity_basis": "medium:1",
+      "category": "correctness",
+      "class": "behavioral",
+      "confidence": "high",
+      "hedge_resolved": null,
+      "file": "src/app/handler.py",
+      "line": 41,
+      "in_diff": true,
+      "claim": {
+        "observed": "the handler returns before the flag is stored",
+        "observed_at": [
+          "src/app/handler.py:41"
+        ],
+        "expected": "the flag is stored before the handler returns",
+        "violated_requirement": "docs/contract.md section Storage: flag stored before return",
+        "intent_sources": [],
+        "intent_finding": "none_found",
+        "reachability": {
+          "entrypoint": "src/app/main.py:12",
+          "producer": "src/app/schema.py:30",
+          "guards_checked": [
+            "src/app/handler.py:35"
+          ],
+          "caller_search": null
+        },
+        "harm": "the flag is lost after a restart",
+        "consequences": [
+          "the flag is lost after a restart"
+        ],
+        "counterevidence": [],
+        "evidence_kind": "static_traced",
+        "qualification": null,
+        "disposition_hint": "defect"
+      },
+      "excluded_consequences": [],
+      "refutation": [
+        "checked: src/app/handler.py:35 does_not_block",
+        "not_applicable: no policy comment covers this path"
+      ],
+      "refutation_citation": null,
+      "attribution": {
+        "introduced_in": "head",
+        "current_status": "present"
+      },
+      "remediation_eligible": false,
+      "evidence_sources": [
+        {
+          "hop": "observed",
+          "path_line": "src/app/handler.py:41",
+          "source": "local_read"
+        },
+        {
+          "hop": "entrypoint",
+          "path_line": "src/app/main.py:12",
+          "source": "local_read"
+        }
+      ]
+    }
+  ],
+  "remediation_ids": [],
+  "dropped_ungrounded": [],
+  "run_status": "success",
+  "findings_count": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 0,
+    "nit": 0
+  },
+  "remediation_count": {
+    "critical": 0,
+    "high": 0
+  }
+}

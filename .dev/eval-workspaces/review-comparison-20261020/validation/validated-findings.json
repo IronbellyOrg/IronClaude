@@ -1,0 +1,129 @@
+{
+  "validation_complete": true,
+  "synthesis_verdict": "PASS",
+  "synthesis_verification": "synthesis-verification.json",
+  "current_master_snapshot": "c4606ce72979838dd730044a08be79cc416ccfe6",
+  "scope": "Unique high-impact runtime and repair-validation claims from the review comparison, not a re-review of all 118 reported observations. Splitting independent cases gives 26 checks from 23 groups.",
+  "source_packets": {
+    "classifier": "classifier/results.json",
+    "remediation": "remediation/results.json",
+    "transport": "transport/results.json"
+  },
+  "interpretation": "CONFIRMED in a validator packet can mean reproduced intentional behavior, not a defect. Consolidated dispositions distinguish defects, design limitations, documented prerequisites, rejected claims and unproven impact. A reproduced synthetic input is not evidence that a live producer commonly emits it.",
+  "defects": [
+    {
+      "id": "R1", "packet": "remediation", "severity": "high",
+      "title": "Production automatic repair cannot obtain a repair artifact",
+      "evidence_kind": "offline production-path reproduction, six base/head/master cases",
+      "observed": "Both accepted production depths halt with zero repair iterations and null repair pointers, even for auto-fixable drift. Mocked apply tests take a different dispatch branch.",
+      "introduced_by_reviewed_pr": false,
+      "current_status": "present",
+      "qualification": "Pre-existing functional gap; PR267 advertises the new plan route without wiring production artifact creation. No unauthorized edit or false success."
+    },
+    {
+      "id": "R3", "packet": "remediation", "severity": "medium",
+      "title": "Auggie repair resume state omits its required diff baseline",
+      "evidence_kind": "immutable instruction-chain and persistence-contract inspection",
+      "observed": "The new final diff check requires the Phase-D baseline, but auggie's prescribed resume state and specified audit persistence do not save it. Reflect and troubleshoot do save theirs.",
+      "introduced_by_reviewed_pr": true,
+      "current_status": "present",
+      "qualification": "Auggie plan route only. A wrong audit or irrecoverable data loss was not executed; safe recovery should stop and recover the original baseline rather than recapture current HEAD."
+    },
+    {
+      "id": "R7", "packet": "remediation", "severity": "medium",
+      "title": "Legacy final repair-check command omits required audit inputs",
+      "evidence_kind": "literal documented normalization and hard-precondition comparison",
+      "observed": "The prescribed legacy validate invocation becomes post mode without a diff or task log; post mode requires at least one and must stop.",
+      "introduced_by_reviewed_pr": false,
+      "current_status": "present",
+      "qualification": "Pre-existing instruction usability defect. No executable slash parser or real model run was claimed; this does not demonstrate a false validation pass."
+    },
+    {
+      "id": "T1", "packet": "transport", "severity": "medium",
+      "title": "Pending GitHub reviews invalidate completed-review discovery",
+      "evidence_kind": "actual historical poller executed with local gh stub and official API semantics",
+      "observed": "A valid PENDING review without submitted_at sets reviews_ok=false and discards the whole review page. The null-field control succeeds.",
+      "introduced_by_reviewed_pr": true,
+      "current_status": "fixed_by_PR272",
+      "qualification": "Confirmed historical PR270 defect, already fixed at the checked master. No new remediation needed."
+    },
+    {
+      "id": "T2", "packet": "transport", "severity": "medium",
+      "title": "Pagination array expansion is incompatible with pre-4.4 Bash",
+      "evidence_kind": "exact source plus official Bash change history; modern-shell control only",
+      "observed": "Both scripts expand an empty cursor array under nounset. Bash 4.4 changed that expansion from fatal to accepted; the scripts succeed on available Bash 5.2.",
+      "introduced_by_reviewed_pr": true,
+      "current_status": "present_conditionally",
+      "qualification": "No Bash 3.2/4.3 binary was available. Old-shell failure and macOS deployment exposure were not reproduced; applicable only if these shells are supported."
+    },
+    {
+      "id": "C4c", "packet": "classifier", "severity": "medium",
+      "title": "A supported file-level finding stalls the entire review batch",
+      "evidence_kind": "real poller and attended gate with API-supported synthetic file-level root",
+      "observed": "Both line fields are legitimately null for file-level comments. Poller accepts the complete input, but classifier suppresses the batch; identical root normalizes to report-only successfully.",
+      "introduced_by_reviewed_pr": "snapshot-wide polling introduced; file-level reporting absent in base too",
+      "current_status": "present",
+      "qualification": "No real Cosmos producer sample with file-level comments was observed. This proves supported-input handling, not frequency, and does not justify automatic edits without a line."
+    },
+    {
+      "id": "C8a", "packet": "classifier", "severity": "low",
+      "title": "Readable status prose is mistaken for a duplicate hidden marker",
+      "evidence_kind": "real poller and attended gate with one valid hidden envelope plus readable prose",
+      "observed": "Adding a readable Cosmos status heading makes a review with exactly one valid hidden marker poll; removing only the heading restores clean. Parser counts broad tokens instead of envelopes.",
+      "introduced_by_reviewed_pr": true,
+      "current_status": "present_conditionally",
+      "qualification": "The standard producer fixture works. Live producer use of this extra heading was not established; impact is conditional parser fragility, not a widespread outage."
+    },
+    {
+      "id": "T4", "packet": "transport", "severity": "low",
+      "title": "Reply-script failure diagnostics conflate permissions and other errors",
+      "evidence_kind": "actual scripts with local network/rate-limit/malformed-data stubs plus caller tracing",
+      "observed": "Several non-permission failures use the permissions-labelled exit code 3 and suppress the original error. Current refusal to write on incomplete lookup is deliberate safety behavior.",
+      "introduced_by_reviewed_pr": "mostly pre-existing; malformed-data handling expanded",
+      "current_status": "present",
+      "qualification": "Only the diagnostic/exit-contract mismatch is confirmed. Automatic caller misrouting, discarded findings and an improper permanent halt were not demonstrated."
+    }
+  ],
+  "nondefect_dispositions": {
+    "confirmed_design_limitation": [
+      {"id": "C2", "packet": "classifier", "reason": "Manually resolving counted roots really can leave the monitor waiting, but the positive-count lower bound is an explicit safety rule. This is a design trade-off with liveness cost, not a demonstrated implementation/spec violation."}
+    ],
+    "documented_prerequisite": [
+      {"id": "T6", "packet": "transport", "reason": "New tier data fails against old environment slots, but deploy-environment-first is explicitly stated in PR266. No failed deployment was established; updated environment passes."}
+    ],
+    "rejected": [
+      {"id": "C3", "packet": "classifier", "reason": "A missing author means unknown identity, not known-human provenance. Refusing incomplete attribution is intentional."},
+      {"id": "C4a", "packet": "classifier", "reason": "Ambiguous same-second completions are explicitly rejected. Review ID is not a proven submission-order tiebreaker."},
+      {"id": "C4b", "packet": "classifier", "reason": "A dismissed latest review does not authorize falling back to older completion evidence."},
+      {"id": "C5", "packet": "classifier", "reason": "Later unresolved roots create the scope/time ambiguity that the contract explicitly refuses."},
+      {"id": "C6", "packet": "classifier", "reason": "The missing numeric database ID needed to reproduce the mismatch is rejected by the live poller before dispatch."},
+      {"id": "C7", "packet": "classifier", "reason": "The low-level head override is deliberate; both real attended entrypoints reject moved-head snapshots."},
+      {"id": "C8b", "packet": "classifier", "reason": "Human Cosmos prose does not stall complete production snapshots; the failure requires older incomplete injected input."},
+      {"id": "R2", "packet": "remediation", "reason": "The cross-worktree plan rejection is conditional on artifact creation that current production dispatch never reaches. Not a separate demonstrated failure."},
+      {"id": "R5", "packet": "remediation", "reason": "One defect is not necessarily one phase. Phase bounds alone do not prove failure or unjustified plan padding."},
+      {"id": "R8", "packet": "remediation", "reason": "Pre-review is explicitly advisory; headless repair policy includes separate safety checks and bounded re-audit."},
+      {"id": "R9", "packet": "remediation", "reason": "Task-pointer precedence is explicit consumer behavior, not a depth-routing defect. Timeout speculation was not reproduced."}
+    ],
+    "unproven": [
+      {"id": "C1", "packet": "classifier", "reason": "Historical Cosmos mode latch is reproducible, but a marker-less latest approval being a supported Cosmos completion was not established."},
+      {"id": "R4", "packet": "remediation", "reason": "Metadata is appended after advisory review, but no harmful task change, gate failure or post-start immutability breach was demonstrated."},
+      {"id": "R6", "packet": "remediation", "reason": "Different spec paths do not alone prove a bad verdict: final audit also receives the generated tasklist and execution log."},
+      {"id": "T3", "packet": "transport", "reason": "Manual retry can duplicate replies, including at the base commit; no real automatic retry bypassing caller deduplication was established."},
+      {"id": "T5", "packet": "transport", "reason": "Synthetic rootless threads are rejected as designed; a legitimate GitHub response with that shape was not established."}
+    ]
+  },
+  "totals": {
+    "original_claim_groups": 23,
+    "split_checks": 26,
+    "qualified_defects": 8,
+    "confirmed_design_limitations": 1,
+    "documented_prerequisites": 1,
+    "rejected_defect_claims": 11,
+    "unproven_impact_claims": 5,
+    "defect_severity": {"high": 1, "medium": 5, "low": 2},
+    "already_fixed_defects": 1,
+    "new_high_severity_regressions_confirmed": 0
+  },
+  "source_changes": "none",
+  "github_writes": "none"
+}

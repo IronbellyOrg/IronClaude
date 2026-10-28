@@ -60,6 +60,18 @@ A finding is Low iff:
 
 Nits are condensed into a single sub-section of the report (one-line per nit), never get inline comments, and never block merge.
 
+## Admission precedes grading
+
+In `/sc:auggie-review`, the remap below runs only after the admission step of `refs/claim-gate.md` (sections "Admission table" and "Claim scope"). The rules for auggie-review are:
+
+- Only admitted defects (unmerged records whose disposition is `defect`) are graded.
+- A category floor applies only when the admitted harm meets that floor's tier definition (the definitions under "The five tiers"). Otherwise the floor is not applied and `harm_below_floor` is recorded.
+- Step 3 (the low-confidence drop) is not applied to auggie-review defects, because low confidence is resolved at admission: a `low`-confidence candidate is `unproven` unless its doubt is resolved with a cited line.
+- Step 4 (diff locality) still applies.
+- The qualification cap applies: a defect qualified by a documented supported configuration, whose category is not `security` or `data-integrity` and whose harm does not meet a Critical definition (including the regulatory or compliance definition), is capped at Medium. Demonstrated harm with unknown frequency is not a qualification and is not capped.
+
+Steps 1 to 4 below are unchanged for every other consumer of this rubric.
+
 ## Severity-remap algorithm (applied in Wave 3)
 
 For each finding F coming out of the reviewer:
@@ -152,8 +164,8 @@ def get_user(name):
 
 - Findings that fail file:line grounding (handled in Wave 3, never reach the rubric)
 - Findings about formatting that a configured formatter would fix (`ruff format`, `prettier`, etc.)
-- Findings that are restatements of caveats already in the PR description
-- Findings that are duplicates of higher-severity findings on the same file:line (dedupe step folds them in)
+- Candidates not admitted as defects, including restatements of caveats already in the PR description: admission decides them, and their records stay in `candidates.json` and `NOT-ADMITTED.md`
+- Members merged into another finding by mechanism dedupe (`merged_into` set); duplicates are grouped by `mechanism_key`, not by `file:line` (section "Mechanism dedupe" of `refs/claim-gate.md`)
 
 ## Decision-mode summary (for the report header)
 
@@ -161,9 +173,11 @@ After all findings are graded, compute a single recommendation:
 
 | Counts | Recommendation in report summary |
 |---|---|
+| Inconclusive — review incomplete (`coverage.complete == false`, regardless of counts) | **Inconclusive** — the review did not cover all of its input; do not read the absence of findings as a clean result |
 | `critical > 0` | **Block merge** — Critical findings must be resolved or explicitly accepted by the human reviewer |
 | `critical == 0 && high > 0` | **Request changes** — High findings should be addressed before merge |
 | `critical == 0 && high == 0 && (medium > 0 || low > 0)` | **Approve with comments** — Items worth fixing but not blocking |
+| No defects admitted (a non-empty ledger with zero defects) | **No defects admitted** — candidates were reviewed and none met the admission rules; see `NOT-ADMITTED.md` |
 | All findings are Nit/Low or no findings | **Looks good** — Minor observations only |
 
 This recommendation is the report's first-paragraph verdict. It does NOT translate into a `gh pr review --approve` or `--request-changes` — those decisions belong to the human. The report is always posted as a `--comment` review.

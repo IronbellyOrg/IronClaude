@@ -1,0 +1,57 @@
+{
+  "task": "Task 13",
+  "q0_tree": "cf77193cb3b1a4496bbd2e89c3853903b0336a17",
+  "binary_verdict": "PASS",
+  "protocol_verdict": "compliant",
+  "acceptance_criteria": [
+    {"id": "T13.AC1", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-sync-dev.log:2", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-verify-sync.log:205"], "result": "Independent make verify-sync exit 0; current mirrors match source."},
+    {"id": "T13.AC2", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-regression.log:267", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-regression.log:365", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-regression.log:367"], "observed": "255 default tests and 85 acceptance tests passed; 11 held-back node ids occur only in acceptance section."},
+    {"id": "T13.AC3", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-line-refs.log:2", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-line-refs.log:5"]},
+    {"id": "T13.AC4", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-compat.log:1", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-compat.log:3"]},
+    {"id": "T13.AC5", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-scope.log:47", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-scope.log:184", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-scope.log:185"]},
+    {"id": "T13.AC6", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-scope.log:181", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-scope.log:186"]},
+    {"id": "T13.AC7", "status": "met", "evidence": [".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-hashes.log:1", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t13-hashes.log:2", ".dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t0-baseline.log:21"]}
+  ],
+  "global_constraints": {
+    "status": "met",
+    "q0_byte_comparison": "Independently hashed all 18631 existing Q0 blob paths with Git blob framing. Only progress.md differs, containing the managed Task13 start record. Every src/ and tests/ file, including untracked new deliveries represented in the Q0 tree, remains byte-identical. No actual deletion was found.",
+    "baseline_scope": "Tracked diff plus all nonignored untracked paths yields 139 changed paths outside .dev, all allowed by source section 2. Independently compared protected pr_submit production files, pr-submit protocol tree and evidence-validator agent against baseline bytes. No finding-verify change. Staging area empty.",
+    "immutable_inputs": "Source, design-v3 and plan recomputed hashes equal original baseline/ledger pins. Authorized held-back re-freeze hash equals current freeze pin. Review-comparison files already in Q0 have unchanged bytes.",
+    "authorized_exception": "Task12 operator-authorized correction is established by artifacts/t12-authorized-correction.log:3-5 and preserved in artifacts/t12-review-authorized.json:12-20. Current held-back data is re-frozen, not an untouched holdout. This reviewer neither changed it nor debugged outcomes.",
+    "task11_boundary": "The unchanged Task11 missing verdict and operator ruling remain historical ledger state. Task13 requires its scoped regression to pass, not a rewritten Task11 verdict. Final archive ruling requirements were not reviewed or authored here.",
+    "execution_boundary": "No product edits, model evaluation, GitHub/network write, settings/global installation, ledger change, new ruling, spec/plan edit or full-suite rerun by reviewer. Read live task, source sections 2 and 10, REQ-041 and REQ-044 through REQ-048. Review relied on actual files rather than index absence."
+  },
+  "extra_scope": [],
+  "misunderstood": [],
+  "issues": [],
+  "negative_evidence": [
+    "Initial ordinary git diff against Q0 displayed apparent deletions for snapshot-only untracked files. Direct blob-framed hashing of every Q0 path found all present and unchanged except managed progress.md. No deletion finding remained.",
+    "First report Edit was freshness-blocked because the newly written stub had not been Read. Read the stub and retried the same surgical Edit successfully; no bypass tool used.",
+    "Two repeat log Reads were deduplicated as unchanged; prior complete Read contents remain the cited evidence.",
+    "UV reported the existing VIRTUAL_ENV mismatch warning. Independent scoped tests and snapshot checks nevertheless exited 0. No failures or skips were hidden."
+  ],
+  "independent_checks": [
+    {"ac": "T13.AC1", "result": "Fresh make verify-sync exited 0, including canonical skill, agent, command, hooks, templates and consistency checks. Inspected Makefile sync-dev/verify-sync targets; saved sync-dev log records regeneration."},
+    {"ac": "T13.AC2", "result": "Fresh default scoped regression over the exact seven required modules passed 255 tests in 5.35s with PYTHONDONTWRITEBYTECODE=1 and cache provider disabled. Independently parsed saved regression log: 255 default plus 85 acceptance passes, no skip/failure/error, all seven modules represented, exactly 11 acceptance-only held-back outcome node ids. Did not rerun held-back outcomes or use them for debugging. Inspected live anti-overfit extraction: tracked single-plus additions plus all untracked src files are scanned; baseline and diagnostic file existed, so source/hash checks were not skipped."},
+    {"ac": "T13.AC3", "result": "Independently scanned 537 added source lines from baseline Git diff plus full new untracked claim-gate.md. Neither .md:<digits> nor line <digits> pattern matched. New ref was included explicitly, avoiding tracked-diff-only blind spot."},
+    {"ac": "T13.AC4", "result": "Compared raw keepends line-22 bytes against git show baseline, not normalized text: identical. Extracted actual four-backtick markdown report template and required all three anchored markers inside that block, not elsewhere in SKILL. Live markers are SKILL.md:194,211,255; invariant sentence is SKILL.md:22."},
+    {"ac": "T13.AC5", "result": "Derived allowed files/directory prefix directly from authoritative source section 2. Baseline tracked diff plus all nonignored untracked paths gives 139 changes outside .dev, every one allowed. Compared protected pr_submit production and pr-submit protocol bytes directly to baseline; no change. Complete Q0 byte comparison confirms Task13 changed no src or tests delivery bytes."},
+    {"ac": "T13.AC6", "result": "Fresh git diff --cached --name-only output empty. No staged mirrors or settings. Mirror regeneration remains ignored and unstaged."},
+    {"ac": "T13.AC7", "result": "Recomputed source/design SHA256 bfef5e121eb71586827339ce1a144cb8fccc0e0d6ce276c559f631fcbfb8c9de and matched both original baseline log entries and ledger source pin. Plan SHA256 c89125f27cbab50bbecdc42bcd65d46e65a5c4002cbb4c00127ea40ee907190f matches ledger pin. Held-back SHA256 2751e86cf5b3b5ddb323981aa7607bd6e0324d2a6736abaa609bd28acedfe50d matches authorized re-freeze pin; no data change during Task13."},
+    {"constraint": "feature branch and ancestry", "result": "Fresh branch read feat/auggie-claim-gate; merge-base HEAD with feature baseline equals 713d8e423bd9a2469ea1418fafd6edccbb88caaa."},
+    {"constraint": "source freshness", "result": "Read governing QA rubric, complete task plan and relevant source text. Graph coverage check reported metadata match/no recorded issue for oracle, SKILL, source, plan and Makefile; conclusions rely on live contents and commands, not completeness of graph."
+    }
+  ],
+  "self_audit": {
+    "adversarial_checks": [
+      "Tried to disprove no-product-change using Q0 snapshot rather than trusting implementer scope output. Resolved misleading untracked deletion diff using 18631 actual Git blob hashes; only orchestrator ledger start record differs.",
+      "Checked untracked new source and fixture coverage explicitly. Ordinary tracked diff would miss claim-gate.md and new tests, but independent scope and added-line scans included them.",
+      "Checked precise compatibility properties rather than searching the whole file: raw line bytes include newline, report markers belong inside the report template block, protected pr-submit tree equals original baseline.",
+      "Did not treat saved green tests alone as independent QA. Re-executed the exact default scoped regression and mirror verification; inspected actual anti-overfit extraction and independently validated complete default/acceptance log structure.",
+      "Recomputed stable inputs against pre-implementation hashes, not merely source-versus-design equality. Compared current held-back bytes only by SHA to operator-authorized re-freeze, never described them as untouched or sent them through outcome probes.",
+      "Kept Task11 missing verdict and Task12 authorized exception separate from Task13 acceptance. Did not change historical verdicts, create a ruling, invent archive authorization, repair product or reopen previous tasks."
+    ],
+    "why_no_issue": "All seven Task13 criteria have actual on-disk path:line evidence. Independent default execution and direct snapshot/scope/hash/template checks agree with saved integration evidence. No missing, extra or misunderstood Task13 work was established.",
+    "limits": "Held-back outcome evidence is the existing prescribed Task13 acceptance log, not a second reviewer-run acceptance. No full test suite, live model, external service, effectiveness measurement or final archive review occurred. Deterministic tests do not prove model behavior."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "source_file": ".dev/eval-workspaces/review-comparison-20261020/validation/validated-findings.json",
+  "source_sha256": "a7adcb71d0dbe2fd9214a6e5b18a4588b4ca6209c8786496274b02a63c1314ea",
+  "rule": "REQ-043: backtick spans and word-boundary regex \\b(?:[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)+|[a-z0-9]+(?:_[a-z0-9]+)+|[a-z]+[A-Z][A-Za-z0-9]*|[A-Za-z0-9_.-]+\\.(?:py|md|sh|json|yaml))\\b; subtract case-sensitive whole-word matches in baseline section 2 files; walk .nondefect_dispositions[][]",
+  "case_ids": [
+    "R1",
+    "R3",
+    "R7",
+    "T1",
+    "T2",
+    "C4c",
+    "C8a",
+    "T4",
+    "C2",
+    "T6",
+    "C3",
+    "C4a",
+    "C4b",
+    "C5",
+    "C6",
+    "C7",
+    "C8b",
+    "R2",
+    "R5",
+    "R8",
+    "R9",
+    "C1",
+    "R4",
+    "R6",
+    "T3",
+    "T5"
+  ],
+  "pr_numbers": [
+    266,
+    267,
+    269,
+    270
+  ],
+  "symbols": []
+}

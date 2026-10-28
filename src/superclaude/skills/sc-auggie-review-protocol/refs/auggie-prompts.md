@@ -51,7 +51,27 @@ Your final message is a single JSON object. A ```json ...``` fence is tolerated 
       "why": "<2-4 sentences explaining the concern in concrete terms>",
       "recommendation": "<1-3 sentences with a concrete change — what to do, not 'consider improving'>",
       "cross_references": ["<repo-relative path:line of related code you found while investigating, if any>"],
-      "confidence": "<high | medium | low>"
+      "confidence": "<high | medium | low>",
+      "claim": {
+        "observed": "<what the code does, stated as fact>",
+        "observed_at": ["<repo-relative path:line you have Read>"],
+        "expected": "<what the requirement, contract or convention says should happen>",
+        "violated_requirement": "<path:line of the requirement, contract, doc or convention the code violates; empty if you found none>",
+        "intent_sources": ["<path:line of comments, docs, tests or decision records that state the intent>"],
+        "intent_finding": "<none_found | supports_claim | contradicts_claim | deliberate_policy | documented_prerequisite>",
+        "reachability": {
+          "entrypoint": "<path:line of a production entrypoint, or of the instruction that prescribes the step, that reaches observed_at; null if none>",
+          "producer": "<path:line of the producer, schema or contract that supplies the triggering input; null if none>",
+          "guards_checked": ["<path:line of each guard on the path that you Read>"],
+          "caller_search": "<the Grep pattern and roots you searched when you found no entrypoint; otherwise null>"
+        },
+        "harm": "<the single consequence you consider best supported; null if you cannot show one>",
+        "consequences": ["<each distinct consequence you claim, one string each>"],
+        "counterevidence": ["<path:line or short note for anything that argues against the claim>"],
+        "evidence_kind": "<runtime_reproduced | static_traced | protocol_literal | speculative>",
+        "qualification": "<null, or {\"scope\": \"<documented supported configuration under which the claim holds>\", \"scope_citation\": \"<path:line of that documentation>\"}>",
+        "disposition_hint": "<defect | unproven | rejected | intentional_limitation | documented_prerequisite>"
+      }
     }
   ],
   "cross_cutting_observations": [
@@ -62,15 +82,40 @@ Your final message is a single JSON object. A ```json ...``` fence is tolerated 
       "affected_files": ["<repo-relative path>", "..."],
       "why": "<as above>",
       "recommendation": "<as above>",
-      "confidence": "<as above>"
+      "confidence": "<as above>",
+      "claim": {
+        "observed": "<as in findings[]>",
+        "observed_at": ["<as in findings[]>"],
+        "expected": "<as in findings[]>",
+        "violated_requirement": "<as in findings[]>",
+        "intent_sources": ["<as in findings[]>"],
+        "intent_finding": "<none_found | supports_claim | contradicts_claim | deliberate_policy | documented_prerequisite>",
+        "reachability": {"entrypoint": "<as in findings[]>", "producer": "<as in findings[]>", "guards_checked": ["<as in findings[]>"], "caller_search": "<as in findings[]>"},
+        "harm": "<as in findings[]>",
+        "consequences": ["<as in findings[]>"],
+        "counterevidence": ["<as in findings[]>"],
+        "evidence_kind": "<runtime_reproduced | static_traced | protocol_literal | speculative>",
+        "qualification": "<as in findings[]>",
+        "disposition_hint": "<defect | unproven | rejected | intentional_limitation | documented_prerequisite>"
+      }
     }
   ],
   "notes_for_orchestrator": "<optional free-form notes — chunking signals, scope you couldn't cover>"
 }
 
+## Claim block
+
+Every entry of `findings` and `cross_cutting_observations` carries a `claim` object with exactly the keys shown above.
+
+- `consequences` lists each distinct consequence you claim as its own string, so the orchestrator can admit or exclude each one. `harm` is the single consequence you consider best supported, or null.
+
 ## Quality bar
 
 - Every finding must cite a real file:line you have Read. A Serena or index result is a hint, never evidence, and a miss never proves absence; only a Grep or Read citing its pattern and root does.
+- For every behavioral claim, trace a production entrypoint or prescribing instruction that reaches the cited line.
+- Search for intent and documented prerequisites (comments, docs, tests, decision records) and record what you found in `intent_sources` and `intent_finding`. If you found nothing, say `none_found` and give the Grep pattern and roots you searched.
+- Express doubt as `disposition_hint: unproven` or `harm: null`, never as a lower `severity_hint`.
+- Never claim live frequency.
 - Do not invent file paths. If you remember a file existing but can't read it, leave it out.
 - For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list. The orchestrator will dedupe with other passes.
 - It is OK to return zero findings in a focus area if the area is genuinely clean. Do not pad.
@@ -125,6 +170,8 @@ Read these files, then investigate with Grep and Serena.
 ```
 
 When `in_diff` is irrelevant (snapshot mode), the agent should set every finding's `in_diff` to `false` and the orchestrator will ignore the field.
+
+In snapshot mode the orchestrator records `introduced_in: not_applicable_snapshot` for every candidate, and snapshot output never says "introduced", "regression" or "this PR".
 
 ---
 

@@ -55,7 +55,12 @@ The skill returns:
 | `report_path` | string | Absolute path to the markdown report |
 | `audit_log_path` | string | Absolute path to the audit log (findings JSON, validation results, decisions) |
 | `pr_review_url` | string | URL of the posted `gh pr review` comment (empty if `--no-post-pr` or non-PR target) |
-| `findings_count` | object | `{critical: N, high: N, medium: N, low: N, nit: N}` |
+| `findings_count` | object | `{critical: N, high: N, medium: N, low: N, nit: N}`. Counts unmerged admitted defects only, keeps this shape, and equals the ledger's `findings_count` |
+| `candidates_path` | string | Absolute path to `candidates.json`, the ledger of every grounded candidate and its disposition |
+| `not_admitted_path` | string | Absolute path to `NOT-ADMITTED.md`, the local record of non-defect candidates (never posted) |
+| `disposition_count` | object | `{defect: N, unproven: N, rejected: N, intentional_limitation: N, documented_prerequisite: N, merged: N}` |
+| `remediation_count` | object | `{critical: N, high: N}`, from the unmerged, remediation-eligible Critical/High defects |
+| `coverage_complete` | boolean | `false` when a chunk or persona pass was skipped, input was truncated, or any candidate was not fully admitted |
 | `dropped_count` | int | Findings dropped because file:line could not be validated |
 | `remediation_offered` | boolean | Whether the remediation chain was offered |
 | `remediation_accepted` | boolean | If offered, whether the user accepted |
@@ -86,6 +91,7 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
    - For PR mode: `gh auth status` (STOP if unauthed)
 3. Resolve target details:
    - PR: fetch the `gh pr view` fields above. Compare `headRefOid` to `git rev-parse HEAD`; record `head_match`.
+   - Record `local_sha` (`git rev-parse HEAD`) and `worktree_dirty` (whether `git status --porcelain` lists changes). `base` and `head` are the base and head refs of the target; snapshot mode records `base: null`.
    - Diff: validate `<base>` ref exists (`git rev-parse <base>`). Implicit mode: resolve `git merge-base origin/<default-branch> HEAD`.
    - Snapshot: validate path exists and is readable
 4. Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` (default `.dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`).
@@ -98,12 +104,20 @@ slug: <target_slug>
 focus: <comma-list>
 depth: <quick|standard|deep>
 output_dir: <abs-path>
+base: <base ref, or null for snapshot>
+head: <head ref>
 head_match: <true|false|n/a>
+local_sha: <git rev-parse HEAD>
+worktree_dirty: <true|false>
+head_object_check: <match|mismatch|null>
+evidence_source: <local_read|head_object|diff_new_side>
 gh_authed: <bool>
 -->
 ```
 
-**Head mismatch** (PR mode, `head_match: false` — fork PRs and PRs not checked out): validate in-diff findings against the new side of `diff.patch`; do not Read the local file as evidence; do not query Serena; move out-of-diff findings to cross-cutting notes. Do not STOP and do not `gh pr checkout`.
+The rules for `evidence_source`, `head_object_check` and the committed reads of explicit `--diff` mode are in `refs/claim-gate.md`, section "Attribution". Snapshot mode records `introduced_in: not_applicable_snapshot` for every candidate and never says "introduced", "regression" or "this PR".
+
+**Head mismatch** (PR mode, `head_match: false` — fork PRs and PRs not checked out): validate in-diff findings against the new side of `diff.patch`; do not Read the local file as evidence; do not query Serena; keep out-of-diff findings as candidates with `in_diff: false` (admission decides). Do not STOP and do not `gh pr checkout`.
 
 **Exit criteria**: Target resolved, output dir created, audit log opened. Emit "Wave 0 complete: target=<slug> mode=<mode>".
 
@@ -150,28 +164,31 @@ gh_authed: <bool>
    - `deep`: the general pass per chunk, plus four persona passes (security, architect, performance, qa) **once each on the whole diff**, not once per chunk.
 4. The agent returns the findings JSON as its **final message**; it writes no files. The orchestrator writes it to `<output-dir>/findings-<chunk>.json` (persona passes: `findings-<persona>.json`). On non-JSON output, retry that run once; if it still fails, log `chunk_skipped` and set status `partial`.
 
-**Exit criteria**: One or more `findings-*.json` files under `<output-dir>/`. Audit log notes retries and skipped chunks.
+5. **jq preflight** (before Wave 3): run `jq --version`. If `jq` is not available, the status is `failed` with reason `invariant_check_unavailable`; `REVIEW.md` and `audit.log` are still written. `allowed-tools` is not a prerequisite check.
+
+**Exit criteria**: One or more `findings-*.json` files under `<output-dir>/`, or every chunk skipped. Audit log notes retries and skipped chunks.
 
 ---
 
 ### Wave 3: Validate & Synthesize
 
-**Preconditions**: Wave 2 complete, ≥ 1 findings JSON file. **Load `refs/severity-rubric.md`** for the consistent severity grading scheme.
+**Preconditions**: Wave 2 complete. **Load `refs/severity-rubric.md`** for the consistent severity grading scheme. **Load `refs/claim-gate.md`** at step 3b: it holds every admission rule, the ledger schema and the invariant check.
 
 **Steps**:
 
 1. Read `refs/severity-rubric.md`.
-2. Parse all `findings-*.json` files. Each finding should carry at least: `title`, `file`, `line` (or `line_range`), `severity`, `category`, `evidence`, `recommendation`. Findings missing `file` and `line` go to a `needs-grounding` bucket (not auto-dropped — see step 3).
-3. **File:line validation pass** (non-negotiable):
-   - For each finding, `Read` the cited file at the cited line range (under head mismatch: match the new side of `diff.patch` instead). Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line. A line that fails this check is dropped, not downgraded.
-   - For PR/diff mode, additionally confirm the line is within the diff hunks (a finding citing a line nowhere near the changes is downgraded to "context" or dropped, depending on severity).
-   - For `needs-grounding` findings, ground in this order: `Grep`, then Serena `find_symbol` / `find_referencing_symbols`, then `Read`. Serena output is never cited without that Read. If grounding succeeds, promote; if not, drop and log.
+2. Parse all `findings-*.json` files and mint an id `<findings-file-stem>#<n>` for every entry, with one `n` sequence across `findings[]` and `cross_cutting_observations[]` of the same file. Each finding should carry at least: `title`, `file`, `line` (or `line_range`), `severity`, `category`, `evidence`, `recommendation`, `claim`. Findings missing `file` and `line` go to a `needs-grounding` bucket (not auto-dropped — see step 3).
+3. **File:line validation pass** (non-negotiable; the head-mismatch exception is in `refs/claim-gate.md`, section "Location grounding"):
+   - For each finding, `Read` the cited file at the cited line range (under head mismatch: match the new side of `diff.patch` instead). Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line. A line that fails this check is dropped into `dropped_ungrounded[]`, not downgraded.
+   - For PR/diff mode, additionally note whether the line is within the diff hunks. A line outside the diff is kept as a candidate with `in_diff: false`; admission decides.
+   - For `needs-grounding` findings, ground in this order: `Grep`, then Serena `find_symbol` / `find_referencing_symbols`, then `Read`. Serena output is never cited without that Read. If grounding succeeds, promote the finding into admission; if not, drop and log.
    - "Nothing calls this" is not a dead-code finding unless `Grep` under `src/`, `plugins/`, and `tests/` returns zero hits (cite the pattern and roots). Prose and Markdown findings are grounded by Read.
-4. **Dedupe pass**:
-   - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the evidence.
-   - Findings that are restatements of the PR description's own caveats → drop with a note in the audit log.
-5. **Severity remap** using `refs/severity-rubric.md`. The agent's self-reported severity is a hint, not authoritative — apply the rubric uniformly.
-6. Compose the final markdown report at `<output-dir>/REVIEW.md` using this structure:
+3b. **Admission**: read `refs/claim-gate.md`. Re-Read every line the `claim` cites, then give each grounded candidate exactly one disposition (`defect`, `unproven`, `rejected`, `intentional_limitation`, `documented_prerequisite`) by the sections "Claim classes", "Claim scope", "Admission table" and "Refutation record". Only a `defect` is graded and published.
+3c. **Attribution**: record `introduced_in` and `current_status` for every candidate by the section "Attribution" of `refs/claim-gate.md`.
+4. **Mechanism dedupe**: group candidates by `mechanism_key` by the section "Mechanism dedupe" of `refs/claim-gate.md`. This replaces the earlier same-line merge and the dropping of PR-caveat restatements; a restatement of a caveat is evaluated by admission and stays in the ledger.
+5. **Severity remap** using `refs/severity-rubric.md`, for unmerged defects only; every other record has `severity: null`. The agent's self-reported severity is a hint, not authoritative — apply the rubric uniformly.
+5b. **Write the ledger** `<output-dir>/candidates.json` by the section "Ledger schema" of `refs/claim-gate.md`, including `run_status`, `findings_count` and every candidate's `evidence_sources`. All three are written before step 6b.
+6. Compose the final markdown report at `<output-dir>/REVIEW.md` and the local record `<output-dir>/NOT-ADMITTED.md`. `REVIEW.md` uses this structure and holds unmerged defects only:
 
 ````markdown
 # Code Review: <target>
@@ -187,29 +204,34 @@ gh_authed: <bool>
 
 ## Summary
 
-<2-4 sentence executive summary: top 2-3 risks, overall sentiment, recommendation (block | request-changes | nits-only | approve-ish).>
+<2-4 sentence executive summary: top 2-3 risks, overall sentiment, recommendation (block | request-changes | nits-only | approve-ish). Name findings only by id; cite no file:line here.>
+
+Not admitted: <U> unproven, <R> rejected, <L> intentional limitations, <P> documented prerequisites, <M> merged (see NOT-ADMITTED.md)
 
 ## Findings
 
 ### 🔴 Critical (block merge)
 
-#### C1. <Short title>
+#### C1. <Short title> (id: <id>)
 - **File**: `path/to/file.ext:LINE`
 - **Category**: security | data-integrity | correctness | …
 - **Pass**: general | security | architect | performance | qa
+- **Evidence kind**: runtime_reproduced | static_traced | protocol_literal
 - **Evidence**:
   ```<lang>
   <real code excerpt from the cited lines>
   ```
 
 - **Why this matters**: <one paragraph>
+- Not established: <consequence> (<reason row>)
+- **Qualification**: <scope> (<scope_citation>)
 - **Recommendation**: <concrete change>
 
-(repeat per finding)
+(repeat per finding; the `Not established` line appears once per excluded consequence and the `Qualification` line only when the defect is qualified)
 
 ### 🟠 High (should fix before merge)
 
-(same structure)
+(same structure; a High cross-cutting defect is also a heading entry here)
 
 ### 🟡 Medium (fix in this PR if cheap, otherwise file followup)
 
@@ -221,11 +243,14 @@ gh_authed: <bool>
 
 ### 💬 Nits (style, naming, comments)
 
-(condensed list)
+- <!-- id: <id> --> <title> (`path/to/file.ext:LINE`) — **Evidence kind**: <kind>
 
 ## Architectural / Cross-Cutting Observations
 
-<Anything that isn't anchored to a single file:line — layering concerns, missing abstractions, coupling smells, anti-pattern clusters. Each item still cites the files where the pattern manifests.>
+<Only Medium and Low defects that are not anchored to a single file:line — layering concerns, missing abstractions, coupling smells, anti-pattern clusters. Each is one top-level list item, and each still cites the files where the pattern manifests. Critical and High cross-cutting defects are heading entries under `## Findings`, never list items here.>
+
+- <!-- id: <id> --> <title> — **Evidence kind**: <kind>
+  - `path/to/file.ext:LINE` <where the pattern manifests>
 
 ## Audit
 
@@ -235,14 +260,26 @@ gh_authed: <bool>
 
 ````
 
-7. Write `<output-dir>/audit.log` with: every agent run (pass + duration + outcome), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons.
+   `REVIEW.md` rules (the tag grammar is in `refs/claim-gate.md`, section "Report tag grammar"):
+   - `## Findings` and the Cross-Cutting section hold unmerged defects only. There is no separate section for non-defects; the one counts line in `## Summary` points to `NOT-ADMITTED.md`.
+   - Every Critical and High defect, including a cross-cutting one, is a heading entry under `## Findings`. Nits, and Medium or Low cross-cutting defects, are top-level list items starting with `<!-- id: <id> -->`.
+   - Every defect entry carries its `**Evidence kind**` line and, when present, its `Not established` lines and qualification.
+   - The section headers `# Code Review:`, `## Findings` and `## Audit` are kept.
 
-**Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
+   `NOT-ADMITTED.md` is mandatory and is generated from the ledger: every non-defect record with its id, title, disposition, reason row and citation; merged members under "Merged into <id>"; and the excluded consequences of defects. It is never posted to a PR and never passed to `/sc:design`.
+6b. **Invariant check**: run the single `jq` program from `refs/claim-gate.md`, section "Invariant check", as `jq -e -n --slurpfile ledger <output-dir>/candidates.json --rawfile review <output-dir>/REVIEW.md -f <extracted block>`. Record its exit code as `jq_exit` in `candidates.json` and in `audit.log`. A non-zero or missing `jq_exit`, or a missing `candidates.json`, makes the status `failed`. The reported status is the ledger's `run_status` when `jq_exit` is 0.
+7. Write `<output-dir>/audit.log` with: every agent run (pass + duration + outcome), every finding with grounding result, every admission decision with its row ids, every dedupe decision, every severity remap, dropped findings with reasons, and `jq_exit`.
+
+**Status rules**: `coverage.complete == false` never yields `success`. The empty-diff short-circuit in Wave 1 stays `success`. `REVIEW.md` and `audit.log` are written on every status, `failed` included.
+
+**Exit criteria**: `REVIEW.md`, `NOT-ADMITTED.md`, `candidates.json` and `audit.log` written. Audit log includes the machine-readable summary header:
 
 ```text
 <!-- SC:AUGGIE-REVIEW:SUMMARY
-status: <success|partial>
+status: <success|partial|failed>
 critical: <N> high: <N> medium: <N> low: <N> nit: <N>
+unproven: <N> rejected: <N> intentional_limitation: <N> documented_prerequisite: <N>
+coverage_complete: <true|false>
 dropped: <N>
 agent_runs: <N>
 duration_sec: <N>
@@ -257,9 +294,9 @@ duration_sec: <N>
 
 **Steps**:
 
-1. **Post to PR** (only if target is PR AND `--post-pr` AND `findings_count > 0`):
-   - Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW.md`
-   - Inline comments for each Critical and High finding (in `--depth deep` mode also for Medium):
+1. **Post to PR** (only if target is PR AND `--post-pr` AND status is not `failed` AND `findings_count > 0`). Nothing is posted when the status is `failed`. Posting and inline comments read only the unmerged defects in `candidates.json`:
+   - Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW.md`. The posted bytes are the `REVIEW.md` that passed the invariant check.
+   - Inline comments for each unmerged Critical and High defect (in `--depth deep` mode also for Medium):
 
      ```bash
      gh api repos/<owner>/<repo>/pulls/<PR>/comments \
@@ -276,7 +313,7 @@ duration_sec: <N>
    - Counts by severity
    - Path to `REVIEW.md`
    - Review URL (if posted)
-3. **Offer the remediation chain** (only if `--remediation-offer` AND `findings_count.critical + findings_count.high > 0`):
+3. **Offer the remediation chain** (only if `--remediation-offer` AND status is not `failed` AND `remediation_count.critical + remediation_count.high >= 1`):
    - Read `refs/remediation-handoff.md` and use the exact prompt template there.
    - The offer must list the five phases, name the route (plan, or mdtm when `--depth deep` was requested), and ask one yes/no question.
 4. If the user accepts, select the route from the review `--depth` the user requested: `quick`/`standard` → **plan route**; `deep` → **MDTM route** (see `refs/remediation-handoff.md`, "Route selection"):
@@ -296,6 +333,7 @@ duration_sec: <N>
 
 - Run the `auggie-reviewer` agent as the review engine at every depth
 - Validate every finding's file:line before including it in the report
+- Publish only admitted defects; keep unproven, rejected, intentional-limitation and documented-prerequisite records locally in `candidates.json` and `NOT-ADMITTED.md`
 - Catch narrow bugs **and** architectural/anti-pattern risks (the rubric in `refs/severity-rubric.md` defines both categories explicitly)
 - Post the markdown report to the PR automatically (per the user's stated default — they opted in by running the command on a PR)
 - Attach inline comments for Critical/High findings, anchored to real lines in the diff
@@ -307,6 +345,7 @@ duration_sec: <N>
 - Activate from conversational keywords — explicit `/sc:auggie-review` invocation or a programmatic skill call only
 - Use `gh pr review --approve` or `--request-changes` — strictly `--comment`
 - Include findings whose file:line cannot be validated against a real file
+- Publish a non-defect candidate (unproven, rejected, intentional limitation or documented prerequisite) as a finding; those records stay in `candidates.json` and `NOT-ADMITTED.md`
 - Modify code under review (advisory only)
 - Auto-trigger the remediation chain — that step is always user-gated
 - Auto-commit after the remediation chain — `/sc:reflect --type task --validate` is the final gate before the user commits manually

@@ -1,0 +1,16 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261021-task11-token-gaps/seed-brief.md
+merged_output_path: .dev/brainstorms/20261021-task11-token-gaps/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: .dev/brainstorms/20261021-task11-token-gaps/adversarial/
+domain: process
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+notes: condensed pipeline; Round 2 rebuttals and merge executed by the orchestrator, not separate agents
+agent_spec: "opus:architect,sonnet:analyzer,haiku:scribe"

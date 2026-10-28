@@ -19,7 +19,7 @@ The remediation offer is presented only if **all** the following hold:
 
 1. The review completed successfully (`status: success` or `status: partial`).
 2. `--remediation-offer` is true (the default).
-3. `findings_count.critical + findings_count.high >= 1` — no point offering remediation for a nit-only review.
+3. `remediation_count.critical + remediation_count.high >= 1` — no point offering remediation for a nit-only review. `remediation_ids` is the set of unmerged, `remediation_eligible`, Critical/High defects in `candidates.json`, and `remediation_count` is computed from it.
 4. The user has not already declined a remediation offer in this session (avoid badgering).
 
 If the conditions are not met, the skill returns the structured output contract and stops.
@@ -77,6 +77,8 @@ Rationale for the flag choices:
 - `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text that `sc:workflow` / the task-builder can consume).
 - `--output <output_dir>/remediation-spec.md`: keeps the artifact next to the review for traceability.
 
+Address only findings whose id is in `remediation_ids`; ignore every other part of the report.
+
 On `/sc:design` completion:
 
 - Capture the spec path.
@@ -108,7 +110,7 @@ WHY: Code review of <PR/diff/snapshot identifier> surfaced <N critical, N high>
      the structural changes; this task file should translate those into
      evidence-backed, executable steps.
 
-WHERE: <list of files cited in the review's Critical and High sections>
+WHERE: <list of the files of the `remediation_ids` records>
 
 BUILD_REQUEST file: <output_dir>/BUILD-REQUEST-REMEDIATION.md
 ```
