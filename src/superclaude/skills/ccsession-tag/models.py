@@ -511,7 +511,8 @@ def owner_roles(env=None) -> list:
 
     The Coder template sets CODER_WORKSPACE_OWNER_ROLES to the comma-separated
     role names it reads from the owner (for example `auditor,user-admin`).
-    A plain member holds no deployment role, so the list can be empty.
+    Coder also sends the built-in `member` and `organization-member` roles, so
+    a plain member's list holds those; outside Coder it is empty.
     """
     env = os.environ if env is None else env
     raw = env.get("CODER_WORKSPACE_OWNER_ROLES", "")
@@ -523,7 +524,8 @@ def user_access(defined, tenv, env=None) -> dict:
 
     The rules are space-separated entries `<who>=<start tier>[:<tier>,...][+models]`
     in CCSESSION_TIER_RULES, or in CCSESSION_ACCESS when that line is absent
-    (older form: usernames only). <who> is a Coder username, `role:<coder role>`
+    (older form; older ccsession reads only username entries there and stops
+    on any other). <who> is a Coder username, `role:<coder role>`
     for everyone holding that role (roles come from CODER_WORKSPACE_OWNER_ROLES),
     or `*` for everyone else, including a terminal that does not know its owner.
     For example
@@ -716,10 +718,15 @@ def model_window(model: str, data=None, tenv=None) -> tuple:
     tenv = tier_env() if tenv is None else tenv
     # Accept the "[1m]" form users copy from the picker or the Mac profiles.
     model = model[: -len("[1m]")] if model.endswith("[1m]") else model
-    for key, value in sorted(tenv.items()):
-        # The real name, or the claude-gw- id the show-all picker shows.
-        if _SLOT.match(key) and model in (value, gateway_alias(value)):
-            return _window(tenv, f"{key}_WINDOW"), key
+    # Only slots a tier uses, in tier order: the first one naming the model
+    # gives its window, as in compact_settings. The workspace file can keep
+    # slots no tier reads (old Tier 1 for older ccsession); they must not win.
+    for tier in data["tiers"].values():
+        for key in tier["models_env"]:
+            value = tenv.get(key, "")
+            # The real name, or the claude-gw- id the show-all picker shows.
+            if value and model in (value, gateway_alias(value)):
+                return _window(tenv, f"{key}_WINDOW"), key
     if model in data["picker"]["one_million_context"]:
         return ONE_MILLION, "not in any tier; 1M list"
     return DEFAULT_WINDOW, "not in any tier"
