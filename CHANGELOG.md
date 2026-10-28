@@ -18,6 +18,11 @@ All notable changes to IronClaude are documented in this file.
 - The workspace owner's roles are part of the shim settings, so owners with different roles never share a shim.
 - The ccsession tests clear the workspace owner and access settings, so they also pass inside a Coder workspace.
 
+#### Fixed (ccsession tier rules)
+
+- A model launched by name (`--model`) takes its window from the first tier slot that names it, in tier order, the same window `/model` uses. Before, it took the first matching slot in name order, so the old `T1Model0N` slots kept in the env file for older ccsession could give `--model claude-opus-5-5` a different window from `/model`.
+- The docs say a plain member's Coder roles are `member` (not none), and that older ccsession understands only username entries in `CCSESSION_ACCESS`, so `role:` and `*` entries belong in `CCSESSION_TIER_RULES`.
+
 ### ccsession: session names belong to the repo, not the folder
 
 #### Changed (ccsession names per repo)

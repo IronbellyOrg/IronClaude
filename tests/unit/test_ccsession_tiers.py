@@ -198,6 +198,22 @@ def test_named_model_window_comes_from_its_tier_slot(
     )
 
 
+def test_named_model_window_ignores_slots_no_tier_uses(
+    tmp_path: Path, monkeypatch
+) -> None:
+    # The workspace file keeps the old T1Model0N slots for older ccsession;
+    # they sort before T1aModel01 but no tier reads them, so a model picked by
+    # name must take the same window as the picker (compact_settings).
+    text = (
+        TIER_BLOCK
+        + "export T1Model01=claude-opus-5-5\nexport T1Model01_WINDOW=300000\n"
+    )
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
+    window = models.compact_settings()["modelSettings"]["claude-opus-5-5"]
+    assert window["autoCompactWindow"] == 1000000
+    assert models.model_window("claude-opus-5-5") == (1000000, "T1aModel01")
+
+
 def test_version_order_is_numeric() -> None:
     assert models._version_key("2026-10-01.10") > models._version_key("2026-10-01.9")
     assert models._version_key("2026-10-02.1") > models._version_key("2026-10-01.99")

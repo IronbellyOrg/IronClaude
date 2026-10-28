@@ -251,8 +251,8 @@ export CCSESSION_MODEL_ORDER="claude-fable-5-1 claude-opus-5-5 ... Qwen3.8-max"
 
 Entries are space-separated `<who>=<start tier>[:<tier>,<tier>,...][+models]`.
 `<who>` is a Coder username, `role:<coder role>` for everyone holding that
-Coder role (`owner`, `user-admin`, `template-admin`, `auditor`; a plain member
-holds none), or `*` for everyone else, including a terminal that does not know
+site-wide Coder role (`owner`, `user-admin`, `template-admin`, `auditor`; a
+plain member holds only `member`), or `*` for everyone else, including a terminal that does not know
 its owner. A username entry wins, then the first matching role entry, then
 `*`. No tier list means every tier (`tier2` and `2` both work, and names match
 without regard to case). `+models` also lists each model of those tiers in
@@ -273,10 +273,12 @@ ccsession re-reads the file on every launch and every request, a pushed change
 applies without a restart. `ccsession --models-status` shows the owner's
 access.
 
-`CCSESSION_ACCESS` is the older form of the same setting (usernames only), read
-when there is no `CCSESSION_TIER_RULES` line. Keep it in the file for workspaces
-still running an older ccsession, with the same one-line rule. Older copies
-ignore `CCSESSION_TIER_RULES`.
+`CCSESSION_ACCESS` is the older form of the same setting, read when there is no
+`CCSESSION_TIER_RULES` line. Keep it in the file for workspaces still running an
+older ccsession, with the same one-line rule. Older copies ignore
+`CCSESSION_TIER_RULES` and understand only username entries in
+`CCSESSION_ACCESS`: a `role:` or `*` entry there stops them for every named
+owner, so put those in `CCSESSION_TIER_RULES` only.
 
 The limit is advisory. It sets what ccsession offers by default, and the
 workspace owner can undo it from their own environment
