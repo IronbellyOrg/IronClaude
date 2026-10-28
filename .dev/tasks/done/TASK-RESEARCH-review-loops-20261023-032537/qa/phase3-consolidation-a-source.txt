@@ -1,0 +1,145 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-amerge-research-gates-a-33eea962a39c774c.jsonl RAW_LINE 39 TIME 2026-10-23T04:09:47.686Z
+| Status | Result |
+|---|---|
+| DONE | Consolidated six delivered reports. Three report defects remain: two Important and one Minor. |
+| NEXT | Correct those defects, obtain fresh checks, and account for the undelivered evidence report before deciding the combined research gate. |
+
+# Research Gate Consolidation (Partition 1 of 2)
+
+**Verdict: FAIL.** Three distinct research-report defects are retained. One tracked evidence report was **NOT_DELIVERED** at inspection. This is not a verdict that all research passed.
+
+**Scope:** Consolidation only. No underlying research was re-reviewed, no new findings were added, and no files were changed. The analyst’s governing output format was read first. This structured text replaces a report-file write, which developer instructions prohibit.
+
+[PARTITION NOTE: Cross-file checks limited to assigned subset. Full cross-file analysis requires merging all partition reports.]
+
+## Source verdicts and delivery accounting
+
+Expected: **six required reports plus one conditional evidence report**. Actual: **six delivered and read completely, one NOT_DELIVERED**. Delivered verdicts: **three FAIL, three PASS**.
+
+| Exact source path and location | Actual verdict | Findings or retained scope limit |
+|---|---|---|
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-completeness-a.md`, Verdict; Finding 1; Historical limitations | **FAIL** | One Important gap: incomplete individual accounting of original planning repairs. Strong traceability does not replace complete coverage. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-cross-a.md`, Claim checks; Finding 1; Depth and verification limits | **FAIL** | One Minor chronology correction. Thirteen claims checked: twelve verified, one clarification required. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-gaps-a.md`, Items Reviewed; Self-Audit | **PASS** | Eight of eight assigned gap-detection checks passed. This explicitly does not certify every factual claim. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-depth-a.md`, Items Reviewed; Summary; Self-Audit | **PASS** | Twelve of twelve depth checks passed. Its confidence statement explicitly excludes exhaustive revalidation of timestamps, digests, transcript anchors, and historical byte comparisons. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-completeness-b.md`, Finding 1; Compiled Gaps | **FAIL** | One Important gap: incomplete disposition of the second CI-plan reviewer’s findings. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-cross-b.md`, Verdict; Claim checked table; Zero-Finding Self-Audit | **PASS** | Nine displayed claim checks verified. No corrective finding within its focused cross-validation scope. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-evidence-a.md` | **NOT_DELIVERED** | Direct Read returned “File does not exist.” No verdict or findings inferred. |
+
+The missing report is a delivery limitation, not a fourth discovered research defect. No partition-failure finding is synthesized: these sources do not establish exhaustion of an agent’s retry ladder.
+
+## Distinct findings and required corrections
+
+### 1. Original planning repairs lack a complete individual trace
+
+**Severity: Important.**
+
+**Affected research:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/01-session-ac2cd1fd.md`
+
+**Source location:** Completeness report for partition A, “Finding 1,” including its missing-first-round-trace table.
+
+The source report identifies six examples missing equivalent original-criterion, proposed-fix, applied-change, and subsequent-review traces:
+
+| Missing successful-repair trace | Original finding location reported by the reviewer | Closure location reported by the reviewer |
+|---|---|---|
+| Patch digest and candidate identifier | First planning report, line 35 | Second planning merged findings, line 26 |
+| Runner and timeout settings for every job | First planning report, line 37 | Second planning merged findings, line 28 |
+| Companion specification and relevant sections | First planning report, line 40 | Second planning merged findings, line 31 |
+| Merge checkpoint before second-PR work | First planning report, line 42 | Second planning merged findings, line 33 |
+| Task dependency edges | First planning report, line 43 | Second planning merged findings, line 34 |
+| Pre-edit line-reference clarification | First planning report, line 44 | Second planning merged findings, line 35 |
+
+Those primary artifact paths are recorded in the source report as:
+
+- `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-20261022133138/REPORT.md`
+- `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-v2-20261022150856/adversarial/merged-verdict.yaml`
+
+**Required correction:** Add a compact inventory covering **all sixteen original findings**, with original shortfall, proposed correction, actual historical amendment anchor, subsequent-review result, and remaining qualification. Reference existing detailed analysis instead of duplicating it.
+
+**Counting:** One coverage finding, not six. The source expressly groups these examples under one incomplete inventory.
+
+### 2. Initial blocked edit is not distinguished from the successful retry
+
+**Severity: Minor.**
+
+**Affected research:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/01-session-ac2cd1fd.md`
+
+**Affected location reported by the reviewer:** Timeline row at line 64.
+
+**Source location:** Cross-validation report for partition A, claim 7 and “Finding 1.”
+
+The reviewer records this sequence in:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/ac2cd1fd-60f6-4b7c-942c-93026ea8edce.jsonl`
+
+- Transcript 150: edit attempted.
+- Transcript 151: freshness hook blocked it.
+- Transcript 163: retry attempted.
+- Transcript 164: retry succeeded.
+
+**Required correction:** Split the timeline row or explicitly distinguish the blocked attempt from the successful retry. Do not count the blocked attempt as an applied mutation.
+
+**Qualification:** The reviewer explicitly states that this does not invalidate the reviewed-version hash or the principal review-loop classification.
+
+### 3. Later CI-plan reviewer findings are incompletely accounted for
+
+**Severity: Important.**
+
+**Affected research:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/04-session-43582de1.md`
+
+**Source location:** Completeness report for partition B, “Finding 1.”
+
+The source identifies three concrete omissions or incomplete treatments:
+
+| Missing treatment | Exact primary evidence location reported by the reviewer |
+|---|---|
+| Valid advisory job names containing “not required” would fail an overstrict check; the point was retained as valid and low severity | `/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/reviewer-cards/reviewer-2-card.yaml`, lines 45-60; corresponding retention in `adversarial/round2-v1.md`, line 13, under the same review directory |
+| Counting one decision line does not establish that the decision file remained unchanged; research mentions this only as an unexplained residual | Same absolute reviewer-card path, lines 61-72 |
+| The second reviewer reversed rename-path order; the later correction is omitted from the research’s disposition | `/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/adversarial/round2-v2.md`, correction at line 3 and corrected disposition at line 23 |
+
+**Required correction:** Add a compact disposition table covering **all eight second-reviewer entries**. Deduplicate overlaps, retain rejected or corrected claims, classify causal relationships, and state “unknown” where introduction history or the reason for an earlier miss was not established.
+
+**Counting:** One completeness finding encompassing the incomplete inventory, not three separate findings.
+
+## Duplicate and rejection accounting
+
+- **Three source findings become three distinct retained findings.** No actual corrective finding was rejected.
+- The six missing original planning traces are examples within finding 1, not six additional findings.
+- The three CI-plan omissions are examples within finding 3, not three additional findings.
+- The chronology issue affects the same planning research as finding 1 but requires a different correction; it is not a duplicate.
+- The PASS reports do not cancel the completeness failures. Their stated scopes test causal depth, gap detection, or selected claims, not exhaustive finding inventories.
+- No underlying-source validity dispute was adjudicated in this consolidation.
+
+The delivered reports explicitly reject several historical interpretations. Preserve those rejections without turning them into new findings:
+
+- Twenty numbered planning items are not twenty independent new defects: the inventory includes duplication and a non-defect note.
+- The initial four-medium CI-review account is provisional: later debate withdrew one requirement and downgraded another interpretation.
+- Repeated failures do not establish that every repair introduced a regression.
+- Passing deterministic tests do not prove semantic completeness or live-model effectiveness.
+
+## PASS evidence and self-audits retained
+
+- **Gap detection:** Actively tested whether later failures represented new requirements, repair-induced defects, duplicate notifications, or ordinary development-test failures. Its zero-finding result is limited to that lens.
+- **Research depth:** Independently checked competing causal explanations, original requirements, failed reviews, semantic assertions, and the authorized correction. It checked nine substantive requirement or implementation propositions, while excluding exhaustive historical-anchor verification.
+- **Cross-validation, partition B:** Actively challenged observation boundaries, baseline provenance, rendering acceptance, review counts, regression attribution, and the provisional finding count. It retained the research’s qualifications rather than treating frozen observation boundaries as invalid because live logs later grew.
+
+## Historical unknowns and evidence limits, not report defects
+
+The delivered reports say these limitations are already disclosed and must survive synthesis:
+
+- The planning case establishes plan defects, not a production regression. Its final amendment had no subsequent independent review.
+- Historical repository-check ordering and the exact up-to-date runtime scenario remained unresolved. Some reasons earlier reviewers missed omissions remain unknown.
+- The oracle case retains a frozen-input defect after three repairs; later authorization permits the bounded fixture correction. This does not establish live-model effectiveness.
+- An independently preserved full pre-authorization oracle snapshot was unavailable to the historical passing reviewer.
+- Earlier oracle development failures and the later archive authorization blocker are not additional failures of the reviewed oracle task.
+- The documentation-render case ended through explicit acceptance without demonstrated rendering. Missing rendering proof, missing task-start HEAD evidence, and uninspected child-session logs remain evidence limits.
+- The CI-plan observation ends before completed second-review adjudication and does not show implementation execution.
+- External documentation conclusions were not independently certified.
+- Historical test results were inspected as preserved evidence, not newly rerun. These six reviews do not collectively constitute an exhaustive replay of every underlying claim.
+
+## Recommended action
+
+Have the serialized research-fix owner correct the **three retained report defects**, then obtain fresh checks of those corrections. Merge this consolidation with the other partition and the actual evidence-report result; do not treat the undelivered report or the three limited PASS verdicts as approval of the whole research gate.

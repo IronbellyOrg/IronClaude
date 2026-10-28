@@ -1,0 +1,33 @@
+{
+  "mode": "A",
+  "depth": "deep",
+  "output": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/reviews/adversarial",
+  "artifacts_dir": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/reviews/adversarial/adversarial",
+  "inputs": [
+    {
+      "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/synthesis/hypothesis-01.md",
+      "sha256": "3f39f065ffb13efad680694e9e699fb04456a03a93cabab75be90bee3d2dbac9",
+      "bytes": 7548
+    },
+    {
+      "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/synthesis/hypothesis-02.md",
+      "sha256": "e62a753c7b5c9df11d0a57469de1717e115f3166e2596342adf26ad3fa882ebc",
+      "bytes": 8093
+    },
+    {
+      "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/synthesis/hypothesis-03.md",
+      "sha256": "f20f7fd37114f1c3d529bd7eca97b2af748fe9c5b3c73559b78837a7dfb5a8e3",
+      "bytes": 8169
+    },
+    {
+      "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/synthesis/hypothesis-04.md",
+      "sha256": "fe15dc657c4e6ee11e9d60ce655d2b61d364e5c6055e090abd58e87395f36117",
+      "bytes": 6790
+    },
+    {
+      "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/synthesis/hypothesis-05.md",
+      "sha256": "1cf685b5356db01e1409ffb335dd25543622c3701dcf8072264ef1a9467941ac",
+      "bytes": 6667
+    }
+  ]
+}
