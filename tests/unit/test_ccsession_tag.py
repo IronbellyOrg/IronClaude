@@ -52,6 +52,12 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         "CCSESSION_DEFAULT_TIER",
         "CCSESSION_SHOW_ALL_MODELS",
         "CCSESSION_TIERS",
+        "CCSESSION_ACCESS",
+        "CCSESSION_TIER_RULES",
+        "CCSESSION_MODEL_ORDER",
+        # The workspace owner is part of the shim settings fingerprint.
+        "CODER_WORKSPACE_OWNER_NAME",
+        "CODER_WORKSPACE_OWNER_ROLES",
     ):
         monkeypatch.delenv(name, raising=False)
 

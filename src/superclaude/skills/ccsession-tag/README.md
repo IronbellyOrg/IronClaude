@@ -214,13 +214,13 @@ applies to the next launch in any terminal or in Orca, with no new shell.
 
 ```bash
 ccsession notes                       # default tier (CCSESSION_DEFAULT_TIER)
-ccsession notes --tier tier1          # a specific tier
+ccsession notes --tier tier1a         # a specific tier (tier1a and 1a both work)
 ccsession notes --model gpt-6-astra   # one model, no failover
 ```
 
 | | What happens |
 |---|---|
-| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1, ...), each with its models |
+| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1a, ...), each with its models; with `+models` in the owner's rule, also each model on its own, in `CCSESSION_MODEL_ORDER` order |
 | Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, an outdated provider login, or, for a streamed request, no start of a reply within 5 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
 | Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
 | Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
@@ -237,35 +237,50 @@ sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
 auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
 
-**Per-user tiers.** `CCSESSION_ACCESS` in the same workspace env file sets,
-for each Coder username, the tier ccsession starts on and the tiers it offers:
+A tier is named by a number with an optional letter (`tier0`, `tier1a`,
+`tier1b`, `tier12`); its env names follow (`T1a_WINDOW`, `T1aModel01`).
+
+**Per-user tiers.** `CCSESSION_TIER_RULES` in the same workspace env file sets
+the tier each person starts on, the tiers they are offered, and whether the
+picker also lists each model:
 
 ```bash
-export CCSESSION_ACCESS="alice=tier1 bob=tier2:tier2,tier3"
+export CCSESSION_TIER_RULES="role:owner=tier1a+models role:auditor=tier1a+models *=tier2:tier2,tier3,tier4"
+export CCSESSION_MODEL_ORDER="claude-fable-5-1 claude-opus-5-5 ... Qwen3.8-max"
 ```
 
-Entries are space-separated `<username>=<start tier>[:<tier>,<tier>,...]`
-(names match without regard to case; `tier2` and `2` both work). No tier list
-means every tier. A user who is not listed, or a terminal that does not know
-its owner, starts on `CCSESSION_DEFAULT_TIER` with every tier. The owner comes
-from `CODER_WORKSPACE_OWNER_NAME`, which the Coder agent sets. For a limited
+Entries are space-separated `<who>=<start tier>[:<tier>,<tier>,...][+models]`.
+`<who>` is a Coder username, `role:<coder role>` for everyone holding that
+Coder role (`owner`, `user-admin`, `template-admin`, `auditor`; a plain member
+holds none), or `*` for everyone else, including a terminal that does not know
+its owner. A username entry wins, then the first matching role entry, then
+`*`. No tier list means every tier (`tier2` and `2` both work, and names match
+without regard to case). `+models` also lists each model of those tiers in
+`/model`, ordered by `CCSESSION_MODEL_ORDER` (models not named there follow in
+tier order). With no matching entry, the user starts on
+`CCSESSION_DEFAULT_TIER` with every tier. The owner comes from
+`CODER_WORKSPACE_OWNER_NAME` and their roles from
+`CODER_WORKSPACE_OWNER_ROLES`, both set by the Coder template. For a limited
 user, `--help` and `/model` show only their tiers, `--tier` and `--model`
 refuse anything outside them, and the shim refuses requests for other tiers.
-A broken or repeated entry for this user stops their launch with the reason,
-rather than opening every tier. Set it on one line with a literal value,
-`export CCSESSION_ACCESS="..."` (or the allowlist's
-`[ -z "${CCSESSION_ACCESS:-}" ] && export CCSESSION_ACCESS="..."`), and do not
-name it on any other line of the file, comments included (to switch it off,
-set it to `""` rather than commenting it out). Another line naming it, a
-`${...}` value, or a piece of the value that is not a `name=...` entry (for
-example from a stray space) stops ccsession for every Coder user, listed or
-not, including running sessions' tier requests, until it is fixed. Because ccsession re-reads the file on
-every launch and every request, a pushed change applies without a restart.
-`ccsession --models-status` shows the owner's access.
+A broken or repeated entry that applies to this user stops their launch with
+the reason, rather than opening every tier. Set it on one line with a literal
+value, `export CCSESSION_TIER_RULES="..."`, and do not name it on any other
+line of the file, comments included. Another line naming it, a `${...}`
+value, or a piece of the value that is not a `who=...` entry (for example from
+a stray space) stops ccsession for every Coder user until it is fixed. Because
+ccsession re-reads the file on every launch and every request, a pushed change
+applies without a restart. `ccsession --models-status` shows the owner's
+access.
+
+`CCSESSION_ACCESS` is the older form of the same setting (usernames only), read
+when there is no `CCSESSION_TIER_RULES` line. Keep it in the file for workspaces
+still running an older ccsession, with the same one-line rule. Older copies
+ignore `CCSESSION_TIER_RULES`.
 
 The limit is advisory. It sets what ccsession offers by default, and the
 workspace owner can undo it from their own environment
-(`CODER_WORKSPACE_OWNER_NAME`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+(`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
 or call a model directly with their gateway key. Only a gateway key limited to
 those models enforces it. ccsession reads the file without running it, so a
 setting whose name is deliberately assembled from pieces (for example across
@@ -280,17 +295,20 @@ failure.
 
 | Setting | Effect |
 |---|---|
-| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on |
+| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
 | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
 | `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
-| `CCSESSION_ACCESS` (workspace env) | Per Coder username: start tier and the tiers offered (see Per-user tiers above) |
-| `CODER_WORKSPACE_OWNER_NAME` | Workspace owner's Coder username (set by the Coder agent); picks the `CCSESSION_ACCESS` entry |
+| `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
+| `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
+| `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |
+| `CODER_WORKSPACE_OWNER_NAME` | Workspace owner's Coder username (set by the Coder agent); picks a username entry |
+| `CODER_WORKSPACE_OWNER_ROLES` | Workspace owner's Coder roles, comma-separated (set by the Coder template); picks `role:` entries |
 | `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
 | `CCSESSION_TIERS=0` | Turn tier mode off |
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
 | `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
-| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name (every Coder session) get base + an offset; an explicitly set port is used as-is |
+| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name or roles (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 
 ---

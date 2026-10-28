@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "version": "2026-10-16.1",
+  "version": "2026-10-28.1",
   "profiles": {
     "claude": {
       "aliases": [],
@@ -75,13 +75,19 @@
         "T0Model02"
       ]
     },
-    "tier1": {
-      "label": "Tier 1",
+    "tier1a": {
+      "label": "Tier 1a",
       "models_env": [
-        "T1Model01",
-        "T1Model02",
-        "T1Model03",
-        "T1Model04"
+        "T1aModel01",
+        "T1aModel02"
+      ]
+    },
+    "tier1b": {
+      "label": "Tier 1b",
+      "models_env": [
+        "T1bModel01",
+        "T1bModel02",
+        "T1bModel03"
       ]
     },
     "tier2": {
@@ -91,13 +97,25 @@
         "T2Model02",
         "T2Model03",
         "T2Model04",
-        "T2Model05"
+        "T2Model05",
+        "T2Model06"
       ]
     },
     "tier3": {
       "label": "Tier 3",
       "models_env": [
-        "T3Model01"
+        "T3Model01",
+        "T3Model02",
+        "T3Model03",
+        "T3Model04",
+        "T3Model05",
+        "T3Model06"
+      ]
+    },
+    "tier4": {
+      "label": "Tier 4",
+      "models_env": [
+        "T4Model01"
       ]
     }
   },
@@ -131,7 +149,8 @@
       "gpt-6.1-sol",
       "muse-spark-1.3",
       "muse-wonder-1.0",
-      "muse-wonder-full-1.0"
+      "muse-wonder-full-1.0",
+      "gpt-6.1-terra"
     ],
     "display_overrides": {
       "claude-opus-5-5": "Claude Opus 5.5",
@@ -146,7 +165,9 @@
       "claude-sonnet-5-5": "Claude Sonnet 5.5",
       "gpt-6-luna": "GPT 6 Luna",
       "muse-wonder-full-1.0": "Muse Wonder Full 1.0",
-      "muse-wonder-1.0": "Muse Wonder 1.0"
+      "muse-wonder-1.0": "Muse Wonder 1.0",
+      "gpt-6.1-terra": "GPT 6.1 Terra",
+      "glm-5.3": "GLM 5.3"
     }
   }
 }

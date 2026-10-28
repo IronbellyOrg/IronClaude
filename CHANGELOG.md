@@ -4,6 +4,20 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: tiers by Coder role, letter tier names, and the new tier layout
+
+#### Added (ccsession tier rules)
+
+- `CCSESSION_TIER_RULES` in the workspace env file: space-separated `<who>=<start tier>[:<tier>,...][+models]` entries, where `<who>` is a Coder username, `role:<coder role>` (for example `role:auditor`) or `*` for everyone else, including a terminal that does not know its owner. A username entry wins, then the first matching role entry, then `*`. Roles come from `CODER_WORKSPACE_OWNER_ROLES` (comma-separated, set by the Coder template). `+models` also lists each model of the owner's tiers in `/model`, ordered by the new `CCSESSION_MODEL_ORDER` setting. The line follows the same one-line rule as `CCSESSION_ACCESS`; a broken entry that applies to the owner stops the launch rather than opening every tier.
+- Tier names may end in a letter: `tier1a`, `tier1b` (env names `T1a_WINDOW`, `T1aModel01`, picker id `claude-gw-tier1a`). `--tier 1A` works.
+
+#### Changed (ccsession tier rules)
+
+- `ccsession-models.json` (2026-10-28.1) defines the owner's layout: Tier 0, Tier 1a (Opus 5.5, Sonnet 5.5), Tier 1b (Sonnet 5.5, GPT-6.1 Sol, Muse Wonder Full), Tier 2 (GPT-6.1 Sol, GLM-5.3, Grok 4.7, Qwen3.8 Max, Muse Wonder, Muse Spark), Tier 3 (GPT-6.1 Terra, then Tier 2's other five) and Tier 4 (GPT-6 Luna). The models and windows themselves stay in the workspace env file. Older ccsession rejects this data (it cannot read letter tier names) and keeps its own copy, so it keeps working with an env file that still has the old `T1Model0N` slots.
+- `CCSESSION_ACCESS` is now the older form, read only when the env file has no `CCSESSION_TIER_RULES` line. Older ccsession reads only `CCSESSION_ACCESS` and ignores the new settings.
+- The workspace owner's roles are part of the shim settings, so owners with different roles never share a shim.
+- The ccsession tests clear the workspace owner and access settings, so they also pass inside a Coder workspace.
+
 ### ccsession: session names belong to the repo, not the folder
 
 #### Changed (ccsession names per repo)

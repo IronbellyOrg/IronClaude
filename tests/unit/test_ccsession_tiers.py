@@ -11,6 +11,7 @@ import gzip
 import http.server
 import json
 import os
+import re
 import runpy
 import socket
 import ssl
@@ -39,15 +40,18 @@ export T0Model01=claude-fable-5-1
 export T0Model01_WINDOW=1000000
 export T0Model02=gpt-6-astra
 export T0Model02_WINDOW=850000
-export T1_WINDOW=850000
-export T1Model01=claude-opus-5-5
-export T1Model01_WINDOW=1000000
-export T1Model02="gpt-6.1-sol"
-export T1Model02_WINDOW=850000
-export T1Model03=claude-sonnet-5-5
-export T1Model03_WINDOW=1000000
-export T1Model04=muse-wonder-full-1.0
-export T1Model04_WINDOW=1000000
+export T1a_WINDOW=850000
+export T1aModel01=claude-opus-5-5
+export T1aModel01_WINDOW=1000000
+export T1aModel02=claude-sonnet-5-5
+export T1aModel02_WINDOW=1000000
+export T1b_WINDOW=850000
+export T1bModel01=claude-sonnet-5-5
+export T1bModel01_WINDOW=1000000
+export T1bModel02="gpt-6.1-sol"
+export T1bModel02_WINDOW=850000
+export T1bModel03=muse-wonder-full-1.0
+export T1bModel03_WINDOW=1000000
 export T2_WINDOW=500000
 export T2Model01=muse-spark-1.3
 export T2Model01_WINDOW=950000
@@ -59,9 +63,24 @@ export T2Model04=glm-5.3
 export T2Model04_WINDOW=1000000
 export T2Model05=muse-wonder-1.0
 export T2Model05_WINDOW=1000000
-export T3_WINDOW=850000
-export T3Model01=gpt-6-luna
+export T2Model06=gpt-6.1-sol
+export T2Model06_WINDOW=850000
+export T3_WINDOW=500000
+export T3Model01=gpt-6.1-terra
 export T3Model01_WINDOW=850000
+export T3Model02=glm-5.3
+export T3Model02_WINDOW=1000000
+export T3Model03=grok-4.7
+export T3Model03_WINDOW=500000
+export T3Model04='Qwen3.8-max'
+export T3Model04_WINDOW=1000000
+export T3Model05=muse-wonder-1.0
+export T3Model05_WINDOW=1000000
+export T3Model06=muse-spark-1.3
+export T3Model06_WINDOW=950000
+export T4_WINDOW=850000
+export T4Model01=gpt-6-luna
+export T4Model01_WINDOW=850000
 export CCSESSION_DEFAULT_TIER=tier2
 export ANTHROPIC_MODEL="grok-4.6[1m]"
 echo not-an-export
@@ -94,9 +113,15 @@ def _isolated(monkeypatch, tmp_path_factory):
         "CCSESSION_SHOW_ALL_MODELS",
         "CCSESSION_TIERS",
         "CCSESSION_ACCESS",
+        "CCSESSION_TIER_RULES",
+        "CCSESSION_MODEL_ORDER",
         "CODER_WORKSPACE_OWNER_NAME",
+        "CODER_WORKSPACE_OWNER_ROLES",
     ):
         monkeypatch.delenv(name, raising=False)
+
+
+TIER_IDS = [f"claude-gw-tier{n}[1m]" for n in ("0", "1a", "1b", "2", "3", "4")]
 
 
 def _defaults(tmp_path: Path, text: str = TIER_BLOCK) -> Path:
@@ -111,7 +136,7 @@ def _defaults(tmp_path: Path, text: str = TIER_BLOCK) -> Path:
 
 def test_defaults_file_is_parsed_not_sourced(tmp_path: Path) -> None:
     values = models.read_defaults_file(_defaults(tmp_path))
-    assert values["T1Model02"] == "gpt-6.1-sol"  # double quotes dropped
+    assert values["T1bModel02"] == "gpt-6.1-sol"  # double quotes dropped
     assert values["T2Model03"] == "Qwen3.8-max"  # single quotes dropped
     assert values["T2_WINDOW"] == "500000"
     assert values["CCSESSION_DEFAULT_TIER"] == "tier2"
@@ -139,12 +164,12 @@ def test_defaults_file_wins_over_stale_shell_env(tmp_path: Path, monkeypatch) ->
     tiers = models.resolve_tiers()
     assert tiers["tier2"]["models"][0] == ("T2Model01", "muse-spark-1.3", 950000)
     assert tiers["tier2"]["window"] == 500000
-    assert [m for _, m, _ in tiers["tier1"]["models"]] == [
-        "claude-opus-5-5",
-        "gpt-6.1-sol",
+    assert [m for _, m, _ in tiers["tier1b"]["models"]] == [
         "claude-sonnet-5-5",
+        "gpt-6.1-sol",
         "muse-wonder-full-1.0",
     ]
+    assert list(tiers) == ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
 
 
 def test_missing_tier_variable_is_named(tmp_path: Path, monkeypatch) -> None:
@@ -152,9 +177,9 @@ def test_missing_tier_variable_is_named(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
     with pytest.raises(ValueError, match="T2Model03_WINDOW"):
         models.resolve_tiers()
-    text = TIER_BLOCK.replace("export T1_WINDOW=850000\n", "")
+    text = TIER_BLOCK.replace("export T1a_WINDOW=850000\n", "")
     monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
-    with pytest.raises(ValueError, match="T1_WINDOW"):
+    with pytest.raises(ValueError, match="T1a_WINDOW"):
         models.resolve_tiers()
 
 
@@ -353,7 +378,7 @@ def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
     # tier's window; no env value pins one window for the whole session.
     assert seen["compact"] == ""
     assert _compact(seen, "claude-gw-tier2") == 500000
-    assert _compact(seen, "claude-gw-tier1") == 850000
+    assert _compact(seen, "claude-gw-tier1a") == 850000
     assert seen["custom"] == ""  # tiers are already in the picker
     assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
     assert "tier2" in out and "muse-spark-1.3" in out
@@ -364,8 +389,10 @@ def test_tier_flag_and_named_model(tmp_path: Path) -> None:
     assert rc == 0, err
     assert _model_arg(seen) == "claude-gw-tier0[1m]"
     assert seen["context"] == "850000"
-    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "1")
-    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1[1m]"
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "1A")
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1a[1m]"
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier4")
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier4[1m]"
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "gpt-6-astra")
     assert rc == 0, err
     assert _model_arg(seen) == "gpt-6-astra"
@@ -599,16 +626,15 @@ def test_picker_shows_tiers_and_show_all_adds_env_models(shim) -> None:
         "data"
     ]
     ids = [m["id"] for m in listing]
-    assert ids == [f"claude-gw-tier{n}[1m]" for n in range(4)]
-    assert "Muse Spark 1.3" in listing[2]["display_name"]
+    assert ids == TIER_IDS
+    assert "Muse Spark 1.3" in listing[3]["display_name"]
     health = json.loads(
         urllib.request.urlopen(f"{base}/__ccsession_shim", timeout=5).read()
     )
     assert health["tier_mode"] is True and health["show_all"] is False
-    assert health["tiers"]["tier1"] == [
-        "claude-opus-5-5",
-        "gpt-6.1-sol",
+    assert health["tiers"]["tier1b"] == [
         "claude-sonnet-5-5",
+        "gpt-6.1-sol",
         "muse-wonder-full-1.0",
     ]
 
@@ -622,19 +648,21 @@ def test_show_all_lists_every_tier_model_with_env_windows(shim) -> None:
             urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
         )["data"]
     ]
-    assert ids[:4] == [f"claude-gw-tier{n}[1m]" for n in range(4)]
-    assert ids[4:] == [
+    assert ids[:6] == TIER_IDS
+    # No CCSESSION_MODEL_ORDER in this file: each model once, in tier order.
+    assert ids[6:] == [
         "claude-fable-5-1[1m]",
         "claude-gw-gpt-6-astra[1m]",
         "claude-opus-5-5[1m]",
-        "claude-gw-gpt-6.1-sol[1m]",
         "claude-sonnet-5-5[1m]",
+        "claude-gw-gpt-6.1-sol[1m]",
         "claude-gw-muse-wonder-full-1.0[1m]",
         "claude-gw-muse-spark-1.3[1m]",
         "claude-gw-grok-4.7[1m]",
         "claude-gw-qwen3.8-max[1m]",
         "claude-gw-glm-5.3[1m]",
         "claude-gw-muse-wonder-1.0[1m]",
+        "claude-gw-gpt-6.1-terra[1m]",
         "claude-gw-gpt-6-luna[1m]",
     ]
     # A model listed only by show-all, and a hidden gateway model, both route.
@@ -768,7 +796,7 @@ def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
     gateway, start, _ = shim
     base = start()
     gateway.script["muse-spark-1.3"] = [COOLING]
-    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0"):
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0", "gpt-6.1-sol"):
         gateway.script[m] = [TOO_LONG]
     status, body = _ask(base, "claude-gw-tier2")
     assert status == 400
@@ -787,6 +815,7 @@ def test_all_models_out_returns_last_error_with_note(shim) -> None:
         "Qwen3.8-max",
         "glm-5.3",
         "muse-wonder-1.0",
+        "gpt-6.1-sol",
     ):
         gateway.script[m] = [COOLING]
     status, body = _ask(base, "claude-gw-tier2")
@@ -942,7 +971,7 @@ def test_model_with_1m_suffix_finds_its_tier_window(
     tmp_path: Path, monkeypatch
 ) -> None:
     monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
-    assert models.model_window("claude-opus-5-5[1m]") == (1000000, "T1Model01")
+    assert models.model_window("claude-opus-5-5[1m]") == (1000000, "T1aModel01")
 
 
 def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
@@ -1710,6 +1739,7 @@ def test_exhausted_tier_with_string_errors_returns_valid_json(shim) -> None:
         "Qwen3.8-max",
         "glm-5.3",
         "muse-wonder-1.0",
+        "gpt-6.1-sol",
     ):
         gateway.script[model] = [outdated]
     status, body = _ask(base, "claude-gw-tier2")
@@ -1816,6 +1846,7 @@ def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
     gateway.script["Qwen3.8-max"] = [COOLING]
     gateway.script["glm-5.3"] = [COOLING]
     gateway.script["muse-wonder-1.0"] = [COOLING]
+    gateway.script["gpt-6.1-sol"] = [COOLING]
     status, body = _ask(base, "claude-gw-tier2")
     message = json.loads(body)["error"]["message"]
     assert status == TOO_LONG[0]
@@ -1901,10 +1932,10 @@ def test_provider_qualified_claude_model_also_gets_its_canonical_key(
 ) -> None:
     """PR #258 review: Claude Code looks modelSettings up by canonical name."""
     text = TIER_BLOCK.replace(
-        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
-    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+        "T1aModel01=claude-opus-5-5", "T1aModel01=anthropic/claude-opus-5-5"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
     tenv = models.read_defaults_file(_defaults(tmp_path, text))
-    assert tenv["T1Model01"] == "anthropic/claude-opus-5-5"
+    assert tenv["T1aModel01"] == "anthropic/claude-opus-5-5"
     per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
         "modelSettings"
     ]
@@ -1918,8 +1949,8 @@ def test_both_spellings_of_one_claude_model_share_the_smaller_window(
     """PR #258 review: claude-opus-5-5 and anthropic/claude-opus-5-5 are one
     Claude Code entry, so it must never exceed either tier slot's window."""
     text = TIER_BLOCK.replace(
-        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
-    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+        "T1aModel01=claude-opus-5-5", "T1aModel01=anthropic/claude-opus-5-5"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
     # A slot tier2 really reads (models_env), holding the bare spelling at 1M.
     text = text.replace("T2Model03='Qwen3.8-max'", "T2Model03=claude-opus-5-5")
     tenv = models.read_defaults_file(_defaults(tmp_path, text))
@@ -1950,8 +1981,8 @@ def test_every_spelling_of_a_claude_model_gets_its_canonical_key() -> None:
 
 def test_dated_claude_tier_model_keeps_its_window(tmp_path: Path) -> None:
     text = TIER_BLOCK.replace(
-        "T1Model01=claude-opus-5-5", "T1Model01=claude-sonnet-4-5-20250929"
-    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+        "T1aModel01=claude-opus-5-5", "T1aModel01=claude-sonnet-4-5-20250929"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
     tenv = models.read_defaults_file(_defaults(tmp_path, text))
     per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
         "modelSettings"
@@ -1980,7 +2011,7 @@ def test_shim_sessions_pass_the_gateway_key_as_a_bearer_token(tmp_path: Path) ->
 
 # alice starts on Tier 1 with every tier; bob starts on Tier 2 with Tiers 2 and 3.
 # Names match the Coder username without regard to case.
-ACCESS_BLOCK = TIER_BLOCK + 'export CCSESSION_ACCESS="Alice=tier1 bob=2:tier2,3"\n'
+ACCESS_BLOCK = TIER_BLOCK + 'export CCSESSION_ACCESS="Alice=tier1a bob=2:tier2,3"\n'
 
 
 def _access(owner: str, text: str = ACCESS_BLOCK, tmp_path: Path | None = None):
@@ -1991,12 +2022,14 @@ def _access(owner: str, text: str = ACCESS_BLOCK, tmp_path: Path | None = None):
 
 def test_access_entry_sets_start_tier_and_tier_list(tmp_path: Path) -> None:
     alice = _access("alice", tmp_path=tmp_path)
-    assert alice["listed"] and alice["start"] == "tier1"
+    assert alice["listed"] and alice["start"] == "tier1a"
     assert alice["allowed"] == [
         "tier0",
-        "tier1",
+        "tier1a",
+        "tier1b",
         "tier2",
         "tier3",
+        "tier4",
     ]  # no list = every tier
     bob = _access("bob", tmp_path=tmp_path)
     assert bob["start"] == "tier2" and bob["allowed"] == ["tier2", "tier3"]
@@ -2004,30 +2037,106 @@ def test_access_entry_sets_start_tier_and_tier_list(tmp_path: Path) -> None:
     for owner in ("carol", ""):
         other = _access(owner, tmp_path=tmp_path)
         assert not other["listed"] and other["start"] == ""
-        assert other["allowed"] == ["tier0", "tier1", "tier2", "tier3"]
+        assert other["allowed"] == [
+            "tier0",
+            "tier1a",
+            "tier1b",
+            "tier2",
+            "tier3",
+            "tier4",
+        ]
+
+
+# Coder roles (CODER_WORKSPACE_OWNER_ROLES): anyone with a role above member
+# starts on Tier 1; dave also has his own entry, which wins over his role.
+ROLE_BLOCK = TIER_BLOCK + (
+    'export CCSESSION_ACCESS="role:owner=tier1a role:user-admin=tier1a '
+    'role:auditor=tier1a:tier1a,tier2 dave=tier3:tier3"\n'
+)
+
+
+def _role_access(owner: str, roles: str, text: str = ROLE_BLOCK, tmp_path=None):
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    every = models._all_tiers(models.load()[0], tenv)
+    env = {"CODER_WORKSPACE_OWNER_NAME": owner, "CODER_WORKSPACE_OWNER_ROLES": roles}
+    return models.user_access(every, tenv, env)
+
+
+def test_role_entry_applies_to_everyone_with_that_role(tmp_path: Path) -> None:
+    every = ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
+    clay = _role_access("clay", "auditor,user-admin", tmp_path=tmp_path)
+    # The first matching role entry in the file decides: user-admin before auditor.
+    assert clay["listed"] and clay["start"] == "tier1a" and clay["allowed"] == every
+    assert clay["via"] == "role:user-admin"
+    erin = _role_access(
+        "erin", " Auditor ", tmp_path=tmp_path
+    )  # case and spaces ignored
+    assert erin["start"] == "tier1a" and erin["allowed"] == ["tier1a", "tier2"]
+    # A plain member holds no deployment role: default tier, every tier.
+    for roles in ("", "organization-member", "template-admin"):
+        member = _role_access("frank", roles, tmp_path=tmp_path)
+        assert (
+            not member["listed"]
+            and member["start"] == ""
+            and member["allowed"] == every
+        )
+    # A username entry wins over the owner's roles.
+    dave = _role_access("dave", "owner", tmp_path=tmp_path)
+    assert (
+        dave["start"] == "tier3" and dave["allowed"] == ["tier3"] and dave["via"] == ""
+    )
+    # Roles without an owner name change nothing.
+    assert not _role_access("", "owner", tmp_path=tmp_path)["listed"]
+
+
+def test_a_broken_role_entry_stops_only_its_holders(tmp_path: Path) -> None:
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="role:auditor=tier9 alice=tier1a"\n'
+    with pytest.raises(ValueError, match="tier9 is not a defined tier"):
+        _role_access("erin", "auditor", text, tmp_path)
+    assert _role_access("alice", "auditor", text, tmp_path)["start"] == "tier1a"
+    assert not _role_access("frank", "", text, tmp_path)["listed"]
+    # A malformed role entry could be anyone's, so it stops every named owner.
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="role:=tier1a alice=tier1a"\n'
+    with pytest.raises(ValueError, match="role:<coder role>="):
+        _role_access("frank", "", text, tmp_path)
+
+
+def test_models_status_names_the_role_that_applied(tmp_path: Path) -> None:
+    rc, out, err, _ = _launch(
+        tmp_path,
+        "--models-status",
+        defaults=ROLE_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="clay",
+        CODER_WORKSPACE_OWNER_ROLES="auditor,user-admin",
+    )
+    assert rc == 0, err
+    assert (
+        "clay starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4 "
+        "(CCSESSION_ACCESS, role:user-admin)" in out
+    )
 
 
 def test_only_the_owners_broken_entry_stops_it(tmp_path: Path) -> None:
     for entry, why in (
-        ("bob=tier1:tier2,tier3", "start tier tier1 is not in its tier list"),
+        ("bob=tier1a:tier2,tier3", "start tier tier1a is not in its tier list"),
         ("bob=tier7", "tier7 is not a defined tier"),
         ("bob=tier2:tier2,tier9", "tier9 is not a defined tier"),
         ("bob=", "unknown tier"),
         ("bob=tier2:tier2,", "unknown tier"),
         ("bob=tier2:", "empty tier list"),
-        ("bob=tier2:tier2 BOB=tier1", "2 entries for bob"),
+        ("bob=tier2:tier2 BOB=tier1a", "2 entries for bob"),
     ):
-        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1 {entry}"\n'
+        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1a {entry}"\n'
         with pytest.raises(ValueError, match=why):
             _access("bob", text, tmp_path)
-        assert _access("alice", text, tmp_path)["start"] == "tier1"
+        assert _access("alice", text, tmp_path)["start"] == "tier1a"
 
 
 def test_a_stray_piece_of_the_value_stops_every_listed_owner(tmp_path: Path) -> None:
     """A space inside an entry leaves a piece that could be anyone's, so nobody
     with an owner name is treated as not listed (that would open every tier)."""
     for value in ("bob=tier2: tier2,tier3", "bob=tier2 :tier2,tier3", "bob=tier2;"):
-        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1 {value}"\n'
+        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1a {value}"\n'
         for owner in ("bob", "alice", "carol"):
             with pytest.raises(ValueError, match="is not <username>="):
                 _access(owner, text, tmp_path)
@@ -2047,7 +2156,9 @@ def test_access_lines_bash_accepts_never_open_every_tier(tmp_path: Path) -> None
     assert not _access("bob", TIER_BLOCK + guard + '""\n', tmp_path)["listed"]
     # Without whitespace a `#` is part of the value in bash ("a"#b is a#b), so
     # it is never dropped as a comment: the whole value is refused instead.
-    text = TIER_BLOCK + 'export CCSESSION_ACCESS="alice=tier2:tier2"#bob=tier1:tier1\n'
+    text = (
+        TIER_BLOCK + 'export CCSESSION_ACCESS="alice=tier2:tier2"#bob=tier1a:tier1a\n'
+    )
     for owner in ("alice", "bob", "carol"):
         with pytest.raises(ValueError, match="is not <username>="):
             _access(owner, text, tmp_path)
@@ -2119,7 +2230,7 @@ def test_a_byte_that_is_not_utf8_keeps_the_limits(tmp_path: Path) -> None:
     path = _defaults(tmp_path, ACCESS_BLOCK)
     path.write_bytes(b"# caf\xe9\n" + path.read_bytes())
     tenv = models.read_defaults_file(path)
-    assert tenv["CCSESSION_ACCESS"] == "Alice=tier1 bob=2:tier2,3"
+    assert tenv["CCSESSION_ACCESS"] == "Alice=tier1a bob=2:tier2,3"
     assert models.tier_mode(env={}, tenv=tenv)
 
 
@@ -2154,11 +2265,11 @@ def test_listed_user_starts_on_their_tier(tmp_path: Path) -> None:
         tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
     )
     assert rc == 0, err
-    assert _model_arg(seen) == "claude-gw-tier1[1m]" and seen["context"] == "850000"
+    assert _model_arg(seen) == "claude-gw-tier1a[1m]" and seen["context"] == "850000"
     rc, _, err, seen = _launch(
         tmp_path, "--shim", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
     )  # the untagged session the terminal starts on Enter
-    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1[1m]", err
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1a[1m]", err
     rc, _, err, seen = _launch(
         tmp_path,
         "work",
@@ -2196,17 +2307,17 @@ def test_limited_user_gets_only_their_tiers(tmp_path: Path) -> None:
     assert rc == 0 and _model_arg(seen) == "claude-gw-tier2[1m]", err
     # Window settings name only bob's tiers and their models.
     keys = json.loads(seen["settings"])["modelSettings"]
-    assert "claude-gw-tier3" in keys and "claude-gw-tier1" not in keys
+    assert "claude-gw-tier3" in keys and "claude-gw-tier1a" not in keys
     assert "claude-opus-5-5" not in keys
-    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier1", **bob)
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier1a", **bob)
     assert rc == 2 and seen is None
-    assert "tier1 is not available to bob (available: tier2, tier3)" in err
+    assert "tier1a is not available to bob (available: tier2, tier3)" in err
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "claude-opus-5-5", **bob)
     assert rc == 2 and seen is None
     assert "claude-opus-5-5 is not in a tier available to bob" in err
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "brand-new-model", **bob)
     assert rc == 2 and seen is None
-    for model in ("grok-4.7", "claude-gw-gpt-6-luna[1m]"):
+    for model in ("grok-4.7", "claude-gw-gpt-6.1-terra[1m]"):
         rc, _, err, seen = _launch(tmp_path, "work", "--model", model, **bob)
         assert rc == 0, err
 
@@ -2231,7 +2342,7 @@ def test_limited_user_may_name_a_suffixed_picker_id(tmp_path: Path) -> None:
 
 
 def test_broken_entry_stops_the_launch_with_the_reason(tmp_path: Path) -> None:
-    text = TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier1:tier2,tier3"\n'
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier1a:tier2,tier3"\n'
     for args in (
         ("work",),
         ("work", "--tier", "tier2"),
@@ -2241,7 +2352,7 @@ def test_broken_entry_stops_the_launch_with_the_reason(tmp_path: Path) -> None:
             tmp_path, *args, defaults=text, CODER_WORKSPACE_OWNER_NAME="bob"
         )
         assert rc == 2 and seen is None, args
-        assert "start tier tier1 is not in its tier list" in err
+        assert "start tier tier1a is not in its tier list" in err
 
 
 def test_help_lists_only_the_owners_tiers(tmp_path: Path) -> None:
@@ -2250,11 +2361,11 @@ def test_help_lists_only_the_owners_tiers(tmp_path: Path) -> None:
     )
     assert rc == 0, err
     assert "* ccsession --tier tier2" in out and "  ccsession --tier tier3" in out
-    assert "--tier tier0" not in out and "--tier tier1" not in out
+    assert "--tier tier0" not in out and "--tier tier1a" not in out
     rc, out, _, _ = _launch(
         tmp_path, "--help", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
     )
-    assert "* ccsession --tier tier1" in out and "  ccsession --tier tier0" in out
+    assert "* ccsession --tier tier1a" in out and "  ccsession --tier tier0" in out
 
 
 def test_models_status_reports_the_owners_access(tmp_path: Path) -> None:
@@ -2270,6 +2381,188 @@ def test_models_status_reports_the_owners_access(tmp_path: Path) -> None:
     assert "owner unknown" in out and "every tier" in out
 
 
+def test_shim_applies_the_owners_role(shim, tmp_path) -> None:
+    _, start, _ = shim
+    base = start(
+        ROLE_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="erin",
+        CODER_WORKSPACE_OWNER_ROLES="auditor",
+        CCSESSION_SHOW_ALL_MODELS="1",
+    )
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids[:2] == ["claude-gw-tier1a[1m]", "claude-gw-tier2[1m]"]
+    assert "claude-gw-tier0[1m]" not in ids and "claude-gw-tier3[1m]" not in ids
+    status, body = _ask(base, "claude-gw-tier3")
+    assert status == 400 and b"tier3 is not available to erin" in body
+
+
+def test_owner_roles_are_part_of_the_shim_settings() -> None:
+    """Two owners with different roles must not share one shim."""
+    one = models.settings_digest({"CODER_WORKSPACE_OWNER_ROLES": "auditor"}, {})
+    two = models.settings_digest({"CODER_WORKSPACE_OWNER_ROLES": ""}, {})
+    assert one != two
+
+
+# The workspace rules: anyone above member starts on Tier 1a with every tier and
+# each model listed; everyone else starts on Tier 2 with Tiers 2-4 only.
+MODEL_ORDER = (
+    "claude-fable-5-1 claude-opus-5-5 claude-sonnet-5-5 gpt-6-astra gpt-6.1-sol "
+    "gpt-6.1-terra gpt-6-luna muse-wonder-full-1.0 muse-wonder-1.0 muse-spark-1.3 "
+    "glm-5.3 grok-4.7 Qwen3.8-max"
+)
+RULES_BLOCK = TIER_BLOCK + (
+    'export CCSESSION_ACCESS=""\n'
+    'export CCSESSION_TIER_RULES="role:owner=tier1a+models role:user-admin=tier1a+models '
+    "role:template-admin=tier1a+models role:auditor=tier1a+models "
+    '*=tier2:tier2,tier3,tier4"\n'
+    f'export CCSESSION_MODEL_ORDER="{MODEL_ORDER}"\n'
+)
+EVERY_TIER = ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
+
+
+def test_tier_rules_give_roles_every_tier_and_members_tiers_2_to_4(tmp_path) -> None:
+    clay = _role_access("clay", "auditor,user-admin", RULES_BLOCK, tmp_path)
+    assert clay["start"] == "tier1a" and clay["allowed"] == EVERY_TIER
+    assert clay["models"] and clay["via"] == "role:user-admin"
+    assert clay["setting"] == "CCSESSION_TIER_RULES"
+    ryan = _role_access("ryan", "owner", RULES_BLOCK, tmp_path)
+    assert ryan["start"] == "tier1a" and ryan["models"]
+    for roles in ("", "member", "organization-member"):
+        member = _role_access("bruno", roles, RULES_BLOCK, tmp_path)
+        assert member["listed"] and member["via"] == "*"
+        assert member["start"] == "tier2" and not member["models"]
+        assert member["allowed"] == ["tier2", "tier3", "tier4"]
+    # A terminal that does not know its owner gets the * entry, never more.
+    unknown = _role_access("", "", RULES_BLOCK, tmp_path)
+    assert unknown["allowed"] == ["tier2", "tier3", "tier4"] and not unknown["models"]
+
+
+def test_tier_rules_replace_the_old_access_line(tmp_path) -> None:
+    """CCSESSION_ACCESS stays for older ccsession; when CCSESSION_TIER_RULES is
+    present, it alone decides (a username entry there still wins over roles)."""
+    text = TIER_BLOCK + (
+        'export CCSESSION_ACCESS="bruno=tier0"\n'
+        'export CCSESSION_TIER_RULES="bruno=tier1b:tier1b *=tier2:tier2,tier3,tier4"\n'
+    )
+    bruno = _role_access("bruno", "", text, tmp_path)
+    assert bruno["start"] == "tier1b" and bruno["allowed"] == ["tier1b"]
+    assert bruno["via"] == "" and not bruno["models"]
+    old = TIER_BLOCK + 'export CCSESSION_ACCESS="bruno=tier0"\n'
+    assert _role_access("bruno", "", old, tmp_path)["start"] == "tier0"
+
+
+def test_tier_rules_line_follows_the_one_line_rule(tmp_path) -> None:
+    for extra in (
+        'export CCSESSION_TIER_RULES="*=tier2"\nexport CCSESSION_TIER_RULES="*=tier0"\n',
+        'export CCSESSION_TIER_RULES="*=tier2"  # see CCSESSION_TIER_RULES\n'
+        "# CCSESSION_TIER_RULES is set above\n",
+        'CCSESSION_TIER_RULES+=" *=tier0"\n',
+    ):
+        with pytest.raises(
+            ValueError, match="CCSESSION_TIER_RULES must be set by one line"
+        ):
+            _role_access("bruno", "", TIER_BLOCK + extra, tmp_path)
+    for value in ("*=tier2 *=tier3", "*=tier2+models+models", "role:=tier2"):
+        text = TIER_BLOCK + f'export CCSESSION_TIER_RULES="{value}"\n'
+        with pytest.raises(ValueError):
+            _role_access("bruno", "", text, tmp_path)
+
+
+def test_older_ccsession_ignores_the_rules_line(tmp_path) -> None:
+    """Older copies treat any CCSESSION_..ACCESS name as their access line; the
+    rules setting must not look like one to them."""
+    for line in RULES_BLOCK.splitlines():
+        if "CCSESSION_TIER_RULES" in line or "CCSESSION_MODEL_ORDER" in line:
+            assert not models._names_access(re.sub(r"[\"'\\]", "", line)), line
+
+
+def test_member_launches_on_tier2_and_cannot_pick_tier1a(tmp_path) -> None:
+    rc, out, err, seen = _launch(
+        tmp_path, "work", defaults=RULES_BLOCK, CODER_WORKSPACE_OWNER_NAME="bruno"
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]" and seen["context"] == "500000"
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--tier",
+        "1a",
+        defaults=RULES_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bruno",
+    )
+    assert rc == 2 and seen is None
+    assert "tier1a is not available to bruno (available: tier2, tier3, tier4)" in err
+
+
+def test_role_holder_launches_on_tier1a_and_named_models_take_env_windows(
+    tmp_path,
+) -> None:
+    env = {
+        "CODER_WORKSPACE_OWNER_NAME": "clay",
+        "CODER_WORKSPACE_OWNER_ROLES": "auditor,user-admin",
+    }
+    text = RULES_BLOCK
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=text, **env)
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier1a[1m]" and seen["context"] == "850000"
+    for model, window in (("grok-4.7", "500000"), ("gpt-6.1-terra", "850000")):
+        rc, _, err, seen = _launch(
+            tmp_path, "work", "--model", model, defaults=text, **env
+        )
+        assert rc == 0, err
+        assert seen["context"] == window and _compact(seen, model) == int(window)
+
+
+def test_shim_lists_each_model_by_provider_for_role_holders(shim) -> None:
+    _, start, _ = shim
+    base = start(
+        RULES_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="clay",
+        CODER_WORKSPACE_OWNER_ROLES="auditor,user-admin",
+    )
+    listing = json.loads(urllib.request.urlopen(f"{base}/v1/models", timeout=5).read())[
+        "data"
+    ]
+    ids = [m["id"] for m in listing]
+    assert ids[:6] == TIER_IDS
+    assert [m["display_name"] for m in listing[6:]] == [
+        "Claude Fable 5.1",
+        "Claude Opus 5.5",
+        "Claude Sonnet 5.5",
+        "GPT 6 Astra",
+        "GPT 6.1 Sol",
+        "GPT 6.1 Terra",
+        "GPT 6 Luna",
+        "Muse Wonder Full 1.0",
+        "Muse Wonder 1.0",
+        "Muse Spark 1.3",
+        "GLM 5.3",
+        "Grok 4.7",
+        "Qwen 3.8 Max",
+    ]
+    assert listing[3]["display_name"].startswith("Tier 2: ")
+    assert _ask(base, "claude-gw-tier1a")[0] == 200
+
+
+def test_shim_gives_members_tiers_2_to_4_and_no_models(shim) -> None:
+    _, start, _ = shim
+    base = start(RULES_BLOCK, CODER_WORKSPACE_OWNER_NAME="bruno")
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids == ["claude-gw-tier2[1m]", "claude-gw-tier3[1m]", "claude-gw-tier4[1m]"]
+    status, body = _ask(base, "claude-gw-tier1a")
+    assert status == 400 and b"tier1a is not available to bruno" in body
+
+
 def test_shim_offers_and_routes_only_the_owners_tiers(shim, tmp_path) -> None:
     gateway, start, _ = shim
     base = start(
@@ -2282,14 +2575,14 @@ def test_shim_offers_and_routes_only_the_owners_tiers(shim, tmp_path) -> None:
         )["data"]
     ]
     assert ids[:2] == ["claude-gw-tier2[1m]", "claude-gw-tier3[1m]"]
-    assert "claude-gw-tier1[1m]" not in ids and "claude-opus-5-5[1m]" not in ids
-    status, body = _ask(base, "claude-gw-tier1")
-    assert status == 400 and b"tier1 is not available to bob" in body
+    assert "claude-gw-tier1a[1m]" not in ids and "claude-opus-5-5[1m]" not in ids
+    status, body = _ask(base, "claude-gw-tier1a")
+    assert status == 400 and b"tier1a is not available to bob" in body
     assert _ask(base, "claude-gw-tier3")[0] == 200
-    assert gateway.models_called() == ["gpt-6-luna"]
+    assert gateway.models_called() == ["gpt-6.1-terra"]
     # A changed entry applies to the running shim on the next request.
-    _defaults(tmp_path, ACCESS_BLOCK.replace("bob=2:tier2,3", "bob=1:1,2"))
-    assert _ask(base, "claude-gw-tier1")[0] == 200
+    _defaults(tmp_path, ACCESS_BLOCK.replace("bob=2:tier2,3", "bob=1a:1a,2"))
+    assert _ask(base, "claude-gw-tier1a")[0] == 200
     status, body = _ask(base, "claude-gw-tier3")
     assert status == 400 and b"tier3 is not available to bob" in body
 
