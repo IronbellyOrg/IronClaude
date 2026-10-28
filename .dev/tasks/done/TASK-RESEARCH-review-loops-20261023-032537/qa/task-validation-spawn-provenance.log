@@ -1,0 +1,2 @@
+INV-002: re-extracted verdict cycle=1 producer_mtime=2026-10-23T04:42:01.061970+00:00 producer_sha256=db415353fce1d6a06cdd27593bfabb9ff9072e4321c40796fdd7ea8ff1674453 block_sha256=78ccbb35ab17cd25c42ca7c1f2afe00a2b616eb5a3618d88e857fb0981200d5d
+INV-010: enumerated TB-Add-* catalogue size=7 ids=['TB-Add-1', 'TB-Add-3', 'TB-Add-4', 'TB-Add-5', 'TB-Add-6', 'TB-Add-7', 'TB-Add-8'] source=rf-qa.md source_sha256=a88d82031df119429a4a0553bcd7a412affcd16bc6d803036825c500d8231a60

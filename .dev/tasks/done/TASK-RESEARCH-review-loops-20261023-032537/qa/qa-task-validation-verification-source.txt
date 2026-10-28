@@ -1,0 +1,115 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-averify-research-task-48adb4b72f508686.jsonl:69
+| Status | Result |
+|---|---|
+| DONE | Independently verified the corrected task. All three original issues are resolved; all 27 integrity checks pass. |
+| NEXT | Main session must persist this report at the intended output path. No report file was written because developer instructions prohibit report writes. |
+
+# QA Report: Task Integrity Verification
+
+**Topic:** Research task integrity after three targeted corrections  
+**Date:** 2026-10-23  
+**Phase:** task-integrity  
+**Fix cycle:** 1  
+**Governing template:** Live rf-qa Output Format and task-builder A.10, checked against actual Template 02 and the live structural additions catalogue  
+**Fix authorization:** false
+
+**Task reviewed:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/TASK-RESEARCH-review-loops-20261023-032537.md`
+
+**Previous findings reviewed:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/qa-task-validation-consolidated.md`
+
+**Intended transcription destination, not written:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/qa-task-validation-verification.md`
+
+---
+
+## Overall Verdict: PASS
+
+VERDICT: PASS
+
+The corrected file’s observed SHA-256 is `36d1b9b0c28f7e0cfd45034d2653d2918400df6f0f9c47d9a36719d27330a750`, matching the reported correction target. The verdict comes from independent file inspection and mechanical checks, not the fixer’s report.
+
+## Items Reviewed
+
+| # | Check | Result | Evidence |
+|---|---|---|---|
+| 1 | Actual frontmatter schema | PASS | Parsed the actual YAML successfully and compared it with Template 02. Required populated task fields are present, including `created_date` and `template_schema_doc`. Did not impose absent legacy aliases such as `created`, `template` or `tracks`. |
+| 2 | Checklist format | PASS | Mechanical full-file inspection found 103 valid unchecked `- [ ]` items and no malformed checkbox variants. |
+| 3 | Single-paragraph, self-contained items | PASS | Read all 103 items. Each contains Context, Action/Output, Verify, concrete completion conditions and blocker handling in one paragraph. |
+| 4 | No nested checkboxes | PASS | Full-file inspection found no indented or alternative checkbox structures. All 103 items remain flat. |
+| 5 | Embedded agent instructions | PASS | Producer and reviewer items include role, assigned inputs, output destination, focused instructions, verification and failure handling. Template references supplement the operational prompts rather than replacing them. |
+| 6 | Independent parallel work | PASS | Research and synthesis review batches explicitly require same-message spawning. Sequential hypothesis-card dependencies remain ordered. Already-assigned case analysts are joined rather than duplicated. |
+| 7 | Required phase and completion structure | PASS | Phases 1-7 remain ordered. The exact named `#### Post-Completion Actions` heading is inside final Phase 7, with inventory, summary and status-update items beneath it. |
+| 8 | Output paths | PASS | Artifact-producing items retain explicit persistent destinations. The package-root resolution contract remains intact. Mechanical inspection found no unexpected unqualified Markdown filename tokens in checklist items. |
+| 9 | No context-only items | PASS | Every item produces or changes an artifact, performs a review or real protocol invocation, presents verified findings, or updates task state. Reading alone is not an item’s completion condition. |
+| 10 | Item atomicity | PASS | Individual producers and reviewer assignments remain separate. Cross-file correction passes retain the explicit single-writer constraint, rather than introducing unbounded multi-writer work. |
+| 11 | Within-phase producer-before-consumer ordering | PASS | Traced screening/cases to deck, cards to debate to ranking, assembly to report reviews, and source maps to partition reviews. Corrected directory-qualified consumer paths match their preceding producers. |
+| 12 | Duplicate operations | PASS | Mechanical inspection found 103 distinct item bodies. Repeated reviews have distinct lenses or follow an intervening production/correction step; no redundant identical operation was established. |
+| 13 | Durable verification | PASS | Verification leaves persistent review reports, correction logs, source maps and gate decisions. Code tests are correctly N/A for this research-only Markdown task. |
+| 14 | Honest completion conditions | PASS | Final completion requires real mandatory outputs and independently verified final-state gate passes. Bounded historical unknowns remain explicit; missing required artifacts or failed gates prevent Done. |
+| 15 | Phase and item dependencies | PASS | Logical progression remains preparation, research, research gate, external applicability, synthesis/debate, synthesis gate, assembly/report gates, fidelity, omission checks and completion. Corrected paths restore literal dependency connections. |
+| 16 | Execution-order simulation | PASS | Walked the producer/consumer sequence. No consumer requires a newly generated artifact before its producer. No function-signature migration or new keyword argument ordering is involved. |
+| 17 | Referenced implementation symbols | PASS | No production function/class implementation or signature change is required. Checked the cited adversarial command input surface and actual protocol purpose against installed files. |
+| 18 | Phase counts and numbering | PASS | Independently counted Phase 1: 2; Phase 2: 13; Phase 3: 15; Phase 4: 1; Phase 5: 27; Phase 6: 42; Phase 7: 3. Total: 103. Step numbering is contiguous. |
+| 19 | Quantitative structural claims and review floors | PASS | Ten research reviewers and ten synthesis reviewers remain encoded. Final-report review retains 11 baseline assignments with paired additions to 13/15 at the size thresholds. Four fidelity partitions, a separate contradiction reviewer and four omission partitions remain. |
+| 20 | Actual template cross-reference compliance | PASS | Read actual Template 02 frontmatter, named completion requirement and reviewer-size table, plus calling-skill gate and anti-orphaning rules. The nested completion heading satisfies the named-section requirement without orphaning completion outside Phase 7. |
+| 21 | Placeholder and title-only scan (TB-Add-1) | PASS | Mechanical inspection found no literal `TBD`, `TODO` or `FIXME` in any checklist item. Every item has its operational body. Preserved unfinished historical originals are explicitly raw evidence, not accepted finished deliverables. |
+| 22 | Open-question adjacency (TB-Add-3) | PASS | Open Questions describe historical uncertainty, live endpoints, persistence recovery and resolved protocol precedence. No presently blocked item depends on an unresolved user decision without identifying it. Missing required worker output remains a blocker. |
+| 23 | Circular dependencies (TB-Add-4) | PASS | Traced the item dependency chain through completion. No mutually dependent later/earlier prerequisite was found. Bounded correction and re-verification loops are control flow, not circular prerequisites. |
+| 24 | Oversized-item handling (TB-Add-5) | PASS | Producers and reviewers remain split into individual items. Serialized cross-file corrections carry the required single-fixer constraint; the real debate invocation is one integrated protocol operation. |
+| 25 | Verification formatting (TB-Add-6) | PASS | All 103 items consistently use `**Verify:**`. No conflicting Acceptance Criteria list format was introduced. |
+| 26 | Execution Context source areas (TB-Add-7) | PASS | `tb-add-7-degraded-tolerated`: the literal `**Source areas:**` line is absent. Additionally verified that all four named Source Areas reappear in item Context text and that the header contains no specific file:line citations. |
+| 27 | Context evidence binding (TB-Add-8) | PASS | All 103 Context fields contain evidence-absence comments or citations. The comments defer final source-range selection until prerequisite outputs, corrections or execution-time discovery are complete, and require real anchors before use. They do not invent final-state citations or claim nonexistent finished outputs. |
+
+## Summary
+
+- Checks passed: **27 / 27**
+- Checks failed: **0**
+- Critical issues: **0**
+- Remaining original issues: **0 / 3**
+- New task defects found: **0**
+- Issues fixed in-place by this reviewer: **0**
+- Previously passing checks preserved: **21 / 21**
+- Previously failing checks now passing: **6 / 6**, covering the three deduplicated original issues
+
+**Confidence:** Verified: 27/27 | Unverifiable: 0 | Unchecked: 0 | Confidence: 100.0%
+
+**Tool engagement:** Read: 13 | Grep: 0 | Glob: 0 | Bash: 6
+
+The Bash calls included focused `rg` discovery, content hashing and one read-only UV inspection for YAML, all checklist fields, counts, numbering, duplicates, unqualified filename tokens and header constraints. No tests, agents, task execution, edits or messages were run.
+
+**Tool-engagement limitation:** Read + Grep + Glob totals 13, below the checklist’s 27-item engagement heuristic. This is explicitly flagged; multiple criteria were checked against the same full-file Reads and mechanical inspection rather than adding redundant calls.
+
+**Unchecked items:** None.  
+**Unverifiable items:** None.
+
+## Issues Found
+
+No unresolved task-integrity issues were found within the assigned verification scope.
+
+| Original issue | Resolution verified |
+|---|---|
+| Incomplete consumer paths | Independent Markdown path tokens use the correct package-relative directory or an intentional package-root filename. Representative deck, synthesis, assembly and omission consumers match their producers. |
+| Missing Context evidence bindings | All 103 Context fields now have citations or evidence-absence explanations. Final-state source selections are deferred explicitly rather than assigned fabricated line numbers. |
+| Missing named completion section | `#### Post-Completion Actions` is nested inside final Phase 7. The three existing completion items retain their order and substantive gates. |
+
+## Actions Taken
+
+- Read the corrected task in full and the consolidated original findings.
+- Read the actual governing template sections and live structural additions catalogue.
+- Independently parsed YAML and checked all 103 checklist items.
+- Verified the corrected file hash.
+- Rechecked the previously passing structural requirements, review floors, serialized correction rules, gate dependencies and research-only boundaries.
+- Re-read final Phase 7 to confirm the named heading and gated completion actions.
+- Made no file changes.
+
+This review does not validate the empirical case findings or claim that the research task has executed.
+
+## Recommendations
+
+Accept this task-integrity correction cycle and proceed to the calling task-builder’s next validation stage. First persist this exact returned report at the intended transcription destination; this response alone does not establish an on-disk report artifact.
+
+## QA Complete
+
+VERDICT: PASS

@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designV2-20261020-132032
+plan_path: ./TASK-WF-designV2-20261020-132032.md
+source_path: ./source.md
+source_origin: /config/workspace/IronClaude/.dev/designs/auggie-claim-gate/design-v3.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /config/workspace/IronClaude/.dev/reflect/pre-TASK-WF-designV2-20261020-132032-20261020171136/REPORT.md
+unresolved:
+  - "The pre-execution review (reflect_report_path) ran against plan version 1 and specification revision 2 and did not approve them. Plan version 2 and specification revision 3 apply its findings; on 2026-10-20 the user accepted them for implementation without a further review cycle. They have not been independently re-reviewed."
+  - "source.md was replaced in place with a byte-exact copy of design-v3.md (sha256 bfef5e121eb71586827339ce1a144cb8fccc0e0d6ce276c559f631fcbfb8c9de) and the plan was amended in place, both on explicit user instruction; the revision 2 text is preserved as /config/workspace/IronClaude/.dev/designs/auggie-claim-gate/design-v2.md."

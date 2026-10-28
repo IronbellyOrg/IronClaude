@@ -1,0 +1,703 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+SOURCE agent-ascan-sessions-01-033fec55d74e7a9e.jsonl
+AUTHORED_REPORT RAW_LINE 23 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-01.md 
+ # Research: Review-loop scope discovery, sessions 01-06
+
+**Investigation type:** Pattern Investigator
+**Scope:** Session manifest indexes 01-06 only; index 03 excluded as a positive case
+**Status:** In Progress
+**Date:** 2026-10-23
+
+---
+
+## Method and session inventory
+{{RF_PLACEHOLDER:inventory}}
+
+## Session evidence
+{{RF_PLACEHOLDER:sessions}}
+
+## Candidate incidents and handoff paths
+{{RF_PLACEHOLDER:candidates}}
+
+## Gaps and Questions
+{{RF_PLACEHOLDER:gaps}}
+
+## Stale Documentation Found
+{{RF_PLACEHOLDER:stale}}
+
+## Summary
+{{RF_PLACEHOLDER:summary}}
+
+AUTHORED_REPORT RAW_LINE 39 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-01.md 
+ The manifest freezes membership, not file contents. Parsed assigned top-level JSONL files with `uv run python`, keeping original physical JSONL line numbers and timestamps. Counted actual command-tag user messages, `Skill`/`Agent` tool calls, returned review results, and assistant narrative. Injected skills/rules, quoted examples, tool-file contents, and resumed-context summaries are not independent events. Focused excerpts were printed, never full raw logs. Files remained live while screened.
+
+| Index | Session ID / project | Screened timestamp span (UTC) | Original lines observed | Classification |
+|---|---|---|---:|---|
+| 01 | `6f744b87-6508-4d3e-9e71-c1193fd2162d`, Coder issue-358 worktree | 2026-10-22 21:12:33 to 2026-10-23 03:27:42 | 1077 | Yes: repeat cannot-verify on implementation Task 6; Task 2 reviewer dispute. Also later workflow advisory gaps, not yet a loop. |
+| 02 | `eabc78ed-0538-486a-a51b-744d73b9cb24`, Coder orca-upstream-tracking | 2026-10-22 19:26:21 to 2026-10-23 03:28:10 | 1517 | No for requested command loop: troubleshoot/adversarial investigation, no workflow or implement invocation. |
+| 03 | `bbddbf85-99f2-4caf-a47f-a402da4f09de`, IronClaude | Not read | Not counted | Explicitly excluded: current investigation. |
+| 04 | `43582de1-c41b-4b6a-806c-f19f1488095c`, IronClaude | 2026-10-22 21:13:48 to 2026-10-23 03:24:28 | 822 | Yes: workflow plan not-ready, regeneration, new review findings. |
+| 05 | `e002bed2-7877-42c1-8665-8cb8595587b6`, Coder orca-upstream-tracking | 2026-10-22 19:29:11 to 2026-10-23 03:16:00 | 1237 | Yes, strongest: implementation Task 12 repeatedly fixed and re-reviewed with new missing findings and halts. |
+| 06 | `99d5f896-a262-440a-9f54-d404557fd8bc`, Coder | 2026-10-02 19:32:41 to 20:34:09 | 474 | No: adversarial proposal debate, no workflow or implement invocation. |
+
+All five screened source files exist; index 03 was intentionally not opened. Top-level source paths are exactly those in `session-manifest.txt` indexes 01-06.
+
+**Key Takeaways**
+- Three positive candidate sessions: 01, 04, 05. Session 05 contains multiple rounds of the same incident, not multiple independent incidents.
+- Shared Coder worktree does not imply session 02 and session 05 are the same review process: 02 diagnoses PR 362 findings while 05 implements the monitor plan.
+AUTHORED_REPORT RAW_LINE 46 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-01.md 
+ The manifest freezes membership, not file contents. Parsed assigned top-level JSONL files with `uv run python`, keeping original physical JSONL line numbers and timestamps. Counted actual command-tag user messages, `Skill`/`Agent` tool calls, returned review results, and assistant narrative. Injected skills/rules, quoted examples, tool-file contents, and resumed-context summaries are not independent events. Focused excerpts were printed, never full raw logs. Files remained live while screened.
+
+| Index | Session ID / project | Screened timestamp span (UTC) | Original lines observed | Classification |
+|---|---|---|---:|---|
+| 01 | `6f744b87-6508-4d3e-9e71-c1193fd2162d`, Coder issue-358 worktree | 2026-10-22 21:12:33 to 2026-10-23 03:27:42 | 1077 | Yes: repeat cannot-verify on implementation Task 6; Task 2 reviewer dispute. Also later workflow advisory gaps, not yet a loop. |
+| 02 | `eabc78ed-0538-486a-a51b-744d73b9cb24`, Coder orca-upstream-tracking | 2026-10-22 19:26:21 to 2026-10-23 03:28:10 | 1517 | No for requested command loop: troubleshoot/adversarial investigation, no workflow or implement invocation. |
+| 03 | `bbddbf85-99f2-4caf-a47f-a402da4f09de`, IronClaude | Not read | Not counted | Explicitly excluded: current investigation. |
+| 04 | `43582de1-c41b-4b6a-806c-f19f1488095c`, IronClaude | 2026-10-22 21:13:48 to 2026-10-23 03:24:28 | 822 | Yes: workflow plan not-ready, regeneration, new review findings. |
+| 05 | `e002bed2-7877-42c1-8665-8cb8595587b6`, Coder orca-upstream-tracking | 2026-10-22 19:29:11 to 2026-10-23 03:16:00 | 1237 | Yes, strongest: implementation Task 12 repeatedly fixed and re-reviewed with new missing findings and halts. |
+| 06 | `99d5f896-a262-440a-9f54-d404557fd8bc`, Coder | 2026-10-02 19:32:41 to 20:34:09 | 474 | No: adversarial proposal debate, no workflow or implement invocation. |
+
+All five screened source files exist; index 03 was intentionally not opened. Top-level source paths are exactly those in `session-manifest.txt` indexes 01-06.
+
+**Key Takeaways**
+- Three positive candidate sessions: 01, 04, 05. Session 05 contains multiple rounds of the same incident, not multiple independent incidents.
+- Shared Coder worktree does not imply session 02 and session 05 are the same review process: 02 diagnoses PR 362 findings while 05 implements the monitor plan.
+AUTHORED_REPORT RAW_LINE 67 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-01.md 
+ ### Session 01: issue-358 follow-up implementation
+
+Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/6f744b87-6508-4d3e-9e71-c1193fd2162d.jsonl`.
+
+| Original JSONL line | UTC timestamp | Actual event / concise evidence |
+|---:|---|---|
+| 14, 42 | 2026-10-22 21:12:42, 21:12:43 | User invokes `/sc:implement .dev/tasks/to-do/TASK-WF-issue358FollowUp-20261022-210638/TASK-WF-issue358FollowUp-20261022-210638.md`; actual implementation skill call follows. |
+| 204 | 21:16:03 | Task 2 returned reviewer verdict `extra`: diff also rewrites shell-env fan-out and header; reviewer explicitly notes these may be earlier edits and cannot establish provenance from diff alone. |
+| 222 | 21:16:20 | Implementer sends same reviewer a narrowed task diff, preserving the full HEAD-relative diff beside it: `Your "extra" finding is a baseline artifact.` This is an evidence/scope correction, not a source fix. |
+| 234 | 21:16:31 | Same reviewer returns `compliant`, but explicitly says: `I did not check whether those two hunks were already uncommitted ... I'm relying on your account for that.` |
+| 430 | 21:19:57 | Task 6 reviewer returns `cannot-verify`: man executable exists but `man -l` only prints a minimized-image notice; no page render occurred. Other text/copy checks met. |
+| 443 | 21:20:14 | Implementer re-requests review with `t6-fix-evidence.log`: `No text change was needed`; adds static macro/format evidence, acknowledges absent renderers. |
+| 450 | 21:20:22 | Same reviewer returns `cannot-verify (unchanged)`: `The new log does not settle the render half of AC2.` Explicitly asks for actual render or operator ruling. |
+| 496 | 21:21:06 | Implementer stops with `E-HALT-QA`, says two cannot-verify results, asks operator to accept unverified render check. |
+| 498, 503, 506 | 21:22:48, 21:22:51, 21:22:58 | Operator initially says `accept t7`; implementer refuses wrong task identity; operator corrects to `yes, accept t6 as explained`. |
+| 527, 539 | 21:24:08, 21:24:18 | Fresh whole-package review returns `pass` with accepted render gap still explicit; package archived. |
+| 915, 927 | 2026-10-23 03:25:50, 03:25:53 | Later actual `/sc:workflow` skill call from PR-365 troubleshoot remediation source. |
+| 1076 | 03:27:42 | Later plan advisory review finds two gaps (underspecified negative fixture, source note not mapped to task), but no regeneration/fix/re-review visible at this screen. Do not count as a completed second loop. |
+
+**Incident identity:** issue358FollowUp / Task 6 / man-page render acceptance. Separate minor resolved scope dispute: same package / Task 2 / dirty-baseline diff. These are not the subsequent PR monitor timeout or subsequent PR-365 remediation plan.
+
+**Key Takeaways**
+- Positive repeat-review case, but Task 6 repeats the same unverifiable criterion, not successive newly discovered code defects.
+- Task 2 passes after changing review input; reviewer does not independently verify baseline provenance.
+
+### Session 02: PR-362 troubleshooting, negative control
+
+Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/eabc78ed-0538-486a-a51b-744d73b9cb24.jsonl`.
+
+Actual calls are troubleshoot at original lines 44/57 (2026-10-22 19:28:25/30) and adversarial comparison at line 559 (20:14:06). No actual workflow or implement invocation appears in the screened real messages/tool calls. The assistant says at line 1263 (21:47:09) that the diagnosis is partial and `No fixes ... No task or plan package was created.` This run also documents an accidental scratch-test commit into the shared real worktree (line 460, 19:57:56), later traced to an inner heredoc prematurely ending an outer script (line 1162, 21:43:28). That is separate from requested planning/execution review loops. Its mention of another session changing `progress.md` at line 615 (20:45:36) is cross-session interference, not its own implementation event.
+
+**Key Takeaways**
+- Classification no: substantial review/debate content but wrong command family and no fix/re-review implementation sequence here.
+- Same worktree as session 05; preserve as interference context only if the Task 12 analyst needs it.
+
+{{RF_PLACEHOLDER:remaining-sessions}}
+AUTHORED_REPORT RAW_LINE 74 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-01.md 
+ ### Session 03: current investigation excluded
+
+No source content read. Excluded rather than classified from keyword hits, because it contains the investigation prompt and copied commands rather than an independent historical case.
+
+**Key Takeaways**
+- Not a positive case and not a negative historical control.
+
+### Session 04: workflow CI-follow-up plan regeneration
+
+Source: `/config/.claude/projects/-config-workspace-IronClaude/43582de1-c41b-4b6a-806c-f19f1488095c.jsonl`.
+
+| Original JSONL line | UTC timestamp | Actual event / concise evidence |
+|---:|---|---|
+| 69/75 | 2026-10-22 21:15:45/47 | Actual workflow call on `@.dev/proposals/ci-followup-20261022/spec.md --depth standard --handoff none`. |
+| 170 | 21:18:22 | Built-in pre-execution reflect invoked against generated `TASK-WF-spec-20261022-211556` plan. |
+| 342 | 21:29:18 | QA reviewer returns findings including weak README keyword checks and ambiguity over git stub delegation; reviewer narrative later calls plan `not ready`. |
+| 493 | 21:34:52 | Round-2 advocate changes from ready-with-notes to `not ready`: Tasks 5, 6, 8 checks accept wrong edits. New finding: Task 9 scope check rejects review tooling output. |
+| 623 | 21:46:39 | Workflow reports structure checks pass but readiness `not ready`; lists 18 concerns, asks refactor or accept. Examples: unchanged sync body not compared, stub git must delegate non-push commands, checks too broad or keyword-only. No implementation invocation, only a suggested command. |
+| 627 | 2026-10-23 03:16:29 | Actual operator response: `refactor`. |
+| 651 | 03:17:15 | Writes review-notes file; combined source preserves original spec and appends review feedback. |
+| 663/670 | 03:17:19/21 | Actual second workflow call on `spec-r1.md`, creates separate `TASK-WF-specR1-20261023-031725` package. |
+| 733 | 03:20:03 | Second reflect skill call against regenerated plan. |
+| 801 | 03:22:18 | Tier-1 calibrator scores 0.67; says previous 18 findings not checked by Tier-1 card, rename-recording note still missing. |
+| 810, 821 | 03:24:19, 03:24:28 | Returned analyzer review and implementer summary: 16 prior findings fixed, 2 partly fixed; 4 new medium findings: tooling exclusions missing from hash check, missing head-filter check on PR list, absent whole-file boundary-guard comparison, scope whitelist allows other workflows. Overall reviewer says ready-with-notes, not a final merged readiness pass. |
+| 825 | 03:28:56 | During screening the live log grows: second cycle QA reviewer returns additional issues including dependency ancestry and overly broad workflow whitelist. |
+| 845 | 03:30:00 | Reviewer-1 calibration independently retains several new issues; merged cycle-1 report still not observed at the focused screen. |
+
+**Incident identity:** CI-followup / original workflow package plus its first regenerated package. One plan-repair incident with repeated review, not two independent cases. No actual `/sc:implement` call observed in this session; its occurrences in final advice are not execution.
+
+**Key Takeaways**
+- Positive planning-loop case: reviewed-not-ready plan, explicit operator refactor, regeneration, new defects in the next review.
+- Do not equate structural validation success or reviewer-ready-with-notes with a clean final review.
+
+### Session 05: Orca monitor implementation Task 12, strongest candidate
+
+Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/e002bed2-7877-42c1-8665-8cb8595587b6.jsonl`.
+
+| Original JSONL line | UTC timestamp | Actual event / concise evidence |
+|---:|---|---|
+| 14/40 | 2026-10-22 19:29:17/22 | Actual `/sc:implement` invocation and implementation skill call on `TASK-WF-designSpec-20261022-132541`. |
+| 270, 312, 487 | 19:39:12, 19:39:53, 19:45:05 | Earlier Task 10 returns `extra`, two fixes applied, re-review compliant; proceeds to Task 11. Separate bounded local repair, not the prolonged Task 12 incident. |
+| 528/531, 693 | 19:48:55/59, 19:59:23 | Task 11 reviewer findings fixed (patch-port fixture and assertions); re-review passes, Task 12 starts. |
+| 685 | 19:59:15 | Starts Task 12 independent review of new `.github/workflows/orca-upstream-monitor.yml`, against original plan, source, 18-field PR-body requirements. |
+| 697 | 20:10:58 | Returned reviewer says `Task 12 is not compliant`: collectors silently emit empty/zero data on upstream fetch failure rather than UNAVAILABLE, missing error/summary paths, missing old-provenance status. |
+| 797/800 | 20:13:09/13 | Fix pass and re-review request. Explicit range fetch checks, error traps, unknown old provenance; sends same reviewer back. |
+| 804 | 20:19:54 | Returned re-review: `Your three fixes held, but I found one new defect ... and one small leftover.` New equal/older-tag range error; supersede listing failure swallowed. |
+| 817 | 20:20:17 | Blocks with `missing` after one allowed fix pass, `E-HALT-QA`. |
+| 820, 842 | 20:26:30, 20:27:08 | Operator `fix`; second targeted pass on range semantics and supersede error propagation, re-review requested. |
+| 849 | 20:33:49 | Same original reviewer returns `compliant`, says two remaining defects fixed and no regression. |
+| 893/902 | 20:34:43/48 | Protocol updated during run; blocked task without retry record now receives a fresh operator reviewer before completion. New reviewer starts from original spec rather than previous repair record. |
+| 906/913 | 20:46:07/34 | Fresh reviewer returns `missing`: missing-patch detect fails without summary; blank-only release notes; range upper bound absent from fetched list; carriage-return quote handling. Implementer logs another halt. |
+| 921, 1009/1017 | 21:06:20, 21:08:27/32 | Operator `fix`; four issues fixed, another fresh reviewer spawned. |
+| 1021/1041 | 21:27:34/54 | Fresh reviewer confirms earlier fixes, returns `missing`: early pin job failure has no summary; large collector JSON passed through argv exceeds OS limit (`jq: Argument list too long`, reproduced with 89 tags). Minor related fields also noted. |
+| 1044, 1131/1139 | 21:34:21, 21:36:47/51 | Operator `fix`; adds always-run summary and file-backed collector JSON, checks 140-tag input; fresh re-review. |
+| 1143/1150 | 21:49:17/33 | Reviewer confirms prior pass, returns `missing`: detect checkout/timeout lacks fallback summary; two provenance values lack shape checks; smaller security-term match, field-size cap, presentation issues. Another halt. |
+| 1153, 1228/1236 | 2026-10-23 03:14:12, 03:15:55/03:16:00 | Operator `fix`; adds detect fallback, provenance checks, Vulnerability match and cap; fresh review launched. No returned round-4 verdict observed at the screen through line 1237. |
+
+**Incident identity:** designSpec-20261022-132541 / Task 12 / Orca upstream monitor workflow. Keep all Task 12 rounds under one incident even when operator repeatedly says fix. Task 10 and Task 11 are distinct short repair sequences within the same package. Same Task 12 reviewer initially failed twice then passed; subsequent protocol-driven fresh reviews find new issues, so this is not repeated rejection of one unchanged defect.
+
+**Key Takeaways**
+- Positive implementation-loop case with explicit returned review evidence, actual fixes, operator reauthorization, newly discovered failures, and repeated halts.
+- Reviewer and implementer repeatedly agree structural checks pass, while behavior and failure-path defects remain.
+- Final reviewed outcome remains unknown at screened endpoint; do not claim the latest fixes passed.
+
+### Session 06: proposal comparison, negative control
+
+Source: `/config/.claude/projects/-config-workspace-Coder/99d5f896-a262-440a-9f54-d404557fd8bc.jsonl`.
+
+Actual skills at original lines 32/42 (2026-10-02 19:32:56/59) run adversarial comparison of micro-first versus macro-first proposals. Assistant updates recommendation after user answers at lines 231 (19:49:09), 368 (20:23:04), and 467 (20:31:06). These are proposal-scoring and sequencing refinements, not workflow plan generation or implementation QA. No actual workflow or implement invocation appears.
+
+**Key Takeaways**
+- Classification no. Review/debate words and repeated edits are insufficient without the requested command/review/fix sequence.
+
+SOURCE agent-ascan-sessions-03-589103c2e577cfd2.jsonl
+AUTHORED_REPORT RAW_LINE 25 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ # Research: Review-loop session scope, indexes 13-18
+
+**Investigation type:** Pattern Investigator
+**Scope:** session-manifest.txt indexes 13-18 only
+**Status:** In Progress
+**Date:** 2026-10-23
+
+---
+
+## Method and evidence boundaries
+{{RF_PLACEHOLDER:method}}
+
+## Session inventory
+{{RF_PLACEHOLDER:inventory}}
+
+## Session findings
+{{RF_PLACEHOLDER:findings}}
+
+## Candidate incident register
+{{RF_PLACEHOLDER:incidents}}
+
+## Gaps and Questions
+{{RF_PLACEHOLDER:gaps}}
+
+## Stale Documentation Found
+{{RF_PLACEHOLDER:stale}}
+
+## Summary
+{{RF_PLACEHOLDER:summary}}
+
+AUTHORED_REPORT RAW_LINE 44 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ | Manifest index | Session ID | Initial screening result |
+|---|---|---|
+| 13 | c444c002-20df-4745-8f95-2254c4d3086f | Positive workflow invocation at original JSONL line 15, 2026-10-22T15:10:48.373Z. Issue #358 shell token plan. User accepts five plan changes; implementation occurs in session 15. No implement invocation in this session. |
+| 14 | 10cacee5-9821-461e-89b4-903837da3b8b | Positive workflow Skill call at line 51, 2026-10-22T20:43:55.671Z. Issue #358 follow-up plan. One citation validator, then user requests Task 4 fix. No implement invocation found. |
+| 15 | 0690ee9f-c2f6-40ef-96be-1a0913a37866 | Positive operational implement at line 15 and line 818; two separate issue #358 plan executions, including failed final reviews and re-reviews. Highest-priority candidate in this partition. |
+| 16 | 97c47129-146b-4227-a0db-9830352b81aa | Negative workflow/implement invocation screen. Retry-ladder follow-up fix, merge and cleanup, not an operational execution. |
+| 17 | 0f6383e1-533a-428c-aee4-18e6ddfb4aef | Positive actual implement invocation at line 15, 2026-10-22T12:03:04.399Z. Implements retry-ladder feature itself. Operational Task 8 re-review and final-review failure must be separated from later PR #277 feature-development review. |
+| 18 | 5290b7ae-b9be-47ad-951d-ac7c63411061 | Negative workflow/implement invocation screen. Analyze/rewrite-script work, PR #278 monitor and troubleshoot. Review activity exists but outside target command execution. |
+
+**Key Takeaways**
+- Four sessions have actual workflow or implement calls; two have no such operational invocation.
+- Same issue #358 package spans sessions 13 and 15 and must not become duplicate incidents.
+AUTHORED_REPORT RAW_LINE 51 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ | Manifest index | Session ID | Initial screening result |
+|---|---|---|
+| 13 | c444c002-20df-4745-8f95-2254c4d3086f | Positive workflow invocation at original JSONL line 15, 2026-10-22T15:10:48.373Z. Issue #358 shell token plan. User accepts five plan changes; implementation occurs in session 15. No implement invocation in this session. |
+| 14 | 10cacee5-9821-461e-89b4-903837da3b8b | Positive workflow Skill call at line 51, 2026-10-22T20:43:55.671Z. Issue #358 follow-up plan. One citation validator, then user requests Task 4 fix. No implement invocation found. |
+| 15 | 0690ee9f-c2f6-40ef-96be-1a0913a37866 | Positive operational implement at line 15 and line 818; two separate issue #358 plan executions, including failed final reviews and re-reviews. Highest-priority candidate in this partition. |
+| 16 | 97c47129-146b-4227-a0db-9830352b81aa | Negative workflow/implement invocation screen. Retry-ladder follow-up fix, merge and cleanup, not an operational execution. |
+| 17 | 0f6383e1-533a-428c-aee4-18e6ddfb4aef | Positive actual implement invocation at line 15, 2026-10-22T12:03:04.399Z. Implements retry-ladder feature itself. Operational Task 8 re-review and final-review failure must be separated from later PR #277 feature-development review. |
+| 18 | 5290b7ae-b9be-47ad-951d-ac7c63411061 | Negative workflow/implement invocation screen. Analyze/rewrite-script work, PR #278 monitor and troubleshoot. Review activity exists but outside target command execution. |
+
+**Key Takeaways**
+- Four sessions have actual workflow or implement calls; two have no such operational invocation.
+- Same issue #358 package spans sessions 13 and 15 and must not become duplicate incidents.
+AUTHORED_REPORT RAW_LINE 66 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ ### Sessions 13 and 14: actual workflow plans, corrections without another semantic review
+
+All times below are original JSONL timestamps, not filesystem times. Original JSONL lines are cited; excerpts are decoded message text, not giant serialized lines.
+
+**Session 13 source:** `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/c444c002-20df-4745-8f95-2254c4d3086f.jsonl`.
+- L15, 2026-10-22T15:10:48.373Z: actual `/sc:workflow` command, issue #358 five-key overwrite, `--depth quick`.
+- L364, 15:24:24.207Z: "The merged verdict fails the plan on three acceptance checks"; overwrite checks covered one key, man-page check accepted any one name, README troubleshooting row missing.
+- L389, 15:25:42.633Z: plan package `TASK-WF-issue358InTempla-20261022-151058`, review report `.dev/reflect/pre-issue358-20261022151210/REPORT.md`, "The plan covers everything you asked for, but the review failed it."
+- L392, 15:30:37.609Z: user "apply 5 changes". L406-L420: actual plan Edit calls.
+- L435, 15:31:25.623Z: "I didn't re-run the review on the revised plan." Only format check reran. Implementation is session 15, same package, not a separate repeated-failure incident.
+
+**Session 14 source:** `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/10cacee5-9821-461e-89b4-903837da3b8b.jsonl`.
+- L51, 2026-10-22T20:43:55.671Z: actual `Skill sc:workflow-protocol`, follow-ups from `TASK-WF-issue358FollowUp-20261022-193837/artifacts/t17-followups.md`.
+- L275, 20:50:38.271Z: `Skill sc:reflect-protocol --mode pre`, new package `TASK-WF-reviewAndPlanThe-20261022-204721`.
+- L344, 20:52:56.695Z: "advisory review ran only as an abbreviated first pass and found five minor issues"; Task 4 acceptance bullet cannot be checked and contradicts its Surface 1 string change.
+- L346, 20:55:36.671Z: user requests Task 4 fix and decision preset. L360-L366 actual plan edits.
+- L371, 20:56:05.203Z: old review report left unchanged; no new semantic review or implement call observed.
+
+**Key Takeaways**
+- Both are genuine workflow invocations, but neither demonstrates review, fix, second failed review by itself.
+- The issue #358 initial plan in session 13 is the input to the first implement run in session 15.
+
+### Session 15: issue #358 operational implementation, two final-review incidents
+
+**Source:** `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866.jsonl`.
+
+**First package, final-review evidence failure (incident `review-loop:issue358InTempla:final:20261022`).**
+- L15, 2026-10-22T15:32:02.303Z: actual `/sc:implement .dev/tasks/to-do/TASK-WF-issue358InTempla-20261022-151058/TASK-WF-issue358InTempla-20261022-151058.md`; L36 actual protocol Skill call.
+- L375, 15:43:26.516Z: fresh final reviewer after four task reviewers.
+- L390, 15:44:52.068Z: `FINAL: issues evidence=./progress.md:8`; state digest unchanged during review.
+- L393, 15:44:57.271Z: "Task 3 ledger line ... cites README.md:161 as proof that markdownlint reports no new findings. Line 161 is a table separator row ... and there is no markdownlint log"; append-only/closed task rule prompts user authorization.
+- L396, 15:51:38.336Z: user reopens Task 3 evidence only.
+- L411, 15:51:55.456Z: actual lint comparison output, before 28, after 28, zero findings on changed lines. L415: corrected Task 3 progress line appended.
+- L419, 15:52:16.384Z: second fresh final reviewer.
+- L435, 15:54:23.570Z: `FINAL: pass`, archive helper `status=archived`, exit 0; L438 confirms done package.
+- Historical artifact root: `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/`; key paths `progress.md`, `artifacts/t3-markdownlint.log`.
+
+**Follow-up plan regeneration, not another implementation failure.**
+- L592, 18:53:50.673Z: actual workflow Skill invocation for docs follow-up, first package `TASK-WF-issue358FollowUp-20261022-185406`.
+- L762, 19:35:39.535Z: "review found real gaps ... isn't safe to run"; missing stale strings, closing sweep, impossible comment-only check, rotation wording, and startup-card issue. "The review's own report file wasn't written"; verdict at `.dev/reflect/pre-issue358followup-20261022190016/adversarial/merged-verdict.yaml`.
+- L764, 19:38:01.081Z: user "regenerate".
+- L817, 19:40:25.443Z: second plan format passed; "Its own review was skipped on purpose". L818, 19:40:25.935Z actual implement Skill call for `TASK-WF-issue358FollowUp-20261022-193837`.
+
+**Second package, repeated final evidence failures (incident `review-loop:issue358FollowUp193837:final:20261022`).**
+- L1916, 20:16:10.434Z: final reviewer after 17 task reviews.
+- L1932, 20:20:36.570Z: `FINAL: issues` citing operator doc, startup script and progress.
+- L1935, 20:20:43.704Z: operator table lint total unchanged at 123, but literal "no finding on a changed line" criterion fails preexisting findings on changed rows. Also stale ledger citations for Tasks 7, 8, 17.
+- L1938, 20:25:19.428Z: user "accept and fix".
+- L1969, 20:25:54.487Z: corrected Task 7/8/17 evidence appended; owner acceptance file `artifacts/t6-owner-acceptance.md` recorded in L1987.
+- L1979, 20:26:21.231Z: second fresh final review.
+- L2012, 20:31:49.683Z: `T10: BLANK ./artifacts/t10-markdownlint.log:10-10`, `tokens checked; problems: 1`.
+- L2028, 20:32:18.558Z: "The second final review found one more bad evidence line number ... Task 10's markdownlint citation pointed at a blank line"; corrected Task 10 and Task 7 evidence, and admits this exceeded literal authorization for Tasks 7, 8, 17. No delivery file changed.
+- L2020, 20:32:13.997Z: third fresh final reviewer (dispatched before explanatory L2028).
+- L2036, 20:37:22.846Z: `FINAL: pass`, archive `status=archived`, exit 0. L2052 confirms completion and still-open follow-ups.
+- Historical artifact root: `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/`; key paths `progress.md`, `artifacts/t6-owner-acceptance.md`, `artifacts/t10-markdownlint.log`, `artifacts/t17-followups.md`.
+
+**Key Takeaways**
+- This session supplies one fail-fix-pass final-review incident and one fail-fix-fail-fix-pass final-review incident, on distinct packages.
+- Plan regeneration and skipped second-plan reflection are separate workflow facts, not extra implementation retries.
+
+### Session 17: operational run building retry ladder, distinct from later feature-development PR reviews
+
+**Source:** `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef.jsonl`.
+- L15, 2026-10-22T12:03:04.399Z: actual `/sc:implement` for `TASK-WF-mergedEscalating-20261022-015540`; L36 actual protocol Skill.
+- L818, 12:33:00.858Z: Task 8 reviewer. L832, 12:36:05.793Z: "Reviewer found one real deviation: my verify step skips fixed exclusions where the design says outside the domain of now".
+- L836-L858: actual fix edits and regression test; L865, 12:36:36.284Z: 89 passed.
+- L868, 12:36:55.368Z: fresh Task 8 re-review. L876 summarizes first verdict `misunderstood`, one allowed fix pass. Later L1295 confirms Task 8 eventually compliant. This is a normal task fail-fix-pass, not evidence of multiple failed retries (`review-loop:mergedEscalating:T8:20261022`).
+- L1276, 12:54:17.142Z: first whole-package final reviewer. L1291, 13:02:00.408Z: `FINAL: issues`, unchanged state digest.
+- L1295, 13:02:15.390Z: 10 stale ledger citations after later edits, wrong touched-file rule pointer, and real artifact-restore bug: original `report.dup-1` restored as `report`. Package stays to-do.
+- L1301, 13:16:31.492Z: user authorizes brainstorms and fixes. L1310/L1312: two brainstorm agent calls.
+- L1751, 14:24:19.862Z: second final reviewer. L1759: fixes include preserving collision path basenames and final review judging current end state rather than moved line numbers alone.
+- L1770, 14:29:07.696Z: second final review passed. L1777, 14:29:11.199Z: archive helper `status=archived`, exit 0 (`review-loop:mergedEscalating:final:20261022`).
+- L1801 onward starts user-directed commit/push/PR monitor. L1807 is `sc-pr-submit-protocol --monitor 3`. Later verification, troubleshoot, pushed-fix QA, and PR #277 threads are FEATURE-DEVELOPMENT reviews, not additional operational implement retries. Do not count them as this incident's failed attempts.
+- Historical package root: `/config/workspace/IronClaude/.dev/worktrees/implement-retry-ladder/.dev/tasks/done/TASK-WF-mergedEscalating-20261022-015540/`; artifacts include `progress.md`, `artifacts/t8-test.log`, `artifacts/final-*.log`.
+
+**Key Takeaways**
+- A genuine implement run exists even though its subject is retry-ladder development.
+- Its Task 8 and final archive gates are operational evidence. Its subsequent PR #277 review/remediation sequence is a different category.
+
+### Sessions 16 and 18: exclusions, not silent missing positives
+
+**Session 16 source:** `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/97c47129-146b-4227-a0db-9830352b81aa.jsonl` (129 original lines). No workflow/implement Skill or user-command invocation found. L56, 2026-10-22T20:32:03.711Z says PR #277 already merged. L83-L84 patch one adviser-effort sentence in source/plugin copies; L105 reports PR #279; L115 user requests cleanup. This is a follow-up correction and cleanup, not an operational review loop.
+
+**Session 18 source:** `/config/.claude/projects/-config-workspace-IronClaude/5290b7ae-b9be-47ad-951d-ac7c63411061.jsonl` (1451 original lines). No workflow/implement Skill or user-command invocation found. L15, 2026-10-22T15:49:26.403Z requests GlobalSrc-Home analyze/rewrite script; L35 is `Skill sc:analyze`. L171 reviews script, L262-L266 review resulting changes, L353/L360 invoke PR submission, L529 troubleshoot explicitly says "do NOT start sc:workflow or any task file". PR #278 review/remediation is real but not an implementation-command execution.
+
+**Key Takeaways**
+- Absence claims concern parsed actual invocations, not literal absence of command strings in injected instructions.
+- These sessions should not inflate operational failure-loop counts.
+AUTHORED_REPORT RAW_LINE 87 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ Scope discovery only, frozen manifest indexes 13-18. Parsed each original JSONL record with UV-run Python, retaining original physical line numbers and timestamps in focused excerpts. Scanned actual user command-name envelopes and assistant Skill calls, then focused review dispatches, tool outputs, and assistant reports; injected skill bodies/policies/examples were not counted as events. Full top-level scans covered 750, 384, 2095, 129, 4355, and 1451 records respectively; selected excerpts rather than giant serialized lines were read. Nested reviewer finals and five on-disk package artifacts were checked directly. No production files changed, no agents spawned, no commands proposed for execution. Runtime graph coverage is unavailable for session/log files, so findings are transcript/artifact-backed, not graph-backed.
+
+The first attempted manifest location (task package root) was missing; listing located the manifest under `research/`. Initial broad extraction produced polluted/oversized output, so a narrower parser separated actual invocations from policy text. Exact review severity labels below reproduce historical reviewers and are not a new severity classification.
+
+**Key Takeaways**
+- This is an inventory and source map, not deep root-cause analysis.
+- Archived ledger evidence sometimes omits a review failure that the nested reviewer transcript preserves.
+AUTHORED_REPORT RAW_LINE 90 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ ## Candidate incident register
+
+| Stable deduplication key | Classification | Confirmed outcome | Evidence strength |
+|---|---|---|---|
+| `review-loop:issue358InTempla:final:20261022` | Operational final-review fail, evidence-only fix, pass | Archived | Original session, two nested final reviewers, on-disk ledger |
+| `review-loop:issue358FollowUp193837:final:20261022` | Operational final-review fail, fix, second fail, fix, third pass | Archived | Original session, three nested final reviewers, on-disk ledger, acceptance note and blank cited log line |
+| `review-loop:mergedEscalating:T8:20261022` | Operational task misunderstanding, one fix, compliant re-review, while developing retry-ladder feature | Continued | Two nested reviewers and task completion ledger |
+| `review-loop:mergedEscalating:final:20261022` | Operational final-review issues, user-authorized fixes, second pass, while developing retry-ladder feature | Archived | Two nested final reviewers and on-disk ledger |
+| `workflow:issue358FollowUp185406:regenerated:20261022` | Failed pre-execution plan review, replaced by new plan whose review was skipped | Superseded, not executed | Session 15 L762-L818; missing standalone review report acknowledged |
+| `workflow:issue358InTempla:correction:20261022` | Failed pre-execution plan review, user-authorized correction, no semantic re-review | Input to first implement incident | Session 13 L364-L435; same package as session 15 |
+| `workflow:reviewAndPlanThe204721:correction:20261022` | Advisory review with five issues, user correction, no semantic re-review | Implement not observed here | Session 14 L344-L371 |
+
+### Nested review source map
+
+All following paths were checked present and their final assistant messages decoded directly. Each is supporting evidence for its parent session, not another top-level incident.
+
+**First issue #358 package:** common nested directory `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/`.
+- `agent-a59e9aa6df05118de.jsonl`, original L51, 2026-10-22T15:44:41.129Z: `FINAL: issues`; "One minor ledger-evidence problem (T3.AC5). The delivered code and docs meet every acceptance criterion and every Constraint."
+- `agent-a6248e3c9fc51e940.jsonl`, L50, 15:54:17.688Z: `FINAL: pass`; "Every AC is met, and I found no stale ledger tokens."
+
+**Second issue #358 package:** same nested directory.
+- `agent-a9c0c61dd415c2c4d.jsonl`, L135, 20:20:21.142Z: `FINAL: issues`; "Every AC I checked is met except T6.AC4's lint clause, and the other issues are stale ledger tokens."
+- `agent-acf0a51e6992c50ee.jsonl`, L116, 20:31:27.048Z: `FINAL: issues`; "One BLOCKING item: a stale ledger evidence token for T10. Every AC and Constraint in the files themselves holds."
+- `agent-a4bfff371c63a6c39.jsonl`, L155, 20:37:13.395Z: `FINAL: pass`; records owner-accepted literal T6.AC4 gap and no blocking problems.
+
+**Retry-ladder package:** common nested directory `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef/subagents/`.
+- `agent-a7e2f8f9f2f60f9ce.jsonl`, L63, 2026-10-22T12:35:55.368Z: `VERDICT: misunderstood`; T8 fixed-exclusion verification skip, confirmed with tampering `rm` shim.
+- `agent-a4a9f17e0c9cd2e25.jsonl`, L57, 12:39:24.340Z: `VERDICT: compliant`; fixed skip removed, 89 tests passed in own run.
+- `agent-a72c4592eac88daf4.jsonl`, L136, 13:01:40.292Z: `RESULT: issues`; stale ledger citations, dangling pointer, wrong-name move-back bug, and log citations to headers.
+- `agent-a0cab87f5c9a76ec9.jsonl`, L134, 14:29:01.200Z: `RESULT: pass`.
+
+### On-disk artifact cross-checks
+
+These archived roots all still exist despite later worktree-cleanup narrative elsewhere.
+
+1. `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/progress.md`: L8 original bad Task 3 evidence, L11 `FINAL: issues`, L12 corrected Task 3 evidence, L13 `FINAL: pass`, L14 archive start. Referenced `artifacts/t3-markdownlint.log` was checked present (1222 bytes).
+2. `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/progress.md`: L22 original Task 10 citation `t10-markdownlint.log:10`; L37 first `FINAL: issues`; L38-L40 corrections; L41 corrected Task 10 citation `:9`; L42 second Task 7 correction; L43 `FINAL: pass`. IMPORTANT: no ledger line records the second final review's `issues`; that failure is independently present in nested reviewer L116 and top-level L2028.
+3. Same package `artifacts/t10-markdownlint.log`: L9 `BEFORE total: 4`; L10 blank; L14 `AFTER total: 4`; L17 no new findings. This directly corroborates the second review's bad-token finding without relying on reviewer prose.
+4. Same package `artifacts/t6-owner-acceptance.md`: L10-L13 records "accept and fix", accepting no-new-findings for the two already-flagged rows and reopening Tasks 7/8/17 only. Historical reviewer and parent later mention Task 10 correction beyond that specific list; authority interpretation is for later analysis, not decided here.
+5. `/config/workspace/IronClaude/.dev/worktrees/implement-retry-ladder/.dev/tasks/done/TASK-WF-mergedEscalating-20261022-015540/progress.md`: L18 records final T8 compliant, L31 `FINAL: issues`, L32 `FINAL: pass`, L33 archive start. It does not persist Task 8's first misunderstanding as a separate verdict line. `artifacts/t8-test.log` checked present (11215 bytes).
+
+**Key Takeaways**
+- Highest-priority repeated-failure case is the second Coder final gate: the ledger alone hides its middle failure.
+- Retry-ladder operational incidents and retry-ladder PR review chains have separate identities.
+
+## Gaps and Questions
+
+- No deep current-code root-cause analysis performed; this is scope discovery only. Historical reviewer findings are verified as events, not independently re-adjudicated as current code defects.
+- Workflow report artifacts for sessions 13/14 and follow-up pre-review were linked from actual events but not fully read here. Session 15 explicitly reports that its first follow-up reflect REPORT.md was not written; merged-verdict YAML is the fallback source named by that session.
+- Parent-level scans can miss an in-nested protocol invocation; this partition checked actual top-level commands and review-linked nested finals, not every arbitrary nested agent. Negatives mean no top-level operational invocation found.
+- The second Coder final-review failure is absent from its progress ledger; use nested reviewer source rather than counting FINAL lines alone.
+- Task 8's failed review is likewise absent from its archived progress ledger, which retains its compliant completion only.
+- Source line references inside historical review text refer to historical working trees. They are not claims that current production source still has those defects or the same line numbers.
+- Missing original manifest location and oversized initial extraction were recovered; no unresolved source-access blocker remains for the confirmed incidents.
+
+## Stale Documentation Found
+
+No present-day architecture documentation audit was in scope. Historical events explicitly report stale ledger citations, unchanged pre-fix review reports after plan correction, and a source-design naming paragraph intentionally left hash-pinned after a fix. These are historical evidence-staleness observations only; no claim of a current production documentation defect is made.
+
+## Summary
+
+Screened only frozen indexes 13-18 and found actual workflow/implement execution in four sessions, with two excluded sessions containing only analysis, follow-up fixes or PR review activity. Session 15 contains two distinct final-review incidents, including one confirmed fail-fix-fail-fix-pass sequence that its archived ledger incompletely records. Session 17 contains a real operational implement run developing the retry-ladder feature, with one Task 8 correction and one final-gate correction; subsequent PR #277 reviews are explicitly excluded from those operational attempts. Linked original timestamps, physical JSONL lines, nine nested reviewer logs and archived evidence artifacts make these candidates ready for deduplicated case selection, not yet deep case analysis.
+AUTHORED_REPORT RAW_LINE 94 PATH /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md 
+ **Status:** Complete (scope discovery only)
+FINAL RAW_LINE 112 TIME 2026-10-23T03:35:22.017Z 
+ | Status | Result |
+|---|---|
+| DONE | Screened only manifest indexes 13-18; added source fingerprints and message UUIDs below. |
+| NEXT | Parent should preserve this structured return. No further report-file writes performed. |
+
+The existing report was created before the higher-priority report-writing restriction was recognized. Its findings remain useful, but **session 18’s later line numbers require the correction below**: text `splitlines()` counted embedded Unicode separators; binary newline splitting gives the correct physical JSONL lines.
+
+## Source provenance
+
+All timestamps below are UTC. SHA-256 values describe the bytes inspected during this follow-up.
+
+### Index 13
+
+- Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/c444c002-20df-4745-8f95-2254c4d3086f.jsonl`
+- Bytes: `2866328`
+- Modified: `2026-10-22T21:05:37.325906+00:00`
+- Physical lines: `750`
+- SHA-256: `2571ee89800bbe14972d37de2e2299ef5a358210fe97e61e44174cec9806806f`
+
+### Index 14
+
+- Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/10cacee5-9821-461e-89b4-903837da3b8b.jsonl`
+- Bytes: `1864834`
+- Modified: `2026-10-22T21:04:27.623334+00:00`
+- Physical lines: `384`
+- SHA-256: `38c121afa9929c42f7da6b5390eefc89c0b74fb8a8dcf550770323288ebe468f`
+
+### Index 15
+
+- Source: `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866.jsonl`
+- Bytes: `5173247`
+- Modified: `2026-10-22T20:43:34.343068+00:00`
+- Physical lines: `2095`
+- SHA-256: `7da194916ee6f359c2c3058ae94bcc00ea599ac507b8a4b1bcbee5d3df8f8a7f`
+
+### Index 16
+
+- Source: `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/97c47129-146b-4227-a0db-9830352b81aa.jsonl`
+- Bytes: `741523`
+- Modified: `2026-10-22T20:38:11.823807+00:00`
+- Physical lines: `129`
+- SHA-256: `abf4049e3dc6f46bd91e33449498bf1731449809cfef119a45be390bbe36c905`
+
+### Index 17
+
+- Source: `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef.jsonl`
+- Bytes: `14554823`
+- Modified: `2026-10-22T20:31:23.354609+00:00`
+- Physical lines: `4355`
+- SHA-256: `631abbdd8a9496a2778f04966190d28e8541c5833f6453623f03f724a9141680`
+
+### Index 18
+
+- Source: `/config/.claude/projects/-config-workspace-IronClaude/5290b7ae-b9be-47ad-951d-ac7c63411061.jsonl`
+- Bytes: `3756280`
+- Modified: `2026-10-22T19:29:33.426211+00:00`
+- **Physical lines: `1447`, correcting the earlier text-based count of 1451.**
+- SHA-256: `47d20ffc99a22baa1b180485d3b3f7380b65a5ee8530a9bbbb1b445039f1292b`
+
+## Inventory and deduplication
+
+| Index | Finding |
+|---|---|
+| 13 | Actual workflow invocation; failed plan review followed by authorized edits, without another semantic review. Same initial package later executed in index 15. |
+| 14 | Actual workflow Skill invocation; advisory review and authorized plan corrections. No implement invocation found. |
+| 15 | Two actual implement executions. First final gate fails once and passes after an evidence fix. Second final gate fails twice and passes on its third review. |
+| 16 | No actual workflow/implement invocation found. Retry-ladder effort-note follow-up, PR #279, merge and cleanup. |
+| 17 | Actual implement execution developing the retry-ladder feature. Task 8 needs one correction; final gate also needs one correction. Later PR #277 reviews are separate feature-development review activity. |
+| 18 | No actual workflow/implement invocation found. Analyze/rewrite-script work followed by PR #278 review and troubleshoot. |
+
+Stable incident keys:
+
+1. `review-loop:issue358InTempla:final:20261022`: operational final gate, fail-fix-pass.
+2. `review-loop:issue358FollowUp193837:final:20261022`: operational final gate, fail-fix-fail-fix-pass.
+3. `review-loop:mergedEscalating:T8:20261022`: operational task review, misunderstood-fix-compliant, while developing retry-ladder.
+4. `review-loop:mergedEscalating:final:20261022`: operational final gate, issues-fix-pass, while developing retry-ladder.
+
+Separate planning observations, not additional implementation failures:
+
+- `workflow:issue358InTempla:correction:20261022`
+- `workflow:issue358FollowUp185406:regenerated:20261022`
+- `workflow:reviewAndPlanThe204721:correction:20261022`
+
+Actual command envelopes, Skill calls, review dispatches and nested reviewer finals establish events. Compacted, replayed or retrospective summaries are corroboration only, not additional events.
+
+## Index 15: first operational final-review incident
+
+Package: `TASK-WF-issue358InTempla-20261022-151058`.
+
+| Original line | Timestamp, 2026-10-22 | Message UUID | Evidence |
+|---|---|---|---|
+| 15 | `15:32:02.303Z` | `483d4e5b-c847-456c-a5c1-f2203714aa18` | Actual user `/sc:implement` invocation for this package. |
+| 36 | `15:32:07.357Z` | `69c0897e-8156-4143-b07c-39e43656dbb9` | Actual implement protocol Skill call. |
+| 375 | `15:43:26.516Z` | `f7453dee-f20c-4f75-b684-02d0eeaf24ab` | First fresh final reviewer dispatched after four task reviewers. |
+| 390 | `15:44:52.068Z` | `b7f1bea0-3652-4876-81b2-95cdc8359c60` | Tool result: `FINAL: issues evidence=./progress.md:8`. |
+| 393 | `15:44:57.271Z` | `950f775d-6771-41f5-a868-f6375c7ee6af` | Task 3 cited README line 161 as markdownlint evidence; line was a table separator and no lint comparison artifact existed. |
+| 396 | `15:51:38.336Z` | `40119c9d-7205-41f6-93a0-5f4f660fac4c` | User authorizes reopening Task 3 evidence only. |
+| 419 | `15:52:16.384Z` | `749acb1f-bbd3-4e2e-949d-94eee1ebbba3` | Second fresh final reviewer dispatched after lint artifact/corrected evidence added. |
+| 435 | `15:54:23.570Z` | `946adb8c-42c2-45e4-8f23-7bdd8327c301` | `FINAL: pass`; archive helper reports archived, exit 0. |
+
+Nested original reviewer sources:
+
+- `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a59e9aa6df05118de.jsonl`
+  - L51, `2026-10-22T15:44:41.129Z`
+  - UUID `9f2c89bd-d9bc-43ff-ad29-702ee8300823`
+  - `FINAL: issues`
+  - Quote: “One minor ledger-evidence problem (T3.AC5). The delivered code and docs meet every acceptance criterion and every Constraint.”
+- `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a6248e3c9fc51e940.jsonl`
+  - L50, `2026-10-22T15:54:17.688Z`
+  - UUID `5d09c047-b119-42fa-8fec-3afd0df7cf44`
+  - `FINAL: pass`
+
+Archived evidence read directly:
+
+- `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/progress.md`
+  - L8 bad Task 3 evidence.
+  - L11 first final failure.
+  - L12 corrected evidence.
+  - L13 final pass.
+  - L14 archive start.
+- `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/artifacts/t3-markdownlint.log`
+  - Checked present, 1222 bytes.
+  - Historical tool output shows before/after both 28 findings and zero findings on changed lines.
+
+## Index 15: repeated operational final-review failures
+
+Package: `TASK-WF-issue358FollowUp-20261022-193837`.
+
+| Original line | Timestamp, 2026-10-22 | Message UUID | Evidence |
+|---|---|---|---|
+| 818 | `19:40:25.935Z` | `338feffb-2580-42a6-af9c-6e417c67c5be` | Actual implement protocol Skill call for second package. |
+| 1916 | `20:16:10.434Z` | `c2caba75-935e-4b44-9a99-399b8f994852` | First final reviewer dispatched after 17 task reviews. |
+| 1932 | `20:20:36.570Z` | `b3edeabe-eaa4-4f85-9eee-0b3df9d1b448` | Tool result: `FINAL: issues`. |
+| 1935 | `20:20:43.704Z` | `1d2b11fe-c2aa-4fdd-a143-9cafa7c58b23` | Unchanged lint total 123, but existing findings on changed table rows violate literal criterion. Also stale Task 7/8/17 evidence. |
+| 1938 | `20:25:19.428Z` | `5ba0e40b-4c02-467f-b721-c4c1a12bd189` | User: “accept and fix”. |
+| 1979 | `20:26:21.231Z` | `5133619f-7e15-4e38-abd4-54739cfdc4ab` | Second fresh final reviewer dispatched after acceptance note/corrections. |
+| 2012 | `20:31:49.683Z` | `6d16209d-71ce-4ea6-a245-28bfa034a167` | Evidence checker: `T10: BLANK ./artifacts/t10-markdownlint.log:10-10`; one problem. |
+| 2020 | `20:32:13.997Z` | `6043a572-837f-4d41-b621-b5abe5d0e00b` | Third fresh final reviewer dispatched. |
+| 2028 | `20:32:18.558Z` | `cc185f53-b200-49f9-a19c-851ddad7b00d` | “The second final review found one more bad evidence line number ... Task 10's markdownlint citation pointed at a blank line.” Corrections made without changing delivery files. |
+| 2036 | `20:37:22.846Z` | `5b3ee20a-1d38-4518-a29b-0f92cc1f4821` | `FINAL: pass`; helper reports archived, exit 0. |
+
+Nested reviewer sources:
+
+- `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a9c0c61dd415c2c4d.jsonl`
+  - L135, `2026-10-22T20:20:21.142Z`
+  - UUID `9fd81eb4-c403-4e9a-abf4-f97856038f44`
+  - `FINAL: issues`
+  - Quote: “Every AC I checked is met except T6.AC4's lint clause, and the other issues are stale ledger tokens.”
+- `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-acf0a51e6992c50ee.jsonl`
+  - L116, `2026-10-22T20:31:27.048Z`
+  - UUID `375a0903-0c0d-4bd0-94d6-0b1faac37cb4`
+  - `FINAL: issues`
+  - Quote: “One BLOCKING item: a stale ledger evidence token for T10. Every AC and Constraint in the files themselves holds.”
+- `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a4bfff371c63a6c39.jsonl`
+  - L155, `2026-10-22T20:37:13.395Z`
+  - UUID `4209789d-084b-4425-9b19-753e01c8bfa1`
+  - `FINAL: pass`
+
+Archived evidence read directly:
+
+- `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/progress.md`
+  - L22 original Task 10 lint evidence cites line 10.
+  - L37 first final failure.
+  - L38-L40 corrections.
+  - L41 corrected Task 10 evidence cites line 9.
+  - L42 another Task 7 correction.
+  - L43 final pass.
+  - **No separate line records the second final failure. Counting `FINAL: issues` lines alone undercounts the real review sequence.**
+- `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t10-markdownlint.log`
+  - L9 `BEFORE total: 4`.
+  - **L10 blank**, directly corroborating the second failure.
+  - L14 `AFTER total: 4`.
+  - L17 no new findings.
+- `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t6-owner-acceptance.md`
+  - L10-L13 records acceptance of no-new-findings and reopening Tasks 7/8/17 only.
+  - Later parent narrative admits the Task 10 correction exceeded that literal list. No authority interpretation made in this screening.
+
+## Index 17: operational run developing retry-ladder
+
+Package: `TASK-WF-mergedEscalating-20261022-015540`.
+
+Actual invocation:
+
+- L15, `2026-10-22T12:03:04.399Z`, UUID `a3cfa374-5766-4243-8fa1-72ed18dda135`: user `/sc:implement`.
+- L36, `12:03:11.141Z`, UUID `fee03dc2-07a9-4477-a5e3-d37a8f9d08c6`: actual protocol Skill call.
+
+### Task 8 correction
+
+- L818, `12:33:00.858Z`, UUID `bfe590b8-b687-4465-85c6-1e9ed81ed3ab`: first reviewer dispatch.
+- L832, `12:36:05.793Z`, UUID `4ffed1fa-85f3-4a66-9065-636bf1be1aa4`: “Reviewer found one real deviation: my verify step skips fixed exclusions where the design says outside the domain of now.”
+- Actual edits and a new regression case follow.
+- L868, `12:36:55.368Z`, UUID `4b5e68b1-a471-455f-bad0-5f10edf3aeeb`: fresh re-review dispatch.
+
+Nested originals:
+
+- `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef/subagents/agent-a7e2f8f9f2f60f9ce.jsonl`
+  - L63, `2026-10-22T12:35:55.368Z`
+  - UUID `497f4f20-5214-4c83-a6a4-4745839d34be`
+  - `VERDICT: misunderstood`
+  - Confirms skip with a tampering `rm` shim.
+- `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef/subagents/agent-a4a9f17e0c9cd2e25.jsonl`
+  - L57, `2026-10-22T12:39:24.340Z`
+  - UUID `8146e2b7-fbb1-46fd-8877-901006a77e3b`
+  - `VERDICT: compliant`
+  - Reports 89 tests passed in reviewer’s own run.
+
+This is one task correction, not multiple failed retry-ladder attempts.
+
+### Final-gate correction
+
+| Original line | Timestamp, 2026-10-22 | Message UUID | Evidence |
+|---|---|---|---|
+| 1276 | `12:54:17.142Z` | `1bddc447-432d-4c6a-a044-15b633b8d4dc` | First final reviewer dispatched. |
+| 1291 | `13:02:00.408Z` | `1289985b-ed9d-401f-bd44-ed11c4fd19c2` | `FINAL: issues`, unchanged state digest. |
+| 1295 | `13:02:15.390Z` | `b7c25b23-b0a5-4a05-96b2-1a0a14546bf7` | Ten stale ledger citations, wrong rule pointer, and real move-back bug: original `report.dup-1` restored as `report`. |
+| 1301 | `13:16:31.492Z` | `65639c39-1771-4742-840e-67962c134171` | User authorizes brainstorms and fixes. |
+| 1751 | `14:24:19.862Z` | `053864dd-cee4-48f9-9700-75cb721a3f93` | Second final reviewer dispatched. |
+| 1777 | `14:29:11.199Z` | `46493dee-8466-46cd-9d2d-78c38ed09c55` | `FINAL: pass`; helper reports archived, exit 0. |
+| 1807 | `15:05:42.627Z` | `68526ead-983a-4415-b62b-a85eeb214c90` | PR-submit monitor begins. Subsequent PR #277 reviews are a separate category. |
+
+Nested originals:
+
+- `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef/subagents/agent-a72c4592eac88daf4.jsonl`
+  - L136, `2026-10-22T13:01:40.292Z`
+  - UUID `3bfcd9be-9f44-4622-bd29-83c63bb56756`
+  - `RESULT: issues`
+  - Names stale citations, dangling pointer, wrong-name move-back bug and log citations pointing to headers.
+- `/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-implement-retry-ladder/0f6383e1-533a-428c-aee4-18e6ddfb4aef/subagents/agent-a0cab87f5c9a76ec9.jsonl`
+  - L134, `2026-10-22T14:29:01.200Z`
+  - UUID `eb2b5268-f4f0-4ef9-a168-50c954f7a25b`
+  - `RESULT: pass`
+
+Archived evidence:
+
+- `/config/workspace/IronClaude/.dev/worktrees/implement-retry-ladder/.dev/tasks/done/TASK-WF-mergedEscalating-20261022-015540/progress.md`
+  - L18 records Task 8 compliant completion but not its first misunderstood review.
+  - L31 final issues.
+  - L32 final pass.
+  - L33 archive start.
+- `/config/workspace/IronClaude/.dev/worktrees/implement-retry-ladder/.dev/tasks/done/TASK-WF-mergedEscalating-20261022-015540/artifacts/t8-test.log`
+  - Checked present, 11215 bytes.
+
+## Other workflow positives
+
+### Index 13
+
+- L15, `2026-10-22T15:10:48.373Z`, UUID `329cc73d-4298-4037-9bdb-2e5793e705ae`: actual workflow invocation, issue #358 five-key overwrite.
+- L364, `15:24:24.207Z`, UUID `23d044cc-3bdb-4965-9b55-b7ffe40b67bc`: “The merged verdict fails the plan on three acceptance checks.”
+- L392, `15:30:37.609Z`, UUID `2c7009ba-cf18-4008-a2cd-3b2ccb04453d`: user “apply 5 changes”.
+- L435, `15:31:25.623Z`, UUID `f1a39f4f-835e-4af5-b74b-95432d67e355`: “I didn't re-run the review on the revised plan.” Format gate reran.
+- Plan is the same `TASK-WF-issue358InTempla-20261022-151058` later executed in index 15.
+- Historical review path: `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/reflect/pre-issue358-20261022151210/REPORT.md`.
+- No second failed review established here.
+
+### Index 14
+
+- L51, `2026-10-22T20:43:55.671Z`, UUID `4900bd29-1693-47f0-9958-19920334b595`: actual workflow protocol Skill.
+- L275, `20:50:38.271Z`, UUID `194bb6aa-bdda-49ba-bf18-379df3e2564d`: actual pre-reflection Skill.
+- L344, `20:52:56.695Z`, UUID `f95a01b6-d2cb-4988-99d7-4dafcec562c9`: abbreviated advisory review reports five issues, including contradictory Task 4 acceptance wording.
+- L346, `20:55:36.671Z`, UUID `c4baa1ed-2ab7-44e2-ac52-bc5fe4464df6`: user authorizes Task 4 fix and preset decision.
+- L371, `20:56:05.203Z`, UUID `658db8fd-59dc-4b03-9e4d-c2fa6c634ffa`: fixes reported; old review report unchanged.
+- Package: `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/to-do/TASK-WF-reviewAndPlanThe-20261022-204721/`.
+- Review: `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/reflect/pre-reviewAndPlanThe-20261022205110/REPORT.md`.
+- No actual implement invocation or second failed semantic review found.
+
+### Index 15: failed follow-up plan replaced before implementation
+
+- L592, `2026-10-22T18:53:50.673Z`, UUID `8b3f0028-8432-4227-9019-42f7dfc03d12`: actual workflow protocol Skill.
+- L762, `19:35:39.535Z`, UUID `2cbb2a88-58f3-43e5-a615-02efa4b985d9`: plan review found gaps; “isn't safe to run as it stands”.
+- L764, `19:38:01.081Z`, UUID `8b3dd353-a180-46f7-8745-ddf764ba12d4`: user “regenerate”.
+- L817, `19:40:25.443Z`, UUID `bdf9788c-ff14-4984-aeaa-42deed98923b`: new plan format passed; “Its own review was skipped on purpose.”
+- Superseded package: `TASK-WF-issue358FollowUp-20261022-185406`.
+- Replacement package: `TASK-WF-issue358FollowUp-20261022-193837`.
+- Original review report was explicitly reported missing; fallback named by session:
+  `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/reflect/pre-issue358followup-20261022190016/adversarial/merged-verdict.yaml`.
+- Count as planning regeneration, not an extra failed implement attempt.
+
+## Negative sessions and corrected anchors
+
+### Index 16
+
+No actual workflow/implement Skill or command envelope found.
+
+- L56, `2026-10-22T20:32:03.711Z`, UUID `c116c5ea-b313-407b-8d38-822fab4cdbc3`: PR #277 already merged.
+- L83, `20:32:49.145Z`, UUID `def7f015-81cf-4ec7-8f33-c57d55315ac1`: effort-note sentence edit.
+- L105, `20:33:58.415Z`, UUID `29685c2f-1071-4995-81d1-53e88724a7a0`: reports PR #279.
+- L115, `20:37:36.901Z`, UUID `1e372661-6701-42ee-927e-ea02b859b864`: user requests cleanup.
+
+### Index 18
+
+No actual workflow/implement Skill or command envelope found. **Use these corrected physical anchors rather than the earlier report’s later line numbers.**
+
+- L15, `2026-10-22T15:49:26.403Z`, UUID `f12b9e43-3e5c-4a92-a9e8-d084229ea7d0`: user requests analyze/rewrite-script work.
+- L35, `15:49:36.898Z`, UUID `a2351b44-8296-42b1-bbff-c6f4fd19b729`: actual `sc:analyze` Skill.
+- **L349**, `16:05:21.782Z`, UUID `ae13be65-06f1-44d1-ba03-817e40b7b95b`: actual `sc:pr-submit` Skill.
+- **L356**, `16:05:28.696Z`, UUID `2c1e5692-a405-4685-859d-cba0350ffac1`: actual PR-submit protocol Skill.
+- **L525**, `16:11:41.475Z`, UUID `b545fe76-21b3-4bc0-8db8-0fba5a582a0a`: troubleshoot Skill explicitly says “do NOT start sc:workflow or any task file”.
+
+## Remaining evidence limits
+
+- Historical findings are verified as review events, not independently re-adjudicated against current production code.
+- Workflow report paths are linked from actual events but were not fully audited.
+- Negative results cover actual top-level invocations; arbitrary nested agents outside review-linked finals were not exhaustively searched.
+- Nine nested reviewer finals were inspected. They are supporting evidence, not nine new sessions.
+- Existing archived artifacts confirm both the hidden second Coder final failure and the Task 8 failure would be missed by relying on ledger verdict counts alone.
+- The earlier report remains at `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/scope-03.md`; this return adds fingerprints, message UUIDs and the index 18 correction without further file writes.

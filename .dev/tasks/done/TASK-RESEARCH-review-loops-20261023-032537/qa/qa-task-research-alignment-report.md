@@ -1,0 +1,62 @@
+<!-- Exact main transcription from qa-task-research-alignment-source.txt; not producer-authored MD. -->
+# Cross-Validation Report
+
+**Date:** 2026-10-23  
+**Review:** Task-file research alignment, task-builder A.10.25  
+**Claims verified:** 20  
+**Verdict:** PASS  
+**Issues:** 0  
+**Authorization:** Report-only. No edits, agents, tests, protocol execution or task execution.
+
+**Task reviewed:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/TASK-RESEARCH-review-loops-20261023-032537.md`
+
+**Intended persistence destination:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/qa-task-research-alignment-report.md`
+
+**Governing format:** Cross-Validation Report from `/config/.claude/agents/rf-analyst.md`, adapted to compare research requirements with task instructions rather than implementation code. Checklist governed by `/config/.claude/skills/task-builder/SKILL.md`, A.10.25.
+
+## Review Scope
+
+Read the complete task, build request and research notes. Read targeted conclusions, qualifications and correction sections from all six case reports, plus the research correction consolidation. Checked the calling research skill’s review floors and cycle limits.
+
+This validates translation into future task actions. It does not independently re-prove historical findings, declare research execution complete or replace any subsequent research quality gate.
+
+All source filenames below resolve inside `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/`.
+
+## Research-to-Task Cross-Validation
+
+| # | Claim or requirement | Source | Task items checked | Verdict | Evidence |
+|---|---|---|---|---|---|
+| 1 | Preserve the original 30-session population rather than finding a replacement sample. | `BUILD-REQUEST.md`; `research/research-notes.md` | 1.2; 2.1-2.5; 2.13 | VERIFIED | Frozen membership, current-session exclusion, all dispositions and separate live-content growth are explicit. |
+| 2 | Retain negatives, synthetic exclusions, successful controls and distinct counting units. | Build request and research notes | 2.1-2.5; 2.13; 6.7 | VERIFIED | Session, incident, review, finding and transition counts remain separate; repeated notifications and carry-over history cannot inflate events. |
+| 3 | Consume six distinct session analyses without duplicating their analysts. | Research assignment map | 2.7-2.12 | VERIFIED | Each existing analyst has a dedicated case output. Replacement is limited to genuinely lost work. |
+| 4 | Trace failure, proposed repair, applied change and subsequent review against original criteria. | Mandatory analyst questions | 2.7-2.13 | VERIFIED | Case instructions require the actual event chain, historical validity and primary evidence rather than review-count summaries. |
+| 5 | Distinguish all six causal classes and require before/after proof for introduced defects. | Build request procedure | 2.7-2.13; 3.3-3.10 | VERIFIED | Missing historical state or an unobservable earlier-review miss remains explicitly unknown. Temporal order alone is insufficient. |
+| 6 | Preserve the Orca planning case’s mixed causes and unreviewed final amendment. | `research/01-session-ac2cd1fd.md`, corrected summary | 2.7; 2.13; 3.1-3.10 | VERIFIED | Task requires the 16/20 finding history, targeted partial recheck, unreviewed final version, applied changes, validity and inconsistent-count qualifications. |
+| 7 | Treat the oracle case as three successful repairs plus one retained frozen-input defect. | `research/02-session-a9b88895.md`, summary and limitations | 2.8 | VERIFIED | Frozen-corpus restrictions, operator authorization, full review artifacts and later pass are required. Passing tests cannot establish oracle correctness. |
+| 8 | Keep the rendering evidence gap separate from the baseline-provenance dispute. | `research/03-session-6f744b87.md`, summary and limitations | 2.9 | VERIFIED | Evidence-only retry, unchanged cannot-verify result, corrected acceptance and the separate Task 2 baseline dispute are explicitly preserved. |
+| 9 | Qualify provisional CI counts and retain corrected or rejected reviewer claims. | `research/04-session-43582de1.md`, counting qualification and updated summary | 2.10; 2.13; 3.3-3.6 | VERIFIED | Counts must be adjudicated against actual records; partial statuses, complete later findings and source-backed corrections cannot be replaced with a simple regression count. |
+| 10 | Preserve the monitor’s historical cutoff separately from later accepted completion. | `research/05-session-e002bed2.md`, timed continuation and summary | 1.2; 2.11; 2.13; 6.3-6.5 | VERIFIED | Live growth is recorded separately; the final observed endpoint must be reconstructed. Acceptance cannot become proof of repair, and distinct task sequences remain deduplicated. |
+| 11 | Preserve both credential-package incidents, including the hidden middle failure. | `research/06-session-0690ee9f.md`, summary and earlier-miss limitation | 2.12 | VERIFIED | The one-repair control and repeated-failure incident remain separate. Nested evidence, evidence-only corrections, authority limits and unknown miss causes are required. |
+| 12 | Carry the six consolidated research corrections into the research workflow. | `qa/qa-consolidated-findings-phase3.md` | 2.7; 2.10-2.13; 3.11-3.15 | VERIFIED | Complete repair/finding accounting, blocked-versus-applied edits, timed continuations, unknown miss explanations and timestamp accuracy fall under explicit consolidation, correction and independent re-verification requirements. |
+| 13 | Separate current protocol instructions from historically executed versions. | Build request warnings; research notes | 2.6; 2.7-2.12; 6.9 | VERIFIED | Historical tool results supply version evidence where available. Current files cannot establish historical execution or prove an executed violation. |
+| 14 | Produce an extensive evidence deck, not just a short conclusion. | Build request procedure and recommended outputs | 2.13 | VERIFIED | Required content includes all dispositions, case chronologies, finding classifications, transition matrix, controls, counterevidence, rule map and limitations. |
+| 15 | Form exactly five distinct, falsifiable hypotheses after reading all empirical cases. | Build request procedure | 5.6-5.10 | VERIFIED | Every card requires support, opposition, alternatives, scope and falsification. Weak support and overlapping causes must remain visible. |
+| 16 | Run the actual deep adversarial protocol on the five cards. | Build request debate requirement | 5.11 | VERIFIED | An actual skill invocation, mandatory debate phases, real output artifacts and returned-path handling are explicit. A simulated or missing debate cannot satisfy completion. |
+| 17 | Rank causal likelihood from evidence and debate, not artifact quality scores. | Build request ranking requirement | 5.12; 5.14; 5.22; 6.1 | VERIFIED | Ranking follows the actual debate and primary evidence; polish scores, fabricated probabilities and forced mutual exclusivity are prohibited. |
+| 18 | Keep research gates adequately staffed and independently verified. | Build request; calling research skill | 3.1-3.15; 5.13-5.27; 6.2-6.42 | VERIFIED | Ten research and ten synthesis reviewers are individually assigned. Final-report lenses number 11, increasing to 13/15 by size. Fidelity has four partitions plus a contradiction reviewer; anti-omission has four exhaustive partitions. Serialized fixes, independent verification and gate-specific caps are encoded. |
+| 19 | Preserve research-only scope without production work or destructive completion actions. | Build request goal and escalation | Constraints; 5.4; 6.1; 7.1-7.3 | VERIFIED | Section 8 contains unexecuted research follow-ups. Production edits, investigated-task execution, publication, Git actions, archiving, movement and intermediate deletion are prohibited. |
+| 20 | Keep missing historical evidence as a limitation, while blocking genuinely missing mandatory outputs. | Build request limitations; research notes | 3.15; 4.1; 5.5; 7.1-7.3; Open Questions | VERIFIED | Honest unknowns remain reportable. Missing producer artifacts or failed gates prevent completion; generic web advice cannot replace unavailable historical evidence. |
+
+## Issues Requiring Fixes
+
+None. No significant research requirement was found without corresponding task action or verification criteria. No task instruction was found authorizing implementation work contrary to the research request.
+
+## Zero-Issue Self-Audit
+
+Actively checked the most likely omissions: accepted gaps misreported as repaired defects, stale endpoints after timed continuations, provisional counts promoted to final counts, hidden nested failures, frozen-fixture authorization, simulated debate, artifact scores substituted for likelihood and review floors stated without individual assignments. The task contains corresponding instructions or explicit protections for each.
+
+The existing structural PASS remains unchanged. This review supplies only the separate research-alignment verdict.
+
+**Recommended action:** Persist this exact report at the intended destination, then continue the remaining task-file content reviews. Do not treat this PASS as research execution or permission to modify production.
+
+VERDICT: PASS
