@@ -83,6 +83,10 @@ MODELS_FLAG = "+models"
 # CCSESSION_TIER_RULES, which older copies ignore. When that line exists it
 # replaces CCSESSION_ACCESS.
 RULES = "CCSESSION_TIER_RULES"
+# Set by read_defaults_file whenever a line names CCSESSION_TIER_RULES, even one
+# it could not read, so a broken rules line still counts as present (its `*`
+# entry would have limited a terminal that does not know its owner).
+RULES_SEEN = "CCSESSION_TIER_RULES seen"
 # The one guarded form of the CCSESSION_ACCESS line, read like a plain export;
 # and the key read_defaults_file uses to report an unreadable setting.
 ACCESS_PROBLEM = "CCSESSION_ACCESS problem"
@@ -415,6 +419,8 @@ def read_defaults_file(path: Path) -> dict:
     ):
         if not lines:
             continue
+        if name == RULES:
+            out[RULES_SEEN] = "1"
         guard = guard_re.match(lines[0])
         m = _ENV_LINE.match(guard.group(1) if guard else lines[0])
         if len(lines) == 1 and m and m.group(1) == name:
@@ -534,7 +540,8 @@ def user_access(defined, tenv, env=None) -> dict:
     defined = list(defined)
     user = owner_name(env)
     roles = owner_roles(env)
-    setting = RULES if RULES in tenv else "CCSESSION_ACCESS"
+    has_rules = RULES in tenv or RULES_SEEN in tenv
+    setting = RULES if has_rules else "CCSESSION_ACCESS"
     out = {
         "user": user,
         "listed": False,
@@ -545,7 +552,9 @@ def user_access(defined, tenv, env=None) -> dict:
         "defined": defined,
         "setting": setting,
     }
-    if tenv.get(ACCESS_PROBLEM) and (user or RULES in tenv):
+    # A broken rules line stops even an ownerless terminal: its * entry was
+    # meant to limit exactly that terminal.
+    if tenv.get(ACCESS_PROBLEM) and (user or has_rules):
         raise ValueError(tenv[ACCESS_PROBLEM])
     if not user and setting != RULES:
         return out

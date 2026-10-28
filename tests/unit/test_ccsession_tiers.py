@@ -2463,10 +2463,13 @@ def test_tier_rules_line_follows_the_one_line_rule(tmp_path) -> None:
         "# CCSESSION_TIER_RULES is set above\n",
         'CCSESSION_TIER_RULES+=" *=tier0"\n',
     ):
-        with pytest.raises(
-            ValueError, match="CCSESSION_TIER_RULES must be set by one line"
-        ):
-            _role_access("bruno", "", TIER_BLOCK + extra, tmp_path)
+        # A terminal that does not know its owner stops too: the rules' * entry
+        # was meant to limit it (PR #318 review).
+        for owner in ("bruno", ""):
+            with pytest.raises(
+                ValueError, match="CCSESSION_TIER_RULES must be set by one line"
+            ):
+                _role_access(owner, "", TIER_BLOCK + extra, tmp_path)
     for value in ("*=tier2 *=tier3", "*=tier2+models+models", "role:=tier2"):
         text = TIER_BLOCK + f'export CCSESSION_TIER_RULES="{value}"\n'
         with pytest.raises(ValueError):
