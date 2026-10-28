@@ -631,6 +631,7 @@ apply_tier_selection() {
       TIER_ARG=$(python3 "$CCSESSION_MODELS" default-tier) || exit 2
     fi
     _resolved=$(python3 "$CCSESSION_MODELS" tier-resolve "$TIER_ARG") || exit 2
+    TIER_ARG=$(printf '%s' "$TIER_ARG" | tr '[:upper:]' '[:lower:]')  # --tier 1A = tier1a
     PROFILE="tier${TIER_ARG#tier}"
     what="$PROFILE"
     PROFILE_CUSTOM_OPTION=0  # tiers are already in the picker

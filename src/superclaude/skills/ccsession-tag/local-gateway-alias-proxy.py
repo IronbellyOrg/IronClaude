@@ -182,12 +182,16 @@ def curation():
     tiers, problem, access = {}, "", None
     if on:
         try:
-            # Only the tiers the workspace owner may use (CCSESSION_ACCESS).
+            # Only the tiers the workspace owner may use (CCSESSION_TIER_RULES).
             every, access = model_data.tier_access(data, tenv)
             tiers = {k: v for k, v in every.items() if k in access["allowed"]}
         except ValueError as exc:
             problem = str(exc)
     return {
+        # Each tier model is listed on its own for an owner whose rule says
+        # +models (or with show-all), in CCSESSION_MODEL_ORDER order.
+        "list_models": SHOW_ALL or bool(access and access.get("models")),
+        "model_order": tenv.get("CCSESSION_MODEL_ORDER", "").split() if on else [],
         "show": picker["show"],
         "one_million_context": set(picker["one_million_context"]),
         "display_overrides": picker["display_overrides"],
@@ -306,10 +310,14 @@ def transform_models(payload):
                 _entry(f"{TIER_PREFIX}{name[4:]}[1m]", f"{tier['label']}: {names}")
             )
         listed = []
-        if SHOW_ALL:
+        if rules["list_models"]:
             for _, model, window in tier_models:
                 if model not in (r for r, _ in listed):
                     listed.append((model, window > model_data.DEFAULT_WINDOW))
+            # Models named in CCSESSION_MODEL_ORDER come first in that order;
+            # any other tier model follows in tier order.
+            order = {m: i for i, m in enumerate(rules["model_order"])}
+            listed.sort(key=lambda item: order.get(item[0], len(order)))
     else:
         one_million = rules["one_million_context"]
         listed = [(r, r in one_million) for r in rules["show"] if r in by_id]
@@ -557,7 +565,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     if isinstance(m, str) and m.startswith(TIER_PREFIX)
                     else ""
                 )
-                if tier.isdigit() and tier.isascii():
+                if re.fullmatch(r"[0-9]{1,2}[a-z]?", tier):  # tier2, tier1a
                     tier_name = f"tier{tier}"
                 elif isinstance(m, str) and m.startswith("claude-gw-"):
                     with _lock:
