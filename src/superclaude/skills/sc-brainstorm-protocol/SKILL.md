@@ -128,9 +128,9 @@ Orchestrate parallel brainstorming via:
    - Skip steps 4-6, proceed to Wave 2A.
 4. **Dialogue loop**:
    - Load Socratic template matching `--depth`:
-     - `quick`: 3-5 questions, single batch, ~500 tokens
-     - `standard`: 6-10 questions, 2 batches (clarify → validate), ~2000 tokens
-     - `deep`: 10-20 questions, 3 batches (clarify → validate → adversarial probe), ~5000 tokens
+     - `quick`: 3-5 questions, single batch, ~50000 tokens
+     - `standard`: 6-10 questions, 2 batches (clarify → validate), ~200000 tokens
+     - `deep`: 10-20 questions, 3 batches (clarify → validate → adversarial probe), ~500000 tokens
    - Present batch via chat. Wait for user response if `--interactive`; otherwise auto-proceed using best-available context.
    - Apply domain-specific question variations from `refs/socratic-templates.md` §Domain-Questions.
 5. **Synthesize seed brief**: Build `seed-brief.md` with:
@@ -195,9 +195,9 @@ Orchestrate parallel brainstorming via:
    - `skipped` — enrichment not invoked
    - Record as `enrichment_used: [{source, quality_tier}, ...]` in state.
 
-3. **Token budget for enrichment**: ~3000 tokens total cap. Priority order if exceeded: codebase > research-light > research-deep. Truncate by priority.
+3. **Token budget for enrichment**: ~30000 tokens total cap. Priority order if exceeded: codebase > research-light > research-deep. Truncate by priority.
 
-4. **Append enrichment summary** to `seed-brief.md` via Edit tool under new `## Enrichment Context` section (~500-800 tokens summary, full artifacts saved separately).
+4. **Append enrichment summary** to `seed-brief.md` via Edit tool under new `## Enrichment Context` section (~5000-8000 tokens summary, full artifacts saved separately).
 
 **Exit Criteria**: Enrichment artifacts present in state (any quality_tier counts). Wave proceeds even if all sources failed (degraded mode). Emit: `"Wave 2A complete: enrichment done (sources: <X>, degraded: <Y>)."`
 
@@ -234,10 +234,10 @@ Orchestrate parallel brainstorming via:
 
 5. **Token-budget pre-flight**:
    - Estimate Wave 3 cost: `estimate = proposals × depth_multiplier × persona_weight`
-     - depth_multiplier: quick=8K, standard=15K, deep=35K per proposal
+     - depth_multiplier: quick=80K, standard=150K, deep=350K per proposal
      - persona_weight: 1.0 default, 1.3 for architect/analyzer
-   - If `estimate > 250000` AND `depth == deep`: auto-downgrade `proposals` to 3 + emit WARN. Re-validate agent-spec with new count.
-   - If `estimate > 350000` post-downgrade: STOP with `"Token budget exhausted. Reduce --proposals or --depth."`
+   - If `estimate > 500000` AND `depth == deep`: auto-downgrade `proposals` to 3 + emit WARN. Re-validate agent-spec with new count.
+   - If `estimate > 650000` post-downgrade: STOP with `"Token budget exhausted. Reduce --proposals or --depth."`
    - Hard kill threshold (Wave 3): abort if cumulative tokens > 1.25 × estimate
 
 6. **Final output**: validated agent-spec string. Example:
