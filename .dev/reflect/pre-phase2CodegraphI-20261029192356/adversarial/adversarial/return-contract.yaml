@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: .dev/reflect/pre-phase2CodegraphI-20261029192356/adversarial/merged-reviewer-findings.md
+  convergence_score: 1.0
+  artifacts_dir: .dev/reflect/pre-phase2CodegraphI-20261029192356/adversarial/adversarial/
+  status: partial
+  base_variant: variant-1 (sonnet:analyzer)
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+  - id: INV-001
+    category: guard_conditions
+    assumption: the M-02 '|| echo USER_SCOPE_KEPT' form keeps T12 gated
+    severity: HIGH
+  - id: INV-006
+    category: collection_boundaries
+    assumption: $(rg -l install_retired_mcp tests) always supplies the retire-step test file
+    severity: HIGH

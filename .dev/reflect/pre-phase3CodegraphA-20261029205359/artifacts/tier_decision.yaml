@@ -1,0 +1,7 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown: {scope_size: 1, task_count: 2, blast_radius: 1, spec_density: 2, ambiguity_signals: 0}
+escalation_reason: "coverage_degraded=parsed-sparse table-wide pre-filter forbids every T1 STOP row (Step 1B.2b); routed to T2. fired_rule_number is provisional until Wave 1D calibration returns C."

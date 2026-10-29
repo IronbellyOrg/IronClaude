@@ -1,0 +1,286 @@
+unmatched: 47
+by_reference: 47
+real_gaps: 0
+rows:
+- requirement_id: INF-001
+  citation: source.md:23
+  ratio: 0.5522
+  covered_by: Task 1
+  coverage_kind: by-reference
+  reference: "Task 1 body: 'run every row G1-G6 of source \xA70'"
+- requirement_id: INF-004
+  citation: source.md:26
+  ratio: 0.5962
+  covered_by: Task 1
+  coverage_kind: by-reference
+  reference: "Task 1 body: 'run every row G1-G6 of source \xA70'"
+- requirement_id: INF-005
+  citation: source.md:27
+  ratio: 0.5833
+  covered_by: Task 1
+  coverage_kind: by-reference
+  reference: "Task 1 body: 'run every row G1-G6 of source \xA70'"
+- requirement_id: INF-009
+  citation: source.md:72
+  ratio: 0.5789
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'Standing rules 1-9 of source \xA71.1 apply to every edited primitive'"
+- requirement_id: INF-010
+  citation: source.md:73
+  ratio: 0.5526
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'Standing rules 1-9 of source \xA71.1 apply to every edited primitive'"
+- requirement_id: INF-017
+  citation: source.md:91
+  ratio: 0.5
+  covered_by: Task 4
+  coverage_kind: by-reference
+  reference: "Task 4 body names 'source \xA71.2 rows' range containing 2"
+- requirement_id: INF-020
+  citation: source.md:94
+  ratio: 0.551
+  covered_by: Task 5
+  coverage_kind: by-reference
+  reference: "Task 5 body names 'source \xA71.2 rows' range containing 5"
+- requirement_id: INF-023
+  citation: source.md:97
+  ratio: 0.5556
+  covered_by: Task 5
+  coverage_kind: by-reference
+  reference: "Task 5 body names 'source \xA71.2 rows' range containing 8"
+- requirement_id: INF-025
+  citation: source.md:99
+  ratio: 0.4167
+  covered_by: Task 5
+  coverage_kind: by-reference
+  reference: "Task 5 body names 'source \xA71.2 rows' range containing 10"
+- requirement_id: INF-027
+  citation: source.md:101
+  ratio: 0.5094
+  covered_by: Task 5
+  coverage_kind: by-reference
+  reference: "Task 5 body names 'source \xA71.2 rows' range containing 12"
+- requirement_id: INF-032
+  citation: source.md:106
+  ratio: 0.5556
+  covered_by: Task 6
+  coverage_kind: by-reference
+  reference: "Task 6 body names 'source \xA71.2 rows' range containing 17"
+- requirement_id: INF-033
+  citation: source.md:107
+  ratio: 0.5263
+  covered_by: Task 6
+  coverage_kind: by-reference
+  reference: "Task 6 body names 'source \xA71.2 rows' range containing 18"
+- requirement_id: INF-035
+  citation: source.md:109
+  ratio: 0.4203
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 20"
+- requirement_id: INF-036
+  citation: source.md:110
+  ratio: 0.4
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 21"
+- requirement_id: INF-037
+  citation: source.md:111
+  ratio: 0.2381
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 22"
+- requirement_id: INF-038
+  citation: source.md:112
+  ratio: 0.4865
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 23"
+- requirement_id: INF-040
+  citation: source.md:114
+  ratio: 0.3182
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 25"
+- requirement_id: INF-043
+  citation: source.md:117
+  ratio: 0.4912
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 28"
+- requirement_id: INF-044
+  citation: source.md:118
+  ratio: 0.5278
+  covered_by: Task 10
+  coverage_kind: by-reference
+  reference: "Task 10 body names 'source \xA71.2 rows' range containing 29"
+- requirement_id: INF-045
+  citation: source.md:119
+  ratio: 0.5385
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 30"
+- requirement_id: INF-046
+  citation: source.md:120
+  ratio: 0.5
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 31"
+- requirement_id: INF-047
+  citation: source.md:121
+  ratio: 0.5349
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 32"
+- requirement_id: INF-049
+  citation: source.md:123
+  ratio: 0.35
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 34"
+- requirement_id: INF-051
+  citation: source.md:125
+  ratio: 0.5667
+  covered_by: Task 4
+  coverage_kind: by-reference
+  reference: "Task 4 body names 'source \xA71.2 rows' range containing 36"
+- requirement_id: INF-052
+  citation: source.md:126
+  ratio: 0.5682
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 37"
+- requirement_id: INF-054
+  citation: source.md:128
+  ratio: 0.4
+  covered_by: Task 4
+  coverage_kind: by-reference
+  reference: "Task 4 body names 'source \xA71.2 rows' range containing 39"
+- requirement_id: INF-055
+  citation: source.md:129
+  ratio: 0.5254
+  covered_by: Task 7
+  coverage_kind: by-reference
+  reference: "Task 7 body names 'source \xA71.2 rows' range containing 40"
+- requirement_id: INF-056
+  citation: source.md:130
+  ratio: 0.3607
+  covered_by: Task 1 (G6) + Task 13 check (3)
+  coverage_kind: by-reference
+  reference: "Task 1 (G6) + Task 13 check (3) body names 'source \xA71.2 rows' range containing 41"
+- requirement_id: INF-057
+  citation: source.md:131
+  ratio: 0.5294
+  covered_by: Task 1 (G6) + Task 13 check (3)
+  coverage_kind: by-reference
+  reference: "Task 1 (G6) + Task 13 check (3) body names 'source \xA71.2 rows' range containing 42"
+- requirement_id: INF-060
+  citation: source.md:205
+  ratio: 0.5312
+  covered_by: Task 9
+  coverage_kind: by-reference
+  reference: "Task 9 body: built from DES \xA74/\xA75 with source \xA73.1"
+- requirement_id: INF-061
+  citation: source.md:206
+  ratio: 0.5417
+  covered_by: Task 9
+  coverage_kind: by-reference
+  reference: "Task 9 body: built from DES \xA74/\xA75 with source \xA73.1"
+- requirement_id: INF-063
+  citation: source.md:208
+  ratio: 0.3333
+  covered_by: Task 9
+  coverage_kind: by-reference
+  reference: "Task 9 body: built from DES \xA74/\xA75 with source \xA73.1"
+- requirement_id: INF-064
+  citation: source.md:209
+  ratio: 0.3448
+  covered_by: Task 9
+  coverage_kind: by-reference
+  reference: "Task 9 body: built from DES \xA74/\xA75 with source \xA73.1"
+- requirement_id: INF-065
+  citation: source.md:210
+  ratio: 0.5244
+  covered_by: Task 12
+  coverage_kind: by-reference
+  reference: "Task 12 body: built from DES \xA74/\xA75 with source \xA73.1"
+- requirement_id: INF-068
+  citation: source.md:220
+  ratio: 0.5833
+  covered_by: Task 8
+  coverage_kind: by-reference
+  reference: "Task 8 body: built from DES \xA72 with source \xA73.2 allowed tools and overrides"
+- requirement_id: INF-070
+  citation: source.md:222
+  ratio: 0.3934
+  covered_by: Task 8
+  coverage_kind: by-reference
+  reference: "Task 8 body: built from DES \xA72 with source \xA73.2 allowed tools and overrides"
+- requirement_id: INF-071
+  citation: source.md:223
+  ratio: 0.4054
+  covered_by: Task 8
+  coverage_kind: by-reference
+  reference: "Task 8 body: built from DES \xA72 with source \xA73.2 allowed tools and overrides"
+- requirement_id: INF-077
+  citation: source.md:256
+  ratio: 0.5909
+  covered_by: Task 3
+  coverage_kind: by-reference
+  reference: "Task 3 body: 'the seven sections of source \xA74'"
+- requirement_id: INF-079
+  citation: source.md:258
+  ratio: 0.5
+  covered_by: Task 3
+  coverage_kind: by-reference
+  reference: "Task 3 body: 'the seven sections of source \xA74'"
+- requirement_id: INF-080
+  citation: source.md:259
+  ratio: 0.3429
+  covered_by: Task 3
+  coverage_kind: by-reference
+  reference: "Task 3 body: 'the seven sections of source \xA74'"
+- requirement_id: INF-081
+  citation: source.md:260
+  ratio: 0.597
+  covered_by: Task 3
+  coverage_kind: by-reference
+  reference: "Task 3 body: 'the seven sections of source \xA74'"
+- requirement_id: INF-082
+  citation: source.md:262
+  ratio: 0.5606
+  covered_by: Task 3
+  coverage_kind: by-reference
+  reference: "Task 3 body: 'the seven sections of source \xA74'"
+- requirement_id: INF-105
+  citation: source.md:325
+  ratio: 0.5
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'the list in source \xA77 Decide alone' / 'human items H1-H5 of source \xA77'"
+- requirement_id: INF-109
+  citation: source.md:329
+  ratio: 0.3571
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'the list in source \xA77 Decide alone' / 'human items H1-H5 of source \xA77'"
+- requirement_id: INF-111
+  citation: source.md:331
+  ratio: 0.4375
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'the list in source \xA77 Decide alone' / 'human items H1-H5 of source \xA77'"
+- requirement_id: INF-115
+  citation: source.md:345
+  ratio: 0.5405
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'the list in source \xA77 Decide alone' / 'human items H1-H5 of source \xA77'"
+- requirement_id: INF-117
+  citation: source.md:347
+  ratio: 0.5
+  covered_by: Constraints
+  coverage_kind: by-reference
+  reference: "Constraints: 'the list in source \xA77 Decide alone' / 'human items H1-H5 of source \xA77'"

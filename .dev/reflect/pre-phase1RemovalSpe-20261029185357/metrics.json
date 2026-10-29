@@ -1,0 +1,8 @@
+{"metrics_schema_version": "1.0", "run_id": "2026-10-29T18:53:57Z-phase1RemovalSpe", "skill": "sc-reflect", "skill_version": "1.8.0", "mode": "pre", "tier_reached": 2, "status": "partial",
+ "calibration": {"calibrator_diversity": "full", "calibrated_confidence_initial": 0.79, "calibrated_confidence_final": 0.79, "calibration_delta": 0.0},
+ "ensemble": {"t2_model_class_diversity": "full", "t2_vendor_diversity": "multi", "t2_effective_diversity": "full", "reviewer_count": 2, "executor_class_resolved": true, "executor_exclusion_degraded": false},
+ "evidence_validator": {"ran": true, "citations_total": 404, "citations_revalidated": 178, "citations_dropped": 3, "citations_dropped_extrapolated": 7, "drop_rate": 0.0169, "budget_policy": "sampled"},
+ "deviation_counts": {"authorized": 0, "necessary": 0, "drift": 4, "regression": 8, "total": 12},
+ "adversarial": {"convergence_score": 0.947, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+ "promotion": {"action": "not-applicable", "gate_conditions_passed": 0, "gate_conditions_total": 9, "cross_fs": false},
+ "degraded_components": ["serena", "get_current_config"], "input_drift_detected": true, "needs_human_decision": false}

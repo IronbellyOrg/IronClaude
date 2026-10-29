@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/codegraph-migration/decisions/W2-serena-memory-replacement/adversarial/merged-recommendation.md"
+  convergence_score: 0.895          # 17 of 19 diff points agreed; threshold 0.80
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/codegraph-migration/decisions/W2-serena-memory-replacement/adversarial/adversarial"
+  status: "partial"                 # converged and merge validated, but 2 diff points stayed unresolved and Round 2.5 was skipped (depth=quick)
+  base_variant: "Variant 1 (Option A, repo-local .superclaude/memory/), score 0.6664 vs C 0.6540 vs B 0.5825; won level 1 tiebreak 9 points to 1"
+  unresolved_conflicts: 2           # S-001 (storage location), C-003 (cross-worktree sharing)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 invariant probe skipped at depth=quick; manual residual risks M-001..M-006 are in base-selection.md

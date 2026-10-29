@@ -1,0 +1,8 @@
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku]
+calibrator_diversity: full
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.50, recommendation_actionability: 0.85}
+C: 0.71
+escalation_recommendation: escalate-t2
+notes: "D-1 originates in the spec's own T12 block (source.md:705,710), so it is a spec ambiguity copied into the plan; D-2 label not a rubric category; risks restate plan text and miss source.md:214 residual risk; two spec contradictions missed: source.md:488 vs :529 (client committed with T2 or T1) and :705 vs :715 (no superclaude install vs install --list)."

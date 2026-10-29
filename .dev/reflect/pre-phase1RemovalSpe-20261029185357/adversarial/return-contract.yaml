@@ -1,0 +1,23 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/adversarial/merged-findings.md"
+  convergence_score: 0.947
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/adversarial/adversarial"
+  status: "partial"
+  base_variant: "reviewer-1-card (analyzer; variant-1-original)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    status_reason: >-
+      All 5 steps completed; convergence 18/19 (threshold 0.80); the invariant
+      gate blocked on INV-001 and INV-002 (HIGH) and cleared after a resolution
+      round; post-merge YAML validation passed. Status is partial, not success,
+      because of two warnings: (1) S-002, a cosmetic L1 citation-style point,
+      stayed unresolved; (2) the Variant 2 advocate subagent ran
+      `mkdir -p /tmp/x` once, a write outside --output that breaks its
+      read-only brief. Nothing in the repo changed; the folder was left in place.
+    unresolved_points: ["S-002"]
+    medium_invariants_folded: ["INV-005", "INV-006"]
+    final_counts: {kept: 12, dropped: 0, important: 3, minor: 9}

@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P1-primitive-gap-policy/adversarial/merged-recommendation.md"
+  convergence_score: 1.00          # 18/18 diff points agreed (14 unanimous, 4 by 2/3 majority with identical substance)
+  artifacts_dir: ".dev/codegraph-migration/decisions/P1-primitive-gap-policy/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-1-original (option-a.md; advocate: session-model:architect)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # Round 2.5 invariant probe skipped at --depth quick
+  notes:
+    - "depth=quick: Round 1 only; Round 2, Round 2.5 and Round 3 skipped; taxonomy gate passed (L1=1, L2=5, L3=12)."
+    - "Combined scores: option-a 0.841, option-b 0.778, option-c 0.735; margin 6.3%, no tiebreaker."
+    - "Qualitative dual pass ran sequentially in one evaluator context (weaker position-bias mitigation)."
+    - "Post-merge validation passed (structure, references, no new contradictions)."

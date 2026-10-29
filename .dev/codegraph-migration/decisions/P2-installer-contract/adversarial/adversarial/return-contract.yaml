@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P2-installer-contract/adversarial/P2-installer-contract-merged.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/codegraph-migration/decisions/P2-installer-contract/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-3-original (option-c)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

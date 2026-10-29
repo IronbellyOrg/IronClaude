@@ -1,0 +1,68 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/audit.log
+confidence_calibrated: 0.60
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.605
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []   # 47 containment-unmatched rows all covered by reference (artifacts/unmapped-triage.yaml)
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 020f2cea84fae1b6daee977d18cabf64ced3a5707e35179aa24655611805c01d
+  spec: 175dee38d1ad36e9229f7c23166f4ec4fdbf942f4eb319e7e468735c2ea45e46
+input_tree_sha256: c5fa329318480f761cc243894862969b0e3e1f2a02f7fc796f1af4de8c43fdda
+input_tree_file_count: 58
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 107
+citations_revalidated: 105
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/reviewer-cards/reviewer-2-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/adversarial/adversarial
+adversarial_convergence_score: 1.00
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded   # executor opus excluded; 2 reviewers
+t2_vendor_diversity: multi
+t2_effective_diversity: vendor-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: true   # 12 of 19 merged findings are inherited from the spec
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+merged_findings: {total: 19, critical: 0, important: 9, minor: 10, verdict: refactor}
+degraded_components: [serena, get_current_config]

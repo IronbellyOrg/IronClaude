@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/adversarial/adversarial/merged-reviewer-card.md
+  convergence_score: 1.00          # 15/15 diff points; finding-level agreement 22/23 (R1-07 severity adjudicated)
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/adversarial/adversarial
+  status: success
+  base_variant: "variant-1 (reviewer-1 card, sonnet:analyzer)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []       # 4 HIGH (INV-001, -002, -004, -006) blocked after Round 2.5, cleared by the confirmation round
+  deviations:
+    - "Step artifacts written directly in --output (it already ends in adversarial/); no third nesting level."
+    - "Diff analysis and base-selection scoring done by the orchestrator; both position-bias passes by one evaluator (1 disagreement re-evaluated)."
+    - "Extra invariant-gate confirmation round after Round 2.5 (standard depth has no Round 3)."
+    - "Input files are YAML, copied as variant-N-original.md."

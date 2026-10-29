@@ -1,0 +1,8 @@
+merge_method: adversarial
+convergence_score: 0.947
+adversarial_status: partial          # one cosmetic unresolved point (S-002); one subagent wrote /tmp/x (empty; removed by orchestrator)
+merged_output_path: adversarial/merged-findings.md
+adversarial_artifacts_dir: adversarial/adversarial   # remapped from sc-adversarial `artifacts_dir`
+verdict: refactor
+counts: {kept: 12, dropped: 0, important: 3, minor: 9}
+reviewer_cards: [reviewer-cards/reviewer-1-card.yaml, reviewer-cards/reviewer-2-card.yaml]

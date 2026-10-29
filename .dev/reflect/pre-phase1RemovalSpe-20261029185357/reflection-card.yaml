@@ -1,0 +1,7 @@
+card: t1-card.md
+calibrator_model_class: opus
+calibrator_diversity: full
+dimensions: {citation_grounding: 0.88, coverage_completeness: 0.78, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.80, recommendation_actionability: 0.92}
+C: 0.79
+escalation_recommendation: escalate-t2
+notes: "Calibrator flags free-text classes (not the 4-category taxonomy) and that Constraints' pull-forward rule mitigates F-1."

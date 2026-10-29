@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P3-access-model/adversarial/P3-access-model-merged.md"
+  convergence_score: 1.0            # 26/26 diff points; gate status BLOCKED_BY_INVARIANTS
+  artifacts_dir: ".dev/codegraph-migration/decisions/P3-access-model/adversarial/adversarial/"
+  status: "partial"                 # convergence blocked by 3 HIGH invariants, carried as accepted risks with closure rules
+  base_variant: "Variant C (option-c.md, hybrid; advocate default:backend+qa)"
+  scores: {A: 0.810, B: 0.912, C: 0.871}   # B-C margin 0.041 < 0.05; tiebreaker level 1 (diff points won C 10.5, B 6.5, A 2.0)
+  unresolved_conflicts: 0           # diff points; plus 2 Round-2 sub-points (N-001 query verb, N-002 symbolsOnly exception) decided by the orchestrator, flagged for user review
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-002, category: guard_conditions, assumption: "version/pin readable over MCP alone in closed-Bash orchestrators", severity: HIGH}
+    - {id: INV-003, category: guard_conditions, assumption: "agents calling MCP inherit the orchestrator's readiness state", severity: HIGH}
+    - {id: INV-011, category: guard_conditions, assumption: "one smoke test settles foreground-agent MCP access", severity: HIGH}

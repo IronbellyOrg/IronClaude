@@ -1,0 +1,181 @@
+input_tree_sha256: a3f75f6dbaf6aa509d6010b76d7475c8de1e407f15fdc386aeef6e050df4c3d9
+file_count: 89
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/codegraph-migration/inventory/codebase-memory.md
+    sha256: 1daa16de1013e52f57eaae32e9a8627137a2c7b60a76272dfb457b0265c3c6a3
+  - path: .dev/codegraph-migration/specs/phase-2-codegraph-install-spec.md
+    sha256: 2a5c2565d8ea034a4a49b439f5009f1b92a26aeff4c04de62d62d277a7d84ea9
+  - path: .dev/releases/current/cliEval/evidence/T02.15/perf.json
+    sha256: 829a1651c4d859d4e694f890d87ff89dec089b8bf130d42ebdd069352d63525b
+  - path: .dev/tasks/to-do/TASK-WF-phase1RemovalSpe-20261029-185100/TASK-WF-phase1RemovalSpe-20261029-185100.md
+    sha256: a53f203aa537787f9d5d75cf45a1ccbad326f8932e1abdfdbe0b53478180d5c6
+  - path: .dev/tasks/to-do/TASK-WF-phase1RemovalSpe-20261029-185100/source.md
+    sha256: 4f25d464f97d791b7a20491d928cefb8775377378075bd21e492284bd92b2259
+  - path: .github/workflows/test.yml
+    sha256: 7a256bb199b51de2e3b2e71ea6ff29ee55088016cc0d1f5556a8c8fef30e9b43
+  - path: .gitignore
+    sha256: 34ee5c65be138f0d6e58538852132ef4ffc579b83afbd659f93821a91937dd1f
+  - path: CHANGELOG.md
+    sha256: 9cf1590d4cc2b6fba78d8ca532d9f295b249a9e1432cb711d8f1b74abbd611c5
+  - path: CLAUDE.md
+    sha256: ee86465df0c9ed28bce7273740accfd2374c9a501fab49d08c0e0c64e8e7021a
+  - path: README.md
+    sha256: a36f703500cd19d301eb53262ddec430a50ae24e40c8edd596b1801ec47db69a
+  - path: SECURITY.md
+    sha256: 3fdba60d215c050e1d75b41989f2f922fe7bd6668e9ad1b6174074191aea8566
+  - path: agents/sc-pm-agent.md
+    sha256: 1f396c73985203547a6dc9c3dfcea4450b9308fbff7243c110f2605f26d6a27c
+  - path: commands/sc-brainstorm.md
+    sha256: 553ab63b9e65ac052c1ae682e44283f64f20a7fb81b33ea544fc045f02b5f912
+  - path: commands/sc-load.md
+    sha256: 768d62092b91b93fb1082c6b5fd355dffad4447247bee62d9f7647e7dd4ced83
+  - path: commands/sc-pm.md
+    sha256: 3bb9e21b83cde46a33bbf34966af7273a0be16b5f9a1d040728dfbb6c8954371
+  - path: commands/sc-reflect.md
+    sha256: b4e213e4eeb457093eb1d5e96ec4edb48efb7b92ccb23ee357df98cd90b15861
+  - path: commands/sc-save.md
+    sha256: d360a611050f12c7f7719f15a264130aa0c5ecf660d2eba508cb576c5e0460da
+  - path: docs/analysis-sc-tasklist.md
+    sha256: bf5b40d3344f2dd6c4cfce8e1b2555d2f98d9f823b8636b8c2aa73c3b2e04fd2
+  - path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+    sha256: ecb82d68b21fb46474179dd99c0eaa2a12dc4f372b41d4bf670d7561fadb6c64
+  - path: docs/developer-guide/technical-architecture.md
+    sha256: a2123d969e764e29f2156e25adac1b7e6d40f2503cec13047d9f14b46b60f74d
+  - path: docs/mcp/mcp-integration-policy.md
+    sha256: 7089b5d659edeeb14f8c9939f1098b02f8142fd2031a10665aaadddc46395016
+  - path: docs/mcp/mcp-optional-design.md
+    sha256: faa03f30b9b6d31c6d442257d81f440b386b7671ee581ec0a5f7a1c616a19f99
+  - path: docs/reference/mcp-server-guide.md
+    sha256: 384f624af5b0289ece4d688e93e3ecc2d97d3b9f42ea494d260a8719f7e1b2ed
+  - path: docs/troubleshooting/serena-installation.md
+    sha256: 65a91a75533f15d4224ea0bc312f2841982fcd7813f329c90f5230dc97fb5fd8
+  - path: docs/user-guide/mcp-installation.md
+    sha256: e413bbe6f423028135997d7146ee787a3ffcd2a74cf817ec9166f2221f7c1e6e
+  - path: plugins/superclaude/agents/pm-agent.md
+    sha256: 7997269f89ea7df887117b8dbfb85b3683b831a700dc2157027265457be086f4
+  - path: plugins/superclaude/commands/reflect.md
+    sha256: 06d4147093868d367c7b632788137c9a22305a52c61a12f9f7856a5bec5a4ac4
+  - path: plugins/superclaude/hooks/hooks.json
+    sha256: e9eb95af6fb5926e5cb4ed4b4449379a8039716bc87689625c57cdc04455a84f
+  - path: plugins/superclaude/mcp/MCP_Morphllm.md
+    sha256: 46e77669e433c58f6a8355964cf65ea8adca98e9e7a03e2f56b7c28d66ca4449
+  - path: plugins/superclaude/modes/MODE_Task_Management.md
+    sha256: 98803a8492262824c74f86ca1450149b686d094a1f8b5fa984c61092ba670b13
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: 10115f109bb2c1b607dfc65989e267a10953c33b7bffd7a4f9911627a49e3244
+  - path: src/superclaude/agents/auggie-reviewer.md
+    sha256: 5484d895f12c99efde60af8084af9cc43ba127f6f0627ba48262651683696da4
+  - path: src/superclaude/agents/pm-agent.md
+    sha256: 7997269f89ea7df887117b8dbfb85b3683b831a700dc2157027265457be086f4
+  - path: src/superclaude/agents/reflect-reviewer.md
+    sha256: 53f72266f25c974e3965bbc7f7bcd8a0e1f15ece18d0220b4f7af1ee63e6ce04
+  - path: src/superclaude/agents/reuse-auditor.md
+    sha256: 275e9d653f7147a1f96ed51cba3ac58d69b105fe45ed4d0cb9a2fa9a8f6332a4
+  - path: src/superclaude/agents/troubleshoot-analyst.md
+    sha256: 280c3745ba8a1ba6848b2a4f54289b24676c56b269f1ee9c15dd0c8fcdde6555
+  - path: src/superclaude/cli/doctor.py
+    sha256: 91806e389f7589636afd12fe0614d738f215e1814a6b1d0d9722aef54a71de36
+  - path: src/superclaude/cli/eval/coverage.py
+    sha256: 5b07924329e474b4d032cadac522771c1f2ff316fcf4940ca8e0164c520667ba
+  - path: src/superclaude/cli/eval/suites/README.md
+    sha256: 49e3d28b9c6fcc2c95b3a87ba5c1e84471b299f75be2cc0ca061a3e0e5a714c6
+  - path: src/superclaude/cli/eval/suites/real.yaml
+    sha256: 5b3e3827c8d76e04c7e66906ae3160d8fa737006c9a945f8724931a770bfdd6b
+  - path: src/superclaude/cli/install_mcp.py
+    sha256: ccdba3b5f198db555a6c67145caf93d34f0d42203f6baf35afbe3360b078ac1c
+  - path: src/superclaude/cli/main.py
+    sha256: cc54e0cbb54aa6acb6350afe8a9744f33d2c889e346c62168b6656c31dea70d0
+  - path: src/superclaude/cli/reflect/config.py
+    sha256: fb91f872b9537052f0221ca484f32340603b693aa6fce6fcf9d968c942205ac2
+  - path: src/superclaude/cli/reflect/contract.py
+    sha256: ea67e2e875819d0265e925f10d1068cfafa451483e15957465fb2ef497b64caa
+  - path: src/superclaude/cli/reflect/ensemble.py
+    sha256: 6d8dd32a34aacf172444912b8d264c81e71dee840a9c2381a3c0dd1d33668519
+  - path: src/superclaude/commands/auggie-review.md
+    sha256: b488d942627040295d8867e34b11a3f2677a78979607023a7e7d011045f516c1
+  - path: src/superclaude/commands/pm.md
+    sha256: c3dc819fda0f4e51ddff86dfaaf4bb2b3f636566c0f203039b69ee6c13587d77
+  - path: src/superclaude/commands/reflect.md
+    sha256: b3c25196a0b78ce18d1e769d38e99bacc8018248f4a4ac1de6a447f416892177
+  - path: src/superclaude/commands/troubleshoot.md
+    sha256: f11dc5cc19f3e10867faa8564c18d4af150679b53676debb07a340ba310da25f
+  - path: src/superclaude/commands/validate-roadmap.md
+    sha256: a7410bc00fd78ac2c4acbaa6d7e1ef9d2821e70390a63876e0cba10efde5b281
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: 5ed441bb74c1390a5cfcdecf6de9952c5fee43cde9f7bea11a26fd77c398d08d
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 10115f109bb2c1b607dfc65989e267a10953c33b7bffd7a4f9911627a49e3244
+  - path: src/superclaude/hooks/hooks.json
+    sha256: 31075c8bb88fbfd6e061313d02df9a56abb9c9b49416637d137d4d01ba3523ce
+  - path: src/superclaude/mcp/MCP_Auggie.md
+    sha256: 6e759deac70a0cee89cf32b0a25214681dc5afa868db20c42b51536610cfa2ff
+  - path: src/superclaude/mcp/MCP_Serena.md
+    sha256: 17dc0b24642d1c18aab71aba8e43bdd08aaec3976d3c3d97bdac5a1f7c7f9d9f
+  - path: src/superclaude/mcp/configs/serena-docker.json
+    sha256: c0effee00f00ea5cad6d357c164f1ef4897682cf814e584413349e66f07f5155
+  - path: src/superclaude/mcp/configs/serena.json
+    sha256: ad36d5f2a8890ab63161b4702d611e5265f7986413cecced676d0891dd2e43a0
+  - path: src/superclaude/modes/MODE_Task_Management.md
+    sha256: dea02a6f20c4994aed1cf5c2af0f63ede855e31c681da22416ace09043f22b9c
+  - path: src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+    sha256: 75c1cc9a5077dca86f5230c11ee8f9fca18debfcbe60481425a9c898d16c355a
+  - path: src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md
+    sha256: 2a94bb71f7a0c09003997dd1f316e00bae582f1403c8a24ca26c4145537175d7
+  - path: src/superclaude/skills/sc-crash-recovery/SKILL.md
+    sha256: 7fa4757e60f64aae3ae370c7519872116c5ca8643f33ca38a1b24e92206b5914
+  - path: src/superclaude/skills/sc-pm-protocol/SKILL.md
+    sha256: 20d1333d0f298f577818f53a9f415da84f474eec980491df6758ac6e13db90d7
+  - path: src/superclaude/skills/sc-reflect-protocol/SKILL.md
+    sha256: 889d2b12da76dc6cc7005a405c853336c3dca6eb2759206b9351f0787c70681e
+  - path: src/superclaude/skills/sc-task-protocol/SKILL.md
+    sha256: 1814bd407ac0ce6e0e24665af9c1d6f34dbbd2e72c0d8b2f37a0f40eac7bee3b
+  - path: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    sha256: 8229739546d31bf3aa105dd2c273ed32b26e39a2fdd056db5e906dc9ee6fdeee
+  - path: src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+    sha256: a6bf402208ac450e46e39570fdb4dad221a5eeac0b96ea84d3f2eb761a698e03
+  - path: src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md
+    sha256: a2951abd34495fb68a5e168fb122ce5a45a9dec0f6a41a3b4d237b4cf51bb851
+  - path: tests/cli/eval/test_coverage_gate.py
+    sha256: 87c0c809f52187f641e4144f20e7677a8343ce4fda8e1b73bb8ecf25d2eb4f9c
+  - path: tests/cli/reflect/fixtures/degraded_serena.yaml
+    sha256: 4495692da120c0b7c2bcf3cf3719490fffa66e42414d1d1f6a27c57c53beec02
+  - path: tests/cli/reflect/test_ensemble_unit.py
+    sha256: 12681c795b4eb90b1ea55d6e628c496cd6211c36a966c057645d1d82100de211
+  - path: tests/cli/reflect/test_marker_suppression.py
+    sha256: f52e3c5f5fdfc64cfa91afc21d6d270988ba94818b6626a119c5c99f2b276c38
+  - path: tests/cli/reflect/test_reviewer_finding_parity.py
+    sha256: 58c34a4e91e810dd81d11558666db3661bdd029da01047c9eed76786b48d6a1e
+  - path: tests/cli/reflect/test_reviewer_readonly_tools.py
+    sha256: 9e70c025b4b7b1a865cb45de50c96158d0deb6a4ad37fa025d6fbf733fd2a8d7
+  - path: tests/cli/reflect/test_runner_e2e.py
+    sha256: e7e086a1a45ecea3fbee62b849b990af34849db8c731bbb6734b2ba036c131dd
+  - path: tests/cli/reflect/test_verdict_mapping.py
+    sha256: ee8df7a722c05304a81e3641a7601947a266849715f0cd86ea48d3888544e3ff
+  - path: tests/cli/reflect/test_verify_denylist_git_mutations.py
+    sha256: 22d1bbeb7924401e79691af53f6c7f8a589173fd0209c233b1582eb4cc405830
+  - path: tests/cli/test_install_codebase_memory.py
+    sha256: fc8967187ef42ca693644327e5a0f830456ef252d32aff39f3d9ec4c65342ccd
+  - path: tests/cli/test_install_hooks.py
+    sha256: fc5e812234c43a6d220dc934bf94895fef141fe76da84698ce7af84d1c412ea3
+  - path: tests/cli/test_install_mcp_registry.py
+    sha256: e7f46537bf72193b0915a3c4b06b9e2d0d55dd76b842c638617e75d6a5a0d0cc
+  - path: tests/cli/test_install_mcp_tavily.py
+    sha256: f65da4075cfa7ecbdbb8d352f64b8a56557614ac230e11989cb5bc30ccd4f7b4
+  - path: tests/cli/test_update_command.py
+    sha256: 6294689f75ac5b583df76c49d89988f57f5a96eb8c21c813a53b100e5aca8b1f
+  - path: tests/core/test_how_we_work_routing_table.py
+    sha256: 7709caec8073908ada8a365b94534ec3dfb260cec12c614d57bc0851ec0c2d79
+  - path: tests/recommend/fixtures/routing_refresh_cases.json
+    sha256: 297716c2240bc35f192c4f9c2eb006b2330e94ef75c834428211b2ec309d9aa9
+  - path: tests/sc-roadmap/compliance/test_mcp_circuit_breakers.py
+    sha256: 4ffcb348fda261dd0980b0b658b10c6a3e810c068f4ab4ae64b194685f2f3844
+  - path: tests/sc-roadmap/integration/test_wave5_completion.py
+    sha256: e55ec7a546d211eb89428884fda311b10097eba05e2caf3e8868d493f5ab0ab3
+  - path: tests/troubleshoot/test_diagnostic_worker_contract.py
+    sha256: d8f4bfb5cc427fccefd0bf1cd523cb5f75caa4515139e405e0ddd203acb415be
+  - path: tests/unit/test_cli_install.py
+    sha256: 25f68dcf2ca5fb2ee20bc90fbde5d45d693208db80706ebaf54509dc7bae1b32
+  - path: update.sh
+    sha256: 955858e661c347db88285b8cb930cd8f73ac8eb1f6ebcb60ecb415207a359860
