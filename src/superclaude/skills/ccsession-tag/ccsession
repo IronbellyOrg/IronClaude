@@ -239,10 +239,10 @@ rename_dot_labels() {
   # (.<name>.txt) that nothing lists or copies; move each to the file name this
   # version uses (%2E<name>.txt). Runs before migrate_names, so a per-folder
   # list still to be copied takes them along. A per-folder list copied before
-  # (marked moved) gets its moved label copied to its repo's list here, unless
-  # that list already has the name.
+  # (marked moved) gets its moved label added to its repo's list here, the way
+  # any name is added: a name another session already has there gets -2, -3...
   [ -d "$PROJECTS_DIR" ] || return 0
-  local old dir name new folder key target
+  local old dir name new folder key session
   for old in "$PROJECTS_DIR"/*/topics/.*.txt; do
     [ -f "$old" ] || continue
     dir=$(dirname "$old")
@@ -253,10 +253,10 @@ rename_dot_labels() {
     folder=$(head -n 1 "$dir/.cwd" 2>/dev/null) || continue
     [ -d "$folder" ] || continue
     key=$(cd "$folder" 2>/dev/null && name_key) || continue
-    target="$PROJECTS_DIR/$key/topics"
-    [ "$target" != "$dir" ] || continue
-    mkdir -p "$target" && [ ! -e "$target/${new##*/}" ] &&
-      cp -p "$new" "$target/" || true
+    [ "$PROJECTS_DIR/$key/topics" != "$dir" ] || continue
+    session=$(head -n 1 "$new" 2>/dev/null) || continue
+    CCSESSION_NAME_KEY="$key" sync_name "$session" "$name" --keep-others \
+      >/dev/null 2>&1 || true
   done
 }
 
@@ -340,25 +340,29 @@ sync_name() {
   lock_list "$dir" || return 1
   sync_name_locked "$session" "$name" "$keep" "$dir"
   local status=$?
-  rmdir "$dir/.ccsession-lock" 2>/dev/null || true
+  exec 9>&-  # releases the lock
   return "$status"
 }
 
 lock_list() {
-  # Take the name list's lock (an atomic mkdir), waiting up to about 3 seconds;
-  # a lock still held after that was left by a run that was killed, and is
-  # taken over.
-  local lock="$1/.ccsession-lock" tries=0
-  until mkdir "$lock" 2>/dev/null; do
-    tries=$((tries + 1))
-    if [ "$tries" -ge 60 ]; then
-      rmdir "$lock" 2>/dev/null || true
-      mkdir "$lock" 2>/dev/null && return 0
-      echo "ccsession: the name list is locked: $lock" >&2
-      return 1
-    fi
-    sleep 0.05
-  done
+  # Take the name list's lock: flock(2) on <list>/.ccsession-lock, held through
+  # this shell's file descriptor 9 until it is closed or the process ends, so a
+  # killed run never leaves it behind and a live holder is never pushed out.
+  # python3 takes it (macOS has no flock command). Gives up after 4 seconds.
+  exec 9>>"$1/.ccsession-lock" || return 1
+  python3 -c 'import fcntl, sys, time
+end = time.monotonic() + 4
+while True:
+    try:
+        fcntl.flock(9, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        sys.exit(0)
+    except BlockingIOError:
+        if time.monotonic() > end:
+            sys.exit(1)
+        time.sleep(0.02)' 2>/dev/null && return 0
+  exec 9>&-
+  echo "ccsession: the name list is busy: $1" >&2
+  return 1
 }
 
 sync_name_locked() {

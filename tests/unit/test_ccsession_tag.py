@@ -2702,6 +2702,27 @@ def test_a_hidden_label_in_an_old_per_folder_list_reaches_the_repo_list(
     assert _launched(main, env, ".notes")[-2:] == ["--resume", SESSION_ID]
 
 
+def test_a_hidden_label_whose_name_the_repo_list_has_gets_a_number(
+    tmp_path: Path,
+) -> None:
+    # The old list was copied already and the repo's list has ".notes" for
+    # another session: both sessions stay listed.
+    main, _, projects, env = _named_repo(tmp_path)
+    other = "def67890-0000-0000-0000-000000000000"
+    old = projects / str(main.resolve()).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{main.resolve()}\n")
+    (old / ".ccsession-moved-to-repo").write_text("")
+    (old / ".notes.txt").write_text(f"{SESSION_ID}\n")
+    repo = projects / "github.com-Org-Repo" / "topics"
+    repo.mkdir(parents=True)
+    (repo / "%2Enotes.txt").write_text(f"{other}\n")
+    for session in (SESSION_ID, other):
+        _transcript(projects, main, session)
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {".notes": other[:8], ".notes-2": SESSION_ID[:8]}
+
+
 def test_sessions_renamed_to_one_name_at_once_both_stay_listed(
     tmp_path: Path,
 ) -> None:
@@ -2728,7 +2749,41 @@ def test_sessions_renamed_to_one_name_at_once_both_stay_listed(
         listed = _listed(main, env)
         assert set(listed) == {"shared", "shared-2"}
         assert sorted(listed.values()) == [s[:8] for s in sessions]
-    assert not (topics / ".ccsession-lock").exists()
+
+
+def test_a_live_lock_holder_is_waited_for_and_a_killed_one_frees_it(
+    tmp_path: Path,
+) -> None:
+    # A sync that takes long keeps the list to itself: nobody takes its lock over
+    # (the earlier 3-second take-over let two runs in). A killed holder's lock
+    # goes with its process.
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    hold = [
+        sys.executable,
+        "-c",
+        "import fcntl, sys, time; f = open(sys.argv[1], 'a');"
+        " fcntl.flock(f, fcntl.LOCK_EX); print('held', flush=True);"
+        " time.sleep(float(sys.argv[2]))",
+        str(topics / ".ccsession-lock"),
+    ]
+    holder = subprocess.Popen([*hold, "1.5"], stdout=subprocess.PIPE, text=True)
+    assert holder.stdout.readline().strip() == "held"
+    start = time.monotonic()
+    _ccs(main, env, "--sync-name", SESSION_ID, "waited")
+    assert time.monotonic() - start >= 1.0  # it waited for the holder
+    assert holder.wait(timeout=60) == 0
+    assert _listed(main, env) == {"waited": SESSION_ID[:8]}
+    killed = subprocess.Popen([*hold, "60"], stdout=subprocess.PIPE, text=True)
+    assert killed.stdout.readline().strip() == "held"
+    killed.kill()
+    killed.wait(timeout=60)
+    start = time.monotonic()
+    _ccs(main, env, "--sync-name", SESSION_ID, "after kill")
+    assert time.monotonic() - start < 3
+    assert _listed(main, env) == {"after kill": SESSION_ID[:8]}
 
 
 @pytest.mark.parametrize(

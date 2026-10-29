@@ -541,6 +541,9 @@ or the names will not line up.
   current folder. `ccsession --key` prints it. In the file name, `%`, `/` and
   a leading `.` are written `%25`, `%2F` and `%2E`.
 - The `.cwd` file beside them records the folder last used, for listings.
+- `.ccsession-lock` beside them is locked (`flock`) while a name is saved, so
+  two sessions saving at once take turns. The lock goes with the process that
+  held it, so a killed run never leaves the list locked.
 - `~/.cache/ccsession/orca-titles/` (or under `$XDG_CACHE_HOME`) holds, per
   Orca tab, the exact title ccsession set on it, so only that title is ever
   taken off.
