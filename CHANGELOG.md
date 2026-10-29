@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### MCP installer: LiteLLM gateway entry
+
+- `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.
+
 ### ccsession: tiers by Coder role, letter tier names, and the new tier layout
 
 #### Added (ccsession tier rules)

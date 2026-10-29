@@ -258,3 +258,127 @@ def test_selected_npm_prerequisites_probe_only_claude_node_and_npx(monkeypatch):
         ["node", "--version"],
         ["npx", "--version"],
     ]
+
+
+LITELLM_GET_OUTPUT = (
+    "litellm:\n"
+    "  Scope: User config (available in all your projects)\n"
+    "  Status: ✔ Connected\n"
+    "  Type: http\n"
+    "  URL: http://ibcore:4000/mcp/\n"
+    "  Headers:\n"
+    "    x-litellm-api-key: Bearer ${LITELLM_API_KEY}\n"
+    "\n"
+    "To remove this server, run: claude mcp remove litellm -s user\n"
+)
+
+
+def test_litellm_registry_entry_is_http_with_literal_key_placeholder():
+    entry = install_mcp.MCP_SERVERS["litellm"]
+    assert entry["name"] == "litellm"
+    assert entry["transport"] == "http"
+    assert entry["url"] == "http://ibcore:4000/mcp/"
+    assert entry["headers"] == {"x-litellm-api-key": "Bearer ${LITELLM_API_KEY}"}
+    assert entry["opt_in_only"] is True
+    assert "command" not in entry
+    assert "api_key_env" not in entry
+
+
+def test_litellm_dry_run_prints_http_command_with_literal_placeholder(
+    monkeypatch, capsys
+):
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
+    monkeypatch.setenv("LITELLM_API_KEY", "sk-should-never-appear")
+
+    assert install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["litellm"], scope="user", dry_run=True
+    )
+
+    out = capsys.readouterr().out
+    assert (
+        "Would run: claude mcp add --transport http --scope user litellm "
+        "http://ibcore:4000/mcp/ --header x-litellm-api-key: Bearer ${LITELLM_API_KEY}"
+    ) in out
+    assert "sk-should-never-appear" not in out
+    assert " -- " not in out
+
+
+def test_all_servers_choice_excludes_opt_in_litellm(monkeypatch):
+    answers = iter(["1", "0"])
+    installed = []
+    monkeypatch.setattr(install_mcp, "_is_interactive", lambda: True)
+    monkeypatch.setattr(
+        install_mcp.click, "prompt", lambda *args, **kwargs: next(answers)
+    )
+    monkeypatch.setattr(install_mcp, "check_prerequisites", lambda selected: (True, []))
+    monkeypatch.setattr(
+        install_mcp,
+        "install_mcp_server",
+        lambda info, scope, dry_run: installed.append(info["name"]) or True,
+    )
+
+    ok, _ = install_mcp.install_mcp_servers()
+
+    assert ok
+    assert "litellm" not in installed
+    assert "context7" in installed
+
+
+def test_litellm_can_still_be_selected_by_name(monkeypatch):
+    installed = []
+    monkeypatch.setattr(install_mcp, "check_prerequisites", lambda selected: (True, []))
+    monkeypatch.setattr(
+        install_mcp,
+        "install_mcp_server",
+        lambda info, scope, dry_run: installed.append(info["name"]) or True,
+    )
+
+    ok, _ = install_mcp.install_mcp_servers(["litellm"])
+
+    assert ok
+    assert installed == ["litellm"]
+
+
+def test_litellm_matching_registration_is_not_removed_and_re_added(monkeypatch):
+    calls = []
+
+    def fake_run_command(cmd, **kwargs):
+        calls.append(cmd)
+        assert cmd == ["claude", "mcp", "get", "litellm"]
+        return SimpleNamespace(returncode=0, stdout=LITELLM_GET_OUTPUT, stderr="")
+
+    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: True)
+
+    assert install_mcp.install_mcp_server(install_mcp.MCP_SERVERS["litellm"])
+    assert calls == [["claude", "mcp", "get", "litellm"]]
+
+
+def test_litellm_changed_header_is_removed_and_re_added(monkeypatch):
+    calls = []
+    stale = LITELLM_GET_OUTPUT.replace("LITELLM_API_KEY", "OLD_KEY")
+
+    def fake_run_command(cmd, **kwargs):
+        calls.append(cmd)
+        if cmd == ["claude", "mcp", "get", "litellm"]:
+            return SimpleNamespace(returncode=0, stdout=stale, stderr="")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: True)
+
+    assert install_mcp.install_mcp_server(install_mcp.MCP_SERVERS["litellm"])
+    assert ["claude", "mcp", "remove", "litellm", "--scope", "user"] in calls
+    assert [
+        "claude",
+        "mcp",
+        "add",
+        "--transport",
+        "http",
+        "--scope",
+        "user",
+        "litellm",
+        "http://ibcore:4000/mcp/",
+        "--header",
+        "x-litellm-api-key: Bearer ${LITELLM_API_KEY}",
+    ] in calls
