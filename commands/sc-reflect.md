@@ -35,7 +35,7 @@ Key behaviors:
 ## MCP Integration
 - **Serena MCP**: Mandatory integration for reflection analysis, task validation, and session metadata
 - **Reflection Tools**: think_about_task_adherence, think_about_collected_information, think_about_whether_you_are_done
-- **Memory Operations**: Cross-session persistence with read_memory, write_memory, list_memories
+- **Memory Operations**: Cross-session persistence with plain markdown files under `.superclaude/memory/` (Read, Write, Glob `.superclaude/memory/**/*.md`)
 - **Performance Critical**: <200ms for core reflection operations, <1s for checkpoint creation
 
 ## Tool Coordination
@@ -43,7 +43,7 @@ Key behaviors:
 - **think_about_task_adherence**: Validates current approach against project goals and session objectives
 - **think_about_collected_information**: Analyzes session work and information gathering completeness
 - **think_about_whether_you_are_done**: Evaluates task completion criteria and remaining work identification
-- **Memory Tools**: Session metadata updates and cross-session learning capture
+- **Memory Files**: Session metadata updates and cross-session learning capture
 
 ## Key Patterns
 - **Task Validation**: Current approach → goal alignment → deviation identification → course correction

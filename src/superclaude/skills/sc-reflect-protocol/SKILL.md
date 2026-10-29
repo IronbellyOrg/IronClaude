@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 (opt-in via --remediate) hands off to sc:workflow for a corrective tasklist package the user runs with /sc:implement by default, or to task-builder for a corrective MDTM remediation only with --depth deep. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__delete_memory, mcp__serena__rename_memory, mcp__serena__edit_memory, mcp__serena__summarize_changes, mcp__serena__execute_shell_command, mcp__serena__onboarding, mcp__serena__prepare_for_new_conversation, mcp__serena__type_hierarchy, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__summarize_changes, mcp__serena__execute_shell_command, mcp__serena__onboarding, mcp__serena__type_hierarchy, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -358,7 +358,7 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
 
 ### 4.5 Wave 5 — Detailed step addition
 
-**Step 5.0 (sc-adversarial pre-invocation probe and F1/F2/F3 fallback).** Before calling `Skill sc-adversarial-protocol`, probe its existence via `mcp__serena__list_memories` for the skill's existence indicator OR a no-op `Skill('sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:
+**Step 5.0 (sc-adversarial pre-invocation probe and F1/F2/F3 fallback).** Before calling `Skill sc-adversarial-protocol`, probe its existence with a no-op `Skill('sc-adversarial-protocol', args='--help')`. If the probe returns `skill not found`:
 
 - **F1**: retry the probe once after a short backoff.
 - **F2**: on second probe failure, use the highest-calibrated single Tier 2 reviewer verdict as the fallback merged result; mark `merge_method: single-reviewer-fallback`.
@@ -380,13 +380,12 @@ Wave 6 runs ONLY when `--remediate` is accepted (Tier 3). Acceptance is **intera
 **Step 6.0 (handoff write — MDTM route only, BEFORE the task-builder spawn).**
 
 1. **Build the handoff payload:** the in-flight rubric scores + deviation set + evidence packet + reviewer verdicts, keyed `reflect/handoff-{slug}-{timestamp}` (§6.3 schema).
-2. **Persist (tool-presence-gated, OQ-M1):** if `prepare_for_new_conversation` is exposed in the active Serena context, write the blob via it (its signature confirmed by a live probe at adoption time — **never** wire an assumed parameter shape); emit `handoff_memory_written: true`, `handoff_memory_key: reflect/handoff-{slug}-{timestamp}`, `handoff_persist_method: prepare_for_new_conversation` to `audit.log` (FR-3.1).
-3. **Fallback (the realistic default — tool context-excluded, FR-3.3):** write the same inline-built summary blob via `mcp__serena__write_memory` under the same key; emit `handoff_persist_method: write_memory_fallback`; still pass the key to task-builder.
-4. **Both-fail (FR-3.4):** if both the tool AND `write_memory` fail, emit `handoff_persist_failed: true`, surface findings to task-builder WITHOUT the handoff key, and NEVER block the report.
-5. **Pass the key forward:** invoke task-builder with the handoff key so it `read_memory`s the blob for a warm start.
-6. **Capture + emit the authored MDTM path (FR-8):** AFTER the task-builder spawn returns, capture the absolute path of the MDTM file it wrote under `.dev/tasks/to-do/` (`refs/remediation-handoff.md`) and emit it as the §9.1 `remediation_task_path` field. This is the path-EMISSION only — reflect AUTHORS but NEVER runs `/task` (the §"Will Not" invariant is preserved); the reflect-wrapper auto-fix loop is the sole consumer that auto-runs it. Emit `remediation_task_path: null` in the degenerate / not-authored cases (the Authorized/Necessary-only short-circuit per `refs/remediation-handoff.md`, and the not-accepted `handoff_memory_key: null` case below).
+2. **Persist (file write, FR-3.1):** create `<project>/.superclaude/.gitignore` containing `*` if absent (§6.3), then `Write` the payload to `<project>/.superclaude/memory/reflect/handoff-{slug}-{timestamp}.md`. The file is written once and never edited in place; emit `handoff_memory_written: true` and `handoff_memory_key: reflect/handoff-{slug}-{timestamp}` to `audit.log`.
+3. **Write-fail (FR-3.4):** if the `Write` fails, emit `handoff_persist_failed: true`, surface findings to task-builder WITHOUT the handoff key, and NEVER block the report.
+4. **Pass the key forward:** invoke task-builder with the handoff key so it `Read`s `<project>/.superclaude/memory/<key>.md` for a warm start.
+5. **Capture + emit the authored MDTM path (FR-8):** AFTER the task-builder spawn returns, capture the absolute path of the MDTM file it wrote under `.dev/tasks/to-do/` (`refs/remediation-handoff.md`) and emit it as the §9.1 `remediation_task_path` field. This is the path-EMISSION only — reflect AUTHORS but NEVER runs `/task` (the §"Will Not" invariant is preserved); the reflect-wrapper auto-fix loop is the sole consumer that auto-runs it. Emit `remediation_task_path: null` in the degenerate / not-authored cases (the Authorized/Necessary-only short-circuit per `refs/remediation-handoff.md`, and the not-accepted `handoff_memory_key: null` case below).
 
-**Plan route (`--remediate`, no deep) — phases (detail in `refs/remediation-handoff.md` "Plan route").** Step 6.0 and the FR-8 path emission above do NOT run on this route: `sc:workflow` has no `BUILD_REQUEST`-style field and cannot `read_memory`, so the state to preserve (Regression/Drift items, `needs_human_decision`, grounding gaps) travels as a plain `## Reflect Verdict State` section in `<output-dir>/remediation-source.md` (no checkbox or numbered-list lines — the `sc:workflow` gate rejects them).
+**Plan route (`--remediate`, no deep) — phases (detail in `refs/remediation-handoff.md` "Plan route").** Step 6.0 and the FR-8 path emission above do NOT run on this route: `sc:workflow` has no `BUILD_REQUEST`-style field and cannot read a handoff file, so the state to preserve (Regression/Drift items, `needs_human_decision`, grounding gaps) travels as a plain `## Reflect Verdict State` section in `<output-dir>/remediation-source.md` (no checkbox or numbered-list lines — the `sc:workflow` gate rejects them).
 
 - **Phase A — Build the plan:** write `remediation-source.md` (flatten any numbered/checkbox lines copied from the report to plain bullets or prose first), then `Skill sc:workflow-protocol` on it with `--depth standard --handoff none` (never `--handoff implement`; never `--output`, retired in workflow). Workflow creates the package `.dev/tasks/to-do/<slug>/` (`<slug>.md`, byte-exact `source.md`, `return-contract.yaml`). On `status: success`, resolve the absolute tasklist path from `plan_path`, record it as `plan_path` in `audit.log` and emit it as `remediation_plan_path`; otherwise surface the code and set `plan_path=null` with no retry. A `TASK-WF-*` package is never given to `/task`.
 - **Phase B — Consume workflow's built-in pre-review (interactive gate only):** `sc:workflow` runs `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<slug>.md` itself (its Wave 4, advisory). Do NOT call reflect again on the tasklist; read `reflect_status` / `reflect_report_path` from its `return-contract.yaml` and surface them. Findings never edit the tasklist: on `refactor`, append to `remediation-review-notes.md` (Phase A rewrites `remediation-source.md` each pass and re-includes the notes as `## Review Feedback`) and re-run Phase A (new package). `skipped|failed` → say so and fall back to the `self-review` agent on the tasklist. That nested reflect call is the sanctioned exception to the §"Will Not" rule against reflecting on reflect's own intermediate output (see below).
@@ -397,7 +396,7 @@ On the plan route `remediation_task_path: null` and `handoff_memory_key: null`; 
 
 **Degenerate no-op (FR-3.5):** when `--remediate` is NOT accepted (no Tier 3), Step 6.0 never runs, `handoff_memory_key: null`, and `remediation_task_path: null`. This is expected, not a failure.
 
-The handoff write is ordered strictly BEFORE the task-builder spawn. The signature of `prepare_for_new_conversation` is unverified (OQ-M1) and the tool is absent in `claude-code`/`ide-assistant` contexts — the `write_memory` fallback is the default path and the implementer is directed to OQ-M1 resolution rather than wiring assumed parameters (FR-3.6).
+The handoff write is ordered strictly BEFORE the task-builder spawn (FR-3.6).
 
 ---
 
@@ -586,38 +585,30 @@ Per CLAUDE.md "Context freshness discipline" S1: before any `file:line` citation
 
 ### 6.3 Memory pattern (per-project, expiring)
 
-```
-mcp__serena__read_memory  key=reflect/last-pass-{project-slug}      # Wave 0 hydrate
-mcp__serena__read_memory  key=reflect/deviation-patterns-{slug}     # Wave 1 (recurring deviation signals)
-mcp__serena__write_memory key=reflect/last-pass-{slug} value=<summary>  # Wave 5 persist
-mcp__serena__write_memory key=reflect/deviation-patterns-{slug} value=<merged>  # Wave 5 persist
-mcp__serena__prepare_for_new_conversation → reflect/handoff-{slug}-{timestamp}   # Wave 6 (when --remediate; write_memory fallback)
-mcp__serena__list_memories                                          # Wave 0 inventory
-```
-
-Retention rule: keep last 20 entries per key; expire >90 days. Project slug derived from `pwd` basename.
-
-**Handoff schema (`reflect/handoff-{slug}-{timestamp}`, FR-RV3-MED.3).** A Tier-3 bridge memory written at Wave 5/6 — immediately BEFORE the Wave-6 task-builder handoff — carrying the in-flight context the remediation conversation would otherwise re-derive: **rubric scores + deviation set + evidence packet + reviewer verdicts**. It uses the `reflect/<category>-{slug}[-{timestamp}]` naming consistent with the existing `reflect/last-pass-*` / `reflect/deviation-patterns-*` keys. It is written via `prepare_for_new_conversation` when that tool is exposed, **falling back to `mcp__serena__write_memory`** with an inline-built summary blob when the tool is context-excluded (the realistic default — see §4.6 and §14). The `reflect/handoff-*` prefix is included in the retention sweep prefix set (the sweep itself is the low-spec FR-RV3-LOW.8 implementation — see the cross-spec note below).
-
-**Retention sweep (Wave 5/0, FR-8).** The retention rule above was previously specified but unimplemented (`write_memory` accumulated without pruning). At Wave 5 (persist) — or Wave 0 if the prior run never swept — run the CRUD sweep over **Serena memory blobs** (NOT project source):
+Cross-session memory is plain markdown files read with `Read` and written with `Write`; no MCP server is involved. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git (one store per worktree). Before the first write under `<project>/.superclaude/`, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`.
 
 ```
-mcp__serena__list_memories                                  # inventory + slug filter
-mcp__serena__delete_memory  name=<expired-or-over-cap slug> # prune deletable entries
-mcp__serena__rename_memory  old=<slug> new=<migrated-slug>  # slug migration (mem: refs propagate, v1.5+)
-mcp__serena__edit_memory    name=<slug> patch=<merge>       # merge/dedupe overlapping entries
+Read  .superclaude/memory/reflect/last-pass-{project-slug}.md    # Wave 0 hydrate (missing file = memory miss)
+Read  docs/memory/reflect/deviation-patterns-{slug}.md           # Wave 0 hydrate (recurring deviation signals; tracked cold-start calibration baseline)
+Write .superclaude/memory/reflect/last-pass-{slug}.md <summary>  # Wave 5 persist (single-owner file, overwritten whole)
+Write docs/memory/reflect/deviation-patterns-{slug}.md <merged>  # Wave 5 persist (tracked file: Read, merge, then Write whole)
+Write .superclaude/memory/reflect/handoff-{slug}-{timestamp}.md  # Wave 6 (MDTM route of --remediate; written once, never edited)
+Glob  .superclaude/memory/reflect/*.md                           # Wave 0 inventory
 ```
 
-Sweep rules:
+Retention rule: keep last 20 entries per file (an entry is one `## <run-id>` section); expire >90 days. Project slug derived from `pwd` basename; sanitize it (no `..`, no path separators) before building any path.
 
-- **Version gate (C2).** `rename_memory`'s `mem:` cross-reference propagation requires Serena **v1.5+**. When `serena_version ∈ {"<v1.5", "unknown"}` (recall `unknown` is treated as `<v1.5`), run **write-only / no-retention**: skip `rename_memory` propagation (renaming would silently break `mem:` refs), and emit `degraded_components: ["serena:pre-v1.5-no-rename-propagation"]`.
-- **Unbounded-gap loud flag (C1).** The retention invariant is "keep last 20 **deletable** entries" — read-only entries (those matching `read_only_memory_patterns`) are EXCLUDED from the budget. When `slug_count > 20` AND `(slug_count − readonly_count) ≤ 20` after the sweep (the total exceeds the 20-entry budget but the deletable entries alone are within it, so read-only entries are what make the ≤20-total target unreachable), emit `memory_retention_unbounded: true` and a WARN to `audit.log` (loud, never silent) rather than deleting read-only entries.
-- **Zero / degenerate case (C4).** On the first-ever run (no slug memories) or an all-stale set, still emit the sweep-invoked flag with all-zero action counts. The **current-pass entry is protected from the age sweep**: order the Wave-5 `write_memory` AFTER the sweep, or exclude the current pass by recency rank, so a >90-day all-stale sweep never deletes the entry just written.
-- **Slug sanitization.** Derived slugs MUST contain no `..` (Serena v1.2.0 path-traversal guard rejects them); sanitize before any CRUD call.
-- **Read-only respect.** Never delete or rename entries matching `read_only_memory_patterns`.
-- **Handoff-prefix membership (FR-3.7 / M-ARC2).** The sweep prefix set includes `reflect/handoff-*` (alongside `reflect/last-pass-*` and `reflect/deviation-patterns-*`), so FR-3's Wave-6 handoff memories are pruned under the same 90-day-expire / 20-entry-cap policy and do NOT accumulate unbounded across `--remediate` runs. The sweep implementation is the low-spec FR-RV3-LOW.8 mechanism; this records the required prefix extension (cross-spec coordination — see the dependency record).
+**Handoff schema (`.superclaude/memory/reflect/handoff-{slug}-{timestamp}.md`, key `reflect/handoff-{slug}-{timestamp}`, FR-RV3-MED.3).** A Tier-3 bridge file written at Wave 5/6 — immediately BEFORE the Wave-6 task-builder handoff — carrying the in-flight context the remediation conversation would otherwise re-derive: **rubric scores + deviation set + evidence packet + reviewer verdicts**. It uses the `reflect/<category>-{slug}[-{timestamp}]` key naming consistent with the `last-pass-*` / `deviation-patterns-*` files. Parallel sessions may write handoffs, so every file name carries the timestamp: the file is written once with `Write` and never edited in place (see §4.6).
 
-Every CRUD action is fail-open per §6.5 and emits one `audit.log` row per the §4 per-step convention; the sweep records `memory_retention_actions`, `memory_retention_skipped_readonly`, and `memory_retention_unbounded` to §9.2 telemetry. This sweep mutates Serena memory blobs ONLY — it never touches project source.
+**Retention (Wave 5, in-file, FR-8).** The retention rule is applied inside the file at write time, not by a separate delete pass. At Wave 5, before the `Write` of `last-pass-{slug}.md` or `deviation-patterns-{slug}.md`, trim the merged content to the last 20 entries and drop entries older than 90 days.
+
+Retention rules:
+
+- **Current pass protected.** Merge the current-pass entry AFTER the trim, so a >90-day all-stale file never loses the entry just written.
+- **No deletion.** No primitive deletes a memory file. `handoff-*` files are written once and are not pruned by this skill; the user removes old ones.
+- **Zero / degenerate case.** On the first-ever run (no file) or an all-stale file, still emit `memory_retention_actions: 0`.
+
+Every read and write is fail-open per §6.5 and emits one `audit.log` row per the §4 per-step convention; the trim records `memory_retention_actions` (entries trimmed) to §9.2 telemetry. This touches memory files ONLY — it never touches project source.
 
 ### 6.4 `think_about_*` as scripted checkpoints (not load-bearing)
 
@@ -859,7 +850,7 @@ remediation_accepted: bool | null
 task_file_path: <path> | null
 remediation_task_path: <abs path> | null   # FR-8: absolute path of the MDTM file rf-task-builder wrote in Wave 6 (MDTM route only); null when no remediation authored AND always null on the plan route (`--remediate` without `--depth deep`). The reflect-wrapper auto-fix loop READS this to auto-run /task; it never guesses a "newest TASK-RF-* dir".
 remediation_plan_path: <abs path> | null   # 1.8.0: absolute path of the sc:workflow tasklist `.dev/tasks/to-do/<slug>/<slug>.md` built in Wave 6 (plan route only); null when no plan was built AND always null on the MDTM route. The wrapper auto-fix loop READS this to auto-run /sc:implement when remediation_task_path is null.
-handoff_memory_key: <serena-memory-name> | null   # FR-3 (reflect/handoff-{slug}-{timestamp}; null when no Tier 3)
+handoff_memory_key: <memory-key> | null   # FR-3 (reflect/handoff-{slug}-{timestamp}, file `.superclaude/memory/<key>.md`; null when no Tier 3)
 
 # Asymmetric-cost flags (downstream automation must respect these)
 cannot_validate_without_user_input: bool
@@ -965,16 +956,14 @@ executor_class_source: flag | env | log-heuristic | unknown
 executor_class_resolved: bool                                  # false → §7.1 anti-self-confirmation WARN emitted
 executor_exclusion_degraded: bool                              # true when executor class collision dropped reviewer count below N=2 → T1 fallback
 citations_dropped_extrapolated: <int>   # sampled-mode telemetry (recording, not deciding) — see §11.5
-memory_hits: <int>                       # serena read_memory hits in Wave 0
+memory_hits: <int>                       # memory-file Read hits in Wave 0 (§6.3)
 memory_misses: <int>
 onboarding_status: bootstrapped | not_bootstrapped | unknown   # FR-6
 serena_version: "<v1.5" | ">=v1.5" | "unknown"   # FR-7 (three-valued — A4/C2)
 serena_config_snapshot_path: <abs path>   # FR-7
 serena_active_context: <string>   # FR-7
 serena_active_modes: [<string>]   # FR-7
-memory_retention_actions: <int>   # FR-8
-memory_retention_skipped_readonly: <int>   # FR-8
-memory_retention_unbounded: <bool>   # FR-8 (C1 loud-gap flag)
+memory_retention_actions: <int>   # FR-8 (entries trimmed from a memory file at write time, §6.3)
 verify_blocked: <bool>   # FR-4 (any invocation rejected by the safety envelope)
 verify_blocked_reason: "verb '<v>' not in allowlist"|metachar-denied|mutation-denied|null   # FR-4 (verb case is a templated message per spec FR-4.2 / §6.1.1(b); metachar/mutation are fixed slugs)
 verify_timeout_hit: <bool>   # FR-4 (a verify invocation hit the timeout → exit 124)
@@ -985,10 +974,9 @@ onboarding_succeeded: <bool>   # FR-2 (positive post-onboarding list_memories de
 onboarding_memories_count: <int>   # FR-2 (count of memories written by the bootstrap)
 onboarding_skipped_reason: context-excluded|memories-present|null   # FR-2
 onboarding_budget_exceeded: <bool>   # FR-2 / NFR-7 (bootstrap breached the T1 context budget → aborted)
-handoff_memory_written: <bool>   # FR-3 (Wave-6 handoff blob persisted)
+handoff_memory_written: <bool>   # FR-3 (Wave-6 handoff file persisted)
 handoff_payload_size_bytes: <int>   # FR-3 (size of the handoff blob)
-handoff_persist_method: prepare_for_new_conversation|write_memory_fallback   # FR-3
-handoff_persist_failed: <bool>   # FR-3 (both tool and write_memory fallback failed → task-builder cold-starts)
+handoff_persist_failed: <bool>   # FR-3 (the handoff file Write failed → task-builder cold-starts)
 type_hierarchy_invoked: <bool>   # FR-RV3-MED.1 (step 4.5 ran; false when backend-gated off — no degrade)
 hierarchy_backend: jetbrains|lsp|none|lsp-disabled   # FR-RV3-MED.1
 hierarchy_nodes_examined: <int>   # FR-RV3-MED.1
@@ -1515,9 +1503,8 @@ Three concrete forces shape the pick:
 | Wave 7 cross-filesystem mv required | Allowed via copy + remove + fsync; emit `cross_fs_promotion: true`; SHA-verify after copy | None |
 | Env-var alias set re-resolves differently between Wave 0 and Wave 3 (race) | STOP at Wave 3A reviewer composition; emit `alias_set_changed_mid_run: true` with old/new alias sets in audit; `status: partial`; recommend re-run with stable env. Wave 0 alias set is canonical. | None |
 | All Tier 2 reviewers AND calibrator fail (compound failure) | F3: cannot continue with zero calibrated cards; emit `status: failed` with `failure_reason: "T2_full_collapse"`; do NOT silently emit `status: partial`. Tier 3 remediation handoff disabled. | None |
-| Serena `write_memory` fails at Wave 5 (disk full, permission denied, serena down) | Continue: report still ships; emit `memory_persist_failed: true` in telemetry; emit WARN: `"deviation-pattern memory not persisted — next reflect run will not benefit from this run's findings."` Memory persistence is best-effort. | None |
-| FR-3 Wave-6 handoff persist (Tier 3) — `prepare_for_new_conversation` context-excluded | Continue: fall back to `mcp__serena__write_memory` with an inline summary blob; emit `handoff_persist_method: write_memory_fallback`; still pass the key to task-builder. | None |
-| FR-3 Wave-6 handoff persist — BOTH `prepare_for_new_conversation` AND `write_memory` fail | Continue: report still ships; emit `handoff_persist_failed: true`; surface findings to task-builder WITHOUT the handoff key (task-builder warm-starts cold); WARN. Never block. | None |
+| Memory-file `Write` fails at Wave 5 (disk full, permission denied, read-only checkout) | Continue: report still ships; emit `memory_persist_failed: true` in telemetry; emit WARN: `"deviation-pattern memory not persisted — next reflect run will not benefit from this run's findings."` Memory persistence is best-effort. | None |
+| FR-3 Wave-6 handoff persist (Tier 3) — the handoff-file `Write` fails | Continue: report still ships; emit `handoff_persist_failed: true`; surface findings to task-builder WITHOUT the handoff key (task-builder warm-starts cold); WARN. Never block. | None |
 | `<output>/audit.log` write failure (filesystem full, permission denied) | Attempt fallback: write to `/tmp/sc-reflect-audit-<pid>.log` AND emit chat WARN. If fallback also fails, continue silently for that step but emit `audit_log_partial: true` in the return contract. Audit-log failure does NOT block the report from shipping but DOES force `status: partial` and blocks Wave 7 promotion. | Fallback path |
 | Post-Wave-5 evidence-validator returns partial result (subprocess emitted SOME findings then crashed) | Distinct from full-crash row (which falls back to inline re-Read of all citations). Here the validator processed K of N citations and then crashed. Accept the K processed results; for the remaining N-K, fall back to inline re-Read; emit `evidence_validator_partial: true` with `evidence_validator_processed_count: K`; force `status: partial`; add Grounding Gap entry. | Inline re-Read for the unprocessed N-K |
 
@@ -1872,7 +1859,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
 - Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
 - Tavily evidence searches via `mcp__tavily__tavily_search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
-- Persist deviation patterns to per-project Serena memory with 90-day expiry.
+- Persist deviation patterns to the tracked `docs/memory/reflect/deviation-patterns-{slug}.md` file with 90-day expiry.
 - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
 - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.
 - Write a `promotion-log.yaml` every time Wave 7 runs (even on skip/reject/fail/dry-run) for forensic transparency.
@@ -1983,7 +1970,7 @@ Features considered and rejected, each with a why-rejected line and a what-repla
 
 3. **Streaming / interactive reflection dialogue** — interactive Socratic probing is `sc:brainstorm`'s core value. sc:reflect is a batch review skill. Adding interactive dialogue would duplicate brainstorm's Wave 1 and dilute reflect's identity as a validation tool. *Replaces with:* `Skill sc-brainstorm-protocol` (upstream).
 
-4. **Persistent deviation knowledge graph** — Serena memory stores the last-pass summary. A full deviation graph with deduplication, temporal trending, and cross-project aggregation is a separate product, not a skill feature. *Replaces with:* `mcp__serena__write_memory key=reflect/deviation-patterns-{slug}` with 90-day TTL (§6.3).
+4. **Persistent deviation knowledge graph** — A memory file stores the last-pass summary. A full deviation graph with deduplication, temporal trending, and cross-project aggregation is a separate product, not a skill feature. *Replaces with:* `Write` to `docs/memory/reflect/deviation-patterns-{slug}.md` with 90-day TTL (§6.3).
 
 5. **Multi-model fan-out in T1** — T1 is intentionally single-agent and cheap. Heterogeneous multi-model review is a T2/T3 feature. Running parallel models at T1 would violate the "quick first" contract that makes sc:troubleshoot's T1 effective. *Replaces with:* §5 rubric escalation path to T2.
 
@@ -2038,7 +2025,7 @@ Two HIGH invariants are deliberately deferred to a future v1.1 release. They are
 
 ### 19.5 Cross-tasklist deviation-pattern memory (deferred P8)
 
-**v1.0 posture:** §17 commits to per-project Serena memory with 90-day expiry for deviation patterns. Scope is per-project, not per-template or per-agent.
+**v1.0 posture:** §17 commits to per-project memory files with 90-day expiry for deviation patterns. Scope is per-project, not per-template or per-agent.
 
 **v1.1 candidate hardening:** extend the memory namespace to `reflect/cross-tasklist-patterns/<template-slug-or-agent-id>.md` so recurring patterns across tasklists generated from the same template (or executed by the same agent) surface in subsequent reflect runs.
 

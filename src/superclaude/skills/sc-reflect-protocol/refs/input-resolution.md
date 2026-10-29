@@ -78,8 +78,6 @@ Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table
 MCP availability is also probed at Wave 0:
 
 - `sc-adversarial-protocol` installation probe (step 0.3) — required for Wave 4 adversarial merge; F1/F2/F3 fallback per Change #15 if absent.
-- Serena project activation + memory hydrate (step 0.7).
-- Auggie + serena availability for Wave 1A grounding chain.
 
 ## Env routing table
 

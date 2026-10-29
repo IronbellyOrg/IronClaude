@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -123,9 +123,9 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Track progress | `TodoWrite` | Phase completion tracking |
 | Run validation | `Bash` | File existence checks, line counts |
 | Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
-| Read session memory | `mcp__serena__read_memory` | Load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
-| Write session memory | `mcp__serena__write_memory` | Persist ledger, terminology, patterns (Post-Phase 6) — fail-open |
-| Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Pre-Phase 0, Step 0.5) — fail-open |
+| Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
+| Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
+| Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Step 0.5) — fail-open |
 | Find symbol | `mcp__serena__find_symbol` | Symbol lookup for context supplement (Step 0.5, deep only) — fail-open |
 | Get symbols overview | `mcp__serena__get_symbols_overview` | File-level symbol map (Step 0.5, deep only) — fail-open |
 
@@ -135,24 +135,23 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 
 ### Pre-Phase 0: Session Context Loading (Optional, Fail-Open)
 
-**Requires**: `mcp__serena__read_memory`, `mcp__serena__activate_project` (fail-open — skip all pre-phase hooks if Serena is unavailable).
+**Requires**: `Read` on the project memory folder `<project>/.superclaude/memory/validate-roadmap/` (fail-open — a missing folder, missing file or failed read skips that hook; it never stops the run). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git.
 
-Before document ingestion, load cross-session context from Serena memory. Each hook is independent — failure in one does not block others.
+Before document ingestion, load cross-session context from the memory files `<project>/.superclaude/memory/validate-roadmap/<key>.md`. Each hook is independent — failure in one does not block others.
 
 #### Hook 0a — Load Validation Ledger Baseline
 
 Load the most recent validation ledger entry for this project to enable delta tracking in Phase 3.
 
-1. Call `mcp__serena__activate_project` for the current repository.
-2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}`.
-3. If found: parse the ledger JSON and store in orchestrator context as `ledger_baseline`. Extract the most recent entry's gap IDs and severities for delta comparison in Step 3.10.
-4. If not found or error: set `ledger_baseline = null`. Continue without delta tracking.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/validation-ledger-{project-slug}.md`.
+2. If found: parse the ledger JSON in the file body and store in orchestrator context as `ledger_baseline`. Extract the most recent entry's gap IDs and severities for delta comparison in Step 3.10.
+3. If not found or error: set `ledger_baseline = null`. Continue without delta tracking.
 
 #### Hook 0b — Load Terminology Map
 
 Load the project's accumulated terminology map as advisory context for requirement extraction.
 
-1. Call `mcp__serena__read_memory` with key `terminology-map-{project-slug}`.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/terminology-map-{project-slug}.md`.
 2. If found: parse terminology entries (max **200 entries**). Terms older than **90 days** are marked `low_confidence: true`. Store as `prior_terminology` in orchestrator context.
 3. If not found or error: set `prior_terminology = null`. Extraction uses cold-start terminology only.
 
@@ -162,7 +161,7 @@ Load the project's accumulated terminology map as advisory context for requireme
 
 Load historical adversarial pattern effectiveness data for Phase 4 pattern ordering.
 
-1. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/adversarial-patterns-{project-slug}.md`.
 2. If found: parse pattern entries. Filter to patterns with ≥3 historical hits and false-positive rate <40%. Rank by `(hit_count * (1 - fp_rate))`. Store top 20 as `historical_patterns`.
 3. If not found or error: set `historical_patterns = null`. Phase 4 uses default patterns only.
 
@@ -977,9 +976,9 @@ If `--report` flag is set, also write summary to the specified path.
 
 ### Post-Phase 6: Session Context Persistence (Optional, Fail-Open)
 
-**Requires**: `mcp__serena__write_memory` (fail-open — skip all post-phase hooks if Serena is unavailable).
+**Requires**: `Write` to the project memory folder `<project>/.superclaude/memory/validate-roadmap/` (fail-open — a failed read or write skips that hook; it never stops the run). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git. Before the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`.
 
-After the final summary is written, persist cross-session context to Serena memory. Each hook is independent — failure in one does not block others or the return contract.
+After the final summary is written, persist cross-session context to the memory files `<project>/.superclaude/memory/validate-roadmap/<key>.md`. The four keys below are single-owner: each file is read, merged and overwritten whole (the file body is the JSON or term list described in the hook). Each hook is independent — failure in one does not block others or the return contract.
 
 #### Hook 6a — Write Validation Ledger Entry
 
@@ -1002,9 +1001,9 @@ Persist the current validation results for future delta tracking.
 }
 ```
 
-2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}` to load existing ledger.
+2. Call `Read` on `.superclaude/memory/validate-roadmap/validation-ledger-{project-slug}.md` to load the existing ledger (a missing file means an empty ledger).
 3. Append new entry. **Pruning**: keep only the last **10 entries** or entries from the last **30 days**, whichever is fewer.
-4. Call `mcp__serena__write_memory` with the updated ledger.
+4. Call `Write` on the same path with the updated ledger.
 5. On error: log warning and continue. Ledger loss is acceptable.
 
 #### Hook 6b — Write Terminology Map
@@ -1015,8 +1014,8 @@ Persist the updated terminology map for future extraction hints.
    - New terms are added with `first_seen: {today}`.
    - Existing terms have `last_seen` updated to today.
    - Terms not seen in the current run retain their prior dates.
-2. Call `mcp__serena__write_memory` with key `terminology-map-{project-slug}`.
-3. **Cross-project contamination prevention**: The project slug is part of the key — terms from project A are never loaded for project B.
+2. Call `Write` on `.superclaude/memory/validate-roadmap/terminology-map-{project-slug}.md`.
+3. **Cross-project contamination prevention**: The memory store is per project (per worktree) and the project slug is part of the key — terms from project A are never loaded for project B.
 
 #### Hook 6c — Append Pattern Log Entry
 
@@ -1036,8 +1035,8 @@ Write an append-only pattern log for trend tracking (human review only).
 }
 ```
 
-2. Call `mcp__serena__read_memory` with key `pattern-log-{project-slug}`. Append entry. Keep last **20 entries**.
-3. Call `mcp__serena__write_memory` with the updated log.
+2. Call `Read` on `.superclaude/memory/validate-roadmap/pattern-log-{project-slug}.md` (a missing file means an empty log). Append entry. Keep last **20 entries**.
+3. Call `Write` on the same path with the updated log.
 4. **Constraint**: The pattern log is **write-only** — the validator never reads it during execution. It exists for human trend review only.
 
 #### Hook 6d — Write Adversarial Pattern Effectiveness Stats
@@ -1067,8 +1066,8 @@ After Phase 4, compute and persist pattern effectiveness data for future pattern
 }
 ```
 
-3. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`. Merge stats (cumulative hit/FP counts). Retain **top 20 patterns** by effectiveness score. Expire entries older than **90 days**.
-4. Call `mcp__serena__write_memory` with updated stats.
+3. Call `Read` on `.superclaude/memory/validate-roadmap/adversarial-patterns-{project-slug}.md` (a missing file means no prior stats). Merge stats (cumulative hit/FP counts). Retain **top 20 patterns** by effectiveness score. Expire entries older than **90 days**.
+4. Call `Write` on the same path with updated stats.
 5. **Project-type segmentation**: If the project type changes between runs, historical patterns from the prior type are retained but ranked lower (0.5x weight multiplier).
 
 ---
