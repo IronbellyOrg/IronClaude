@@ -821,7 +821,6 @@ def build_reflect_contract(
         "unauthorized_deviation_present": unauthorized_deviation_present,
         "needs_human_decision": needs_human_decision,
         "user_decision_required": False,  # seam emits no user-decision signal; honest default (R2-F3, supersedes R6 Step 2.5 mirror mandate)
-        "serena_summary_corroboration": "unavailable",
         "degraded_components": degraded_components,
         # L2 reviewer-isolation telemetry (pure telemetry; not verdict-bearing —
         # the STOP happens in the runner before derive_verdict, so audit_tree_dirty
