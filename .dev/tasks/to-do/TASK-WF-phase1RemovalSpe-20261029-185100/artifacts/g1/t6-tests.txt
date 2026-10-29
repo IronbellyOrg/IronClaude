@@ -1,0 +1,136 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 1587 items
+
+tests/cli/prd/test_cli_smoke.py ......                                   [  0%]
+tests/cli/prd/test_config.py .                                           [  0%]
+tests/cli/prd/test_e2e.py .............                                  [  1%]
+tests/cli/prd/test_executor.py ..........                                [  1%]
+tests/cli/prd/test_filtering.py ..........                               [  2%]
+tests/cli/prd/test_gates.py ............................................ [  5%]
+.........................................                                [  7%]
+tests/cli/prd/test_integration.py .........                              [  8%]
+tests/cli/prd/test_inventory.py .......                                  [  8%]
+tests/cli/prd/test_models.py .......                                     [  9%]
+tests/cli/prd/test_path_resolution.py ........                           [  9%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 10%]
+tests/cli/prd/test_prompts.py ..........                                 [ 11%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 11%]
+tests/cli/prd/test_resolve_step_content.py ..............                [ 12%]
+tests/cli/prd/test_resume_skip.py .......                                [ 12%]
+tests/cli/prd/test_spec_flag.py ..............................           [ 14%]
+tests/cli/reflect/test_base_precedence.py ......                         [ 14%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 15%]
+tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py .... [ 15%]
+.                                                                        [ 15%]
+tests/cli/reflect/test_cli_smoke.py ............                         [ 16%]
+tests/cli/reflect/test_contract_fallback_metadata.py ........            [ 17%]
+tests/cli/reflect/test_contract_status_cli.py ........                   [ 17%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 17%]
+tests/cli/reflect/test_ensemble_fallback_engage.py ...                   [ 17%]
+tests/cli/reflect/test_ensemble_fallback_stub.py ............            [ 18%]
+tests/cli/reflect/test_ensemble_stub_integration.py ...............      [ 19%]
+tests/cli/reflect/test_ensemble_unit.py ..........................       [ 21%]
+tests/cli/reflect/test_fallback_classify.py ......                       [ 21%]
+tests/cli/reflect/test_fallback_config.py .....                          [ 21%]
+tests/cli/reflect/test_fallback_plan.py .............                    [ 22%]
+tests/cli/reflect/test_fallback_select.py ..........                     [ 23%]
+tests/cli/reflect/test_fallback_slot_factory.py ..                       [ 23%]
+tests/cli/reflect/test_fix_loop.py .........                             [ 24%]
+tests/cli/reflect/test_grader_yaml_root.py .                             [ 24%]
+tests/cli/reflect/test_isolate_reviewers_cli.py .......                  [ 24%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 24%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 25%]
+tests/cli/reflect/test_preflight_phase_complete.py ........              [ 25%]
+tests/cli/reflect/test_promote_plumbing.py .........                     [ 26%]
+tests/cli/reflect/test_remediation_route_table.py ....                   [ 26%]
+tests/cli/reflect/test_remediation_source_template.py .....              [ 26%]
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [ 27%]
+tests/cli/reflect/test_reviewer_finding_parity.py .....                  [ 27%]
+tests/cli/reflect/test_reviewer_isolation_gate.py ....                   [ 27%]
+tests/cli/reflect/test_reviewer_readonly_tools.py .....                  [ 28%]
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py ..             [ 28%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 28%]
+tests/cli/reflect/test_verdict_mapping.py .............................. [ 30%]
+.......                                                                  [ 31%]
+tests/cli/reflect/test_verify_denylist_git_mutations.py ...              [ 31%]
+tests/cli/reflect/test_writeback.py ....                                 [ 31%]
+tests/cli/test_bash_inspection_policy.py ...                             [ 31%]
+tests/cli/test_cli_registration.py ......                                [ 32%]
+tests/cli/test_how_we_work_install.py .......                            [ 32%]
+tests/cli/test_init_lite.py ............................................ [ 35%]
+                                                                         [ 35%]
+tests/cli/test_install_failures.py ....                                  [ 35%]
+tests/cli/test_install_hooks.py ......................                   [ 36%]
+tests/cli/test_install_mcp_cli.py .........................              [ 38%]
+tests/cli/test_install_mcp_registry.py .........                         [ 39%]
+tests/cli/test_install_mcp_tavily.py ...............s                    [ 40%]
+tests/cli/test_install_retired_mcp.py .................................. [ 42%]
+......................................                                   [ 44%]
+tests/cli/test_install_user_setup.py ..............                      [ 45%]
+tests/cli/test_mcp_project_config.py .                                   [ 45%]
+tests/cli/test_tdd_extract_prompt.py ................................... [ 47%]
+.................................                                        [ 49%]
+tests/cli/test_update_command.py ..........                              [ 50%]
+tests/cli/test_update_script.py .....                                    [ 50%]
+tests/cli/test_verify_sync_hooks.py .......                              [ 51%]
+tests/unit/test_ccsession_tag.py ....................................... [ 53%]
+.........................................................                [ 57%]
+tests/unit/test_ccsession_tiers.py ..................................... [ 59%]
+........................................................................ [ 64%]
+..................                                                       [ 65%]
+tests/unit/test_cli_doctor.py ...................                        [ 66%]
+tests/unit/test_cli_install.py ......................................... [ 69%]
+.......................................................                  [ 72%]
+tests/unit/test_confidence.py ............s                              [ 73%]
+tests/unit/test_crash_recovery_bootstrap.py .                            [ 73%]
+tests/unit/test_install_ccsession.py .....................               [ 74%]
+tests/unit/test_reflexion.py .........                                   [ 75%]
+tests/unit/test_reflexion_pollution_guard.py s                           [ 75%]
+tests/unit/test_review_translation.py .................................. [ 77%]
+..........                                                               [ 78%]
+tests/unit/test_self_check.py ..............                             [ 79%]
+tests/unit/test_token_budget.py ............                             [ 79%]
+tests/recommend/test_best_model.py ........                              [ 80%]
+tests/recommend/test_cache.py ...............                            [ 81%]
+tests/recommend/test_cli_registration.py ...                             [ 81%]
+tests/recommend/test_dispatch.py ................                        [ 82%]
+tests/recommend/test_eval_pipeline.py .....                              [ 82%]
+tests/recommend/test_plugin_eval.py ........                             [ 83%]
+tests/recommend/test_routing_refresh.py ................................ [ 85%]
+........................................................................ [ 89%]
+........................................................................ [ 94%]
+........................................................................ [ 98%]
+                                                                         [ 98%]
+tests/recommend/test_telemetry.py .........                              [ 99%]
+tests/docs/test_chrome_devtools_mcp_removed.py .                         [ 99%]
+tests/docs/test_retired_docs_absent.py ..                                [ 99%]
+tests/docs/test_tavily_doc_alignment.py .....                            [100%]
+
+=============================== warnings summary ===============================
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_runs_without_tasklist
+  /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/tests/cli/reflect/test_contract_status_cli.py:90: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_does_not_launch_reflect_audit_machinery
+  /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/tests/cli/reflect/test_contract_status_cli.py:109: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_does_not_write_lock_by_default
+  /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/tests/cli/reflect/test_contract_status_cli.py:133: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====== 1583 passed, 3 skipped, 1 xpassed, 5 warnings in 175.95s (0:02:55) ======

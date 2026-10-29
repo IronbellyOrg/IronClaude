@@ -95,13 +95,12 @@ def mcp_cli(monkeypatch, isolated_home):
     return state
 
 
-def test_mcp_list_shows_every_registry_server_and_no_retired_one(mcp_cli):
+def test_mcp_list_shows_every_registry_server(mcp_cli):
     result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp", "--list"])
     assert result.exit_code == 0, result.output
     for name in mcp_cli.module.MCP_SERVERS:
         assert name in result.output
     assert "airis-mcp-gateway" in result.output
-    assert "codebase-memory-mcp" not in result.output
     assert mcp_cli.calls == [] and not any(
         cmd[:3] == ["claude", "mcp", "add"] for cmd in mcp_cli.processes
     )
