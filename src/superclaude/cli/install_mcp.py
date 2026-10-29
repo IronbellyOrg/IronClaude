@@ -52,13 +52,6 @@ MCP_SERVERS = {
         "command": "npx -y @playwright/mcp@latest",
         "required": False,
     },
-    "serena": {
-        "name": "serena",
-        "description": "Semantic code analysis and intelligent editing",
-        "transport": "stdio",
-        "command": "uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false",
-        "required": False,
-    },
     "morphllm-fast-apply": {
         "name": "morphllm-fast-apply",
         "description": "Fast Apply capability for context-aware code modifications",
@@ -542,16 +535,6 @@ def check_prerequisites(
                 )
         except (OSError, subprocess.SubprocessError):
             errors.append("Docker readiness failed for AIRIS MCP Gateway")
-    if "serena" in selected:
-        # Retain the existing optional uv advisory, but only for its consumer.
-        try:
-            result = _run_command(
-                ["uv", "--version"], capture_output=True, text=True, timeout=10
-            )
-            if result is None or result.returncode != 0:
-                click.echo("uv not found - required to run Serena MCP server", err=True)
-        except (OSError, subprocess.SubprocessError):
-            click.echo("uv not found - required to run Serena MCP server", err=True)
     return not errors, errors
 
 

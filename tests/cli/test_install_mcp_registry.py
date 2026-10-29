@@ -10,11 +10,6 @@ from superclaude.cli import install_mcp
 
 def test_updated_mcp_registry_commands_are_pinned_and_stable():
     expected = {
-        "serena": (
-            "uvx --from serena-agent==1.7.0 serena start-mcp-server "
-            "--context claude-code --project-from-cwd "
-            "--enable-web-dashboard false --enable-gui-log-window false"
-        ),
         "morphllm-fast-apply": "npx -y @morphllm/morphmcp",
         "auggie": "auggie --mcp --mcp-auto-workspace",
     }
@@ -40,6 +35,7 @@ def test_removed_mcp_servers_are_not_in_registry():
         "magic",
         "chrome-devtools",
         "codebase-memory-mcp",
+        "serena",
     ):
         assert name not in install_mcp.MCP_SERVERS
 
@@ -47,23 +43,9 @@ def test_removed_mcp_servers_are_not_in_registry():
 def test_distributable_mcp_templates_match_pinned_registry_commands():
     root = Path(__file__).resolve().parents[2]
     expected = {
-        "serena.json": [
-            "--from",
-            "serena-agent==1.7.0",
-            "serena",
-            "start-mcp-server",
-            "--context",
-            "claude-code",
-            "--project-from-cwd",
-            "--enable-web-dashboard",
-            "false",
-            "--enable-gui-log-window",
-            "false",
-        ],
         "morphllm.json": ["-y", "@morphllm/morphmcp"],
     }
     server_names = {
-        "serena.json": "serena",
         "morphllm.json": "morphllm-fast-apply",
     }
 

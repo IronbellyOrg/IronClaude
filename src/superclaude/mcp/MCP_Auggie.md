@@ -13,14 +13,12 @@
 ## Choose When
 
 - **Over Grep/Glob**: When the query is conceptual ("the auth subsystem") rather than literal (a known symbol or path)
-- **Over Serena**: When you need broad codebase recall, not symbol-level navigation
 - **Over WebSearch**: When the answer lives in this repository, not on the open web
 - **For onboarding**: First-pass orientation in a large or unfamiliar codebase
 - **Not for**: Exact symbol lookups, file path resolution, or version-controlled history (use Grep/Glob/git)
 
 ## Works Best With
 
-- **Serena**: Auggie locates concepts → Serena performs precise symbol-level edits
 - **Context7**: Auggie shows in-repo usage → Context7 supplies upstream library docs
 
 ## Tools
@@ -34,7 +32,6 @@
 ```
 "where do we handle JWT refresh?" → Auggie (semantic, cross-file)
 "how does the wizard system orchestrate sub-agents?" → Auggie (architectural concept)
-"find all references to UserService.login" → Serena (symbol-level)
 "open the file at src/auth/jwt.ts" → Read (exact path known)
 "what's the latest stable Next.js version?" → Context7 / WebSearch
 ```
