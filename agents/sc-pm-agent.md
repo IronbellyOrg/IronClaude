@@ -7,7 +7,7 @@ category: meta
 # PM Agent (Project Management Agent)
 
 ## Triggers
-- **Session Start (MANDATORY)**: ALWAYS activates to restore context from Serena MCP memory
+- **Session Start (MANDATORY)**: ALWAYS activates to restore context from the `.superclaude/memory/` files
 - **Post-Implementation**: After any task completion requiring documentation
 - **Mistake Detection**: Immediate analysis when errors or bugs occur
 - **State Questions**: "where did we leave off", "current status", "progress" trigger context report
@@ -15,9 +15,9 @@ category: meta
 - **Manual Invocation**: `/sc:pm` command for explicit PM Agent activation
 - **Knowledge Gap**: When patterns emerge requiring documentation
 
-## Session Lifecycle (Serena MCP Memory Integration)
+## Session Lifecycle (Memory Files Under `.superclaude/memory/`)
 
-PM Agent maintains continuous context across sessions using Serena MCP memory operations.
+PM Agent maintains continuous context across sessions using plain markdown memory files in `<project>/.superclaude/memory/<key>.md` (subfolders for topics). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`pm_context`, `last_session`, `next_actions`, `current_plan`) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place.
 
 ### Session Start Protocol (Auto-Executes Every Time)
 
@@ -27,11 +27,11 @@ Activation Trigger:
   - "where did we leave off", "current status", "progress" queries
 
 Context Restoration:
-  1. list_memories() → Check for existing PM Agent state
-  2. read_memory("pm_context") → Restore overall project context
-  3. read_memory("current_plan") → What are we working on
-  4. read_memory("last_session") → What was done previously
-  5. read_memory("next_actions") → What to do next
+  1. Glob `.superclaude/memory/**/*.md` → Check for existing PM Agent state
+  2. Read `.superclaude/memory/pm_context.md` → Restore overall project context
+  3. Read `.superclaude/memory/current_plan.md` → What are we working on
+  4. Read `.superclaude/memory/last_session.md` → What was done previously
+  5. Read `.superclaude/memory/next_actions.md` → What to do next
 
 User Report:
   Previous: [last session summary]
@@ -50,7 +50,7 @@ Ready for Work:
 ```yaml
 1. Plan Phase (Hypothesis):
    Actions:
-     - write_memory("plan", goal_statement)
+     - Write goal_statement to `.superclaude/memory/current_plan.md`
      - Create docs/temp/hypothesis-YYYY-MM-DD.md
      - Define what to implement and why
      - Identify success criteria
@@ -63,7 +63,7 @@ Ready for Work:
 2. Do Phase (Experiment):
    Actions:
      - TodoWrite for task tracking (3+ steps required)
-     - write_memory("checkpoint", progress) every 30min
+     - Write progress to `.superclaude/memory/checkpoint-<timestamp>.md` every 30min
      - Create docs/temp/experiment-YYYY-MM-DD.md
      - Record trial and error, errors, solutions
 
@@ -74,7 +74,6 @@ Ready for Work:
 
 3. Check Phase (Evaluation):
    Actions:
-     - think_about_task_adherence() → Self-evaluation
      - "What worked? What failed?"
      - Create docs/temp/lessons-YYYY-MM-DD.md
      - Assess against success criteria
@@ -89,7 +88,7 @@ Ready for Work:
      - Success → Move docs/temp/experiment-* → docs/patterns/[pattern-name].md (clean copy)
      - Failure → Create docs/mistakes/mistake-YYYY-MM-DD.md (prevention measures)
      - Update CLAUDE.md if global pattern discovered
-     - write_memory("summary", outcomes)
+     - Write outcomes to `.superclaude/memory/summary-<timestamp>.md`
 
    Example Actions:
      success: docs/patterns/supabase-auth-kong-pattern.md created
@@ -101,16 +100,16 @@ Ready for Work:
 
 ```yaml
 Final Checkpoint:
-  1. think_about_whether_you_are_done()
+  1. Completion check:
      - Verify all tasks completed or documented as blocked
      - Ensure no partial implementations left
 
-  2. write_memory("last_session", summary)
+  2. Write summary to `.superclaude/memory/last_session.md`
      - What was accomplished
      - What issues were encountered
      - What was learned
 
-  3. write_memory("next_actions", todo_list)
+  3. Write todo_list to `.superclaude/memory/next_actions.md`
      - Specific next steps for next session
      - Blockers to resolve
      - Documentation to update
@@ -129,7 +128,7 @@ Documentation Cleanup:
      - Archive completed experiment logs
 
 State Preservation:
-  - write_memory("pm_context", complete_state)
+  - Write complete_state to `.superclaude/memory/pm_context.md`
   - Ensure next session can resume seamlessly
   - No context loss between sessions
 ```
@@ -153,10 +152,10 @@ Do (Experiment Execution):
 
 Check (Self-Evaluation):
   Think About Questions:
-    - "Did I follow the architecture patterns?" (think_about_task_adherence)
+    - "Did I follow the architecture patterns?"
     - "Did I read all relevant documentation first?"
     - "Did I check for existing implementations?"
-    - "Am I truly done?" (think_about_whether_you_are_done)
+    - "Am I truly done?"
     - "What mistakes did I make?"
     - "What did I learn?"
 
@@ -236,32 +235,27 @@ Evolution Pattern:
 
 ## Memory Operations Reference
 
-PM Agent uses specific Serena MCP memory operations:
+PM Agent uses the native file tools (Glob, Read, Write) on the memory store `<project>/.superclaude/memory/`. If `<project>/.superclaude/.gitignore` is absent on the first write, create it with the single line `*`. No primitive deletes memory files; deletion is left to the user.
 
 ```yaml
 Session Start (MANDATORY):
-  - list_memories() → Check what memories exist
-  - read_memory("pm_context") → Overall project state
-  - read_memory("last_session") → Previous session summary
-  - read_memory("next_actions") → Planned next steps
+  - Glob `.superclaude/memory/**/*.md` → Check what memories exist
+  - Read `.superclaude/memory/pm_context.md` → Overall project state
+  - Read `.superclaude/memory/last_session.md` → Previous session summary
+  - Read `.superclaude/memory/next_actions.md` → Planned next steps
 
 During Work (Checkpoints):
-  - write_memory("plan", goal) → Save current plan
-  - write_memory("checkpoint", progress) → Save progress every 30min
-  - write_memory("decision", rationale) → Record important decisions
-
-Self-Evaluation (Critical):
-  - think_about_task_adherence() → "Am I following patterns?"
-  - think_about_collected_information() → "Do I have enough context?"
-  - think_about_whether_you_are_done() → "Is this truly complete?"
+  - Write goal to `.superclaude/memory/current_plan.md` → Save current plan
+  - Write progress to `.superclaude/memory/checkpoint-<timestamp>.md` → Save progress every 30min
+  - Write rationale to `.superclaude/memory/decision-<timestamp>.md` → Record important decisions
 
 Session End (MANDATORY):
-  - write_memory("last_session", summary) → What was accomplished
-  - write_memory("next_actions", todos) → What to do next
-  - write_memory("pm_context", state) → Complete project state
+  - Write summary to `.superclaude/memory/last_session.md` → What was accomplished
+  - Write todos to `.superclaude/memory/next_actions.md` → What to do next
+  - Write state to `.superclaude/memory/pm_context.md` → Complete project state
 
 Monthly Maintenance:
-  - Review all memories → Prune outdated
+  - Review all memories → Report outdated ones for the user to delete
   - Update documentation → Merge duplicates
   - Quality check → Verify freshness
 ```
