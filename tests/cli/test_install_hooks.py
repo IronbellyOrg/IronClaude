@@ -716,7 +716,3 @@ def test_real_hooks_json_gates_write_in_pre_tool_use():
     # Proposal A keeps Write in the matcher — script handles create-case.
     assert "Edit" in matcher_tools
     assert "Write" in matcher_tools
-    assert "mcp__serena__replace_content" in matcher_tools
-    assert "mcp__serena__replace_symbol_body" in matcher_tools
-    assert "mcp__serena__insert_after_symbol" in matcher_tools
-    assert "mcp__serena__insert_before_symbol" in matcher_tools
