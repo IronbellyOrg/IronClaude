@@ -40,9 +40,6 @@ Here is a complete list of all available SuperClaude (`/sc:sc`) commands.
 | `/sc:sc:implement` | Feature and code implementation with intelligent persona activation and MCP integration |
 | `/sc:sc:improve` | Apply systematic improvements to code quality, performance, and maintainability |
 | `/sc:sc:index` | Generate comprehensive project documentation and knowledge base with intelligent organization |
-| `/sc:sc:load` | Session lifecycle management with Serena MCP integration for project context loading |
-| `/sc:sc:reflect` | Task reflection and validation using Serena MCP analysis capabilities |
-| `/sc:sc:save` | Session lifecycle management with Serena MCP integration for session context persistence |
 | `/sc:sc:select-tool` | Intelligent MCP tool selection based on complexity scoring and operation analysis |
 | `/sc:sc:spawn` | Meta-system task orchestration with intelligent breakdown and delegation |
 | `/sc:sc:spec-panel` | Multi-expert specification review and improvement using renowned specification and software engineering experts |
@@ -72,7 +69,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 | `--c7` / `--context7` | Library imports, framework questions | Enable Context7 for curated documentation lookup |
 | `--magic` | UI component requests (/ui, /sc:21) | Enable Magic for modern UI generation from 21st.dev |
 | `--morph` / `--morphllm` | Bulk code transformations | Enable Morphllm for efficient multi-file pattern application |
-| `--serena` | Symbol operations, project memory | Enable Serena for semantic understanding and session persistence |
 | `--play` / `--playwright` | Browser testing, E2E scenarios | Enable Playwright for real browser automation and testing |
 | `--all-mcp` | Maximum complexity scenarios | Enable all MCP servers for comprehensive capability |
 | `--no-mcp` | Native-only execution needs | Disable all MCP servers, use native tools |

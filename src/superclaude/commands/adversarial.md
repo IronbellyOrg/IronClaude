@@ -4,7 +4,7 @@ description: "Structured adversarial debate, comparison, and merge pipeline for 
 category: analysis
 complexity: advanced
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, analyzer, scribe]
 ---
 

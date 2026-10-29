@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
 <!-- Extended metadata (for documentation, not parsed):
 category: utility
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily]
+mcp-servers: [auggie, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 -->
 

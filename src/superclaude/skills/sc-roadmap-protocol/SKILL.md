@@ -10,7 +10,7 @@ argument-hint: "<spec-file-path> [--specs ...] [--multi-roadmap --agents ...] [-
 <!-- Extended metadata (for documentation, not parsed):
 category: planning
 complexity: advanced
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, scribe, analyzer]
 version: 2.0.0
 spec: SC-ROADMAP-V2-SPEC.md
@@ -322,11 +322,10 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 After Wave 4, perform completion steps:
 
 1. Verify all 3 artifacts exist and are non-empty
-2. Persist session state to Serena memory (key: `sc-roadmap:<spec-name>:<timestamp>`)
-3. If Serena unavailable: write to `<output_dir>/.session-memory.md` as fallback
-4. Trigger `sc:save` for cross-session resumability
-5. Emit final output summary with artifact locations and next steps
-6. **Final message** (per FR-008): State artifacts written, recommend user review before proceeding. No references to downstream commands.
+2. Persist session state to `<output_dir>/.session-memory.md`
+3. Trigger `sc:save` for cross-session resumability
+4. Emit final output summary with artifact locations and next steps
+5. **Final message** (per FR-008): State artifacts written, recommend user review before proceeding. No references to downstream commands.
 
 ### Ref Loading Summary
 
@@ -411,18 +410,16 @@ Wave analysis, validation reasoning, and complexity assessment in Waves 1-4 use 
 | Server | Usage | Waves |
 |--------|-------|-------|
 | Context7 | Template patterns, domain best practices, framework documentation | 1-2 |
-| Serena | Session persistence, memory, cross-session state | 0, 4, completion |
 
 **Circuit Breaker Fallbacks**:
 
 - Context7 unavailable → WebSearch for documentation, note limitations
-- Serena unavailable → proceed without persistence, write to `<output_dir>/.session-memory.md`
 
 ### Session Persistence & Resumability
 
 sc:roadmap triggers `sc:save` at each wave boundary for cross-session resumability.
 
-**Save points**: After each wave completion, persist session state to Serena memory using key `sc-roadmap:<spec-name>:<timestamp>`. State accumulates progressively:
+**Save points**: After each wave completion, persist session state to `<output_dir>/.session-memory.md`. State accumulates progressively:
 
 - After Wave 0: spec paths, output dir, flags, collision suffix
 - After Wave 1A: adversarial results (unified spec path, convergence score)
@@ -433,14 +430,14 @@ sc:roadmap triggers `sc:save` at each wave boundary for cross-session resumabili
 
 **Session schema** (`roadmap_session`): `spec_source`, `output_dir`, `flags`, `last_completed_wave` (0|1A|1B|2|3|4), `extraction_complete`, `complexity_score`, `primary_persona`, `template_selected`, `milestone_count`, `adversarial_results`, `validation_score`, plus spec file hash for mismatch detection.
 
-**Resume protocol**: When sc:roadmap is invoked and Serena memory contains a matching session (same `spec_source` + `output_dir`):
+**Resume protocol**: When sc:roadmap is invoked and `<output_dir>/.session-memory.md` contains a matching session (same `spec_source` + `output_dir`):
 
 1. Prompt user: `"Found incomplete roadmap session (last completed: Wave X). Resume? [Y/n]"`
 2. If yes: validate spec file hash — if mismatch, warn `"Spec file has changed since last session. Starting fresh to avoid stale extraction."` and start fresh (existing artifacts get `-N` suffix per collision protocol)
 3. If yes and hash matches: skip to wave after `last_completed_wave`, reload artifacts from disk
 4. If no: start fresh (existing artifacts get `-N` suffix per collision protocol)
 
-**Graceful degradation**: If Serena unavailable, proceed without persistence and write session state to `<output_dir>/.session-memory.md` as fallback. Warn user that cross-session resume is unavailable.
+**Graceful degradation**: If `<output_dir>/.session-memory.md` cannot be written, proceed without persistence. Warn user that cross-session resume is unavailable.
 
 ## 8. Boundaries
 
@@ -452,7 +449,7 @@ sc:roadmap triggers `sc:save` at each wave boundary for cross-session resumabili
 - Create milestone-based roadmaps with dependency graphs and risk registers
 - Produce YAML frontmatter optimized for downstream tasklist generator consumption
 - Generate continuous parallel validation strategy (test-strategy.md)
-- Persist session state via Serena memory
+- Persist session state to `<output_dir>/.session-memory.md`
 - Support multiple template types with 4-tier discovery
 
 ### Will Not Do

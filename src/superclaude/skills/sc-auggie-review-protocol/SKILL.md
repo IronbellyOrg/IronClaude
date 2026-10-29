@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Glob, Bash(auggie *), Bash(gh *), Bash(git *), Bash(j
 <!-- Extended metadata (for documentation, not parsed):
 category: quality
 complexity: advanced
-mcp-servers: [serena, auggie]
+mcp-servers: [auggie]
 personas: [analyzer, architect, security, qa, refactorer]
 -->
 

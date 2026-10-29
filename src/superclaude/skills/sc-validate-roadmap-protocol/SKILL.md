@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena]
+mcp-servers: [auggie]
 personas: [analyzer, architect, qa]
 version: 2.0.0
 -->

@@ -4,7 +4,7 @@ description: "Post-release follow-through: synchronize and create a shipped vers
 category: documentation
 complexity: high
 allowed-tools: Read, Glob, Grep, Skill
-mcp-servers: [serena]
+mcp-servers: []
 personas: [scribe, devops, qa, analyzer]
 ---
 

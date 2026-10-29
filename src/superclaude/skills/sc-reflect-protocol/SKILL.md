@@ -16,7 +16,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
 <!-- Extended metadata (for documentation, not parsed):
 category: validation
 complexity: advanced
-mcp-servers: [serena, auggie, context7, tavily]
+mcp-servers: [auggie, context7, tavily]
 personas: [analyzer, qa, refactorer, architect]
 spec: .dev/eval-workspaces/sc-reflect/SPEC.md
 supersedes: src/superclaude/commands/reflect.md (legacy think_about_* surface)

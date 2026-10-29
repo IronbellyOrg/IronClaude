@@ -18,7 +18,6 @@ uv run python script.py          # execute scripts
 | Server         | Primary Use                                  | Flag (advisory) |
 |----------------|----------------------------------------------|-----------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
-| serena         | Symbol navigation, project memory            | --serena   |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
 | playwright     | Browser automation, E2E testing              | --play     |
@@ -87,8 +86,8 @@ Treat the following as **mandatory re-verification triggers** before
 output:
 
 - **S1.** About to cite `file:line` or "at line N" of a specific file.
-- **S2.** About to issue an Edit / Write / replace_content / replace_symbol_body
-  / insert_*_symbol against a file. (Hook enforces; mention here for completeness.)
+- **S2.** About to issue an Edit / Write against a file. (Hook enforces; mention
+  here for completeness.)
 - **S3.** About to assert that file A agrees or disagrees with file B.
 - **S4.** About to quote an IP, hostname, credential ID, port, path, or
   config value tied to a specific source file.

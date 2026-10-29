@@ -4,7 +4,7 @@ description: "Safely audit project-local SuperClaude context surfaces and write 
 category: utility
 complexity: low
 allowed-tools: Read, Glob, Grep, Bash, Skill
-mcp-servers: [serena]
+mcp-servers: []
 personas: [analyzer]
 version: "1.0.0"
 ---
