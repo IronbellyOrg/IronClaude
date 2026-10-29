@@ -144,9 +144,9 @@ and `/resume` picker, and on the Orca tab:
   Orca tab pick it up at your next message, or when you quit.
 
 Names may contain spaces and any other characters except tabs, newlines and
-other control characters, up to 200 bytes (200 letters of plain English text,
-about 66 characters of Chinese or Japanese). A longer `/rename` name is not
-listed. Quote a name with spaces in the shell: `ccsession "my work"`; the
+other control characters, up to 245 bytes, where each `/` or `%` (and a
+leading `.`) counts as 3: 245 letters of plain English text, or about 81
+characters of Chinese or Japanese. A longer `/rename` name is not listed. Quote a name with spaces in the shell: `ccsession "my work"`; the
 session-name question needs no quotes. A name that starts with `-` would be
 read as an option, so reopen it with `ccsession --name -wip` (`--name` takes
 any name). A name another saved session already has gets `-2` (then `-3`...)
@@ -168,7 +168,10 @@ those names into their repo's list, once per old list (`ccsession
 --migrate-names`, which every install also runs, retrying only lists that
 failed). The old files stay but drop out of `--list`, nothing is overwritten,
 the most recently used folder keeps a shared name, and another session with
-the same name is copied as `<name>-<folder>` (then `-2`, `-3`).
+the same name is copied as `<name>-<folder>` (then `-2`, `-3`). Labels saved
+with a leading `.` (hidden files before this version) are moved to the new
+file name first, and copied to their repo's list too when their old list was
+already copied.
 
 A labeled session's name, and its Orca tab, belong only to the Claude Code
 that ccsession started, in that folder, including the conversations `/clear`
@@ -200,8 +203,8 @@ Orca accepts one executable there, with no arguments. Each Orca launch then:
   `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
   starts or resumes that session; Enter, Ctrl+C, or no answer within 30
   seconds starts an untagged one, so the tab never ends at a dead prompt. A
-  name that is not a valid label (over 200 bytes, or holding a control
-  character) is asked again. Any other name works, one starting with `-` too
+  name that is not a valid label (too long, or holding a control character)
+  is asked again. Any other name works, one starting with `-` too
   (it is passed on as `--name`).
 - Skips the question when Orca resumes or continues a session
   (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,

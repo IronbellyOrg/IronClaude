@@ -231,7 +231,33 @@ migrate_names() {
 }
 
 ensure_names_migrated() {
-  [ -f "$NAMES_MIGRATED" ] || migrate_names 2>/dev/null || true
+  [ -f "$NAMES_MIGRATED" ] || { rename_dot_labels; migrate_names 2>/dev/null; } || true
+}
+
+rename_dot_labels() {
+  # Labels older versions saved with a leading "." are hidden files
+  # (.<name>.txt) that nothing lists or copies; move each to the file name this
+  # version uses (%2E<name>.txt). Runs before migrate_names, so a per-folder
+  # list still to be copied takes them along. A per-folder list copied before
+  # (marked moved) gets its moved label copied to its repo's list here, unless
+  # that list already has the name.
+  [ -d "$PROJECTS_DIR" ] || return 0
+  local old dir name new folder key target
+  for old in "$PROJECTS_DIR"/*/topics/.*.txt; do
+    [ -f "$old" ] || continue
+    dir=$(dirname "$old")
+    name=$(basename "$old" .txt)
+    new="$dir/%2E${name#.}.txt"
+    [ -e "$new" ] || mv "$old" "$new" || continue
+    [ -f "$dir/$LIST_MIGRATED" ] || continue
+    folder=$(head -n 1 "$dir/.cwd" 2>/dev/null) || continue
+    [ -d "$folder" ] || continue
+    key=$(cd "$folder" 2>/dev/null && name_key) || continue
+    target="$PROJECTS_DIR/$key/topics"
+    [ "$target" != "$dir" ] || continue
+    mkdir -p "$target" && [ ! -e "$target/${new##*/}" ] &&
+      cp -p "$new" "$target/" || true
+  done
 }
 
 validate_label() {
@@ -251,10 +277,13 @@ validate_label() {
       return 1
       ;;
   esac
+  # The limit is on the saved file name, which a file system caps at 255 bytes:
+  # 245 leaves room for a "-<n>" collision suffix and ".txt". Each "/" or "%",
+  # and a leading ".", is 3 bytes there (see name_to_file).
   local file
   file=$(name_to_file "$label")
-  if [ "$(printf '%s' "$file" | wc -c)" -gt 200 ]; then
-    echo "ccsession: invalid label '$label' (too long: at most 200 bytes, about 66 characters of Chinese or Japanese text)" >&2
+  if [ "$(printf '%s' "$file" | wc -c)" -gt 245 ]; then
+    echo "ccsession: invalid label '$label' (too long: at most 245 bytes, where each '/' or '%' counts as 3; about 81 characters of Chinese or Japanese text)" >&2
     return 1
   fi
   printf '%s' "$label"
@@ -305,6 +334,35 @@ sync_name() {
   validate_label "$name" >/dev/null || return 2
   dir="$PROJECTS_DIR/${CCSESSION_NAME_KEY:-$(name_key)}/topics"
   mkdir -p "$dir" || return 1
+  # Hooks of two sessions can run at the same moment (two renamed to one name):
+  # one at a time per list, or both would see the name free and one entry
+  # would overwrite the other.
+  lock_list "$dir" || return 1
+  sync_name_locked "$session" "$name" "$keep" "$dir"
+  local status=$?
+  rmdir "$dir/.ccsession-lock" 2>/dev/null || true
+  return "$status"
+}
+
+lock_list() {
+  # Take the name list's lock (an atomic mkdir), waiting up to about 3 seconds;
+  # a lock still held after that was left by a run that was killed, and is
+  # taken over.
+  local lock="$1/.ccsession-lock" tries=0
+  until mkdir "$lock" 2>/dev/null; do
+    tries=$((tries + 1))
+    if [ "$tries" -ge 60 ]; then
+      rmdir "$lock" 2>/dev/null || true
+      mkdir "$lock" 2>/dev/null && return 0
+      echo "ccsession: the name list is locked: $lock" >&2
+      return 1
+    fi
+    sleep 0.05
+  done
+}
+
+sync_name_locked() {
+  local session="$1" name="$2" keep="$3" dir="$4" base file f other n changed=0
   base=$(name_to_file "$name")
   file="$base"
   n=1
@@ -347,16 +405,8 @@ import_claude_names() {
   # them, so every name shows in the list. Adds only; a name already used for
   # another session gets -2, -3..., and a session's other names are kept. A
   # folder that no longer exists keeps its names in its own folder's list.
-  # Labels older versions saved with a leading "." (a hidden .<name>.txt) move
-  # to the file name this version looks for.
   [ -d "$PROJECTS_DIR" ] || return 0
-  local cwd session name key old
-  for old in "$PROJECTS_DIR"/*/topics/.*.txt; do
-    [ -f "$old" ] || continue
-    name=$(basename "$old" .txt)
-    [ -e "$(dirname "$old")/%2E${name#.}.txt" ] ||
-      mv "$old" "$(dirname "$old")/%2E${name#.}.txt" || true
-  done
+  local cwd session name key
   while IFS=$'\t' read -r cwd session name; do
     [ -n "$name" ] || continue
     if [ -d "$cwd" ]; then
@@ -451,6 +501,7 @@ case "${1:-}" in
     exit 0
     ;;
   --migrate-names)
+    rename_dot_labels
     migrate_names
     [ -f "$CLAUDE_NAMES_IMPORTED" ] || import_claude_names 2>/dev/null || true
     exit 0

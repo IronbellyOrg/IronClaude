@@ -1592,7 +1592,7 @@ def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
     proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
     try:
         assert ORCA_QUESTION in _read_pty(master, until=ORCA_QUESTION)
-        for bad in (b"x" * 201, "あ".encode() * 67):
+        for bad in (b"x" * 246, "あ".encode() * 82):
             os.write(master, bad + b"\r")
             again = _read_pty(master, until=ORCA_QUESTION)
             assert "invalid label" in again and again.count(ORCA_QUESTION) == 1
@@ -2681,6 +2681,82 @@ def test_labels_older_versions_saved_with_a_leading_dot_still_resume(
     _ccs(main, env, "--migrate-names")
     assert _listed(main, env) == {".hidden": SESSION_ID[:8]}
     assert _launched(main, env, ".hidden")[-2:] == ["--resume", SESSION_ID]
+
+
+@pytest.mark.parametrize("copied_before", [False, True])
+def test_a_hidden_label_in_an_old_per_folder_list_reaches_the_repo_list(
+    tmp_path: Path, copied_before: bool
+) -> None:
+    # Older versions kept one list per folder, and saved a leading-"." name as
+    # a hidden file the copy to the repo's list never saw.
+    main, _, projects, env = _named_repo(tmp_path)
+    old = projects / str(main.resolve()).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{main.resolve()}\n")
+    (old / ".notes.txt").write_text(f"{SESSION_ID}\n")
+    if copied_before:  # the list was copied by an earlier version
+        (old / ".ccsession-moved-to-repo").write_text("")
+    _transcript(projects, main, SESSION_ID)
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {".notes": SESSION_ID[:8]}
+    assert _launched(main, env, ".notes")[-2:] == ["--resume", SESSION_ID]
+
+
+def test_sessions_renamed_to_one_name_at_once_both_stay_listed(
+    tmp_path: Path,
+) -> None:
+    # Two hooks at the same moment: without the list's lock both saw the name
+    # free, and one entry overwrote the other.
+    main, _, projects, env = _named_repo(tmp_path)
+    sessions = [f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000" for n in "ab"]
+    for session in sessions:
+        _transcript(projects, main, session)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    for _ in range(10):
+        for f in topics.glob("*.txt"):
+            f.unlink()
+        runs = [
+            subprocess.Popen(
+                [str(SKILL_DIR / "ccsession"), "--sync-name", s, "shared"],
+                cwd=main,
+                env=env,
+                stdout=subprocess.DEVNULL,
+            )
+            for s in sessions
+        ]
+        assert [r.wait(timeout=60) for r in runs] == [0, 0]
+        listed = _listed(main, env)
+        assert set(listed) == {"shared", "shared-2"}
+        assert sorted(listed.values()) == [s[:8] for s in sessions]
+    assert not (topics / ".ccsession-lock").exists()
+
+
+@pytest.mark.parametrize(
+    ("name", "ok"),
+    [
+        ("/" * 81, True),  # 243 bytes as a file name
+        ("/" * 82, False),
+        ("あ" * 81, True),
+        ("あ" * 82, False),
+        ("x" * 245, True),
+        ("x" * 246, False),
+    ],
+)
+def test_the_name_length_limit_is_the_documented_one(
+    tmp_path: Path, name: str, ok: bool
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--sync-name", SESSION_ID, name],
+        cwd=main,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode == 0) == ok, result.stderr
+    if ok:  # it fits even with a collision suffix
+        assert _listed(main, env) == {name: SESSION_ID[:8]}
 
 
 def test_orca_tab_is_left_to_claude_code_where_ccsession_does_not_own_it(

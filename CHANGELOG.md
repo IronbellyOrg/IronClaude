@@ -17,7 +17,7 @@ All notable changes to IronClaude are documented in this file.
 
 #### Changed (ccsession one name)
 
-- Session names may contain spaces and any other character except control characters, up to 200 bytes (`ccsession "my work"`). In the name file, `%`, `/` and a leading `.` are written `%25`, `%2F` and `%2E`; a label an older version saved with a leading `.` is moved to that name once, at install. A name another saved session already has gets `-2`, `-3`... in the list.
+- Session names may contain spaces and any other character except control characters (`ccsession "my work"`), up to 245 bytes of name file. In the name file, `%`, `/` and a leading `.` are written `%25`, `%2F` and `%2E` (so each counts as 3 bytes); a label an older version saved with a leading `.` is moved to that name at install, before the per-folder lists are copied, and copied to its repo's list when its old list was copied already. A name another saved session already has gets `-2`, `-3`... in the list; a lock on each list keeps two sessions renamed at the same moment from overwriting each other's entry.
 - The `/ccsession-tag` command is retired: use `/rename`. Its `SKILL.md` stays, with `user-invocable: false` and `disable-model-invocation: true`, because `superclaude install` installs a skill folder only when it has one.
 
 #### Fixed (ccsession one name)
