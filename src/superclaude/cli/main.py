@@ -255,7 +255,7 @@ def install(target: str, force: bool, list_only: bool):
     "--servers",
     "-s",
     multiple=True,
-    help="Specific MCP servers to install or remove (repeatable)",
+    help="Specific MCP servers to install (repeatable)",
 )
 @click.option(
     "--list", "list_only", is_flag=True, help="List available MCP servers (read-only)"
@@ -264,44 +264,29 @@ def install(target: str, force: bool, list_only: bool):
     "--scope",
     default="user",
     type=click.Choice(["local", "project", "user"]),
-    help="Registration scope; native Codebase Memory supports user only",
+    help="Registration scope",
 )
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Preview choices or selected lifecycle without prompts or changes",
+    help="Preview choices or selected installs without prompts or changes",
 )
-@click.option(
-    "--uninstall",
-    is_flag=True,
-    help="NEW: remove only codebase-memory-mcp and its owned integrations; retain indexes",
-)
-@click.option(
-    "--yes",
-    "-y",
-    is_flag=True,
-    help="NEW: confirm selected Codebase Memory removal only; never selects servers or deletes indexes",
-)
-def mcp(servers, list_only, scope, dry_run, uninstall, yes):
+def mcp(servers, list_only, scope, dry_run):
     """Install and manage MCP servers for Claude Code.
 
-    No selection opens an action menu on a terminal. Native Codebase Memory uses
-    full account-wide upstream setup on Linux, not project-only registration.
+    No selection opens an action menu on a terminal.
 
     Examples:
         superclaude mcp --list
         superclaude mcp --servers tavily --servers context7
-        superclaude mcp --servers codebase-memory-mcp
-        superclaude mcp --uninstall --servers codebase-memory-mcp --yes
-        superclaude mcp --servers codebase-memory-mcp --uninstall --dry-run
         superclaude mcp --dry-run
     """
     from .install_mcp import install_mcp_servers, list_available_servers
 
     if list_only:
-        if servers or uninstall or yes or dry_run or scope != "user":
+        if servers or dry_run or scope != "user":
             raise click.UsageError(
-                "--list cannot be combined with selections, lifecycle flags, --dry-run or another scope"
+                "--list cannot be combined with selections, --dry-run or another scope"
             )
         list_available_servers()
         return
@@ -310,8 +295,6 @@ def mcp(servers, list_only, scope, dry_run, uninstall, yes):
         selected_servers=list(servers) if servers else None,
         scope=scope,
         dry_run=dry_run,
-        uninstall=uninstall,
-        yes=yes,
     )
     click.echo(message)
     if not success:

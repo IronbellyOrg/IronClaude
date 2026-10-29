@@ -95,6 +95,69 @@ def mcp_cli(monkeypatch, isolated_home):
     return state
 
 
+def test_mcp_list_shows_every_registry_server_and_no_retired_one(mcp_cli):
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp", "--list"])
+    assert result.exit_code == 0, result.output
+    for name in mcp_cli.module.MCP_SERVERS:
+        assert name in result.output
+    assert "airis-mcp-gateway" in result.output
+    assert "codebase-memory-mcp" not in result.output
+    assert mcp_cli.calls == [] and not any(
+        cmd[:3] == ["claude", "mcp", "add"] for cmd in mcp_cli.processes
+    )
+
+
+def test_mcp_noninteractive_requires_selection_without_prompt(mcp_cli, monkeypatch):
+    monkeypatch.setattr(
+        mcp_cli.module.click, "prompt", lambda *a, **k: pytest.fail("non-TTY menu")
+    )
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp"])
+    assert result.exit_code != 0 and "select" in result.output.lower()
+    assert mcp_cli.calls == [] and mcp_cli.processes == []
+
+
+def test_mcp_no_selection_dry_run_prints_choices(mcp_cli, monkeypatch):
+    monkeypatch.setattr(
+        mcp_cli.module.click, "prompt", lambda *a, **k: pytest.fail("dry-run prompt")
+    )
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp", "--dry-run"])
+    assert result.exit_code == 0
+    for text in (
+        "1. Install MCP servers (default)",
+        "2. Cancel",
+        "airis-mcp-gateway",
+        *mcp_cli.module.MCP_SERVERS,
+    ):
+        assert text in result.output
+    assert "Uninstall" not in result.output
+    assert mcp_cli.calls == [] and mcp_cli.processes == []
+
+
+def test_mcp_menu_defaults_install_then_gateway(mcp_cli):
+    mcp_cli.interactive = True
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp"], input="\n\n")
+    assert result.exit_code == 0, result.output
+    assert "Install MCP servers" in result.output and "Cancel" in result.output
+    assert "Uninstall" not in result.output
+    assert mcp_cli.calls == [("gateway", False)]
+
+
+def test_mcp_menu_cancel_has_no_effects(mcp_cli):
+    mcp_cli.interactive = True
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp"], input="2\n")
+    assert result.exit_code == 0 and "cancel" in result.output.lower()
+    assert mcp_cli.calls == [] and mcp_cli.processes == []
+
+
+def test_mcp_menu_install_all_installs_the_individual_servers(mcp_cli, monkeypatch):
+    mcp_cli.interactive = True
+    monkeypatch.setattr(mcp_cli.module, "prompt_for_api_key", lambda *a, **k: None)
+    result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp"], input="1\n0\n")
+    assert result.exit_code == 0, result.output
+    assert any("tavily-mcp@0.2.22" in cmd for cmd in mcp_cli.processes)
+    assert ("gateway", False) not in mcp_cli.calls
+
+
 @pytest.mark.parametrize(
     "extra",
     [
