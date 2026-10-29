@@ -149,6 +149,15 @@ def install(target: str, force: bool, list_only: bool):
         click.echo(
             f"\nTemplates: {len(templates_available)} available, {len(templates_installed)} installed"
         )
+
+        click.echo("\nRetired MCP registrations (user scope):")
+        try:
+            from .install_retired_mcp import list_lines
+
+            for line in list_lines():
+                click.echo(line)
+        except Exception as exc:
+            click.echo(f"   unavailable ({type(exc).__name__})")
         return
 
     # Step 1: Install core framework files to ~/.claude/
@@ -215,6 +224,18 @@ def install(target: str, force: bool, list_only: bool):
 
     setup_success, setup_message = install_user_setup(force=force)
     click.echo(setup_message)
+
+    # Step 8: retire stale MCP registrations IronClaude can prove it wrote.
+    # Non-fatal by design: nothing here may change the exit code.
+    click.echo("\n📦 Retiring stale MCP registrations...")
+    try:
+        from .install_retired_mcp import run_retire_step
+
+        run_retire_step()
+    except Exception as exc:
+        click.echo(
+            f"   ⚠️  Retire step skipped ({type(exc).__name__}); install is complete."
+        )
 
     if (
         not core_success
@@ -369,6 +390,16 @@ def update(target: str):
     click.echo("📦 Updating rules, output styles, settings defaults, Orca skills...")
     setup_success, setup_message = install_user_setup(force=True)
     click.echo(setup_message)
+
+    # Read-only: update never touches MCP registrations.
+    try:
+        from .install_retired_mcp import update_notice
+
+        notice = update_notice()
+        if notice:
+            click.echo(f"\n{notice}")
+    except Exception:
+        pass
 
     if not all(
         (

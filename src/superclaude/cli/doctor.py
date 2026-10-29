@@ -43,6 +43,8 @@ def run_doctor(verbose: bool = False) -> Dict[str, Any]:
 
     checks.append(_check_ccsession())
 
+    checks.append(_check_retired_mcp())
+
     return {
         "checks": checks,
         "passed": all(check["passed"] for check in checks),
@@ -123,6 +125,31 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
         + (" (warning: ~/.local/bin not on PATH)" if not on_path else ""),
         "passed": not missing,
         "details": missing or ["ccsession skill, launcher, env and hook present"],
+    }
+
+
+def _check_retired_mcp() -> Dict[str, Any]:
+    """Warn (never fail) when a retired MCP registration is still present."""
+    try:
+        from .install_retired_mcp import doctor_warning
+
+        warning = doctor_warning()
+    except Exception as exc:
+        return {
+            "name": "Retired MCP registrations (warning: check skipped)",
+            "passed": True,
+            "details": [f"Could not check: {type(exc).__name__}"],
+        }
+    if warning:
+        return {
+            "name": "Retired MCP registrations (warning: legacy registration present)",
+            "passed": True,
+            "details": [warning],
+        }
+    return {
+        "name": "Retired MCP registrations",
+        "passed": True,
+        "details": ["No legacy registration to retire"],
     }
 
 

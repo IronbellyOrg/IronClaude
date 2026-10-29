@@ -24,6 +24,9 @@ _INSTALLERS = (
     "superclaude.cli.install_user_setup.install_user_setup",
 )
 
+# Runs at the end of ``install`` only; ``update`` never touches MCP registrations.
+_RETIRE_STEP = "superclaude.cli.install_retired_mcp.run_retire_step"
+
 
 @pytest.fixture(autouse=True)
 def isolated_home_guard(tmp_path, monkeypatch):
@@ -59,6 +62,11 @@ def _stub_installers(monkeypatch, *, failing: str | None = None):
 
         monkeypatch.setattr(path, fake)
 
+    def retire(*args, **kwargs):
+        calls.append("run_retire_step")
+        return {}
+
+    monkeypatch.setattr(_RETIRE_STEP, retire)
     return calls
 
 
@@ -104,6 +112,7 @@ def test_install_wires_before_hooks_and_templates(monkeypatch):
         "install_hooks",
         "install_templates",
         "install_user_setup",
+        "run_retire_step",
     ]
 
 

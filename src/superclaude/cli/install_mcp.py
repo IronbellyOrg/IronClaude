@@ -11,8 +11,10 @@ import platform
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -989,6 +991,78 @@ def _cleanup_user_native_registration() -> tuple[bool, str]:
         True,
         "Exact user registration removed; other scopes were not changed by IronClaude.",
     )
+
+
+def _exec_claude(argv: list[str], timeout: float) -> int:
+    """Run ``claude`` directly (no shell) in its own session; kill the group on timeout.
+
+    Output is discarded: Claude's text or the exception argv can contain old secrets.
+    Raises ``subprocess.TimeoutExpired`` after the process group is killed.
+    """
+    process = subprocess.Popen(
+        argv,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    try:
+        return process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            process.kill()
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            pass
+        raise
+
+
+def _remove_exact_user_entry(
+    name: str,
+    matcher,
+    *,
+    deadline: float | None = None,
+    per_call_timeout: float = 10.0,
+) -> str:
+    """Remove the user-scope entry ``name`` only while ``matcher(entry)`` is true.
+
+    The entry is re-read and re-matched right before ``claude mcp remove`` and read
+    again afterwards. Returns one of: removed, absent, changed (no longer matches
+    before removal; kept), replaced (a different shape appeared after removal; kept),
+    unverified, unknown (lookup failed), timeout, failed, skipped (``deadline`` hit,
+    a ``time.monotonic()`` value). Nothing is ever retried.
+    """
+    known, entry = read_user_mcp_entry(name)
+    if not known:
+        return "unknown"
+    if entry is None:
+        return "absent"
+    if not matcher(entry):
+        return "changed"
+    timeout = per_call_timeout
+    if deadline is not None:
+        timeout = min(timeout, deadline - time.monotonic())
+        if timeout <= 0:
+            return "skipped"
+    try:
+        returncode = _exec_claude(
+            ["claude", "mcp", "remove", name, "--scope", "user"], timeout
+        )
+    except subprocess.TimeoutExpired:
+        return "timeout"
+    except OSError:
+        return "failed"
+    if returncode != 0:
+        return "failed"
+    known, after = read_user_mcp_entry(name)
+    if not known:
+        return "unverified"
+    if after is None:
+        return "removed"
+    return "unverified" if matcher(after) else "replaced"
 
 
 def uninstall_codebase_memory_mcp(
