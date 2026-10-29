@@ -22,6 +22,7 @@ def home(tmp_path):
         "ccsession",
         "ccsession-orca",
         "hooks/session-start.sh",
+        "hooks/session-name.sh",
         "ccsession.env.example",
         "install.sh",
     ):
@@ -43,6 +44,7 @@ def test_wire_creates_symlink_and_env(home):
     assert env.stat().st_mode & 0o777 == 0o600
     assert (skill / "ccsession").stat().st_mode & 0o111
     assert (skill / "hooks/session-start.sh").stat().st_mode & 0o111
+    assert (skill / "hooks/session-name.sh").stat().st_mode & 0o111
     assert not (home / ".claude/settings.json").exists()
 
 
@@ -85,6 +87,20 @@ def test_wire_older_skill_without_orca_wrapper_still_succeeds(home):
     assert "superclaude update" in msg
     assert (home / ".local/bin/ccsession").is_symlink()
     assert not (home / ".local/bin/ccsession-orca").exists()
+
+
+def test_wire_gives_an_older_skill_the_rename_hook(home):
+    # The UserPromptSubmit and SessionEnd hooks are registered even when a plain
+    # install keeps an older skill; their script must then exist.
+    hook = home / ".claude/skills/ccsession-tag/hooks/session-name.sh"
+    hook.unlink()
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    source = Path(__file__).resolve().parents[2] / (
+        "src/superclaude/skills/ccsession-tag/hooks/session-name.sh"
+    )
+    assert hook.read_bytes() == source.read_bytes()
+    assert hook.stat().st_mode & 0o111
 
 
 def test_wire_leaves_existing_env_and_settings(home):
@@ -226,6 +242,16 @@ def test_fallback_after_native_does_not_duplicate_hook(home):
     assert wire_ccsession(home)[0]
     settings = home / ".claude/settings.json"
     canonical = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+    name_hook = [
+        {
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "~/.claude/skills/ccsession-tag/hooks/session-name.sh",
+                }
+            ]
+        }
+    ]
     settings.write_text(
         json.dumps(
             {
@@ -235,7 +261,9 @@ def test_fallback_after_native_does_not_duplicate_hook(home):
                             "matcher": "startup|resume",
                             "hooks": [{"type": "command", "command": canonical}],
                         }
-                    ]
+                    ],
+                    "UserPromptSubmit": name_hook,
+                    "SessionEnd": name_hook,
                 }
             }
         )

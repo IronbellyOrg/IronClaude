@@ -9,9 +9,9 @@
 #      Claude command into ~/.local/bin/ccsession-orca, pointing at the
 #      user-level copy.
 #   3. Creates ~/.claude/ccsession.env from the template if it doesn't exist.
-#   4. Registers the SessionStart hook in ~/.claude/settings.json (idempotent
-#      merge — preserves existing hooks, backs up before writing, safe on
-#      invalid JSON).
+#   4. Registers the SessionStart, UserPromptSubmit and SessionEnd hooks in
+#      ~/.claude/settings.json (idempotent merge — preserves existing hooks,
+#      backs up before writing, safe on invalid JSON).
 #
 # Re-running is safe — files get refreshed, your env file is left untouched,
 # and the hook is only added once.
@@ -45,6 +45,7 @@ rm -f "$TARGET_SKILL_DIR/PLAN-context-save-load.md"
 chmod +x "$TARGET_SKILL_DIR/ccsession"
 chmod +x "$TARGET_SKILL_DIR/ccsession-orca"
 chmod +x "$TARGET_SKILL_DIR/hooks/session-start.sh"
+chmod +x "$TARGET_SKILL_DIR/hooks/session-name.sh"
 chmod +x "$TARGET_SKILL_DIR/install.sh"
 echo ""
 
@@ -79,18 +80,33 @@ fi
 python3 "$TARGET_SKILL_DIR/seed-env.py" "$ENV_TARGET" "$TARGET_SKILL_DIR/ccsession.env.example" | sed 's/^/      /'
 echo ""
 
-# 4. Register the SessionStart hook in ~/.claude/settings.json (idempotent).
-HOOK_SCRIPT="$TARGET_SKILL_DIR/hooks/session-start.sh"
+# 4. Register the hooks in ~/.claude/settings.json (idempotent): SessionStart
+# saves a session's name; UserPromptSubmit and SessionEnd pick up /rename.
+HOOKS_DIR="$TARGET_SKILL_DIR/hooks"
 SETTINGS="$HOME/.claude/settings.json"
-echo "[4/4] Registering SessionStart hook:"
-echo "      Script:   $HOOK_SCRIPT"
+echo "[4/4] Registering SessionStart, UserPromptSubmit and SessionEnd hooks:"
+echo "      Scripts:  $HOOKS_DIR"
 echo "      Settings: $SETTINGS"
 
-python3 - "$SETTINGS" "$HOOK_SCRIPT" <<'PYEOF'
+python3 - "$SETTINGS" "$HOOKS_DIR" <<'PYEOF'
 import json, os, sys, shutil
 
-settings_path, hook_script = sys.argv[1], sys.argv[2]
-hook_cmd = 'bash "%s"' % hook_script
+settings_path, hooks_dir = sys.argv[1], sys.argv[2]
+# (event, matcher or None, script)
+wanted = [
+    ("SessionStart", "startup|resume", "session-start.sh"),
+    ("UserPromptSubmit", None, "session-name.sh"),
+    ("SessionEnd", None, "session-name.sh"),
+]
+
+
+def registration(matcher, script):
+    reg = {"hooks": [{"type": "command",
+                      "command": 'bash "%s/%s"' % (hooks_dir, script), "timeout": 5}]}
+    if matcher:
+        reg = {"matcher": matcher, **reg}
+    return reg
+
 
 # Load existing settings, or start fresh if absent.
 data = {}
@@ -100,9 +116,9 @@ if os.path.exists(settings_path):
             data = json.load(f)
     except Exception:
         print("      WARNING: settings.json is not valid JSON — leaving it untouched.")
-        print("      Add this manually under hooks.SessionStart:")
-        print('        {"matcher": "startup|resume", "hooks": [{"type": "command",')
-        print('          "command": %s, "timeout": 5}]}' % json.dumps(hook_cmd))
+        for event, matcher, script in wanted:
+            print("      Add this manually under hooks.%s:" % event)
+            print("        %s" % json.dumps(registration(matcher, script)))
         sys.exit(0)
 
 if not isinstance(data, dict):
@@ -113,34 +129,38 @@ hooks = data.setdefault("hooks", {})
 if not isinstance(hooks, dict):
     print("      WARNING: settings.json 'hooks' is not an object — leaving untouched.")
     sys.exit(0)
-session_start = hooks.setdefault("SessionStart", [])
-if not isinstance(session_start, list):
-    print("      WARNING: settings.json 'hooks.SessionStart' is not a list — leaving untouched.")
-    sys.exit(0)
 
-# Match only our native or standalone command, not a user hook mentioning the path.
-native_cmd = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
-for group in session_start:
-    for h in (group.get("hooks", []) if isinstance(group, dict) else []):
-        if isinstance(h, dict) and h.get("command") in (hook_cmd, "bash '%s'" % hook_script, native_cmd):
-            print("      Already registered — no change.")
-            sys.exit(0)
+added = []
+for event, matcher, script in wanted:
+    groups = hooks.setdefault(event, [])
+    if not isinstance(groups, list):
+        print("      WARNING: settings.json 'hooks.%s' is not a list — leaving it untouched." % event)
+        continue
+    # Match only our native or standalone command, not a user hook mentioning the path.
+    path = "%s/%s" % (hooks_dir, script)
+    ours = ('bash "%s"' % path, "bash '%s'" % path,
+            "~/.claude/skills/ccsession-tag/hooks/%s" % script)
+    if any(isinstance(h, dict) and h.get("command") in ours
+           for group in groups if isinstance(group, dict)
+           for h in group.get("hooks", []) if isinstance(group.get("hooks"), list)):
+        continue
+    groups.append(registration(matcher, script))
+    added.append(event)
+
+if not added:
+    print("      Already registered — no change.")
+    sys.exit(0)
 
 # Back up an existing file before modifying it.
 if os.path.exists(settings_path):
     shutil.copy2(settings_path, settings_path + ".bak")
     print("      Backed up existing settings to settings.json.bak")
 
-session_start.append({
-    "matcher": "startup|resume",
-    "hooks": [{"type": "command", "command": hook_cmd, "timeout": 5}],
-})
-
 os.makedirs(os.path.dirname(settings_path), exist_ok=True)
 with open(settings_path, "w") as f:
     json.dump(data, f, indent=2)
     f.write("\n")
-print("      Registered SessionStart hook.")
+print("      Registered %s hook%s." % (", ".join(added), "s" if len(added) > 1 else ""))
 PYEOF
 echo ""
 echo "Install complete. The source folder ($SKILL_DIR)"

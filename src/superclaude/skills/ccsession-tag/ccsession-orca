@@ -75,6 +75,7 @@ fi
 
 # In tier mode the shim is always on; --shim asks for it everywhere else.
 if [ -n "$name" ]; then
-  exec "$CCSESSION" "$name" --shim --claude-args "$@"
+  # --name: a name that starts with "-" is still a name, never an option.
+  exec "$CCSESSION" --name "$name" --shim --claude-args "$@"
 fi
 exec "$CCSESSION" --shim --claude-args "$@"

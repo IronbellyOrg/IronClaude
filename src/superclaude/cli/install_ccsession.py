@@ -39,8 +39,24 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
     # A skill installed before ccsession-orca existed is kept by a plain
     # `superclaude install`; ccsession still works, and `update` adds the file.
     scripts = [wrapper, orca_wrapper] if orca_wrapper.is_file() else [wrapper]
+    # Keeps ccsession's names in step with /rename (UserPromptSubmit, SessionEnd).
+    # The hooks are registered even when a plain install keeps an older skill
+    # folder, so give that folder the hook script: beside an older ccsession it
+    # does nothing (it asks only a ccsession that knows --sync-name).
+    name_hook = hook.parent / "session-name.sh"
+    packaged = (
+        Path(__file__).resolve().parent.parent
+        / "skills"
+        / "ccsession-tag"
+        / "hooks"
+        / "session-name.sh"
+    )
     try:
         hook.chmod(0o755)
+        if not name_hook.exists() and not name_hook.is_symlink() and packaged.is_file():
+            shutil.copyfile(packaged, name_hook)
+        if name_hook.is_file() and not name_hook.is_symlink():
+            name_hook.chmod(0o755)
         bin_dir.mkdir(parents=True, exist_ok=True)
         for script in scripts:
             script.chmod(0o755)
@@ -81,7 +97,8 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
                 timeout=30,
             )
         # Session names now belong to the repo; copy names saved per folder by
-        # older versions into their repo's list (once per list, copies only).
+        # older versions into their repo's list (once per list, copies only),
+        # and, once, the names given with Claude Code's /rename before then.
         # A plain install can keep an older skill whose ccsession would read
         # the option as a launch, so ask only one that knows it.
         if b"--migrate-names)" in wrapper.read_bytes():

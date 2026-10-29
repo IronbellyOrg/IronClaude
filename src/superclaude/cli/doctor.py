@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from .install_hooks import _is_ccsession_hook
+from .install_hooks import _ccsession_script, _is_ccsession_hook
 from .install_skills import skill_activation_targets
 
 
@@ -64,6 +64,7 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
             wrapper,
             orca_wrapper,
             skill / "hooks/session-start.sh",
+            skill / "hooks/session-name.sh",
             home / ".claude/ccsession.env",
         )
         if not (path.is_dir() if path == skill else path.is_file())
@@ -94,6 +95,23 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
     )
     if not registered:
         missing.append(f"{settings}: ccsession SessionStart hook not registered")
+    # Without these a name given with /rename never reaches ccsession's list.
+    for event in ("UserPromptSubmit", "SessionEnd"):
+        regs = hooks.get(event, []) if isinstance(hooks, dict) else []
+        if not (
+            isinstance(regs, list)
+            and any(
+                isinstance(reg, dict)
+                and isinstance(reg.get("hooks"), list)
+                and any(
+                    isinstance(hook, dict)
+                    and _ccsession_script(hook.get("command")) == "session-name.sh"
+                    for hook in reg["hooks"]
+                )
+                for reg in regs
+            )
+        ):
+            missing.append(f"{settings}: ccsession {event} hook not registered")
 
     on_path = any(
         Path(entry).expanduser().resolve() == bin_path.parent.resolve()
