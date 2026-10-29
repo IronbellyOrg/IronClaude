@@ -25,46 +25,17 @@ _INSTALLERS = (
 )
 
 
-_NATIVE_INSTALLER = "superclaude.cli.install_mcp.install_codebase_memory_mcp"
-
-
 @pytest.fixture(autouse=True)
-def native_phase_guard(tmp_path, monkeypatch):
-    from superclaude.cli import install_codebase_memory as native
-    from superclaude.cli import install_mcp, install_user_setup
+def isolated_home_guard(tmp_path, monkeypatch):
+    from superclaude.cli import install_user_setup
 
     home = tmp_path / "isolated-home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home / "config"))
-    monkeypatch.setattr(native.platform, "system", lambda: "Linux")
-    monkeypatch.setattr(native.platform, "machine", lambda: "x86_64")
-    state = SimpleNamespace(
-        home=home, calls=[], found=native.Discovery("missing"), known=True, entry=None
-    )
-
-    def phase(*, scope):
-        state.calls.append({"scope": scope})
-        return True, "Codebase Memory shared phase fixture"
-
-    monkeypatch.setattr(install_mcp, "install_codebase_memory_mcp", phase)
-    monkeypatch.setattr(native, "discover_executable", lambda: state.found)
-    monkeypatch.setattr(
-        install_mcp, "read_user_mcp_entry", lambda name: (state.known, state.entry)
-    )
-    monkeypatch.setattr(
-        native,
-        "acquire_codebase_memory",
-        lambda **kwargs: pytest.fail("real native acquisition"),
-    )
-    monkeypatch.setattr(
-        native, "_run_bounded", lambda *a, **k: pytest.fail("real native process")
-    )
-    monkeypatch.setattr(
-        install_mcp, "_run_command", lambda *a, **k: pytest.fail("real Claude CLI")
-    )
+    state = SimpleNamespace(home=home)
     # The existing real-framework ccsession fixture must not download plugins or
-    # Orca skills while exercising the new mandatory native phase.
+    # Orca skills while exercising the real install.
     monkeypatch.setattr(
         install_user_setup, "install_plugins", lambda **kwargs: (True, "Plugin fixture")
     )
@@ -79,12 +50,10 @@ def native_phase_guard(tmp_path, monkeypatch):
 def _stub_installers(monkeypatch, *, failing: str | None = None):
     calls: list[str] = []
 
-    for path in (*_INSTALLERS, _NATIVE_INSTALLER):
+    for path in _INSTALLERS:
         name = path.rsplit(".", 1)[-1]
 
         def fake(*args, _name=name, **kwargs):
-            if _name == "install_codebase_memory_mcp":
-                assert not args and kwargs == {"scope": "user"}
             calls.append(_name)
             return (_name != failing, f"{_name} result")
 
@@ -135,7 +104,6 @@ def test_install_wires_before_hooks_and_templates(monkeypatch):
         "install_hooks",
         "install_templates",
         "install_user_setup",
-        "install_codebase_memory_mcp",
     ]
 
 
@@ -248,106 +216,10 @@ def test_real_update_restores_packaged_ccsession(native_install):
     assert "private-token" not in result.output
 
 
-@pytest.mark.parametrize(
-    "stage", ["download", "verification", "registration", "platform"]
-)
-def test_install_native_failure_is_mandatory_and_preserves_framework_work(
-    monkeypatch, native_phase_guard, stage
-):
-    calls = _stub_installers(monkeypatch)
-    marker = native_phase_guard.home / "framework-work-kept"
-
-    def core(*, force):
-        calls.append("install_core_files")
-        marker.write_text("existing successful framework phase")
-        return True, "framework phase completed"
-
-    def native_phase(*, scope):
-        assert scope == "user"
-        calls.append("install_codebase_memory_mcp")
-        return False, f"Native {stage} fixture failure"
-
-    monkeypatch.setattr("superclaude.cli.install_core.install_core_files", core)
-    monkeypatch.setattr(_NATIVE_INSTALLER, native_phase)
-    result = CliRunner().invoke(main, ["install"])
-    assert result.exit_code == 1, result.output
-    assert stage in result.output and "incomplete" in result.output.lower()
-    assert "retry" in result.output.lower() and "superclaude install" in result.output
-    assert marker.read_text() == "existing successful framework phase"
-    assert calls[-2:] == ["install_user_setup", "install_codebase_memory_mcp"]
-
-
-@pytest.mark.parametrize(
-    "state,registration,expected",
-    [
-        ("canonical", "matching", "matches verified"),
-        ("external", "matching", "external"),
-        ("canonical", "stale", "stale"),
-        ("canonical", "absent", "absent"),
-        ("missing", "absent", "missing"),
-        ("non_runnable", "absent", "non_runnable"),
-        ("ambiguous", "absent", "ambiguous"),
-        ("canonical", "unknown", "unknown"),
-    ],
-)
-def test_install_list_reports_native_and_exact_user_status_without_repair(
-    monkeypatch, native_phase_guard, state, registration, expected
-):
-    from superclaude.cli import install_codebase_memory as native
-
-    calls = _stub_installers(monkeypatch)
-    _stub_listings(monkeypatch)
-    executable = native_phase_guard.home / ".local/bin/codebase-memory-mcp"
-    native_phase_guard.found = native.Discovery(
-        state, executable, "0.12.1" if state in {"canonical", "external"} else None
-    )
-    native_phase_guard.known = registration != "unknown"
-    if registration in {"matching", "stale"}:
-        native_phase_guard.entry = {
-            "type": "stdio",
-            "command": str(executable),
-            "args": [] if registration == "matching" else ["--stale"],
-        }
-    before = sorted(str(path) for path in native_phase_guard.home.rglob("*"))
-    result = CliRunner().invoke(
-        main,
-        [
-            "install",
-            "--list",
-            "--force",
-            "--target",
-            str(native_phase_guard.home / "unused-target"),
-        ],
-    )
-    assert result.exit_code == 0, result.output
-    assert "Codebase Memory MCP" in result.output and expected in result.output
-    assert "User registration" in result.output
-    assert calls == [] and native_phase_guard.calls == []
-    assert sorted(str(path) for path in native_phase_guard.home.rglob("*")) == before
-
-
-def test_install_list_reports_unsupported_native_without_probe(
-    monkeypatch, native_phase_guard
-):
-    from superclaude.cli import install_codebase_memory as native
-
-    calls = _stub_installers(monkeypatch)
-    _stub_listings(monkeypatch)
-    monkeypatch.setattr(native.platform, "system", lambda: "Darwin")
-    monkeypatch.setattr(
-        native, "discover_executable", lambda: pytest.fail("unsupported native probe")
-    )
-    result = CliRunner().invoke(main, ["install", "--list"])
-    assert result.exit_code == 0 and "unavailable" in result.output.lower()
-    assert "Linux" in result.output and calls == []
-
-
-def test_install_force_target_do_not_redirect_or_force_native(
-    monkeypatch, native_phase_guard
-):
+def test_install_force_target_do_not_redirect(monkeypatch, isolated_home_guard):
     _stub_installers(monkeypatch)
     captured = {}
-    target = native_phase_guard.home / "custom commands"
+    target = isolated_home_guard.home / "custom commands"
 
     def commands(*, target_path, force):
         captured["commands"] = (target_path, force)
@@ -357,68 +229,13 @@ def test_install_force_target_do_not_redirect_or_force_native(
         captured["setup"] = force
         return True, "setup fixture"
 
-    def native_phase(*, scope):
-        captured["native"] = {"scope": scope}
-        return True, "native fixture"
-
     monkeypatch.setattr("superclaude.cli.install_commands.install_commands", commands)
     monkeypatch.setattr(
         "superclaude.cli.install_user_setup.install_user_setup", user_setup
     )
-    monkeypatch.setattr(_NATIVE_INSTALLER, native_phase)
     result = CliRunner().invoke(main, ["install", "--force", "--target", str(target)])
     assert result.exit_code == 0, result.output
     assert captured == {
         "commands": (target, True),
         "setup": True,
-        "native": {"scope": "user"},
     }
-
-
-@pytest.mark.parametrize(
-    "shared_result",
-    [
-        "Already correct; no-op",
-        "Missing user registration repaired without acquisition",
-        "External binary reused without replacement",
-    ],
-)
-def test_repeated_install_delegates_shared_noop_repair_external_policy(
-    monkeypatch, native_phase_guard, shared_result
-):
-    _stub_installers(monkeypatch)
-    external = native_phase_guard.home / "external manager" / "codebase-memory-mcp"
-    external.parent.mkdir()
-    external.write_bytes(b"external installation sentinel")
-    calls = []
-
-    def native_phase(*, scope):
-        calls.append({"scope": scope})
-        return True, shared_result
-
-    monkeypatch.setattr(_NATIVE_INSTALLER, native_phase)
-    for flags in ([], ["--force"]):
-        result = CliRunner().invoke(main, ["install", *flags])
-        assert result.exit_code == 0 and shared_result in result.output
-    assert calls == [{"scope": "user"}, {"scope": "user"}]
-    assert external.read_bytes() == b"external installation sentinel"
-
-
-def test_update_never_restores_native_but_later_install_calls_shared_phase(
-    monkeypatch, native_phase_guard
-):
-    from superclaude.cli import install_codebase_memory as native
-
-    calls = _stub_installers(monkeypatch)
-    monkeypatch.setattr(
-        native,
-        "discover_executable",
-        lambda: pytest.fail("native discovery during update"),
-    )
-    result = CliRunner().invoke(main, ["update"])
-    assert result.exit_code == 0
-    assert calls == [path.rsplit(".", 1)[-1] for path in _INSTALLERS]
-    assert not (native_phase_guard.home / ".local/bin/codebase-memory-mcp").exists()
-    calls.clear()
-    result = CliRunner().invoke(main, ["install"])
-    assert result.exit_code == 0 and calls[-1] == "install_codebase_memory_mcp"
