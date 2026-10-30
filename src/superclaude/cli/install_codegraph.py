@@ -10,6 +10,7 @@ Registration with Claude Code lives in ``install_mcp.install_codegraph_mcp``.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import os
 import platform
@@ -283,7 +284,13 @@ def acquire(run: Runner) -> tuple:
         archive = tmp / f"codegraph-{asset}.tar.gz"
         try:
             _download(url, archive, DOWNLOAD_TIMEOUT)
-        except (urllib.error.URLError, OSError, TimeoutError, ValueError) as exc:
+        except (
+            urllib.error.URLError,
+            http.client.HTTPException,
+            OSError,
+            TimeoutError,
+            ValueError,
+        ) as exc:
             return _fail(
                 "download",
                 f"{url} ({type(exc).__name__}). Download it yourself, check its "

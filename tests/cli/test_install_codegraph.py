@@ -1,18 +1,21 @@
-"""Tests for the pinned codegraph acquisition module (spec cases U1-U10, U20-U22, U24).
+"""Tests for codegraph acquisition and the registration phase (spec cases U1-U25).
 
-No test touches the network, the real HOME or the real PATH: HOME and PATH point at
-tmp dirs and ``install_codegraph._download`` is the one fake.
+No test touches the network, the real HOME, the real PATH or the real ``claude``:
+HOME and PATH point at tmp dirs, ``install_codegraph._download`` is the one network
+fake and the ``claude`` calls of ``install_mcp`` are replaced by a recording fake.
 """
 
 from __future__ import annotations
 
 import hashlib
 import io
+import json
 import os
 import re
 import shutil
 import subprocess
 import tarfile
+import time
 import urllib.error
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,6 +23,7 @@ from types import SimpleNamespace
 import pytest
 
 from superclaude.cli import install_codegraph as cg
+from superclaude.cli import install_mcp
 
 REPO = Path(__file__).resolve().parents[2]
 ASSET = "linux-x64"
@@ -373,3 +377,245 @@ def test_u24_winner_not_on_path_warns_but_passes(box):
     ok, message, launcher = cg.acquire(run)
     assert ok and launcher == local.resolve()
     assert "warning" in message and str(local.parent) in message
+
+
+# --- registration phase (install_mcp.install_codegraph_mcp) -------------------------------
+
+
+@pytest.fixture
+def claude(box, monkeypatch):
+    """Fake ``claude``: ``--version`` plus an editor of the fixture ~/.claude.json."""
+    cfg = box.home / ".claude.json"
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(box.home))
+    state = SimpleNamespace(
+        cfg=cfg, version_rc=0, calls=[], mutations=[], fail_add=0, noop_add=0
+    )
+
+    def servers():
+        return json.loads(cfg.read_text()).get("mcpServers", {})
+
+    def seed(entries):
+        cfg.write_text(json.dumps({"mcpServers": entries}))
+
+    def fake_exec(argv, timeout):
+        assert timeout <= 60
+        assert argv[-2:] == ["--scope", "user"]
+        state.mutations.append(argv)
+        data = json.loads(cfg.read_text())
+        verb, name = argv[2], argv[3]
+        if verb == "add-json":
+            if state.fail_add:
+                state.fail_add -= 1
+                return 1
+            if state.noop_add:
+                state.noop_add -= 1
+                return 0
+            data.setdefault("mcpServers", {})[name] = json.loads(argv[4])
+        else:
+            assert verb == "remove"
+            data.setdefault("mcpServers", {}).pop(name, None)
+        cfg.write_text(json.dumps(data))
+        return 0
+
+    def fake_run(argv, timeout):
+        if argv[0] == "claude":
+            state.calls.append(argv)
+            return state.version_rc, "2.1.314 (Claude Code)\n"
+        return run(argv, timeout)
+
+    monkeypatch.setattr(install_mcp, "_exec_claude", fake_exec)
+    monkeypatch.setattr(install_mcp, "_run_argv", fake_run)
+    state.servers, state.seed = servers, seed
+    seed({})
+    return state
+
+
+def expected_entry(launcher: Path) -> dict:
+    return install_mcp._codegraph_entry(launcher)
+
+
+def test_u11_claude_version_failure_stops_before_discovery(box, claude):
+    stub(box.path / "codegraph")
+    claude.version_rc = 1
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert not ok and "Claude CLI" in message
+    assert claude.calls == [["claude", "--version"]]
+    assert not claude.mutations
+    assert not cg.pointer_path().exists()  # discovery never ran
+
+
+def test_u12_absent_registration_is_added_with_exact_json(box, claude):
+    baked = stub(box.path / "codegraph")
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert ok, message
+    (argv,) = claude.mutations
+    assert argv[:4] == ["claude", "mcp", "add-json", "codegraph"]
+    payload = json.loads(argv[4])
+    assert payload == expected_entry(baked.resolve())
+    assert payload["command"] == str(baked.resolve())
+    assert payload["env"]["CODEGRAPH_MCP_TOOLS"] == cg.MCP_TOOLS
+    assert claude.servers()["codegraph"] == payload
+
+
+def test_u13_equal_registration_is_idempotent(box, claude):
+    baked = stub(box.path / "codegraph")
+    claude.seed({"codegraph": expected_entry(baked.resolve())})
+    ok, _ = install_mcp.install_codegraph_mcp()
+    assert ok and not claude.mutations
+
+
+def _owned_variants(good: dict) -> dict:
+    no_flag = {k: v for k, v in good.items() if k != "alwaysLoad"}
+    no_tools = dict(
+        good, env={k: v for k, v in good["env"].items() if k != "CODEGRAPH_MCP_TOOLS"}
+    )
+    return {
+        "old-path": dict(good, command="/old/bin/codegraph"),
+        "missing-alwaysLoad": no_flag,
+        "env-without-tool-list": no_tools,
+        "old-version-dir": dict(
+            good, command="/h/.codegraph/versions/v1.5.0/bin/codegraph"
+        ),
+    }
+
+
+@pytest.mark.parametrize(
+    "variant",
+    ["old-path", "missing-alwaysLoad", "env-without-tool-list", "old-version-dir"],
+)
+def test_u14_owned_registration_is_replaced(box, claude, variant):
+    baked = stub(box.path / "codegraph")
+    good = expected_entry(baked.resolve())
+    claude.seed({"codegraph": _owned_variants(good)[variant]})
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert ok, message
+    assert [m[2] for m in claude.mutations] == ["remove", "add-json"]
+    assert claude.servers()["codegraph"] == good
+
+
+def test_u15_failed_add_restores_previous_entry(box, claude):
+    baked = stub(box.path / "codegraph")
+    previous = _owned_variants(expected_entry(baked.resolve()))["old-path"]
+    claude.seed({"codegraph": previous})
+    claude.fail_add = 1
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert not ok and "previous user registration restored" in message
+    assert claude.servers()["codegraph"] == previous
+
+
+def test_u15_unverified_add_restores_previous_entry(box, claude):
+    baked = stub(box.path / "codegraph")
+    previous = _owned_variants(expected_entry(baked.resolve()))["old-path"]
+    claude.seed({"codegraph": previous})
+    claude.noop_add = 1  # claude says success but stores nothing
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert not ok and "verification failed" in message
+    assert "previous user registration restored" in message
+    assert claude.servers()["codegraph"] == previous
+
+
+USER_ENTRIES = {
+    "extra-env-key": {"env": {"TOKEN": "x"}},
+    "headers": {"headers": {"Authorization": "x"}},
+    "url": {"url": "https://example.test/mcp"},
+    "other-args": {"args": ["serve", "--mcp", "--extra"]},
+}
+
+
+@pytest.mark.parametrize("kind", sorted(USER_ENTRIES))
+def test_u16_user_managed_entry_kept_when_command_runs(box, claude, kind):
+    stub(box.path / "codegraph")
+    mine = stub(box.tmp / "mine" / "codegraph")
+    entry = {"type": "stdio", "command": str(mine), "args": ["serve", "--mcp"]}
+    entry.update(USER_ENTRIES[kind])
+    claude.seed({"codegraph": entry})
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert ok and "claude mcp remove codegraph --scope user" in message
+    assert not claude.mutations and claude.servers()["codegraph"] == entry
+
+
+def test_u16_user_managed_entry_fails_when_command_does_not_run(box, claude):
+    stub(box.path / "codegraph")
+    entry = {"type": "stdio", "command": "/nonexistent/codegraph", "args": ["x"]}
+    claude.seed({"codegraph": entry})
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert not ok and "claude mcp remove codegraph --scope user" in message
+    assert not claude.mutations and claude.servers()["codegraph"] == entry
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["{not json", '{"mcpServers": {"codegraph": {}, "codegraph": {}}}'],
+    ids=["unreadable", "duplicate-keys"],
+)
+def test_u17_unreadable_claude_json_means_no_mutation(box, claude, text):
+    stub(box.path / "codegraph")
+    claude.cfg.write_text(text)
+    ok, message = install_mcp.install_codegraph_mcp()
+    assert not ok and "lookup failed" in message
+    assert not claude.mutations
+
+
+def test_u18_dry_run_changes_nothing(box, monkeypatch):
+    def forbidden(*args, **kwargs):
+        pytest.fail("dry run must not run anything")
+
+    monkeypatch.setattr(install_mcp, "_run_argv", forbidden)
+    monkeypatch.setattr(install_mcp, "_exec_claude", forbidden)
+    ok, message = install_mcp.install_codegraph_mcp(dry_run=True)
+    assert ok and message.startswith("[DRY RUN]")
+    assert not (box.home / ".codegraph").exists()
+    assert not (box.home / ".claude.json").exists()
+
+
+def test_u19_second_run_downloads_and_mutates_nothing(box, claude, monkeypatch):
+    urls = serve(monkeypatch, tarball())
+    assert install_mcp.install_codegraph_mcp()[0]
+    assert len(urls) == 1 and len(claude.mutations) == 1
+    assert install_mcp.install_codegraph_mcp()[0]
+    assert len(urls) == 1 and len(claude.mutations) == 1
+
+
+def test_u23_mcp_command_dry_run_previews_codegraph(box, monkeypatch):
+    from click.testing import CliRunner
+
+    from superclaude.cli.main import main
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("dry run must not run anything")
+
+    monkeypatch.setattr(install_mcp, "_run_argv", forbidden)
+    monkeypatch.setattr(install_mcp, "_exec_claude", forbidden)
+    monkeypatch.setattr(install_mcp, "_run_command", forbidden)
+    result = CliRunner().invoke(main, ["mcp", "--servers", "codegraph", "--dry-run"])
+    assert result.exit_code == 0, result.output
+    assert "[DRY RUN]" in result.output
+
+
+def _alive(pid: int) -> bool:
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text()
+    except OSError:
+        return False
+    return stat.rsplit(")", 1)[1].split()[0] != "Z"
+
+
+@pytest.mark.skipif(
+    not Path("/proc/self/stat").exists(), reason="needs /proc to inspect processes"
+)
+def test_u25_bounded_runner_kills_the_process_group(tmp_path, monkeypatch):
+    monkeypatch.setenv("PATH", "/usr/bin:/bin")  # the stub needs a real `sleep`
+    pids = tmp_path / "pids"
+    script = tmp_path / "stuck"
+    script.write_text(
+        f"#!/bin/sh\ntrap '' TERM\nsleep 30 &\necho \"$$ $!\" > {pids}\nwait\n"
+    )
+    script.chmod(0o755)
+    with pytest.raises(subprocess.TimeoutExpired):
+        install_mcp._run_argv([str(script)], 1)
+    shell_pid, sleep_pid = (int(p) for p in pids.read_text().split())
+    for _ in range(40):
+        if not _alive(shell_pid) and not _alive(sleep_pid):
+            break
+        time.sleep(0.05)
+    assert not _alive(shell_pid) and not _alive(sleep_pid)

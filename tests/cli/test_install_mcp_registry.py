@@ -319,3 +319,40 @@ def test_litellm_changed_header_is_removed_and_re_added(monkeypatch):
         "--header",
         "x-litellm-api-key: Bearer ${LITELLM_API_KEY}",
     ] in calls
+
+
+def test_codegraph_registry_entry_contract():
+    entry = install_mcp.MCP_SERVERS["codegraph"]
+    assert entry["name"] == "codegraph"
+    assert entry["transport"] == "stdio"
+    assert entry["command"] == "codegraph"
+    assert entry["args"] == ["serve", "--mcp"]
+    assert entry["required"] is False
+
+
+def test_codegraph_dispatches_to_phase_function_never_generic_add(monkeypatch):
+    seen = []
+
+    def phase(**kwargs):
+        seen.append(kwargs)
+        return True, "phase ran"
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("generic registration path used")
+
+    monkeypatch.setattr(install_mcp, "install_codegraph_mcp", phase)
+    monkeypatch.setattr(install_mcp, "_run_command", forbidden)
+    monkeypatch.setattr(install_mcp, "_exec_claude", forbidden)
+    assert install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["codegraph"], scope="user", dry_run=True
+    )
+    assert seen == [{"scope": "user", "dry_run": True}]
+
+    monkeypatch.setattr(install_mcp, "install_codegraph_mcp", lambda **k: (False, "no"))
+    assert not install_mcp.install_mcp_server(install_mcp.MCP_SERVERS["codegraph"])
+
+
+def test_codegraph_is_listed_by_mcp_list(monkeypatch, capsys):
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
+    install_mcp.list_available_servers()
+    assert "codegraph" in capsys.readouterr().out

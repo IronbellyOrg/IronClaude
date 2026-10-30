@@ -20,6 +20,8 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from . import install_codegraph
+
 # AIRIS MCP Gateway - Unified MCP solution (recommended)
 AIRIS_GATEWAY = {
     "name": "airis-mcp-gateway",
@@ -90,6 +92,14 @@ MCP_SERVERS = {
             "      Headless alternative: set AUGMENT_SESSION_AUTH env var\n"
             "      Docs: https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code"
         ),
+    },
+    "codegraph": {
+        "name": "codegraph",
+        "description": "Code graph: symbols, callers, impact, file outlines (pinned, installed by superclaude install)",
+        "transport": "stdio",
+        "command": "codegraph",
+        "args": ["serve", "--mcp"],
+        "required": False,
     },
     # Appended last so the numbered install menu keeps its existing numbers.
     # The header value stays the literal ${LITELLM_API_KEY}: Claude Code expands it from the
@@ -748,31 +758,44 @@ def _run_registration_command(cmd: list[str]) -> bool:
         return False
 
 
-def _exec_claude(argv: list[str], timeout: float) -> int:
-    """Run ``claude`` directly (no shell) in its own session; kill the group on timeout.
+def _bounded(argv: list[str], timeout: float, *, capture: bool) -> tuple[int, str]:
+    """Run ``argv`` directly (no shell) in its own session; kill the group on timeout.
 
-    Output is discarded: Claude's text or the exception argv can contain old secrets.
+    stderr is always discarded; stdout is returned only when ``capture`` is true.
     Raises ``subprocess.TimeoutExpired`` after the process group is killed.
     """
     process = subprocess.Popen(
         argv,
         stdin=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL,
+        stdout=subprocess.PIPE if capture else subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        text=True,
+        errors="replace",
         start_new_session=True,
     )
     try:
-        return process.wait(timeout=timeout)
+        out, _ = process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
         try:
             os.killpg(process.pid, signal.SIGKILL)
         except (ProcessLookupError, PermissionError):
             process.kill()
         try:
-            process.wait(timeout=2)
+            process.communicate(timeout=2)
         except subprocess.TimeoutExpired:
             pass
         raise
+    return process.returncode, out or ""
+
+
+def _exec_claude(argv: list[str], timeout: float) -> int:
+    """Run ``claude`` bounded; output is discarded because it can contain old secrets."""
+    return _bounded(argv, timeout, capture=False)[0]
+
+
+def _run_argv(argv: list[str], timeout: float) -> tuple[int, str]:
+    """Bounded argv runner that returns ``(returncode, stdout)``, e.g. ``--version``."""
+    return _bounded(argv, timeout, capture=True)
 
 
 def _remove_exact_user_entry(
@@ -820,6 +843,183 @@ def _remove_exact_user_entry(
     return "unverified" if matcher(after) else "replaced"
 
 
+_CODEGRAPH_ENV_KEYS = {
+    "CODEGRAPH_TELEMETRY",
+    "CODEGRAPH_NO_UPDATE_CHECK",
+    "CODEGRAPH_MCP_TOOLS",
+}
+_CODEGRAPH_REMOVE = "claude mcp remove codegraph --scope user"
+
+
+def _codegraph_entry(command: Path) -> dict:
+    """The exact user-scope entry (spec 2.4); the tool list comes from MCP_TOOLS."""
+    return {
+        "type": "stdio",
+        "command": str(command),
+        "args": ["serve", "--mcp"],
+        "alwaysLoad": True,
+        "env": {
+            "CODEGRAPH_TELEMETRY": "0",
+            "CODEGRAPH_NO_UPDATE_CHECK": "1",
+            "CODEGRAPH_MCP_TOOLS": install_codegraph.MCP_TOOLS,
+        },
+    }
+
+
+def _codegraph_entry_kind(entry: dict, expected: dict) -> str:
+    """equal | owned (only fields IronClaude writes, so safe to replace) | user."""
+    if entry == expected:
+        return "equal"
+    env = entry.get("env", {})
+    owned = (
+        set(entry) <= set(expected)
+        and entry.get("type", "stdio") == "stdio"
+        and entry.get("args") == ["serve", "--mcp"]
+        and isinstance(entry.get("command"), str)
+        and isinstance(env, dict)
+        and set(env) <= _CODEGRAPH_ENV_KEYS
+    )
+    return "owned" if owned else "user"
+
+
+def _claude_user_entry_cmd(*args: str) -> bool:
+    """One bounded ``claude mcp`` call; no output or exception text is kept."""
+    try:
+        return _exec_claude(["claude", "mcp", *args, "--scope", "user"], 60) == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def _add_user_entry(name: str, entry: dict) -> bool:
+    return _claude_user_entry_cmd("add-json", name, json.dumps(entry))
+
+
+def _restore_user_entry(name: str, previous: dict, attempted: dict) -> bool:
+    known, current = read_user_mcp_entry(name)
+    if not known:
+        return False
+    if current == previous:
+        return True
+    if current is not None:
+        # A timed-out add may have written our entry. Do not overwrite a third
+        # party's concurrent edit when its contents cannot be attributed to us.
+        if current != attempted or not _claude_user_entry_cmd("remove", name):
+            return False
+    if not _add_user_entry(name, previous):
+        return False
+    known, current = read_user_mcp_entry(name)
+    return known and current == previous
+
+
+def install_codegraph_mcp(
+    *, scope: str = "user", dry_run: bool = False
+) -> tuple[bool, str]:
+    """Required install phase: reuse or download the pinned codegraph, then register it."""
+    if scope != "user":
+        return False, "codegraph is registered at user scope only; use --scope user."
+    if dry_run:
+        return (
+            True,
+            f"[DRY RUN] Would reuse a codegraph {install_codegraph.VERSION} found on "
+            f"PATH or in ~/.local/bin, otherwise download the pinned "
+            f"{install_codegraph.TAG} release for this platform and verify its "
+            "SHA-256, then ensure the exact user-scope registration "
+            "(claude mcp add-json codegraph ... --scope user). No changes made.",
+        )
+    try:
+        code, _ = _run_argv(["claude", "--version"], 10)
+    except (OSError, subprocess.SubprocessError):
+        code = 1
+    if code != 0:
+        return (
+            False,
+            "Prerequisites: Claude CLI is unavailable; codegraph discovery and "
+            "download were not started. Install Claude Code, then rerun "
+            "superclaude install.",
+        )
+
+    ok, message, launcher = install_codegraph.acquire(_run_argv)
+    if not ok or launcher is None:
+        return False, message
+    click.echo(message)
+
+    known, previous = read_user_mcp_entry("codegraph")
+    if not known:
+        return (
+            False,
+            "Registration lookup failed: cannot read the exact user entry from "
+            "~/.claude.json; no registration change was attempted.",
+        )
+    expected = _codegraph_entry(launcher)
+    done = (
+        f"Registration: exact user stdio entry verified (codegraph "
+        f"{install_codegraph.VERSION} at {launcher}). Restart Claude sessions to "
+        "load it; no indexing or live MCP handshake was performed."
+    )
+    kind = "absent" if previous is None else _codegraph_entry_kind(previous, expected)
+    if kind == "user":
+        if shutil.which(str(previous.get("command", ""))):
+            return (
+                True,
+                "user-managed codegraph entry kept; to let IronClaude manage it "
+                f"run: {_CODEGRAPH_REMOVE}",
+            )
+        return (
+            False,
+            "Registration: the user-managed codegraph entry points at a command "
+            f"that does not run, so it was not replaced. Remove it with "
+            f"`{_CODEGRAPH_REMOVE}` and rerun superclaude install.",
+        )
+    if kind == "equal":
+        _prune(launcher)
+        return True, done
+    if kind == "owned":
+        removed = _remove_exact_user_entry("codegraph", lambda e: e == previous)
+        if removed not in ("removed", "absent"):
+            if removed in ("timeout", "failed", "unverified") and _restore_user_entry(
+                "codegraph", previous, previous
+            ):
+                return (
+                    False,
+                    "Registration removal failed; previous user registration is "
+                    "intact. No replacement was attempted.",
+                )
+            return (
+                False,
+                f"Registration removal {removed}; user registration may be partial "
+                "or was changed by someone else. Inspect it before retrying.",
+            )
+    added = _add_user_entry("codegraph", expected)
+    known, current = read_user_mcp_entry("codegraph")
+    if added and known and current == expected:
+        _prune(launcher)
+        return True, done
+    failure = "Registration verification failed" if added else "Registration add failed"
+    if previous is not None:
+        if _restore_user_entry("codegraph", previous, expected):
+            return (
+                False,
+                f"{failure}; previous user registration restored. Retry the installation.",
+            )
+        return (
+            False,
+            f"{failure}; restoration failed. User registration may be partial; "
+            "inspect it before retrying.",
+        )
+    return (
+        False,
+        f"{failure}; user registration may be partial. Inspect it before retrying.",
+    )
+
+
+def _prune(launcher: Path) -> None:
+    """Best-effort cleanup of older owned version dirs after a verified registration."""
+    try:
+        install_codegraph.prune_old_versions(launcher)
+    except OSError:
+        pass
+
+
 def install_mcp_server(
     server_info: Dict, scope: str = "user", dry_run: bool = False
 ) -> bool:
@@ -835,6 +1035,10 @@ def install_mcp_server(
         True if successful, False otherwise
     """
     server_name = server_info["name"]
+    if server_name == "codegraph":
+        success, message = install_codegraph_mcp(scope=scope, dry_run=dry_run)
+        click.echo(message, err=not success)
+        return success
     transport = server_info["transport"]
     command = server_info.get("command")
 

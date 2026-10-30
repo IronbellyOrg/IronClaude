@@ -151,9 +151,16 @@ def test_mcp_menu_cancel_has_no_effects(mcp_cli):
 def test_mcp_menu_install_all_installs_the_individual_servers(mcp_cli, monkeypatch):
     mcp_cli.interactive = True
     monkeypatch.setattr(mcp_cli.module, "prompt_for_api_key", lambda *a, **k: None)
+    codegraph_calls = []
+    monkeypatch.setattr(
+        mcp_cli.module,
+        "install_codegraph_mcp",
+        lambda **kwargs: codegraph_calls.append(kwargs) or (True, "codegraph fixture"),
+    )
     result = mcp_cli.runner.invoke(mcp_cli.main, ["mcp"], input="1\n0\n")
     assert result.exit_code == 0, result.output
     assert any("tavily-mcp@0.2.22" in cmd for cmd in mcp_cli.processes)
+    assert codegraph_calls == [{"scope": "user", "dry_run": False}]
     assert ("gateway", False) not in mcp_cli.calls
 
 
