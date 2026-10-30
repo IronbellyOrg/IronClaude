@@ -21,3 +21,5 @@ T9: complete verdict=compliant ac=T9.AC1,T9.AC2,T9.AC3 evidence=T9.AC1@tests/cli
 T10: start sha=49a3cfca9465637e5e229c1cca21c05685038bbd
 T10: complete verdict=compliant ac=T10.AC1 evidence=T10.AC1@src/superclaude/core/CLAUDE.md:21,T10.AC1@src/superclaude/core/CLAUDE.md:28,T10.AC1@src/superclaude/core/CLAUDE.md:29,T10.AC1@src/superclaude/core/CLAUDE.md:30 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/core/CLAUDE.md,.dev/codegraph-migration/decisions/P2X-log.md
 T11: start sha=909e1d562fe164c74387e9e81ef63ebec00e4db8
+T11: complete verdict=compliant ac=T11.AC1 evidence=T11.AC1@docs/user-guide/mcp-installation.md:54-56,T11.AC1@CHANGELOG.md:13,T11.AC1@.gitignore:262 extras=lint:skip,typecheck:skip,test:pass files=docs/user-guide/mcp-installation.md,docs/reference/mcp-server-guide.md,README.md,CHANGELOG.md,.gitignore,.dev/codegraph-migration/decisions/P2X-log.md
+T12: start sha=5a4b5d7c82d1c68dc9a9328bdb8e40aef0bc62fc

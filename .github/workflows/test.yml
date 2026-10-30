@@ -130,8 +130,10 @@ jobs:
   doctor-check:
     name: SuperClaude Doctor Check
     runs-on: ubuntu-latest
-    # `superclaude install` retires stale user-scope MCP registrations through the Claude CLI;
-    # keep the token read-only and out of .git/config while it runs.
+    # `superclaude install` runs the required codegraph phase (it downloads the pinned,
+    # checksum-verified codegraph release and registers it through the Claude CLI) and then
+    # retires stale user-scope MCP registrations; keep the token read-only and out of
+    # .git/config while it runs.
     permissions:
       contents: read
 
@@ -152,7 +154,9 @@ jobs:
         with:
           node-version: "22"
 
-      # `superclaude install` retires stale user-scope MCP registrations through the Claude CLI.
+      # The codegraph phase of `superclaude install` needs `claude --version` to succeed before it
+      # downloads or registers anything, and registers codegraph with `claude mcp add-json`; the
+      # retire step uses the same CLI. Without this step the job would fail at the codegraph phase.
       - name: Install Claude CLI
         run: |
           npm install -g @anthropic-ai/claude-code@2.1.286
