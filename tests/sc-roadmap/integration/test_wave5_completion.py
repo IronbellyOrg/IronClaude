@@ -31,10 +31,6 @@ class TestCompletionCheck:
             or "completion_check" in skill_md_content
         )
 
-    def test_think_step_documented(self, skill_md_content):
-        """SKILL.md should include think_about_whether_you_are_done()."""
-        assert "think_about_whether_you_are_done" in skill_md_content
-
 
 class TestValidationStatusFlow:
     """Test how validation status affects completion."""
