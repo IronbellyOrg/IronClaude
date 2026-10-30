@@ -94,7 +94,7 @@ _EXPECTED_IDS = {
 }
 
 # Claude Code built-in slash commands the guide may name without a source file.
-_BUILTINS = {"code-review", "security-review"}
+_BUILTINS = {"code-review", "rename", "security-review"}
 
 # A command or skill token: a backtick immediately followed by a slash. Anchoring
 # on the backtick avoids path fragments such as `.dev/tasks/to-do`.

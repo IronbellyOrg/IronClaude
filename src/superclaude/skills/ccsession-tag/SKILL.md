@@ -1,122 +1,26 @@
 ---
 name: ccsession-tag
-description: "Tag the current Claude session with a label so it can be resumed by name via 'ccsession <name>' from the shell"
+description: "Retired: name a Claude Code session with the built-in /rename <name>, or start it with ccsession <name>. This folder holds the ccsession command, its hooks and the model shim."
+user-invocable: false
+disable-model-invocation: true
 ---
 
-# /ccsession-tag — Label this session for later resume
+# ccsession (the `/ccsession-tag` command is retired)
 
-The user invokes this command with a label as the argument, e.g.
-`/ccsession-tag brownfield`.
+This skill folder holds the `ccsession` shell command, `ccsession-orca`, the
+session-name hooks and the gateway model shim. `superclaude install` installs a
+skill folder only when it has a `SKILL.md`, so this file stays; it is not a
+command any more. Nobody can run it, and Claude never loads it on its own.
 
-## What to do
+To name a session, use either way. Both give it one name, shown in ccsession's
+list, in Claude Code's prompt box and on the Orca tab:
 
-1. Extract the label from the user's invocation (the single argument after the
-   command name, whitespace trimmed). If empty, ask the user for one and stop.
+- From the shell: `ccsession <name>` starts or resumes the session with that
+  name (quote a name with spaces: `ccsession "my work"`).
+- Inside Claude Code: `/rename <name>` names or renames the open session. It
+  is built in, so it costs no tokens; ccsession's hooks copy the name into its
+  list at the next message or when the session ends, and `ccsession <name>`
+  reopens it.
 
-2. **Validate the label BEFORE building any command (load-bearing security
-   gate).** The label is interpolated as text into the bash command in step 3,
-   so an unvalidated value containing shell metacharacters would execute as
-   code at interpolation time — *before* any in-shell guard could run. You
-   MUST therefore reject an unsafe label here, at the instruction level, and
-   never substitute it into the command:
-
-   - The label MUST match `^[A-Za-z0-9._-]+$` (only letters, digits, dot,
-     underscore, dash) AND MUST NOT be `.` or `..`.
-   - The label MUST NOT start with `-`: `ccsession -name` reads it as an
-     option, so such a label could never be resumed. If it does, STOP and tell
-     the user: *"Invalid label: it cannot start with a dash."*
-   - If it contains anything else — a space, `/`, `\`, `..`, a quote (`'` or
-     `"`), `` ` ``, `$`, `;`, `&`, `|`, `(`, newline, or any other character —
-     STOP and tell the user: *"Invalid label — use only letters, digits, dot,
-     underscore, and dash."* Do NOT run the bash command in step 3.
-
-   Only a label that passes this check may be substituted into step 3.
-
-3. Run this bash command, with `<LABEL>` replaced by the (already-validated)
-   label from step 2:
-
-   ```bash
-   LABEL="<LABEL>"
-
-   # Defense-in-depth ONLY. The load-bearing gate is step 2 (instruction-level
-   # validation before interpolation) — a value with shell metacharacters would
-   # already have executed at the `LABEL=` assignment above, so these in-shell
-   # cases cannot stop a breakout; they only catch a safe-charset-but-invalid
-   # value (e.g. '..') if step 2 was somehow skipped. The label flows into
-   # "$TOPIC_DIR/$LABEL.txt".
-   case "$LABEL" in
-     '' | */* | *..* | .)
-       echo "ERROR: invalid label '$LABEL' (no '/' or '..', and not empty)" >&2
-       exit 1 ;;
-   esac
-   case "$LABEL" in
-     *[!A-Za-z0-9._-]*)
-       echo "ERROR: invalid label '$LABEL' (allowed chars: A-Z a-z 0-9 . _ -)" >&2
-       exit 1 ;;
-     -*)
-       echo "ERROR: invalid label '$LABEL' (cannot start with '-')" >&2
-       exit 1 ;;
-   esac
-
-   WS_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
-   WS_SLUG=$(echo "$WS_DIR" | sed 's|/|-|g')
-   PROJECT_DIR="$HOME/.claude/projects/$WS_SLUG"
-   # Names belong to the repo (shared by its worktrees and copies): ccsession
-   # --key gives the list's key. Use the installed ccsession, then the
-   # project's .claude copy, then PATH, asking only one that knows --key; the
-   # folder's own key if none does.
-   NAME_KEY=""
-   for CCS in "$HOME/.claude/skills/ccsession-tag/ccsession" \
-     "$WS_DIR/.claude/skills/ccsession-tag/ccsession" "$(command -v ccsession)"; do
-     [ -n "$CCS" ] && [ -x "$CCS" ] && grep -q -- '--key)' "$CCS" 2>/dev/null || continue
-     NAME_KEY=$(cd "$WS_DIR" && "$CCS" --key 2>/dev/null) || NAME_KEY=""
-     [ -n "$NAME_KEY" ] && break
-   done
-   case "$NAME_KEY" in
-     '' | . | .. | */*) NAME_KEY="$WS_SLUG" ;;
-   esac
-   TOPIC_DIR="$HOME/.claude/projects/$NAME_KEY/topics"
-
-   # Resolve current session ID: prefer the env var set by the session-start
-   # hook; otherwise fall back to "newest .jsonl in this workspace's project
-   # dir". The fallback works for any session, including ones that started
-   # before the hook was installed — running this command writes to the active
-   # session's transcript, so its mtime is freshest at lookup time.
-   SESSION_ID="${CLAUDE_SESSION_ID:-}"
-   if [ -z "$SESSION_ID" ]; then
-     NEWEST_JSONL=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
-     if [ -z "$NEWEST_JSONL" ]; then
-       echo "ERROR: no session JSONLs found under $PROJECT_DIR" >&2
-       exit 1
-     fi
-     SESSION_ID=$(basename "$NEWEST_JSONL" .jsonl)
-   fi
-
-   mkdir -p "$TOPIC_DIR"
-   echo "$SESSION_ID" > "$TOPIC_DIR/$LABEL.txt"
-   # Cache the real workspace path so listing logic can show it accurately
-   # even when the dir name contains dashes (slug encoding is lossy).
-   echo "$WS_DIR" > "$TOPIC_DIR/.cwd"
-   # A list written to again is live: never hide it as already moved.
-   rm -f "$TOPIC_DIR/.ccsession-moved-to-repo"
-
-   echo "Tagged session ${SESSION_ID:0:8} as '$LABEL' in $(basename "$WS_DIR")"
-   echo "Resume next time with: ccsession $LABEL"
-   ```
-
-4. Relay the bash output to the user verbatim. If it exits non-zero, surface
-   the error.
-
-## Notes
-
-- Re-tagging is allowed; running again with a different label overwrites the
-  pointer. The underlying transcript is untouched.
-- Labels are per repo: every worktree, branch and copy of a repo shares one
-  list, so a label tagged in one resumes from the others. Two different repos
-  can each have their own `brownfield` without collision.
-- This command writes only two tiny files under
-  `~/.claude/projects/<key>/topics/` (`<key>` from `ccsession --key`) — a
-  `<label>.txt` containing the session UUID, and a `.cwd` containing the real
-  workspace path.
-- The shell-side counterpart is `ccsession` — see this skill's README for
-  install instructions.
+See `~/.claude/skills/ccsession-tag/README.md` for install, names, Orca and
+tiers.

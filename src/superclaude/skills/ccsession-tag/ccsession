@@ -6,6 +6,12 @@
 #
 # Usage:
 #   ccsession <topic>         Resume or start a Claude session labeled <topic>
+#                             (also its Claude Code name; quote one with spaces:
+#                             ccsession "my work")
+#   ccsession --name <topic> [options]
+#                             Same, for any name, including one starting with "-"
+#   /rename <topic>           Inside Claude Code: name or rename the session; it
+#                             joins this list at the next message or on quitting
 #   ccsession <topic> -shim   Same, but route through the local model-alias shim
 #                             (auto-starts it on 127.0.0.1:4010, or a port near it
 #                             for other settings, if not running;
@@ -23,7 +29,14 @@
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
 #   ccsession --key           Print the name-list key for this folder
 #   ccsession --migrate-names Copy names saved per folder (older versions) into
-#                             their repo's list; runs once by itself
+#                             their repo's list; runs once by itself. Also adds,
+#                             once, names given with /rename before this version
+#   ccsession --sync-name <session id> <name>
+#                             Make <name> the session's name in this repo's list
+#                             (the hooks run it when Claude Code reports a name)
+#   ccsession --orca-tab-clear
+#                             Take a tab title ccsession set off this Orca tab
+#                             (the hook runs it when Claude Code ends)
 #   ccsession [<topic>] [options] --claude-args <claude args>
 #                             Everything after --claude-args goes to Claude Code
 #                             exactly as given; none of it is read as a label or
@@ -187,7 +200,7 @@ migrate_names() {
       [ -f "$file" ] || continue
       name=$(basename "$file" .txt)
       # Copy aside, then publish with ln, which never replaces an existing
-      # name: a label the hook or /ccsession-tag writes meanwhile is kept.
+      # name: a label a hook writes meanwhile is kept.
       tmp=$(mkdir -p "$target" && mktemp "$target/.ccsession-copy.XXXXXX") &&
         cp -p "$file" "$tmp" || { rm -f "$tmp"; list_ok=0; continue; }
       dest="$target/$name.txt"
@@ -218,18 +231,301 @@ migrate_names() {
 }
 
 ensure_names_migrated() {
-  [ -f "$NAMES_MIGRATED" ] || migrate_names 2>/dev/null || true
+  [ -f "$NAMES_MIGRATED" ] || { rename_dot_labels; migrate_names 2>/dev/null; } || true
 }
 
-# Fast paths that need no settings, env file or model data. The SessionStart
-# hook and /ccsession-tag use --key so all three agree on the name list.
+rename_dot_labels() {
+  # Labels older versions saved with a leading "." are hidden files
+  # (.<name>.txt) that nothing lists or copies; move each to the file name this
+  # version uses (%2E<name>.txt). Runs before migrate_names, so a per-folder
+  # list still to be copied takes them along. A per-folder list copied before
+  # (marked moved) gets its moved label added to its repo's list here, the way
+  # any name is added: a name another session already has there gets -2, -3...
+  [ -d "$PROJECTS_DIR" ] || return 0
+  local old dir name new folder key session
+  for old in "$PROJECTS_DIR"/*/topics/.*.txt; do
+    [ -f "$old" ] || continue
+    dir=$(dirname "$old")
+    name=$(basename "$old" .txt)
+    new="$dir/%2E${name#.}.txt"
+    [ -e "$new" ] || mv "$old" "$new" || continue
+    [ -f "$dir/$LIST_MIGRATED" ] || continue
+    folder=$(head -n 1 "$dir/.cwd" 2>/dev/null) || continue
+    [ -d "$folder" ] || continue
+    key=$(cd "$folder" 2>/dev/null && name_key) || continue
+    [ "$PROJECTS_DIR/$key/topics" != "$dir" ] || continue
+    session=$(head -n 1 "$new" 2>/dev/null) || continue
+    CCSESSION_NAME_KEY="$key" sync_name "$session" "$name" --keep-others \
+      >/dev/null 2>&1 || true
+  done
+}
+
+validate_label() {
+  # Guard a session name before it becomes a file name. Any text Claude Code's
+  # /rename accepts is allowed, spaces included; name_to_file makes it a safe
+  # file name. Rejects an empty or blank name, control characters (a newline
+  # would split the list) and names too long for a file. On success echoes the
+  # name unchanged; on rejection prints why to stderr and returns non-zero.
+  local label="$1"
+  if [ -z "${label//[[:space:]]/}" ]; then
+    echo "ccsession: empty label" >&2
+    return 1
+  fi
+  case "$label" in
+    *[[:cntrl:]]*)
+      echo "ccsession: invalid label (no tabs, newlines or other control characters)" >&2
+      return 1
+      ;;
+  esac
+  # The limit is on the saved file name, which a file system caps at 255 bytes:
+  # 245 leaves room for a "-<n>" collision suffix and ".txt". Each "/" or "%",
+  # and a leading ".", is 3 bytes there (see name_to_file).
+  local file
+  file=$(name_to_file "$label")
+  if [ "$(printf '%s' "$file" | wc -c)" -gt 245 ]; then
+    echo "ccsession: invalid label '$label' (too long: at most 245 bytes, where each '/' or '%' counts as 3; about 81 characters of Chinese or Japanese text)" >&2
+    return 1
+  fi
+  printf '%s' "$label"
+}
+
+# A name is saved as the file <name>.txt holding its session id. "/" cannot be
+# in a file name and a leading "." would hide the file, so "%", "/" and a
+# leading "." are written as %25, %2F and %2E. Every "%" in a file name is
+# then followed by 25, 2F or 2E, so the names read back exactly.
+name_to_file() {
+  local s="${1//%/%25}"
+  s="${s//\//%2F}"
+  case "$s" in .*) s="%2E${s#.}" ;; esac
+  printf '%s' "$s"
+}
+
+file_to_name() {
+  local s="$1"
+  case "$s" in %2E*) s=".${s#%2E}" ;; esac
+  s="${s//%2F//}"
+  s="${s//%25/%}"
+  printf '%s' "$s"
+}
+
+session_saved() {
+  # True when Claude Code still has the conversation for this session id.
+  compgen -G "$PROJECTS_DIR/*/$1.jsonl" >/dev/null
+}
+
+sync_name() {
+  # ccsession --sync-name <session id> <name> [--keep-others|--check-others]:
+  # make <name> the session's name in the list of the repo in the current
+  # folder. Called by the hooks whenever Claude Code reports a name
+  # (ccsession's own --name, or /rename). When the name is new, the session's
+  # older names in that list are removed, so a renamed session shows once,
+  # under its new name; --keep-others keeps them, and --check-others looks for
+  # them even when the name was already there (the hooks ask once per session
+  # start and end, not on every prompt). A name another saved session already
+  # has gets -2, -3... Prints the name the list now uses when anything
+  # changed, nothing when it was already so.
+  local session="$1" name="$2" keep="${3:-}" dir base file f other n changed=0
+  case "$session" in
+    '' | *[!A-Za-z0-9_-]*)
+      echo "ccsession: invalid session id" >&2
+      return 2
+      ;;
+  esac
+  validate_label "$name" >/dev/null || return 2
+  dir="$PROJECTS_DIR/${CCSESSION_NAME_KEY:-$(name_key)}/topics"
+  mkdir -p "$dir" || return 1
+  # Hooks of two sessions can run at the same moment (two renamed to one name):
+  # one at a time per list, or both would see the name free and one entry
+  # would overwrite the other.
+  lock_list "$dir" || return 1
+  sync_name_locked "$session" "$name" "$keep" "$dir"
+  local status=$?
+  exec 9>&-  # releases the lock
+  return "$status"
+}
+
+lock_list() {
+  # Take the name list's lock: flock(2) on <list>/.ccsession-lock, held through
+  # this shell's file descriptor 9 until it is closed or the process ends, so a
+  # killed run never leaves it behind and a live holder is never pushed out.
+  # python3 takes it (macOS has no flock command). Gives up after 4 seconds.
+  # A build of this branch before flock used an empty .ccsession-lock folder,
+  # which a killed run could leave behind: remove it, or the file cannot open.
+  if [ -d "$1/.ccsession-lock" ] && ! rmdir "$1/.ccsession-lock" 2>/dev/null; then
+    echo "ccsession: $1/.ccsession-lock is a folder that is not empty; remove it" >&2
+    return 1
+  fi
+  exec 9>>"$1/.ccsession-lock" || return 1
+  python3 -c 'import fcntl, sys, time
+end = time.monotonic() + 4
+while True:
+    try:
+        fcntl.flock(9, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        sys.exit(0)
+    except BlockingIOError:
+        if time.monotonic() > end:
+            sys.exit(1)
+        time.sleep(0.02)' 2>/dev/null && return 0
+  exec 9>&-
+  echo "ccsession: the name list is busy: $1" >&2
+  return 1
+}
+
+sync_name_locked() {
+  local session="$1" name="$2" keep="$3" dir="$4" base file f other n changed=0
+  base=$(name_to_file "$name")
+  file="$base"
+  n=1
+  while [ -f "$dir/$file.txt" ]; do
+    other=$(head -n 1 "$dir/$file.txt" 2>/dev/null) || other=""
+    [ "$other" = "$session" ] && break
+    # A name left by a conversation that no longer exists is free again.
+    session_saved "$other" || break
+    n=$((n + 1))
+    file="$base-$n"
+  done
+  if [ "$(head -n 1 "$dir/$file.txt" 2>/dev/null)" != "$session" ]; then
+    f=$(mktemp "$dir/.ccsession-name.XXXXXX") || return 1
+    printf '%s\n' "$session" > "$f" && mv -f "$f" "$dir/$file.txt" ||
+      { rm -f "$f"; return 1; }
+    changed=1
+  fi
+  if [ "$keep" != --keep-others ] && { [ "$changed" = 1 ] || [ "$keep" = --check-others ]; }; then
+    for f in "$dir"/*.txt; do
+      [ -f "$f" ] && [ "$f" != "$dir/$file.txt" ] || continue
+      if [ "$(head -n 1 "$f" 2>/dev/null)" = "$session" ]; then
+        rm -f "$f" && changed=1
+      fi
+    done
+  fi
+  # Cache the real folder so --list can show it (slug encoding is lossy).
+  if [ -z "${CCSESSION_NAME_KEY:-}" ] && { [ "$changed" = 1 ] || [ ! -f "$dir/.cwd" ]; }; then
+    pwd > "$dir/.cwd" || true
+  fi
+  rm -f "$dir/$LIST_MIGRATED"  # a list written to again is live
+  [ "$changed" = 1 ] && file_to_name "$file" && echo
+  return 0
+}
+
+CLAUDE_NAMES_IMPORTED="$PROJECTS_DIR/.ccsession-claude-names-imported"
+
+import_claude_names() {
+  # Once per machine (the installer runs --migrate-names): add the names people
+  # gave sessions with Claude Code's /rename or --name before ccsession kept
+  # them, so every name shows in the list. Adds only; a name already used for
+  # another session gets -2, -3..., and a session's other names are kept. A
+  # folder that no longer exists keeps its names in its own folder's list.
+  [ -d "$PROJECTS_DIR" ] || return 0
+  local cwd session name key
+  while IFS=$'\t' read -r cwd session name; do
+    [ -n "$name" ] || continue
+    if [ -d "$cwd" ]; then
+      (cd "$cwd" && sync_name "$session" "$name" --keep-others >/dev/null) || true
+    else
+      key=$(slugify "$cwd")
+      CCSESSION_NAME_KEY="$key" sync_name "$session" "$name" --keep-others \
+        >/dev/null || true
+    fi
+  done < <(python3 - "$PROJECTS_DIR" <<'PY'
+import json
+import mmap
+import pathlib
+import sys
+
+MARK = b'"type":"custom-title"'
+for transcript in sorted(pathlib.Path(sys.argv[1]).glob("*/*.jsonl")):
+    try:
+        with transcript.open("rb") as f, mmap.mmap(
+            f.fileno(), 0, access=mmap.ACCESS_READ
+        ) as data:
+            at = data.rfind(MARK)
+            if at < 0:
+                continue
+            start = data.rfind(b"\n", 0, at) + 1
+            end = data.find(b"\n", at)
+            title = json.loads(data[start : end if end >= 0 else len(data)])
+            cwd = ""
+            for line in iter(data.readline, b""):
+                if b'"cwd"' in line:
+                    cwd = json.loads(line).get("cwd") or ""
+                    if cwd:
+                        break
+    except (OSError, ValueError):
+        continue
+    name = title.get("customTitle")
+    if (
+        isinstance(name, str) and name.strip() and cwd.startswith("/")
+        and not any(c in name + cwd for c in "\t\n\r")
+    ):
+        print(f"{cwd}\t{transcript.stem}\t{name}")
+PY
+)
+  : > "$CLAUDE_NAMES_IMPORTED" || true
+}
+
+orca_title_mark() {
+  # Holds the exact title orca_tab_name gave an Orca tab, so only that title is
+  # ever cleared, never one a person typed into Orca since.
+  case "${ORCA_TERMINAL_HANDLE:-}" in
+    '' | *[!A-Za-z0-9_-]*) return 1 ;;
+  esac
+  printf '%s' "${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/orca-titles/$ORCA_TERMINAL_HANDLE"
+}
+
+orca_tab_name() {
+  # Show a session's new name on its Orca tab. Only where ccsession owns the
+  # title (CLAUDE_CODE_DISABLE_TERMINAL_TITLE, see orca_terminal_title): that
+  # stops Claude Code's own title, which would show a /rename by itself, so
+  # Orca's tab title is set instead. "Claude Code" stays in it for Orca Web.
+  local mark title="$1 · Claude Code"
+  [ "${CLAUDE_CODE_DISABLE_TERMINAL_TITLE:-}" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ] &&
+    mark=$(orca_title_mark) && command -v orca >/dev/null 2>&1 || return 0
+  mkdir -p "$(dirname "$mark")" 2>/dev/null &&
+    printf '%s\n' "$title" > "$mark" 2>/dev/null || true
+  orca terminal rename --terminal "$ORCA_TERMINAL_HANDLE" \
+    --title "$title" >/dev/null 2>&1 || true
+}
+
+orca_tab_clear() {
+  # Take the title orca_tab_name set back off this Orca tab, only while the tab
+  # still shows it: a title a person typed since stays. Run when the launched
+  # Claude Code ends, and at the next launch in the tab (after a crash).
+  local mark ours now
+  mark=$(orca_title_mark) && [ -f "$mark" ] || return 0
+  ours=$(head -n 1 "$mark" 2>/dev/null) || ours=""
+  rm -f "$mark"
+  [ -n "$ours" ] && command -v orca >/dev/null 2>&1 || return 0
+  now=$(orca terminal show --terminal "$ORCA_TERMINAL_HANDLE" --json 2>/dev/null |
+    python3 -c 'import json, sys
+r = json.load(sys.stdin).get("result") or {}
+print((r.get("terminal") or r).get("title") or "")' 2>/dev/null) || return 0
+  [ "$now" = "$ours" ] || return 0
+  orca terminal rename --terminal "$ORCA_TERMINAL_HANDLE" >/dev/null 2>&1 || true
+}
+
+# Fast paths that need no settings, env file or model data. The hooks use
+# --key and --sync-name so all of them agree on the name list.
 case "${1:-}" in
   --key)
     name_key
     exit 0
     ;;
   --migrate-names)
+    rename_dot_labels
     migrate_names
+    [ -f "$CLAUDE_NAMES_IMPORTED" ] || import_claude_names 2>/dev/null || true
+    exit 0
+    ;;
+  --sync-name)
+    _synced=$(sync_name "${2:-}" "${3:-}" "${4:-}") || exit $?
+    if [ -n "$_synced" ]; then
+      printf '%s\n' "$_synced"
+      orca_tab_name "$_synced"
+    fi
+    exit 0
+    ;;
+  --orca-tab-clear)
+    orca_tab_clear
     exit 0
     ;;
 esac
@@ -248,6 +544,10 @@ MODEL_POS=0
 _args=()
 CLAUDE_PASSTHROUGH=()
 PASSTHROUGH_GIVEN=0
+# --name <name>: the session's name, taken as it is even when it starts with
+# "-" (as a plain argument it would be read as an option).
+NAME_ARG=""
+NAME_GIVEN=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --claude-args)
@@ -255,6 +555,20 @@ while [ "$#" -gt 0 ]; do
       CLAUDE_PASSTHROUGH=("$@")
       PASSTHROUGH_GIVEN=1
       break
+      ;;
+    --name)
+      if [ "$#" -lt 2 ]; then
+        echo "ccsession: --name requires a value" >&2
+        exit 2
+      fi
+      NAME_ARG="$2"
+      NAME_GIVEN=1
+      shift 2
+      ;;
+    --name=*)
+      NAME_ARG="${1#--name=}"
+      NAME_GIVEN=1
+      shift
       ;;
     -shim|--shim)
       USE_SHIM=1
@@ -695,32 +1009,6 @@ export_selection() {
   fi
 }
 
-validate_label() {
-  # Guard a user-supplied topic label before it is interpolated into a file
-  # path ("$TOPIC_DIR/$LABEL.txt"). Rejects empty, path separators, '..'
-  # traversal, the special '.'/'..' names, and any character outside a safe
-  # filename charset. On success echoes the label unchanged; on rejection
-  # prints an error to stderr and returns non-zero.
-  local label="$1"
-  if [ -z "$label" ]; then
-    echo "ccsession: empty label" >&2
-    return 1
-  fi
-  case "$label" in
-    */* | *..* | .)
-      echo "ccsession: invalid label '$label' (no '/' or '..', and not '.'/'..')" >&2
-      return 1
-      ;;
-  esac
-  case "$label" in
-    *[!A-Za-z0-9._-]*)
-      echo "ccsession: invalid label '$label' (allowed chars: A-Z a-z 0-9 . _ -)" >&2
-      return 1
-      ;;
-  esac
-  printf '%s' "$label"
-}
-
 workspace_name() {
   # Prefer the real cwd cached at label-write time. Fall back to a best-effort
   # decode of the slug (lossy when dir names contain literal dashes).
@@ -806,6 +1094,8 @@ format_duration() {
 
 list_sessions() {
   local scope_slug="$1"  # empty = all workspaces, else filter to this slug
+  # Row colours, set by ask_session_name; plain text otherwise.
+  local on="${LIST_NAME_ON-}" dim="${LIST_DETAIL_ON-}" off="${LIST_OFF-}"
   local found=0
   for ws_dir in "$PROJECTS_DIR"/*/topics; do
     [ -d "$ws_dir" ] || continue
@@ -825,8 +1115,8 @@ list_sessions() {
         first=0
       fi
       local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
-      topic=$(basename "$topic_file" .txt)
-      uuid=$(cat "$topic_file")
+      topic=$(file_to_name "$(basename "$topic_file" .txt)")
+      uuid=$(head -n 1 "$topic_file")
       jsonl="$(dirname "$ws_dir")/$uuid.jsonl"
       # Claude Code keeps the conversation under the folder it ran in, which
       # is not where a repo's name list lives; take the newest copy.
@@ -835,7 +1125,8 @@ list_sessions() {
       fi
 
       if [ ! -f "$jsonl" ]; then
-        printf '  %-22s  %s  %s\n' "$topic" "(transcript missing)" "${uuid:0:8}"
+        printf '  %s%-22s%s  %s%s  %s%s\n' "$on" "$topic" "$off" \
+          "$dim" "(transcript missing)" "${uuid:0:8}" "$off"
         found=1
         continue
       fi
@@ -844,7 +1135,8 @@ list_sessions() {
       last_ts=$(get_mtime "$jsonl")
 
       if [ -z "$start_ts" ] || [ -z "$last_ts" ]; then
-        printf '  %-22s  %s  %s\n' "$topic" "(times unavailable)" "${uuid:0:8}"
+        printf '  %s%-22s%s  %s%s  %s%s\n' "$on" "$topic" "$off" \
+          "$dim" "(times unavailable)" "${uuid:0:8}" "$off"
         found=1
         continue
       fi
@@ -859,7 +1151,8 @@ list_sessions() {
       else
         range="started $start_str  last $last_str"
       fi
-      printf '  %-22s  %s  (%s)  %s\n' "$topic" "$range" "$dur_str" "${uuid:0:8}"
+      printf '  %s%-22s%s  %s%s  (%s)  %s%s\n' "$on" "$topic" "$off" \
+        "$dim" "$range" "$dur_str" "${uuid:0:8}" "$off"
       found=1
     done
   done
@@ -870,7 +1163,7 @@ list_sessions() {
       echo "No labeled sessions yet."
     fi
     echo "Start one with: ccsession <topic>"
-    echo "Or tag an active session from inside Claude: /ccsession-tag <topic>"
+    echo "Or name an open session from inside Claude Code: /rename <topic>"
   fi
 }
 
@@ -899,26 +1192,24 @@ ask_session_name() {
   # repo's. Nothing is shown when the repo has none.
   local name sessions line
   ensure_names_migrated
-  sessions=$(list_sessions "$(name_key)")
+  # Palette tokens (Coder's design-tokens.sh) when exported and on a
+  # terminal; NO_COLOR or missing tokens give plain text.
+  local bold="" accent="" dim="" reset=""
+  if [ -z "${NO_COLOR:-}" ]; then
+    bold=${ANSI_FG_EMPHASIS-} accent=${ANSI_ACCENT_PRIMARY-}
+    dim=${ANSI_FG_DIM-} reset=${ANSI_RESET-}
+  fi
+  sessions=$(LIST_NAME_ON="$accent" LIST_DETAIL_ON="$dim" LIST_OFF="$reset" \
+    list_sessions "$(name_key)")
   case "$sessions" in
     ''|'No labeled sessions'*|$'\n''No labeled sessions'*) : ;;
     *)
-      # Palette tokens (Coder's design-tokens.sh) when exported and on a
-      # terminal; NO_COLOR or missing tokens give plain text.
-      local bold="" accent="" dim="" reset=""
-      if [ -z "${NO_COLOR:-}" ]; then
-        bold=${ANSI_FG_EMPHASIS-} accent=${ANSI_ACCENT_PRIMARY-}
-        dim=${ANSI_FG_DIM-} reset=${ANSI_RESET-}
-      fi
       printf '\n%sSaved sessions in %s (type a name to resume it):%s\n' \
         "$bold" "${PWD/#"$HOME"/\~}" "$reset" >&2
-      # list_sessions prints a folder heading, then "  <name><padding><details>"
-      # rows; the heading is replaced by the line above.
+      # list_sessions prints a folder heading, then "  <name>  <details>" rows
+      # (names may hold spaces); the heading is replaced by the line above.
       while IFS= read -r line; do
-        if [[ $line =~ ^"  "([^ ]+)( +)(.*)$ ]]; then
-          printf '  %s%s%s%s%s%s%s\n' "$accent" "${BASH_REMATCH[1]}" "$reset" \
-            "${BASH_REMATCH[2]}" "$dim" "${BASH_REMATCH[3]}" "$reset" >&2
-        fi
+        [[ $line == "  "* ]] && printf '%s\n' "$line" >&2
       done <<< "$sessions"
       printf '%sSessions from other folders: ccsession --list%s\n\n' "$dim" "$reset" >&2
       ;;
@@ -932,16 +1223,13 @@ ask_session_name() {
   esac
   # Ctrl+C ends the question with its own status; the line after ^C stays clean.
   trap 'echo >&2; exit 130' INT
-  # A name that is not a valid label asks again (validate_label says why). A
-  # leading "-" would reach ccsession as an option, never as a name.
+  # A name that is not a valid label asks again (validate_label says why).
+  # ccsession-orca passes the answer as --name, so even a name that starts
+  # with "-" is a name, never an option.
   while :; do
     read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " name ||
       { echo >&2; return 1; }
     [ -z "$name" ] && break
-    if [[ $name == -* ]]; then
-      echo "ccsession: invalid label '$name' (cannot start with '-')" >&2
-      continue
-    fi
     validate_label "$name" >/dev/null && break
   done
   trap - INT
@@ -1001,7 +1289,7 @@ case "${1:-}" in
     RM_TOPIC=$(validate_label "$2") || exit 2
     ensure_names_migrated
     WS_SLUG=$(name_key)
-    TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$RM_TOPIC.txt"
+    TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$(name_to_file "$RM_TOPIC").txt"
     if [ -f "$TOPIC_FILE" ]; then
       rm "$TOPIC_FILE"
       echo "Removed label '$2' from this workspace."
@@ -1016,7 +1304,7 @@ esac
 # Preserve the original no-argument help behavior only when nothing at all
 # was selected (no topic, no profile, no shim, no --claude-args).
 if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ -z "$TIER_ARG" ] && [ -z "$MODEL_ARG" ] && \
-  [ "$SHIM_FLAG" != 1 ] && [ "$PASSTHROUGH_GIVEN" != 1 ]; then
+  [ "$SHIM_FLAG" != 1 ] && [ "$PASSTHROUGH_GIVEN" != 1 ] && [ "$NAME_GIVEN" != 1 ]; then
   show_help
   exit 0
 fi
@@ -1058,13 +1346,33 @@ fi
 orca_terminal_title() {
   [ -n "${ORCA_PANE_KEY:-}" ] || return 0
   export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+  # A /rename sets Orca's own tab title (orca_tab_name), which hides the title
+  # printed below until it is cleared; clear one an earlier session in this tab
+  # left behind (a crash skips the clear at exit). In the background: Orca's
+  # CLI takes about 0.2s.
+  orca_tab_clear >/dev/null 2>&1 &
   [ -t 1 ] && printf '\033]0;%s\007' "${1:+$1 · }Claude Code"
   return 0
 }
 
+# A ccsession started inside Claude Code (its Bash tool, or a script it runs)
+# has no Orca tab of its own: the tab belongs to the session around it.
+if [ -n "${CLAUDECODE:-}" ]; then
+  unset ORCA_PANE_KEY ORCA_TERMINAL_HANDLE
+fi
+
+# The hooks give this launch's label and Orca tab only to its own Claude Code.
+# ccsession replaces itself with Claude Code (exec), so that Claude Code has
+# this process id, the part before the dot (see hooks/session-name.sh); a
+# claude started inside it inherits this variable but is another process.
+CCSESSION_LAUNCH_ID="$$.$RANDOM$RANDOM"
+export CCSESSION_LAUNCH_ID
+
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
-if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
+if [ "$NAME_GIVEN" != 1 ] && { [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; }; then
   set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
+  # A label inherited from a ccsession session around this one is not ours.
+  unset CLAUDE_TOPIC CCSESSION_TOPIC_CWD
   echo "[ccsession] Starting untagged session"
   orca_terminal_title
   if [ -n "${PROFILE_MODEL:-}" ]; then
@@ -1074,14 +1382,18 @@ if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   fi
 fi
 
-TOPIC=$(validate_label "$1") || exit 2
-shift
+if [ "$NAME_GIVEN" = 1 ]; then
+  TOPIC=$(validate_label "$NAME_ARG") || exit 2
+else
+  TOPIC=$(validate_label "$1") || exit 2
+  shift
+fi
 set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
 
 ensure_names_migrated
 WS_SLUG=$(name_key)
 TOPIC_DIR="$PROJECTS_DIR/$WS_SLUG/topics"
-TOPIC_FILE="$TOPIC_DIR/$TOPIC.txt"
+TOPIC_FILE="$TOPIC_DIR/$(name_to_file "$TOPIC").txt"
 
 mkdir -p "$TOPIC_DIR"
 # Cache the real workspace path so --list can show it accurately even when the
@@ -1103,25 +1415,28 @@ orca_terminal_title "$TOPIC"
 # Resuming an id with no transcript fails, so start fresh under the same label
 # instead; the SessionStart hook then records the new session id.
 if [ -f "$TOPIC_FILE" ]; then
-  SESSION_ID=$(cat "$TOPIC_FILE")
-  if ! compgen -G "$PROJECTS_DIR/*/$SESSION_ID.jsonl" >/dev/null; then
+  SESSION_ID=$(head -n 1 "$TOPIC_FILE")
+  if ! session_saved "$SESSION_ID"; then
     echo "[ccsession] Session ${SESSION_ID:0:8} for '$TOPIC' has no saved conversation; starting a new one"
     rm -f "$TOPIC_FILE"
   fi
 fi
 
+# The label is also Claude Code's session name (prompt box, /resume picker),
+# so the two never differ. The hooks keep the label in step with /rename, so a
+# resume passes the session's current name.
 if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" --resume "$SESSION_ID" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --name "$TOPIC" --resume "$SESSION_ID" "$@"
   fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --name "$TOPIC" "$@"
   fi
 fi

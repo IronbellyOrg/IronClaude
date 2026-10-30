@@ -25,7 +25,8 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
-| `SKILL.md` | The `/ccsession-tag` command used inside Claude |
+| `hooks/session-name.sh` | Copies a name given with Claude Code's `/rename` into ccsession's list |
+| `SKILL.md` | Marks this folder as a skill so it installs; the old `/ccsession-tag` command is retired (use `/rename`) |
 | `README.md` | This file |
 
 ---
@@ -51,7 +52,8 @@ superclaude install
 
 This installs the skill, links `~/.local/bin/ccsession` and
 `~/.local/bin/ccsession-orca`, seeds
-`~/.claude/ccsession.env` if absent, and registers its SessionStart hook.
+`~/.claude/ccsession.env` if absent, and registers its SessionStart,
+UserPromptSubmit and SessionEnd hooks.
 `superclaude update` and `./update.sh` refresh the packaged files without
 overwriting your env file. No gateway is required for session naming.
 
@@ -128,11 +130,32 @@ ccsession notes --claude-args "fix it"
                              # as given, never read as a name or a ccsession option
 ```
 
-Inside a running Claude session you can name it after the fact:
+### One name, given either way
 
-```
-/ccsession-tag notes
-```
+A session has one name, shown in ccsession's list, in Claude Code's prompt box
+and `/resume` picker, and on the Orca tab:
+
+- **`ccsession <name>`** starts or resumes the session with that name, and
+  gives Claude Code the same name (`--name`).
+- **`/rename <name>`** inside Claude Code names a session you started without
+  one, or renames it. It is a built-in command, so it costs no tokens. The
+  name joins ccsession's list (the old one leaves it) and `ccsession <name>`
+  reopens it. Claude Code runs no hook at a rename itself, so the list and the
+  Orca tab pick it up at your next message, or when you quit.
+
+Names may contain spaces and any other characters except tabs, newlines and
+other control characters, up to 245 bytes, where each `/` or `%` (and a
+leading `.`) counts as 3: 245 letters of plain English text, or about 81
+characters of Chinese or Japanese. A longer `/rename` name is not listed. Quote a name with spaces in the shell: `ccsession "my work"`; the
+session-name question needs no quotes. A name that starts with `-` would be
+read as an option, so reopen it with `ccsession --name -wip` (`--name` takes
+any name). A name another saved session already has gets `-2` (then `-3`...)
+in ccsession's list. Claude Code's automatic names are not listed; only names
+someone gave.
+
+`superclaude install` also adds, once, the names given with `/rename` before
+ccsession kept them. The old `/ccsession-tag` command is retired: use
+`/rename`.
 
 Names are per repo. Every worktree, branch and copy of a repo (same `origin`)
 shares one list, so a session named in one worktree resumes from any other,
@@ -145,11 +168,20 @@ those names into their repo's list, once per old list (`ccsession
 --migrate-names`, which every install also runs, retrying only lists that
 failed). The old files stay but drop out of `--list`, nothing is overwritten,
 the most recently used folder keeps a shared name, and another session with
-the same name is copied as `<name>-<folder>` (then `-2`, `-3`).
+the same name is copied as `<name>-<folder>` (then `-2`, `-3`). Labels saved
+with a leading `.` (hidden files before this version) are moved to the new
+file name first, and copied to their repo's list too when their old list was
+already copied.
 
-A labeled session's name is saved only by the Claude that ccsession started
-in that folder, so a Claude started elsewhere that inherits the label (for
-example a pipeline run in another worktree) never takes the name over.
+A labeled session's name, and its Orca tab, belong only to the Claude Code
+that ccsession started, in that folder, including the conversations `/clear`
+starts in it. A `claude` started inside it inherits its environment (for
+example a pipeline's `claude -p`, in that folder or another worktree) but
+never takes the name or the tab over: ccsession replaces itself with Claude
+Code, so its process id (the start of `CCSESSION_LAUNCH_ID`) is that Claude
+Code's, and the hooks check which Claude Code runs them. A `ccsession` run
+from inside Claude Code (its Bash tool) leaves the Orca tab alone, and an
+untagged one does not take the session's label either.
 
 ---
 
@@ -171,8 +203,9 @@ Orca accepts one executable there, with no arguments. Each Orca launch then:
   `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
   starts or resumes that session; Enter, Ctrl+C, or no answer within 30
   seconds starts an untagged one, so the tab never ends at a dead prompt. A
-  name that is not a valid label (for example one starting with `-`) is asked
-  again.
+  name that is not a valid label (too long, or holding a control character)
+  is asked again. Any other name works, one starting with `-` too
+  (it is passed on as `--name`).
 - Skips the question when Orca resumes or continues a session
   (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
   when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
@@ -199,8 +232,16 @@ Claude Code with `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` so it keeps that title.
 Orca's web and mobile server treats a pane as running Claude only while its
 title contains the word "claude"; Claude Code's own title is its AI
 conversation name, so without this a resumed session dropped out of the Orca
-Web sidebar and the phone. Renaming the tab in Orca still works. Other
-terminals keep Claude Code's own titles.
+Web sidebar and the phone. Other terminals keep Claude Code's own titles.
+
+Because Claude Code's own title is off, a `/rename` reaches the tab through
+Orca: at your next message the hook sets the tab title to
+`<new name> · Claude Code` (`orca terminal rename`). When you leave Claude Code
+(or, after a crash, at the next ccsession launch in that tab) ccsession takes
+that title off again, but only while the tab still shows it: a name you typed
+into Orca since is kept. Renaming the tab in Orca still works, but only
+changes the tab: Claude Code and ccsession never see that name, so use
+`/rename` to rename a session.
 
 ---
 
@@ -497,8 +538,15 @@ or the names will not line up.
   and host case ignored). Without a network origin (none, or a local path such
   as a clone made with `git clone /path/repo`), the main worktree's folder
   (for a separate or bare git folder, that folder); outside a git repo, the
-  current folder. `ccsession --key` prints it.
+  current folder. `ccsession --key` prints it. In the file name, `%`, `/` and
+  a leading `.` are written `%25`, `%2F` and `%2E`.
 - The `.cwd` file beside them records the folder last used, for listings.
+- `.ccsession-lock` beside them is locked (`flock`) while a name is saved, so
+  two sessions saving at once take turns. The lock goes with the process that
+  held it, so a killed run never leaves the list locked.
+- `~/.cache/ccsession/orca-titles/` (or under `$XDG_CACHE_HOME`) holds, per
+  Orca tab, the exact title ccsession set on it, so only that title is ever
+  taken off.
 - Claude Code owns the conversation transcripts in the neighboring `.jsonl`
   files. ccsession resumes them but does not modify their contents.
 
@@ -509,8 +557,8 @@ rm ~/.local/bin/ccsession ~/.local/bin/ccsession-orca
 rm -rf ~/.claude/skills/ccsession-tag
 ```
 
-Optionally remove `~/.claude/ccsession.env` and the ccsession SessionStart hook
-from `~/.claude/settings.json`. Removing a label or uninstalling ccsession does
+Optionally remove `~/.claude/ccsession.env` and the ccsession SessionStart,
+UserPromptSubmit and SessionEnd hooks from `~/.claude/settings.json`. Removing a label or uninstalling ccsession does
 not delete a Claude Code transcript.
 
 ---

@@ -4,6 +4,28 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: one session name for ccsession, Claude Code and Orca (#325)
+
+#### Added (ccsession one name)
+
+- `ccsession <name>` also gives Claude Code that name (`--name`), so the prompt box, the `/resume` picker, ccsession's list and the Orca tab show the same name.
+- Claude Code's built-in `/rename <name>` names or renames a session for ccsession too, at no token cost. A new `hooks/session-name.sh` (UserPromptSubmit and SessionEnd; `session-start.sh` hands it SessionStart) copies the name into the repo's list: the session is then listed once, under its new name, and `ccsession <name>` reopens it. Claude Code runs no hook at a rename itself, so the list picks it up at the next message, or when the session ends. Only names someone gave are listed, never Claude Code's automatic ones.
+- In an Orca tab whose title ccsession owns, a `/rename` sets the tab to `<name> · Claude Code` (`orca terminal rename`) at the next message. Leaving Claude Code (or, after a crash, the next ccsession launch in that tab) takes that title off again, only while the tab still shows it, so a title a person typed since stays.
+- `ccsession --name <name>` takes any name, one starting with `-` too; `ccsession-orca` passes the answer to its question that way, so the question now accepts such a name.
+- `superclaude install` (`ccsession --migrate-names`) adds, once per machine, the names given with `/rename` before ccsession kept them.
+- `superclaude doctor` reports a missing UserPromptSubmit or SessionEnd ccsession hook; `install.sh` registers both.
+
+#### Changed (ccsession one name)
+
+- Session names may contain spaces and any other character except control characters (`ccsession "my work"`), up to 245 bytes of name file. In the name file, `%`, `/` and a leading `.` are written `%25`, `%2F` and `%2E` (so each counts as 3 bytes); a label an older version saved with a leading `.` is moved to that name at install, before the per-folder lists are copied, and copied to its repo's list when its old list was copied already. A name another saved session already has gets `-2`, `-3`... in the list; a lock on each list keeps two sessions renamed at the same moment from overwriting each other's entry.
+- The `/ccsession-tag` command is retired: use `/rename`. Its `SKILL.md` stays, with `user-invocable: false` and `disable-model-invocation: true`, because `superclaude install` installs a skill folder only when it has one.
+
+#### Fixed (ccsession one name)
+
+- A `claude` started inside a ccsession session (for example a pipeline's `claude -p`) no longer takes over its name, even in the same folder, and never changes its Orca tab. ccsession replaces itself with Claude Code, so the launched Claude Code has the process id that starts `CCSESSION_LAUNCH_ID`; the hooks act for the launch only when that process runs them, `/clear` and resume included. A `ccsession` run from inside Claude Code leaves the Orca tab alone, and an untagged one no longer inherits the session's label.
+- `superclaude install` over an older ccsession skill folder adds the new hook script, so the registered UserPromptSubmit and SessionEnd hooks never point at a missing file; `superclaude doctor` checks for it. The hook installer treats the standalone `install.sh` form of either ccsession hook as the same hook, so neither is registered twice.
+- Renaming a session no longer leaves the old name behind in the list.
+
 ### MCP installer: LiteLLM gateway entry
 
 - `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.

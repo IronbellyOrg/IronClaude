@@ -8,6 +8,7 @@ import http.server
 import json
 import os
 import pty
+import re
 import runpy
 import select
 import shutil
@@ -48,6 +49,17 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
     for name in list(os.environ):
         if name.startswith("T") and ("Model" in name or name.endswith("_WINDOW")):
             monkeypatch.delenv(name)
+        # A developer's Orca terminal: the hooks would rename its real tab.
+        if name.startswith("ORCA_"):
+            monkeypatch.delenv(name)
+    for name in (
+        "CLAUDECODE",  # set when the tests run inside Claude Code
+        "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
+        "CCSESSION_LAUNCH_ID",
+        "CLAUDE_TOPIC",
+        "CCSESSION_TOPIC_CWD",
+    ):
+        monkeypatch.delenv(name, raising=False)
     for name in (
         "CCSESSION_DEFAULT_TIER",
         "CCSESSION_SHOW_ALL_MODELS",
@@ -940,6 +952,15 @@ def test_installer_wires_complete_package_without_overwriting_secrets(
         if "ccsession-tag/hooks/session-start.sh" in hook.get("command", "")
     ]
     assert len(matching) == 1
+    # /rename reaches ccsession's list through these, registered once each.
+    for event in ("UserPromptSubmit", "SessionEnd"):
+        commands = [
+            hook["command"]
+            for group in settings["hooks"][event]
+            for hook in group.get("hooks", [])
+        ]
+        assert commands == [f'bash "{target}/hooks/session-name.sh"']
+    assert os.access(target / "hooks" / "session-name.sh", os.X_OK)
 
 
 def test_packaged_skill_installer_copies_the_shim(tmp_path: Path) -> None:
@@ -1461,7 +1482,8 @@ def test_orca_name_starts_a_labeled_session_through_the_shim(tmp_path: Path) -> 
     output, record = _orca_tty(tmp_path, keys="orca-demo\r")
     assert "Starting new session labeled 'orca-demo'" in output
     assert record["topic"] == "orca-demo"
-    assert record["argv"] == ORCA_FLAGS
+    # The label is also Claude Code's name for the session.
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "orca-demo"]
     _assert_through_shim(record)
 
 
@@ -1473,7 +1495,14 @@ def test_orca_saved_name_is_listed_and_resumes_before_the_prompt(
     assert "Saved sessions in" in output
     assert "demo" in output.split(ORCA_QUESTION)[0]
     assert record["topic"] == "demo"
-    assert record["argv"] == [*ORCA_FLAGS, "--resume", SESSION_ID, "fix it"]
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        "demo",
+        "--resume",
+        SESSION_ID,
+        "fix it",
+    ]
 
 
 @pytest.mark.parametrize("keys", ["\r", "\x03"], ids=["enter", "ctrl-c"])
@@ -1557,13 +1586,13 @@ def test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores(
 
 
 def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
-    # A name starting with "-" would reach ccsession as an option (--help prints
-    # help and exits, so Claude never starts) or Claude as a flag.
+    # A name too long for a file name can never be saved (one starting with "-"
+    # is fine now: ccsession-orca passes it as --name).
     env = _orca_env(tmp_path)
     proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
     try:
         assert ORCA_QUESTION in _read_pty(master, until=ORCA_QUESTION)
-        for bad in (b"bad/name", b"--help", b"-x"):
+        for bad in (b"x" * 246, "あ".encode() * 82):
             os.write(master, bad + b"\r")
             again = _read_pty(master, until=ORCA_QUESTION)
             assert "invalid label" in again and again.count(ORCA_QUESTION) == 1
@@ -1957,26 +1986,16 @@ def test_session_start_hook_saves_the_name_under_the_repo(tmp_path: Path) -> Non
     assert (topics / ".cwd").read_text().strip() == str(worktree)
 
 
-def test_ccsession_tag_command_saves_the_name_under_the_repo(tmp_path: Path) -> None:
-    _, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo.git")
-    home = tmp_path / "home"
-    skill = (SKILL_DIR / "SKILL.md").read_text()
-    block = skill.split("3. Run this bash command", 1)[1]
-    block = block.split("```bash\n", 1)[1].split("```", 1)[0]
-    script = "\n".join(line[3:] for line in block.splitlines())
-    script = script.replace("<LABEL>", "demo")
-    env = _git_env(home)
-    env.update(
-        {
-            "CLAUDE_PROJECT_DIR": str(worktree),
-            "CLAUDE_SESSION_ID": "sid-2",
-            # The ccsession under test, not one installed on this machine.
-            "PATH": f"{SKILL_DIR}:{env['PATH']}",
-        }
+def test_retired_ccsession_tag_command_can_not_run() -> None:
+    # /rename names a session now. SKILL.md stays only so the folder installs:
+    # neither a person (/ccsession-tag) nor Claude can run it.
+    front = (SKILL_DIR / "SKILL.md").read_text().split("---")[1]
+    fields = dict(
+        line.split(":", 1) for line in front.strip().splitlines() if ":" in line
     )
-    subprocess.run(["bash", "-c", script], cwd=worktree, env=env, check=True)
-    topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
-    assert (topics / "demo.txt").read_text().strip() == "sid-2"
+    assert fields["user-invocable"].strip() == "false"
+    assert fields["disable-model-invocation"].strip() == "true"
+    assert "```bash" not in (SKILL_DIR / "SKILL.md").read_text()
 
 
 def test_names_saved_per_folder_move_to_the_repo_once(tmp_path: Path) -> None:
@@ -2233,3 +2252,643 @@ def test_symlinked_hook_still_saves_under_the_repo(tmp_path: Path) -> None:
     subprocess.run(["bash", str(link)], input=payload, env=env, text=True, check=True)
     topics = home / ".claude" / "projects" / "github.com-Org-Repo" / "topics"
     assert (topics / "linked.txt").read_text().strip() == "sid-l"
+
+
+# One name per session, however it was given: `ccsession <name>`, or Claude
+# Code's --name and /rename, which the hooks copy into ccsession's list.
+
+
+def _named_repo(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
+    main, worktree = _repo_with_worktree(tmp_path, "https://github.com/Org/Repo")
+    fake = tmp_path / "claude-args"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n"
+    )
+    fake.chmod(0o700)
+    home = tmp_path / "home"
+    env = _git_env(home)
+    env.update(
+        {
+            "CLAUDE_BIN": str(fake),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+            "XDG_CACHE_HOME": str(tmp_path / "cache"),
+        }
+    )
+    return main, worktree, home / ".claude" / "projects", env
+
+
+def _transcript(projects: Path, folder: Path, session: str, *titles: str) -> Path:
+    """A saved conversation, written the way Claude Code writes it (compact JSON)."""
+    saved = projects / str(folder).replace("/", "-")
+    saved.mkdir(parents=True, exist_ok=True)
+    rows = [{"type": "user", "cwd": str(folder), "sessionId": session}]
+    rows += [
+        {"type": "custom-title", "customTitle": t, "sessionId": session} for t in titles
+    ]
+    path = saved / f"{session}.jsonl"
+    path.write_text("".join(json.dumps(r, separators=(",", ":")) + "\n" for r in rows))
+    return path
+
+
+def _ccs(cwd: Path, env: dict[str, str], *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        cwd=cwd,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+
+
+def _launched(cwd: Path, env: dict[str, str], name: str) -> list[str]:
+    return json.loads(_ccs(cwd, env, name).stdout.strip().splitlines()[-1])
+
+
+# Runs a command from a process of its own, as a claude started inside a
+# session does: its hooks then find that process, not the launched Claude Code.
+_NESTED = [
+    sys.executable,
+    "-c",
+    "import subprocess, sys; sys.exit(subprocess.run(sys.argv[1:]).returncode)",
+]
+
+
+def _hook(
+    env: dict[str, str],
+    cwd: Path,
+    session: str,
+    event: str,
+    nested: bool = False,
+    form: str = "native",
+    **fields: str,
+) -> None:
+    """Run a hook as Claude Code does: sh -c '<command>', with the command as
+    hooks.json registers it ("native": the script path) or as the standalone
+    install.sh does ("standalone": bash "<path>"); session-start.sh for
+    SessionStart.
+
+    The test process stands in for the Claude Code that runs the hook, so
+    CCSESSION_LAUNCH_ID=<this pid>.<n> makes it the one ccsession launched.
+    """
+    script = (
+        SKILL_DIR
+        / "hooks"
+        / ("session-start.sh" if event == "SessionStart" else "session-name.sh")
+    )
+    command = f"'{script}'" if form == "native" else f'bash "{script}"'
+    payload = {"session_id": session, "cwd": str(cwd), **fields}
+    if event != "SessionStart":
+        payload["hook_event_name"] = event
+    subprocess.run(
+        [*(_NESTED if nested else []), "sh", "-c", command],
+        input=json.dumps(payload),
+        env=env,
+        text=True,
+        check=True,
+    )
+
+
+def _listed(cwd: Path, env: dict[str, str], *args: str) -> dict[str, str]:
+    """The names `ccsession --here` lists, each with its session's short id."""
+    rows = {}
+    for line in _ccs(cwd, env, *(args or ("--here",))).stdout.splitlines():
+        match = re.match(
+            r"^  (.+?) {2,}(?:started |\(transcript missing\)|\(times unavailable\)).*"
+            r" (\S+)$",
+            line,
+        )
+        if match:
+            rows[match.group(1)] = match.group(2)
+    return rows
+
+
+def _fake_orca(tmp_path: Path, env: dict[str, str]) -> Path:
+    """An orca CLI that records each call and keeps the tab's title like Orca:
+    `terminal rename --title` sets it, `terminal rename` alone resets it to the
+    terminal's own title, `terminal show` reports it. Returns the record file."""
+    tools = tmp_path / "orca-tools"
+    tools.mkdir(exist_ok=True)
+    record = tmp_path / "orca-calls"
+    title = tmp_path / "orca-tab-title"
+    (tools / "orca").write_text(
+        f"""#!/usr/bin/env python3
+import json, pathlib, sys
+args = sys.argv[1:]
+title = pathlib.Path({str(title)!r})
+if args[:2] == ["terminal", "show"]:
+    now = title.read_text() if title.exists() else "terminal's own title"
+    print(json.dumps({{"result": {{"terminal": {{"title": now}}}}}}))
+    sys.exit(0)
+open({str(record)!r}, "a").write(json.dumps(args) + "\\n")
+if args[:2] == ["terminal", "rename"]:
+    if "--title" in args:
+        title.write_text(args[args.index("--title") + 1])
+    else:
+        title.unlink(missing_ok=True)
+"""
+    )
+    (tools / "orca").chmod(0o700)
+    env["PATH"] = f"{tools}:{env['PATH']}"
+    return record
+
+
+def _orca_calls(record: Path) -> list[list[str]]:
+    if not record.exists():
+        return []
+    return [json.loads(line) for line in record.read_text().splitlines()]
+
+
+def test_a_name_with_spaces_and_slashes_starts_lists_and_resumes(
+    tmp_path: Path,
+) -> None:
+    main, worktree, projects, env = _named_repo(tmp_path)
+    name = "my work/v2 50%"
+    # A new session: Claude Code gets the same name.
+    assert _launched(main, env, name) == [*ORCA_FLAGS, "--name", name]
+    _hook(
+        {**env, "CLAUDE_TOPIC": name, "CCSESSION_TOPIC_CWD": str(main.resolve())},
+        main,
+        SESSION_ID,
+        "SessionStart",
+    )
+    _transcript(projects, main, SESSION_ID)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    assert (topics / "my work%2Fv2 50%25.txt").read_text().strip() == SESSION_ID
+    assert _listed(worktree, env) == {name: SESSION_ID[:8]}
+    # Resumed from another worktree of the repo, under the same name.
+    assert _launched(worktree, env, name)[-4:] == [
+        "--name",
+        name,
+        "--resume",
+        SESSION_ID,
+    ]
+    _ccs(worktree, env, "--rm", name)
+    assert _listed(main, env) == {}
+
+
+@pytest.mark.parametrize("bad", ["", "   ", "tab\there", "line\nbreak"])
+def test_blank_names_and_control_characters_are_refused(
+    tmp_path: Path, bad: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--sync-name", SESSION_ID, bad],
+        cwd=main,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == 2
+    assert not list(projects.glob("*/topics/*.txt"))
+
+
+def test_rename_in_claude_code_renames_the_listed_name(tmp_path: Path) -> None:
+    main, worktree, projects, env = _named_repo(tmp_path)
+    topic_env = {**env, "CLAUDE_TOPIC": "demo", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic_env, main, SESSION_ID, "SessionStart")
+    _transcript(projects, main, SESSION_ID)
+    assert _listed(main, env) == {"demo": SESSION_ID[:8]}
+    # /rename, picked up by the next prompt: listed once, under the new name.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="renamed one")
+    assert _listed(main, env) == {"renamed one": SESSION_ID[:8]}
+    assert _launched(worktree, env, "renamed one")[-4:] == [
+        "--name",
+        "renamed one",
+        "--resume",
+        SESSION_ID,
+    ]
+    # A prompt without a name, or with the same one, changes nothing.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit")
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="renamed one")
+    assert _listed(main, env) == {"renamed one": SESSION_ID[:8]}
+
+
+def test_a_rename_just_before_quitting_is_kept(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    # SessionEnd reports no name: the newest one in the transcript is used.
+    path = _transcript(projects, main, SESSION_ID, "first", "last one")
+    _hook(env, main, SESSION_ID, "SessionEnd", transcript_path=str(path))
+    assert _listed(main, env) == {"last one": SESSION_ID[:8]}
+
+
+def test_a_name_another_session_has_gets_a_number(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    other = "def67890-0000-0000-0000-000000000000"
+    _transcript(projects, main, SESSION_ID)
+    _transcript(projects, main, other)
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="shared")
+    _hook(env, main, other, "UserPromptSubmit", session_title="shared")
+    assert _listed(main, env) == {"shared": SESSION_ID[:8], "shared-2": other[:8]}
+    # A name whose conversation no longer exists is free again.
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / "gone.txt").write_text("99999999-0000-0000-0000-000000000000\n")
+    _hook(env, main, other, "UserPromptSubmit", session_title="gone")
+    assert _listed(main, env) == {"shared": SESSION_ID[:8], "gone": other[:8]}
+
+
+def test_sessions_without_a_name_never_join_the_list(tmp_path: Path) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    _hook(env, main, SESSION_ID, "SessionStart")
+    _hook(env, main, SESSION_ID, "UserPromptSubmit")
+    _hook(env, main, SESSION_ID, "SessionEnd", transcript_path="/nonexistent")
+    assert not list(projects.glob("*/topics/*.txt"))
+
+
+def _orca_launch_env(tmp_path: Path, env: dict[str, str]) -> Path:
+    """The environment ccsession leaves for Claude Code in an Orca tab."""
+    env.update(
+        {
+            "ORCA_PANE_KEY": "tab-1:leaf-1",
+            "ORCA_TERMINAL_HANDLE": "term_test",
+            "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+            # This test process stands in for the Claude Code ccsession launched.
+            "CCSESSION_LAUNCH_ID": f"{os.getpid()}.1",
+        }
+    )
+    return _fake_orca(tmp_path, env)
+
+
+@pytest.mark.parametrize("form", ["native", "standalone"])
+def test_orca_tab_follows_a_rename_of_the_launched_session(
+    tmp_path: Path, form: str
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    topic_env = {**env, "CLAUDE_TOPIC": "notes", "CCSESSION_TOPIC_CWD": str(main)}
+    # No session_title: the label comes from the launch (CLAUDE_TOPIC) alone.
+    _hook(topic_env, main, SESSION_ID, "SessionStart", form=form)
+    _transcript(projects, main, SESSION_ID)
+    assert _listed(main, env) == {"notes": SESSION_ID[:8]}
+    rename = ["terminal", "rename", "--terminal", "term_test", "--title"]
+    assert _orca_calls(record) == [[*rename, "notes · Claude Code"]]
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", form=form, session_title="notes")
+    assert len(_orca_calls(record)) == 1  # unchanged name: Orca is not asked
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", form=form, session_title="notes 2")
+    assert _orca_calls(record)[-1] == [*rename, "notes 2 · Claude Code"]
+    # /clear: the next conversation runs in the same Claude Code, so it is the
+    # launched session too, and the tab stays.
+    gone = "/nonexistent"
+    _hook(
+        env,
+        main,
+        SESSION_ID,
+        "SessionEnd",
+        form=form,
+        transcript_path=gone,
+        reason="clear",
+    )
+    calls = len(_orca_calls(record))
+    after = "def67890-0000-0000-0000-000000000000"
+    _hook(env, main, after, "UserPromptSubmit", form=form, session_title="after clear")
+    assert len(_orca_calls(record)) == calls + 1
+    assert _orca_calls(record)[-1] == [*rename, "after clear · Claude Code"]
+    # Leaving Claude Code takes the title ccsession set back off the tab.
+    _hook(
+        env, main, after, "SessionEnd", form=form, transcript_path=gone, reason="other"
+    )
+    assert _orca_calls(record)[-1] == ["terminal", "rename", "--terminal", "term_test"]
+    assert not (tmp_path / "cache/ccsession/orca-titles/term_test").exists()
+
+
+def test_where_processes_cannot_be_read_the_hook_acts_for_the_launch(
+    tmp_path: Path,
+) -> None:
+    # No /proc entry and no ps line for the process to start from (here, one
+    # that does not exist): ownership cannot be checked, so it is assumed.
+    main, _, projects, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    env["CCSESSION_HOOK_PARENT"] = "999999999"
+    _transcript(projects, main, SESSION_ID)
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="unchecked")
+    assert _listed(main, env) == {"unchecked": SESSION_ID[:8]}
+    assert _orca_calls(record)[-1][-1] == "unchecked · Claude Code"
+
+
+def test_a_claude_started_inside_a_session_takes_neither_its_name_nor_its_tab(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    topic_env = {**env, "CLAUDE_TOPIC": "notes", "CCSESSION_TOPIC_CWD": str(main)}
+    _hook(topic_env, main, SESSION_ID, "SessionStart")
+    _transcript(projects, main, SESSION_ID)
+    calls = len(_orca_calls(record))
+    # A pipeline's claude in the same folder inherits all of that environment,
+    # before the session's next prompt, after a /clear, or after it quit.
+    gone = "/nonexistent"
+    _hook(env, main, SESSION_ID, "SessionEnd", transcript_path=gone, reason="clear")
+    child = "c0ffee00-0000-0000-0000-000000000000"
+    _hook(topic_env, main, child, "SessionStart", nested=True)
+    _transcript(projects, main, child)
+    _hook(env, main, child, "UserPromptSubmit", nested=True, session_title="job")
+    _hook(env, main, child, "SessionEnd", nested=True, transcript_path=gone)
+    assert _listed(main, env) == {"notes": SESSION_ID[:8], "job": child[:8]}
+    assert len(_orca_calls(record)) == calls
+    # The launched Claude Code still owns its tab after all that.
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="notes 2")
+    assert _orca_calls(record)[-1][-1] == "notes 2 · Claude Code"
+
+
+def test_ccsession_inside_claude_code_leaves_the_tab_and_label_alone(
+    tmp_path: Path,
+) -> None:
+    # A ccsession run by Claude Code (its Bash tool) inherits the session's
+    # label and Orca tab; neither belongs to it.
+    main, _, _, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    fake = tmp_path / "claude-env"
+    names = [
+        "CLAUDE_TOPIC",
+        "CCSESSION_TOPIC_CWD",
+        "ORCA_PANE_KEY",
+        "ORCA_TERMINAL_HANDLE",
+        "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
+    ]
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport json, os\n"
+        f"print(json.dumps({{n: os.environ.get(n) for n in {names!r}}}))\n"
+    )
+    fake.chmod(0o700)
+    env.update(
+        {
+            "CLAUDECODE": "1",
+            "CLAUDE_BIN": str(fake),
+            "CLAUDE_TOPIC": "parent",
+            "CCSESSION_TOPIC_CWD": str(main),
+        }
+    )
+    del env["CLAUDE_CODE_DISABLE_TERMINAL_TITLE"]
+    seen = json.loads(
+        _ccs(main, env, "--profile", "claude").stdout.strip().splitlines()[-1]
+    )
+    assert seen == dict.fromkeys(names)
+    assert _orca_calls(record) == []
+
+
+@pytest.mark.parametrize("tab", ["ours", "typed since", "never set"])
+def test_launch_clears_only_a_tab_title_ccsession_set(tmp_path: Path, tab: str) -> None:
+    main, _, _, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    del env["CLAUDE_CODE_DISABLE_TERMINAL_TITLE"], env["CCSESSION_LAUNCH_ID"]
+    mark = tmp_path / "cache/ccsession/orca-titles/term_test"
+    if tab != "never set":
+        # The title an earlier session's /rename gave the tab, before a crash.
+        mark.parent.mkdir(parents=True)
+        mark.write_text("old · Claude Code\n")
+        shown = "old · Claude Code" if tab == "ours" else "deploy box"
+        (tmp_path / "orca-tab-title").write_text(shown)
+    _ccs(main, env, "demo")
+    deadline = time.monotonic() + 10
+    while mark.exists() and time.monotonic() < deadline:
+        time.sleep(0.1)
+    time.sleep(0.5)  # the clear runs in the background
+    expected = (
+        [["terminal", "rename", "--terminal", "term_test"]] if tab == "ours" else []
+    )
+    assert _orca_calls(record) == expected
+    assert not mark.exists()
+    if tab == "typed since":
+        assert (tmp_path / "orca-tab-title").read_text() == "deploy box"
+
+
+def test_a_name_starting_with_a_dash_is_listed_and_resumes(tmp_path: Path) -> None:
+    main, worktree, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="-wip")
+    assert _listed(main, env) == {"-wip": SESSION_ID[:8]}
+    launched = json.loads(
+        _ccs(worktree, env, "--name", "-wip").stdout.strip().splitlines()[-1]
+    )
+    assert launched[-4:] == ["--name", "-wip", "--resume", SESSION_ID]
+
+
+def test_orca_question_takes_a_name_starting_with_a_dash(tmp_path: Path) -> None:
+    _, record = _orca_tty(tmp_path, keys="-x\r")
+    assert record["topic"] == "-x"
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "-x"]
+
+
+def test_labels_older_versions_saved_with_a_leading_dot_still_resume(
+    tmp_path: Path,
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    (topics / ".hidden.txt").write_text(f"{SESSION_ID}\n")
+    _transcript(projects, main, SESSION_ID)
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {".hidden": SESSION_ID[:8]}
+    assert _launched(main, env, ".hidden")[-2:] == ["--resume", SESSION_ID]
+
+
+@pytest.mark.parametrize("copied_before", [False, True])
+def test_a_hidden_label_in_an_old_per_folder_list_reaches_the_repo_list(
+    tmp_path: Path, copied_before: bool
+) -> None:
+    # Older versions kept one list per folder, and saved a leading-"." name as
+    # a hidden file the copy to the repo's list never saw.
+    main, _, projects, env = _named_repo(tmp_path)
+    old = projects / str(main.resolve()).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{main.resolve()}\n")
+    (old / ".notes.txt").write_text(f"{SESSION_ID}\n")
+    if copied_before:  # the list was copied by an earlier version
+        (old / ".ccsession-moved-to-repo").write_text("")
+    _transcript(projects, main, SESSION_ID)
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {".notes": SESSION_ID[:8]}
+    assert _launched(main, env, ".notes")[-2:] == ["--resume", SESSION_ID]
+
+
+def test_a_hidden_label_whose_name_the_repo_list_has_gets_a_number(
+    tmp_path: Path,
+) -> None:
+    # The old list was copied already and the repo's list has ".notes" for
+    # another session: both sessions stay listed.
+    main, _, projects, env = _named_repo(tmp_path)
+    other = "def67890-0000-0000-0000-000000000000"
+    old = projects / str(main.resolve()).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{main.resolve()}\n")
+    (old / ".ccsession-moved-to-repo").write_text("")
+    (old / ".notes.txt").write_text(f"{SESSION_ID}\n")
+    repo = projects / "github.com-Org-Repo" / "topics"
+    repo.mkdir(parents=True)
+    (repo / "%2Enotes.txt").write_text(f"{other}\n")
+    for session in (SESSION_ID, other):
+        _transcript(projects, main, session)
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {".notes": other[:8], ".notes-2": SESSION_ID[:8]}
+
+
+def test_sessions_renamed_to_one_name_at_once_both_stay_listed(
+    tmp_path: Path,
+) -> None:
+    # Two hooks at the same moment: without the list's lock both saw the name
+    # free, and one entry overwrote the other.
+    main, _, projects, env = _named_repo(tmp_path)
+    sessions = [f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000" for n in "ab"]
+    for session in sessions:
+        _transcript(projects, main, session)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    for _ in range(10):
+        for f in topics.glob("*.txt"):
+            f.unlink()
+        runs = [
+            subprocess.Popen(
+                [str(SKILL_DIR / "ccsession"), "--sync-name", s, "shared"],
+                cwd=main,
+                env=env,
+                stdout=subprocess.DEVNULL,
+            )
+            for s in sessions
+        ]
+        assert [r.wait(timeout=60) for r in runs] == [0, 0]
+        listed = _listed(main, env)
+        assert set(listed) == {"shared", "shared-2"}
+        assert sorted(listed.values()) == [s[:8] for s in sessions]
+
+
+@pytest.mark.parametrize("left", ["empty", "not empty"])
+def test_a_lock_folder_left_by_the_earlier_build_is_handled(
+    tmp_path: Path, left: str
+) -> None:
+    # A build before flock locked with an empty .ccsession-lock folder; a killed
+    # run could leave it, and the lock file then could not be opened.
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    lock = projects / "github.com-Org-Repo" / "topics" / ".ccsession-lock"
+    lock.mkdir(parents=True)
+    if left == "not empty":
+        (lock / "stray").write_text("")
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--sync-name", SESSION_ID, "named"],
+        cwd=main,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if left == "empty":
+        assert result.returncode == 0, result.stderr
+        assert lock.is_file()
+        assert _listed(main, env) == {"named": SESSION_ID[:8]}
+    else:  # someone else's folder: left alone, with a clear message
+        assert result.returncode == 1
+        assert "is a folder that is not empty" in result.stderr
+        assert (lock / "stray").exists()
+
+
+def test_a_live_lock_holder_is_waited_for_and_a_killed_one_frees_it(
+    tmp_path: Path,
+) -> None:
+    # A sync that takes long keeps the list to itself: nobody takes its lock over
+    # (the earlier 3-second take-over let two runs in). A killed holder's lock
+    # goes with its process.
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    hold = [
+        sys.executable,
+        "-c",
+        "import fcntl, sys, time; f = open(sys.argv[1], 'a');"
+        " fcntl.flock(f, fcntl.LOCK_EX); print('held', flush=True);"
+        " time.sleep(float(sys.argv[2]))",
+        str(topics / ".ccsession-lock"),
+    ]
+    holder = subprocess.Popen([*hold, "1.5"], stdout=subprocess.PIPE, text=True)
+    assert holder.stdout.readline().strip() == "held"
+    start = time.monotonic()
+    _ccs(main, env, "--sync-name", SESSION_ID, "waited")
+    assert time.monotonic() - start >= 1.0  # it waited for the holder
+    assert holder.wait(timeout=60) == 0
+    assert _listed(main, env) == {"waited": SESSION_ID[:8]}
+    killed = subprocess.Popen([*hold, "60"], stdout=subprocess.PIPE, text=True)
+    assert killed.stdout.readline().strip() == "held"
+    killed.kill()
+    killed.wait(timeout=60)
+    start = time.monotonic()
+    _ccs(main, env, "--sync-name", SESSION_ID, "after kill")
+    assert time.monotonic() - start < 3
+    assert _listed(main, env) == {"after kill": SESSION_ID[:8]}
+
+
+@pytest.mark.parametrize(
+    ("name", "ok"),
+    [
+        ("/" * 81, True),  # 243 bytes as a file name
+        ("/" * 82, False),
+        ("あ" * 81, True),
+        ("あ" * 82, False),
+        ("x" * 245, True),
+        ("x" * 246, False),
+    ],
+)
+def test_the_name_length_limit_is_the_documented_one(
+    tmp_path: Path, name: str, ok: bool
+) -> None:
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--sync-name", SESSION_ID, name],
+        cwd=main,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode == 0) == ok, result.stderr
+    if ok:  # it fits even with a collision suffix
+        assert _listed(main, env) == {name: SESSION_ID[:8]}
+
+
+def test_orca_tab_is_left_to_claude_code_where_ccsession_does_not_own_it(
+    tmp_path: Path,
+) -> None:
+    # Outside a ccsession launch Claude Code's own title shows a /rename itself.
+    main, _, projects, env = _named_repo(tmp_path)
+    record = _orca_launch_env(tmp_path, env)
+    del env["CLAUDE_CODE_DISABLE_TERMINAL_TITLE"]
+    _transcript(projects, main, SESSION_ID)
+    _hook(env, main, SESSION_ID, "UserPromptSubmit", session_title="plain")
+    assert _listed(main, env) == {"plain": SESSION_ID[:8]}
+    assert _orca_calls(record) == []
+
+
+def test_names_given_before_ccsession_kept_them_are_imported_once(
+    tmp_path: Path,
+) -> None:
+    main, worktree, projects, env = _named_repo(tmp_path)
+    renamed = "11111111-0000-0000-0000-000000000000"
+    gone = "22222222-0000-0000-0000-000000000000"
+    _transcript(projects, worktree, renamed, "old", "newer name")
+    _transcript(projects, tmp_path / "deleted-folder", gone, "from gone")
+    _transcript(projects, main, SESSION_ID)  # never named
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {"newer name": renamed[:8]}
+    # A folder that no longer exists keeps its names in its own folder's list.
+    assert _listed(main, env, "--list") == {
+        "newer name": renamed[:8],
+        "from gone": gone[:8],
+    }
+    # Once only: a name removed afterwards is not brought back.
+    _ccs(main, env, "--rm", "newer name")
+    _ccs(main, env, "--migrate-names")
+    assert _listed(main, env) == {}
+
+
+def test_orca_question_takes_a_name_with_spaces(tmp_path: Path) -> None:
+    _, record = _orca_tty(tmp_path, keys="my work\r")
+    assert record["topic"] == "my work"
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "my work"]
+
+
+def test_framework_hooks_register_the_rename_hook() -> None:
+    hooks = json.loads(
+        (REPO_ROOT / "src" / "superclaude" / "hooks" / "hooks.json").read_text()
+    )["hooks"]
+    for event in ("UserPromptSubmit", "SessionEnd"):
+        commands = [h["command"] for reg in hooks[event] for h in reg["hooks"]]
+        assert "~/.claude/skills/ccsession-tag/hooks/session-name.sh" in commands
+    assert os.access(SKILL_DIR / "hooks" / "session-name.sh", os.X_OK)

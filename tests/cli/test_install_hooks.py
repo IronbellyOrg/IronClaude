@@ -642,6 +642,41 @@ def test_ccsession_unrelated_command_is_not_owned(fake_source_hooks, target_sett
     assert user in commands and canonical in commands
 
 
+@pytest.mark.parametrize("force", [False, True])
+def test_ccsession_standalone_name_hook_is_never_registered_twice(
+    fake_source_hooks, target_settings, force
+):
+    # install.sh registers session-name.sh as bash "<path>"; a later native
+    # install must treat that as the same hook, or it runs twice per prompt.
+    canonical = "~/.claude/skills/ccsession-tag/hooks/session-name.sh"
+    source_path = fake_source_hooks / "hooks/hooks.json"
+    source = json.loads(source_path.read_text())
+    events = ("UserPromptSubmit", "SessionEnd")
+    for event in events:
+        source["hooks"].setdefault(event, []).append(
+            {"hooks": [{"type": "command", "command": canonical, "timeout": 5}]}
+        )
+    source_path.write_text(json.dumps(source))
+    standalone = f'bash "{target_settings.parent / "skills/ccsession-tag/hooks/session-name.sh"}"'
+    target_settings.write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    event: [{"hooks": [{"type": "command", "command": standalone}]}]
+                    for event in events
+                }
+            }
+        )
+    )
+    ok, msg = install_hooks(target_path=target_settings, force=force)
+    assert ok, msg
+    hooks = json.loads(target_settings.read_text())["hooks"]
+    for event in events:
+        commands = [h["command"] for reg in hooks[event] for h in reg["hooks"]]
+        ours = [c for c in commands if "ccsession-tag/hooks/session-name.sh" in c]
+        assert ours == ([canonical] if force else [standalone])
+
+
 def test_real_hooks_json_registers_ccsession():
     hooks_json = (
         Path(__file__).resolve().parents[2] / "src/superclaude/hooks/hooks.json"

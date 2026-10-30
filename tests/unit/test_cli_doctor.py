@@ -79,6 +79,9 @@ def test_isolated_install_resolves_every_command_dependency(tmp_path):
     assert result["passed"] is True, result["details"]
 
 
+NAME_HOOK = "~/.claude/skills/ccsession-tag/hooks/session-name.sh"
+
+
 @pytest.fixture
 def ccsession_home(tmp_path, monkeypatch):
     skill = tmp_path / ".claude/skills/ccsession-tag"
@@ -87,8 +90,10 @@ def ccsession_home(tmp_path, monkeypatch):
     (skill / "ccsession").write_text("wrapper")
     (skill / "ccsession-orca").write_text("orca wrapper")
     (skill / "hooks/session-start.sh").write_text("hook")
+    (skill / "hooks/session-name.sh").write_text("hook")
     (tmp_path / ".claude/ccsession.env").write_text("secret-value")
     settings = tmp_path / ".claude/settings.json"
+    name_hook = [{"hooks": [{"command": NAME_HOOK}]}]
     settings.write_text(
         json.dumps(
             {
@@ -102,7 +107,9 @@ def ccsession_home(tmp_path, monkeypatch):
                                 }
                             ],
                         }
-                    ]
+                    ],
+                    "UserPromptSubmit": name_hook,
+                    "SessionEnd": name_hook,
                 }
             }
         )
@@ -121,6 +128,7 @@ def ccsession_home(tmp_path, monkeypatch):
         ".claude/skills/ccsession-tag/ccsession",
         ".claude/skills/ccsession-tag/ccsession-orca",
         ".claude/skills/ccsession-tag/hooks/session-start.sh",
+        ".claude/skills/ccsession-tag/hooks/session-name.sh",
         ".claude/ccsession.env",
         ".local/bin/ccsession",
         ".local/bin/ccsession-orca",
@@ -179,12 +187,32 @@ def test_ccsession_doctor_accepts_placeholder_env_and_warns_about_path(
 
 def test_ccsession_doctor_accepts_install_sh_legacy_hook(ccsession_home):
     settings = ccsession_home / ".claude/settings.json"
-    command = (
-        f'bash "{ccsession_home}/.claude/skills/ccsession-tag/hooks/session-start.sh"'
-    )
+    hooks = f"{ccsession_home}/.claude/skills/ccsession-tag/hooks"
+    start = [{"hooks": [{"command": f'bash "{hooks}/session-start.sh"'}]}]
+    name = [{"hooks": [{"command": f'bash "{hooks}/session-name.sh"'}]}]
     settings.write_text(
-        json.dumps({"hooks": {"SessionStart": [{"hooks": [{"command": command}]}]}})
+        json.dumps(
+            {
+                "hooks": {
+                    "SessionStart": start,
+                    "UserPromptSubmit": name,
+                    "SessionEnd": name,
+                }
+            }
+        )
     )
     assert _check_ccsession(home=ccsession_home)["passed"] is True
     settings.write_text("malformed")
     assert _check_ccsession(home=ccsession_home)["passed"] is False
+
+
+@pytest.mark.parametrize("event", ["UserPromptSubmit", "SessionEnd"])
+def test_ccsession_doctor_reports_a_missing_rename_hook(ccsession_home, event):
+    # Without it a name given with /rename never reaches ccsession's list.
+    settings = ccsession_home / ".claude/settings.json"
+    data = json.loads(settings.read_text())
+    del data["hooks"][event]
+    settings.write_text(json.dumps(data))
+    result = _check_ccsession(home=ccsession_home)
+    assert result["passed"] is False
+    assert f"ccsession {event} hook not registered" in str(result["details"])
