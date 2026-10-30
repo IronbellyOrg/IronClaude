@@ -371,7 +371,7 @@ Task Flow:
 - **Self-Reflective Mechanisms**: Progress assessment after each major step with replanning triggers
 - **Evidence Management**: Clear citations, relevance scoring, uncertainty acknowledgment
 - **Tool Orchestration**: Parallel-first execution with Tavily (search) and Playwright (JavaScript content)
-- **Learning Integration**: Pattern recognition and strategy reuse via Serena memory
+- **Learning Integration**: Pattern recognition and strategy reuse via the project's `.superclaude/memory/` files
 
 **Research Depth Levels**:
 
@@ -683,7 +683,6 @@ Task Flow:
 - **Magic**: UI generation for frontend-architect, learning-guide interactive content
 - **Playwright**: Browser testing for quality-engineer, accessibility validation for frontend-architect
 - **Morphllm**: Code transformation for refactoring-expert, bulk changes for python-expert
-- **Serena**: Project memory for all agents, context preservation across sessions
 
 ### Troubleshooting Agent Activation
 

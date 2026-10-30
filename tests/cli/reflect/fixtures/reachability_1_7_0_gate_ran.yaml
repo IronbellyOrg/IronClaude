@@ -24,7 +24,6 @@ regression_present: false
 unauthorized_deviation_present: false
 needs_human_decision: false
 user_decision_required: false
-serena_summary_corroboration: unavailable
 degraded_components: []
 # FR-RH1 (contract 1.7.0) additive R7 reachability block — gate ran, all sinks reachable/clean.
 # Consumer-tolerance fixture: a 1.7.0 contract carrying ONLY the canonical R7 fields must map to pass.

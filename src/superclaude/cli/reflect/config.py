@@ -159,7 +159,7 @@ def create_review_snapshot(config) -> tuple[Path | None, str | None]:
     free of any raw ``subprocess`` import (NFR-1 thinness guard). Returns
     ``(snapshot_path, None)`` on success, or ``(None, stop_reason)`` on a
     precondition STOP. NEVER falls back to the live tree. Uses a REAL worktree
-    checkout (NOT an archive) so serena/auggie stay indexed (A-2).
+    checkout (NOT an archive) so auggie stays indexed (A-2).
 
     Lifecycle:
       1. PRE-CLEAN a leftover ``<output>/_review-snapshot`` via ``git worktree
@@ -196,7 +196,7 @@ def create_review_snapshot(config) -> tuple[Path | None, str | None]:
         return (None, "no-committable-ref")
     if current_head != config.head:
         return (None, "head-moved-precondition")
-    # (3) Real worktree checkout (NOT archive) so serena/auggie stay indexed.
+    # (3) Real worktree checkout (NOT archive) so auggie stays indexed.
     config.output_dir.mkdir(parents=True, exist_ok=True)
     try:
         _git(git_cwd, "worktree", "add", "--detach", str(snapshot), current_head)

@@ -29,9 +29,7 @@ _CONTROL = _CASES / "uc2-surface-positive-control"
 
 # The restricted reviewer tool set under test.
 _RESTRICTED_TOOLS = frozenset({"Read", "Grep", "Glob"})
-_REMOVED_TOOLS = frozenset(
-    {"Bash", "Edit", "Write", "NotebookEdit", "Task", "execute_shell_command"}
-)
+_REMOVED_TOOLS = frozenset({"Bash", "Edit", "Write", "NotebookEdit", "Task"})
 
 
 def _expected(case_dir: Path) -> dict:

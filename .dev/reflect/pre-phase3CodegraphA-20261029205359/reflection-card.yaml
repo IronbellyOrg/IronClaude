@@ -1,0 +1,8 @@
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku]
+calibrator_diversity: full
+dimensions: {citation_grounding: 0.80, coverage_completeness: 0.70, deviation_classification_clarity: 0.50, risk_surface_coverage: 0.45, recommendation_actionability: 0.55}
+C: 0.60
+escalation_recommendation: escalate-t2
+notes: "D-1 targets the wrong problem: /sc:pr-submit has no --body-file flag (pr-submit.md:8, :54; spec source.md:288 has the same defect). Missed: Task 1 makes G3 a hard pass (plan:41) while source.md:30 lets T1-T10 continue on a G3 failure; Task 14 commit+push after the monitor (plan:223) vs source.md:288 'no new commit unless the monitor pushes fixes'; group comment G URL recorded after the last commit contradicts 'no tracked change afterwards' (plan:223-224); the plan package and .dev/codegraph-migration/ inputs are untracked, so a worktree from origin/master lacks them. 'Necessary' label flagged as not a rubric category."

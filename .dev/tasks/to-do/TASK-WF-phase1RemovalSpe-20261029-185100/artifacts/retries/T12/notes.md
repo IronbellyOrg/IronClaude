@@ -1,0 +1,3 @@
+8c35d2c1b823c098623adde56cc7bef1a8c36980
+A1 r1-1 F1.1 note src/superclaude/commands/validate-roadmap.md:6 amiss:n,false:n,harm:n,constraint:y The plan names this file's memory tool entries (mcp__serena__read_memory, mcp__serena__write_memory in allowed-tools) as Task 12 work; the line is unchanged from the start (inherited, capped at note by the covers read-back); Task 15 removes every mcp__serena__ entry from this line and its repo-wide search gates that.
+A1 r1-1 F1.2 note src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:328 amiss:n,false:y Step 0.5.2 still says 'if not already activated in Pre-Phase 0' after Task 12 deleted the activation in Hook 0a; the line is inherited text and is Task 15's Step 0.5 rewrite.

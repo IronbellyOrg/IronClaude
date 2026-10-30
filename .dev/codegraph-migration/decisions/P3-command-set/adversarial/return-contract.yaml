@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/codegraph-migration/decisions/P3-command-set/adversarial/merged-recommendation.md"
+  convergence_score: 1.0          # 23/23 diff points by Round 1 majority; depth quick, no Round 2 or invariant probe
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/codegraph-migration/decisions/P3-command-set/adversarial/adversarial"
+  status: "partial"               # all 5 steps done, merge validation passed; partial because Round 2.5 was skipped (INV-001 HIGH stays open upstream) and the name conflict /sc:graph vs SPEC /sc:codegraph is unresolved
+  base_variant: "Variant C (option-c.md, default model)"
+  unresolved_conflicts: 0         # diff points; open decisions listed in merged-recommendation.md "Open points"
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []      # Round 2.5 skipped at depth quick
+  scores:
+    C: {quant: 0.862, qual: 0.700, final: 0.781}
+    A: {quant: 0.895, qual: 0.600, final: 0.748}
+    B: {quant: 0.855, qual: 0.600, final: 0.727}
+  tiebreaker: "level 1 (debate points C 8.0, B 7.5, A 2.5); margin C-A 3.3% < 5%"

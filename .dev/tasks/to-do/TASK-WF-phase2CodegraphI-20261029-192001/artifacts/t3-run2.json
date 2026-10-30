@@ -1,0 +1,298 @@
+{
+  "server": {
+    "name": "codegraph",
+    "version": "1.6.2"
+  },
+  "tools": [
+    {
+      "name": "codegraph_search",
+      "description": "Quick symbol search by name. Returns locations only (no code). Use codegraph_explore instead to get the actual source / understand an area in one call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Symbol name or partial name (e.g., \"auth\", \"signIn\", \"UserService\")"
+          },
+          "kind": {
+            "type": "string",
+            "description": "Filter by node kind",
+            "enum": [
+              "function",
+              "method",
+              "class",
+              "interface",
+              "type",
+              "variable",
+              "route",
+              "component"
+            ]
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum results (default: 10)",
+            "default": 10
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "query",
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_callers",
+      "description": "List functions that call <symbol>. For the full flow, use codegraph_explore.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Name of the function, method, or class to find callers for"
+          },
+          "file": {
+            "type": "string",
+            "description": "Narrow to the definition in this file (path or suffix) when several same-named symbols exist (e.g. one UserService per app in a monorepo)"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of callers to return (default: 20)",
+            "default": 20
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "symbol",
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_callees",
+      "description": "List functions that <symbol> calls. For the full flow, use codegraph_explore.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Name of the function, method, or class to find callees for"
+          },
+          "file": {
+            "type": "string",
+            "description": "Narrow to the definition in this file (path or suffix) when several same-named symbols exist"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of callees to return (default: 20)",
+            "default": 20
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "symbol",
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_impact",
+      "description": "List symbols affected by changing <symbol>. Use before a refactor.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Name of the symbol to analyze impact for"
+          },
+          "file": {
+            "type": "string",
+            "description": "Narrow to the definition in this file (path or suffix) when several same-named symbols exist"
+          },
+          "depth": {
+            "type": "number",
+            "description": "How many levels of dependencies to traverse (default: 2)",
+            "default": 2
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "symbol",
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_node",
+      "description": "Two modes. (1) READ A FILE — use INSTEAD of the Read tool: pass `file` (a path or basename) with no `symbol` and it returns that file's current on-disk source with line numbers, exactly the shape Read gives you (`<n>\\t<line>`, safe to Edit from), narrowable with `offset`/`limit` just like Read — PLUS a one-line note of which files depend on it. Same bytes as Read, faster (served from the index), with the blast radius attached. Use it whenever you would Read a source file. (2) ONE SYMBOL you can name — its location, signature, verbatim source (includeCode=true) and caller/callee trail in one call, so before changing it you see what calls it and what your edit would break. For an AMBIGUOUS name it returns EVERY matching definition's body in one call (so you never Read a file to find the right overload); pass `file`/`line` to pin one. Use codegraph_explore for several related symbols or the full flow.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Name of the symbol to read (symbol mode). Omit it and pass `file` alone to read a whole file like Read."
+          },
+          "includeCode": {
+            "type": "boolean",
+            "description": "Symbol mode: include the symbol's full body (default: false). Ignored in file mode, which always returns source unless `symbolsOnly` is set.",
+            "default": false
+          },
+          "file": {
+            "type": "string",
+            "description": "A file path or basename (e.g. \"harness.rs\", \"src/auth/session.ts\"). Pass it ALONE (no symbol) to READ the file like the Read tool — its full source with line numbers + which files depend on it. Or pass it WITH a symbol to disambiguate an overloaded name to the definition in this file."
+          },
+          "offset": {
+            "type": "number",
+            "description": "File mode: 1-based line to start reading from, exactly like Read's offset. Defaults to the start of the file."
+          },
+          "limit": {
+            "type": "number",
+            "description": "File mode: maximum number of lines to return, exactly like Read's limit. Defaults to the whole file (capped at 2000 lines, like Read)."
+          },
+          "symbolsOnly": {
+            "type": "boolean",
+            "description": "File mode: return just the file's symbol map + dependents (a cheap structural overview) instead of its source.",
+            "default": false
+          },
+          "line": {
+            "type": "number",
+            "description": "Symbol mode only: disambiguate to the definition at/around this line (use with the file:line a trail showed you)."
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_status",
+      "description": "Index health check: files, nodes, edges, last indexed time, and added/modified/removed counts. Skip unless debugging.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "codegraph_files",
+      "description": "Indexed file tree with language + symbol counts. Faster than Glob for project layout.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Filter to files under this directory path (e.g., \"src/components\"). Returns all files if not specified."
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Filter files matching this glob pattern (e.g., \"*.tsx\", \"**/*.test.ts\")"
+          },
+          "format": {
+            "type": "string",
+            "description": "Output format: \"tree\" (hierarchical, default), \"flat\" (simple list), \"grouped\" (by language)",
+            "enum": [
+              "tree",
+              "flat",
+              "grouped"
+            ],
+            "default": "tree"
+          },
+          "includeMetadata": {
+            "type": "boolean",
+            "description": "Include file metadata like language and symbol count (default: true)",
+            "default": true
+          },
+          "maxDepth": {
+            "type": "number",
+            "description": "Maximum directory depth to show (default: unlimited)"
+          },
+          "projectPath": {
+            "type": "string",
+            "description": "Absolute path to the project to query (or any directory inside it) — codegraph uses the nearest .codegraph/ index at or above that path. Omit to use this session's default project. Pass it to query a second codebase, or when the server root has no index of its own (e.g. a monorepo where only sub-projects are indexed, so there is no default project)."
+          }
+        },
+        "required": [
+          "projectPath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "tools_bytes": 9346,
+  "model_facing_bytes": 8730,
+  "instructions_bytes": 1157,
+  "per_tool_bytes": {
+    "codegraph_search": 1132,
+    "codegraph_callers": 1096,
+    "codegraph_callees": 1052,
+    "codegraph_impact": 1028,
+    "codegraph_node": 2887,
+    "codegraph_status": 741,
+    "codegraph_files": 1402
+  },
+  "explore_call_error": true
+}

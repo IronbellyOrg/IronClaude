@@ -3,8 +3,8 @@ name: sc:validate-roadmap
 description: "Validate roadmap pipeline outputs (roadmap.md, test-strategy.md, extraction.md) produced by `superclaude roadmap run`. Mirrors the CLI `roadmap validate` surface: single-agent reflection by default, adversarial merge when N≥2 agents; always exits 0 per NFR-006 with findings surfaced as console output."
 category: analysis
 complexity: advanced
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
-mcp-servers: [auggie, serena]
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval
+mcp-servers: [auggie]
 personas: [analyzer, architect, qa]
 ---
 

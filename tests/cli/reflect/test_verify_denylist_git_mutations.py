@@ -7,8 +7,8 @@ verbs are enumerated as a defense-in-depth backstop, while the pre-existing
 entries (``git commit``/``git push``, ``pip install``, ``rm``) are retained.
 
 L3 is defense-in-depth: control (b)'s allowlist already rejects every git verb
-(closed set, ``git`` absent), and §6.1.1 governs the ``execute_shell_command``/
-serena path, NOT the Bash-tool/L1 incident vector. This test guards the
+(closed set, ``git`` absent), and §6.1.1 governs the verification-envelope
+path, NOT the Bash-tool/L1 incident vector. This test guards the
 denylist TEXT (there is no ``verify`` subcommand to exercise the gate at runtime).
 
 Falsifier discipline: fails-before (the git verbs were absent from the denylist)

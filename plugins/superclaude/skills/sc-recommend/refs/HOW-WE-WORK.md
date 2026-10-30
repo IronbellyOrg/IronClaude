@@ -234,7 +234,7 @@ There are two ways to resume. Use the first if you set it up; the second always 
 - **A task file (`/task`).** Run `/task <path to the task file>` again. It continues from the first unchecked item.
 - **A simple plan (`/sc:implement`).** Run `/sc:implement .dev/tasks/to-do/<id>/<id>.md` again. The `progress.md` file beside the plan records every finished step, and the run continues from the first unfinished one. If the folder has already moved to `.dev/tasks/done/`, the work is finished. Folders named `TASK-WF-*` are `/sc:workflow` plans: run them with `/sc:implement`, never with `/task`.
 
-`/sc:save` and `/sc:load` store and load Serena project memory. They are not a way to resume work or a guarantee of complete executor state. Other command-owned continuations keep their own supplied pipeline, output folder, validated proposal or document-task input; do not convert them into task-builder or a fresh generic plan. Clarify the artifact when it is not known.
+`/sc:save` and `/sc:load` store and load project memory as plain markdown files under `.superclaude/memory/`. They are not a way to resume work or a guarantee of complete executor state. Other command-owned continuations keep their own supplied pipeline, output folder, validated proposal or document-task input; do not convert them into task-builder or a fresh generic plan. Clarify the artifact when it is not known.
 
 ### 3.13 Specialist deliverables and operations
 
@@ -324,9 +324,9 @@ Additional operations and explicit coordination choices. These entries can be re
 | `/sc:git` | Requested status, add, local smart commit, branch or merge operations using declared controls. Status-only stays inspection; a commit needs authorization. Do not append push, merge or PR creation. Native tools may be enough. |
 | `/sc:index` | Coordinated project docs/API/structure/README and requested output format; writes documentation. Distinct from a compact repo map. |
 | `/sc:index-repo` | Compact PROJECT_INDEX.md and PROJECT_INDEX.json map. Preserve documented keyword mode=quick or mode=update and existing-output intent. Verify invocation naming in the active copy; no measured token-savings promise. |
-| `/sc:load` | Load/refresh Serena project context with supported type/refresh/analyze controls; requires Serena. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
+| `/sc:load` | Load/refresh project context from the `.superclaude/memory/` files with supported type/refresh/analyze controls; needs no MCP server. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
 | `/sc:pm` | Explicit PM coordination with requested strategy/verbosity and available protocol/tools. It can write memory/docs; verify dependencies. Not a default planner, automatic-start guarantee or universal executor-resume method. |
-| `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Requires Serena and writes memory; not durable task execution state or a latency guarantee. |
+| `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Stores plain markdown files under `.superclaude/memory/` (no MCP server) and writes memory; not durable task execution state or a latency guarantee. |
 | `/sc:spawn` | Requested decomposition with sequential/parallel/adaptive strategy and normal/deep depth. Its critical stop is a task hierarchy only: no source edits or downstream implementation. Branch tracing is limited to its documented filter-pipeline trigger, not every delegation. Ordinary implementation planning still uses workflow/implement. |
 
 One more user-facing skill: `/confidence-check` checks readiness before implementation. Supporting command protocols are loaded through their command's actual activation directive; do not infer a protocol name from a filename. Self-contained commands are valid, and TDD resolves to the tdd skill through Skill Invocation. Verify required agents, templates and tools before promising execution.

@@ -15,7 +15,6 @@
 - [📋 How to Use This Document](#-how-to-use-this-document)
 - [🗂️ Command Categories](#️-command-categories)
 - [📖 Detailed Description of Each Command](#-detailed-description-of-each-command)
-- [📂 index-repo vs Serena](#-index-repo-vs-serena--indexing-tools-comparison)
 
 ---
 
@@ -27,7 +26,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|
 | [`🗂️ Command Categories`](#️-command-categories) | Every command by category, and whether it changes files |
 | [`📖 Detailed Descriptions`](#-detailed-description-of-each-command) | Syntax, options, and examples for each command |
-| [`📂 index-repo vs Serena`](#-index-repo-vs-serena--indexing-tools-comparison) | Which indexing tool to use for project memory |
 
 ---
 
@@ -109,8 +107,8 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
-| `/sc:load` | Load Serena project memory (not a resume method) | `load.md` | No |
-| `/sc:save` | Save Serena project memory (not a resume method) | `save.md` | Report only |
+| `/sc:load` | Load project memory from `.superclaude/memory/` (not a resume method) | `load.md` | No |
+| `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
@@ -156,7 +154,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:adversarial --source auth-spec.md --generate roadmap --agents opus:architect,sonnet:security --depth deep
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -184,7 +182,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:auggie-review [<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
@@ -198,7 +196,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
 ```
 
-**MCP servers:** serena, context7
+**MCP servers:** context7
 
 ---
 
@@ -213,7 +211,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cli-eval run    [--suite <name>] [--eval <id>]
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -227,7 +225,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
 ```
 
-**MCP servers:** serena, context7
+**MCP servers:** context7
 
 ---
 
@@ -269,13 +267,13 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:init-lite --context-optimized [--project-root <dir>] [--output <path>] [--dry-run] [--scaffold] [--force]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
 ### `/sc:load` - Project Context Loading
 
-**When to use:** Load Serena project memory (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
+**When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
 
 **Syntax:**
 
@@ -283,7 +281,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
@@ -295,10 +293,10 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 
 **What it does:**
 
-- Loads Serena project memory (not a way to resume work)
+- Loads project memory from `.superclaude/memory/` (not a way to resume work)
 - Delegates tasks to personas (backend, frontend, security...)
 - Runs PDCA cycle: Plan → Do → Check → Act
-- Saves notes to Serena project memory (not a way to resume work)
+- Saves notes to project memory in `.superclaude/memory/` (not a way to resume work)
 
 **Workflow:**
 
@@ -320,7 +318,7 @@ PM Agent:
 /sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
 ```
 
-**MCP servers:** context7, playwright, morphllm, serena, tavily
+**MCP servers:** context7, playwright, morphllm, tavily
 
 **Key patterns:**
 
@@ -354,7 +352,7 @@ PM Agent:
 /sc:post-release v1.4.1 --output docs/testing/v1.4.1/
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
@@ -368,7 +366,7 @@ PM Agent:
 /sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--output-dir <dir>] [--resume <run-log.jsonl>]
 ```
 
-**MCP servers:** serena, auggie
+**MCP servers:** auggie
 
 ---
 
@@ -416,7 +414,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 /sc:release-split path/to/release-spec.md --depth deep --interactive
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -447,7 +445,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 /sc:review-translation source.json translations/*.json --depth deep --tone-matrix
 ```
 
-**MCP servers:** tavily, context7, serena
+**MCP servers:** tavily, context7
 
 ---
 
@@ -489,7 +487,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 
 ### `/sc:save` - Session Context Persistence
 
-**When to use:** Save session context, learnings and checkpoints to Serena project memory so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
+**When to use:** Save session context, learnings and checkpoints to project memory in `.superclaude/memory/` so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
 
 **Syntax:**
 
@@ -497,7 +495,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 /sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
@@ -570,7 +568,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 # Prints its Tier: line, makes the change, and (STANDARD/STRICT) runs the affected tests
 ```
 
-**MCP servers:** context7, serena, playwright, morphllm
+**MCP servers:** context7, playwright, morphllm
 
 ---
 
@@ -652,7 +650,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
 ```
 
-**MCP servers:** auggie, serena
+**MCP servers:** auggie
 
 ---
 
@@ -766,7 +764,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
 ```
 
-**MCP servers:** serena, auggie-mcp, tavily  
+**MCP servers:** auggie-mcp, tavily  
 **Personas:** architect, analyzer, scribe (auto-selected per detected domain)
 
 → Full guide: [brainstorm.md](brainstorm.md)
@@ -797,7 +795,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:research "competitive analysis of AI coding assistants" --depth exhaustive
 ```
 
-**MCP servers:** tavily, playwright, serena
+**MCP servers:** tavily, playwright
 
 ---
 
@@ -1324,7 +1322,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 > The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
 
-**MCP servers:** auggie, serena, context7, tavily
+**MCP servers:** auggie, context7, tavily
 
 #### `superclaude reflect run` (CLI auto-fix wrapper)
 
@@ -1359,115 +1357,6 @@ superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch
 ```
 
 > Full reference (verdict matrix, sentinel/`--tmux` mechanics, recursion breaker, sidecar, and the complete auto-fix state machine): see `docs/guides/reflect-cli-tools-guide.md`.
-
----
-
-## 📂 index-repo vs Serena — Indexing Tools Comparison
-
-### What Each Tool Creates
-
-| Tool | Creates files | Where stored |
-|------|---------------|--------------|
-| [`/sc:index-repo`](#scindex-repo---repository-indexing) | `PROJECT_INDEX.md` (3KB) | Project root |
-| **Serena MCP** | `.serena/project.yml` + `.serena/memories/*.md` | `.serena/` folder in project |
-
-### Serena File Structure
-
-```
-.serena/
-├── project.yml              # Configuration (languages, encoding, LSP settings)
-├── .gitignore               # Git ignore
-└── memories/
-    ├── project_overview.md      # About the project, tech stack
-    ├── suggested_commands.md    # Development commands
-    ├── style_conventions.md     # Code styles and conventions
-    └── task_completion.md       # Task completion checklist
-```
-
----
-
-### Key Differences
-
-| Aspect | [`/sc:index-repo`](#scindex-repo---repository-indexing) | **Serena MCP** |
-|--------|------------------|----------------|
-| **Type** | Static file | Live LSP server + memories |
-| **Main goal** | Quick start (token savings) | Semantic code understanding |
-| **What it understands** | File structure | Symbols (functions, classes, types) |
-| **Updates** | Manual (`mode=update`) | Memories — manual, LSP — automatic |
-| **Persistence** | File in project | Files in `.serena/memories/` |
-| **LSP operations** | ❌ No | ✅ rename, find references, go to definition |
-| **Cross-session** | ✅ Read file | ✅ Memories are persistent |
-| **Tokens at start** | ~3K (reading INDEX) | On demand (reading needed memories) |
-
----
-
-### When to Use What
-
-**[`/sc:index-repo`](#scindex-repo---repository-indexing)** — for quick session start:
-
-- Project structure overview
-- Entry points and key modules
-- Dependencies and configuration
-- Quick start commands
-- **Savings**: 58K → 3K tokens at start
-
-**Serena MCP** — for deep code work:
-
-- `find_symbol` — find class/function by name
-- `find_referencing_symbols` — where symbol is used
-- `rename_symbol` — rename everywhere safely via LSP
-- `get_symbols_overview` — file structure (class methods etc.)
-- **Memories** — persistent notes about project across sessions
-
----
-
-### Recommendation
-
-**Either one is sufficient** to start working:
-
-| If you chose | What you get | Each session |
-|--------------|--------------|--------------|
-| **Serena** (recommended) | Memories + LSP + symbols | No need to read anything |
-| [**index-repo**](#scindex-repo---repository-indexing) | PROJECT_INDEX.md | Can read for context |
-| **Both** | Maximum information | Optional |
-
-```bash
-# Initial setup (once)
-serena activate_project .         # Activate project
-serena onboarding                 # Create memories
-# and/or
-/sc:index-repo                    # Create PROJECT_INDEX.md
-
-# On structural changes
-/sc:index-repo mode=update        # Update INDEX (if using)
-serena edit_memory ...            # Update memories (if needed)
-```
-
-**Important**: SuperClaude commands automatically use Serena for code work.
-Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session is **not required**.
-
----
-
-### Auto-update?
-
-| What | Auto-updates? | How to update |
-|------|---------------|---------------|
-| `PROJECT_INDEX.md` | ❌ No | [`/sc:index-repo`](#scindex-repo---repository-indexing) `mode=update` |
-| Serena memories | ❌ No | `write_memory` / `edit_memory` |
-| Serena LSP understanding | ✅ Yes | Automatically sees file changes |
-
----
-
-### When to Update?
-
-| Event | [index-repo](#scindex-repo---repository-indexing) | Serena memories |
-|-------|------------|-----------------|
-| Added new module/folder | ✅ Update | ⚡ Optional |
-| Renamed module | ✅ Update | ⚡ Optional |
-| Fixed bug in file | ❌ Not needed | ❌ Not needed |
-| Added dependency | ✅ Update | ❌ Not needed |
-| Changed code conventions | ❌ Not needed | ✅ Update |
-| Before PR/release | ⚡ Good practice | ❌ Not needed |
 
 ---
 

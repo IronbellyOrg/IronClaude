@@ -1,0 +1,2729 @@
+parsed_total: 0
+inferred_total: 340
+matched: 241
+coverage_pct: null
+coverage_pct_union: 0.7088
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-001
+- INF-002
+- INF-003
+- INF-004
+- INF-005
+- INF-006
+- INF-007
+- INF-009
+- INF-010
+- INF-011
+- INF-012
+- INF-013
+- INF-015
+- INF-016
+- INF-023
+- INF-025
+- INF-026
+- INF-027
+- INF-028
+- INF-035
+- INF-038
+- INF-044
+- INF-046
+- INF-047
+- INF-048
+- INF-053
+- INF-057
+- INF-063
+- INF-064
+- INF-066
+- INF-067
+- INF-070
+- INF-076
+- INF-084
+- INF-091
+- INF-093
+- INF-100
+- INF-102
+- INF-103
+- INF-104
+- INF-108
+- INF-114
+- INF-115
+- INF-116
+- INF-119
+- INF-120
+- INF-122
+- INF-125
+- INF-129
+- INF-130
+- INF-131
+- INF-132
+- INF-133
+- INF-134
+- INF-138
+- INF-139
+- INF-140
+- INF-141
+- INF-143
+- INF-147
+- INF-148
+- INF-149
+- INF-150
+- INF-151
+- INF-152
+- INF-155
+- INF-156
+- INF-157
+- INF-158
+- INF-159
+- INF-162
+- INF-163
+- INF-164
+- INF-166
+- INF-167
+- INF-168
+- INF-169
+- INF-173
+- INF-176
+- INF-178
+- INF-180
+- INF-181
+- INF-183
+- INF-186
+- INF-187
+- INF-188
+- INF-191
+- INF-195
+- INF-199
+- INF-200
+- INF-208
+- INF-211
+- INF-213
+- INF-216
+- INF-221
+- INF-231
+- INF-270
+- INF-276
+- INF-329
+coverage_degraded: parsed-sparse
+matrix:
+- requirement_id: INF-001
+  section: 1.1 C1
+  citation: source.md:30
+  matched_task_ids: []
+  ratio: 0.4348
+  match_method: none
+  source: inferred
+- requirement_id: INF-002
+  section: 1.1 C2
+  citation: source.md:31
+  matched_task_ids: []
+  ratio: 0.2667
+  match_method: none
+  source: inferred
+- requirement_id: INF-003
+  section: 1.1 C3
+  citation: source.md:32
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-004
+  section: 1.1 C4
+  citation: source.md:33
+  matched_task_ids: []
+  ratio: 0.5714
+  match_method: none
+  source: inferred
+- requirement_id: INF-005
+  section: 1.1 C5
+  citation: source.md:34
+  matched_task_ids: []
+  ratio: 0.5385
+  match_method: none
+  source: inferred
+- requirement_id: INF-006
+  section: 1.1 C6
+  citation: source.md:35
+  matched_task_ids: []
+  ratio: 0.4375
+  match_method: none
+  source: inferred
+- requirement_id: INF-007
+  section: 1.1 C7
+  citation: source.md:36
+  matched_task_ids: []
+  ratio: 0.4545
+  match_method: none
+  source: inferred
+- requirement_id: INF-008
+  section: 1.1 C7
+  citation: source.md:36
+  matched_task_ids:
+  - Task 3
+  ratio: 0.7
+  match_method: containment
+  source: inferred
+- requirement_id: INF-009
+  section: 1.1 C8
+  citation: source.md:37
+  matched_task_ids: []
+  ratio: 0.2368
+  match_method: none
+  source: inferred
+- requirement_id: INF-010
+  section: 1.1 C9
+  citation: source.md:38
+  matched_task_ids: []
+  ratio: 0.4
+  match_method: none
+  source: inferred
+- requirement_id: INF-011
+  section: 1.1 C10
+  citation: source.md:39
+  matched_task_ids: []
+  ratio: 0.2593
+  match_method: none
+  source: inferred
+- requirement_id: INF-012
+  section: 1.1 C11
+  citation: source.md:40
+  matched_task_ids: []
+  ratio: 0.5455
+  match_method: none
+  source: inferred
+- requirement_id: INF-013
+  section: 1.1 C12
+  citation: source.md:41
+  matched_task_ids: []
+  ratio: 0.5897
+  match_method: none
+  source: inferred
+- requirement_id: INF-014
+  section: 1.1 C12
+  citation: source.md:41
+  matched_task_ids:
+  - Task 16
+  ratio: 0.6364
+  match_method: containment
+  source: inferred
+- requirement_id: INF-015
+  section: 1.2 preamble
+  citation: source.md:48
+  matched_task_ids: []
+  ratio: 0.3182
+  match_method: none
+  source: inferred
+- requirement_id: INF-016
+  section: 1.2 S1
+  citation: source.md:52
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-017
+  section: 1.2 S2, S3, S5
+  citation: source.md:53-56
+  matched_task_ids:
+  - Task 17
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-018
+  section: 1.2 S4
+  citation: source.md:55
+  matched_task_ids:
+  - Task 12
+  ratio: 0.7647
+  match_method: containment
+  source: inferred
+- requirement_id: INF-019
+  section: 1.2 S7
+  citation: source.md:58
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-020
+  section: 1.2 S9
+  citation: source.md:60
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-021
+  section: 1.2 S10
+  citation: source.md:61
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-022
+  section: 1.2 S11
+  citation: source.md:62
+  matched_task_ids:
+  - Task 16
+  ratio: 0.6429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-023
+  section: 1.2 S12
+  citation: source.md:63
+  matched_task_ids: []
+  ratio: 0.4828
+  match_method: none
+  source: inferred
+- requirement_id: INF-024
+  section: 1.2 S13
+  citation: source.md:64
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-025
+  section: 1.2 S16
+  citation: source.md:67
+  matched_task_ids: []
+  ratio: 0.3611
+  match_method: none
+  source: inferred
+- requirement_id: INF-026
+  section: 1.2 S17
+  citation: source.md:68
+  matched_task_ids: []
+  ratio: 0.3913
+  match_method: none
+  source: inferred
+- requirement_id: INF-027
+  section: 1.2 S20
+  citation: source.md:71
+  matched_task_ids: []
+  ratio: 0.4348
+  match_method: none
+  source: inferred
+- requirement_id: INF-028
+  section: 1.2 S21
+  citation: source.md:72
+  matched_task_ids: []
+  ratio: 0.3
+  match_method: none
+  source: inferred
+- requirement_id: INF-029
+  section: 1.2 S22
+  citation: source.md:73
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-030
+  section: 1.2 S23
+  citation: source.md:74
+  matched_task_ids:
+  - Task 16
+  ratio: 0.7273
+  match_method: containment
+  source: inferred
+- requirement_id: INF-031
+  section: 1.2 S24
+  citation: source.md:75
+  matched_task_ids:
+  - Task 16
+  ratio: 0.7143
+  match_method: containment
+  source: inferred
+- requirement_id: INF-032
+  section: 1.2 S25
+  citation: source.md:76
+  matched_task_ids:
+  - Task 16
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-033
+  section: 1.2 S26
+  citation: source.md:77
+  matched_task_ids:
+  - Task 16
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-034
+  section: 1.2 S27
+  citation: source.md:78
+  matched_task_ids:
+  - Task 16
+  ratio: 0.6471
+  match_method: containment
+  source: inferred
+- requirement_id: INF-035
+  section: 1.2 S28
+  citation: source.md:79
+  matched_task_ids: []
+  ratio: 0.4074
+  match_method: none
+  source: inferred
+- requirement_id: INF-036
+  section: 1.2 S29
+  citation: source.md:80
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-037
+  section: 1.2 S30
+  citation: source.md:81
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-038
+  section: 1.2 S31
+  citation: source.md:82
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-039
+  section: 1.2 S32, S34, S46, S47, S49
+  citation: source.md:83-100
+  matched_task_ids:
+  - Task 9
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-040
+  section: 1.2 S33, S35, S36, S48, S50, S51
+  citation: source.md:84-102
+  matched_task_ids:
+  - Task 9
+  ratio: 0.6154
+  match_method: containment
+  source: inferred
+- requirement_id: INF-041
+  section: 1.2 S37
+  citation: source.md:88
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-042
+  section: 1.2 S38
+  citation: source.md:89
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-043
+  section: 1.2 S40
+  citation: source.md:91
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-044
+  section: 1.2 S41
+  citation: source.md:92
+  matched_task_ids: []
+  ratio: 0.5882
+  match_method: none
+  source: inferred
+- requirement_id: INF-045
+  section: 1.2 S42
+  citation: source.md:93
+  matched_task_ids:
+  - Task 7
+  ratio: 0.8462
+  match_method: containment
+  source: inferred
+- requirement_id: INF-046
+  section: 1.2 S43
+  citation: source.md:94
+  matched_task_ids: []
+  ratio: 0.4762
+  match_method: none
+  source: inferred
+- requirement_id: INF-047
+  section: 1.2 S44
+  citation: source.md:95
+  matched_task_ids: []
+  ratio: 0.5909
+  match_method: none
+  source: inferred
+- requirement_id: INF-048
+  section: 1.2 S57
+  citation: source.md:108
+  matched_task_ids: []
+  ratio: 0.5556
+  match_method: none
+  source: inferred
+- requirement_id: INF-049
+  section: 1.2 S58-S64, S66, S67, S69-S82
+  citation: source.md:109-133
+  matched_task_ids:
+  - Task 7
+  ratio: 0.8182
+  match_method: containment
+  source: inferred
+- requirement_id: INF-050
+  section: 1.2 S65
+  citation: source.md:116
+  matched_task_ids:
+  - Task 7
+  ratio: 0.7333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-051
+  section: 1.2 S68
+  citation: source.md:119
+  matched_task_ids:
+  - Task 7
+  ratio: 0.6154
+  match_method: containment
+  source: inferred
+- requirement_id: INF-052
+  section: 1.2 S83, S86
+  citation: source.md:134-137
+  matched_task_ids:
+  - Task 7
+  ratio: 0.8889
+  match_method: containment
+  source: inferred
+- requirement_id: INF-053
+  section: 1.2 S84
+  citation: source.md:135
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-054
+  section: 1.2 S85
+  citation: source.md:136
+  matched_task_ids:
+  - Task 7
+  ratio: 0.6316
+  match_method: containment
+  source: inferred
+- requirement_id: INF-055
+  section: 1.2 S87
+  citation: source.md:138
+  matched_task_ids:
+  - Task 8
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-056
+  section: 1.2 S88
+  citation: source.md:139
+  matched_task_ids:
+  - Task 9
+  ratio: 0.6471
+  match_method: containment
+  source: inferred
+- requirement_id: INF-057
+  section: 1.2 S89
+  citation: source.md:140
+  matched_task_ids: []
+  ratio: 0.5385
+  match_method: none
+  source: inferred
+- requirement_id: INF-058
+  section: 1.2 S90
+  citation: source.md:141
+  matched_task_ids:
+  - Task 12
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-059
+  section: 1.2 S92
+  citation: source.md:143
+  matched_task_ids:
+  - Task 10
+  ratio: 0.7143
+  match_method: containment
+  source: inferred
+- requirement_id: INF-060
+  section: 1.2 S93
+  citation: source.md:144
+  matched_task_ids:
+  - Task 10
+  ratio: 0.875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-061
+  section: 1.2 S99
+  citation: source.md:150
+  matched_task_ids:
+  - Task 14
+  ratio: 0.6875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-062
+  section: 1.2 S100
+  citation: source.md:151
+  matched_task_ids:
+  - Task 9
+  ratio: 0.9231
+  match_method: containment
+  source: inferred
+- requirement_id: INF-063
+  section: 1.2 P1, P11, P27
+  citation: source.md:152-178
+  matched_task_ids: []
+  ratio: 0.2812
+  match_method: none
+  source: inferred
+- requirement_id: INF-064
+  section: 1.2 P2
+  citation: source.md:153
+  matched_task_ids: []
+  ratio: 0.5714
+  match_method: none
+  source: inferred
+- requirement_id: INF-065
+  section: 1.2 P3
+  citation: source.md:154
+  matched_task_ids:
+  - Task 10
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-066
+  section: 1.2 P4, P13, P39
+  citation: source.md:155-190
+  matched_task_ids: []
+  ratio: 0.4545
+  match_method: none
+  source: inferred
+- requirement_id: INF-067
+  section: 1.2 P5, P14, P40
+  citation: source.md:156-191
+  matched_task_ids: []
+  ratio: 0.3793
+  match_method: none
+  source: inferred
+- requirement_id: INF-068
+  section: 1.2 P6, P15, P43
+  citation: source.md:157-194
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6154
+  match_method: containment
+  source: inferred
+- requirement_id: INF-069
+  section: 1.2 P7, P16, P45
+  citation: source.md:158-196
+  matched_task_ids:
+  - Task 10
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-070
+  section: 1.2 P8, P17, P47
+  citation: source.md:159-198
+  matched_task_ids: []
+  ratio: 0.4667
+  match_method: none
+  source: inferred
+- requirement_id: INF-071
+  section: 1.2 P9, P10, P18, P32, P35-P38, P41, P42, P44, P46, P48, P61, P66, P67, P72, P75, P88
+  citation: source.md:160-239
+  matched_task_ids:
+  - Task 10
+  ratio: 0.7143
+  match_method: containment
+  source: inferred
+- requirement_id: INF-072
+  section: 1.2 P12, P34
+  citation: source.md:163-185
+  matched_task_ids:
+  - Task 10
+  ratio: 0.7273
+  match_method: containment
+  source: inferred
+- requirement_id: INF-073
+  section: 1.2 P19, P53
+  citation: source.md:170-204
+  matched_task_ids:
+  - Task 10
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-074
+  section: 1.2 P21, P55
+  citation: source.md:172-206
+  matched_task_ids:
+  - Task 8
+  ratio: 0.7692
+  match_method: containment
+  source: inferred
+- requirement_id: INF-075
+  section: 1.2 P22, P56
+  citation: source.md:173-207
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-076
+  section: 1.2 P23, P57
+  citation: source.md:174-208
+  matched_task_ids: []
+  ratio: 0.2759
+  match_method: none
+  source: inferred
+- requirement_id: INF-077
+  section: 1.2 P24, P52
+  citation: source.md:175-203
+  matched_task_ids:
+  - Task 12
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-078
+  section: 1.2 P25, P76
+  citation: source.md:176-227
+  matched_task_ids:
+  - Task 15
+  ratio: 0.7895
+  match_method: containment
+  source: inferred
+- requirement_id: INF-079
+  section: 1.2 P26
+  citation: source.md:177
+  matched_task_ids:
+  - Task 15
+  ratio: 0.85
+  match_method: containment
+  source: inferred
+- requirement_id: INF-080
+  section: 1.2 P28
+  citation: source.md:179
+  matched_task_ids:
+  - Task 13
+  ratio: 0.9333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-081
+  section: 1.2 P29
+  citation: source.md:180
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8947
+  match_method: containment
+  source: inferred
+- requirement_id: INF-082
+  section: 1.2 P31
+  citation: source.md:182
+  matched_task_ids:
+  - Task 14
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-083
+  section: 1.2 P33
+  citation: source.md:184
+  matched_task_ids:
+  - Task 15
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-084
+  section: 1.2 P49
+  citation: source.md:200
+  matched_task_ids: []
+  ratio: 0.4762
+  match_method: none
+  source: inferred
+- requirement_id: INF-085
+  section: 1.2 P50
+  citation: source.md:201
+  matched_task_ids:
+  - Task 15
+  ratio: 0.7222
+  match_method: containment
+  source: inferred
+- requirement_id: INF-086
+  section: 1.2 P51
+  citation: source.md:202
+  matched_task_ids:
+  - Task 10
+  ratio: 0.64
+  match_method: containment
+  source: inferred
+- requirement_id: INF-087
+  section: 1.2 P60
+  citation: source.md:211
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6111
+  match_method: containment
+  source: inferred
+- requirement_id: INF-088
+  section: 1.2 P62
+  citation: source.md:213
+  matched_task_ids:
+  - Task 14
+  ratio: 0.6111
+  match_method: containment
+  source: inferred
+- requirement_id: INF-089
+  section: 1.2 P63
+  citation: source.md:214
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6842
+  match_method: containment
+  source: inferred
+- requirement_id: INF-090
+  section: 1.2 P65
+  citation: source.md:216
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6538
+  match_method: containment
+  source: inferred
+- requirement_id: INF-091
+  section: 1.2 P68, P69, P70
+  citation: source.md:219-221
+  matched_task_ids: []
+  ratio: 0.4286
+  match_method: none
+  source: inferred
+- requirement_id: INF-092
+  section: 1.2 P71
+  citation: source.md:222
+  matched_task_ids:
+  - Task 12
+  ratio: 0.6818
+  match_method: containment
+  source: inferred
+- requirement_id: INF-093
+  section: 1.2 P73
+  citation: source.md:224
+  matched_task_ids: []
+  ratio: 0.3913
+  match_method: none
+  source: inferred
+- requirement_id: INF-094
+  section: 1.2 P74
+  citation: source.md:225
+  matched_task_ids:
+  - Task 14
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-095
+  section: 1.2 P77
+  citation: source.md:228
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-096
+  section: 1.2 P78, P79, P86, P87
+  citation: source.md:229-238
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-097
+  section: 1.2 P80
+  citation: source.md:231
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6818
+  match_method: containment
+  source: inferred
+- requirement_id: INF-098
+  section: 1.2 P81
+  citation: source.md:232
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-099
+  section: 1.2 P82
+  citation: source.md:233
+  matched_task_ids:
+  - Task 12
+  ratio: 0.7333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-100
+  section: 1.2 P83
+  citation: source.md:234
+  matched_task_ids: []
+  ratio: 0.5161
+  match_method: none
+  source: inferred
+- requirement_id: INF-101
+  section: 1.2 P84
+  citation: source.md:235
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-102
+  section: 1.2 P85
+  citation: source.md:236
+  matched_task_ids: []
+  ratio: 0.5714
+  match_method: none
+  source: inferred
+- requirement_id: INF-103
+  section: 1.2 P89
+  citation: source.md:240
+  matched_task_ids: []
+  ratio: 0.5862
+  match_method: none
+  source: inferred
+- requirement_id: INF-104
+  section: 1.2 P91
+  citation: source.md:242
+  matched_task_ids: []
+  ratio: 0.56
+  match_method: none
+  source: inferred
+- requirement_id: INF-105
+  section: 1.2 P92
+  citation: source.md:243
+  matched_task_ids:
+  - Task 15
+  ratio: 0.9
+  match_method: containment
+  source: inferred
+- requirement_id: INF-106
+  section: 1.2 P93
+  citation: source.md:244
+  matched_task_ids:
+  - Task 14
+  ratio: 0.6087
+  match_method: containment
+  source: inferred
+- requirement_id: INF-107
+  section: 1.2 P94, P95
+  citation: source.md:245-246
+  matched_task_ids:
+  - Task 14
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-108
+  section: 1.2 P96
+  citation: source.md:247
+  matched_task_ids: []
+  ratio: 0.3529
+  match_method: none
+  source: inferred
+- requirement_id: INF-109
+  section: 1.2 D1
+  citation: source.md:250
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-110
+  section: 1.2 D2
+  citation: source.md:251
+  matched_task_ids:
+  - Task 8
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-111
+  section: 1.2 D3
+  citation: source.md:252
+  matched_task_ids:
+  - Task 13
+  ratio: 0.7826
+  match_method: containment
+  source: inferred
+- requirement_id: INF-112
+  section: 1.2 D4
+  citation: source.md:253
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-113
+  section: 1.2 D5
+  citation: source.md:254
+  matched_task_ids:
+  - Task 13
+  ratio: 0.875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-114
+  section: '2.1'
+  citation: source.md:261
+  matched_task_ids: []
+  ratio: 0.5893
+  match_method: none
+  source: inferred
+- requirement_id: INF-115
+  section: '2.1'
+  citation: source.md:261
+  matched_task_ids: []
+  ratio: 0.4
+  match_method: none
+  source: inferred
+- requirement_id: INF-116
+  section: 2.2 DoD-1
+  citation: source.md:267
+  matched_task_ids: []
+  ratio: 0.4231
+  match_method: none
+  source: inferred
+- requirement_id: INF-117
+  section: 2.2 DoD-2
+  citation: source.md:268
+  matched_task_ids:
+  - Task 18
+  ratio: 0.6364
+  match_method: containment
+  source: inferred
+- requirement_id: INF-118
+  section: 2.2 DoD-3
+  citation: source.md:269
+  matched_task_ids:
+  - Task 18
+  ratio: 0.7778
+  match_method: containment
+  source: inferred
+- requirement_id: INF-119
+  section: 2.2 DoD-3
+  citation: source.md:269
+  matched_task_ids: []
+  ratio: 0.5455
+  match_method: none
+  source: inferred
+- requirement_id: INF-120
+  section: 2.2 DoD-4
+  citation: source.md:270
+  matched_task_ids: []
+  ratio: 0.4211
+  match_method: none
+  source: inferred
+- requirement_id: INF-121
+  section: 2.2 DoD-5
+  citation: source.md:271
+  matched_task_ids:
+  - Task 1
+  ratio: 0.6875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-122
+  section: 2.2 DoD-6
+  citation: source.md:272
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-123
+  section: 2.2 DoD-7
+  citation: source.md:273
+  matched_task_ids:
+  - Task 19
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-124
+  section: 2.2 merge constraint
+  citation: source.md:277
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9375
+  match_method: containment
+  source: inferred
+- requirement_id: INF-125
+  section: '2.3'
+  citation: source.md:279
+  matched_task_ids: []
+  ratio: 0.5556
+  match_method: none
+  source: inferred
+- requirement_id: INF-126
+  section: 2.4 allowlist
+  citation: source.md:297
+  matched_task_ids:
+  - Task 16
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-127
+  section: 2.4 allowlist
+  citation: source.md:298
+  matched_task_ids:
+  - Task 11
+  ratio: 0.7714
+  match_method: containment
+  source: inferred
+- requirement_id: INF-128
+  section: 2.4 allowlist
+  citation: source.md:299
+  matched_task_ids:
+  - Task 15
+  ratio: 0.625
+  match_method: containment
+  source: inferred
+- requirement_id: INF-129
+  section: 2.4 allowlist
+  citation: source.md:300
+  matched_task_ids: []
+  ratio: 0.4773
+  match_method: none
+  source: inferred
+- requirement_id: INF-130
+  section: 2.4 allowlist
+  citation: source.md:301
+  matched_task_ids: []
+  ratio: 0.2667
+  match_method: none
+  source: inferred
+- requirement_id: INF-131
+  section: '3.1'
+  citation: source.md:307
+  matched_task_ids: []
+  ratio: 0.5833
+  match_method: none
+  source: inferred
+- requirement_id: INF-132
+  section: '3.1'
+  citation: source.md:307
+  matched_task_ids: []
+  ratio: 0.5652
+  match_method: none
+  source: inferred
+- requirement_id: INF-133
+  section: '3.1'
+  citation: source.md:307
+  matched_task_ids: []
+  ratio: 0.3
+  match_method: none
+  source: inferred
+- requirement_id: INF-134
+  section: 3.2 codebase-memory matcher
+  citation: source.md:313
+  matched_task_ids: []
+  ratio: 0.5455
+  match_method: none
+  source: inferred
+- requirement_id: INF-135
+  section: 3.2 codebase-memory matcher
+  citation: source.md:313
+  matched_task_ids:
+  - Task 18
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-136
+  section: 3.2 codebase-memory matcher
+  citation: source.md:313
+  matched_task_ids:
+  - Task 18
+  ratio: 0.625
+  match_method: containment
+  source: inferred
+- requirement_id: INF-137
+  section: 3.2 serena Tier R
+  citation: source.md:315
+  matched_task_ids:
+  - Task 18
+  ratio: 0.6875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-138
+  section: 3.2 serena Tier R
+  citation: source.md:315
+  matched_task_ids: []
+  ratio: 0.5385
+  match_method: none
+  source: inferred
+- requirement_id: INF-139
+  section: 3.2 Tier R row (a)
+  citation: source.md:319
+  matched_task_ids: []
+  ratio: 0.2222
+  match_method: none
+  source: inferred
+- requirement_id: INF-140
+  section: 3.2 Tier R row (b)
+  citation: source.md:320
+  matched_task_ids: []
+  ratio: 0.3333
+  match_method: none
+  source: inferred
+- requirement_id: INF-141
+  section: 3.2 Tier R row (c)
+  citation: source.md:321
+  matched_task_ids: []
+  ratio: 0.4118
+  match_method: none
+  source: inferred
+- requirement_id: INF-142
+  section: 3.2 serena Tier K
+  citation: source.md:325
+  matched_task_ids:
+  - Task 4
+  ratio: 0.7442
+  match_method: containment
+  source: inferred
+- requirement_id: INF-143
+  section: 3.2 serena Tier K
+  citation: source.md:325
+  matched_task_ids: []
+  ratio: 0.4091
+  match_method: none
+  source: inferred
+- requirement_id: INF-144
+  section: 3.2 serena Tier K
+  citation: source.md:325
+  matched_task_ids:
+  - Task 18
+  ratio: 0.7692
+  match_method: containment
+  source: inferred
+- requirement_id: INF-145
+  section: 3.2 serena Tier K
+  citation: source.md:325
+  matched_task_ids:
+  - Task 16
+  ratio: 0.7
+  match_method: containment
+  source: inferred
+- requirement_id: INF-146
+  section: 3.2 receipt and marker
+  citation: source.md:327
+  matched_task_ids:
+  - Task 4
+  ratio: 0.7037
+  match_method: containment
+  source: inferred
+- requirement_id: INF-147
+  section: 3.2 receipt and marker
+  citation: source.md:327
+  matched_task_ids: []
+  ratio: 0.5714
+  match_method: none
+  source: inferred
+- requirement_id: INF-148
+  section: 3.2 receipt and marker
+  citation: source.md:327
+  matched_task_ids: []
+  ratio: 0.4167
+  match_method: none
+  source: inferred
+- requirement_id: INF-149
+  section: 3.3 never touched
+  citation: source.md:331
+  matched_task_ids: []
+  ratio: 0.5882
+  match_method: none
+  source: inferred
+- requirement_id: INF-150
+  section: 3.3 index and memory policy
+  citation: source.md:332
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-151
+  section: 3.3 classifier
+  citation: source.md:333
+  matched_task_ids: []
+  ratio: 0.5938
+  match_method: none
+  source: inferred
+- requirement_id: INF-152
+  section: 3.3 removal helper
+  citation: source.md:334
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-153
+  section: 3.3 bounds
+  citation: source.md:335
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6053
+  match_method: containment
+  source: inferred
+- requirement_id: INF-154
+  section: 3.3 placement
+  citation: source.md:336
+  matched_task_ids:
+  - Task 4
+  ratio: 0.7273
+  match_method: containment
+  source: inferred
+- requirement_id: INF-155
+  section: 3.3 non-fatal
+  citation: source.md:337
+  matched_task_ids: []
+  ratio: 0.5455
+  match_method: none
+  source: inferred
+- requirement_id: INF-156
+  section: 3.3 failure table
+  citation: source.md:341
+  matched_task_ids: []
+  ratio: 0.381
+  match_method: none
+  source: inferred
+- requirement_id: INF-157
+  section: 3.3 failure table
+  citation: source.md:342
+  matched_task_ids: []
+  ratio: 0.2857
+  match_method: none
+  source: inferred
+- requirement_id: INF-158
+  section: 3.3 failure table
+  citation: source.md:343
+  matched_task_ids: []
+  ratio: 0.2857
+  match_method: none
+  source: inferred
+- requirement_id: INF-159
+  section: 3.3 failure table
+  citation: source.md:344
+  matched_task_ids: []
+  ratio: 0.5263
+  match_method: none
+  source: inferred
+- requirement_id: INF-160
+  section: 3.3 failure table
+  citation: source.md:345
+  matched_task_ids:
+  - Task 18
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-161
+  section: 3.3 failure table
+  citation: source.md:346
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-162
+  section: 3.3 failure table
+  citation: source.md:347
+  matched_task_ids: []
+  ratio: 0.3333
+  match_method: none
+  source: inferred
+- requirement_id: INF-163
+  section: 3.4 install --list
+  citation: source.md:351
+  matched_task_ids: []
+  ratio: 0.5217
+  match_method: none
+  source: inferred
+- requirement_id: INF-164
+  section: 3.4 doctor
+  citation: source.md:352
+  matched_task_ids: []
+  ratio: 0.4762
+  match_method: none
+  source: inferred
+- requirement_id: INF-165
+  section: 3.4 update
+  citation: source.md:353
+  matched_task_ids:
+  - Task 4
+  ratio: 0.619
+  match_method: containment
+  source: inferred
+- requirement_id: INF-166
+  section: 3.4 messages
+  citation: source.md:354
+  matched_task_ids: []
+  ratio: 0.5152
+  match_method: none
+  source: inferred
+- requirement_id: INF-167
+  section: 3.4 messages
+  citation: source.md:354
+  matched_task_ids: []
+  ratio: 0.5098
+  match_method: none
+  source: inferred
+- requirement_id: INF-168
+  section: 3.4 messages
+  citation: source.md:354
+  matched_task_ids: []
+  ratio: 0.5897
+  match_method: none
+  source: inferred
+- requirement_id: INF-169
+  section: 3.4 messages
+  citation: source.md:354
+  matched_task_ids: []
+  ratio: 0.3684
+  match_method: none
+  source: inferred
+- requirement_id: INF-170
+  section: 3.5 files
+  citation: source.md:358
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-171
+  section: 3.5 files
+  citation: source.md:359
+  matched_task_ids:
+  - Task 4
+  ratio: 0.9333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-172
+  section: 3.5 files
+  citation: source.md:360
+  matched_task_ids:
+  - Task 4
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-173
+  section: 3.5 tests
+  citation: source.md:361
+  matched_task_ids: []
+  ratio: 0.5152
+  match_method: none
+  source: inferred
+- requirement_id: INF-174
+  section: 3.5 tests
+  citation: source.md:361
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-175
+  section: 3.5 tests
+  citation: source.md:361
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-176
+  section: 3.5 tests
+  citation: source.md:361
+  matched_task_ids: []
+  ratio: 0.3913
+  match_method: none
+  source: inferred
+- requirement_id: INF-177
+  section: 3.5 tests
+  citation: source.md:361
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6364
+  match_method: containment
+  source: inferred
+- requirement_id: INF-178
+  section: 3.5 tests
+  citation: source.md:362
+  matched_task_ids: []
+  ratio: 0.5833
+  match_method: none
+  source: inferred
+- requirement_id: INF-179
+  section: '3.6'
+  citation: source.md:368
+  matched_task_ids:
+  - Task 18
+  ratio: 0.7222
+  match_method: containment
+  source: inferred
+- requirement_id: INF-180
+  section: 4 decision
+  citation: source.md:380
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-181
+  section: 4.1 G1
+  citation: source.md:388
+  matched_task_ids: []
+  ratio: 0.3667
+  match_method: none
+  source: inferred
+- requirement_id: INF-182
+  section: 4.1 G1
+  citation: source.md:388
+  matched_task_ids:
+  - Task 13
+  ratio: 0.625
+  match_method: containment
+  source: inferred
+- requirement_id: INF-183
+  section: 4.1 G2
+  citation: source.md:389
+  matched_task_ids: []
+  ratio: 0.3556
+  match_method: none
+  source: inferred
+- requirement_id: INF-184
+  section: 4.1 G3
+  citation: source.md:390
+  matched_task_ids:
+  - Task 13
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-185
+  section: 4.1 G4
+  citation: source.md:391
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6744
+  match_method: containment
+  source: inferred
+- requirement_id: INF-186
+  section: 4.1 G4
+  citation: source.md:391
+  matched_task_ids: []
+  ratio: 0.4444
+  match_method: none
+  source: inferred
+- requirement_id: INF-187
+  section: 4.1 G5
+  citation: source.md:392
+  matched_task_ids: []
+  ratio: 0.4737
+  match_method: none
+  source: inferred
+- requirement_id: INF-188
+  section: 4.1 G5
+  citation: source.md:392
+  matched_task_ids: []
+  ratio: 0.5385
+  match_method: none
+  source: inferred
+- requirement_id: INF-189
+  section: 4.1 G6
+  citation: source.md:393
+  matched_task_ids:
+  - Task 15
+  ratio: 0.7442
+  match_method: containment
+  source: inferred
+- requirement_id: INF-190
+  section: 4.1 G7
+  citation: source.md:394
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6471
+  match_method: containment
+  source: inferred
+- requirement_id: INF-191
+  section: 4.1 G7
+  citation: source.md:394
+  matched_task_ids: []
+  ratio: 0.4
+  match_method: none
+  source: inferred
+- requirement_id: INF-192
+  section: 4.1 G8
+  citation: source.md:395
+  matched_task_ids:
+  - Task 13
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-193
+  section: 4.1 G8
+  citation: source.md:395
+  matched_task_ids:
+  - Task 4
+  ratio: 0.625
+  match_method: containment
+  source: inferred
+- requirement_id: INF-194
+  section: 4.1 G9
+  citation: source.md:396
+  matched_task_ids:
+  - Task 13
+  ratio: 0.9394
+  match_method: containment
+  source: inferred
+- requirement_id: INF-195
+  section: 4.1 G9
+  citation: source.md:396
+  matched_task_ids: []
+  ratio: 0.4545
+  match_method: none
+  source: inferred
+- requirement_id: INF-196
+  section: 4.1 G10
+  citation: source.md:397
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-197
+  section: '4.2'
+  citation: source.md:401
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-198
+  section: 4.3 acceptance 1
+  citation: source.md:405
+  matched_task_ids:
+  - Task 15
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-199
+  section: 4.3 acceptance 2
+  citation: source.md:406
+  matched_task_ids: []
+  ratio: 0.5185
+  match_method: none
+  source: inferred
+- requirement_id: INF-200
+  section: '5'
+  citation: source.md:410
+  matched_task_ids: []
+  ratio: 0.5833
+  match_method: none
+  source: inferred
+- requirement_id: INF-201
+  section: 5 M1
+  citation: source.md:414
+  matched_task_ids:
+  - Task 11
+  ratio: 0.7667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-202
+  section: 5 M2
+  citation: source.md:415
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-203
+  section: 5 M3
+  citation: source.md:416
+  matched_task_ids:
+  - Task 11
+  ratio: 0.6471
+  match_method: containment
+  source: inferred
+- requirement_id: INF-204
+  section: 5 M4
+  citation: source.md:417
+  matched_task_ids:
+  - Task 11
+  ratio: 0.6087
+  match_method: containment
+  source: inferred
+- requirement_id: INF-205
+  section: 5 M5
+  citation: source.md:418
+  matched_task_ids:
+  - Task 12
+  ratio: 0.8077
+  match_method: containment
+  source: inferred
+- requirement_id: INF-206
+  section: 5 M6
+  citation: source.md:419
+  matched_task_ids:
+  - Task 10
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-207
+  section: 5 M7
+  citation: source.md:420
+  matched_task_ids:
+  - Task 11
+  ratio: 0.7917
+  match_method: containment
+  source: inferred
+- requirement_id: INF-208
+  section: 5 M8
+  citation: source.md:421
+  matched_task_ids: []
+  ratio: 0.4688
+  match_method: none
+  source: inferred
+- requirement_id: INF-209
+  section: 5 consumers
+  citation: source.md:423
+  matched_task_ids:
+  - Task 12
+  ratio: 0.9565
+  match_method: containment
+  source: inferred
+- requirement_id: INF-210
+  section: 5 consumers
+  citation: source.md:423
+  matched_task_ids:
+  - Task 12
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-211
+  section: 5 consumers
+  citation: source.md:423
+  matched_task_ids: []
+  ratio: 0.4444
+  match_method: none
+  source: inferred
+- requirement_id: INF-212
+  section: '6'
+  citation: source.md:429
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6154
+  match_method: containment
+  source: inferred
+- requirement_id: INF-213
+  section: '6.1'
+  citation: source.md:449
+  matched_task_ids: []
+  ratio: 0.3684
+  match_method: none
+  source: inferred
+- requirement_id: INF-214
+  section: '6.2'
+  citation: source.md:453
+  matched_task_ids:
+  - Task 19
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-215
+  section: '6.2'
+  citation: source.md:453
+  matched_task_ids:
+  - Constraints
+  ratio: 0.8095
+  match_method: containment
+  source: inferred
+- requirement_id: INF-216
+  section: '6.3'
+  citation: source.md:457
+  matched_task_ids: []
+  ratio: 0.5217
+  match_method: none
+  source: inferred
+- requirement_id: INF-217
+  section: 6.3 Financials
+  citation: source.md:462
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6522
+  match_method: containment
+  source: inferred
+- requirement_id: INF-218
+  section: 6.3 IronFlow
+  citation: source.md:474
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-219
+  section: 6.3 IronOps
+  citation: source.md:486
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-220
+  section: 6.3 InfraDocs
+  citation: source.md:498
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-221
+  section: 6.3 ClaudeCodeCodeAudit
+  citation: source.md:509
+  matched_task_ids: []
+  ratio: 0.5769
+  match_method: none
+  source: inferred
+- requirement_id: INF-222
+  section: 6.3 Ironbrain
+  citation: source.md:521
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6111
+  match_method: containment
+  source: inferred
+- requirement_id: INF-223
+  section: 6.3 Octodive
+  citation: source.md:530
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-224
+  section: 6.3 TUIBBS
+  citation: source.md:539
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6923
+  match_method: containment
+  source: inferred
+- requirement_id: INF-225
+  section: 6.3 TUIBBS-scp
+  citation: source.md:550
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-226
+  section: 6.3 shrapnel-gov
+  citation: source.md:559
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-227
+  section: 6.3 llm-workflows
+  citation: source.md:571
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-228
+  section: 8 intro
+  citation: source.md:604
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9024
+  match_method: containment
+  source: inferred
+- requirement_id: INF-229
+  section: 8 intro
+  citation: source.md:604
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9
+  match_method: containment
+  source: inferred
+- requirement_id: INF-230
+  section: 8.0 acceptance-search.sh
+  citation: source.md:610
+  matched_task_ids:
+  - Task 16
+  ratio: 0.7857
+  match_method: containment
+  source: inferred
+- requirement_id: INF-231
+  section: 8.0 check_rosters.py
+  citation: source.md:627
+  matched_task_ids: []
+  ratio: 0.5714
+  match_method: none
+  source: inferred
+- requirement_id: INF-232
+  section: 8.0 check_rosters.py
+  citation: source.md:646
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6522
+  match_method: containment
+  source: inferred
+- requirement_id: INF-233
+  section: 8.0 test runs
+  citation: source.md:648
+  matched_task_ids:
+  - Constraints
+  ratio: 0.96
+  match_method: containment
+  source: inferred
+- requirement_id: INF-234
+  section: 8 T0
+  citation: source.md:653
+  matched_task_ids:
+  - Task 1
+  ratio: 0.9333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-235
+  section: 8 T0
+  citation: source.md:654
+  matched_task_ids:
+  - Task 1
+  ratio: 0.7727
+  match_method: containment
+  source: inferred
+- requirement_id: INF-236
+  section: 8 T0
+  citation: source.md:655
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-237
+  section: 8 T0
+  citation: source.md:656
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-238
+  section: 8 T0
+  citation: source.md:657
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-239
+  section: 8 T0
+  citation: source.md:658
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-240
+  section: 8 T0
+  citation: source.md:659
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-241
+  section: 8 T0
+  citation: source.md:661
+  matched_task_ids:
+  - Task 1
+  ratio: 0.6364
+  match_method: containment
+  source: inferred
+- requirement_id: INF-242
+  section: 8 T1
+  citation: source.md:666
+  matched_task_ids:
+  - Task 2
+  ratio: 0.8333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-243
+  section: 8 T1
+  citation: source.md:667
+  matched_task_ids:
+  - Task 2
+  ratio: 0.975
+  match_method: containment
+  source: inferred
+- requirement_id: INF-244
+  section: 8 T1
+  citation: source.md:668
+  matched_task_ids:
+  - Task 2
+  ratio: 0.9773
+  match_method: containment
+  source: inferred
+- requirement_id: INF-245
+  section: 8 T2
+  citation: source.md:672
+  matched_task_ids:
+  - Task 3
+  ratio: 0.9286
+  match_method: containment
+  source: inferred
+- requirement_id: INF-246
+  section: 8 T2
+  citation: source.md:673
+  matched_task_ids:
+  - Task 3
+  ratio: 0.9796
+  match_method: containment
+  source: inferred
+- requirement_id: INF-247
+  section: 8 T2
+  citation: source.md:673
+  matched_task_ids:
+  - Task 3
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-248
+  section: 8 T2
+  citation: source.md:674
+  matched_task_ids:
+  - Task 3
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-249
+  section: 8 T3
+  citation: source.md:678
+  matched_task_ids:
+  - Task 4
+  ratio: 0.9149
+  match_method: containment
+  source: inferred
+- requirement_id: INF-250
+  section: 8 T3
+  citation: source.md:679
+  matched_task_ids:
+  - Task 4
+  ratio: 0.84
+  match_method: containment
+  source: inferred
+- requirement_id: INF-251
+  section: 8 T3
+  citation: source.md:679
+  matched_task_ids:
+  - Task 4
+  ratio: 0.8421
+  match_method: containment
+  source: inferred
+- requirement_id: INF-252
+  section: 8 T3
+  citation: source.md:680
+  matched_task_ids:
+  - Task 4
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-253
+  section: 8 T3
+  citation: source.md:680
+  matched_task_ids:
+  - Task 4
+  ratio: 0.8889
+  match_method: containment
+  source: inferred
+- requirement_id: INF-254
+  section: 8 T4
+  citation: source.md:684
+  matched_task_ids:
+  - Task 5
+  ratio: 0.963
+  match_method: containment
+  source: inferred
+- requirement_id: INF-255
+  section: 8 T4
+  citation: source.md:685
+  matched_task_ids:
+  - Task 5
+  ratio: 0.8103
+  match_method: containment
+  source: inferred
+- requirement_id: INF-256
+  section: 8 T4
+  citation: source.md:685
+  matched_task_ids:
+  - Task 5
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-257
+  section: 8 T4
+  citation: source.md:686
+  matched_task_ids:
+  - Task 5
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-258
+  section: 8 T5
+  citation: source.md:690
+  matched_task_ids:
+  - Task 6
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-259
+  section: 8 T5
+  citation: source.md:692
+  matched_task_ids:
+  - Task 4
+  ratio: 0.7097
+  match_method: containment
+  source: inferred
+- requirement_id: INF-260
+  section: 8 T5
+  citation: source.md:692
+  matched_task_ids:
+  - Task 6
+  ratio: 0.9783
+  match_method: containment
+  source: inferred
+- requirement_id: INF-261
+  section: 8 T6
+  citation: source.md:699
+  matched_task_ids:
+  - Task 7
+  ratio: 0.9355
+  match_method: containment
+  source: inferred
+- requirement_id: INF-262
+  section: 8 T6
+  citation: source.md:700
+  matched_task_ids:
+  - Task 7
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-263
+  section: 8 T6
+  citation: source.md:700
+  matched_task_ids:
+  - Task 7
+  ratio: 0.85
+  match_method: containment
+  source: inferred
+- requirement_id: INF-264
+  section: 8 T6
+  citation: source.md:701
+  matched_task_ids:
+  - Task 7
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-265
+  section: 8 T7
+  citation: source.md:705
+  matched_task_ids:
+  - Task 8
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-266
+  section: 8 T7
+  citation: source.md:706
+  matched_task_ids:
+  - Task 8
+  ratio: 0.9429
+  match_method: containment
+  source: inferred
+- requirement_id: INF-267
+  section: 8 T7
+  citation: source.md:706
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8889
+  match_method: containment
+  source: inferred
+- requirement_id: INF-268
+  section: 8 T7
+  citation: source.md:707
+  matched_task_ids:
+  - Task 8
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-269
+  section: 8 T8
+  citation: source.md:711
+  matched_task_ids:
+  - Task 9
+  ratio: 0.963
+  match_method: containment
+  source: inferred
+- requirement_id: INF-270
+  section: 8 T8
+  citation: source.md:712
+  matched_task_ids: []
+  ratio: 0.5333
+  match_method: none
+  source: inferred
+- requirement_id: INF-271
+  section: 8 T8
+  citation: source.md:713
+  matched_task_ids:
+  - Task 9
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-272
+  section: 8 G3
+  citation: source.md:717
+  matched_task_ids:
+  - Constraints
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-273
+  section: 8 T9
+  citation: source.md:720
+  matched_task_ids:
+  - Task 10
+  ratio: 0.9524
+  match_method: containment
+  source: inferred
+- requirement_id: INF-274
+  section: 8 T9
+  citation: source.md:721
+  matched_task_ids:
+  - Task 10
+  ratio: 0.7143
+  match_method: containment
+  source: inferred
+- requirement_id: INF-275
+  section: 8 T9
+  citation: source.md:722
+  matched_task_ids:
+  - Task 10
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-276
+  section: 8 T10/T11 split
+  citation: source.md:725
+  matched_task_ids: []
+  ratio: 0.3571
+  match_method: none
+  source: inferred
+- requirement_id: INF-277
+  section: 8 T10a
+  citation: source.md:728
+  matched_task_ids:
+  - Task 11
+  ratio: 0.9853
+  match_method: containment
+  source: inferred
+- requirement_id: INF-278
+  section: 8 T10a
+  citation: source.md:729
+  matched_task_ids:
+  - Task 11
+  ratio: 0.8571
+  match_method: containment
+  source: inferred
+- requirement_id: INF-279
+  section: 8 T10a
+  citation: source.md:730
+  matched_task_ids:
+  - Task 11
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-280
+  section: 8 T10a
+  citation: source.md:730
+  matched_task_ids:
+  - Task 11
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-281
+  section: 8 T10b
+  citation: source.md:734
+  matched_task_ids:
+  - Task 12
+  ratio: 0.973
+  match_method: containment
+  source: inferred
+- requirement_id: INF-282
+  section: 8 T10b
+  citation: source.md:734
+  matched_task_ids:
+  - Task 12
+  ratio: 0.9474
+  match_method: containment
+  source: inferred
+- requirement_id: INF-283
+  section: 8 T10b
+  citation: source.md:735
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7857
+  match_method: containment
+  source: inferred
+- requirement_id: INF-284
+  section: 8 T10b
+  citation: source.md:736
+  matched_task_ids:
+  - Task 12
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-285
+  section: 8 T10b
+  citation: source.md:736
+  matched_task_ids:
+  - Task 12
+  ratio: 0.8667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-286
+  section: 8 T11a
+  citation: source.md:740
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8788
+  match_method: containment
+  source: inferred
+- requirement_id: INF-287
+  section: 8 T11a
+  citation: source.md:740
+  matched_task_ids:
+  - Task 13
+  ratio: 0.9062
+  match_method: containment
+  source: inferred
+- requirement_id: INF-288
+  section: 8 T11a
+  citation: source.md:741
+  matched_task_ids:
+  - Task 13
+  ratio: 0.7143
+  match_method: containment
+  source: inferred
+- requirement_id: INF-289
+  section: 8 T11a
+  citation: source.md:742
+  matched_task_ids:
+  - Task 13
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-290
+  section: 8 T11a
+  citation: source.md:742
+  matched_task_ids:
+  - Task 13
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-291
+  section: 8 T11b
+  citation: source.md:746
+  matched_task_ids:
+  - Task 14
+  ratio: 0.8958
+  match_method: containment
+  source: inferred
+- requirement_id: INF-292
+  section: 8 T11b
+  citation: source.md:747
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-293
+  section: 8 T11b
+  citation: source.md:748
+  matched_task_ids:
+  - Task 14
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-294
+  section: 8 T11b
+  citation: source.md:748
+  matched_task_ids:
+  - Task 14
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-295
+  section: 8 T11c
+  citation: source.md:752
+  matched_task_ids:
+  - Task 15
+  ratio: 0.8861
+  match_method: containment
+  source: inferred
+- requirement_id: INF-296
+  section: 8 T11c
+  citation: source.md:753
+  matched_task_ids:
+  - Task 15
+  ratio: 0.7222
+  match_method: containment
+  source: inferred
+- requirement_id: INF-297
+  section: 8 T11c
+  citation: source.md:754
+  matched_task_ids:
+  - Task 15
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-298
+  section: 8 T11c
+  citation: source.md:754
+  matched_task_ids:
+  - Task 15
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-299
+  section: 8 T12
+  citation: source.md:761
+  matched_task_ids:
+  - Task 16
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-300
+  section: 8 T12
+  citation: source.md:761
+  matched_task_ids:
+  - Task 16
+  ratio: 0.9286
+  match_method: containment
+  source: inferred
+- requirement_id: INF-301
+  section: 8 T12
+  citation: source.md:762
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-302
+  section: 8 T12
+  citation: source.md:763
+  matched_task_ids:
+  - Task 16
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-303
+  section: 8 T12
+  citation: source.md:763
+  matched_task_ids:
+  - Task 16
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-304
+  section: 8 T13
+  citation: source.md:767
+  matched_task_ids:
+  - Task 17
+  ratio: 0.913
+  match_method: containment
+  source: inferred
+- requirement_id: INF-305
+  section: 8 T13
+  citation: source.md:768
+  matched_task_ids:
+  - Task 17
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-306
+  section: 8 T14
+  citation: source.md:775
+  matched_task_ids:
+  - Task 18
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-307
+  section: 8 T14 check 1
+  citation: source.md:777
+  matched_task_ids:
+  - Task 18
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-308
+  section: 8 T14 check 2
+  citation: source.md:778
+  matched_task_ids:
+  - Task 18
+  ratio: 0.9091
+  match_method: containment
+  source: inferred
+- requirement_id: INF-309
+  section: 8 T14 check 3
+  citation: source.md:779
+  matched_task_ids:
+  - Task 18
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-310
+  section: 8 T14 check 4
+  citation: source.md:780
+  matched_task_ids:
+  - Task 18
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-311
+  section: 8 T14 check 4
+  citation: source.md:780
+  matched_task_ids:
+  - Task 18
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-312
+  section: 8 T14 check 5
+  citation: source.md:781
+  matched_task_ids:
+  - Task 18
+  ratio: 0.96
+  match_method: containment
+  source: inferred
+- requirement_id: INF-313
+  section: 8 T14 check 5
+  citation: source.md:781
+  matched_task_ids:
+  - Task 18
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-314
+  section: 8 T14 check 5
+  citation: source.md:781
+  matched_task_ids:
+  - Task 18
+  ratio: 0.9688
+  match_method: containment
+  source: inferred
+- requirement_id: INF-315
+  section: 8 T14 check 5
+  citation: source.md:781
+  matched_task_ids:
+  - Task 18
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-316
+  section: 8 T14 check 6
+  citation: source.md:782
+  matched_task_ids:
+  - Task 18
+  ratio: 0.9032
+  match_method: containment
+  source: inferred
+- requirement_id: INF-317
+  section: 8 T14 check 7
+  citation: source.md:783
+  matched_task_ids:
+  - Task 18
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-318
+  section: 8 T14
+  citation: source.md:784
+  matched_task_ids:
+  - Task 18
+  ratio: 0.8667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-319
+  section: 8 T15
+  citation: source.md:788
+  matched_task_ids:
+  - Task 19
+  ratio: 0.8462
+  match_method: containment
+  source: inferred
+- requirement_id: INF-320
+  section: 8 T15
+  citation: source.md:788
+  matched_task_ids:
+  - Task 19
+  ratio: 0.9545
+  match_method: containment
+  source: inferred
+- requirement_id: INF-321
+  section: 8 T15
+  citation: source.md:788
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-322
+  section: 8 T15
+  citation: source.md:789
+  matched_task_ids:
+  - Task 19
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-323
+  section: 8 T15
+  citation: source.md:791
+  matched_task_ids:
+  - Task 19
+  ratio: 0.8667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-324
+  section: '9'
+  citation: source.md:795
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-325
+  section: '9'
+  citation: source.md:798
+  matched_task_ids:
+  - Constraints
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-326
+  section: '9'
+  citation: source.md:799
+  matched_task_ids:
+  - Constraints
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-327
+  section: '9'
+  citation: source.md:802
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7812
+  match_method: containment
+  source: inferred
+- requirement_id: INF-328
+  section: '9'
+  citation: source.md:802
+  matched_task_ids:
+  - Constraints
+  ratio: 0.875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-329
+  section: '10'
+  citation: source.md:806
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-330
+  section: '10 decision size: simple'
+  citation: source.md:810
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7188
+  match_method: containment
+  source: inferred
+- requirement_id: INF-331
+  section: '10 decision size: mid-level'
+  citation: source.md:811
+  matched_task_ids:
+  - Constraints
+  ratio: 0.871
+  match_method: containment
+  source: inferred
+- requirement_id: INF-332
+  section: '10 decision size: complex'
+  citation: source.md:812
+  matched_task_ids:
+  - Constraints
+  ratio: 0.875
+  match_method: containment
+  source: inferred
+- requirement_id: INF-333
+  section: '10'
+  citation: source.md:816
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7619
+  match_method: containment
+  source: inferred
+- requirement_id: INF-334
+  section: '10'
+  citation: source.md:817
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9545
+  match_method: containment
+  source: inferred
+- requirement_id: INF-335
+  section: '10'
+  citation: source.md:818
+  matched_task_ids:
+  - Constraints
+  ratio: 0.913
+  match_method: containment
+  source: inferred
+- requirement_id: INF-336
+  section: '10'
+  citation: source.md:818
+  matched_task_ids:
+  - Constraints
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-337
+  section: '10'
+  citation: source.md:819
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9444
+  match_method: containment
+  source: inferred
+- requirement_id: INF-338
+  section: '10'
+  citation: source.md:820
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7619
+  match_method: containment
+  source: inferred
+- requirement_id: INF-339
+  section: '10'
+  citation: source.md:821
+  matched_task_ids:
+  - Constraints
+  ratio: 0.9167
+  match_method: containment
+  source: inferred
+- requirement_id: INF-340
+  section: '10'
+  citation: source.md:823
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7895
+  match_method: containment
+  source: inferred

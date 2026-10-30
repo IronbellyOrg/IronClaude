@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena]
+mcp-servers: [auggie]
 personas: [analyzer, architect, qa]
 version: 2.0.0
 -->
@@ -19,10 +19,10 @@ version: 2.0.0
 
 **This skill is an inference-only deep-validation protocol.** It is NOT a behavioural mirror of the `superclaude roadmap validate` CLI command, and it is not invoked by that CLI. Treat the two surfaces as **complementary, not equivalent**:
 
-- **Use this skill** for thorough investigative validation — when a human reviewer wants a multi-phase coverage matrix, gap registry, adversarial review, and remediation plan grounded in Auggie/Serena enrichment. This is the right tool when the goal is to *understand* roadmap quality and decide whether the roadmap is ready for tasklist generation.
+- **Use this skill** for thorough investigative validation — when a human reviewer wants a multi-phase coverage matrix, gap registry, adversarial review, and remediation plan grounded in Auggie enrichment. This is the right tool when the goal is to *understand* roadmap quality and decide whether the roadmap is ready for tasklist generation.
 - **Use the CLI** (`superclaude roadmap validate`) for **automated CI/CD gating**. The CLI runs a simpler **reflect + adversarial-merge** flow: it builds reflect/merge prompts (`src/superclaude/cli/roadmap/validate_prompts.py:7,68`), executes the pipeline, and parses report counts to emit a pass/fail verdict against a fixed set of validation dimensions. It is fast, deterministic, and non-interactive — appropriate for pre-merge or pre-tasklist hooks, not for human investigation.
 
-The deep protocol below (phases, CC-agents, GO / CONDITIONAL_GO / NO_GO verdict matrix, Auggie/Serena enrichment) is preserved intentionally: it carries inference value that the single-pass CLI flow does not attempt to reproduce. The CLI does **not** delegate into this skill, and this skill does **not** wrap the CLI; they are two separate validation surfaces operating at different levels of rigour and automation.
+The deep protocol below (phases, CC-agents, GO / CONDITIONAL_GO / NO_GO verdict matrix, Auggie enrichment) is preserved intentionally: it carries inference value that the single-pass CLI flow does not attempt to reproduce. The CLI does **not** delegate into this skill, and this skill does **not** wrap the CLI; they are two separate validation surfaces operating at different levels of rigour and automation.
 
 ### CLI validation dimensions (crosswalk)
 
@@ -44,7 +44,7 @@ The CLI's reflect prompt validates the roadmap against **7 baseline dimensions**
 
 | Skill phase | Closest CLI dimensions | Notes |
 |---|---|---|
-| Phase 1 — Extraction & taxonomy | Coverage (#6, input-aware) | Skill extracts requirements via Auggie/Serena enrichment; CLI relies on caller-supplied input files. |
+| Phase 1 — Extraction & taxonomy | Coverage (#6, input-aware) | Skill extracts requirements via Auggie enrichment; CLI relies on caller-supplied input files. |
 | Phase 2 — Coverage matrix | Traceability (#3), Coverage (#6) | Skill builds an explicit matrix; CLI emits findings against the dimensions but does not persist a matrix artifact. |
 | Phase 3 — Gap registry | Traceability (#3), Coverage (#6), Proportionality (#7) | Skill itemises and severity-sorts gaps; CLI returns BLOCKING/WARNING findings with `file:line` citations. |
 | Phase 4 — Adversarial review | (none direct) | Skill runs CC1–CC4 adversarial agents; CLI runs a single-shot `build_merge_prompt` adversarial merge pass. |
@@ -123,11 +123,8 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Track progress | `TodoWrite` | Phase completion tracking |
 | Run validation | `Bash` | File existence checks, line counts |
 | Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
-| Read session memory | `mcp__serena__read_memory` | Load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
-| Write session memory | `mcp__serena__write_memory` | Persist ledger, terminology, patterns (Post-Phase 6) — fail-open |
-| Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Pre-Phase 0, Step 0.5) — fail-open |
-| Find symbol | `mcp__serena__find_symbol` | Symbol lookup for context supplement (Step 0.5, deep only) — fail-open |
-| Get symbols overview | `mcp__serena__get_symbols_overview` | File-level symbol map (Step 0.5, deep only) — fail-open |
+| Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
+| Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
 
 **Rule**: All verbs in phase instructions MUST resolve to an entry in this glossary. MCP tools marked "fail-open" are optional — their unavailability never blocks validation.
 
@@ -135,24 +132,23 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 
 ### Pre-Phase 0: Session Context Loading (Optional, Fail-Open)
 
-**Requires**: `mcp__serena__read_memory`, `mcp__serena__activate_project` (fail-open — skip all pre-phase hooks if Serena is unavailable).
+**Requires**: `Read` on the project memory folder `<project>/.superclaude/memory/validate-roadmap/` (fail-open — a missing folder, missing file or failed read skips that hook; it never stops the run). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git.
 
-Before document ingestion, load cross-session context from Serena memory. Each hook is independent — failure in one does not block others.
+Before document ingestion, load cross-session context from the memory files `<project>/.superclaude/memory/validate-roadmap/<key>.md`. Each hook is independent — failure in one does not block others.
 
 #### Hook 0a — Load Validation Ledger Baseline
 
 Load the most recent validation ledger entry for this project to enable delta tracking in Phase 3.
 
-1. Call `mcp__serena__activate_project` for the current repository.
-2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}`.
-3. If found: parse the ledger JSON and store in orchestrator context as `ledger_baseline`. Extract the most recent entry's gap IDs and severities for delta comparison in Step 3.10.
-4. If not found or error: set `ledger_baseline = null`. Continue without delta tracking.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/validation-ledger-{project-slug}.md`.
+2. If found: parse the ledger JSON in the file body and store in orchestrator context as `ledger_baseline`. Extract the most recent entry's gap IDs and severities for delta comparison in Step 3.10.
+3. If not found or error: set `ledger_baseline = null`. Continue without delta tracking.
 
 #### Hook 0b — Load Terminology Map
 
 Load the project's accumulated terminology map as advisory context for requirement extraction.
 
-1. Call `mcp__serena__read_memory` with key `terminology-map-{project-slug}`.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/terminology-map-{project-slug}.md`.
 2. If found: parse terminology entries (max **200 entries**). Terms older than **90 days** are marked `low_confidence: true`. Store as `prior_terminology` in orchestrator context.
 3. If not found or error: set `prior_terminology = null`. Extraction uses cold-start terminology only.
 
@@ -162,7 +158,7 @@ Load the project's accumulated terminology map as advisory context for requireme
 
 Load historical adversarial pattern effectiveness data for Phase 4 pattern ordering.
 
-1. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`.
+1. Call `Read` on `.superclaude/memory/validate-roadmap/adversarial-patterns-{project-slug}.md`.
 2. If found: parse pattern entries. Filter to patterns with ≥3 historical hits and false-positive rate <40%. Rank by `(hit_count * (1 - fp_rate))`. Store top 20 as `historical_patterns`.
 3. If not found or error: set `historical_patterns = null`. Phase 4 uses default patterns only.
 
@@ -317,7 +313,7 @@ Write artifact: `{OUTPUT_DIR}/00-domain-taxonomy.md`
 
 #### Step 0.5 — Symbol Context Supplement (`--depth deep` only)
 
-**Requires**: `mcp__serena__find_symbol`, `mcp__serena__get_symbols_overview` (fail-open — skip entirely if Serena is unavailable or depth is not `deep`).
+**Requires**: `Grep` and `Read` only (native floor; always available).
 
 **Gate**: Skip this step unless `--depth deep` is set.
 
@@ -326,11 +322,10 @@ At deep depth, produce a supplemental artifact documenting the structural contex
 **Procedure**:
 
 1. **Identify code-referenced requirements**: From the requirement universe, collect requirements whose text contains backtick-wrapped identifiers (class names, function names, module paths).
-2. **Activate Serena project**: Call `mcp__serena__activate_project` (if not already activated in Pre-Phase 0).
-3. **Look up symbols** (hard cap: **30 symbol lookups**):
-   - For each code identifier, call `mcp__serena__find_symbol` with `include_body=False` to locate the symbol's file, type (class/function/method), and parent hierarchy.
-   - For files with multiple related symbols, call `mcp__serena__get_symbols_overview` once per file to capture the structural context.
-4. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
+2. **Look up symbols** (hard cap: **30 symbol lookups**):
+   - For each code identifier, call `Grep` for its definition (`def <name>|class <name>|function <name>`) to locate the symbol's file and type (class/function/method); `Read` the matched range only when the parent hierarchy is needed. A Grep with no match records the symbol as `NOT_FOUND`.
+   - For files with multiple related symbols, `Read` the file once to capture the structural context.
+3. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
 
 ```markdown
 # Symbol Context Supplement (Step 0.5, deep only)
@@ -346,7 +341,7 @@ At deep depth, produce a supplemental artifact documenting the structural contex
 Symbols found: {N} / {N} attempted
 ```
 
-5. **Failure handling**: If Serena is unavailable or no symbols are found, skip entirely — write no artifact. This is non-blocking.
+4. **Failure handling**: Grep and Read are always available, so the artifact is always written at `--depth deep`. Symbols with no definition match are listed as `NOT_FOUND`; when no code-referenced requirement exists, write the artifact with `Symbols found: 0 / 0 attempted`. A failed Grep or Read for one symbol records that row as `NOT_FOUND` and continues. This is non-blocking.
 
 **Constraints**:
 
@@ -977,9 +972,9 @@ If `--report` flag is set, also write summary to the specified path.
 
 ### Post-Phase 6: Session Context Persistence (Optional, Fail-Open)
 
-**Requires**: `mcp__serena__write_memory` (fail-open — skip all post-phase hooks if Serena is unavailable).
+**Requires**: `Write` to the project memory folder `<project>/.superclaude/memory/validate-roadmap/` (fail-open — a failed read or write skips that hook; it never stops the run). `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git. Before the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`.
 
-After the final summary is written, persist cross-session context to Serena memory. Each hook is independent — failure in one does not block others or the return contract.
+After the final summary is written, persist cross-session context to the memory files `<project>/.superclaude/memory/validate-roadmap/<key>.md`. The four keys below are single-owner: each file is read, merged and overwritten whole (the file body is the JSON or term list described in the hook). Each hook is independent — failure in one does not block others or the return contract.
 
 #### Hook 6a — Write Validation Ledger Entry
 
@@ -1002,9 +997,9 @@ Persist the current validation results for future delta tracking.
 }
 ```
 
-2. Call `mcp__serena__read_memory` with key `validation-ledger-{project-slug}` to load existing ledger.
+2. Call `Read` on `.superclaude/memory/validate-roadmap/validation-ledger-{project-slug}.md` to load the existing ledger (a missing file means an empty ledger).
 3. Append new entry. **Pruning**: keep only the last **10 entries** or entries from the last **30 days**, whichever is fewer.
-4. Call `mcp__serena__write_memory` with the updated ledger.
+4. Call `Write` on the same path with the updated ledger.
 5. On error: log warning and continue. Ledger loss is acceptable.
 
 #### Hook 6b — Write Terminology Map
@@ -1015,8 +1010,8 @@ Persist the updated terminology map for future extraction hints.
    - New terms are added with `first_seen: {today}`.
    - Existing terms have `last_seen` updated to today.
    - Terms not seen in the current run retain their prior dates.
-2. Call `mcp__serena__write_memory` with key `terminology-map-{project-slug}`.
-3. **Cross-project contamination prevention**: The project slug is part of the key — terms from project A are never loaded for project B.
+2. Call `Write` on `.superclaude/memory/validate-roadmap/terminology-map-{project-slug}.md`.
+3. **Cross-project contamination prevention**: The memory store is per project (per worktree) and the project slug is part of the key — terms from project A are never loaded for project B.
 
 #### Hook 6c — Append Pattern Log Entry
 
@@ -1036,8 +1031,8 @@ Write an append-only pattern log for trend tracking (human review only).
 }
 ```
 
-2. Call `mcp__serena__read_memory` with key `pattern-log-{project-slug}`. Append entry. Keep last **20 entries**.
-3. Call `mcp__serena__write_memory` with the updated log.
+2. Call `Read` on `.superclaude/memory/validate-roadmap/pattern-log-{project-slug}.md` (a missing file means an empty log). Append entry. Keep last **20 entries**.
+3. Call `Write` on the same path with the updated log.
 4. **Constraint**: The pattern log is **write-only** — the validator never reads it during execution. It exists for human trend review only.
 
 #### Hook 6d — Write Adversarial Pattern Effectiveness Stats
@@ -1067,8 +1062,8 @@ After Phase 4, compute and persist pattern effectiveness data for future pattern
 }
 ```
 
-3. Call `mcp__serena__read_memory` with key `adversarial-patterns-{project-slug}`. Merge stats (cumulative hit/FP counts). Retain **top 20 patterns** by effectiveness score. Expire entries older than **90 days**.
-4. Call `mcp__serena__write_memory` with updated stats.
+3. Call `Read` on `.superclaude/memory/validate-roadmap/adversarial-patterns-{project-slug}.md` (a missing file means no prior stats). Merge stats (cumulative hit/FP counts). Retain **top 20 patterns** by effectiveness score. Expire entries older than **90 days**.
+4. Call `Write` on the same path with updated stats.
 5. **Project-type segmentation**: If the project type changes between runs, historical patterns from the prior type are retained but ranked lower (0.5x weight multiplier).
 
 ---

@@ -10,7 +10,7 @@ argument-hint: "--context-optimized [--project-root <dir>] [--output <path>] [--
 <!-- Extended metadata (for documentation, not parsed):
 category: utility
 complexity: low
-mcp-servers: [serena]
+mcp-servers: []
 personas: [analyzer]
 version: 1.0.0
 -->

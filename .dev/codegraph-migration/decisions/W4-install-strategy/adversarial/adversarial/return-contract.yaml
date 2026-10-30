@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/W4-install-strategy/adversarial/W4-install-strategy-merged.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/codegraph-migration/decisions/W4-install-strategy/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-3-original (option-c.md)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 invariant probe skipped at --depth quick
+  notes:
+    - "Depth quick: Round 1 only; Rounds 2, 2.5 and 3 skipped by rule."
+    - "Scores: C 0.879, A 0.808, B 0.752 (margin 7.1%, no tiebreaker)."
+    - "Post-merge validation: structural pass, references 50/50 resolved, no new contradictions."
+    - "Carried-forward condition: per-worktree codegraph init owner (A-001) is a separate decision."

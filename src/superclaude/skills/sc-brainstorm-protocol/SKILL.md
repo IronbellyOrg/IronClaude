@@ -12,7 +12,7 @@ argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strateg
 <!-- Extended metadata (for documentation, not parsed):
 category: orchestration
 complexity: advanced
-mcp-servers: [serena, auggie-mcp, tavily]
+mcp-servers: [auggie-mcp, tavily]
 personas: [architect, analyzer, scribe]
 version: 2.0.0
 spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md
@@ -54,7 +54,7 @@ Orchestrate parallel brainstorming via:
 
 1. `seed-brief.md` — Socratic dialogue synthesis with frontmatter
 2. `merged-requirements.md` — Adversarial-merged unified spec
-3. `enrichment/codebase-context.md` (if applicable) — Auggie/Serena/Glob output
+3. `enrichment/codebase-context.md` (if applicable) — Auggie/Glob/Grep output
 4. `enrichment/research-light.md` or `research-deep.md` (if applicable)
 5. `adversarial/` — 6 standard adversarial artifacts (debate-transcript, diff-analysis, base-selection, refactor-plan, merge-log, merged-output)
 6. `return-contract.yaml` — Versioned return contract
@@ -190,8 +190,7 @@ Orchestrate parallel brainstorming via:
 
 2. **Quality-tier tracking** (mandatory per enrichment source):
    - `primary` — first-choice source ran cleanly
-   - `fallback_1` — primary failed, used Serena (codebase) or WebSearch (research)
-   - `fallback_2` — both primary and fallback_1 failed, used native Glob/Grep
+   - `fallback_1` — primary failed, used native Glob/Grep (codebase) or WebSearch (research)
    - `skipped` — enrichment not invoked
    - Record as `enrichment_used: [{source, quality_tier}, ...]` in state.
 
@@ -348,7 +347,7 @@ domain: code | architecture | product | process | incident | research
 proposal_count: <int>
 enrichment_used:
   - source: codebase | research-light | research-deep
-    quality_tier: primary | fallback_1 | fallback_2 | skipped
+    quality_tier: primary | fallback_1 | skipped
 handoff_action: none | design | tasklist | task
 handoff_output_path: <path> | null
 unresolved_conflicts: [<list of strings>]
@@ -384,7 +383,7 @@ enrichment_artifact_sizes:
 | Empty topic | STOP with usage hint | None |
 | `sc-adversarial-protocol` missing | STOP with install instruction | None |
 | `--handoff task/tasklist` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
-| Codebase enrichment fails (Auggie down) | WARN, fall back to Serena `get_symbols_overview` (quality_tier=fallback_1) | Native Glob/Grep (quality_tier=fallback_2) |
+| Codebase enrichment fails (Auggie down) | WARN, fall back to native Glob/Grep (quality_tier=fallback_1) | Skip (quality_tier=skipped) |
 | Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
 | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |
 | Adversarial empty/unparseable response | **FAIL** (no synthetic 0.5 fallback) | None |

@@ -23,7 +23,7 @@ hop_configuration: {max_depth: 5, timeout: 60s, parallel: true, loop_detection: 
 confidence_scoring: {relevance: 0.5, completeness: 0.5, min: 0.6, target: 0.8}
 self_reflection: {frequency: after_each_hop, triggers: [low_confidence, contradictions, 80%_time, user_intervention]}
 memory: {case_reasoning: true, pattern_learning: true, session_persistence: true, retention: 30d}
-tools: {discovery: tavily, routing: smart, memory: serena, parallel: true}
+tools: {discovery: tavily, routing: smart, parallel: true}
 quality_gates: {planning: [objectives, strategy, criteria], execution: min_confidence=0.6, synthesis: coherence+clarity}
 extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, timeout: 15s}
 ```
@@ -139,4 +139,3 @@ Server fallbacks are in the table below. Research-specific: low_confidence → r
 | tavily | primary search | native websearch |
 | playwright | complex extraction | tavily extraction |
 | context7 | technical docs | tavily search |
-| serena | memory management | session only |

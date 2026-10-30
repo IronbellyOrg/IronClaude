@@ -21,21 +21,13 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - Output budget: ~800-1200 tokens summary per query
 - quality_tier: `primary`
 
-**Tier 2 (fallback_1)**: Serena MCP
-
-- `mcp__serena__get_symbols_overview` on relevant directories (depth: 1)
-- `mcp__serena__find_symbol` for known entity names in topic
-- Output budget: ~500-800 tokens summary
-- quality_tier: `fallback_1`
-- Activation: if Tier 1 returns error OR empty result
-
-**Tier 3 (fallback_2)**: Native Glob/Grep
+**Tier 2 (fallback_1)**: Native Glob/Grep
 
 - Glob for files matching topic keywords
-- Grep for symbol/entity names mentioned in topic
+- Grep for symbol/entity names mentioned in topic (for a named function or class, Grep for `def name|class name|function name`, then Read the range)
 - Output budget: ~300-500 tokens (raw file list + grep hits)
-- quality_tier: `fallback_2`
-- Activation: if Tier 2 also fails
+- quality_tier: `fallback_1`
+- Activation: if Tier 1 returns error OR empty result
 
 **Final fallback**: skip enrichment, set quality_tier: `skipped`, log to seed-brief Note section.
 

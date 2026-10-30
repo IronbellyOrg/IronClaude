@@ -325,7 +325,6 @@ For organizations requiring extended security support:
 **Magic**: UI generation with output validation and XSS prevention
 **Playwright**: Browser automation with sandboxed execution environment
 **Morphllm**: Code transformation with input validation and safety checks
-**Serena**: Memory management with secure data persistence and access controls
 
 **Network Security:**
 

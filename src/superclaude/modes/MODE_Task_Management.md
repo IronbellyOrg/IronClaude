@@ -12,45 +12,44 @@
 
 ## Task Hierarchy with Memory
 
-📋 **Plan** → write_memory("plan", goal_statement)
-→ 🎯 **Phase** → write_memory("phase_X", milestone)
-  → 📦 **Task** → write_memory("task_X.Y", deliverable)
-    → ✓ **Todo** → TodoWrite + write_memory("todo_X.Y.Z", status)
+📋 **Plan** → Write goal_statement to `.superclaude/memory/current_plan.md`
+→ 🎯 **Phase** → Write milestone to `.superclaude/memory/phase_X.md`
+  → 📦 **Task** → Write deliverable to `.superclaude/memory/task_X.Y.md`
+    → ✓ **Todo** → TodoWrite + Write status to `.superclaude/memory/todo_X.Y.Z.md`
 
 ## Memory Operations
+
+Memory is plain markdown in `<project>/.superclaude/memory/<key>.md`, with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`current_plan`, `last_session`, `next_actions`, and the `phase_*`, `task_*`, `todo_*` keys of the owning session) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place. This mode never deletes memory files; deletion is left to the user.
 
 ### Session Start
 
 ```
-1. list_memories() → Show existing task state
-2. read_memory("current_plan") → Resume context
-3. think_about_collected_information() → Understand where we left off
+1. Glob `.superclaude/memory/**/*.md` → Show existing task state
+2. Read `.superclaude/memory/current_plan.md` → Resume context
 ```
 
 ### During Execution
 
 ```
-1. write_memory("task_2.1", "completed: auth middleware")
-2. think_about_task_adherence() → Verify on track
-3. Update TodoWrite status in parallel
-4. write_memory("checkpoint", current_state) every 30min
+1. Write "completed: auth middleware" to `.superclaude/memory/task_2.1.md`
+2. Update TodoWrite status in parallel
+3. Write current_state to `.superclaude/memory/checkpoint-<timestamp>.md` every 30min
 ```
 
 ### Session End
 
 ```
-1. think_about_whether_you_are_done() → Assess completion
-2. write_memory("session_summary", outcomes)
-3. delete_memory() for completed temporary items
+1. Write outcomes to `.superclaude/memory/session_summary-<timestamp>.md`
+2. List completed temporary items (checkpoint-*.md) as cleanup candidates for the user to delete
 ```
 
 ## Execution Pattern
 
-1. **Load**: list_memories() → read_memory() → Resume state
-2. **Plan**: Create hierarchy → write_memory() for each level  
+1. **Load**: Glob `.superclaude/memory/**/*.md` → Read → Resume state
+2. **Plan**: Create hierarchy → Write a memory file for each level
 3. **Track**: TodoWrite + memory updates in parallel
 4. **Execute**: Update memories as tasks complete
-5. **Checkpoint**: Periodic write_memory() for state preservation
+5. **Checkpoint**: Periodic Write of `checkpoint-<timestamp>.md` for state preservation
 6. **Complete**: Final memory update with outcomes
 
 ## Tool Selection
@@ -65,45 +64,44 @@
 ## Memory Schema
 
 ```
-plan_[timestamp]: Overall goal statement
+current_plan: Overall goal statement
 phase_[1-5]: Major milestone descriptions
 task_[phase].[number]: Specific deliverable status
 todo_[task].[number]: Atomic action completion
-checkpoint_[timestamp]: Current state snapshot
+checkpoint-[timestamp]: Current state snapshot
 blockers: Active impediments requiring attention
-decisions: Key architectural/design choices made
+decision-[timestamp]: Key architectural/design choices made
 ```
+
+Each key is the file `.superclaude/memory/<key>.md`.
 
 ## Examples
 
 ### Session 1: Start Authentication Task
 
 ```
-list_memories() → Empty
-write_memory("plan_auth", "Implement JWT authentication system")
-write_memory("phase_1", "Analysis - security requirements review")
-write_memory("task_1.1", "pending: Review existing auth patterns")
+Glob `.superclaude/memory/**/*.md` → Empty
+Write "Implement JWT authentication system" to current_plan.md
+Write "Analysis - security requirements review" to phase_1.md
+Write "pending: Review existing auth patterns" to task_1.1.md
 TodoWrite: Create 5 specific todos
-Execute task 1.1 → write_memory("task_1.1", "completed: Found 3 patterns")
+Execute task 1.1 → Write "completed: Found 3 patterns" to task_1.1.md
 ```
 
 ### Session 2: Resume After Interruption
 
 ```
-list_memories() → Shows plan_auth, phase_1, task_1.1
-read_memory("plan_auth") → "Implement JWT authentication system"
-think_about_collected_information() → "Analysis complete, start implementation"
-think_about_task_adherence() → "On track, moving to phase 2"
-write_memory("phase_2", "Implementation - middleware and endpoints")
+Glob `.superclaude/memory/**/*.md` → Shows current_plan.md, phase_1.md, task_1.1.md
+Read current_plan.md → "Implement JWT authentication system"
+Write "Implementation - middleware and endpoints" to phase_2.md
 Continue with implementation tasks...
 ```
 
 ### Session 3: Completion Check
 
 ```
-think_about_whether_you_are_done() → "Testing phase remains incomplete"
 Complete remaining testing tasks
-write_memory("outcome_auth", "Successfully implemented with 95% test coverage")
-delete_memory("checkpoint_*") → Clean temporary states
-write_memory("session_summary", "Auth system complete and validated")
+Write "Successfully implemented with 95% test coverage" to outcome_auth.md
+List checkpoint-*.md files as cleanup candidates → the user deletes them
+Write "Auth system complete and validated" to session_summary-<timestamp>.md
 ```

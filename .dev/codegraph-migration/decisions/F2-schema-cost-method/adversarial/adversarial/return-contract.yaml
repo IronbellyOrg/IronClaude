@@ -1,0 +1,13 @@
+---
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/F2-schema-cost-method/adversarial/F2-schema-cost-method-merged.md"
+  convergence_score: 1.0            # 15/15 diff points; taxonomy gate passed; invariant gate not applied (depth quick)
+  artifacts_dir: ".dev/codegraph-migration/decisions/F2-schema-cost-method/adversarial/adversarial/"
+  status: "success"                 # all 5 steps done; post-merge validation PASS (merge-log.md)
+  base_variant: "Variant 1 (option-a.md, byte proxy; advocate default:analyzer)"
+  scores: {A: 0.870, C: 0.829, B: 0.701}   # A-C margin 0.041 < 0.05; tiebreaker level 1 (debate points won A 3, C 2, B 0)
+  unresolved_conflicts: 0           # diff points; 7 sub-points (N-001..N-007) settled by majority or orchestrator, flagged for user review
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 skipped at depth quick

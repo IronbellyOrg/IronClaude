@@ -1,0 +1,8 @@
+**Phase 2 (install codegraph) progress: G2 CLI wiring and Serena retirement**
+
+- Commits on `ironbelly/feat-codememory-codegraph-init`: 50bed708 `feat(install): make codegraph a required user-level install phase` (Task 6), a9a1a477 `feat(install): retire Serena registrations once codegraph is ready (#323)` (Task 7), c22ad692 `feat(doctor): report codegraph registration health` (Task 8)
+- Done: Task 6 (required phase after user setup and before the retire step, `--force` not forwarded, read-only `--list` block). Task 7 (`codegraph_ready()`; when ready the retire step also removes `serena`, renamed Serena launchers with `env`/`headers` absent or `{}`, and the kind-B codebase-memory registration; `serena-local` is never removed). Task 8 (doctor check: fails only for a dangling registered command; detail lines for the rest; always prints the Ready line from the same predicate).
+- Tests: `uv run pytest tests/unit/test_cli_doctor.py tests/cli/test_update_command.py -q -p no:cacheprovider` -> 47 passed. Wider run `tests/cli tests/unit tests/core tests/recommend` (without `tests/cli/eval`) -> 1753 passed, 3 skipped, 1 xpassed. `ruff check` clean.
+- Known small gaps found by the independent reviews, recorded as non-blocking notes (not fixed, per the review rules): (1) when ready, removing the kind-B codebase-memory registration prints the reason and the `uninstall -y` line but not the removed registration's argv (spec 2.12 says each removal prints it); (2) the owned-entry replace in the codegraph phase uses the 10 s default for `claude mcp remove` where spec 2.4 says 60 s.
+- Decisions taken: all "self", logged in `.dev/codegraph-migration/decisions/P2X-log.md`
+- Next: G3 indexing hook (Task 9)

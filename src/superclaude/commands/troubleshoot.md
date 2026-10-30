@@ -1,9 +1,9 @@
 ---
 name: troubleshoot
-description: "Tiered debugging — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in remediation chain (sc:workflow → sc:implement; task-builder → /task with --depth deep)"
+description: "Tiered debugging — fast Tier 1 triage with auggie grounding and a native Grep/Read floor, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in remediation chain (sc:workflow → sc:implement; task-builder → /task with --depth deep)"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily]
+mcp-servers: [auggie, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp] [--context <path>] [--caller <name>]"
 ---
@@ -49,13 +49,13 @@ The trigger is intentionally pushy because the most common reason users skip a d
 |------|---------|-------------|
 | `--type` | auto-detect | One of `bug`, `build`, `performance`, `deployment`, `security`, `test`. Auto-detected from keywords + structural cues in the issue description. |
 | `--depth` | `standard` | `quick` (Tier 1 only, ~1-3 min, ~3-6k Claude tokens), `standard` (auto-escalate by rubric), `deep` (force Tier 2 with adversarial debate). Combined with `--fix`, `deep` also selects the MDTM remediation route (see `--fix`). `quick` with `--fix` is a STOP. |
-| `--scope` | (none) | File, directory, or symbol to narrow auggie/serena queries against. |
+| `--scope` | (none) | File, directory, or symbol to narrow auggie queries and Grep/Read lookups against. |
 | `--no-escalate` | `false` | Cap at Tier 1 regardless of confidence. Useful for quick second-opinion passes. |
 | `--fix` | `false` | After diagnosis, offer the Tier 3 remediation chain. Default (plan route): `sc:workflow` (runs its own `/sc:reflect --mode pre`) → user runs `/sc:implement <tasklist>` → `/sc:reflect --mode post`. With `--depth deep` (MDTM route): `task-builder` → `/sc:reflect --type task --analyze` → user runs `/task` → `/sc:reflect --type task --validate`. Code changes never auto-apply; the user runs the executor. |
 | `--models` | (agent defaults) | Per-tier model override, e.g. `tier1:sonnet,hypothesis:opus`. |
 | `--output-dir` | `.dev/troubleshoot/<slug>-<timestamp>/` | Where REPORT.md, hypothesis cards, fix proposals, adversarial artifacts, and audit log are written. |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions). Useful when the codebase has no formal docs or the user has already grounded the symptom externally; the resulting diagnosis is NOT weighted against documented behavior and the report records the skip in Grounding Gaps. |
-| `--no-mcp` | `false` | Run in native-tools-only mode (skip auggie/serena/context7/tavily). Tier 1 quality degrades; surfaced in the report. |
+| `--no-mcp` | `false` | Run in native-tools-only mode (skip auggie/context7/tavily). Tier 1 quality degrades; surfaced in the report. |
 | `--context` | (none) | Path to a caller-supplied context file (e.g. TFEP `context.yaml` consumer brief). Ingested in Wave 0; recorded in the audit-log header and echoed in the Wave 5 return. |
 | `--caller` | (none) | Name of the invoking pipeline/command (e.g. `task-unified`). When set, Wave 5 emits a `return-contract.yaml` adapter and the audit header records `caller:`. |
 
@@ -72,7 +72,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 
 | Tier | When | What it does | Cost |
 |------|------|--------------|------|
-| Tier 1 | Always (unless STOP) | Single grounded hypothesis from `root-cause-analyst` + `confidence-calibrator`, with auggie/serena grounding | ~3-6k Claude tokens, 1-3 min |
+| Tier 1 | Always (unless STOP) | Single grounded hypothesis from `root-cause-analyst` + `confidence-calibrator`, with auggie grounding (Grep/Read floor) | ~3-6k Claude tokens, 1-3 min |
 | Tier 2 | Auto-escalate on `confidence < 0.85`, multi-domain, intermittent, security < 0.95, or `--depth deep` | 2-4 specialist agents fan out in parallel; each produces a hypothesis card; competing fixes debated via `sc:adversarial-protocol`; `self-review` sanity-checks the merge | +15-60k tokens, +4-15 min |
 | Tier 3 | Opt-in via `--fix` AND user accepts | `--fix`: `sc:workflow` produces a tasklist package `.dev/tasks/to-do/<id>/<id>.md`; user runs `/sc:implement`; `/sc:reflect --mode post` gates the commit. `--fix --depth deep`: `task-builder` produces an MDTM task file; user runs `/task`; `/sc:reflect --type task --validate` gates the commit | MDTM route +20-40k tokens, +5-10 min; plan route lighter (not yet measured) |
 
@@ -86,20 +86,19 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## MCP Integration
 
 - **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
-- **Serena**: Tier 1 + Tier 2 symbol-level navigation via `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`. Critical when the issue names a specific function or class.
+- **Native floor**: Tier 1 + Tier 2 symbol-level navigation with `Grep` for the definition (`def name`, `class name`, `function name`) then `Read` of the range, and `Grep` with a word-boundary pattern then `Read` of the call sites for references. Critical when the issue names a specific function or class.
 - **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
 - **Native reasoning**: Tier 2 synthesis when reconciling competing hypotheses.
 ## Tool Coordination
 
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)
-- **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
 - **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, Tier 2 specialist agents, `confidence-calibrator`, `evidence-validator`, `self-review`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `sc:workflow-protocol` (Wave 6, plan route), `task-builder` (Wave 6, `--depth deep` MDTM route), `/sc:reflect` (Wave 6)
-- **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line validation
-- **`Bash`**: cheap reproducer commands (Tier 1), diagnostic commands (Tier 2), and read-only probes at RUN-SITE through the OBSERVE-VIA execution gate as designed by the skill; existing capability, authorization and execution-transport restrictions still apply
+- **`Read` / `Grep` / `Glob`**: native floor for symbol, definition and caller lookups and the fallback when MCPs are unavailable; file:line validation
+- **`Bash`**: cheap reproducer commands (Tier 1), diagnostic commands (Tier 2; the project's linter or type-checker runs here under the skill's Bash diagnostics safety envelope), and read-only probes at RUN-SITE through the OBSERVE-VIA execution gate as designed by the skill; existing capability, authorization and execution-transport restrictions still apply
 - **`Write`**: hypothesis cards, REPORT.md, audit log, calibration reports, validation reports
 
 ## Examples
@@ -109,7 +108,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ```text
 /sc:troubleshoot "NameError: name 'Path' is not defined at eval_run.py:142"
 # - Auto-detects --type bug
-# - Spawns root-cause-analyst with auggie + serena grounding
+# - Spawns root-cause-analyst with auggie grounding (Grep/Read floor)
 # - confidence-calibrator re-grades the hypothesis card
 # - If confidence ≥ 0.85 and single-domain → STOP at Tier 1
 # - REPORT.md with the chosen fix written to --output-dir
@@ -158,7 +157,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ```text
 /sc:troubleshoot "something's wrong with the worker" --no-mcp
-# - Skip auggie/serena/context7/tavily; use Read/Grep/Glob/Bash only
+# - Skip auggie/context7/tavily; use Read/Grep/Glob/Bash only
 # - Tier 1 quality degrades; flagged in REPORT.md's Grounding Gaps
 # - Useful when MCPs are unavailable or the user wants pure local execution
 ```
@@ -170,7 +169,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Always run Tier 1 first (respect the "quick first option" contract)
 - Auto-escalate to Tier 2 only when the rubric in `refs/escalation-rubric.md` says so, or when `--depth deep` is set
 - Fan out 2-4 specialist agents in parallel in Tier 2 (capped at 4 by signal mix)
-- Use auggie + serena every tier for in-repo grounding; use context7 + tavily in Tier 2 when the symptom suggests external knowledge, with the skill's conditional Tier 1 behaviour-definition exception for context7
+- Use auggie every tier for in-repo grounding, with Grep/Read as the native floor; use context7 + tavily in Tier 2 when the symptom suggests external knowledge, with the skill's conditional Tier 1 behaviour-definition exception for context7
 - Run Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions) before any fix is proposed, unless `--no-doc-discovery` is set
 - Invoke `sc:adversarial-protocol` only when Tier 2 produces ≥2 competing strong fixes (cap is the Tier-2 agent cap of 4, not a debate min/max of 3) (skip on consensus — that wastes the debate)
 - Run `evidence-validator` in Wave 5 to drop any unfounded `file:line` citations before REPORT.md ships

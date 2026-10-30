@@ -60,7 +60,7 @@ _Last 1-3 sessions for this project. The assistant's last reply often hints at t
 
 ### Session 2 — ...
 
-## Serena memory highlights
+## Project memory highlights
 - `<memory-name>.md` (<mtime>) — <one-line summary>
 - ...
 
@@ -121,7 +121,7 @@ _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state
 _Surface anything that doesn't line up — the user decides._
 
 - Task X has `status: 🟢 Done` in frontmatter but `.sprint-exitcode = 1` for its sprint
-- Serena memory `current_focus.md` says we're on Y; latest session log shows assistant working on Z
+- Project memory `current_focus.md` says we're on Y; latest session log shows assistant working on Z
 - ...
 
 ## What I could not determine

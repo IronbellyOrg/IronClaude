@@ -25,5 +25,4 @@ regression_present: false
 unauthorized_deviation_present: false
 needs_human_decision: false
 user_decision_required: false
-serena_summary_corroboration: unavailable
 degraded_components: []

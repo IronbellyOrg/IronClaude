@@ -95,7 +95,6 @@ tool_coordination:
   discovery_primary: tavily
   extraction_smart_routing: true
   reasoning_engine: sequential
-  memory_backend: serena
   parallel_tool_calls: true
 
 quality_gates:
@@ -411,10 +410,6 @@ mcp_integration:
   context7:
     role: technical_docs
     fallback: tavily_search
-    
-  serena:
-    role: memory_management
-    fallback: session_only
 ```
 
 ## Monitoring Metrics

@@ -37,7 +37,6 @@ optional_capabilities:
   - { name: mcp_server.auggie,            gate_flag: "--no-mcp", failure_mode: skip }
   - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
   - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
-  - { name: mcp_server.serena,            gate_flag: "--no-mcp", failure_mode: skip }
   - { name: mcp_server.tavily,            gate_flag: "--no-mcp", failure_mode: skip }
 
 evals:
@@ -377,12 +376,11 @@ evals:
     no_pty: skip
     # T05.10 / D-0090 — body shape per OQ-2 resolution (D-0082 §4).
     # E6 exercises the Edit branch of the PreToolUse matcher group
-    # `Edit|Write|mcp__serena__*` in hooks.json (script command
-    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
-    # across the three matcher branches per D-0082 §3 hook-surface
-    # coverage map: E6 covers Edit (this), E7 covers Write, E8 covers
-    # the `mcp__serena__*` prefix (E8 carries `requires: [mcp_server.serena]`
-    # for soft-skip under --no-mcp; E6 / E7 run on every host).
+    # `Edit|Write` in hooks.json (script command
+    # =freshness-pre-edit.sh, timeout=5). Two sibling evals fan out
+    # across the two matcher branches per D-0082 §3 hook-surface
+    # coverage map: E6 covers Edit (this), E7 covers Write; both run on
+    # every host.
     #
     # OQ-2-frozen body shape (D-0082 §4 row E6 / decisions.md OQ-2):
     #   - inputs: spawn fresh claude session; inject a prompt that
@@ -403,8 +401,8 @@ evals:
     #     emitted into the freshness ledger by freshness-pre-edit.sh.
     #   - expects[2]: file(logs/freshness.jsonl, contains
     #     '"matcher":"Edit"') — proves the Edit branch of the
-    #     `Edit|Write|mcp__serena__*` matcher group fired specifically
-    #     (vs. the sibling Write / serena branches covered by E7 / E8).
+    #     `Edit|Write` matcher group fired specifically
+    #     (vs. the sibling Write branch covered by E7).
     #     Two-substring shape mirrors the E2.1-3 matcher-coverage triad
     #     (D-0086 §"Two-assertion shape ({event, tool})").
     #   - expects[3]: file.exists(edited.txt) — proves the scratch file
@@ -472,12 +470,11 @@ evals:
     no_pty: skip
     # T05.11 / D-0091 — body shape per OQ-2 resolution (D-0082 §4).
     # E7 exercises the Write branch of the PreToolUse matcher group
-    # `Edit|Write|mcp__serena__*` in hooks.json (script command
-    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
-    # across the three matcher branches per D-0082 §3 hook-surface
-    # coverage map: E6 covers Edit, E7 covers Write (this), E8 covers
-    # the `mcp__serena__*` prefix (E8 carries `requires: [mcp_server.serena]`
-    # for soft-skip under --no-mcp; E6 / E7 run on every host).
+    # `Edit|Write` in hooks.json (script command
+    # =freshness-pre-edit.sh, timeout=5). Two sibling evals fan out
+    # across the two matcher branches per D-0082 §3 hook-surface
+    # coverage map: E6 covers Edit, E7 covers Write (this); both run on
+    # every host.
     #
     # OQ-2-frozen body shape (D-0082 §4 row E7 / decisions.md OQ-2):
     #   - inputs: spawn fresh claude session; inject a prompt that
@@ -496,14 +493,14 @@ evals:
     #   - expects[1]: file(logs/freshness.jsonl, contains
     #     '"type":"pre_edit"') — proves a pre_edit-typed event row was
     #     emitted into the freshness ledger by freshness-pre-edit.sh.
-    #     The `pre_edit` type label is shared across Edit/Write/serena
+    #     The `pre_edit` type label is shared across the Edit and Write
     #     branches because they share the hook script; the matcher
     #     pin (next assertion) is what discriminates the Write branch
-    #     from the sibling Edit / serena branches.
+    #     from the sibling Edit branch.
     #   - expects[2]: file(logs/freshness.jsonl, contains
     #     '"matcher":"Write"') — proves the Write branch of the
-    #     `Edit|Write|mcp__serena__*` matcher group fired specifically
-    #     (vs. the sibling Edit / serena branches covered by E6 / E8).
+    #     `Edit|Write` matcher group fired specifically
+    #     (vs. the sibling Edit branch covered by E6).
     #     Two-substring shape mirrors the E6 (D-0090) pattern and the
     #     E2.1-3 matcher-coverage triad (D-0086 §"Two-assertion shape
     #     ({event, tool})").
@@ -563,131 +560,6 @@ evals:
       - exit_code:
           equals: 0
 
-  - id: E8
-    title: "PreToolUse serena matcher fires"
-    category: hook-lifecycle
-    requires: [mcp_server.serena]
-    timeout_sec: 60
-    isolation:
-      home_strategy: ephemeral
-    no_pty: skip
-    # T05.13 / D-0092 — body shape per OQ-2 resolution (D-0082 §4).
-    # E8 exercises the `mcp__serena__*` branch of the PreToolUse matcher
-    # group `Edit|Write|mcp__serena__*` in hooks.json (script command
-    # =freshness-pre-edit.sh, timeout=5). Three sibling evals fan out
-    # across the three matcher branches per D-0082 §3 hook-surface
-    # coverage map: E6 covers Edit (D-0090), E7 covers Write (D-0091),
-    # E8 covers the `mcp__serena__*` prefix (this). E8 is the only one
-    # of the trio that carries `requires: [mcp_server.serena]` —
-    # soft-skip under `--no-mcp` or if the serena MCP server is
-    # unreachable — because firing the matcher requires invoking a real
-    # `mcp__serena__*` tool, which only exists when the serena MCP
-    # server is connected to the claude session.
-    #
-    # OQ-2-frozen body shape (D-0082 §4 row E8 / decisions.md OQ-2):
-    #   - inputs[0]: Write a scratch file `modified.txt` with content
-    #     "before" so the subsequent serena call has a target to
-    #     replace_content on (mirrors the E6 Write→Edit chain: serena's
-    #     replace_content needs a pre-existing file). The seed Write
-    #     also fires the PreToolUse hook on the Write matcher branch,
-    #     but the assertion below pins the serena-branch substring
-    #     specifically — co-firing on Write is harmless.
-    #   - inputs[1]: prompt that triggers
-    #     `mcp__serena__replace_content` on modified.txt to swap
-    #     "before"→"after"; this is the call that fires the PreToolUse
-    #     hook on the `mcp__serena__*` matcher branch — the surface
-    #     this eval asserts.
-    #   - inputs[2]: prompt "/quit" — clean session exit so
-    #     `exit_code.equals(0)` can pin the PTY teardown contract
-    #     (sibling pattern to E3 / E4 / E5 / E6 / E7).
-    #   - expects[0]: file.exists(logs/freshness.jsonl) — proves the
-    #     freshness event ledger was opened (by a prior SessionStart
-    #     hook on the same spawn or by freshness-pre-edit.sh itself).
-    #   - expects[1]: file(logs/freshness.jsonl, contains
-    #     '"type":"pre_edit"') — proves a pre_edit-typed event row was
-    #     emitted into the freshness ledger by freshness-pre-edit.sh.
-    #     The `pre_edit` type label is shared across Edit/Write/serena
-    #     branches because they share the hook script; the matcher
-    #     pin (next assertion) is what discriminates the serena branch
-    #     from the sibling Edit / Write branches.
-    #   - expects[2]: file(logs/freshness.jsonl, contains
-    #     '"matcher":"mcp__serena__replace_content"') — proves the
-    #     `mcp__serena__*` branch of the `Edit|Write|mcp__serena__*`
-    #     matcher group fired specifically (vs. the sibling Edit /
-    #     Write branches covered by E6 / E7). Two-substring shape
-    #     mirrors the E6 / E7 sibling pattern and the E2.1-3
-    #     matcher-coverage triad (D-0086 §"Two-assertion shape
-    #     ({event, tool})"). The asserted tool name
-    #     `mcp__serena__replace_content` is one of multiple
-    #     `mcp__serena__*` variants in the matcher (per D-0082 §4 row
-    #     E8: "or other `mcp__serena__*` variant"); choosing
-    #     replace_content keeps the body symmetric with E6's Edit
-    #     branch (both modify an existing file's contents).
-    #   - expects[3]: file.exists(modified.txt) — proves the scratch
-    #     file persisted post-replace_content. Path resolves against
-    #     ctx.home_path per _resolve_path (expect.py:79-91), i.e.
-    #     <per-eval-HOME>/modified.txt.
-    #   - expects[4]: exit_code.equals(0) — clean session exit on /quit.
-    #     Expect.jsonl predicate filters (event_count / contains_event
-    #     with `type=...` keyword args) require a Python callable
-    #     (expect.py:269-369), not expressible in declarative YAML;
-    #     following the E3 / E4 / E5 / E6 / E7 / E1 / E2.1-3 precedent,
-    #     the event-fire assertion uses Expect.file with the JSONL
-    #     substring as a sufficient proxy for `contains_event`.
-    #
-    # Capability tags: `[mcp_server.serena]` — distinguishes E8 from
-    # its sibling E6 / E7 (`[]`). FR-CAP1 soft-skip path applies:
-    # under `--no-mcp` E8 emits status=SKIPPED with skip_reason
-    # populated and the matcher-coverage gate continues to recognise
-    # serena as exercised (the gate counts authored evals; soft-skip
-    # is not a gap).
-    # Determinism (D-0082 §2.2): freshness-pre-edit.sh emits one
-    # PreToolUse row per matched tool invocation on a clean per-eval
-    # HOME; the asserted substrings are invariant across runs (the
-    # `ts`, `session_id`, `tool_call_idx`, `recent_read_age_sec` fields
-    # on the JSONL row are not asserted against). Three consecutive
-    # runs yield identical EvalOutcome statuses.
-    #
-    # Telemetry gap (pre-existing, NOT introduced by T05.13):
-    # freshness-pre-edit.sh (current revision at
-    # src/superclaude/hooks/scripts/freshness-pre-edit.sh:108-119)
-    # writes to `$HOME/.claude/logs/freshness-hook.jsonl` with a JSONL
-    # envelope `{ts, event:"PreToolUse", tool:<tool_name>, path:...,
-    # session_id:..., tool_call_idx:..., decision:..., reason:...}`. It
-    # does NOT write to `$HOME/.claude/logs/freshness.jsonl`, and the
-    # envelope fields are `event`/`tool` (not `type`/`matcher`). The
-    # OQ-2 body shape lands verbatim per the same posture taken in
-    # T05.07 / D-0087 §8.1, T05.08 / D-0088 §8.1, T05.09 / D-0089
-    # §8.1, T05.10 / D-0090 §8.1, and T05.11 / D-0091 §8.1; a
-    # follow-up hook-script update task is responsible for wiring the
-    # freshness-ledger emission with the OQ-2-contract field names.
-    # E6/E7/E8 share the underlying script so one script update
-    # unblocks all three siblings simultaneously. Acceptance criteria
-    # for T05.13 are met by describe / list / Expect.from_mapping
-    # round-trip evidence (see TASKLIST_ROOT/evidence/T05.13/).
-    inputs:
-      - prompt: "Use the Write tool to create a file named modified.txt under the current working directory with the single line 'before'."
-      - prompt: "Use mcp__serena__replace_content on modified.txt to replace 'before' with 'after'."
-        expect_tool_call: mcp__serena__replace_content
-      - prompt: "/quit"
-    expects:
-      - file:
-          path: logs/freshness.jsonl
-          exists: true
-      - file:
-          path: logs/freshness.jsonl
-          exists: true
-          contains: '"type":"pre_edit"'
-      - file:
-          path: logs/freshness.jsonl
-          exists: true
-          contains: '"matcher":"mcp__serena__replace_content"'
-      - file:
-          path: modified.txt
-          exists: true
-      - exit_code:
-          equals: 0
-
   - id: E9
     title: "PostToolUse Read async hook fires"
     category: hook-lifecycle
@@ -718,7 +590,7 @@ evals:
     #     this is the call that fires the PostToolUse hook on the Read
     #     matcher branch — the surface this eval asserts. Read does NOT
     #     fire any PreToolUse hook (hooks.json's PreToolUse matcher group
-    #     is `Edit|Write|mcp__serena__*`, which does not include Read).
+    #     is `Edit|Write`, which does not include Read).
     #   - inputs[2]: prompt "/quit" — clean session exit so the PTY
     #     teardown waits for the async hook flush before EOF. The
     #     freshness-post-read.sh script's flock-protected append runs

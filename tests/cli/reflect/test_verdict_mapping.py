@@ -90,18 +90,6 @@ def test_halted_regression() -> None:
     assert result.verdict.exit_code == 10
 
 
-def test_degraded_serena() -> None:
-    """degraded_components contains serena -> degraded / exit 11."""
-    result = derive_verdict(
-        _load("degraded_serena.yaml"),
-        expected_tier=2,
-        allow_single_vendor=False,
-        child_rc=0,
-    )
-    assert result.verdict is Verdict.DEGRADED
-    assert result.verdict.exit_code == 11
-
-
 def test_degraded_expected_t2_ran_t1() -> None:
     """status success but tier_reached 1 while expecting 2 -> degraded / 11."""
     result = derive_verdict(
@@ -190,17 +178,6 @@ def test_tolerant_unknown_field_1x() -> None:
     assert result.verdict.exit_code == 0
 
 
-def test_serena_summary_corroboration_unavailable_not_degraded() -> None:
-    """serena_summary_corroboration: unavailable must NOT route to degraded."""
-    contract = _load("pass.yaml")
-    contract["serena_summary_corroboration"] = "unavailable"
-    result = derive_verdict(
-        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
-    )
-    assert result.verdict is Verdict.PASS
-    assert result.verdict.exit_code == 0
-
-
 def test_verification_skip_exemption_not_degraded() -> None:
     """verification_ran False with an exempted skip reason must NOT degrade."""
     contract = _load("pass.yaml")
@@ -242,7 +219,7 @@ def test_benign_degraded_component_does_not_over_halt() -> None:
     contract = _load("pass.yaml")
     contract["degraded_components"] = [
         "search_deps:lsp_unindexed",
-        "serena:onboarding-parse",
+        "neighbour-search:auggie_unavailable",
     ]
     result = derive_verdict(
         contract, expected_tier=2, allow_single_vendor=False, child_rc=0

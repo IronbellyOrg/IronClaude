@@ -10,11 +10,6 @@ from superclaude.cli import install_mcp
 
 def test_updated_mcp_registry_commands_are_pinned_and_stable():
     expected = {
-        "serena": (
-            "uvx --from serena-agent==1.7.0 serena start-mcp-server "
-            "--context claude-code --project-from-cwd "
-            "--enable-web-dashboard false --enable-gui-log-window false"
-        ),
         "morphllm-fast-apply": "npx -y @morphllm/morphmcp",
         "auggie": "auggie --mcp --mcp-auto-workspace",
     }
@@ -35,30 +30,22 @@ def test_updated_mcp_registry_commands_are_pinned_and_stable():
 
 
 def test_removed_mcp_servers_are_not_in_registry():
-    for name in ("sequential-thinking", "magic", "chrome-devtools"):
+    for name in (
+        "sequential-thinking",
+        "magic",
+        "chrome-devtools",
+        "codebase-memory-mcp",
+        "serena",
+    ):
         assert name not in install_mcp.MCP_SERVERS
 
 
 def test_distributable_mcp_templates_match_pinned_registry_commands():
     root = Path(__file__).resolve().parents[2]
     expected = {
-        "serena.json": [
-            "--from",
-            "serena-agent==1.7.0",
-            "serena",
-            "start-mcp-server",
-            "--context",
-            "claude-code",
-            "--project-from-cwd",
-            "--enable-web-dashboard",
-            "false",
-            "--enable-gui-log-window",
-            "false",
-        ],
         "morphllm.json": ["-y", "@morphllm/morphmcp"],
     }
     server_names = {
-        "serena.json": "serena",
         "morphllm.json": "morphllm-fast-apply",
     }
 
@@ -187,56 +174,6 @@ def test_auggie_global_binary_rejects_node_19_before_binary_install(monkeypatch)
         install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
     )
     assert calls == [["node", "--version"]]
-
-
-def test_codebase_memory_native_registry_contract():
-    entry = install_mcp.MCP_SERVERS["codebase-memory-mcp"]
-    assert entry["name"] == "codebase-memory-mcp"
-    assert entry["transport"] == "stdio"
-    assert entry["command"] == "codebase-memory-mcp"
-    assert entry["args"] == []
-    assert "api_key_env" not in entry
-    assert "requires_global_binary" not in entry
-
-
-def test_codebase_memory_dispatch_uses_shared_install(monkeypatch, capsys):
-    calls = []
-
-    def install(*, scope, dry_run):
-        calls.append((scope, dry_run))
-        return True, "native registration fixture"
-
-    monkeypatch.setattr(install_mcp, "install_codebase_memory_mcp", install)
-    monkeypatch.setattr(
-        install_mcp,
-        "check_mcp_server_installed",
-        lambda *a: (_ for _ in ()).throw(AssertionError("legacy list lookup")),
-    )
-    assert install_mcp.install_mcp_server(
-        install_mcp.MCP_SERVERS["codebase-memory-mcp"], scope="user", dry_run=True
-    )
-    assert calls == [("user", True)]
-    assert "native registration fixture" in capsys.readouterr().out
-
-
-def test_selected_native_prerequisites_do_not_probe_other_runtimes(monkeypatch):
-    from superclaude.cli import install_codebase_memory as native
-
-    calls = []
-    monkeypatch.setattr(
-        native,
-        "discover_executable",
-        lambda: native.Discovery("canonical", Path("/fixture/native"), "fixture"),
-    )
-
-    def run(cmd, **kwargs):
-        calls.append(cmd)
-        assert cmd == ["claude", "--version"]
-        return SimpleNamespace(returncode=0, stdout="fixture", stderr="")
-
-    monkeypatch.setattr(install_mcp, "_run_command", run)
-    assert install_mcp.check_prerequisites(["codebase-memory-mcp"]) == (True, [])
-    assert calls == [["claude", "--version"]]
 
 
 def test_selected_npm_prerequisites_probe_only_claude_node_and_npx(monkeypatch):
@@ -382,3 +319,40 @@ def test_litellm_changed_header_is_removed_and_re_added(monkeypatch):
         "--header",
         "x-litellm-api-key: Bearer ${LITELLM_API_KEY}",
     ] in calls
+
+
+def test_codegraph_registry_entry_contract():
+    entry = install_mcp.MCP_SERVERS["codegraph"]
+    assert entry["name"] == "codegraph"
+    assert entry["transport"] == "stdio"
+    assert entry["command"] == "codegraph"
+    assert entry["args"] == ["serve", "--mcp"]
+    assert entry["required"] is False
+
+
+def test_codegraph_dispatches_to_phase_function_never_generic_add(monkeypatch):
+    seen = []
+
+    def phase(**kwargs):
+        seen.append(kwargs)
+        return True, "phase ran"
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("generic registration path used")
+
+    monkeypatch.setattr(install_mcp, "install_codegraph_mcp", phase)
+    monkeypatch.setattr(install_mcp, "_run_command", forbidden)
+    monkeypatch.setattr(install_mcp, "_exec_claude", forbidden)
+    assert install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["codegraph"], scope="user", dry_run=True
+    )
+    assert seen == [{"scope": "user", "dry_run": True}]
+
+    monkeypatch.setattr(install_mcp, "install_codegraph_mcp", lambda **k: (False, "no"))
+    assert not install_mcp.install_mcp_server(install_mcp.MCP_SERVERS["codegraph"])
+
+
+def test_codegraph_is_listed_by_mcp_list(monkeypatch, capsys):
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
+    install_mcp.list_available_servers()
+    assert "codegraph" in capsys.readouterr().out

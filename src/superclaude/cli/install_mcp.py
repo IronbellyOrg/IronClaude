@@ -11,14 +11,16 @@ import platform
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import click
 
-from superclaude.cli import install_codebase_memory as codebase_memory
+from . import install_codegraph
 
 # AIRIS MCP Gateway - Unified MCP solution (recommended)
 AIRIS_GATEWAY = {
@@ -50,13 +52,6 @@ MCP_SERVERS = {
         "description": "Cross-browser E2E testing and automation",
         "transport": "stdio",
         "command": "npx -y @playwright/mcp@latest",
-        "required": False,
-    },
-    "serena": {
-        "name": "serena",
-        "description": "Semantic code analysis and intelligent editing",
-        "transport": "stdio",
-        "command": "uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false",
         "required": False,
     },
     "morphllm-fast-apply": {
@@ -98,12 +93,12 @@ MCP_SERVERS = {
             "      Docs: https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code"
         ),
     },
-    "codebase-memory-mcp": {
-        "name": "codebase-memory-mcp",
-        "description": "Native codebase graph memory with full upstream companion setup",
+    "codegraph": {
+        "name": "codegraph",
+        "description": "Code graph: symbols, callers, impact, file outlines (pinned, installed by superclaude install)",
         "transport": "stdio",
-        "command": "codebase-memory-mcp",
-        "args": [],
+        "command": "codegraph",
+        "args": ["serve", "--mcp"],
         "required": False,
     },
     # Appended last so the numbered install menu keeps its existing numbers.
@@ -495,26 +490,6 @@ def _is_interactive() -> bool:
     return sys.stdin.isatty()
 
 
-def _native_selection_error(scope: str) -> Optional[str]:
-    if scope != "user":
-        return "Codebase Memory full native lifecycle supports user scope only."
-    if platform.system() != "Linux" or platform.machine().lower() not in {
-        "amd64",
-        "x86_64",
-        "arm64",
-        "aarch64",
-    }:
-        return "Automated Codebase Memory lifecycle requires Linux amd64/arm64; use the official manual mechanism on other platforms."
-    return None
-
-
-def _native_lifecycle_notice() -> str:
-    return (
-        f"Upstream source: {codebase_memory.INSTALL_URL}. Native location: {codebase_memory.canonical_executable()}. "
-        "This user/account-wide lifecycle affects detected clients and companion instructions, skills, agents and hooks; graph indexes are retained."
-    )
-
-
 def check_prerequisites(
     selected_servers: Optional[List[str]] = None,
 ) -> Tuple[bool, List[str]]:
@@ -570,29 +545,6 @@ def check_prerequisites(
                 )
         except (OSError, subprocess.SubprocessError):
             errors.append("Docker readiness failed for AIRIS MCP Gateway")
-    if "serena" in selected:
-        # Retain the existing optional uv advisory, but only for its consumer.
-        try:
-            result = _run_command(
-                ["uv", "--version"], capture_output=True, text=True, timeout=10
-            )
-            if result is None or result.returncode != 0:
-                click.echo("uv not found - required to run Serena MCP server", err=True)
-        except (OSError, subprocess.SubprocessError):
-            click.echo("uv not found - required to run Serena MCP server", err=True)
-    if codebase_memory.BINARY_NAME in selected:
-        found = codebase_memory.discover_executable()
-        if found.state == "ambiguous" or (
-            found.state == "non_runnable"
-            and found.executable != codebase_memory.canonical_executable()
-        ):
-            errors.append(
-                "Native executable discovery is ambiguous or externally non-runnable; resolve it before installation"
-            )
-        elif found.state not in {"canonical", "external"}:
-            for tool in ("curl", "bash"):
-                if shutil.which(tool) is None:
-                    errors.append(f"{tool} is required for missing native acquisition")
     return not errors, errors
 
 
@@ -754,13 +706,8 @@ def prompt_for_api_key(
         return None
 
 
-def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
-    """Read ONLY the exact top-level user entry; False means lookup is unknown.
-
-    Unscoped `mcp get` can return a shadowing local/project entry and its text
-    loses JSON fields. Keep existing legacy lookup behavior for other servers.
-    No writer lives here: all mutations go through the scoped Claude CLI.
-    """
+def read_user_mcp_servers() -> tuple[bool, dict]:
+    """The top-level user ``mcpServers`` object; False means lookup is unknown."""
 
     def unique_object(pairs):
         result = {}
@@ -773,7 +720,7 @@ def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
     try:
         config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
         if config_dir == "":
-            return False, None
+            return False, {}
         path = (
             Path(config_dir).expanduser() if config_dir is not None else Path.home()
         ) / ".claude.json"
@@ -782,28 +729,32 @@ def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
                 path.read_text(encoding="utf-8"), object_pairs_hook=unique_object
             )
         except FileNotFoundError:
-            return (False, None) if path.is_symlink() else (True, None)
+            return (False, {}) if path.is_symlink() else (True, {})
         if not isinstance(root, dict):
-            return False, None
+            return False, {}
         servers = root.get("mcpServers", {})
         if not isinstance(servers, dict):
-            return False, None
-        if server_name not in servers:
-            return True, None
-        entry = servers[server_name]
-        return (True, entry) if isinstance(entry, dict) else (False, None)
+            return False, {}
+        return True, servers
     except (OSError, ValueError, RuntimeError):
         # Never include file contents or exception text: either may contain keys.
+        return False, {}
+
+
+def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
+    """Read ONLY the exact top-level user entry; False means lookup is unknown.
+
+    Unscoped `mcp get` can return a shadowing local/project entry and its text
+    loses JSON fields. Keep existing legacy lookup behavior for other servers.
+    No writer lives here: all mutations go through the scoped Claude CLI.
+    """
+    known, servers = read_user_mcp_servers()
+    if not known:
         return False, None
-
-
-def _native_registration_matches(entry: dict | None, executable: Path) -> bool:
-    return bool(
-        entry is not None
-        and entry.get("type", "stdio") == "stdio"
-        and entry.get("command") == str(executable)
-        and entry.get("args", []) == []
-    )
+    if server_name not in servers:
+        return True, None
+    entry = servers[server_name]
+    return (True, entry) if isinstance(entry, dict) else (False, None)
 
 
 def _run_registration_command(cmd: list[str]) -> bool:
@@ -815,22 +766,144 @@ def _run_registration_command(cmd: list[str]) -> bool:
         return False
 
 
-def _add_user_native_entry(entry: dict) -> bool:
-    return _run_registration_command(
-        [
-            "claude",
-            "mcp",
-            "add-json",
-            codebase_memory.BINARY_NAME,
-            json.dumps(entry),
-            "--scope",
-            "user",
-        ]
+def _bounded(argv: list[str], timeout: float, *, capture: bool) -> tuple[int, str]:
+    """Run ``argv`` directly (no shell) in its own session; kill the group on timeout.
+
+    stderr is always discarded; stdout is returned only when ``capture`` is true.
+    Raises ``subprocess.TimeoutExpired`` after the process group is killed.
+    """
+    process = subprocess.Popen(
+        argv,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE if capture else subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        errors="replace",
+        start_new_session=True,
     )
+    try:
+        out, _ = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            process.kill()
+        try:
+            process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            pass
+        raise
+    return process.returncode, out or ""
 
 
-def _restore_user_native_entry(previous: dict, attempted: dict) -> bool:
-    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+def _exec_claude(argv: list[str], timeout: float) -> int:
+    """Run ``claude`` bounded; output is discarded because it can contain old secrets."""
+    return _bounded(argv, timeout, capture=False)[0]
+
+
+def _run_argv(argv: list[str], timeout: float) -> tuple[int, str]:
+    """Bounded argv runner that returns ``(returncode, stdout)``, e.g. ``--version``."""
+    return _bounded(argv, timeout, capture=True)
+
+
+def _remove_exact_user_entry(
+    name: str,
+    matcher,
+    *,
+    deadline: float | None = None,
+    per_call_timeout: float = 10.0,
+) -> str:
+    """Remove the user-scope entry ``name`` only while ``matcher(entry)`` is true.
+
+    The entry is re-read and re-matched right before ``claude mcp remove`` and read
+    again afterwards. Returns one of: removed, absent, changed (no longer matches
+    before removal; kept), replaced (a different shape appeared after removal; kept),
+    unverified, unknown (lookup failed), timeout, failed, skipped (``deadline`` hit,
+    a ``time.monotonic()`` value). Nothing is ever retried.
+    """
+    known, entry = read_user_mcp_entry(name)
+    if not known:
+        return "unknown"
+    if entry is None:
+        return "absent"
+    if not matcher(entry):
+        return "changed"
+    timeout = per_call_timeout
+    if deadline is not None:
+        timeout = min(timeout, deadline - time.monotonic())
+        if timeout <= 0:
+            return "skipped"
+    try:
+        returncode = _exec_claude(
+            ["claude", "mcp", "remove", name, "--scope", "user"], timeout
+        )
+    except subprocess.TimeoutExpired:
+        return "timeout"
+    except OSError:
+        return "failed"
+    if returncode != 0:
+        return "failed"
+    known, after = read_user_mcp_entry(name)
+    if not known:
+        return "unverified"
+    if after is None:
+        return "removed"
+    return "unverified" if matcher(after) else "replaced"
+
+
+_CODEGRAPH_ENV_KEYS = {
+    "CODEGRAPH_TELEMETRY",
+    "CODEGRAPH_NO_UPDATE_CHECK",
+    "CODEGRAPH_MCP_TOOLS",
+}
+_CODEGRAPH_REMOVE = "claude mcp remove codegraph --scope user"
+
+
+def _codegraph_entry(command: Path) -> dict:
+    """The exact user-scope entry (spec 2.4); the tool list comes from MCP_TOOLS."""
+    return {
+        "type": "stdio",
+        "command": str(command),
+        "args": ["serve", "--mcp"],
+        "alwaysLoad": True,
+        "env": {
+            "CODEGRAPH_TELEMETRY": "0",
+            "CODEGRAPH_NO_UPDATE_CHECK": "1",
+            "CODEGRAPH_MCP_TOOLS": install_codegraph.MCP_TOOLS,
+        },
+    }
+
+
+def _codegraph_entry_kind(entry: dict, expected: dict) -> str:
+    """equal | owned (only fields IronClaude writes, so safe to replace) | user."""
+    if entry == expected:
+        return "equal"
+    env = entry.get("env", {})
+    owned = (
+        set(entry) <= set(expected)
+        and entry.get("type", "stdio") == "stdio"
+        and entry.get("args") == ["serve", "--mcp"]
+        and isinstance(entry.get("command"), str)
+        and isinstance(env, dict)
+        and set(env) <= _CODEGRAPH_ENV_KEYS
+    )
+    return "owned" if owned else "user"
+
+
+def _claude_user_entry_cmd(*args: str) -> bool:
+    """One bounded ``claude mcp`` call; no output or exception text is kept."""
+    try:
+        return _exec_claude(["claude", "mcp", *args, "--scope", "user"], 60) == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def _add_user_entry(name: str, entry: dict) -> bool:
+    return _claude_user_entry_cmd("add-json", name, json.dumps(entry))
+
+
+def _restore_user_entry(name: str, previous: dict, attempted: dict) -> bool:
+    known, current = read_user_mcp_entry(name)
     if not known:
         return False
     if current == previous:
@@ -838,117 +911,108 @@ def _restore_user_native_entry(previous: dict, attempted: dict) -> bool:
     if current is not None:
         # A timed-out add may have written our entry. Do not overwrite a third
         # party's concurrent edit when its contents cannot be attributed to us.
-        if current != attempted or not _run_registration_command(
-            [
-                "claude",
-                "mcp",
-                "remove",
-                codebase_memory.BINARY_NAME,
-                "--scope",
-                "user",
-            ]
-        ):
+        if current != attempted or not _claude_user_entry_cmd("remove", name):
             return False
-    if not _add_user_native_entry(previous):
+    if not _add_user_entry(name, previous):
         return False
-    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    known, current = read_user_mcp_entry(name)
     return known and current == previous
 
 
-def install_codebase_memory_mcp(
+def install_codegraph_mcp(
     *, scope: str = "user", dry_run: bool = False
 ) -> tuple[bool, str]:
-    """Shared native install/register boundary for framework and MCP callers."""
-    invalid = _native_selection_error(scope)
-    if invalid:
-        return False, invalid
+    """Required install phase: reuse or download the pinned codegraph, then register it."""
+    if scope != "user":
+        return False, "codegraph is registered at user scope only; use --scope user."
     if dry_run:
         return (
             True,
-            "[DRY RUN] "
-            + _native_lifecycle_notice()
-            + " Would reuse a usable executable or acquire full upstream setup if missing, then ensure exact user stdio registration. No changes made.",
+            f"[DRY RUN] Would reuse a codegraph {install_codegraph.VERSION} found on "
+            f"PATH or in ~/.local/bin, otherwise download the pinned "
+            f"{install_codegraph.TAG} release for this platform and verify its "
+            "SHA-256, then ensure the exact user-scope registration "
+            "(claude mcp add-json codegraph ... --scope user). No changes made.",
         )
     try:
-        ready = _run_command(
-            ["claude", "--version"], capture_output=True, text=True, timeout=10
-        )
-        if ready is None or ready.returncode != 0:
-            return (
-                False,
-                "Prerequisites: Claude CLI is unavailable; acquisition was not started.",
-            )
+        code, _ = _run_argv(["claude", "--version"], 10)
     except (OSError, subprocess.SubprocessError):
+        code = 1
+    if code != 0:
         return (
             False,
-            "Prerequisites: Claude CLI readiness failed; acquisition was not started.",
+            "Prerequisites: Claude CLI is unavailable; codegraph discovery and "
+            "download were not started. Install Claude Code, then rerun "
+            "superclaude install.",
         )
 
-    click.echo(_native_lifecycle_notice())
-    click.echo("Acquisition: preparing Codebase Memory through the native helper.")
-    acquired = codebase_memory.acquire_codebase_memory(scope=scope)
-    if not acquired.success:
-        return False, f"Acquisition ({acquired.stage}) failed: {acquired.message}"
-    executable = acquired.executable
-    if executable is None or not executable.is_absolute() or not acquired.version:
-        return (
-            False,
-            "Executable verification: native helper did not provide an absolute executable and version.",
-        )
-    click.echo(f"Executable verification: {acquired.version} at {executable}")
+    ok, message, launcher = install_codegraph.acquire(_run_argv)
+    if not ok or launcher is None:
+        return False, message
+    click.echo(message)
 
-    known, previous = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+    known, previous = read_user_mcp_entry("codegraph")
     if not known:
         return (
             False,
-            "Registration lookup failed: cannot establish the exact user entry; no registration reconciliation was attempted.",
+            "Registration lookup failed: cannot read the exact user entry from "
+            "~/.claude.json; no registration change was attempted.",
         )
-    success_message = f"Registration: exact user stdio entry verified ({acquired.version}). Restart clients to load integrations; no indexing or live MCP handshake was performed."
-    if _native_registration_matches(previous, executable):
-        return True, success_message
-    expected = {"type": "stdio", "command": str(executable), "args": []}
-    if previous is not None and (previous.get("env") or previous.get("headers")):
-        # Restoring this entry would put its values on a process command line
-        # (`claude mcp add-json` takes JSON only as an argument), so never replace it.
-        return (
-            False,
-            "Registration: the existing user codebase-memory-mcp entry has env or headers values, so it was not replaced. Update it by hand or remove it with `claude mcp remove codebase-memory-mcp --scope user`, then retry.",
-        )
-    if previous is not None and not _run_registration_command(
-        [
-            "claude",
-            "mcp",
-            "remove",
-            codebase_memory.BINARY_NAME,
-            "--scope",
-            "user",
-        ]
-    ):
-        # A failed or timed-out remove may still have persisted; only `previous`
-        # is attributable to us here, so never remove an entry that differs from it.
-        if _restore_user_native_entry(previous, previous):
+    expected = _codegraph_entry(launcher)
+    done = (
+        f"Registration: exact user stdio entry verified (codegraph "
+        f"{install_codegraph.VERSION} at {launcher}). Restart Claude sessions to "
+        "load it; no indexing or live MCP handshake was performed."
+    )
+    kind = "absent" if previous is None else _codegraph_entry_kind(previous, expected)
+    if kind == "user":
+        if shutil.which(str(previous.get("command", ""))):
             return (
-                False,
-                "Registration removal failed; previous user registration is intact. No replacement was attempted.",
+                True,
+                "user-managed codegraph entry kept; to let IronClaude manage it "
+                f"run: {_CODEGRAPH_REMOVE}",
             )
         return (
             False,
-            "Registration removal failed; restoration failed. User registration may be partial; inspect it before retrying.",
+            "Registration: the user-managed codegraph entry points at a command "
+            f"that does not run, so it was not replaced. Remove it with "
+            f"`{_CODEGRAPH_REMOVE}` and rerun superclaude install.",
         )
-    added = _add_user_native_entry(expected)
-    known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)
-    if added and known and _native_registration_matches(current, executable):
-        return True, success_message
+    if kind == "equal":
+        _prune(launcher)
+        return True, done
+    if kind == "owned":
+        removed = _remove_exact_user_entry("codegraph", lambda e: e == previous)
+        if removed not in ("removed", "absent"):
+            if removed in ("timeout", "failed", "unverified") and _restore_user_entry(
+                "codegraph", previous, previous
+            ):
+                return (
+                    False,
+                    "Registration removal failed; previous user registration is "
+                    "intact. No replacement was attempted.",
+                )
+            return (
+                False,
+                f"Registration removal {removed}; user registration may be partial "
+                "or was changed by someone else. Inspect it before retrying.",
+            )
+    added = _add_user_entry("codegraph", expected)
+    known, current = read_user_mcp_entry("codegraph")
+    if added and known and current == expected:
+        _prune(launcher)
+        return True, done
     failure = "Registration verification failed" if added else "Registration add failed"
     if previous is not None:
-        if _restore_user_native_entry(previous, expected):
+        if _restore_user_entry("codegraph", previous, expected):
             return (
                 False,
                 f"{failure}; previous user registration restored. Retry the installation.",
             )
         return (
             False,
-            f"{failure}; restoration failed. User registration may be partial; inspect it before retrying.",
+            f"{failure}; restoration failed. User registration may be partial; "
+            "inspect it before retrying.",
         )
     return (
         False,
@@ -956,98 +1020,91 @@ def install_codebase_memory_mcp(
     )
 
 
-def _cleanup_user_native_registration() -> tuple[bool, str]:
-    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+def codegraph_ready() -> tuple[bool, str]:
+    """Read-only: is codegraph registered and usable, so Serena may be retired?
+
+    Shared by ``install``, ``install --list`` and ``doctor``. Returns
+    ``(ready, reason)``; the reason says why not when ``ready`` is false.
+    """
+    known, entry = read_user_mcp_entry("codegraph")
     if not known:
-        return (
-            False,
-            "Registration lookup failed; possible partial removal. Inspect user configuration before retrying.",
-        )
+        return False, "cannot read the user MCP configuration"
     if entry is None:
-        return True, "Exact user registration is absent."
-    if not _run_registration_command(
-        [
-            "claude",
-            "mcp",
-            "remove",
-            codebase_memory.BINARY_NAME,
-            "--scope",
-            "user",
-        ]
-    ):
+        return False, "codegraph is not registered"
+    state, path, _ = install_codegraph.inspect_binary(_run_argv)
+    expected = _codegraph_entry(path or Path("/missing/codegraph"))
+    kind = _codegraph_entry_kind(entry, expected)
+    if kind == "equal":
+        return True, ""
+    command = entry.get("command")
+    if kind == "owned":
+        if isinstance(command, str) and install_codegraph.reports_pinned_version(
+            _run_argv, Path(command)
+        ):
+            return True, ""
         return (
             False,
-            "User registration cleanup failed; possible partial removal. Inspect it before retrying.",
+            f"the registered codegraph does not print {install_codegraph.VERSION}",
         )
-    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
-    if not known or entry is not None:
-        return (
-            False,
-            "User registration absence could not be verified; possible partial removal. Inspect it before retrying.",
-        )
-    return (
-        True,
-        "Exact user registration removed; other scopes were not changed by IronClaude.",
-    )
+    if isinstance(command, str) and shutil.which(command):
+        return True, ""  # user-managed: the user chose it, any version
+    return False, "the user-managed codegraph entry's command does not run"
 
 
-def uninstall_codebase_memory_mcp(
-    *, scope: str = "user", confirmed: bool = False, dry_run: bool = False
-) -> tuple[bool, str]:
-    """Account-wide native removal, then exact-user residual cleanup, with no prompts."""
-    if scope != "user":
-        return False, "Full Codebase Memory removal supports user scope only."
-    preview = codebase_memory.preview_codebase_memory_removal()
-    if preview.state not in {"ready", "missing"}:
-        return False, preview.message
-    known, entry = read_user_mcp_entry(codebase_memory.BINARY_NAME)
+def codegraph_ready_line() -> str:
+    ready, reason = codegraph_ready()
+    return "Ready for Serena retirement: " + ("yes" if ready else f"no ({reason})")
+
+
+def codegraph_list_lines() -> list[str]:
+    """Read-only ``install --list`` block: no download, no ``claude mcp`` call."""
+    state, path, version = install_codegraph.inspect_binary(_run_argv)
+    if state == "ok":
+        executable = f"{path} ({version})"
+    elif state == "mismatch":
+        executable = f"version mismatch at {path} ({version})"
+    else:
+        executable = "missing"
+
+    owned = install_codegraph.owned_paths()
+    if owned:
+        owner = "owned (receipt) " + ", ".join(owned)
+        if path is not None and not any(str(path).startswith(d) for d in owned):
+            owner += f"; external: {path}, not owned"
+    elif path is not None:
+        owner = f"external: {path}, not owned"
+    else:
+        owner = "none"
+
+    known, entry = read_user_mcp_entry("codegraph")
     if not known:
-        return (
-            False,
-            "Registration lookup failed before removal; no native removal or registration cleanup was attempted.",
+        registration = "unknown (read/parse failure)"
+    elif entry is None:
+        registration = "absent"
+    else:
+        kind = _codegraph_entry_kind(
+            entry, _codegraph_entry(path or Path("/missing/codegraph"))
         )
-    partial = "Registration-only partial cleanup: companion assets were not audited or removed; indexes and updater are retained."
-    if dry_run:
-        plan = (
-            partial
-            if preview.state == "missing" and entry is not None
-            else preview.message
-        )
-        return (
-            True,
-            "[DRY RUN] "
-            + _native_lifecycle_notice()
-            + " "
-            + plan
-            + " No native lifecycle, registration changes or prompts were performed.",
-        )
-    if not confirmed:
-        return (
-            False,
-            preview.message
-            + " Explicit confirmation is required (default No); no removal was performed.",
-        )
-    if preview.state == "missing":
-        if entry is None:
-            return (
-                True,
-                "Native executable and exact user registration are absent; no changes made. Companion assets were not audited; indexes and updater are retained.",
-            )
-        success, message = _cleanup_user_native_registration()
-        return success, partial + " " + message
+        registration = {
+            "equal": "matches",
+            "owned": "owned but stale",
+            "user": "user-managed",
+        }[kind]
+    return [
+        f"codegraph MCP (pinned {install_codegraph.TAG}; user scope):",
+        f"   Executable: {executable}",
+        f"   Owner: {owner}",
+        f"   User registration: {registration}",
+        f"   {codegraph_ready_line()}",
+    ]
 
-    removed = codebase_memory.uninstall_codebase_memory(scope=scope, confirmed=True)
-    if not removed.success:
-        return False, removed.message
-    success, message = _cleanup_user_native_registration()
-    combined = removed.message + " " + message
-    if removed.remaining:
-        combined += (
-            " Alternate PATH entries remain: "
-            + ", ".join(map(str, removed.remaining))
-            + "."
-        )
-    return success, combined
+
+def _prune(launcher: Path) -> None:
+    """Best-effort cleanup of older owned version dirs after a verified registration."""
+    try:
+        install_codegraph.prune_old_versions(launcher)
+    except OSError:
+        pass
 
 
 def install_mcp_server(
@@ -1065,8 +1122,8 @@ def install_mcp_server(
         True if successful, False otherwise
     """
     server_name = server_info["name"]
-    if server_name == codebase_memory.BINARY_NAME:
-        success, message = install_codebase_memory_mcp(scope=scope, dry_run=dry_run)
+    if server_name == "codegraph":
+        success, message = install_codegraph_mcp(scope=scope, dry_run=dry_run)
         click.echo(message, err=not success)
         return success
     transport = server_info["transport"]
@@ -1307,14 +1364,10 @@ def install_mcp_servers(
     scope: str = "user",
     dry_run: bool = False,
     use_gateway: Optional[bool] = None,
-    *,
-    uninstall: bool = False,
-    yes: bool = False,
 ) -> Tuple[bool, str]:
-    """Validate the whole selection, then install it or remove only Codebase Memory.
+    """Validate the whole selection, then install it.
 
-    `yes` controls native removal consent only. It never bypasses API-key or
-    global-binary prompts. Dry-run never enters prerequisite/mutation paths.
+    Dry-run never enters prerequisite/mutation paths.
     """
     if scope not in {"local", "project", "user"}:
         return False, "Invalid MCP scope"
@@ -1323,59 +1376,49 @@ def install_mcp_servers(
         selected = ["airis-mcp-gateway"]
     if not selected:
         if dry_run:
-            click.echo(
-                "1. Install MCP servers (default)\n2. Uninstall Codebase Memory MCP\n3. Cancel"
-            )
+            click.echo("1. Install MCP servers (default)\n2. Cancel")
             _show_mcp_install_choices()
             return (
                 True,
-                "[DRY RUN] Available choices only; select servers explicitly to preview an operation. "
-                + _native_lifecycle_notice(),
+                "[DRY RUN] Available choices only; select servers explicitly to preview an operation.",
             )
-        if uninstall or yes or not _is_interactive():
+        if not _is_interactive():
             return (
                 False,
-                "Explicit server selection is required; use --servers codebase-memory-mcp for native lifecycle actions.",
+                "Explicit server selection is required; use --servers.",
             )
-        click.echo(
-            "1. Install MCP servers (default)\n2. Uninstall Codebase Memory MCP\n3. Cancel"
-        )
-        action = click.prompt("Action", default="1", type=click.Choice(["1", "2", "3"]))
-        if action == "3":
-            return True, "Cancelled; no changes made."
+        click.echo("1. Install MCP servers (default)\n2. Cancel")
+        action = click.prompt("Action", default="1", type=click.Choice(["1", "2"]))
         if action == "2":
-            selected, uninstall = [codebase_memory.BINARY_NAME], True
-        else:
-            _show_mcp_install_choices()
-            choice = (
-                click.prompt(
-                    "Select g for gateway, 0 for all, or comma-separated numbers",
-                    default="g",
-                )
-                .strip()
-                .lower()
+            return True, "Cancelled; no changes made."
+        _show_mcp_install_choices()
+        choice = (
+            click.prompt(
+                "Select g for gateway, 0 for all, or comma-separated numbers",
+                default="g",
             )
-            if choice == "g":
-                selected = ["airis-mcp-gateway"]
-            elif choice == "0":
-                selected = [
-                    name
-                    for name, info in MCP_SERVERS.items()
-                    if not info.get("opt_in_only")
-                ]
-            else:
-                try:
-                    indices = [int(value.strip()) for value in choice.split(",")]
-                    names = list(MCP_SERVERS)
-                    if not indices or any(
-                        index < 1 or index > len(names) for index in indices
-                    ):
-                        return False, "Invalid selection; no changes made."
-                    selected = list(
-                        dict.fromkeys(names[index - 1] for index in indices)
-                    )
-                except ValueError:
+            .strip()
+            .lower()
+        )
+        if choice == "g":
+            selected = ["airis-mcp-gateway"]
+        elif choice == "0":
+            selected = [
+                name
+                for name, info in MCP_SERVERS.items()
+                if not info.get("opt_in_only")
+            ]
+        else:
+            try:
+                indices = [int(value.strip()) for value in choice.split(",")]
+                names = list(MCP_SERVERS)
+                if not indices or any(
+                    index < 1 or index > len(names) for index in indices
+                ):
                     return False, "Invalid selection; no changes made."
+                selected = list(dict.fromkeys(names[index - 1] for index in indices))
+            except ValueError:
+                return False, "Invalid selection; no changes made."
     unknown = [
         name
         for name in selected
@@ -1383,30 +1426,6 @@ def install_mcp_servers(
     ]
     if unknown:
         return False, "Unknown MCP server selection: " + ", ".join(unknown)
-    if uninstall and selected != [codebase_memory.BINARY_NAME]:
-        return (
-            False,
-            "Uninstall accepts only --servers codebase-memory-mcp, not mixed or other servers.",
-        )
-    if codebase_memory.BINARY_NAME in selected:
-        invalid = _native_selection_error(scope)
-        if invalid:
-            return False, invalid
-    if uninstall:
-        if not dry_run and not yes and not _is_interactive():
-            return (
-                False,
-                "Noninteractive native removal requires --yes; no changes made.",
-            )
-        valid, preview = uninstall_codebase_memory_mcp(scope=scope, dry_run=True)
-        if dry_run or not valid:
-            return valid, preview
-        click.echo("Removal preview: " + preview.removeprefix("[DRY RUN] "))
-        if not yes and not click.confirm(
-            "Proceed with account-wide Codebase Memory removal?", default=False
-        ):
-            return True, "Removal declined; no changes made."
-        return uninstall_codebase_memory_mcp(scope=scope, confirmed=True)
 
     if not dry_run:
         ready, errors = check_prerequisites(selected)

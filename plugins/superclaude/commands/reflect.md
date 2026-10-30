@@ -3,7 +3,7 @@ name: reflect
 description: "Tiered reflection protocol — UC-1 pre-execution coverage/gap audit and UC-2 post-execution deviation audit with heterogeneous reviewer ensemble, blind calibration, and mandatory evidence-validator gate"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily]
+mcp-servers: [auggie, context7, tavily]
 personas: [analyzer, qa, refactorer]
 version: 2.0.0
 supersedes: .dev/eval-workspaces/sc-reflect/skill-snapshot/reflect-v1.md
@@ -94,10 +94,8 @@ This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blocker
 | `--no-mcp` | `false` | Native-tools-only mode; warns and auto-degrades grounding quality. |
 | `--no-evidence-validator` | `false` | Skip the final evidence-validator gate (debug only — auto-warns; report records the skip in Grounding Gaps). |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (records the skip in Grounding Gaps). |
-| `--no-verify` | `false` (UC-2) | Disable the UC-2 verification triangle (`execute_shell_command` scoped non-mutating tests/linters/type-checkers/build, §6.1 step 5.5). Default-on; when set, degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry. Subsumes the deprecated `--rerun-tests` alias. |
+| `--no-verify` | `false` (UC-2) | Disable the UC-2 verification run (Bash, scoped non-mutating linters/type-checkers/tests/build under the §6.1.1 envelope, §6.1 steps 5 and 5.5). Default-on; when set, degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry. Subsumes the deprecated `--rerun-tests` alias. |
 | `--no-reachability` | `false` (UC-2) | Disable the §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (the operator rollback path). Default-on; when set, records telemetry-only skip state (`reachability_gate_ran: false`, `reachability_skip_reason: --no-reachability`); it does NOT write a Grounding Gap, set needs_human_decision, or force status: partial. |
-| `--onboard` | `false` | Opt-in one-shot Serena `onboarding` bootstrap at Wave 0.7b — runs ONLY when `list_memories` is empty for the project slug; seeds the §6.3 cold-start calibration baseline. Never creates `.serena/` implicitly. |
-| `--with-hierarchy` | `false` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval (§6.1 step 4.5, Wave 1B.3). Backend-gated (`jetbrains` only; default OFF on `lsp`, unavailable on `none`); non-OO codebases see zero change. |
 | `--remediate` | `false` | After the audit ships, offer the Tier 3 remediation chain (`task-builder` → operator runs `/task` → `/sc:reflect --mode post` re-runs as the post-commit gate). |
 | `--budget-remaining` | (none) | Caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract. |
 | `--no-promote` | `false` (UC-2) | Suppress Wave 7 promotion. Default behavior: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination. |
@@ -132,7 +130,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 
 | Tier | When | What it does | Approx cost |
 |------|------|--------------|------------|
-| Tier 1 | Always (unless STOP) | Single grounded card from `root-cause-analyst` + `confidence-calibrator`, with auggie/serena grounding. | ~3-6k Claude tokens, 1-3 min |
+| Tier 1 | Always (unless STOP) | Single grounded card from `root-cause-analyst` + `confidence-calibrator`, with auggie plus native Grep/Read grounding. | ~3-6k Claude tokens, 1-3 min |
 | Tier 2 | Auto-escalate on calibrated confidence < threshold, multi-domain, or `--depth deep` / `--tier 2` | 2-3 heterogeneous reviewers (different model classes) fan out in parallel; each card is independently calibrated; competing verdicts merged via `sc:adversarial-protocol`; `evidence-validator` drops unfounded citations. | +15-60k tokens, +4-15 min |
 | Tier 3 | Opt-in via `--remediate` AND user accepts | `task-builder` produces an MDTM remediation task file; operator runs `/task` themselves; `/sc:reflect --mode post` re-runs as the post-commit gate. | +20-40k tokens, +5-10 min |
 
@@ -146,7 +144,6 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## MCP Integration
 
 - **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
-- **Serena**: Wave 0-6 symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, plus `find_declaration` / `find_implementations` / `type_hierarchy` for declaration-anchored and polymorphic grounding), the UC-2 §6.1 step-5.5 verification triangle (`get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`; `--no-verify` disables), opt-in `onboarding` cold-start bootstrap (`--onboard`), the memory pattern for cross-session learning capture (§6.3), and the `think_about_*` checkpoint triad as one of several signals (NOT the sole reflection mechanism — see §6.4 fail-open policy).
 - **Context7**: Tier 2 only; consulted when the spec/diff references a framework or library by name.
 - **Tavily**: Tier 2 only; rate-limited; used for external-symptom lookups when documentation grounding can't resolve a deviation.
 - **Sequential**: Tier 2 synthesis when reconciling competing reviewer verdicts before the merge.
@@ -154,13 +151,9 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## Tool Coordination
 
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (all waves)
-- **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
-- **`mcp__serena__find_declaration` / `find_implementations`**: diff-hunk → canonical declaration site (§6.1 step 2a, FR-2) and polymorphic implementor surface (§6.1 step 3b, FR-1)
-- **`mcp__serena__type_hierarchy`**: transitive supertype/subtype family (§6.1 step 4.5, Wave 1B.3) — backend- and `--with-hierarchy`-gated; fail-open when unavailable
-- **`mcp__serena__get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`**: UC-2 §6.1 step-5.5 verification triangle (LSP issues + scoped non-mutating tests/linters/type-checkers + change summary) feeding §10.4 Regression detection; `--no-verify` disables
-- **`mcp__serena__onboarding`**: opt-in cold-start memory bootstrap at Wave 0.7b (`--onboard`, default OFF)
-- **`mcp__serena__think_about_*`**: checkpoint signals (§6.4) — three-row table feeds the merge, never the sole verdict
-- **`mcp__serena__read_memory` / `write_memory` / `list_memories`**: cross-session learning capture (§6.3 — 20-entry, 90-day retention)
+- **`Grep` then `Read`**: symbol navigation floor — Grep for the definition (`def <name>|class <name>|function <name>`) then Read the range (§6.1 steps 2a/3, FR-2); Grep with a word-boundary pattern for references, then Read the call sites (step 4); best-effort Grep for `class .*\(<Base>\)` / `implements <Iface>` for the polymorphic implementor surface (step 3b, FR-1)
+- **`Bash` (verification run)**: UC-2 §6.1 step 5 / 5.5 — the project's own linter or type-checker plus scoped non-mutating tests/build, run under the §6.1.1 safety envelope (timeout, output cap, verb allowlist, mutation denylist) and feeding §10.4 Regression detection; `--no-verify` disables
+- **Read / Write / Edit on `docs/memory/reflect/deviation-patterns-<slug>.md`**: cross-session learning capture (§6.3 — 20-entry, 90-day retention); a tracked project file, no MCP server needed
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library grounding (Tier 2)
 - **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, `self-review`, `requirements-analyst`, `confidence-calibrator`, `rf-qa`, `rf-qa-qualitative`, `audit-validator`, `evidence-validator`, `socratic-mentor`
@@ -255,7 +248,6 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Trust agent-reported confidence without re-grading via `confidence-calibrator` (single-model self-grading is structurally biased per Mehta, Towards-AI Mar-2026)
 - Ship a REPORT.md whose `file:line` citations have not passed through `evidence-validator` (or its documented fallback when `--no-evidence-validator` is set)
 - Seat a reviewer whose model class collides with the calibrator's model class (Khan ICML 2024 disjoint-set rule — enforced by the `refs/reviewer-spec.md` rotation logic)
-- Use the Serena `think_about_*` triad as the sole reflection mechanism (the v1 failure mode) — they are checkpoint signals only; the protocol applies §6.4 fail-open policy
 - Auto-execute the Tier 3 remediation chain — `task-builder` produces a task file; the operator runs `/task` themselves
 - Auto-commit after Tier 3 — `/sc:reflect --mode post` is the post-commit gate the operator re-runs
 - Mutate filesystem for promotion when `--promote-dry-run` is set

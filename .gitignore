@@ -255,3 +255,8 @@ uv.lock
 # pre-commit large-file threshold; the manifest, execution-log, tasklists,
 # and verification artifacts in the same release directory remain tracked.
 .dev/releases/**/results/phase-*-task-*-output.txt
+
+# codegraph's per-checkout index (created by the codegraph SessionStart hook and
+# `codegraph init`). Its own .codegraph/.gitignore is `*` plus `!.gitignore`, so the
+# folder would still show as untracked and `git add -A` would commit that file.
+.codegraph/

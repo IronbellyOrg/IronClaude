@@ -24,7 +24,6 @@ regression_present: true
 unauthorized_deviation_present: false
 needs_human_decision: true
 user_decision_required: false
-serena_summary_corroboration: unavailable
 degraded_components: []
 # FR-RH1 R5 §5.3 positive-Regression falsifier: an unwired production surface whose
 # annotated contracted sink is UNOBSERVED by a REAL boot resolves to Regression (category C),

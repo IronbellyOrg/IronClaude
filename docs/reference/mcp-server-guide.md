@@ -1,6 +1,6 @@
 # MCP Server Troubleshooting Guide
 
-**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like documentation lookup (Context7), browser automation (Playwright), and project memory (Serena). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
+**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like documentation lookup (Context7), and browser automation (Playwright). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
 
 **Server-Specific Solutions**: Each MCP server has unique requirements and common failure patterns. This guide provides targeted solutions for each server type and general MCP troubleshooting strategies.
 
@@ -10,48 +10,38 @@
 
 **Available integrations (runtime use remains optional):**
 
-- **Codebase Memory MCP**: Native graph memory; full user-level setup is a required phase of normal framework installation on Linux amd64/arm64
+- **codegraph**: Code graph (symbols, callers, impact, file outlines); installed by default by `superclaude install`
 - **Context7**: Official documentation lookup and framework patterns
 - **Playwright**: Browser automation and E2E testing
 - **Morphllm**: Pattern-based code editing with token optimization
-- **Serena**: Semantic code understanding and project memory
 
 **Selection-specific requirements:**
 
-- Claude CLI for registration; Codebase Memory automation supports Linux amd64/arm64, user scope only
-- Codebase Memory requires curl/Bash only for acquisition, not Node/npm, Docker, an API key or a compiler
-- npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); Serena uses uv; AIRIS Gateway uses Docker and curl
-
-The older Node/npm troubleshooting examples below apply only to those servers, not native Codebase Memory.
+- Claude CLI for registration
+- npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); AIRIS Gateway uses Docker and curl
 
 **Other considerations:**
 - Stable network connection for some servers
 - Sufficient system memory (2GB+ recommended)
 
-## Codebase Memory Native Lifecycle
+## codegraph lifecycle
 
-Use the current flat command, not the historical generic reset recipes later in this guide:
+codegraph is installed and registered by `superclaude install` (pinned `v1.6.2`, SHA-256 verified, user scope). Setup, costs, removal and the opt-out are in the [MCP installation guide](../user-guide/mcp-installation.md#default-setup-codegraph). Quick checks:
 
 ```bash
-superclaude install --list
-superclaude mcp --servers codebase-memory-mcp
-superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run
-superclaude mcp --uninstall --servers codebase-memory-mcp --yes
+superclaude install --list    # Executable, Owner, User registration, Ready for Serena retirement
+superclaude doctor            # "codegraph MCP registration" fails only if the registered command is gone
+claude mcp remove codegraph --scope user   # unregister (see the guide for the files to delete)
 ```
 
-- **Default setup fails:** `superclaude install` runs full native setup after user setup; a failed required phase exits 1 and preserves installed framework work. Resolve the reported acquisition/verification/registration stage, then retry. macOS/Windows automation is unsupported before native effects; use [upstream manual instructions](https://github.com/DeusData/codebase-memory-mcp#installation) separately, not as a bypass for this required phase.
-- **Understand what runs:** acquisition downloads the complete `https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh` into a private temporary directory, then runs Bash by argv. It preserves upstream checksum checks and full detected-client instructions/skills/agents/hooks, not binary-only setup. Both `main` bootstrap and latest-release assets move independently and are not pinned; checksums do not authenticate the bootstrap. See the [installation guide](../user-guide/mcp-installation.md) for the 60/300-second bounds and temporary-file cleanup.
-- **Missing or stale registration:** a working binary is reused; only the exact user entry is reconciled to stdio, absolute executable and no arguments, without reacquiring companion assets. Same-named project/local registrations are not user-install success and are not removed by IronClaude's reconciliation. Unknown/unreadable configuration fails closed, not as absence. Failed replacement restores the prior user entry or explicitly reports restoration failure; inspect that state before retrying. A stale entry with `env` or `headers` values is refused before any change, so its values never reach a command line; update or remove it by hand, then retry.
-- **No upgrade happened:** this is expected. Acquisition happens only when needed, never on every install. `--force` applies to framework files, not native upgrades/index resets; `--target` redirects slash commands only. `update` does not resurrect a removed tool; a later explicit `install` restores the default bundle. No adopt/skip/upgrade lifecycle flags exist.
-- **Status is not a handshake:** `install --list` is read-only and reports executable status plus exact user registration (including unknown/stale). MCP `--list` uses legacy installed markers, not ownership/scope/health proof, and rejects selections/lifecycle flags, dry-run or non-user scope combinations. Success reports a verified version; restart clients and test a real tool separately. Installation does not index code or perform a live MCP handshake.
-- **Removal refuses a canonical binary:** automatic removal needs the private `~/.local/bin/.superclaude-codebase-memory.json` acquisition receipt matching canonical binary identity/hash. Only actual IronClaude acquisition creates it; reuse of a preexisting/manual/external binary does not adopt it. Missing proof, an upstream-replaced binary, symlinks or uncertain ownership must be resolved through the original installer, not by inventing a receipt.
-- **Full removal is account-wide:** user scope only, preview plus default-No consent; `--yes/-y` is the new explicit removal consent, not server selection or index-deletion permission. Upstream receives the canonical binary's `uninstall -y --dir=<canonical-bin-directory>` and owns activation/companion cleanup, which can interrupt sessions. IronClaude never requests index deletion/reset or manually deletes caches/companion assets. After native success it revokes its matching receipt and cleans up only a surviving exact user registration; unrelated names/project scopes remain outside that residual cleanup.
-- **Absent or partial state:** no binary and no user entry is a no-op without companion audit; missing binary with a user entry permits confirmed registration-only partial cleanup, not a full-cleanup claim or download just to uninstall. External/custom-only binaries are reported and left to their original mechanism. Nonzero/timeout/postcondition failures report possible partial removal; inspect upstream output before retrying, with no rollback or blind second deletion pass.
-- **Updater or another binary remains:** graph indexes stay, the adjacent updater is intentionally left and reported, and alternate PATH binaries are reported, not removed. Do not erase them or the cache as a generic repair step.
+The tools in a session are limited by `CODEGRAPH_MCP_TOOLS` in the registered entry (`node,search,callers,callees,impact,files,status`); `codegraph_explore` is intentionally hidden.
 
-Without a terminal, explicit `--servers` selection is required, plus `--yes` for removal. With no selection on a terminal, the menu offers Install (default), Uninstall Codebase Memory, or Cancel; install remains gateway-first and all-individual selection includes Codebase Memory. Repeat `--servers` for multiple names. Dry-run prints choices or a selected plan including full source URL, account-wide effects and retained indexes, without prompts, downloads, lifecycle execution or config/file mutation.
+### codegraph troubleshooting
 
-**The disposable-environment live smoke passed on 2026-10-22** for upstream 0.12.1 on Linux amd64 (see the [release gate](../user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke) for the result and known residuals). Re-run that operator procedure for a materially different upstream release; mocked tests are not merge-safety proof. Stop and revise with the user if upstream overwrites unrelated framework/user assets; never silently switch to binary-only setup.
+- **"No CodeGraph project is loaded for this session", or the index belongs to a different working tree**: the checkout has no index yet (the session-start hook starts one in the background) or the session was opened before it finished. Use Read/Grep for now, or run `codegraph init --yes` in the directory printed by `git rev-parse --show-toplevel`. It is safe to repeat.
+- **A lock error, or an index that suddenly became empty**: `codegraph status`, `index` and `sync` can empty an index that another process is building. Check with `pgrep -f 'codegraph\.js (init|index)'` first, and use `init` to rebuild.
+- **Stale or wrong version**: `superclaude doctor` prints "registered codegraph prints X, the pin is 1.6.2". Run `superclaude install`; it replaces an entry it wrote and keeps one you changed.
+- **No index is created in CI or a headless pipeline**: that is intended when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` is set; unset it, or run `codegraph init --yes` yourself.
 
 ## Installation and Configuration Issues
 
@@ -367,36 +357,6 @@ ls -la target-files/  # Ensure write permissions
 # Pattern edits should be applied consistently across files
 ```
 
-### Serena Project Memory
-
-**Issue: Serena Session Persistence Failures**
-
-```bash
-# Symptoms: Project context not persisting between sessions
-
-# Diagnosis
-ls ~/.claude/sessions/  # Check session storage
-ls ~/.serena/  # Check Serena-specific storage
-
-# Solution 1: Verify session save operations
-# Ensure proper session saving before closing
-
-# Solution 2: Check storage permissions
-ls -la ~/.claude/sessions/
-chmod 755 ~/.claude/sessions/
-
-# Solution 3: Reinstall Serena server
-# Remove existing Serena registration
-claude mcp remove serena
-# Reinstall using uvx
-uvx --from serena-agent==1.7.0 serena --help
-# Re-register with Claude
-claude mcp add serena -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false
-
-# Verification
-# Session context should persist across Claude Code restarts
-```
-
 ## Performance and Optimization
 
 ### MCP Server Performance Issues
@@ -536,7 +496,7 @@ echo "npm version: $(npm --version)"
 
 # Server installations
 echo "=== Installed MCP Servers ==="
-npm list -g | grep -E "context7|playwright|morphllm|serena"
+npm list -g | grep -E "context7|playwright|morphllm"
 
 # Process monitoring
 echo "=== Running MCP Processes ==="
@@ -611,7 +571,7 @@ echo "Stop all Claude Code sessions and wait 30 seconds"
 cp -r ~/.claude ~/.claude.mcp.backup.$(date +%Y%m%d)
 
 # Step 3: Remove all MCP servers
-npm list -g | grep -E "context7|playwright|morphllm|serena" | awk '{print $2}' | xargs npm uninstall -g
+npm list -g | grep -E "context7|playwright|morphllm" | awk '{print $2}' | xargs npm uninstall -g
 
 # Step 4: Clear npm cache
 npm cache clean --force
@@ -620,7 +580,7 @@ npm cache clean --force
 python3 -m SuperClaude install --components mcp --force
 
 # Step 6: Verification
-npm list -g | grep -E "context7|playwright|morphllm|serena"
+npm list -g | grep -E "context7|playwright|morphllm"
 
 # Step 7: Test functionality
 echo "Test MCP servers in Claude Code after restart"
@@ -647,7 +607,7 @@ echo "Test MCP servers in Claude Code after restart"
 
 ---
 
-**npm-based Server Priority**: For npm-based servers only, check Node.js → npm → individual server → Claude Code integration. For native Codebase Memory, use the lifecycle section above; Node/npm repair and generic reset recipes do not apply.
+**npm-based Server Priority**: For npm-based servers, check Node.js → npm → individual server → Claude Code integration.
 
 **npm-based Verification Pattern**: For those servers, verify with:
 

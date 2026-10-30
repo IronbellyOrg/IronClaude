@@ -30,6 +30,68 @@ All notable changes to IronClaude are documented in this file.
 
 - `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.
 
+### Added: codegraph installed by default (#323)
+
+- `superclaude install` (and so `./update.sh`) now has a required codegraph phase. It reuses a codegraph `1.6.2` already on `PATH` or in `~/.local/bin`; otherwise it downloads the pinned `v1.6.2` release for Linux or macOS (x64 or arm64), checks its SHA-256 against the value pinned in the source, and installs it under `~/.codegraph/versions/v1.6.2/`. It never runs upstream's installer. A failure keeps the rest of the install and exits 1, naming the failed stage.
+- It registers codegraph at user scope with telemetry and update checks off and `CODEGRAPH_MCP_TOOLS=node,search,callers,callees,impact,files,status`, which lists seven narrow tools and hides `codegraph_explore` (about 1,861 extra tokens per session in four headless runs; the 2,000-token limit is still a proposal). An entry IronClaude wrote is repaired; one you changed is kept.
+- A `SessionStart` (startup) hook starts one background `codegraph init --yes` in a git checkout that has no `.codegraph/codegraph.db`, so each clone and worktree is indexed on its first session. Costs: about 70 KB per indexed file and up to about 1 GB of memory during the first init. `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off this hook only (recommended for CI and headless pipelines).
+- `superclaude install --list` prints a codegraph block (executable, owner, registration, `Ready for Serena retirement`), and `superclaude doctor` gains a "codegraph MCP registration" check that fails only when the registered command no longer exists. Remove codegraph with `claude mcp remove codegraph --scope user` and delete the paths `install --list` prints as owned. `.codegraph/` is now git-ignored in this repository.
+- Once codegraph is registered and usable, the same `superclaude install` run also removes the Serena launcher registrations (`serena` and any renamed launcher except `serena-local`, with `env` and `headers` absent or empty) and the `~/.local/bin/codebase-memory-mcp` registration; the binary and its client companions stay. Register Serena as `serena-local` to keep it.
+- Guidance for agents is in the core `CLAUDE.md` (a `codegraph` row and a block between `SUPERCLAUDE_CODEGRAPH_BEGIN` and `SUPERCLAUDE_CODEGRAPH_END`). See the [MCP installation guide](docs/user-guide/mcp-installation.md#default-setup-codegraph).
+
+### Breaking: codebase-memory-mcp and Serena removed; session memory moves to `.superclaude/memory/` files (#323)
+
+#### Removed (codebase-memory-mcp and Serena)
+
+- `superclaude install` no longer installs codebase-memory-mcp (no download, no native setup, no required phase, no exit 1 for it). The installer module is deleted.
+- `superclaude mcp` loses `--uninstall` and `--yes`. Its menu is now "1. Install MCP servers (default)" and "2. Cancel". `codebase-memory-mcp` and `serena` are no longer registry servers: `superclaude mcp --servers serena` now says "Unknown MCP server selection: serena".
+- Serena is gone from the MCP registry, the package assets, the freshness hook matcher and the primitives' tool steps. Every command, skill and agent that used Serena symbol, reference, diagnostics or memory tools now uses a native Grep/Read floor.
+- Serena session memory is replaced by plain markdown files under `<project>/.superclaude/memory/` (one store per worktree). `/sc:save`, `/sc:load`, `/sc:pm` and the PM agent read and write those files. For one release `/sc:load` still reads an existing project `.serena/memories/<key>.md` when the matching `.superclaude/memory/` file is absent; it never writes there and tells you that folder is read-only history.
+- `/sc:reflect` loses `--onboard` and `--with-hierarchy`.
+
+#### Added (retire step)
+
+- At its end, `superclaude install` runs a bounded, non-fatal retire step (10 seconds per `claude` call, 15 seconds for the whole step; no outcome changes the install exit code). It removes only **user-scope** registrations of `codebase-memory-mcp` and `serena` that IronClaude can prove it wrote, plus IronClaude's own receipt and marker files (`~/.local/bin/.superclaude-codebase-memory.json` and `.pending`) once their binary is gone.
+- It keeps every shape it cannot prove (for example a registration Coder's bundle also writes) and prints the reason it was kept; for the legacy Serena launcher registration it also prints the exact `claude mcp remove serena --scope user` command. Local-scope and project `.mcp.json` entries are never touched.
+- It never touches binaries, uv tools, indexes, caches or memories.
+- The current-pin Serena registration (`uvx --from serena-agent==1.7.0 ...`) is not kept for good: it is kept, with the removal command printed on each install, only until the first `superclaude install` run in which the codegraph tools are installed and ready; that run removes it.
+- `superclaude install --list` shows one line per retired name (absent, will be removed, or kept with the reason). `superclaude doctor` warns, never fails, when something removable is left. `superclaude update` only prints "legacy registration present: run `superclaude install`".
+- After a removal, restart running Claude sessions: a running session can write the entry back. Check with `superclaude install --list`.
+
+#### Manual cleanup (IronClaude does not do these)
+
+To keep using Serena yourself, register it under the name `serena-local`, which the installer never removes:
+
+```bash
+claude mcp add --scope user serena-local -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false
+```
+
+For a codebase-memory you or IronClaude installed under `~/.local/bin` (this removes its own client companions and keeps its indexes; use the absolute path, because a bare command could resolve to Coder's copy):
+
+```bash
+"$HOME/.local/bin/codebase-memory-mcp" uninstall -y --dir="$HOME/.local/bin"
+```
+
+If you installed Serena as a uv tool yourself (Coder workspaces reinstall it at start):
+
+```bash
+uv tool uninstall serena-agent
+```
+
+To remove a registration the retire step kept:
+
+```bash
+claude mcp remove codebase-memory-mcp --scope user
+claude mcp remove serena --scope user
+```
+
+Delete the data only if you no longer need it; IronClaude never deletes it:
+
+```bash
+rm -rf ~/.cache/codebase-memory-mcp   # codebase-memory indexes
+rm -rf ~/.serena                      # Serena's user data; project .serena/ folders are yours to delete
+```
+
 ### ccsession: tiers by Coder role, letter tier names, and the new tier layout
 
 #### Added (ccsession tier rules)

@@ -1,9 +1,9 @@
 ---
 name: load
-description: "Session lifecycle management with Serena MCP integration for project context loading"
+description: "Session lifecycle management with memory files for project context loading"
 category: session
 complexity: standard
-mcp-servers: [serena]
+mcp-servers: []
 personas: []
 ---
 
@@ -13,7 +13,7 @@ personas: []
 
 - Session initialization and project context loading requests
 - Cross-session persistence and memory retrieval needs
-- Project activation and context management requirements
+- Project context and memory management requirements
 - Session lifecycle management and checkpoint loading scenarios
 
 ## Usage
@@ -24,35 +24,36 @@ personas: []
 
 ## Behavioral Flow
 
-1. **Initialize**: Establish Serena MCP connection and session context management
+1. **Initialize**: Resolve the project root and locate the `.superclaude/memory/` store
 2. **Discover**: Analyze project structure and identify context loading requirements
-3. **Load**: Retrieve project memories, checkpoints, and cross-session persistence data
-4. **Activate**: Establish project context and prepare for development workflow
+3. **Load**: Retrieve project memories, checkpoints, and cross-session persistence data from the memory files
+4. **Establish**: Establish project context and prepare for development workflow
 5. **Validate**: Ensure loaded context integrity and session readiness
 
 Key behaviors:
 
-- Serena MCP integration for memory management and cross-session persistence
-- Project activation with comprehensive context loading and validation
+- Markdown memory files under `.superclaude/memory/` for cross-session persistence
+- Project context loading with comprehensive validation
 - Performance-critical operation with <500ms initialization target
 - Session lifecycle management with checkpoint and memory coordination
 
-## MCP Integration
+## Memory Store
 
-- **Serena MCP**: Mandatory integration for project activation, memory retrieval, and session management
+- **Location**: `<project>/.superclaude/memory/<key>.md`, flat markdown with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree
+- **Legacy fallback**: For one release, `/sc:load` reads `.serena/memories/<key>.md` only when `.superclaude/memory/<key>.md` is absent, never writes there, and tells the user that folder is read-only history
 - **Memory Operations**: Cross-session persistence, checkpoint loading, and context restoration
 - **Performance Critical**: <200ms for core operations, <1s for checkpoint creation
 
 ## Tool Coordination
 
-- **activate_project**: Core project activation and context establishment
-- **list_memories/read_memory**: Memory retrieval and session context loading
+- **Glob** `.superclaude/memory/**/*.md`: List the available memories
+- **Read**: Memory retrieval and session context loading from `.superclaude/memory/<key>.md`
 - **Read/Grep/Glob**: Project structure analysis and configuration discovery
 - **Write**: Session context documentation and checkpoint creation
 
 ## Key Patterns
 
-- **Project Activation**: Directory analysis → memory retrieval → context establishment
+- **Project Context Loading**: Directory analysis → memory retrieval → context establishment
 - **Session Restoration**: Checkpoint loading → context validation → workflow preparation
 - **Memory Management**: Cross-session persistence → context continuity → development efficiency
 - **Performance Critical**: Fast initialization → immediate productivity → session readiness
@@ -63,7 +64,7 @@ Key behaviors:
 
 ```
 /sc:load
-# Loads current directory project context with Serena memory integration
+# Loads current directory project context from .superclaude/memory/
 # Establishes session context and prepares for development workflow
 ```
 
@@ -72,7 +73,7 @@ Key behaviors:
 ```
 /sc:load /path/to/project --type project --analyze
 # Loads specific project with comprehensive analysis
-# Activates project context and retrieves cross-session memories
+# Establishes project context and retrieves cross-session memories
 ```
 
 ### Checkpoint Restoration
@@ -95,12 +96,12 @@ Key behaviors:
 
 **Will:**
 
-- Load project context using Serena MCP integration for memory management
+- Load project context from the `.superclaude/memory/` markdown files
 - Provide session lifecycle management with cross-session persistence
-- Establish project activation with comprehensive context loading
+- Establish project context with comprehensive context loading
 
 **Will Not:**
 
 - Modify project structure or configuration without explicit permission
-- Load context without proper Serena MCP integration and validation
+- Load context without validation
 - Override existing session context without checkpoint preservation

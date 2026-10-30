@@ -1,9 +1,9 @@
 ---
 name: save
-description: "Session lifecycle management with Serena MCP integration for session context persistence"
+description: "Session lifecycle management with memory files for session context persistence"
 category: session
 complexity: standard
-mcp-servers: [serena]
+mcp-servers: []
 personas: []
 ---
 
@@ -25,29 +25,31 @@ personas: []
 ## Behavioral Flow
 
 1. **Analyze**: Examine session progress and identify discoveries worth preserving
-2. **Persist**: Save session context and learnings using Serena MCP memory management
+2. **Persist**: Save session context and learnings as markdown memory files under `.superclaude/memory/`
 3. **Checkpoint**: Create recovery points for complex sessions and progress tracking
 4. **Validate**: Ensure session data integrity and cross-session compatibility
 5. **Prepare**: Ready session context for seamless continuation in future sessions
 
 Key behaviors:
 
-- Serena MCP integration for memory management and cross-session persistence
+- Markdown memory files under `.superclaude/memory/` for cross-session persistence
 - Automatic checkpoint creation based on session progress and critical tasks
 - Session context preservation with comprehensive discovery and pattern archival
 - Cross-session learning with accumulated project insights and technical decisions
 
-## MCP Integration
+## Memory Store
 
-- **Serena MCP**: Mandatory integration for session management, memory operations, and cross-session persistence
-- **Memory Operations**: Session context storage, checkpoint creation, and discovery archival
+- **Location**: `<project>/.superclaude/memory/<key>.md`, flat markdown with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree
+- **First write**: if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`
+- **Single-owner keys** (`pm_context`, `last_session`, `next_actions`): overwritten whole on each save
+- **Keys parallel sessions may write** (`checkpoint`, `decision`, handoffs): written as `<key>-<session-or-timestamp>.md` and never edited in place
 - **Performance Critical**: <200ms for memory operations, <1s for checkpoint creation
 
 ## Tool Coordination
 
-- **write_memory/read_memory**: Core session context persistence and retrieval
-- **think_about_collected_information**: Session analysis and discovery identification
-- **summarize_changes**: Session summary generation and progress documentation
+- **Write/Read**: Core session context persistence and retrieval of `.superclaude/memory/` files
+- **Glob** `.superclaude/memory/**/*.md`: Listing existing memories before a save
+- **Session analysis and summary**: Done in the session itself; the discovery analysis and summary are written into the memory files
 - **TodoRead**: Task completion tracking for automatic checkpoint triggers
 
 ## Key Patterns
@@ -63,7 +65,7 @@ Key behaviors:
 
 ```
 /sc:save
-# Saves current session discoveries and context to Serena MCP
+# Saves current session discoveries and context to .superclaude/memory/
 # Automatically creates checkpoint if session exceeds 30 minutes
 ```
 
@@ -95,12 +97,12 @@ Key behaviors:
 
 **Will:**
 
-- Save session context using Serena MCP integration for cross-session persistence
+- Save session context as markdown files under `.superclaude/memory/` for cross-session persistence
 - Create automatic checkpoints based on session progress and task completion
 - Preserve discoveries and patterns for enhanced project understanding
 
 **Will Not:**
 
-- Operate without proper Serena MCP integration and memory access
+- Operate without write access to the `.superclaude/memory/` store
 - Save session data without validation and integrity verification
 - Override existing session context without proper checkpoint preservation

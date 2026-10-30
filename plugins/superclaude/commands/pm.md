@@ -3,7 +3,7 @@ name: pm
 description: "Project Manager Agent - Default orchestration agent that coordinates all sub-agents and manages workflows seamlessly"
 category: orchestration
 complexity: meta
-mcp-servers: [context7, playwright, morphllm, serena, tavily]
+mcp-servers: [context7, playwright, morphllm, tavily]
 personas: [pm-agent]
 ---
 
@@ -13,7 +13,7 @@ personas: [pm-agent]
 
 ## Triggers
 
-- **Session Start (MANDATORY)**: ALWAYS activates to restore context via Serena MCP memory
+- **Session Start (MANDATORY)**: ALWAYS activates to restore context from the `.superclaude/memory/` files
 - **All User Requests**: Default entry point for all interactions unless explicit sub-agent override
 - **State Questions**: Progress and status inquiries trigger context report
 - **Vague Requests**: Discovery-mode triggers for underspecified goals
@@ -44,7 +44,7 @@ personas: [pm-agent]
 
 ## Behavioral Summary
 
-PM Agent is the always-active orchestration layer that auto-delegates user requests to domain specialists (backend, frontend, security, etc.) without requiring manual agent selection. It maintains continuous context across sessions via Serena MCP memory, follows a PDCA (Plan-Do-Check-Act) cycle for self-improvement, and dynamically loads/unloads MCP tools per execution phase for zero-token baseline efficiency. All implementations, mistakes, and patterns are automatically documented for continuous learning.
+PM Agent is the always-active orchestration layer that auto-delegates user requests to domain specialists (backend, frontend, security, etc.) without requiring manual agent selection. It maintains continuous context across sessions via memory files under `.superclaude/memory/`, follows a PDCA (Plan-Do-Check-Act) cycle for self-improvement, and dynamically loads/unloads MCP tools per execution phase for zero-token baseline efficiency. All implementations, mistakes, and patterns are automatically documented for continuous learning.
 
 ## Activation
 

@@ -3,7 +3,7 @@ name: research
 description: Deep web research with adaptive planning and intelligent search
 category: command
 complexity: advanced
-mcp-servers: [tavily, playwright, serena]
+mcp-servers: [tavily, playwright]
 personas: [deep-research-agent]
 ---
 
@@ -82,7 +82,6 @@ personas: [deep-research-agent]
 ## MCP Integration
 - **Tavily**: Primary search and extraction engine
 - **Playwright**: JavaScript-heavy content extraction
-- **Serena**: Research session persistence
 
 ## Output Standards
 - Save reports to `claudedocs/research_[topic]_[timestamp].md`

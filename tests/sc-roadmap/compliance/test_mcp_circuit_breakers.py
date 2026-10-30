@@ -30,12 +30,6 @@ class TestCircuitBreakerConfiguration:
 class TestFallbackBehavior:
     """Verify fallback behavior for MCP operations."""
 
-    def test_serena_fallback(self, skill_md_content):
-        """Serena memory persistence should have fallback."""
-        # SKILL.md should define what happens if Serena is unavailable
-        lower = skill_md_content.lower()
-        assert "fallback" in lower or "circuit" in lower
-
     def test_template_fallback_to_inline(self, skill_md_content):
         """Template discovery should fallback to inline generation."""
         assert "inline" in skill_md_content.lower()
@@ -73,10 +67,6 @@ class TestMCPServerReferences:
     def test_context7_referenced(self, skill_md_content):
         """SKILL.md should reference Context7 MCP server."""
         assert "Context7" in skill_md_content or "context7" in skill_md_content
-
-    def test_serena_referenced(self, skill_md_content):
-        """SKILL.md should reference Serena MCP server."""
-        assert "Serena" in skill_md_content or "serena" in skill_md_content
 
     def test_mcp_integration_section(self, skill_md_content):
         """SKILL.md should have an MCP Integration section."""

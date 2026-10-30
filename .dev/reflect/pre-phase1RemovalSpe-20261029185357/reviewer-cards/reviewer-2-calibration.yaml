@@ -1,0 +1,6 @@
+card: reviewer-2-card.yaml
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.90, coverage_completeness: 0.60, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.88}
+C: 0.77
+per_finding: {R2-F1: confirmed, R2-F2: confirmed}
+notes: "R2-F1 overstates: plan Constraints already block real-HOME installs, user-data deletion and other-repo edits; the gap is the .dev/ history limit plus the Coder binary and serena-agent uv tool. R2-F2: DoD-3 (source.md:269) promises seeded old core files; spec T14 step 5 (source.md:781) and plan Task 18 seed only two files."

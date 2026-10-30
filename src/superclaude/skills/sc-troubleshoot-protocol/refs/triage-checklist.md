@@ -8,7 +8,7 @@ Before forming a hypothesis, the agent should have read:
 
 - [ ] The exact code at the location named in the stack trace (or `--scope` if no trace)
 - [ ] The auggie retrieval result that the skill provided in the brief
-- [ ] The serena symbol overview / surrounding function definitions
+- [ ] The surrounding function definitions (Grep for the definition, then Read the range)
 - [ ] At least one test that exercises the suspect code path (or noted that no test exists)
 
 If any of these were not possible (e.g. no MCP, file missing), state explicitly in the hypothesis card under "Grounding gaps".

@@ -136,7 +136,8 @@ tasklist_phase_template.md tdd_template.md
     "hooks": _names(
         """
 README.md __init__.py auggie-projects.txt.example hooks.json
-scripts/auggie-flag-clear.sh scripts/freshness-file-changed.sh
+scripts/auggie-flag-clear.sh scripts/codegraph-session-start.sh
+scripts/freshness-file-changed.sh
 scripts/freshness-post-read.sh scripts/freshness-pre-edit.sh
 scripts/freshness-session-start.sh scripts/freshness-subagent-start.sh
 scripts/freshness-subagent-stop.sh scripts/freshness-user-prompt.sh
@@ -147,10 +148,9 @@ scripts/sc-recommend-phase0.sh
     "mcp": _names(
         """
 MCP_Airis-Agent.md MCP_Auggie.md MCP_Context7.md MCP_Mindbase.md MCP_Morphllm.md
-MCP_Playwright.md MCP_Serena.md MCP_Tavily.md __init__.py configs/__init__.py
+MCP_Playwright.md MCP_Tavily.md __init__.py configs/__init__.py
 configs/airis-agent.json configs/auggie.json configs/context7.json
 configs/mindbase.json configs/morphllm.json configs/playwright.json
-configs/serena-docker.json configs/serena.json
 """
     ),
     "modes": _names(
@@ -420,9 +420,9 @@ scripts/freshness-user-prompt.sh
     ),
     "mcp": _names(
         """
-MCP_Context7.md MCP_Morphllm.md MCP_Playwright.md MCP_Serena.md MCP_Tavily.md
+MCP_Context7.md MCP_Morphllm.md MCP_Playwright.md MCP_Tavily.md
 __init__.py configs/__init__.py configs/context7.json configs/morphllm.json
-configs/playwright.json configs/serena-docker.json configs/serena.json
+configs/playwright.json
 """
     ),
     "modes": _names(
