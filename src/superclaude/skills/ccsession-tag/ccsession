@@ -349,6 +349,12 @@ lock_list() {
   # this shell's file descriptor 9 until it is closed or the process ends, so a
   # killed run never leaves it behind and a live holder is never pushed out.
   # python3 takes it (macOS has no flock command). Gives up after 4 seconds.
+  # A build of this branch before flock used an empty .ccsession-lock folder,
+  # which a killed run could leave behind: remove it, or the file cannot open.
+  if [ -d "$1/.ccsession-lock" ] && ! rmdir "$1/.ccsession-lock" 2>/dev/null; then
+    echo "ccsession: $1/.ccsession-lock is a folder that is not empty; remove it" >&2
+    return 1
+  fi
   exec 9>>"$1/.ccsession-lock" || return 1
   python3 -c 'import fcntl, sys, time
 end = time.monotonic() + 4

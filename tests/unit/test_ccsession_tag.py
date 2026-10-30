@@ -2751,6 +2751,35 @@ def test_sessions_renamed_to_one_name_at_once_both_stay_listed(
         assert sorted(listed.values()) == [s[:8] for s in sessions]
 
 
+@pytest.mark.parametrize("left", ["empty", "not empty"])
+def test_a_lock_folder_left_by_the_earlier_build_is_handled(
+    tmp_path: Path, left: str
+) -> None:
+    # A build before flock locked with an empty .ccsession-lock folder; a killed
+    # run could leave it, and the lock file then could not be opened.
+    main, _, projects, env = _named_repo(tmp_path)
+    _transcript(projects, main, SESSION_ID)
+    lock = projects / "github.com-Org-Repo" / "topics" / ".ccsession-lock"
+    lock.mkdir(parents=True)
+    if left == "not empty":
+        (lock / "stray").write_text("")
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--sync-name", SESSION_ID, "named"],
+        cwd=main,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if left == "empty":
+        assert result.returncode == 0, result.stderr
+        assert lock.is_file()
+        assert _listed(main, env) == {"named": SESSION_ID[:8]}
+    else:  # someone else's folder: left alone, with a clear message
+        assert result.returncode == 1
+        assert "is a folder that is not empty" in result.stderr
+        assert (lock / "stray").exists()
+
+
 def test_a_live_lock_holder_is_waited_for_and_a_killed_one_frees_it(
     tmp_path: Path,
 ) -> None:
