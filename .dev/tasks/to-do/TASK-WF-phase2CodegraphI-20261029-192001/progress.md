@@ -25,3 +25,5 @@ T11: complete verdict=compliant ac=T11.AC1 evidence=T11.AC1@docs/user-guide/mcp-
 T12: start sha=5a4b5d7c82d1c68dc9a9328bdb8e40aef0bc62fc
 T12: complete verdict=compliant ac=T12.AC1,T12.AC2 evidence=T12.AC1@.github/workflows/test.yml:160,T12.AC2@.github/workflows/test.yml:133,T12.AC2@.github/workflows/test.yml:157 extras=lint:skip,typecheck:skip,test:skip files=.github/workflows/test.yml
 T13: start sha=ef67a5e173d3d416b3b60e36ea394cd86a8f91da
+T13: complete verdict=compliant ac=T13.AC1,T13.AC2,T13.AC3 evidence=T13.AC1@.dev/codegraph-migration/evidence/P2-layer2.md:638,T13.AC2@.dev/codegraph-migration/evidence/P2-layer2.md:97-108,T13.AC2@.dev/codegraph-migration/evidence/P2-layer2.md:366-375,T13.AC3@./artifacts/t13-g4-comment.md:1 extras=lint:skip,typecheck:skip,test:pass files=.dev/codegraph-migration/evidence/p2-layer2.sh,.dev/codegraph-migration/evidence/P2-layer2.md,.dev/codegraph-migration/evidence/P2-hook-session.md,.dev/codegraph-migration/decisions/P2X-log.md
+T14: start sha=f95e2dee41d6086f0a7a57cc800c309a9586ca2d
