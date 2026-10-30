@@ -357,3 +357,41 @@ def test_install_list_prints_codegraph_block_read_only(
     assert "Owner: none" in result.output
     assert "User registration: absent" in result.output
     assert not (isolated_home_guard.home / ".codegraph").exists()
+
+
+@pytest.mark.parametrize(
+    ("verdict", "line"),
+    [
+        ((True, ""), "Ready for Serena retirement: yes"),
+        ((False, "patched reason"), "Ready for Serena retirement: no (patched reason)"),
+    ],
+)
+def test_one_patched_codegraph_ready_is_seen_by_install_list_install_and_doctor(
+    monkeypatch, verdict, line
+):
+    from superclaude.cli import install_mcp
+    from superclaude.cli.doctor import _check_codegraph
+
+    calls = _stub_installers(monkeypatch)
+    _stub_listings(monkeypatch)
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: verdict)
+    retire_args = []
+    monkeypatch.setattr(_RETIRE_STEP, lambda *a, **k: retire_args.append((a, k)) or {})
+
+    listed = CliRunner().invoke(main, ["install", "--list"])
+    assert line in listed.output
+    assert line in "\n".join(_check_codegraph()["details"])
+    assert CliRunner().invoke(main, ["install"]).exit_code == 0
+    assert "install_codegraph_mcp" in calls
+    assert retire_args == [((verdict[0],), {})]
+
+
+def test_a_ready_registration_does_not_count_when_the_phase_failed(monkeypatch):
+    from superclaude.cli import install_mcp
+
+    _stub_installers(monkeypatch, failing="install_codegraph_mcp")
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: (True, ""))
+    retire_args = []
+    monkeypatch.setattr(_RETIRE_STEP, lambda *a, **k: retire_args.append(a) or {})
+    assert CliRunner().invoke(main, ["install"]).exit_code == 1
+    assert retire_args == [(False,)]

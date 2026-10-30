@@ -6,6 +6,7 @@ Health check for SuperClaude installation.
 
 import json
 import os
+import shutil
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -42,6 +43,8 @@ def run_doctor(verbose: bool = False) -> Dict[str, Any]:
     checks.append(config_check)
 
     checks.append(_check_ccsession())
+
+    checks.append(_check_codegraph())
 
     checks.append(_check_retired_mcp())
 
@@ -126,6 +129,89 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
         "passed": not missing,
         "details": missing or ["ccsession skill, launcher, env and hook present"],
     }
+
+
+def _hook_commands(settings: Any) -> list:
+    """Every hook ``command`` string in a parsed settings.json."""
+    hooks = settings.get("hooks", {}) if isinstance(settings, dict) else {}
+    found = []
+    for groups in hooks.values() if isinstance(hooks, dict) else []:
+        for group in groups if isinstance(groups, list) else []:
+            for hook in group.get("hooks", []) if isinstance(group, dict) else []:
+                if isinstance(hook, dict) and isinstance(hook.get("command"), str):
+                    found.append(hook["command"])
+    return found
+
+
+def _check_codegraph(home: Path | None = None) -> Dict[str, Any]:
+    """codegraph MCP registration.
+
+    Fails only when the registered command is not an executable: codegraph tools
+    would be missing from every session. Everything else is a detail line.
+    ``./update.sh`` runs doctor only after ``install`` exited 0, so presence is
+    already enforced there.
+    """
+    from . import install_codegraph, install_mcp
+
+    home = Path.home() if home is None else Path(home)
+    details = []
+    passed = True
+
+    known, entry = install_mcp.read_user_mcp_entry("codegraph")
+    if not known:
+        details.append("unknown: the user MCP configuration could not be read")
+    elif entry is None:
+        details.append("no codegraph registration; run `superclaude install`")
+    else:
+        command = entry.get("command")
+        resolved = (
+            shutil.which(command) if isinstance(command, str) and command else None
+        )
+        if resolved is None:
+            passed = False
+            details.append(
+                f"registered command {command!r} is not an executable file; "
+                "run `superclaude install`"
+            )
+        else:
+            try:
+                _, out = install_mcp._run_argv([resolved, "--version"], 10)
+                version = out.strip()
+            except Exception:
+                version = ""
+            if version != install_codegraph.VERSION:
+                details.append(
+                    f"registered codegraph prints {version or 'no version'}, the "
+                    f"pin is {install_codegraph.VERSION}; run `superclaude install`"
+                )
+
+    try:
+        settings = json.loads((home / ".claude/settings.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        settings = {}
+    if any("codegraph prompt-hook" in c for c in _hook_commands(settings)):
+        details.append(
+            "a `codegraph prompt-hook` command is registered in ~/.claude/settings.json "
+            "(upstream's own installer wrote it; IronClaude does not use it)"
+        )
+    try:
+        if "<!-- CODEGRAPH_START -->" in (home / ".claude/CLAUDE.md").read_text(
+            "utf-8"
+        ):
+            details.append(
+                "~/.claude/CLAUDE.md has a <!-- CODEGRAPH_START --> block from "
+                "upstream's installer; `superclaude install` replaces that file"
+            )
+    except OSError:
+        pass
+
+    try:
+        details.append(install_mcp.codegraph_ready_line())
+    except Exception as exc:
+        details.append(
+            f"Ready for Serena retirement: no (check failed: {type(exc).__name__})"
+        )
+    return {"name": "codegraph MCP registration", "passed": passed, "details": details}
 
 
 def _check_retired_mcp() -> Dict[str, Any]:
