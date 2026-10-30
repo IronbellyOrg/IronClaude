@@ -26,6 +26,8 @@ _INSTALLERS = (
 
 # Runs at the end of ``install`` only; ``update`` never touches MCP registrations.
 _RETIRE_STEP = "superclaude.cli.install_retired_mcp.run_retire_step"
+# Required phase of ``install`` only, between user setup and the retire step.
+_CODEGRAPH_PHASE = "superclaude.cli.install_mcp.install_codegraph_mcp"
 
 
 @pytest.fixture(autouse=True)
@@ -47,6 +49,8 @@ def isolated_home_guard(tmp_path, monkeypatch):
         "install_orca_skills",
         lambda **kwargs: (True, "Orca fixture"),
     )
+    # The codegraph phase would download and register a real binary.
+    monkeypatch.setattr(_CODEGRAPH_PHASE, lambda **kwargs: (True, "codegraph fixture"))
     return state
 
 
@@ -62,10 +66,15 @@ def _stub_installers(monkeypatch, *, failing: str | None = None):
 
         monkeypatch.setattr(path, fake)
 
+    def codegraph(**kwargs):
+        calls.append("install_codegraph_mcp")
+        return (failing != "install_codegraph_mcp", "install_codegraph_mcp result")
+
     def retire(*args, **kwargs):
         calls.append("run_retire_step")
         return {}
 
+    monkeypatch.setattr(_CODEGRAPH_PHASE, codegraph)
     monkeypatch.setattr(_RETIRE_STEP, retire)
     return calls
 
@@ -112,6 +121,7 @@ def test_install_wires_before_hooks_and_templates(monkeypatch):
         "install_hooks",
         "install_templates",
         "install_user_setup",
+        "install_codegraph_mcp",
         "run_retire_step",
     ]
 
@@ -248,3 +258,102 @@ def test_install_force_target_do_not_redirect(monkeypatch, isolated_home_guard):
         "commands": (target, True),
         "setup": True,
     }
+
+
+def test_install_runs_codegraph_phase_after_user_setup_before_retire(monkeypatch):
+    calls = _stub_installers(monkeypatch)
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 0, result.output
+    assert calls[-3:] == [
+        "install_user_setup",
+        "install_codegraph_mcp",
+        "run_retire_step",
+    ]
+    assert "Installing codegraph (required user-level phase)" in result.output
+
+
+def test_install_codegraph_failure_keeps_framework_work_and_exits_one(monkeypatch):
+    calls = _stub_installers(monkeypatch, failing="install_codegraph_mcp")
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 1
+    assert "install_codegraph_mcp result" in result.output
+    # every other phase ran, and the non-fatal retire step still runs after the failure
+    assert calls[:8] == [
+        "install_core_files",
+        "install_commands",
+        "install_agents",
+        "install_all_skills",
+        "wire_ccsession",
+        "install_hooks",
+        "install_templates",
+        "install_user_setup",
+    ]
+    assert calls[-1] == "run_retire_step"
+
+
+def test_install_codegraph_failure_message_reaches_stderr(monkeypatch):
+    _stub_installers(monkeypatch)
+    monkeypatch.setattr(
+        _CODEGRAPH_PHASE, lambda **kwargs: (False, "codegraph checksum failed: x")
+    )
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 1
+    assert "codegraph checksum failed: x" in result.stderr
+
+
+def test_install_codegraph_exception_is_a_failure_not_a_traceback(monkeypatch):
+    calls = _stub_installers(monkeypatch)
+
+    def boom(**kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(_CODEGRAPH_PHASE, boom)
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 1
+    assert "codegraph phase failed (OSError)" in result.output
+    assert "disk full" not in result.output
+    assert calls[-1] == "run_retire_step"
+
+
+def test_install_force_is_not_forwarded_to_codegraph(monkeypatch):
+    _stub_installers(monkeypatch)
+    seen = []
+    monkeypatch.setattr(
+        _CODEGRAPH_PHASE, lambda **kwargs: seen.append(kwargs) or (True, "ok")
+    )
+    result = CliRunner().invoke(main, ["install", "--force"])
+    assert result.exit_code == 0, result.output
+    assert seen == [{"scope": "user"}]
+
+
+def test_update_never_runs_the_codegraph_phase(monkeypatch):
+    calls = _stub_installers(monkeypatch)
+    result = CliRunner().invoke(main, ["update"])
+    assert result.exit_code == 0, result.output
+    assert "install_codegraph_mcp" not in calls
+
+
+def test_install_list_prints_codegraph_block_read_only(
+    monkeypatch, isolated_home_guard, tmp_path
+):
+    from superclaude.cli import install_codegraph, install_mcp
+
+    _stub_installers(monkeypatch)
+    _stub_listings(monkeypatch)
+    empty_path = tmp_path / "empty-path"
+    empty_path.mkdir()
+    monkeypatch.setenv("PATH", str(empty_path))
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("install --list must not download or call claude mcp")
+
+    monkeypatch.setattr(install_codegraph, "_download", forbidden)
+    monkeypatch.setattr(install_mcp, "_exec_claude", forbidden)
+    monkeypatch.setattr(install_mcp, "_run_command", forbidden)
+    result = CliRunner().invoke(main, ["install", "--list"])
+    assert result.exit_code == 0, result.output
+    assert "codegraph MCP (pinned v1.6.2; user scope):" in result.output
+    assert "Executable: missing" in result.output
+    assert "Owner: none" in result.output
+    assert "User registration: absent" in result.output
+    assert not (isolated_home_guard.home / ".codegraph").exists()

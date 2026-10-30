@@ -1012,6 +1012,48 @@ def install_codegraph_mcp(
     )
 
 
+def codegraph_list_lines() -> list[str]:
+    """Read-only ``install --list`` block: no download, no ``claude mcp`` call."""
+    state, path, version = install_codegraph.inspect_binary(_run_argv)
+    if state == "ok":
+        executable = f"{path} ({version})"
+    elif state == "mismatch":
+        executable = f"version mismatch at {path} ({version})"
+    else:
+        executable = "missing"
+
+    owned = install_codegraph.owned_paths()
+    if owned:
+        owner = "owned (receipt) " + ", ".join(owned)
+        if path is not None and not any(str(path).startswith(d) for d in owned):
+            owner += f"; external: {path}, not owned"
+    elif path is not None:
+        owner = f"external: {path}, not owned"
+    else:
+        owner = "none"
+
+    known, entry = read_user_mcp_entry("codegraph")
+    if not known:
+        registration = "unknown (read/parse failure)"
+    elif entry is None:
+        registration = "absent"
+    else:
+        kind = _codegraph_entry_kind(
+            entry, _codegraph_entry(path or Path("/missing/codegraph"))
+        )
+        registration = {
+            "equal": "matches",
+            "owned": "owned but stale",
+            "user": "user-managed",
+        }[kind]
+    return [
+        f"codegraph MCP (pinned {install_codegraph.TAG}; user scope):",
+        f"   Executable: {executable}",
+        f"   Owner: {owner}",
+        f"   User registration: {registration}",
+    ]
+
+
 def _prune(launcher: Path) -> None:
     """Best-effort cleanup of older owned version dirs after a verified registration."""
     try:

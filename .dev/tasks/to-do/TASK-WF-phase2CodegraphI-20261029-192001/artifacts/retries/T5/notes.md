@@ -1,0 +1,2 @@
+5326cd02aa4c12263319002e40ed3c63026a0f2f
+A1 r1-1 F1.1 note src/superclaude/cli/install_mcp.py:934 chk=amiss:n,false:n,harm:n,constraint:n (reviewer's constraint=y failed the read-back: its quote is in source.md, not in the plan constraints or task text) the owned-entry remove in install_codegraph_mcp uses _remove_exact_user_entry's default 10 s timeout where spec 2.4 says 60 s per claude mcp call; fix: pass per_call_timeout=60

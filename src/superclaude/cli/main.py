@@ -47,7 +47,9 @@ def install(target: str, force: bool, list_only: bool):
     """
     Install SuperClaude to Claude Code
 
-    Installs the framework to ~/.claude/.
+    Installs the framework to ~/.claude/ and, as a required user-level phase,
+    the pinned, checksum-verified codegraph binary registered as a user-scope
+    MCP server (a failure there exits 1; --force is not forwarded to it).
 
     Examples:
         superclaude install
@@ -150,6 +152,15 @@ def install(target: str, force: bool, list_only: bool):
             f"\nTemplates: {len(templates_available)} available, {len(templates_installed)} installed"
         )
 
+        click.echo()
+        try:
+            from .install_mcp import codegraph_list_lines
+
+            for line in codegraph_list_lines():
+                click.echo(line)
+        except Exception as exc:
+            click.echo(f"codegraph MCP: unavailable ({type(exc).__name__})")
+
         click.echo("\nRetired MCP registrations (user scope):")
         try:
             from .install_retired_mcp import list_lines
@@ -225,7 +236,23 @@ def install(target: str, force: bool, list_only: bool):
     setup_success, setup_message = install_user_setup(force=force)
     click.echo(setup_message)
 
-    # Step 8: retire stale MCP registrations IronClaude can prove it wrote.
+    # Step 8: codegraph, a required user-level phase. A failure keeps the framework
+    # work above, still runs the retire step below and exits 1. ``--force`` is not
+    # forwarded: the phase is idempotent and only repairs what differs.
+    click.echo("\n📦 Installing codegraph (required user-level phase)...")
+    try:
+        from .install_mcp import install_codegraph_mcp
+
+        codegraph_success, codegraph_message = install_codegraph_mcp(scope="user")
+    except Exception as exc:
+        codegraph_success = False
+        codegraph_message = (
+            f"codegraph phase failed ({type(exc).__name__}); fix the cause and "
+            "rerun superclaude install."
+        )
+    click.echo(codegraph_message, err=not codegraph_success)
+
+    # Step 9: retire stale MCP registrations IronClaude can prove it wrote.
     # Non-fatal by design: nothing here may change the exit code.
     click.echo("\n📦 Retiring stale MCP registrations...")
     try:
@@ -246,6 +273,7 @@ def install(target: str, force: bool, list_only: bool):
         or not hooks_success
         or not templates_success
         or not setup_success
+        or not codegraph_success
     ):
         sys.exit(1)
 

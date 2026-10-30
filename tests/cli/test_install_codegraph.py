@@ -619,3 +619,41 @@ def test_u25_bounded_runner_kills_the_process_group(tmp_path, monkeypatch):
             break
         time.sleep(0.05)
     assert not _alive(shell_pid) and not _alive(sleep_pid)
+
+
+def test_list_block_reports_owned_install_and_registration_state(
+    box, claude, monkeypatch
+):
+    serve(monkeypatch, tarball())
+    assert install_mcp.install_codegraph_mcp()[0]
+    lines = install_mcp.codegraph_list_lines()
+    target = vdir(box.home) / "bin" / "codegraph"
+    assert lines[0] == "codegraph MCP (pinned v1.6.2; user scope):"
+    assert lines[1] == f"   Executable: {target} (1.6.2)"
+    assert lines[2].startswith(f"   Owner: owned (receipt) {vdir(box.home)}")
+    assert f"{box.home}/.local/bin/codegraph -> {target}" in lines[2]
+    assert lines[3] == "   User registration: matches"
+    assert not claude.calls[1:]  # only the install's own claude --version
+
+    claude.seed({"codegraph": dict(claude.servers()["codegraph"], command="/old/x")})
+    assert (
+        install_mcp.codegraph_list_lines()[3] == "   User registration: owned but stale"
+    )
+    claude.seed({"codegraph": {"type": "stdio", "command": "x", "args": ["y"]}})
+    assert install_mcp.codegraph_list_lines()[3] == "   User registration: user-managed"
+    claude.cfg.write_text("{broken")
+    assert "unknown" in install_mcp.codegraph_list_lines()[3]
+
+
+def test_list_block_marks_external_copy_not_owned(box, claude):
+    baked = stub(box.path / "codegraph")
+    lines = install_mcp.codegraph_list_lines()
+    assert lines[1] == f"   Executable: {baked.resolve()} (1.6.2)"
+    assert lines[2] == f"   Owner: external: {baked.resolve()}, not owned"
+    assert lines[3] == "   User registration: absent"
+
+
+def test_list_block_flags_version_mismatch(box, claude):
+    stale = stub(box.path / "codegraph", "1.5.0")
+    lines = install_mcp.codegraph_list_lines()
+    assert lines[1] == f"   Executable: version mismatch at {stale.resolve()} (1.5.0)"

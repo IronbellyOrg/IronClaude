@@ -527,6 +527,11 @@ def _stub_framework(monkeypatch, *, failing=None):
     for path in _INSTALLERS:
         name = path.rsplit(".", 1)[-1]
         monkeypatch.setattr(path, lambda *a, _n=name, **k: (_n != failing, f"{_n} ok"))
+    # the required codegraph phase runs between user setup and the retire step
+    monkeypatch.setattr(
+        "superclaude.cli.install_mcp.install_codegraph_mcp",
+        lambda **k: (True, "install_codegraph_mcp ok"),
+    )
 
 
 @pytest.mark.parametrize("failing", [None, "install_hooks"])

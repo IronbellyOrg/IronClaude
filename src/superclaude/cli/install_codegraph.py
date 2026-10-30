@@ -94,10 +94,16 @@ def _reports_pinned_version(run: Runner, binary: Path) -> bool:
     return code == 0 and out.strip() == VERSION
 
 
-def discover(run: Runner) -> Path | None:
-    """First of ``PATH`` and ``~/.local/bin`` that prints VERSION; realpath, no network."""
+def inspect_binary(run: Runner) -> tuple:
+    """Read-only look at ``PATH`` then ``~/.local/bin``.
+
+    Returns ``("ok", realpath, version)`` for the first copy printing VERSION,
+    else ``("mismatch", realpath, version)`` for the first copy that runs but
+    prints another version, else ``("missing", None, None)``.
+    """
     on_path = shutil.which("codegraph")
     seen: set = set()
+    mismatch = None
     for candidate in (Path(on_path) if on_path else None, local_bin_link()):
         if candidate is None or not candidate.is_file():
             continue
@@ -105,9 +111,31 @@ def discover(run: Runner) -> Path | None:
         if real in seen or not os.access(real, os.X_OK):
             continue
         seen.add(real)
-        if _reports_pinned_version(run, candidate):
-            return real
-    return None
+        try:
+            code, out = run([str(candidate), "--version"], VERSION_TIMEOUT)
+        except (OSError, subprocess.SubprocessError):
+            continue
+        version = out.strip()
+        if code == 0 and version == VERSION:
+            return "ok", real, version
+        mismatch = mismatch or (real, version or "unknown")
+    return ("mismatch", *mismatch) if mismatch else ("missing", None, None)
+
+
+def discover(run: Runner) -> Path | None:
+    """The first copy that prints VERSION (realpath), or None. No network."""
+    state, real, _ = inspect_binary(run)
+    return real if state == "ok" else None
+
+
+def owned_paths() -> list:
+    """Receipt-listed version dirs, then links as ``link -> target`` (for ``--list``)."""
+    receipt = read_receipt()
+    if receipt is None:
+        return []
+    return list(receipt["version_dirs"]) + [
+        f"{link} -> {target}" for link, target in receipt["links"].items()
+    ]
 
 
 def write_pointer(winner: Path) -> None:
