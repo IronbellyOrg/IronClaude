@@ -10,6 +10,7 @@
 
 **Available integrations (runtime use remains optional):**
 
+- **codegraph**: Code graph (symbols, callers, impact, file outlines); installed by default by `superclaude install`
 - **Context7**: Official documentation lookup and framework patterns
 - **Playwright**: Browser automation and E2E testing
 - **Morphllm**: Pattern-based code editing with token optimization
@@ -22,6 +23,25 @@
 **Other considerations:**
 - Stable network connection for some servers
 - Sufficient system memory (2GB+ recommended)
+
+## codegraph lifecycle
+
+codegraph is installed and registered by `superclaude install` (pinned `v1.6.2`, SHA-256 verified, user scope). Setup, costs, removal and the opt-out are in the [MCP installation guide](../user-guide/mcp-installation.md#default-setup-codegraph). Quick checks:
+
+```bash
+superclaude install --list    # Executable, Owner, User registration, Ready for Serena retirement
+superclaude doctor            # "codegraph MCP registration" fails only if the registered command is gone
+claude mcp remove codegraph --scope user   # unregister (see the guide for the files to delete)
+```
+
+The tools in a session are limited by `CODEGRAPH_MCP_TOOLS` in the registered entry (`node,search,callers,callees,impact,files,status`); `codegraph_explore` is intentionally hidden.
+
+### codegraph troubleshooting
+
+- **"No CodeGraph project is loaded for this session", or the index belongs to a different working tree**: the checkout has no index yet (the session-start hook starts one in the background) or the session was opened before it finished. Use Read/Grep for now, or run `codegraph init --yes` in the directory printed by `git rev-parse --show-toplevel`. It is safe to repeat.
+- **A lock error, or an index that suddenly became empty**: `codegraph status`, `index` and `sync` can empty an index that another process is building. Check with `pgrep -f 'codegraph\.js (init|index)'` first, and use `init` to rebuild.
+- **Stale or wrong version**: `superclaude doctor` prints "registered codegraph prints X, the pin is 1.6.2". Run `superclaude install`; it replaces an entry it wrote and keeps one you changed.
+- **No index is created in CI or a headless pipeline**: that is intended when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` is set; unset it, or run `codegraph init --yes` yourself.
 
 ## Installation and Configuration Issues
 

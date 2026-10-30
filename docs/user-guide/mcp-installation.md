@@ -2,9 +2,62 @@
 
 SuperClaude provides a convenient CLI command for installing and managing MCP (Model Context Protocol) servers for Claude Code.
 
+## Default setup: codegraph
+
+`superclaude install` (and so `./update.sh`) installs **codegraph**, a code-graph server (symbols, callers, impact, file outlines), as a required user-level phase. Everything else is opt-in through `superclaude mcp`.
+
+- **Pinned and verified.** The phase uses codegraph `v1.6.2` only. It first looks for a copy that already prints `1.6.2` (`codegraph` on `PATH`, then `~/.local/bin/codegraph`; a copy baked into an image is reused with no network). Otherwise it downloads the release tarball for your platform (Linux or macOS, x64 or arm64), checks its SHA-256 against the value pinned in the source, and only then extracts it to `~/.codegraph/versions/v1.6.2/`. It never runs upstream's `install.sh` or `codegraph install`.
+- **Registered at user scope**, equivalent to:
+
+  ```text
+  claude mcp add-json codegraph '{"type":"stdio","command":"<absolute path>","args":["serve","--mcp"],"alwaysLoad":true,"env":{"CODEGRAPH_TELEMETRY":"0","CODEGRAPH_NO_UPDATE_CHECK":"1","CODEGRAPH_MCP_TOOLS":"node,search,callers,callees,impact,files,status"}}' --scope user
+  ```
+
+  Telemetry and update checks are off. `superclaude install` repairs an entry it wrote itself (old path, missing field) and never replaces an entry you changed: a user-managed `codegraph` entry whose command runs is kept, with the command to hand it back.
+- **Tool list.** Upstream lists only `codegraph_explore` by default. `CODEGRAPH_MCP_TOOLS` replaces that with seven narrower tools (`codegraph_node`, `_search`, `_callers`, `_callees`, `_impact`, `_files`, `_status`); `codegraph_explore` is hidden and a call to it fails. The seven schemas add about 1,861 tokens to a session (measured with four headless runs; the 2,000-token limit is a proposal, not yet confirmed by the maintainers).
+- **Run it again any time.** A second `superclaude install` makes no download and no registry change. `superclaude install --list` prints what is installed (`Executable`, `Owner`, `User registration`, `Ready for Serena retirement`) without changing anything; `superclaude doctor` fails only when the registered command no longer exists.
+- **No Windows install.** On an unsupported platform the phase stops with the manual steps unless a matching copy is already on `PATH`.
+
+### If the codegraph phase fails
+
+`superclaude install` still installs everything else, prints the failed stage and exits 1 (so `./update.sh` stops).
+
+| Stage | Typical cause | What to do |
+|---|---|---|
+| prerequisites | `claude` missing or `claude --version` fails | Install Claude Code, rerun `superclaude install` |
+| platform | not Linux or macOS on x64 or arm64 | Install codegraph yourself so `codegraph --version` prints `1.6.2`, rerun |
+| download | network error, proxy, timeout | Fix the network (`https_proxy` is honoured), rerun |
+| checksum | the file does not match the pinned SHA-256 | Do not retry blindly: report it |
+| extract | bad archive, or the extracted copy is not `1.6.2` | Rerun; report if it repeats |
+| registration | `~/.claude.json` unreadable or `claude mcp` failed | Fix the file or run the printed command, rerun |
+
+### Removing codegraph
+
+```bash
+claude mcp remove codegraph --scope user
+```
+
+Then delete the paths `superclaude install --list` prints as owned (the version directory under `~/.codegraph/versions/`, the `~/.local/bin/codegraph` and `~/.codegraph/current` links, then the receipt `~/.codegraph/.superclaude-receipt.json`). Copies you or an image installed are never listed. Remove a project's index with `codegraph uninit` in that project.
+
+### Indexing: one index per checkout
+
+A session-start hook (`~/.claude/hooks/codegraph-session-start.sh`, event `SessionStart`, matcher `startup`) starts one background `codegraph init --yes` in the git top-level of a checkout that has no `.codegraph/codegraph.db`. Clones, sibling worktrees and new projects each get their own index on their first session. It never runs in `$HOME`, `/` or a directory outside git, never touches an existing index, prints nothing and cannot fail a session. While a session is open codegraph keeps the index fresh; edits made with no session open are caught when the next session connects.
+
+- **Cost.** About 70 KB on disk per indexed file and up to about 1 GB of memory while the first `init` runs; seconds for a small repository, around 100 seconds for 27,000 files. The first answers in a brand-new checkout can be incomplete until the init finishes.
+- **Opt out.** Set `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` in the environment (or in the `env` block of `~/.claude/settings.json`). It disables **only** this session-start hook: not the MCP server, not the installer phase, not any command or skill. Use it for CI and for headless pipelines (`claude -p` also fires `startup`). Every IronClaude codegraph switch starts with `SUPERCLAUDE_CODEGRAPH_`. To exclude files from one project, add excludes to its `codegraph.json`.
+- **Progress log.** `${XDG_STATE_HOME:-~/.local/state}/superclaude/codegraph-init.log`.
+- **Git ignore.** codegraph's `.codegraph/` folder shows up as untracked. Add `.codegraph/` to your global git ignore file (the file named by `core.excludesFile`, by default `~/.config/git/ignore`) so it never shows up in `git status` or `git add -A`.
+- **Optional `post-checkout` recipe** (not installed; IronClaude writes no git config and installs no git hooks). In a repository's `.git/hooks/post-checkout`: `[ -e .codegraph/codegraph.db ] || (nohup codegraph init --yes "$PWD" </dev/null >/dev/null 2>&1 &) ; exit 0`. Use `init`, never `sync` or `index`, which can empty an index that is being built.
+
+### Serena is removed once codegraph is ready
+
+In the first `superclaude install` where codegraph is registered and usable (`Ready for Serena retirement: yes` in `install --list`), the cleanup step also removes every user-scope MCP entry other than `serena-local` that launches Serena (arguments contain `start-mcp-server`, `env` and `headers` absent or empty), whatever its name, and the `~/.local/bin/codebase-memory-mcp` registration. Until then the current-pin `serena` entry is kept and the removal command is printed. A launcher entry with non-empty `env` or `headers` is kept; the cleanup step reports that ("customised registration") only for an entry named `serena`, and says nothing about a renamed one. To keep Serena, register it yourself as `serena-local`; the installer never removes that name.
+
+Kept by policy: `~/.serena`, project `.serena/` folders, `~/.cache/codebase-memory-mcp`, the uv cache and, outside Coder, a `serena-agent` uv tool you installed (the removal command is printed). Local-scope (`projects.*.mcpServers`) and `.mcp.json` entries are never read or removed by the installer; if a project still registers `serena` or `codebase-memory-mcp` that way, run `claude mcp remove <name> --scope local` (or `--scope project` for `.mcp.json`) in that project. The root-owned `/usr/local/bin/codebase-memory-mcp` in the Coder image goes only with a new image, and a `~/.local/bin/codebase-memory-mcp` binary with its client companions stays, with its `uninstall -y` command printed.
+
 ## What `superclaude install` Does With MCP
 
-`superclaude install` installs framework files, commands, agents, skills, ccsession wiring, hooks, templates and user setup. It does **not** install any MCP server: use `superclaude mcp` for that (see below).
+`superclaude install` installs framework files, commands, agents, skills, ccsession wiring, hooks, templates and user setup, then the codegraph phase above. It installs no other MCP server: use `superclaude mcp` for those (see below).
 
 At the end of the run it performs one short cleanup step for old user-level MCP registrations: it removes only entries (and IronClaude's own leftover receipt files) that IronClaude can prove it wrote, keeps any entry it cannot prove and prints the reason (and, for a legacy launcher registration, the exact `claude mcp remove ... --scope user` command to remove it by hand). The step is bounded in time, never changes the exit code of `superclaude install`, and never touches binaries, indexes, caches or memories. See the [CHANGELOG](../../CHANGELOG.md) for the full list of what it covers.
 
@@ -39,6 +92,7 @@ Without a terminal, installation requires explicit `--servers` selections.
 
 | Server | Description | Requires API Key |
 |--------|-------------|------------------|
+| **codegraph** | Code graph: symbols, callers, impact, file outlines; installed by `superclaude install` (see Default setup above) | No |
 | **airis-mcp-gateway** | Unified gateway; separate Docker-based installation | No (some hosted tools need keys) |
 | **context7** | Official library documentation and code examples | No |
 | **playwright** | Cross-browser E2E testing and automation | No |

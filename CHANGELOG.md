@@ -30,6 +30,15 @@ All notable changes to IronClaude are documented in this file.
 
 - `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.
 
+### Added: codegraph installed by default (#323)
+
+- `superclaude install` (and so `./update.sh`) now has a required codegraph phase. It reuses a codegraph `1.6.2` already on `PATH` or in `~/.local/bin`; otherwise it downloads the pinned `v1.6.2` release for Linux or macOS (x64 or arm64), checks its SHA-256 against the value pinned in the source, and installs it under `~/.codegraph/versions/v1.6.2/`. It never runs upstream's installer. A failure keeps the rest of the install and exits 1, naming the failed stage.
+- It registers codegraph at user scope with telemetry and update checks off and `CODEGRAPH_MCP_TOOLS=node,search,callers,callees,impact,files,status`, which lists seven narrow tools and hides `codegraph_explore` (about 1,861 extra tokens per session in four headless runs; the 2,000-token limit is still a proposal). An entry IronClaude wrote is repaired; one you changed is kept.
+- A `SessionStart` (startup) hook starts one background `codegraph init --yes` in a git checkout that has no `.codegraph/codegraph.db`, so each clone and worktree is indexed on its first session. Costs: about 70 KB per indexed file and up to about 1 GB of memory during the first init. `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off this hook only (recommended for CI and headless pipelines).
+- `superclaude install --list` prints a codegraph block (executable, owner, registration, `Ready for Serena retirement`), and `superclaude doctor` gains a "codegraph MCP registration" check that fails only when the registered command no longer exists. Remove codegraph with `claude mcp remove codegraph --scope user` and delete the paths `install --list` prints as owned. `.codegraph/` is now git-ignored in this repository.
+- Once codegraph is registered and usable, the same `superclaude install` run also removes the Serena launcher registrations (`serena` and any renamed launcher except `serena-local`, with `env` and `headers` absent or empty) and the `~/.local/bin/codebase-memory-mcp` registration; the binary and its client companions stay. Register Serena as `serena-local` to keep it.
+- Guidance for agents is in the core `CLAUDE.md` (a `codegraph` row and a block between `SUPERCLAUDE_CODEGRAPH_BEGIN` and `SUPERCLAUDE_CODEGRAPH_END`). See the [MCP installation guide](docs/user-guide/mcp-installation.md#default-setup-codegraph).
+
 ### Breaking: codebase-memory-mcp and Serena removed; session memory moves to `.superclaude/memory/` files (#323)
 
 #### Removed (codebase-memory-mcp and Serena)

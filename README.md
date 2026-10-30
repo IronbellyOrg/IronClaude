@@ -61,7 +61,7 @@ pipx install git+https://github.com/IronbellyOrg/IronClaude
 superclaude install
 ```
 
-This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
+This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1) and a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
 
 ### Install from source for development
 
@@ -72,7 +72,7 @@ git clone https://github.com/IronbellyOrg/IronClaude
 cd IronClaude
 uv venv                    # make install runs `uv pip install -e`, which needs an environment
 make install
-uv run superclaude install # framework assets + user-level MCP cleanup
+uv run superclaude install # framework assets + codegraph + user-level MCP cleanup
 make verify
 ```
 
