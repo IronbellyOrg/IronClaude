@@ -127,6 +127,14 @@ def test_u2_pin_integrity():
     assert set(cg.SHA256) == {"linux-x64", "linux-arm64", "darwin-x64", "darwin-arm64"}
     assert all(re.fullmatch(r"[0-9a-f]{64}", h) for h in cg.SHA256.values())
     assert cg.TAG == "v" + cg.VERSION
+    # The release's own checksum lines, fetched once; a mistyped pin fails here
+    # instead of at a user's first install (the acquisition tests swap the pin).
+    sums = REPO / ".dev/codegraph-migration/evidence/P2-release-SHA256SUMS.txt"
+    released = {
+        name: digest
+        for digest, name in (line.split() for line in sums.read_text().splitlines()[1:])
+    }
+    assert cg.SHA256 == {k: released[f"codegraph-{k}.tar.gz"] for k in cg.SHA256}
     evidence = REPO / ".dev/codegraph-migration/evidence/P2-mcp-tools-schema.md"
     selected = re.search(r"^Selected MCP_TOOLS: (.+)$", evidence.read_text(), re.M)
     assert selected and cg.MCP_TOOLS == selected.group(1)
