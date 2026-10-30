@@ -131,6 +131,19 @@ superclaude mcp --servers auggie
 auggie login
 ```
 
+### litellm 🌐
+
+**Purpose**: One LiteLLM MCP gateway endpoint that fronts hosted Augment search, Tavily and Context7
+**Requirements**: Network access to `http://ibcore:4000/mcp/`, and the `LITELLM_API_KEY` environment variable set before you start Claude Code
+**Install**: Opt-in only. The "all servers" choice skips it; select it by number or by name.
+
+```bash
+export LITELLM_API_KEY="<your gateway key>"
+superclaude mcp --servers litellm
+```
+
+The registration stores the literal text `Bearer ${LITELLM_API_KEY}` in the `x-litellm-api-key` header, never the key itself. Claude Code reads the variable when it connects, so rotating the key needs no reinstall. Check with `claude mcp list`: litellm should show Connected (a 401 means the variable was empty when Claude Code started).
+
 
 **Capabilities:**
 
