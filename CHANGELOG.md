@@ -26,6 +26,10 @@ All notable changes to IronClaude are documented in this file.
 - `superclaude install` over an older ccsession skill folder adds the new hook script, so the registered UserPromptSubmit and SessionEnd hooks never point at a missing file; `superclaude doctor` checks for it. The hook installer treats the standalone `install.sh` form of either ccsession hook as the same hook, so neither is registered twice.
 - Renaming a session no longer leaves the old name behind in the list.
 
+### MCP installer: LiteLLM gateway entry
+
+- `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.
+
 ### ccsession: tiers by Coder role, letter tier names, and the new tier layout
 
 #### Added (ccsession tier rules)

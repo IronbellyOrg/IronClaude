@@ -106,6 +106,18 @@ MCP_SERVERS = {
         "args": [],
         "required": False,
     },
+    # Appended last so the numbered install menu keeps its existing numbers.
+    # The header value stays the literal ${LITELLM_API_KEY}: Claude Code expands it from the
+    # environment at connect time, so no key is stored in the registration.
+    "litellm": {
+        "name": "litellm",
+        "description": "LiteLLM MCP gateway: hosted Augment search, Tavily and Context7 behind one endpoint",
+        "transport": "http",
+        "url": "http://ibcore:4000/mcp/",
+        "headers": {"x-litellm-api-key": "Bearer ${LITELLM_API_KEY}"},
+        "required": False,
+        "opt_in_only": True,
+    },
 }
 
 
@@ -657,6 +669,37 @@ def _parse_mcp_get_command(output: str) -> Optional[str]:
     return " ".join(tokens)
 
 
+def _parse_mcp_get_url(output: str) -> Optional[str]:
+    """Return the ``URL:`` line of ``claude mcp get`` for an HTTP server, or ``None``."""
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("URL:"):
+            return stripped.split(":", 1)[1].strip() or None
+    return None
+
+
+def _parse_mcp_get_headers(output: str) -> Dict[str, str]:
+    """Return the ``Headers:`` block of ``claude mcp get`` as ``{name: value}``."""
+    headers: Dict[str, str] = {}
+    in_headers = False
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped == "Headers:":
+            in_headers = True
+        elif in_headers:
+            if not stripped or ":" not in stripped:
+                break
+            name, value = stripped.split(":", 1)
+            headers[name.strip()] = value.strip()
+    return headers
+
+
+def _http_signature(url: str, headers: Dict[str, str]) -> str:
+    """One comparable string for an HTTP registration: the URL, then sorted headers."""
+    pairs = (f"{name}: {value}" for name, value in sorted(headers.items()))
+    return " ".join([url, *pairs])
+
+
 def _parse_mcp_get_scope(output: str) -> Optional[str]:
     """Normalize the ``Scope:`` line of ``claude mcp get`` into ``local`` | ``user`` |
     ``project``, or ``None`` when absent/unrecognized.
@@ -1027,7 +1070,7 @@ def install_mcp_server(
         click.echo(message, err=not success)
         return success
     transport = server_info["transport"]
-    command = server_info["command"]
+    command = server_info.get("command")
 
     click.echo(f"📦 Installing MCP server: {server_name}")
 
@@ -1057,8 +1100,21 @@ def install_mcp_server(
                 f"   ℹ️  No exact '{server_name}' registration to reconcile; installing fresh."
             )
         else:
-            expected_command = " ".join(shlex.split(command))
-            registered_command = _parse_mcp_get_command(registered_output)
+            if transport == "http":
+                expected_command = _http_signature(
+                    server_info["url"], server_info.get("headers", {})
+                )
+                registered_url = _parse_mcp_get_url(registered_output)
+                registered_command = (
+                    _http_signature(
+                        registered_url, _parse_mcp_get_headers(registered_output)
+                    )
+                    if registered_url
+                    else None
+                )
+            else:
+                expected_command = " ".join(shlex.split(command))
+                registered_command = _parse_mcp_get_command(registered_output)
             if (
                 registered_command is not None
                 and registered_command == expected_command
@@ -1152,11 +1208,17 @@ def install_mcp_server(
     if env_args:
         cmd.extend(env_args)
 
-    # Add separator
-    cmd.append("--")
+    if transport == "http":
+        # `--header` takes several values, so it must come after the URL.
+        cmd.append(server_info["url"])
+        for header, value in server_info.get("headers", {}).items():
+            cmd.extend(["--header", f"{header}: {value}"])
+    else:
+        # Add separator
+        cmd.append("--")
 
-    # Add server command (split into parts)
-    cmd.extend(shlex.split(command))
+        # Add server command (split into parts)
+        cmd.extend(shlex.split(command))
 
     # Build a display-safe command that masks secret env values (e.g. the API key)
     # while leaving non-secret tokens like DEFAULT_PARAMETERS visible in full (M1).
@@ -1237,7 +1299,7 @@ def _show_mcp_install_choices() -> None:
     for index, (name, info) in enumerate(MCP_SERVERS.items(), 1):
         key_note = f" (requires {info['api_key_env']})" if "api_key_env" in info else ""
         click.echo(f"{index}. {name}: {info['description']}{key_note}")
-    click.echo("0. Install all individual servers")
+    click.echo("0. Install all individual servers (except opt-in ones such as litellm)")
 
 
 def install_mcp_servers(
@@ -1296,7 +1358,11 @@ def install_mcp_servers(
             if choice == "g":
                 selected = ["airis-mcp-gateway"]
             elif choice == "0":
-                selected = list(MCP_SERVERS)
+                selected = [
+                    name
+                    for name, info in MCP_SERVERS.items()
+                    if not info.get("opt_in_only")
+                ]
             else:
                 try:
                     indices = [int(value.strip()) for value in choice.split(",")]
