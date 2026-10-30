@@ -1404,7 +1404,9 @@ def install_mcp_servers(
             selected = ["airis-mcp-gateway"]
         elif choice == "0":
             selected = [
-                name for name, info in MCP_SERVERS.items() if not info.get("opt_in_only")
+                name
+                for name, info in MCP_SERVERS.items()
+                if not info.get("opt_in_only")
             ]
         else:
             try:
