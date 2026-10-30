@@ -1,0 +1,8 @@
+# Phase 2 executor decision log (issue #323)
+
+| Decision | Options considered | Method | Rationale | Decision folder |
+|---|---|---|---|---|
+| `MCP_TOOLS` = `node,search,callers,callees,impact,files,status` (Task 3) | the seven tools; `status` only | self, following the F2 method (Leg A byte delta D = 7597, undecided band; Leg B T = 1861 tokens <= 2000, guards a-d hold) | The method's decision rule picks the seven tools when a valid Leg B shows T <= 2000. The 2K threshold and band edges stay proposals, not user-confirmed (evidence file line "Threshold status"). | `decisions/F2-schema-cost-method/` |
+| Archive extraction is bounded and written by hand (Task 4) | `tarfile.extractall(filter="data")` (needs Python 3.12+, spec requires 3.10+); hand-written extraction of regular files and directories under the `codegraph-<asset>/` prefix with caps of 20,000 members and 2 GiB | self | One obvious answer under the Python >= 3.10 constraint; the v1.6.2 tarball has 1380 members, so the caps are loose but stop a hostile archive. | none |
+| An existing, receipt-unlisted `~/.codegraph/versions/v1.6.2` whose binary prints 1.6.2 is reused before any download (Task 4) | download first and check the dir at the rename step (spec step 5 order); check the dir first | self | Same outcome as spec §2.3 step 5 ("use it only if its version matches") without a download that would only be thrown away. | none |
+| Receipt gets one extra key `fresh` (Task 4) | stateless pruning that keeps the two newest dirs; a marker file; a `fresh` flag in the receipt | self | Spec §2.6 says keep the previous dir "for one run"; a flag set by a download and cleared by the next prune call is the smallest exact implementation. | none |
