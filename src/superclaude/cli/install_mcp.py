@@ -706,13 +706,8 @@ def prompt_for_api_key(
         return None
 
 
-def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
-    """Read ONLY the exact top-level user entry; False means lookup is unknown.
-
-    Unscoped `mcp get` can return a shadowing local/project entry and its text
-    loses JSON fields. Keep existing legacy lookup behavior for other servers.
-    No writer lives here: all mutations go through the scoped Claude CLI.
-    """
+def read_user_mcp_servers() -> tuple[bool, dict]:
+    """The top-level user ``mcpServers`` object; False means lookup is unknown."""
 
     def unique_object(pairs):
         result = {}
@@ -725,7 +720,7 @@ def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
     try:
         config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
         if config_dir == "":
-            return False, None
+            return False, {}
         path = (
             Path(config_dir).expanduser() if config_dir is not None else Path.home()
         ) / ".claude.json"
@@ -734,19 +729,32 @@ def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
                 path.read_text(encoding="utf-8"), object_pairs_hook=unique_object
             )
         except FileNotFoundError:
-            return (False, None) if path.is_symlink() else (True, None)
+            return (False, {}) if path.is_symlink() else (True, {})
         if not isinstance(root, dict):
-            return False, None
+            return False, {}
         servers = root.get("mcpServers", {})
         if not isinstance(servers, dict):
-            return False, None
-        if server_name not in servers:
-            return True, None
-        entry = servers[server_name]
-        return (True, entry) if isinstance(entry, dict) else (False, None)
+            return False, {}
+        return True, servers
     except (OSError, ValueError, RuntimeError):
         # Never include file contents or exception text: either may contain keys.
+        return False, {}
+
+
+def read_user_mcp_entry(server_name: str) -> tuple[bool, dict | None]:
+    """Read ONLY the exact top-level user entry; False means lookup is unknown.
+
+    Unscoped `mcp get` can return a shadowing local/project entry and its text
+    loses JSON fields. Keep existing legacy lookup behavior for other servers.
+    No writer lives here: all mutations go through the scoped Claude CLI.
+    """
+    known, servers = read_user_mcp_servers()
+    if not known:
         return False, None
+    if server_name not in servers:
+        return True, None
+    entry = servers[server_name]
+    return (True, entry) if isinstance(entry, dict) else (False, None)
 
 
 def _run_registration_command(cmd: list[str]) -> bool:
@@ -1012,6 +1020,42 @@ def install_codegraph_mcp(
     )
 
 
+def codegraph_ready() -> tuple[bool, str]:
+    """Read-only: is codegraph registered and usable, so Serena may be retired?
+
+    Shared by ``install``, ``install --list`` and ``doctor``. Returns
+    ``(ready, reason)``; the reason says why not when ``ready`` is false.
+    """
+    known, entry = read_user_mcp_entry("codegraph")
+    if not known:
+        return False, "cannot read the user MCP configuration"
+    if entry is None:
+        return False, "codegraph is not registered"
+    state, path, _ = install_codegraph.inspect_binary(_run_argv)
+    expected = _codegraph_entry(path or Path("/missing/codegraph"))
+    kind = _codegraph_entry_kind(entry, expected)
+    if kind == "equal":
+        return True, ""
+    command = entry.get("command")
+    if kind == "owned":
+        if isinstance(command, str) and install_codegraph.reports_pinned_version(
+            _run_argv, Path(command)
+        ):
+            return True, ""
+        return (
+            False,
+            f"the registered codegraph does not print {install_codegraph.VERSION}",
+        )
+    if isinstance(command, str) and shutil.which(command):
+        return True, ""  # user-managed: the user chose it, any version
+    return False, "the user-managed codegraph entry's command does not run"
+
+
+def codegraph_ready_line() -> str:
+    ready, reason = codegraph_ready()
+    return "Ready for Serena retirement: " + ("yes" if ready else f"no ({reason})")
+
+
 def codegraph_list_lines() -> list[str]:
     """Read-only ``install --list`` block: no download, no ``claude mcp`` call."""
     state, path, version = install_codegraph.inspect_binary(_run_argv)
@@ -1051,6 +1095,7 @@ def codegraph_list_lines() -> list[str]:
         f"   Executable: {executable}",
         f"   Owner: {owner}",
         f"   User registration: {registration}",
+        f"   {codegraph_ready_line()}",
     ]
 
 

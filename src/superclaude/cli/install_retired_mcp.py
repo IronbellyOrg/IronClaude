@@ -21,10 +21,13 @@ from typing import Callable, NamedTuple
 
 import click
 
-from .install_mcp import _remove_exact_user_entry, read_user_mcp_entry
+from . import install_mcp
+from .install_mcp import _remove_exact_user_entry, read_user_mcp_servers
 
 CBM_NAME = "codebase-memory-mcp"
 SERENA_NAME = "serena"
+# The one launcher name the codegraph-ready sweep never removes: the re-register hint's name.
+SERENA_KEEP_NAME = "serena-local"
 RECEIPT_NAME = ".superclaude-codebase-memory.json"
 MARKER_NAME = ".superclaude-codebase-memory.pending"
 
@@ -145,7 +148,7 @@ def _has_extra_config(entry: dict) -> bool:
     return any(key in entry and not _empty(entry[key]) for key in ("env", "headers"))
 
 
-def _classify_cbm(entry: dict, home: Path) -> tuple[str, str]:
+def _classify_cbm(entry: dict, home: Path, ready: bool = False) -> tuple[str, str]:
     command = entry.get("command")
     args = entry.get("args", [])
     if (
@@ -160,6 +163,11 @@ def _classify_cbm(entry: dict, home: Path) -> tuple[str, str]:
     canonical = _canonical_cbm(home)
     if command == str(canonical):
         if canonical.exists():
+            if ready:
+                return (
+                    "remove",
+                    "codegraph is ready: kind-B registration (binary and companions stay)",
+                )
             return "keep", "upstream-installed binary still present"
         return "remove", "IronClaude shape, binary gone"
     if command.endswith("/.local/bin/" + CBM_NAME):
@@ -167,7 +175,7 @@ def _classify_cbm(entry: dict, home: Path) -> tuple[str, str]:
     return "remove", "IronClaude shape"
 
 
-def _classify_serena(entry: dict, home: Path) -> tuple[str, str]:
+def _classify_serena(entry: dict, home: Path, ready: bool = False) -> tuple[str, str]:
     command = entry.get("command")
     args = entry.get("args", [])
     if (
@@ -182,12 +190,14 @@ def _classify_serena(entry: dict, home: Path) -> tuple[str, str]:
     for row, (row_command, row_args) in _SERENA_TIER_R.items():
         if command == row_command and args == row_args:
             return "remove", f"Tier R row ({row}): {shlex.join([command, *args])}"
+    if ready:
+        return "remove", f"codegraph is ready: {shlex.join([command, *args])}"
     return "keep", TIER_K_LINE
 
 
 # Remove after the first release in which Coder's image and bundle no longer ship
 # either server.
-RETIRED_MCP_SERVERS: dict[str, Callable[[dict, Path], tuple[str, str]]] = {
+RETIRED_MCP_SERVERS: dict[str, Callable[[dict, Path, bool], tuple[str, str]]] = {
     CBM_NAME: _classify_cbm,
     SERENA_NAME: _classify_serena,
 }
@@ -238,35 +248,63 @@ def _classify_file(path: Path, home: Path) -> Finding:
     return Finding(path.name, "remove", "binary gone")
 
 
-def classify_retired_entries() -> list[Finding]:
-    """Read all state once; no writes. Order: receipt, marker, codebase-memory, serena."""
+def _codegraph_ready_now() -> bool:
+    """The one readiness predicate (``install_mcp.codegraph_ready``); False on any error."""
+    try:
+        return bool(install_mcp.codegraph_ready()[0])
+    except Exception:
+        return False
+
+
+def classify_retired_entries(ready: bool = False) -> list[Finding]:
+    """Read all state once; no writes. Order: receipt, marker, codebase-memory, serena.
+
+    When ``ready`` (codegraph is registered and usable) the current-pin Serena entry,
+    the kind-B codebase-memory registration and every renamed Serena launcher
+    (any user entry other than ``serena-local``) are also verdict ``remove``.
+    """
     home = Path.home().absolute()
     bin_dir = home / ".local" / "bin"
     findings = [
         _classify_file(bin_dir / RECEIPT_NAME, home),
         _classify_file(bin_dir / MARKER_NAME, home),
     ]
-    for name, classify in RETIRED_MCP_SERVERS.items():
-        known, entry = read_user_mcp_entry(name)
-        if not known:
+    known, servers = read_user_mcp_servers()
+    classifiers = dict(RETIRED_MCP_SERVERS)
+    if ready and known:
+        for name, entry in servers.items():
+            if (
+                name not in classifiers
+                and name != SERENA_KEEP_NAME
+                and isinstance(entry, dict)
+                and _classify_serena(entry, home, True)[0] == "remove"
+            ):
+                classifiers[name] = _classify_serena
+    for name, classify in classifiers.items():
+        if not known or (name in servers and not isinstance(servers[name], dict)):
             findings.append(Finding(name, "unknown", UNKNOWN_CAUSE))
-        elif entry is None:
+        elif name not in servers:
             findings.append(Finding(name, "absent", ""))
         else:
-            findings.append(Finding(name, *classify(entry, home)))
+            findings.append(Finding(name, *classify(servers[name], home, ready)))
     return findings
 
 
 def list_lines() -> list[str]:
     """One line per retired name for ``superclaude install --list``."""
     lines = []
-    for finding in classify_retired_entries():
-        if finding.name not in RETIRED_MCP_SERVERS:
+    for finding in classify_retired_entries(_codegraph_ready_now()):
+        if finding.name in (RECEIPT_NAME, MARKER_NAME):
             continue
         if finding.verdict == "absent":
             status = "absent"
         elif finding.verdict == "remove":
-            status = "will be removed (IronClaude shape)"
+            cause = (
+                "codegraph is ready"
+                if finding.reason.startswith("codegraph is ready")
+                else "IronClaude shape"
+            )
+            status = f"will be removed ({cause})"
         elif finding.verdict == "unknown":
             status = "unknown (lookup failed; no repair attempted)"
         else:
@@ -281,7 +319,7 @@ def _removable(findings: list[Finding]) -> list[Finding]:
 
 def update_notice() -> str | None:
     """The only thing ``superclaude update`` says about retired servers."""
-    if _removable(classify_retired_entries()):
+    if _removable(classify_retired_entries(_codegraph_ready_now())):
         return "legacy registration present: run `superclaude install`"
     return None
 
@@ -290,8 +328,8 @@ def doctor_warning() -> str | None:
     """Warn-only text for ``superclaude doctor`` (never a failure)."""
     names = [
         f.name
-        for f in _removable(classify_retired_entries())
-        if f.name in RETIRED_MCP_SERVERS
+        for f in _removable(classify_retired_entries(_codegraph_ready_now()))
+        if f.name not in (RECEIPT_NAME, MARKER_NAME)
     ]
     if not names:
         return None
@@ -344,14 +382,17 @@ def _retire_files(findings: list[Finding], home: Path) -> bool:
     return removed
 
 
-def run_retire_step() -> dict[str, str]:
+def run_retire_step(codegraph_ready: bool = False) -> dict[str, str]:
     """Retire stale registrations. Prints one line per action; returns name -> outcome.
 
+    ``codegraph_ready`` is true only when the codegraph phase passed in this run and
+    ``install_mcp.codegraph_ready()`` agrees; it widens removal to the Serena launchers
+    and the kind-B codebase-memory registration (spec 2.12).
     Callers wrap this in ``try/except``: no outcome may change the install exit code.
     """
     home = Path.home().absolute()
     deadline = time.monotonic() + STEP_CAP
-    findings = classify_retired_entries()
+    findings = classify_retired_entries(codegraph_ready)
     outcomes: dict[str, str] = {}
     if all(f.verdict == "absent" for f in findings):
         click.echo("   No retired MCP registrations present.")
@@ -362,11 +403,11 @@ def run_retire_step() -> dict[str, str]:
 
     removed_any = False
     removed_cbm = False
-    removed_serena_argv = None
+    removed_launchers: list[str] = []
     claude = shutil.which("claude")
     for finding in findings:
         name = finding.name
-        if name not in RETIRED_MCP_SERVERS:
+        if name in (RECEIPT_NAME, MARKER_NAME):
             continue
         if finding.verdict == "absent":
             outcomes[name] = "absent"
@@ -389,10 +430,12 @@ def run_retire_step() -> dict[str, str]:
             )
             outcomes[name] = "skipped"
         else:
-            classify = RETIRED_MCP_SERVERS[name]
+            classify = RETIRED_MCP_SERVERS.get(name, _classify_serena)
             status = _remove_exact_user_entry(
                 name,
-                lambda entry, _c=classify: _c(entry, home)[0] == "remove",
+                lambda entry, _c=classify: (
+                    _c(entry, home, codegraph_ready)[0] == "remove"
+                ),
                 deadline=deadline,
                 per_call_timeout=PER_CALL_TIMEOUT,
             )
@@ -404,8 +447,8 @@ def run_retire_step() -> dict[str, str]:
                 removed_any = True
                 if name == CBM_NAME:
                     removed_cbm = True
-                if name == SERENA_NAME:
-                    removed_serena_argv = finding.reason.split(": ", 1)[-1]
+                if name != CBM_NAME:
+                    removed_launchers.append(finding.reason.split(": ", 1)[-1])
             elif status == "absent":
                 click.echo(f"   {name}: already gone")
             elif status == "changed":
@@ -432,8 +475,9 @@ def run_retire_step() -> dict[str, str]:
         click.echo(f"   {RESTART_LINE}")
     if removed_cbm:
         click.echo(f"   {CBM_COMPANION_LINE}")
-    if removed_serena_argv:
-        click.echo(f"   Removed Serena registration: {removed_serena_argv}")
+    if removed_launchers:
+        for argv in removed_launchers:
+            click.echo(f"   Removed Serena registration: {argv}")
         click.echo(
             "   To keep using Serena, register it yourself under the name "
             f"`serena-local`, e.g. `{SERENA_REREGISTER}`"
@@ -444,7 +488,7 @@ def run_retire_step() -> dict[str, str]:
         click.echo(f"   {CBM_UNINSTALL_LINE}")
     if CBM_NAME in touched or RECEIPT_NAME in touched or MARKER_NAME in touched:
         click.echo(f"   {DELETE_CBM_DATA_LINE}")
-    if SERENA_NAME in touched:
+    if any(name not in (CBM_NAME, RECEIPT_NAME, MARKER_NAME) for name in touched):
         click.echo(f"   {SERENA_TOOL_LINE}")
         click.echo(f"   {DELETE_SERENA_DATA_LINE}")
     return outcomes

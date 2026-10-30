@@ -540,7 +540,7 @@ def test_a_failing_retire_step_never_changes_the_install_exit_code(
 ):
     _stub_framework(monkeypatch, failing=failing)
 
-    def boom():
+    def boom(*args, **kwargs):
         raise RuntimeError("retire exploded")
 
     monkeypatch.setattr(retired, "run_retire_step", boom)
@@ -605,6 +605,168 @@ def test_update_and_doctor_never_mutate_and_never_change_their_exit_code(
         _check_retired_mcp()["passed"] is True
         and "warning" not in _check_retired_mcp()["name"]
     )
+
+
+# ---- Phase 2 gate: Serena and kind-B codebase-memory go once codegraph is ready ----
+
+CBM_B = "{home}/.local/bin/" + CBM
+
+
+def removes(name):
+    return ["claude", "mcp", "remove", name, "--scope", "user"]
+
+
+def test_codegraph_not_ready_keeps_current_pin_serena_and_kind_b_cbm(env):
+    binary = env.binary()
+    env.write({SER: stdio("uvx", PIN, env={}), CBM: stdio(str(binary), [])})
+    outcomes = retired.run_retire_step(False)
+    assert outcomes[SER] == "kept" and outcomes[CBM] == "kept"
+    assert env.claude_calls == []
+
+
+def test_codegraph_ready_removes_current_pin_serena_with_empty_env(env, capsys):
+    env.write({SER: stdio("uvx", PIN, env={}), "tavily": stdio("npx", ["x"])})
+    assert retired.run_retire_step(True)[SER] == "removed"
+    assert env.claude_calls == [removes(SER)]
+    assert list(env.read()["mcpServers"]) == ["tavily"]
+    out = capsys.readouterr().out
+    assert "Removed Serena registration: uvx --from serena-agent==1.7.0" in out
+    assert "serena-local" in out
+
+
+def test_codegraph_ready_removes_a_renamed_serena_launcher(env):
+    env.write({"foo": stdio("uvx", PIN, env={}), SER: stdio("uvx", PIN, headers={})})
+    outcomes = retired.run_retire_step(True)
+    assert (outcomes[SER], outcomes["foo"]) == ("removed", "removed")
+    assert sorted(c[3] for c in env.claude_calls) == ["foo", SER]
+    assert env.read()["mcpServers"] == {}
+
+
+def test_codegraph_ready_serena_sweep_keeps_everything_it_cannot_prove(env):
+    keep = {
+        "serena-local": stdio("uvx", PIN),
+        SER: stdio("uvx", PIN, env={"KEY": "v"}),
+        "custom": stdio("uvx", PIN, headers={"a": "b"}),
+        "other": stdio("uvx", ["--from", "something"]),
+        "remote": {"type": "http", "url": "https://example.test/mcp"},
+    }
+    env.write(keep)
+    outcomes = retired.run_retire_step(True)
+    assert outcomes[SER] == "kept"
+    assert env.claude_calls == []
+    assert env.read()["mcpServers"] == keep
+
+
+def test_codegraph_ready_removes_kind_b_cbm_registration_but_not_its_binary(
+    env, capsys
+):
+    binary = env.binary()
+    env.write({CBM: stdio(str(binary), [])})
+    assert retired.run_retire_step(True)[CBM] == "removed"
+    assert env.claude_calls == [removes(CBM)]
+    assert binary.exists()
+    assert CBM + '" uninstall -y' in capsys.readouterr().out
+
+
+def test_codegraph_ready_serena_second_run_is_a_noop(env):
+    env.write({SER: stdio("uvx", PIN, env={}), "foo": stdio("uvx", PIN)})
+    retired.run_retire_step(True)
+    calls = len(env.claude_calls)
+    assert retired.run_retire_step(True) == {}
+    assert len(env.claude_calls) == calls
+
+
+def test_codegraph_serena_tier_r_and_usr_local_cbm_removal_stay_unconditional(env):
+    env.write({SER: stdio(*ROW_A, env={}), CBM: stdio("/usr/local/bin/" + CBM, [])})
+    outcomes = retired.run_retire_step(False)
+    assert outcomes == {CBM: "removed", SER: "removed"}
+
+
+def test_codegraph_failed_phase_keeps_serena_and_install_exits_one(env, monkeypatch):
+    _stub_framework(monkeypatch)
+    monkeypatch.setattr(
+        install_mcp, "install_codegraph_mcp", lambda **k: (False, "codegraph failed")
+    )
+    # even a registration that looks ready must not count when the phase failed
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: (True, ""))
+    env.write({SER: stdio("uvx", PIN, env={})})
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 1, result.output
+    assert env.claude_calls == []
+    assert SER in env.read()["mcpServers"]
+    assert retired.TIER_K_LINE in result.output
+
+
+def test_codegraph_ready_install_removes_serena_in_the_same_run(env, monkeypatch):
+    _stub_framework(monkeypatch)
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: (True, ""))
+    env.write({SER: stdio("uvx", PIN, env={})})
+    result = CliRunner().invoke(main, ["install"])
+    assert result.exit_code == 0, result.output
+    assert env.claude_calls == [removes(SER)]
+
+
+def test_codegraph_ready_is_one_predicate_for_install_and_install_list(
+    env, monkeypatch
+):
+    seen = []
+
+    def ready():
+        seen.append("called")
+        return True, ""
+
+    monkeypatch.setattr(install_mcp, "codegraph_ready", ready)
+    monkeypatch.setattr(
+        install_mcp, "_exec_claude", lambda *a, **k: pytest.fail("list must not exec")
+    )
+    env.write({SER: stdio("uvx", PIN, env={})})
+    listed = CliRunner().invoke(main, ["install", "--list"])
+    assert listed.exit_code == 0, listed.output
+    assert "will be removed (codegraph is ready)" in listed.output
+    assert "Ready for Serena retirement: yes" in listed.output
+    assert seen, "install --list did not call codegraph_ready"
+    seen.clear()
+
+    monkeypatch.setattr(install_mcp, "_exec_claude", env_exec(env))
+    _stub_framework(monkeypatch)
+    assert CliRunner().invoke(main, ["install"]).exit_code == 0
+    assert seen, "install did not call codegraph_ready"
+
+
+def env_exec(env):
+    def fake(argv, timeout):
+        env.claude_calls.append(list(argv))
+        data = env.read()
+        data["mcpServers"].pop(argv[3], None)
+        (env.config / ".claude.json").write_text(json.dumps(data), encoding="utf-8")
+        return 0
+
+    return fake
+
+
+def test_codegraph_not_ready_install_list_says_why_and_keeps_serena(env, monkeypatch):
+    monkeypatch.setattr(
+        install_mcp, "codegraph_ready", lambda: (False, "codegraph is not registered")
+    )
+    env.write({SER: stdio("uvx", PIN, env={})})
+    listed = CliRunner().invoke(main, ["install", "--list"])
+    assert "Ready for Serena retirement: no (codegraph is not registered)" in (
+        listed.output
+    )
+    assert "kept: " + retired.TIER_K_LINE in listed.output
+
+
+def test_codegraph_ready_update_notice_and_doctor_warning_follow_the_gate(
+    env, monkeypatch
+):
+    env.write({SER: stdio("uvx", PIN, env={})})
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: (False, "no"))
+    assert retired.update_notice() is None and retired.doctor_warning() is None
+    monkeypatch.setattr(install_mcp, "codegraph_ready", lambda: (True, ""))
+    assert retired.update_notice() == (
+        "legacy registration present: run `superclaude install`"
+    )
+    assert SER in retired.doctor_warning()
 
 
 def test_module_does_not_depend_on_the_deleted_installer():

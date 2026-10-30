@@ -86,7 +86,7 @@ def _write_private(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
-def _reports_pinned_version(run: Runner, binary: Path) -> bool:
+def reports_pinned_version(run: Runner, binary: Path) -> bool:
     try:
         code, out = run([str(binary), "--version"], VERSION_TIMEOUT)
     except (OSError, subprocess.SubprocessError):
@@ -295,7 +295,7 @@ def acquire(run: Runner) -> tuple:
     listed = receipt is not None and str(vdir) in receipt["version_dirs"]
     if os.path.lexists(vdir) and not listed:
         # upstream's own install.sh put it there: use it only if it is the pin
-        if _reports_pinned_version(run, launcher):
+        if reports_pinned_version(run, launcher):
             real = Path(os.path.realpath(launcher))
             write_pointer(real)
             return True, f"using existing codegraph {VERSION} at {real}", real
@@ -336,7 +336,7 @@ def acquire(run: Runner) -> tuple:
         except (tarfile.TarError, OSError, ValueError, EOFError) as exc:
             return _fail("extract", f"{type(exc).__name__}: {exc}")
         new_dir = extracted / prefix
-        if not _reports_pinned_version(run, new_dir / "bin" / "codegraph"):
+        if not reports_pinned_version(run, new_dir / "bin" / "codegraph"):
             return _fail("extract", f"the extracted codegraph does not print {VERSION}")
 
         receipt = receipt or {"version_dirs": [], "links": {}}

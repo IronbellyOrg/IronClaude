@@ -256,9 +256,11 @@ def install(target: str, force: bool, list_only: bool):
     # Non-fatal by design: nothing here may change the exit code.
     click.echo("\n📦 Retiring stale MCP registrations...")
     try:
+        from .install_mcp import codegraph_ready
         from .install_retired_mcp import run_retire_step
 
-        run_retire_step()
+        # A failed phase in this run never counts as ready (spec 2.12).
+        run_retire_step(codegraph_success and codegraph_ready()[0])
     except Exception as exc:
         click.echo(
             f"   ⚠️  Retire step skipped ({type(exc).__name__}); install is complete."

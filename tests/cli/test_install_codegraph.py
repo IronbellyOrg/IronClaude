@@ -657,3 +657,49 @@ def test_list_block_flags_version_mismatch(box, claude):
     stale = stub(box.path / "codegraph", "1.5.0")
     lines = install_mcp.codegraph_list_lines()
     assert lines[1] == f"   Executable: version mismatch at {stale.resolve()} (1.5.0)"
+
+
+# --- codegraph_ready(): the one predicate behind install, install --list and doctor -------
+
+
+def test_codegraph_ready_when_registration_equals_the_expected_entry(box, claude):
+    baked = stub(box.path / "codegraph")
+    claude.seed({"codegraph": expected_entry(baked.resolve())})
+    assert install_mcp.codegraph_ready() == (True, "")
+    lines = install_mcp.codegraph_list_lines()
+    assert lines[4] == "   Ready for Serena retirement: yes"
+
+
+def test_codegraph_ready_for_an_owned_entry_only_if_its_command_prints_the_pin(
+    box, claude
+):
+    good = stub(box.tmp / "old" / "codegraph")
+    stale = stub(box.tmp / "older" / "codegraph", "1.5.0")
+    owned = expected_entry(good.resolve())
+    claude.seed({"codegraph": dict(owned, command=str(good))})
+    assert install_mcp.codegraph_ready() == (True, "")
+    claude.seed({"codegraph": dict(owned, command=str(stale))})
+    ready, reason = install_mcp.codegraph_ready()
+    assert not ready and "does not print 1.6.2" in reason
+    assert install_mcp.codegraph_list_lines()[4].startswith(
+        "   Ready for Serena retirement: no ("
+    )
+
+
+def test_codegraph_ready_for_a_user_managed_entry_only_if_its_command_runs(box, claude):
+    mine = stub(
+        box.tmp / "mine" / "codegraph", "9.9.9"
+    )  # any version: the user chose it
+    claude.seed({"codegraph": {"type": "stdio", "command": str(mine), "args": ["x"]}})
+    assert install_mcp.codegraph_ready() == (True, "")
+    claude.seed({"codegraph": {"type": "stdio", "command": "/nope/codegraph"}})
+    ready, reason = install_mcp.codegraph_ready()
+    assert not ready and "does not run" in reason
+
+
+@pytest.mark.parametrize("seed", ["absent", "unreadable"])
+def test_codegraph_not_ready_without_a_readable_registration(box, claude, seed):
+    if seed == "unreadable":
+        claude.cfg.write_text("{broken")
+    ready, reason = install_mcp.codegraph_ready()
+    assert not ready and reason
