@@ -19,10 +19,6 @@ TOOLS = {
     "Grep",
     "Glob",
     "mcp__auggie__codebase-retrieval",
-    "mcp__serena__find_symbol",
-    "mcp__serena__find_referencing_symbols",
-    "mcp__serena__get_symbols_overview",
-    "mcp__serena__get_diagnostics_for_file",
 }
 
 
@@ -149,7 +145,7 @@ def test_profile_has_closed_native_tools() -> None:
         "Agent",
         "Skill",
         "mcp__*",
-        "mcp__serena__replace_content",
+        "mcp__auggie__codebase-retrieval-extra",
     ],
 )
 def test_profile_guard_rejects_capability_mutants(mutation: str) -> None:

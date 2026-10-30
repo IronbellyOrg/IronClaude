@@ -95,3 +95,41 @@ Rows are appended per task. Task 13 (reflect, `reuse-auditor`, reflect command c
 | tests/cli/reflect/test_marker_suppression.py | `_extract_verification_envelope` (heading anchor `### 6.1.1 Bash verification safety envelope`) | follows the retitled section 6.1.1 heading |
 | tests/cli/reflect/test_reviewer_readonly_tools.py | `_MUTATORS` set and module docstring | `execute_shell_command` no longer exists as a tool |
 | tests/cli/reflect/test_reviewer_finding_parity.py | `_REMOVED_TOOLS` set | same |
+
+## Task 14: troubleshoot, troubleshoot-analyst
+
+### `src/superclaude/skills/sc-troubleshoot-protocol/`
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| sc-troubleshoot-protocol/SKILL.md | Frontmatter `allowed-tools` and `description` | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` | deleted | roster keeps Read, Grep, Glob, Bash, auggie | none |
+| sc-troubleshoot-protocol/SKILL.md | Native diagnostic delegation, "Resolve before dispatch" (closed roster prose) | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, `get_diagnostics_for_file` | deleted | roster is now Read, Grep, Glob, auggie (matches `agents/troubleshoot-analyst.md` and the `TOOLS` set in `tests/troubleshoot/test_diagnostic_worker_contract.py`) | none |
+| sc-troubleshoot-protocol/SKILL.md | Wave 0 step 3 (resolve `--scope`) | auggie/serena scoping | floor (wording) | auggie queries plus Grep/Read lookups scoped to the target | none |
+| sc-troubleshoot-protocol/SKILL.md | Wave 0 step 5, `SC:TROUBLESHOOT:TARGET` header | `mcps_available` value `serena` | deleted | none | audit header field `mcps_available` now `<auggie\|context7\|tavily\|none>` |
+| sc-troubleshoot-protocol/SKILL.md | Wave 1 step 1 (Ground the symptom in real code) | `get_symbols_overview`, `find_symbol` | floor | existing Glob + Grep fallback kept; named function or class: Grep for `def name` / `class name` / `function name`, then Read the range; callers: Grep with a word-boundary pattern, then Read the call sites | none |
+| sc-troubleshoot-protocol/SKILL.md | Wave 1 step 2 (Reproduce or observe), new lint/type bullet | `get_diagnostics_for_file` | floor | orchestrator runs the project's own linter or type-checker through Bash under the "Bash diagnostics safety envelope" (reflect section 6.1.1, retitled); `troubleshoot-analyst` never gains Bash | none |
+| sc-troubleshoot-protocol/SKILL.md | Wave 1 exit criteria | "auggie + serena results" | floor (wording) | auggie results or Glob/Grep fallback | none |
+| sc-troubleshoot-protocol/SKILL.md | Failure handling table, "MCP call fails" row | serena in "(auggie/serena)" | floor (wording) | Grep/Glob fallback | none |
+| sc-troubleshoot-protocol/SKILL.md | Tool Coordination Summary, `mcp__serena__*` row and Bash row | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` | deleted (row) / floor (Bash row names the diagnostics envelope) | Read/Grep/Glob row already present | none |
+| sc-troubleshoot-protocol/SKILL.md | Will Do, in-repo grounding bullet | auggie/serena | floor (wording) | auggie every tier plus Grep/Read floor | none |
+| sc-troubleshoot-protocol/refs/diagnosability-audit.md | Section 1 (branch dispatch roster prose) | "Auggie/Serena tools" | deleted | roster prose now names only the Auggie retrieval tool | none |
+| sc-troubleshoot-protocol/refs/triage-checklist.md | Pre-investigation grounding checklist | "serena symbol overview" | floor | Grep for the definition, then Read the range | none |
+
+### Agent and command
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| agents/troubleshoot-analyst.md | Frontmatter `tools:` roster | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, `get_diagnostics_for_file` | deleted | roster is now Read, Grep, Glob, auggie; Bash never added | none |
+| agents/troubleshoot-analyst.md | Working rules, rule 1 | symbol/reference/diagnostics tools | floor | Grep for the definition then Read; Grep with a word-boundary pattern then Read the call sites; body states the orchestrator's verification leg covers diagnostics | none |
+| commands/troubleshoot.md | Frontmatter `description`; Options rows `--scope`, `--no-mcp`; Tier table row Tier 1 | "auggie/serena" | floor (wording) | auggie plus Grep/Read floor | none |
+| commands/troubleshoot.md | MCP Integration (Serena bullet) | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` | floor | "Native floor" bullet: Grep for the definition then Read; Grep with a word-boundary pattern then Read the call sites | none |
+| commands/troubleshoot.md | Tool Coordination (`mcp__serena__*` bullet; Read/Grep/Glob and Bash bullets) | `find_symbol`, `find_referencing_symbols`, `get_symbols_overview` | deleted (bullet) / floor (two bullets reworded) | Read/Grep/Glob as the floor; Bash runs the project's linter or type-checker under the skill's diagnostics envelope | none |
+| commands/troubleshoot.md | Examples (quick Tier 1, native-tools-only) and Boundaries, Will | "auggie + serena" | floor (wording) | auggie plus Grep/Read floor | none |
+
+### Tests updated with this task
+
+| File | Anchor | Why |
+|---|---|---|
+| tests/troubleshoot/test_diagnostic_worker_contract.py | `TOOLS` set and the `mcp__*` mutation list in `test_profile_guard_rejects_capability_mutants` | roster shrinks to Read, Grep, Glob, auggie; the old `mcp__serena__replace_content` mutant becomes an extra-auggie-tool mutant |
+
+No twins carry Serena wording: `plugins/superclaude/commands/troubleshoot.md` and `commands/sc-troubleshoot.md` are different (older, generic) texts with no Serena mention; there is no plugin or root copy of the skill or the `troubleshoot-analyst` agent.
