@@ -210,7 +210,7 @@ Deep Research Mode:
 
 - **Hierarchical Planning**: Breaks complex work into Plan → Phase → Task → Todo structure
 - **Session Persistence**: Maintains project context and progress across interruptions
-- **Memory Integration**: Uses write_memory/read_memory for state preservation
+- **Memory Integration**: Keeps state in the project's `.superclaude/memory/` markdown files
 - **Progress Orchestration**: Coordinates TodoWrite with memory updates for tracking
 - **Quality Gates**: Implements systematic validation checkpoints between phases
 
@@ -261,7 +261,7 @@ Task Management Approach:
 Standard Approach: Sequential file-by-file analysis and editing
 Orchestration Approach:
 "🎯 Multi-Tool Coordination Strategy:
- 🔍 Phase 1: Serena (semantic analysis)
+ 🔍 Phase 1: Auggie (codebase retrieval)
  ⚡ Phase 2: Morphllm (pattern edits) + Magic (UI components) 
  🧪 Phase 3: Playwright (testing) + Context7 (documentation patterns)
  🔄 Parallel execution: 3 tools working simultaneously

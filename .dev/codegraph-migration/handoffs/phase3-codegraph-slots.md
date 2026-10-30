@@ -197,3 +197,5 @@ Phase 3 reads the per-task blocks above; this index confirms none is missing. Ev
 | agents/reflect-reviewer.md | Task 13, Agents | G5 roster |
 | agents/troubleshoot-analyst.md | Task 14, Agent and command | G5 roster |
 | agents/auggie-reviewer.md | Task 15, Auggie review | G5 roster |
+| hooks/hooks.json (and plugins/superclaude/hooks/hooks.json) | Task 8 (no step block: a matcher edit, not a primitive step) | EDIT: the PreToolUse matcher lost its four `mcp__serena__*` alternatives and is now `Edit\|Write`; action deleted, no floor needed (Edit and Write are native) |
+| hooks/scripts/freshness-pre-edit.sh (and plugins/superclaude/hooks/scripts/freshness-pre-edit.sh) | Task 8 (no step block: a script edit, not a primitive step) | EDIT: the `relative_path` branch (Serena's argument name) was deleted; the script reads `file_path` only; action deleted, no floor needed |

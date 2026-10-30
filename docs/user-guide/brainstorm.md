@@ -14,7 +14,7 @@ For which tool to use when, see [How We Work](how-we-work.md).
 | Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by complexity |
 | Research | Mentioned, not wired | Auto-invokes `/sc:research` (light) or `tech-research` (deep) |
 | Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/task-builder` |
-| MCP servers | context7, magic, playwright, morphllm, serena, auggie-mcp | serena, auggie-mcp, tavily |
+| MCP servers | context7, magic, playwright, morphllm, auggie-mcp | auggie-mcp, tavily |
 | Personas | 7-persona auto-activation soup | 3 personas auto-selected per detected domain |
 
 v2 does **not** re-implement debate, scoring, or merge logic — those are delegated to `sc-adversarial-protocol`. v2's value is orchestration.

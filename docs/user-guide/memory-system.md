@@ -15,7 +15,7 @@ This guide describes what the code does today. Where something is not implemente
 
 | Behavior | Status |
 |----------|--------|
-| Loading `solutions_learned.jsonl` at session start | **Not implemented.** (The PM agent definition describes a separate Serena-memory restore and agent-written `docs/mistakes/` notes; neither uses this class.) |
+| Loading `solutions_learned.jsonl` at session start | **Not implemented.** (The PM agent definition describes a separate restore from the `.superclaude/memory/` markdown files that `/sc:save` writes and `/sc:load` reads, and agent-written `docs/mistakes/` notes; neither uses this class.) |
 | PM Agent capturing every error into this file or applying stored fixes | **Not implemented.** The PM agent definition does not reference `ReflexionPattern`. |
 | MindBase semantic search | **Not implemented.** `_search_mindbase()` is a stub that always returns `None`. |
 | Recording a failing test | **Implemented, opt-in.** A test marked `@pytest.mark.reflexion` whose call phase ends with an exception is recorded by the pytest plugin hook. |

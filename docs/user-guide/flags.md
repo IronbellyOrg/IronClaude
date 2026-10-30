@@ -22,7 +22,6 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--play` / `--playwright` | Playwright | Browser testing, E2E validation | Testing requests, visual validation |
 | `--tavily` | Tavily | Web search, real-time info | Web search requests, research queries |
 | `--morph` / `--morphllm` | Morphllm | Bulk transformations, pattern edits | Bulk operations, style enforcement |
-| `--serena` | Serena | Project memory, symbol operations | Symbol operations, large codebases |
 
 ### Behavioral Mode Flags
 
@@ -143,8 +142,6 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--no-promote` | Suppress UC-2 Wave 7 promotion mutation | Boolean (UC-2 default-on) |
 | `--remediate` | Offer the Tier 3 remediation chain after the audit | Boolean |
 | `--no-verify` | Disable the UC-2 verification triangle (scoped tests/linters/type-checkers/build) | Boolean (UC-2 default-on) |
-| `--onboard` | Opt-in one-shot Serena cold-start memory bootstrap | Boolean (default off) |
-| `--with-hierarchy` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval | Boolean (default off) |
 
 > This table lists the most-used flags. For the full surface (promotion controls, `--coverage-floor`, tier pins, MCP toggles, etc.) read `~/.claude/commands/sc/reflect.md` or see the `/sc:reflect` command reference.
 
@@ -198,7 +195,7 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 | `--iterations [n]` | Improvement cycles | 1-10 |
 | `--all-mcp` | Enable all MCP servers | Boolean |
 | `--no-mcp` | Native tools only | Boolean |
-| `--frontend-verify` | UI testing, frontend debugging, layout validation | Enable Playwright + Chrome DevTools + Serena |
+| `--frontend-verify` | UI testing, frontend debugging, layout validation | Enable Playwright + Chrome DevTools |
 
 ### System Flags (`superclaude` terminal command)
 
@@ -216,7 +213,6 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 ### Compatible Combinations
 
 - `--think` + `--c7`: Analysis with documentation
-- `--serena` + `--morph`: Project memory with transformations
 - `--safe-mode` + `--validate`: Maximum safety
 - `--loop` + `--validate`: Iterative improvement with validation
 

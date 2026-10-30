@@ -15,7 +15,7 @@ After `superclaude install --force`:
 | `~/.claude/hooks/session-init.sh` | Pre-existing init script (path-fixed in this release). |
 | `~/.claude/hooks/freshness-session-start.sh` | Emits a `<session-context>` envelope on startup or `--resume`. On resume, includes recent commits, git status, memory index, and `resumed_after=` field. |
 | `~/.claude/hooks/freshness-user-prompt.sh` | Per-turn envelope: `turn=`, `Δ=`, `git=dirty=…`, `bg=`. Conditional rendering (NFR-8) — minimal envelope when nothing fires. |
-| `~/.claude/hooks/freshness-pre-edit.sh` | **The gate.** Blocks `Edit` / `Write` / `mcp__serena__replace_*` / `mcp__serena__insert_*_symbol` calls against files not Read in the last 30 minutes. Exits `2` with a factual stderr message; the assistant retries by Reading then re-attempting. |
+| `~/.claude/hooks/freshness-pre-edit.sh` | **The gate.** Blocks `Edit` / `Write` calls against files not Read in the last 30 minutes. Exits `2` with a factual stderr message; the assistant retries by Reading then re-attempting. |
 | `~/.claude/hooks/freshness-post-read.sh` | Async tracker. Appends every successful `Read` to `~/.claude/state/reads.jsonl`. |
 | `~/.claude/hooks/freshness-subagent-start.sh` | Synchronous SubagentStart hook: increments the background-agent counter and injects `BASH_INSPECTION_POLICY.md` before the agent's first action. Fails open if policy injection is unavailable. |
 | `~/.claude/hooks/freshness-subagent-stop.sh` | Async background-agent counter decrement feeding `bg=N` in the per-turn envelope. |

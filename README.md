@@ -35,7 +35,7 @@ The README reflects the product/function of the repo first, while preserving the
 - **CLI-driven workflows** for roadmap, tasklist, sprint, audit, and validation
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
-- **MCP-aware development** with integrations such as Auggie, Serena, Tavily, and Context7
+- **MCP-aware development** with integrations such as Auggie, Tavily, and Context7
 - **Contributor workflow support** with source/dev-mirror sync between `src/superclaude/` and `.claude/`
 - **Context freshness hooks** (v4.3) — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md).
 
@@ -61,7 +61,7 @@ pipx install git+https://github.com/IronbellyOrg/IronClaude
 superclaude install
 ```
 
-This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by **required user-level Codebase Memory MCP setup on Linux amd64/arm64**. Native setup includes upstream's full detected-client/companion integrations and retains graph indexes. If that required phase fails, installation exits 1 but keeps completed framework work. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for prerequisites, unsupported-platform limits, upstream trust and safe removal. Installing from the repository URL needs read access to it.
+This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
 
 ### Install from source for development
 
@@ -72,7 +72,7 @@ git clone https://github.com/IronbellyOrg/IronClaude
 cd IronClaude
 uv venv                    # make install runs `uv pip install -e`, which needs an environment
 make install
-uv run superclaude install # framework assets + required user Codebase Memory setup (Linux)
+uv run superclaude install # framework assets + user-level MCP cleanup
 make verify
 ```
 
@@ -216,7 +216,6 @@ IronClaude is built to work with MCP-assisted workflows.
 Common integrations referenced in this repository include:
 
 - Auggie
-- Serena
 - Tavily
 - Context7
 - Playwright

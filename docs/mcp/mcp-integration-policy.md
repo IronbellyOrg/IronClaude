@@ -74,51 +74,6 @@ Usage Pattern:
 Note: Optional. SuperClaude does not need it; ReflexionPattern works with only the local file.
 ```
 
-#### Serena MCP
-
-```yaml
-Name: serena
-Purpose: コードベース理解のためのシンボル管理
-Category: Code Understanding
-Auto-Managed: false (明示的使用)
-PM Agent Role: コード理解タスクで自動活用
-
-Capabilities:
-  - シンボル追跡（関数、クラス、変数）
-  - コード構造分析
-  - リファクタリング支援
-  - 依存関係マッピング
-
-Lifecycle:
-  Start: 何もしない
-  During: コード理解時に使用
-  End: 自動削除（セッション終了）
-  Cleanup: 自動
-
-Usage Pattern:
-  Use Cases:
-    - リファクタリング計画
-    - コード構造分析
-    - シンボル間の関係追跡
-    - 大規模コードベース探索
-
-  NOT for:
-    - タスク管理
-    - 会話記憶
-    - ドキュメント保存
-    - プロジェクト知識管理
-
-Trigger Conditions:
-  - Keywords: "refactor", "analyze code structure", "find all usages"
-  - File Count: >10 files involved
-  - Complexity: Cross-file symbol tracking needed
-
-Example:
-  Task: "Refactor authentication system across 15 files"
-  → Serena: Track auth-related symbols
-  → PM Agent: Coordinate refactoring with Serena insights
-```
-
 #### Native reasoning
 
 Multi-step analysis uses native model reasoning.
@@ -197,7 +152,7 @@ Usage Pattern:
 
   NOT for:
     - プロジェクト内情報（Grep使用）
-    - コードベース検索（Serena使用）
+    - コードベース検索（Grep / Read使用）
     - 過去の会話（Mindbase: 任意・手動で導入した場合のみ）
 
 Trigger Conditions:
@@ -217,8 +172,8 @@ Example:
 
 ```yaml
 Code Understanding:
-  Primary: Serena MCP
-  Secondary: Grep (simple searches)
+  Primary: Grep + Read
+  Secondary: Auggie MCP (optional, broader retrieval)
   Example: "Find all authentication-related symbols"
 
 Complex Analysis:
@@ -258,7 +213,7 @@ Medium (3-10 files, some complexity):
   Tools: MultiEdit, Glob, Grep
 
 Complex (>10 files, architectural changes):
-  MCPs: Serena
+  MCPs: Auggie (optional)
   Coordination: PM Agent Commander mode
   Tools: Task delegation, parallel execution
 
@@ -280,7 +235,7 @@ Session Start:
     3. Read docs/patterns/*.md (latest 5)
     4. (Superseded: "Mindbase auto-load". No automatic memory load is implemented for
        solutions_learned.jsonl or Mindbase. The PM agent definition restores context
-       through Serena read_memory calls instead.)
+       by reading the .superclaude/memory/ markdown files instead.)
 
   MCPs Used:
     - Mindbase: not used by default
@@ -296,7 +251,6 @@ Pre-Implementation:
 
   MCPs Used:
     - Context7: If new library (automatic)
-    - Serena: If complex refactor (automatic)
 
   Decision:
     High Confidence (>90%): Proceed
@@ -306,10 +260,9 @@ Pre-Implementation:
 During Implementation:
   Manual Trigger:
     - TodoWrite: Progress tracking
-    - Serena: Code understanding (if needed)
+    - Grep + Read: Code understanding (if needed)
 
   MCPs Used:
-    - Serena: On code complexity trigger
     - Context7: On documentation need
 
 Post-Implementation:
@@ -332,21 +285,6 @@ Post-Implementation:
 ### MCP Activation Triggers
 
 ```yaml
-Serena MCP:
-  Auto-Trigger Keywords:
-    - "refactor"
-    - "analyze code structure"
-    - "find all usages"
-    - "symbol tracking"
-
-  Auto-Trigger Conditions:
-    - File count > 10
-    - Cross-file changes
-    - Symbol renaming
-    - Dependency analysis
-
-  Manual Override: --serena flag
-
 Native reasoning:
   Manual Override: native reasoning
 
@@ -384,10 +322,6 @@ Tavily MCP:
 ### DO NOT
 
 ```yaml
-❌ Serenaをタスク管理に使用:
-  Reason: コード理解専用
-  Instead: TodoWrite使用
-
 ❌ Context7をプロジェクトドキュメントに使用:
   Reason: 公式ドキュメント専用
   Instead: Read docs/ 使用
@@ -400,9 +334,9 @@ list banned three things. They no longer apply:
 Former: "Do not operate Mindbase explicitly" (it was described as fully automatic)
   Now: Mindbase is not automatic here. If you installed it, using its tools explicitly is fine.
 
-Former: "Do not use write_memory() / read_memory()"
-  Now: Explicit memory calls are supported. The PM agent definition itself uses Serena
-       read_memory / write_memory (src/superclaude/agents/pm-agent.md), and
+Former: "Do not read or write memory explicitly"
+  Now: Explicit memory use is supported. The PM agent definition itself reads and writes
+       the .superclaude/memory/ markdown files (src/superclaude/agents/pm-agent.md), and
        ReflexionPattern is an explicit API.
 
 Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
@@ -418,7 +352,7 @@ Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
 ✅ Right Tool for Right Job:
   Simple → Native tools (Read, Edit, Grep)
   Medium → Context7 (new library)
-  Complex → Serena
+  Complex → Grep + Read, Auggie (optional)
 
 ✅ Lazy Evaluation:
   Don't preload MCPs
@@ -429,7 +363,7 @@ Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
   Memory: ReflexionPattern (explicit API) or optional Mindbase (manual install)
   Knowledge: docs/ (file-based)
   Progress: TodoWrite (session)
-  Code: Serena (understanding)
+  Code: Grep + Read (understanding)
 
 ✅ Documentation First:
   Pre-Implementation: Context7 + docs/patterns/
@@ -449,17 +383,12 @@ Test Cases:
      implemented, so the case has been removed.
    - Error-record behavior is described in docs/user-guide/memory-system.md.
 
-2. Serena Code Understanding:
-   - Task: "Refactor auth across 15 files"
-   - Verify Serena auto-triggered
-   - Verify symbol tracking used
-
-3. Context7 Documentation:
+2. Context7 Documentation:
    - Task: "Implement with new library"
    - Verify Context7 auto-triggered
    - Verify official docs referenced
 
-4. Tavily Research:
+3. Tavily Research:
    - Task: "Find latest security patterns"
    - Verify Tavily auto-triggered
    - Verify web search executed
@@ -473,7 +402,7 @@ followed**: docs/memory/ is live storage and explicit memory calls are supported
 ```yaml
 From Old System:
   - [ ] (superseded) Remove docs/memory/ references
-  - [ ] (superseded) Remove write_memory() / read_memory() calls
+  - [ ] (superseded) Remove explicit memory read/write calls
   - [ ] Remove MODE_Task_Management.md memory sections
   - [ ] Update pm-agent.md with new MCP policy
 

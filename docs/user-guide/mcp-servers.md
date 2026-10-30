@@ -16,7 +16,6 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 - **context7**: Official library documentation and patterns
 - **playwright**: Browser automation and E2E testing
 - **morphllm-fast-apply**: Pattern-based code transformations
-- **serena**: Semantic code understanding and project memory
 - **tavily**: Web search and real-time information retrieval
 - **auggie**: Semantic codebase search and retrieval
 
@@ -31,7 +30,6 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 | Library imports, API names | **context7** |
 | `test`, `e2e`, `browser` | **playwright** |
 | Multi-file edits, refactoring | **morphllm-fast-apply** |
-| Large projects, sessions | **serena** |
 | `/sc:research`, `latest`, `current` | **tavily** |
 | Unfamiliar codebase, before edits | **auggie** |
 
@@ -80,21 +78,6 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 
 # API key setup
 export MORPH_API_KEY="your_key_here"
-```
-
-### serena 🧭
-
-**Purpose**: Semantic code understanding with project memory
-**Triggers**: Symbol operations, large codebases, session management
-**Requirements**: Python 3.9+, uv package manager, no API key
-
-```bash
-# Automatic activation  
-/sc:load existing-project/
-# → Builds project understanding and memory
-
-# Manual activation
-/sc:refactor "extract UserService" --serena
 ```
 
 ### tavily 🔍
@@ -164,7 +147,7 @@ The registration stores the literal text `Bearer ${LITELLM_API_KEY}` in the `x-l
 
 For users who want a simpler, unified setup that manages all MCP servers through a single endpoint, **AIRIS MCP Gateway** provides:
 
-- **50 tools** from default servers (airis-agent, context7, fetch, memory, serena, tavily)
+- **50 tools** from default servers (airis-agent, context7, fetch, memory, tavily)
 - **Single SSE endpoint** instead of 8+ separate stdio connections
 - **Lazy loading** - servers start only when needed, auto-terminate when idle
 
@@ -221,10 +204,6 @@ docker compose restart api
       "args": ["-y", "@morphllm/morphmcp"],
       "env": {"MORPH_API_KEY": "${MORPH_API_KEY}"}
     },
-    "serena": {
-      "command": "uvx",
-      "args": ["--from", "serena-agent==1.7.0", "serena", "start-mcp-server", "--context", "claude-code", "--project-from-cwd", "--enable-web-dashboard", "false", "--enable-gui-log-window", "false"]
-    },
     "tavily": {
       "command": "npx",
       "args": ["-y", "tavily-mcp@0.2.22"],
@@ -255,7 +234,6 @@ docker compose restart api
 # Full-stack development
 /sc:implement "e-commerce checkout"
 # → Context7: payment patterns
-# → Serena: code organization
 # → Playwright: E2E testing
 ```
 
@@ -309,7 +287,7 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **No API Keys (Free)**:
 
-- context7 + playwright + serena
+- context7 + playwright
 
 **1 API Key**:
 
@@ -317,26 +295,25 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **Common Workflows:**
 
-- **Learning**: context7 + serena
+- **Learning**: context7 + auggie
 - **Web Development**: context7 + playwright
-- **Enterprise Refactoring**: serena + morphllm
-- **Complex Analysis**: context7 + serena
-- **Deep Research**: tavily + serena + playwright
+- **Enterprise Refactoring**: auggie + morphllm
+- **Complex Analysis**: context7 + auggie
+- **Deep Research**: tavily + playwright
 - **Current Events**: tavily + context7
 
 ## Integration
 
 **With SuperClaude Commands:**
 
-- Analysis commands automatically use Serena
 - Implementation commands use Context7
 - Testing commands use Playwright
 - Research commands use Tavily + Playwright
 
 **With Behavioral Modes:**
 
-- Brainstorming Mode: Serena for discovery
-- Task Management: Serena for persistence
+- Brainstorming Mode: Auggie for discovery
+- Task Management: `.superclaude/memory/` files for persistence
 - Orchestration Mode: Optimal server selection
 - Deep Research Mode: Tavily + Playwright coordination
 
@@ -357,7 +334,7 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 - [Behavioral Modes](modes.md) - Mode-MCP coordination
 - [Agents Guide](agents.md) - Agent-MCP integration
-- [Session Management](session-management.md) - Serena workflows
+- [Session Management](session-management.md) - Project memory workflows
 
 **Technical References:**
 

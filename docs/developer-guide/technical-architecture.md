@@ -97,7 +97,7 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
         ├── troubleshoot.md         # Troubleshooting patterns
         └── workflow.md             # Workflow planning patterns
 
-Note: Other directories (backups/, logs/, projects/, serena/, etc.) are Claude Code
+Note: Other directories (backups/, logs/, projects/, etc.) are Claude Code
 operational directories, not part of SuperClaude framework content.
 ```
 

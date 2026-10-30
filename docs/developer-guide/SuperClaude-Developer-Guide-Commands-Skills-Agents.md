@@ -272,7 +272,7 @@ description: "<summary>"       # One-line user-facing description
 category: <category>           # One of: development, planning, analysis, quality,
                                #   testing, documentation, version-control, meta, special
 complexity: <level>            # One of: simple, moderate, advanced, high
-mcp-servers: [<servers>]       # MCP servers used: context7, serena,
+mcp-servers: [<servers>]       # MCP servers used: context7,
                                #   playwright, magic, morphllm (or empty [])
 personas: [<personas>]         # Descriptive labels only (nothing auto-activates them): architect,
                                #   analyzer, frontend, backend, security, qa, etc. (or empty [])
@@ -345,7 +345,7 @@ Commands that handle the full lifecycle from classification through execution to
 ```yaml
 category: special
 version: "2.0.0"
-mcp-servers: [context7, serena, playwright, morphllm]
+mcp-servers: [context7, playwright, morphllm]
 personas: [architect, analyzer, frontend, backend, security, qa, devops,
            refactorer, performance, mentor, scribe]
 ```
@@ -456,7 +456,7 @@ An agent that coordinates other agents without doing the work itself. Manages se
 An agent that operates across sessions and manages knowledge, learning, and documentation.
 
 - **Example**: `pm-agent` -- documents implementations, analyzes mistakes, maintains knowledge base
-- **Characteristics**: Serena MCP for session persistence, PDCA self-evaluation, mandatory session start activation
+- **Characteristics**: `.superclaude/memory/` files for session persistence, PDCA self-evaluation, mandatory session start activation
 - **Typical size**: 100-150 lines
 
 ### 4.3 Agent Spec Format (Dynamic Instantiation)
@@ -527,7 +527,7 @@ name: sc-cleanup-audit
 description: "Multi-pass read-only repository audit producing evidence-backed cleanup recommendations"
 category: utility
 complexity: high
-mcp-servers: [serena, context7]
+mcp-servers: [context7]
 personas: [analyzer, architect, devops, qa, refactorer]
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write
 argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]"
@@ -555,7 +555,7 @@ For documentation purposes, skills can include an unparsed HTML comment with add
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, analyzer, scribe]
 -->
 ```
@@ -793,7 +793,7 @@ Wave 4: Validation
 
 **Wave entry/exit criteria**: Each wave has explicit preconditions (what must be ready) and postconditions (what must be produced) before the next wave can begin.
 
-**Wave checkpoint pattern**: Save progress at wave boundaries via Serena MCP for session resumability.
+**Wave checkpoint pattern**: Save progress at wave boundaries to the `.superclaude/memory/` files for session resumability.
 
 ### 6.2 Compliance Tiers
 
@@ -873,7 +873,7 @@ User invokes:  /sc:adversarial --compare file1.md,file2.md --depth deep
 Command file:  src/superclaude/commands/adversarial.md
   - Parses flags, validates inputs
   - Activates personas: architect, analyzer, scribe
-  - Selects MCP servers: context7, serena
+  - Selects MCP servers: context7
 
 Skill:         src/superclaude/skills/sc-adversarial/SKILL.md
   - Loads behavioral protocol
@@ -896,7 +896,6 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 | Server | Purpose | Fallback | Circuit Threshold |
 |--------|---------|----------|------------------|
 | Context7 | Library documentation, patterns | WebSearch for docs | 5 failures / 60s |
-| Serena | Session persistence, symbol operations | Basic file operations | 4 failures / 45s |
 | Playwright | Browser automation, E2E testing | Unit tests only | 2 failures / 120s |
 | Tavily | Web search, real-time information | WebSearch fallback | 3 failures / 45s |
 
@@ -906,7 +905,6 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 |------|--------|-----------|
 | `--c7`, `--context7` | Context7 | Manual |
 | `--play`, `--playwright` | Playwright | Manual |
-| `--serena` | Serena | Manual |
 | `--tavily` | Tavily | Manual |
 | `--all-mcp` | All servers | Maximum complexity |
 | `--no-mcp` | None | Native tools only |
@@ -1497,7 +1495,7 @@ name: adversarial
 description: "Structured adversarial debate, comparison, and merge pipeline for 2-10 artifacts"
 category: analysis
 complexity: advanced
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, analyzer, scribe]
 ---
 
@@ -1564,7 +1562,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, analyzer, scribe]
 -->
 

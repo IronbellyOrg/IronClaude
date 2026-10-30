@@ -130,7 +130,7 @@ jobs:
   doctor-check:
     name: SuperClaude Doctor Check
     runs-on: ubuntu-latest
-    # `superclaude install` runs the unpinned upstream Codebase Memory installer;
+    # `superclaude install` retires stale user-scope MCP registrations through the Claude CLI;
     # keep the token read-only and out of .git/config while it runs.
     permissions:
       contents: read
@@ -152,7 +152,7 @@ jobs:
         with:
           node-version: "22"
 
-      # The required Codebase Memory phase of `superclaude install` needs the Claude CLI.
+      # `superclaude install` retires stale user-scope MCP registrations through the Claude CLI.
       - name: Install Claude CLI
         run: |
           npm install -g @anthropic-ai/claude-code@2.1.286
