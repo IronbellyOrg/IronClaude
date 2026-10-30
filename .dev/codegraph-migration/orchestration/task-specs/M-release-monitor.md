@@ -1,0 +1,26 @@
+Task M: spec and plan a codegraph upstream release monitor (follow-up to Phase 2, issue #323).
+
+Context: the user asked for a scheduled monitor that keeps IronClaude's pinned codegraph version current. It is NOT part of Phase 2: PR #329 (https://github.com/IronbellyOrg/IronClaude/pull/329) is open at its merge gate with review and CI clean, so this lands as a separate follow-up after #329. The coordinator decided this; do not reopen it.
+
+You are working in a NEW worktree stacked on branch `ironbelly/feat-codememory-codegraph-init` (PR #329's head), because the pin and installer exist only there. Read these first:
+- `.dev/codegraph-migration/orchestration/README.md` (shared rules; the planning-only, no-full-test-run and decision rules apply. Exception: you may commit your own planning files, see Constraints).
+- Orca message msg_2f4655f5ba36 text, copied here: the user accepted the codegraph gaps in section 6 of codegraph-evaluation.md and wants a monitor. Suggested outline, modelled on Coder's `.github/workflows/ironclaude-upstream-monitor.yml` (read it with `gh api repos/IronbellyOrg/Coder/contents/.github/workflows/ironclaude-upstream-monitor.yml -H 'Accept: application/vnd.github.raw'`):
+  1. Scheduled IronClaude GitHub workflow compares colbymchenry/codegraph's latest release tag with IronClaude's pin.
+  2. On a newer release: download its SHA256SUMS and the 4 platform tarballs (linux-x64, linux-arm64, darwin-x64, darwin-arm64), check the hashes, run `gh attestation verify -R colbymchenry/codegraph`.
+  3. Update the pin and the 4-hash table in the single source location: `src/superclaude/cli/install_codegraph.py` (`VERSION` at line 26, `SHA256` table from line 28; verify).
+  4. Prove it in an isolated HOME: install, index a small fixture, MCP `tools/list` still includes every tool in IronClaude's `MCP_TOOLS` constant, and IronClaude's `claude mcp add-json` entry still matches a fresh `codegraph install --print-config claude` (the drift check in codegraph-evaluation.md section 7; verify the exact flag against the codegraph source or `--help`).
+  5. Open a PR on IronbellyOrg/IronClaude only (never upstream), with the release notes attached. Coder picks up new values through its existing IronClaude SHA bump.
+- `.dev/codegraph-migration/research/codegraph-evaluation.md` sections 1 and 7, `.dev/codegraph-migration/specs/phase-2-codegraph-install-spec.md`, `src/superclaude/cli/install_codegraph.py`, its tests under `tests/cli/`, `.github/workflows/test.yml`, and the Coder monitor above.
+
+Change:
+1. Write `.dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md`: goal, preflight list of files to add or change, design, the decisions below, task breakdown (each task: files, change, exact acceptance command, conventional commit point), tests, issue #323 progress comments at each commit point, autonomy rules (simple self / mid `/sc:adversarial --compare ... --depth quick` / complex `/sc:adversarial --compare ...`), minimal human-intervention list, and `## Decisions`.
+2. Settle these three decisions, each with `/sc:adversarial --compare <option files> --depth quick` (option files under `.dev/codegraph-migration/decisions/M-<slug>/`): (a) do major versions bump automatically or wait for manual review; (b) minimum release age before bumping (the user's global rules use about two weeks for new dependency versions); (c) what a failed proof produces (draft PR, issue, or both). Follow each recommendation.
+3. Keep the workflow testable offline: the bump logic (compare tags, parse SHA256SUMS, rewrite the pin and table) belongs in a small script or module with unit tests that use fixtures, not inline YAML only. Reuse existing helpers and test conventions; no new dependencies unless unavoidable. Follow the repo CLAUDE.md rules (installed-path rule, `make sync-dev` if any primitive changes, `.claude/` never staged).
+4. Run `/sc:workflow .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md --depth standard --handoff none` to produce the tasklist package under `.dev/tasks/to-do/`. Fix every defect its advisory reflect reports in the plan (and the spec when inherited). Keep spec and `source.md` byte-identical and the `progress.md` PLAN pin correct.
+5. Write `.dev/codegraph-migration/review/M-result.md`: spec path, package path, reflect status, decisions taken, and the precondition for execution (PR #329 merged; executor branches from `master` after that).
+
+Constraints: planning only. No source, test or workflow edits. You MAY `git add .dev/tasks .dev/codegraph-migration` and commit your planning files on this new branch with a conventional `docs(plan): ...` message ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Do not push, do not open a PR, do not comment on GitHub. Never stage `.claude/` paths.
+
+Ownership: the new spec, `decisions/M-*`, the new `.dev/tasks/to-do/TASK-WF-*` package, `review/M-result.md`, and commits on this worktree's branch only.
+
+Observable acceptance: spec exists with every section above; three decision folders each hold an adversarial result; the package exists with plan, `progress.md`, `source.md` (cmp with the spec prints nothing) and `return-contract.yaml`; `git log` on this branch shows your planning commit; `git status --short` is clean.
