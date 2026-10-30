@@ -95,6 +95,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "reject-workspace-writes.sh",
         "sc-recommend-phase0.sh",
         "pragmatic-subagent.js",
+        "codegraph-session-start.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -690,6 +691,39 @@ def test_real_hooks_json_registers_ccsession():
         )
         for reg in registrations
     )
+
+
+_CODEGRAPH_HOOK = "~/.claude/hooks/codegraph-session-start.sh"
+
+
+@pytest.mark.parametrize("tree", ["src", "plugins"])
+def test_real_hooks_json_registers_codegraph_session_start(tree):
+    hooks_json = (
+        Path(__file__).resolve().parents[2] / tree / "superclaude/hooks/hooks.json"
+    )
+    registrations = json.loads(hooks_json.read_text())["hooks"]["SessionStart"]
+    entries = [
+        (reg.get("matcher"), h)
+        for reg in registrations
+        for h in reg["hooks"]
+        if h.get("command") == _CODEGRAPH_HOOK
+    ]
+    assert len(entries) == 1
+    matcher, hook = entries[0]
+    assert matcher == "startup"
+    assert hook == {"type": "command", "command": _CODEGRAPH_HOOK, "timeout": 5}
+
+
+def test_codegraph_hook_script_is_packaged_listed_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/codegraph-session-start.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/codegraph-session-start.sh"
+    assert "codegraph-session-start.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+    assert source.read_text().startswith("#!/bin/sh\n")
 
 
 def test_real_hooks_json_gates_write_in_pre_tool_use():

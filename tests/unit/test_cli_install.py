@@ -136,7 +136,8 @@ tasklist_phase_template.md tdd_template.md
     "hooks": _names(
         """
 README.md __init__.py auggie-projects.txt.example hooks.json
-scripts/auggie-flag-clear.sh scripts/freshness-file-changed.sh
+scripts/auggie-flag-clear.sh scripts/codegraph-session-start.sh
+scripts/freshness-file-changed.sh
 scripts/freshness-post-read.sh scripts/freshness-pre-edit.sh
 scripts/freshness-session-start.sh scripts/freshness-subagent-start.sh
 scripts/freshness-subagent-stop.sh scripts/freshness-user-prompt.sh

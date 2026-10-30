@@ -21,6 +21,16 @@
         ]
       },
       {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/codegraph-session-start.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
         "matcher": "startup|resume",
         "hooks": [
           {

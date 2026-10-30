@@ -76,6 +76,9 @@ _FRESHNESS_SCRIPTS = [
     # command — same pattern as `reject-workspace-writes.sh`, harmless when
     # unregistered in unrelated projects.
     "sc-recommend-phase0.sh",
+    # SessionStart (startup) hook: starts one detached `codegraph init --yes` in a
+    # git checkout that has no .codegraph/codegraph.db. Fail-open, silent, exit 0.
+    "codegraph-session-start.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 
