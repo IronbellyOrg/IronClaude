@@ -18,7 +18,7 @@ A non-surface diff emits `runtime_surface_requirements: []`, `runtime_surface_sw
 
 ## 2. Language table (OQ-RSR.2)
 
-Use this table to partition `find_referencing_symbols` results into production referrers vs test/comment evidence. Unknown languages or ambiguous comment/test classification yield `DEGRADE`, never `UNREACHED` and never "treat as production."
+Use this table to partition the step-4 referrer Grep results into production referrers vs test/comment evidence. Unknown languages or ambiguous comment/test classification yield `DEGRADE`, never `UNREACHED` and never "treat as production."
 
 | Language | Path/test markers | Inline test markers | Comment syntax to exclude as non-production evidence |
 |---|---|---|---|

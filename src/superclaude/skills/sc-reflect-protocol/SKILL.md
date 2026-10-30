@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 (opt-in via --remediate) hands off to sc:workflow for a corrective tasklist package the user runs with /sc:implement by default, or to task-builder for a corrective MDTM remediation only with --depth deep. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__summarize_changes, mcp__serena__execute_shell_command, mcp__serena__onboarding, mcp__serena__type_hierarchy, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -19,14 +19,14 @@ complexity: advanced
 mcp-servers: [auggie, context7, tavily]
 personas: [analyzer, qa, refactorer, architect]
 spec: .dev/eval-workspaces/sc-reflect/SPEC.md
-supersedes: src/superclaude/commands/reflect.md (legacy think_about_* surface)
+supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
 -->
 
 # Reflect Protocol
 
 ## 1. Purpose & Core Thesis
 
-Reflection that confirms its own conclusions is worse than no reflection. The legacy `/sc:reflect` surface, built on `think_about_task_adherence` / `think_about_collected_information` / `think_about_whether_you_are_done`, runs the *same* representational stack that produced the work as the auditor of the work. Per Mehta (Towards AI, Mar 2026): "the same representational biases that produced the error are present when it re-evaluates." Single-agent self-review is structurally biased, not merely under-prompted.
+Reflection that confirms its own conclusions is worse than no reflection. The legacy `/sc:reflect` surface, built on three scripted self-assessment prompts (task adherence, collected information, completion), runs the *same* representational stack that produced the work as the auditor of the work. Per Mehta (Towards AI, Mar 2026): "the same representational biases that produced the error are present when it re-evaluates." Single-agent self-review is structurally biased, not merely under-prompted.
 
 This protocol is built around three structural mechanisms that single-model self-reflection cannot supply:
 
@@ -87,9 +87,7 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
 - `--output <dir>` — output directory (default `.dev/reflect/<mode>-<slug>-<YYYYMMDDHHMMSS>/`)
 - `--coverage-floor <float>` — optional override of the T1 coverage stop floor (default 0.90; high-safety profile may set to 0.95)
 - `--no-mcp`, `--no-evidence-validator` (debug only; auto-warns), `--remediate` (offer Tier 3: plan route by default, task-builder route with `--depth deep`)
-- `--no-verify` — disable the UC-2 `execute_shell_command` verification triangle (§6.1 step 5.5). Default is *default-on*: in UC-2, scoped non-mutating verification (tests/linters/type-checkers/build) runs behind the §6.1 safety envelope and feeds the §10.4 Regression detector. When set, sets `verification_skip_reason: --no-verify` and degrades Regression detection to the task-log claim with a Grounding Gap entry. (Subsumes the deprecated `--rerun-tests` alias, which now maps to "verification on" = the default; see §10.4.)
-- `--onboard` — opt-in (default OFF) one-shot Serena `onboarding` bootstrap at Wave 0.7b, run ONLY when `list_memories` is empty for the project slug. Seeds the cold-start calibration baseline (§6.3 memory). Never auto-triggers and never creates a `.serena/` directory implicitly; bounded by the NFR-7 context budget. Modeled on `--remediate` (enable-flag for default-off behavior).
-- `--with-hierarchy` — opt-in (default OFF) enable `type_hierarchy` transitive supertype/subtype retrieval at §6.1 step 4.5 and Wave 1B.3. Backend-gated: **default OFF on `lsp` backends** (no generic `type_hierarchy` tool there until the OQ-M3 empirical probe confirms per-language support) and **unavailable on `none`**; only a hierarchy-capable (`jetbrains`) backend runs it. Non-OO codebases see zero degradation when unset. Modeled on `--remediate` (enable-flag for default-off behavior).
+- `--no-verify` — disable the UC-2 Bash verification run (§6.1 steps 5 and 5.5). Default is *default-on*: in UC-2, scoped non-mutating verification (tests/linters/type-checkers/build) runs behind the §6.1 safety envelope and feeds the §10.4 Regression detector. When set, sets `verification_skip_reason: --no-verify` and degrades Regression detection to the task-log claim with a Grounding Gap entry. (Subsumes the deprecated `--rerun-tests` alias, which now maps to "verification on" = the default; see §10.4.)
 - `--budget-remaining <int>` *(P5)* — caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract when this happens. See §4.0 step 0.9.
 - **Promotion gate flags (UC-2 only — see §14.5):**
   - `--no-promote` — suppress Wave 7 promotion. Default is *default-on*: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination.
@@ -138,20 +136,17 @@ Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table
 **Per-step audit emit convention.** Every numbered step within every wave emits one row to `<output>/audit.log` with shape: `{wave: <N>, step: <M>, timestamp: <ISO-8601>, outcome: ok|warn|fail|skip, evidence_ref: <path-or-null>}`. This is the audit-granularity unit that resolves the 9-wave vs 7-wave structural disagreement: each step (not each wave) is the audit row.
 
 ```
-Wave 0:   Parse + Validate Input + Activate Project + Memory Hydrate
+Wave 0:   Parse + Validate Input + Memory Hydrate
             0.1 Parse flags + apply §3.2 mode-selection
             0.2 Validate input paths (Read existence)
             0.3 Probe sc-adversarial-protocol installation (see §14)
             0.4 Compute input_sha256 snapshot (see §4.0 — Change #10)
             0.5 Resolve env-var aliases + apply 0/1/2/3+ alias routing table (Change #13/#14)
-            0.5c get_current_config probe (active context/modes/version fingerprint)
-            0.5d verification/adoption availability probe (backend + execute_shell_command + onboarding + read_only — consume 0.5c snapshot)
             0.6 Inspect vendor heterogeneity (Change #18 — warn-only)
-            0.7 Activate Serena project + memory hydrate + parse onboarding status
-            0.7b onboarding bootstrap (only when --onboard AND list_memories empty)
+            0.7 Memory hydrate (§6.3 file Reads; fail-open)
             0.8 Open audit log + machine-readable header
 Wave 1:   Tier 1 — Grounded Single-Agent Reflection
-            1A. Real-code grounding (auggie + serena symbolic chain)
+            1A. Real-code grounding (auggie + native Grep/Read symbol chain)
             1B. Mode-specific evidence gathering (UC-1: coverage map; UC-2: tasklist-vs-diff map)
                 — zero-task guard (Change #12); coverage_undefined route (Change #11)
             1C. Single-agent reflection (root-cause-analyst OR self-review)
@@ -190,7 +185,7 @@ Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre
 
 **Step 0.4 (input_sha256 tree-snapshot).** Compute a **tree-hash** over every file the run treats as input. The tree consists of: (1) the `tasklist_path` itself (always present in UC-2); (2) the `spec_path` (when `--spec` provided); (3) every file referenced by relative or absolute path from the tasklist body (link-following with depth = 1; do NOT recurse into linked-link chains for v1); (4) for UC-2 tasklist inputs that resolve under a work-unit directory (e.g., `.dev/tasks/to-do/TASK-NNN/`), every file under that directory tree (`find <work-unit-dir> -type f`), **filtered through `VERIFICATION_ARTIFACT_EXCLUDES` and the `REFLECT_OUTPUT_ROOT` exclusion (both below)**.
 
-**`VERIFICATION_ARTIFACT_EXCLUDES` (FR-4.8 / M-COR2).** Because the §6.1 step 5.5 verification triangle runs `pytest`/`mypy`/`ruff`/build inside or adjacent to the work-unit subtree, those tools emit build/test cache artifacts *into the input tree*. An unfiltered `find -type f` would then see them as "added files" and trip the drift guard, STOPping the skill on a successful verify. To prevent this, the following glob set is excluded from the input tree at BOTH construction here AND the Wave-5/Wave-7 recompute below — the SAME set must be applied at both sites or the snapshot and recompute disagree even without a real edit:
+**`VERIFICATION_ARTIFACT_EXCLUDES` (FR-4.8 / M-COR2).** Because the §6.1 step 5 / 5.5 verification run runs `pytest`/`mypy`/`ruff`/build inside or adjacent to the work-unit subtree, those tools emit build/test cache artifacts *into the input tree*. An unfiltered `find -type f` would then see them as "added files" and trip the drift guard, STOPping the skill on a successful verify. To prevent this, the following glob set is excluded from the input tree at BOTH construction here AND the Wave-5/Wave-7 recompute below — the SAME set must be applied at both sites or the snapshot and recompute disagree even without a real edit:
 
 ```
 __pycache__/   *.pyc   *.pyo   *.pyd
@@ -249,42 +244,11 @@ The zero-aliases + `--tier 2` row (unreachable since 2026-10: unset aliases reso
 
 (See `refs/input-resolution.md` "Env routing table" for the full 4-row matrix with grader-assertion column.)
 
-**Step 0.5c (active-project config probe, FR-7).** At Wave 0, invoke `mcp__serena__get_current_config` once to fingerprint Serena's own active state — a calibration input reflect currently lacks. The return shape is documented-unstable across Serena v1.0→v1.5 (OQ-4), so parse **defensively**:
-
-1. Invoke `get_current_config`. Using **field-presence checks** (never assume a field exists), extract: `serena_active_context` (active context string), `serena_active_modes` (list), the loaded-tools list (→ `serena_tool_count` and any chain-critical tools excluded by the active context → `serena_excluded_tools`), and the Serena version. Any field whose presence check fails → that derived value is `unknown`.
-2. Derive a **three-valued** `serena_version` ∈ `{"<v1.5", ">=v1.5", "unknown"}`. Default `unknown`; `unknown` is treated as `<v1.5` for all downstream gating (C2 — load-bearing for FR-6 and FR-8).
-3. Write the parsed snapshot to `<output>/serena-config-snapshot.yaml` and record `serena_config_snapshot_path` in telemetry.
-4. **Context-exclusion up-weight (FR-7.3):** when the active context excludes a chain-critical tool (e.g. `get_diagnostics_for_file`), append `"serena:context-excluded"` to `degraded_components` and influence rubric `S_dev_density` upward (the grounding chain is operating with a known capability gap).
-5. **Fail-open (OQ-4):** on parse failure, emit `degraded_components: ["get_current_config"]`, set `serena_version: unknown`, skip the snapshot, and continue Wave 0 — never abort.
-
-This step emits one `audit.log` row per the §4 per-step convention with the parsed `serena_context`/`serena_modes`/`serena_tool_count`/`serena_excluded_tools` evidence. Emit `serena_version`, `serena_active_context`, `serena_active_modes`, and `serena_config_snapshot_path` to telemetry when this step runs; `serena_version: unknown` with `degraded_components: ["get_current_config"]` and no snapshot path when skipped (parse failure or Serena unavailable).
-
-**Step 0.5d (verification & adoption availability probe — M-ARC3 four-field contract).** Derive a single cohesive Wave-0 availability surface that the medium-complexity Serena adoptions (FR-1 `type_hierarchy`, FR-2 `onboarding`, FR-4 `execute_shell_command`) CONSUME rather than each re-deriving. The surface has exactly four fields, computed from the Step 0.5c `serena_config_snapshot_path` snapshot plus one project-config read:
-
-```yaml
-# Wave-0 availability contract (consumed by FR-1/2/4; field names are a strict subset of FR-7's output)
-backend: jetbrains | lsp | none                 # gates FR-1 type_hierarchy step 4.5
-execute_shell_command_available: <bool>         # gates FR-4 verification triangle step 5.5
-onboarding_available: <bool>                    # gates FR-2 onboarding bootstrap step 0.7b
-read_only: <bool>                               # FR-4.7: read_only:true disables the verification triangle
-```
-
-1. **`backend`** — parse the Serena language-backend string from the Step 0.5c snapshot (`jetbrains | lsp | none`). When the snapshot is absent (Step 0.5c was skipped / FR-7 not yet merged), perform a minimal inline `mcp__serena__get_current_config` call to read just the backend string; on failure → `backend: none`.
-2. **`execute_shell_command_available`** — membership test of `execute_shell_command` against the Step 0.5c active-tools list (NOT the available-but-excluded list). Absent from the active list ⇒ `false` (the common `claude-code`/`ide-assistant` default — the tool is context-excluded).
-3. **`onboarding_available`** — membership test of `onboarding` against the same active-tools list.
-4. **`read_only`** — the ONE field `get_current_config` does NOT surface. Derive it by reading the `read_only` key from the active project's `.serena/project.yml` (or equivalent project config). Absent / unreadable ⇒ treat verification as unavailable (`read_only` cannot be confirmed `false` → degrade the capability, emit the FR-4.7 skip reason, never STOP). Do NOT fabricate a `read_only` field on the `get_current_config` output — it is a project-config value, not a config-probe value.
-
-**Field-name compatibility (M-ARC3 / OQ-M5):** these four field names are a strict subset of FR-7's snapshot output, so when the low-spec FR-7 substrate is fully merged the inline derivation collapses to a pure read of FR-7's snapshot with no contract change — the swap is non-breaking. The `read_only` project-config read persists either way (FR-7 never emits it).
-
-**Consumption rule (do NOT re-probe downstream):** FR-1's §6.1 step 4.5 / Wave-1B.3 gate (and FR-1's Phase-opening backend probe) READ this Wave-0 `backend` field; FR-2's §4.0 step 0.7b gate READS `onboarding_available`; FR-4's §6.1 step 5.5 gate READS `execute_shell_command_available` and `read_only`. The later runtime probes confirm/refine this Wave-0 baseline — they do not replace it.
-
-**Fail-open (§6.5):** any parse failure of any field → set that field to its unavailable value (`backend: none` / `*_available: false` / `read_only` unconfirmed → treat triangle as disabled), emit the matching skip reason to the consuming FR's telemetry, and continue. This step never STOPs the skill. It emits one `audit.log` row per the §4 per-step convention with the four-field availability evidence.
-
 **Step 0.5e (reviewer-isolation snapshot gate — L2, opt-in via `--isolate-reviewers`).** When reviewer isolation is enabled (flag-gated opt-in; OFF by default so today's #153 dirty-tree-audit behavior is unchanged), the wrapper grounds the two ClaudeProcess review children (the Tier-1 audit child and the adversarial scorer) in an isolated `git worktree` snapshot rather than the live shared worktree, so those children never read another session's mid-commit state; and — via L1 + L1b — no reviewer of any class can mutate the repository it is auditing (reliability / data-loss-prevention). (The text-in/out Tier-2 swarm workers still read the live tasklist path in v1 — see item 4 and the honest `snapshot-children-only` telemetry value; closing their read surface is the deferred "design (a)" follow-up.) The gate runs in the Python wrapper (`cli/reflect/{config,runner,ensemble}.py`) AFTER the dry-run gate (FR-12 unaffected), and proceeds:
 
 1. **Cleanliness probe** — compute `audit_tree_dirty` = the tracked, in-scope (`git diff --name-only <base>`) paths that are dirty in `git status --porcelain=v1`. Untracked entries do not count. Fail-closed: any git error → treat as dirty.
 2. **STOP-on-non-committable predicate (COR-1)** — `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 — the fail-closed contract is unchanged) and `reason ∈ {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.
-3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so serena/auggie stay indexed).
+3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so auggie stays indexed).
 4. **Grounding-root redirect (scope: ClaudeProcess children only, v1)** — the snapshot grounds the two live-CWD review children: the Tier-1 audit child and the adversarial scorer both run with `cwd = <snapshot>`, never the live shared worktree. The text-in/out Tier-2 swarm workers hold NO repo CWD; in v1 their review target is still sourced from the live tasklist path (NOT yet derived from `<snapshot>`), so isolation covers the two ClaudeProcess children but not the swarm-worker read surface. The telemetry value `snapshot-children-only` (below) reports this scope honestly rather than overclaiming full `snapshot` isolation. (Closing the swarm-worker read surface — deriving their target from `<snapshot>` — is the deferred "design (a)" follow-up; the mutation incident vector is independently closed by L1 + L1b for every reviewer class regardless.)
 5. **`finally` teardown (A-3)** — the snapshot is always removed via `git worktree remove --force` (never `rm -rf` / `git stash`), on success / STOP / exception, while the always-write sidecar still emits inside the try.
 
@@ -292,26 +256,7 @@ Telemetry `reviewer_isolation` (`disabled` | `snapshot-children-only` | `stopped
 
 **Step 0.6 (vendor heterogeneity check).** For each resolved alias, extract the vendor (Anthropic / Qwen / Kimi / DeepSeek / OpenAI-compat / etc.) by alias-name heuristic. Emit one of `t2_vendor_diversity: multi` (≥2 vendors among resolved aliases) or `t2_vendor_diversity: single` (all aliases share one vendor). When `single`, emit a WARN with the suggested env-var override (full message body lives in `refs/ops-integration.md`). This is **warn-only in v1**; behaviour does not block. See §11.0 and the v1.1 deferred-hardening notes in §19.
 
-**Step 0.7 (activate project + memory hydrate + onboarding-status parse, FR-6).** At Wave 0, after `mcp__serena__activate_project` and memory hydrate, derive whether project memory was bootstrapped — an input to `S_dev_density` calibration. The historical standalone onboarding-status tool was **DELETED in Serena v1.5.0**, so it is NOT called and NOT in `allowed-tools`; the signal is derived from the activation message instead:
-
-1. Parse the `mcp__serena__activate_project` response message for the onboarding-status marker (v1.2.0+ always provides the full activation message on `activate_project`).
-2. **Fallback proxy:** when the marker is absent from the message, infer bootstrap state from `mcp__serena__list_memories` — presence of the v1.5 `memory_maintenance` seed memory (or any project seed memory) ⇒ bootstrapped.
-3. Set `onboarding_status` ∈ `{bootstrapped, not_bootstrapped, unknown}` (default `unknown`), recording `onboarding_status_source` (`activation_msg` | `list_memories_proxy` | `unknown`).
-4. **FR-6.4:** `not_bootstrapped` down-weights grounding confidence (the project has no memory to ground against); `unknown` implies **NO `S_dev_density` down-weight** (absence of signal is not negative signal).
-5. **Fail-open:** on parse/probe failure, set `onboarding_status: unknown`, emit `degraded_components: ["serena:onboarding-parse"]`, and continue — never abort, and never fall back to the defunct (v1.5.0-deleted) standalone onboarding-status tool.
-
-This step emits one `audit.log` row per the §4 per-step convention recording `onboarding_status` and `onboarding_status_source`. Emit `onboarding_status: bootstrapped | not_bootstrapped` (with its source) when the parse succeeds; `onboarding_status: unknown` (no `S_dev_density` down-weight, per FR-6.4) when the marker and proxy are both absent or the probe fails.
-
-**Step 0.7b (onboarding bootstrap, FR-RV3-MED.2).** A one-shot, opt-in cold-start calibration bootstrap. It runs **ONLY when `--onboard` is set AND `list_memories` returns empty for the project slug** (FR-2.1); it NEVER auto-triggers and NEVER creates a `.serena/` directory implicitly (FR-2.5).
-
-1. **Gate (warm start, FR-2.4):** if `list_memories` is non-empty for the slug, skip with `onboarding_ran: false`, `onboarding_skipped_reason: "memories-present"`.
-2. **Availability probe (FR-2.3):** read `onboarding_available` from the Wave-0 step 0.5d availability contract. If the `onboarding` tool is excluded from the active context, emit `onboarding_ran: false`, `onboarding_skipped_reason: "context-excluded"`, and a loud WARN telling the operator to switch context — **never a hard STOP**.
-3. **Invoke + silent-fail guard (FR-2.2):** otherwise capture the pre-count from `list_memories`, invoke `mcp__serena__onboarding()`, then re-`list_memories` and compute the delta. Delta ≤ 0 ⇒ `onboarding_succeeded: false` + a WARN ("onboarding completed but no new memories written"). Positive delta ⇒ `onboarding_succeeded: true` with `onboarding_memories_written: [<list>]`.
-4. **Precedence (FR-2.6):** do NOT overwrite a present `global/memory_maintenance` memory.
-5. **Context budget (NFR-7):** bound the bootstrap by a hard turn/context budget (default = the §15 T1 band, hard-kill at 1.25×). On breach, abort onboarding and emit `onboarding_budget_exceeded: true`, degrade to `onboarding_succeeded: false` (NOT "bootstrapped"), and NEVER consume the reflection waves' budget.
-6. One-shot per project; fail-open on any failure (skip + audit row + WARN, never STOP).
-
-Emit `onboarding_ran: true` (with `onboarding_succeeded` and, on success, `onboarding_memories_written`) when the bootstrap executes; `onboarding_ran: false` (with `onboarding_skipped_reason`) when it is gated off (warm start, context-excluded, or `--onboard` not set). This step emits one `audit.log` row per the §4 per-step convention. The bootstrapped memories feed the §6.3 cold-start calibration baseline.
+**Step 0.7 (memory hydrate).** At Wave 0, Read the §6.3 memory files (`last-pass-{slug}.md`, `deviation-patterns-{slug}.md`) and Glob `.superclaude/memory/reflect/*.md` for the inventory. A missing file is a memory miss, never an error. The step needs no project activation and no bootstrap flow: the tracked `docs/memory/reflect/deviation-patterns-{slug}.md` file is the cold-start calibration baseline. It emits one `audit.log` row per the §4 per-step convention and records `memory_hits` / `memory_misses` to §9.2 telemetry; fail-open per §6.5.
 
 **Step 0.9 (budget pre-flight, P5).** When `--budget-remaining N` is provided, route per this table against the §15 Token Cost Profile (Claude-side band midpoints). Boundaries are stated with explicit inclusive/exclusive operators to remove ambiguity at integer boundary values. The numeric anchors are **T1-midpoint = 6 turns**, **T2-midpoint = 52 turns**, computed from §15's "T1 only ~3-8k Claude" and "T2 ~35-70k Claude" bands via the conversion `1 turn ≈ 1k claude-orchestration tokens at the band midpoint`.
 
@@ -337,12 +282,11 @@ Emit `onboarding_ran: true` (with `onboarding_succeeded` and, on success, `onboa
 
 **Step 1B.3 (cross-task interaction-effects scan, UC-2 tasklist-scope only).** When mode is UC-2 AND the tasklist contains ≥3 completed tasks, run the symbol-overlap scan:
 
-1a. (FR-2) For each task's diff hunks, resolve each hunk's canonical declaration site via `mcp__serena__find_declaration` BEFORE deriving touched symbols — this anchors the overlap graph to resolved declarations rather than raw text, cutting false-positive overlap edges from name collisions. On zero matches for a hunk, emit `find_declaration_no_match`. Fail-open per §6.5.
+1a. (FR-2) For each task's diff hunks, resolve each hunk's declaration site BEFORE deriving touched symbols — Grep for the definition (`def <name>|class <name>|function <name>`) and Read the range — this anchors the overlap graph to resolved declarations rather than raw text, cutting false-positive overlap edges from name collisions. On a zero-hit Grep for a hunk, emit `find_declaration_no_match`. Fail-open per §6.5.
 
-1. For each task in the tasklist, derive its touched symbols via `mcp__serena__find_symbol` against the task's diff hunks.
+1. For each task in the tasklist, derive its touched symbols by resolving each of the task's diff hunks to its enclosing definition (the same Grep-for-definition then Read step as 1a).
 2. Build a symbol-overlap graph: nodes = symbols, edges = "touched by task X and task Y." Cap at top-30 most-touched symbols (heuristic; full enumeration is bounded at 30 to control cost).
-3. For each overlap edge, query `mcp__serena__find_referencing_symbols` to determine whether the symbol is genuinely shared or just transiently named the same.
-3a. (FR-RV3-MED.1) When an overlap node is a **shared base-class symbol** flagged as a top-30 hotspot, AND the Wave-0 step 0.5d backend is hierarchy-capable AND `--with-hierarchy` is set, run `mcp__serena__type_hierarchy(hierarchy_type=subtypes)` on it to confirm **genuine shared lineage** (a real common supertype) rather than a name collision. A HIGH-severity interaction edge is raised for such a base class ONLY after this lineage confirmation. Backend not hierarchy-capable / `--with-hierarchy` unset → this sub-step is skipped (no degrade); the edge falls back to the step-3 `find_referencing_symbols` shared-vs-collision determination. Fail-open per §6.5.
+3. For each overlap edge, Grep with a word-boundary pattern (`\b<symbol>\b`) and Read the call sites to determine whether the symbol is genuinely shared or just transiently named the same.
 4. For each confirmed interaction, check whether either task description explicitly cites the other (textual match on task ID). If neither cites the other, **flag as a cross-task interaction risk**.
 5. Each risk becomes a synthetic invariant probe entry tagged `category: cross_task` (in addition to the existing 6 categories — see §11.2). Severity scales with the symbol's call-site count: HIGH if >5 referencing call sites, MEDIUM if 2-5, LOW if 1.
 
@@ -352,7 +296,7 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
 
 **Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing: (a) T1 reflection card slice (the section relevant to this reviewer's persona); (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A); (c) coverage-matrix slice (only the rows the reviewer is responsible for). Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips.
 
-**Live-execution prohibition (L4, read-only reviewer).** A reviewer brief MUST NOT embed live-execution instructions: no "run pytest", no "run `git diff`", no "compute the baseline test count", no shell/git commands for the reviewer to execute. Reviewers are read-only (the fixed `reflect-reviewer` agent-type carries no Bash/`execute_shell_command`/Task tool) and audit ONLY the pre-computed hunks and matrices in the brief. Verification deltas arrive SOLELY via the FR-4 verification-results grounding hunk, produced by the orchestrator running the §6.1 step 5.5 verification triangle (`refs/reviewer-spec.md` `## Grounding hunks`) and surfaced as a hunk — verification is NEVER delegated to the reviewer. This preserves the existing "audit the supplied hunks/matrices" directives while forbidding any instruction that would have the reviewer execute anything.
+**Live-execution prohibition (L4, read-only reviewer).** A reviewer brief MUST NOT embed live-execution instructions: no "run pytest", no "run `git diff`", no "compute the baseline test count", no shell/git commands for the reviewer to execute. Reviewers are read-only (the fixed `reflect-reviewer` agent-type carries no Bash/Task tool) and audit ONLY the pre-computed hunks and matrices in the brief. Verification deltas arrive SOLELY via the FR-4 verification-results grounding hunk, produced by the orchestrator running the §6.1 step 5 and 5.5 verification run (`refs/reviewer-spec.md` `## Grounding hunks`) and surfaced as a hunk — verification is NEVER delegated to the reviewer. This preserves the existing "audit the supplied hunks/matrices" directives while forbidding any instruction that would have the reviewer execute anything.
 
 (See `refs/reviewer-spec.md` for the brief template and worked examples.)
 
@@ -496,21 +440,21 @@ escalation_decision:
 
 ---
 
-## 6. Modern Serena Tool Usage
+## 6. Evidence-Gathering Chain (auggie + native Grep/Read floor)
 
-The protocol replaces every `think_about_*` invocation with a concrete symbol-anchored evidence chain. The `think_about_*` triad is *current* (not deprecated) but is positioned here as scripted mandatory checkpoints, not the load-bearing reflection mechanism.
+The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; `mcp__auggie__codebase-retrieval` is used first wherever the chain says so. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
 
 ### 6.1 Mandatory evidence-gathering chain (Wave 1A)
 
 For every touched file in UC-2, or every spec-referenced module in UC-1:
 
 ```
-1. mcp__serena__activate_project (once, idempotent at Wave 0)
-2. mcp__serena__get_symbols_overview <file>            # structural map
-2a. mcp__serena__find_declaration <symbol>            # diff-hunk → declaration
-3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
-3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
-4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
+1. (Wave 0 only) memory hydrate per §6.3 — no project-activation step
+2. mcp__auggie__codebase-retrieval <file/module>, then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
+2a. Grep for the hunk's symbol definition (`def <name>|class <name>|function <name>`), then Read the range   # diff-hunk → declaration; zero hits → find_declaration_no_match
+3. Read the located range of <relevant-symbol>          # symbol body
+3b. Grep for `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` (best effort)   # polymorphic surface
+4. Grep with a word-boundary pattern (`\b<symbol>\b`), then Read each call site   # downstream impact + signatures
 4b'. Runtime-surface tagger (UC-2 only): classify diff-hunk symbols by resolved symbol kind/decorator against `refs/runtime-surface.md` allowlist; emit `runtime_surface_requirements` (requirement_id optional/null) and one audit.log row
 4b. Runtime-surface production-caller sweep (UC-2 only): extend the already-fetched step-4 referrers; partition production vs test/comment via `refs/runtime-surface.md`, consult degrade oracle + rootwalk before any UNREACHED, write `<output>/artifacts/runtime-surface-ledger.yaml`, and emit one audit.log row
 4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
@@ -519,36 +463,34 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
       (Wave 1A is the UC-2 post-execution chain); the pre-stage path lives in /tdd step 2a. Path matches
       `reuse_audit_path` in the output schema below.
     Orchestrator-level (Wave 1A, Tier 1) — NEVER nested inside a spawned subagent.
-    Fallback: agent unavailable → inline serena+ripgrep grep-skeleton degrade, findings CAPPED at advisory L2,
+    Fallback: agent unavailable → inline Grep skeleton-grep degrade, findings CAPPED at advisory L2,
     degraded_components += "neighbour-search:auggie_unavailable"; NEVER STOP.
-4.5. mcp__serena__type_hierarchy(hierarchy_type=both|subtypes, depth=0)  # transitive family (backend+--with-hierarchy gated)
-5. mcp__serena__get_diagnostics_for_file <file>        # LSP-level issues
-5.5. mcp__serena__execute_shell_command (scoped verify) # UC-2 verification triangle (safety envelope §6.1.1)
+5. Bash: the project's own linter / type-checker on <file>   # diagnostics (safety envelope §6.1.1)
+5.5. Bash (scoped verify)                                   # UC-2 verification run (safety envelope §6.1.1)
 5.6. contracted-sink reachability & oracle-admissibility gate  # UC-2, side-effect-bearing reqs only; real-boot-only Regression (§6.1 step 5.6; FR-RH1)
 6. Re-Read each cited file:line range before quoting    # citation-grounding
-7. mcp__serena__find_symbol <symbol> search_deps:true   # third-party / dependency surface
-7'. mcp__serena__summarize_changes   # UC-2 corroboration vs supplied diff
+7. (skipped) third-party / dependency surface — the native floor has no dependency lookup; the dependent claim stays [INFERRED]
 ```
 
-Step 2a (FR-2) resolves a diff hunk to its canonical declaration site before symbol lookup; on zero matches it emits `find_declaration_no_match`. Step 3b (FR-1) enumerates the polymorphic surface and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because non-Python LSPs report `Class` for traits/Protocols; on a `Class` a non-empty result IS the implementor surface and an empty result is "genuinely none" (no degrade). Both new steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
+Step 2a (FR-2) resolves a diff hunk to its declaration site before the body is read: Grep for the definition, then Read the range; on a zero-hit Grep it emits `find_declaration_no_match`. Step 3b (FR-1) enumerates the polymorphic surface on a **best-effort** basis and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because a base class is the usual polymorphic anchor: a Grep hit on `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` is an implementor site, and an empty result is recorded as "none found (best effort)" with no degrade, because dynamic registration is invisible to a textual search. Both steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
 
-Step 4's `include_info: true` (FR-3) is a **parameter add to the existing call, not a new step**: the v1.5 "Extended Symbol Information" return shape absorbed the old standalone referencing-snippets tool, so the referencing scan now also yields each referrer's signature/docstring. The run emits `references_extended_info_used: true` to `audit.log`, and the Wave-0 tool-inventory probe (OQ-1, via `serena_info` / `get_current_config`) records to the audit whether that defunct standalone referencing-snippets tool is present — the protocol uses the `include_info` path regardless and never wires the standalone tool.
+Step 4 is a Grep with a word-boundary pattern followed by a Read of each call site; the Read yields each referrer's surrounding signature or docstring where it matters, so no separate extended-info call exists. The run emits `references_extended_info_used: false` to `audit.log` as a constant, kept so the audit-log shape stays stable.
 
 Step 4b' (FR-RSR.1) is the deterministic, LLM-free runtime-surface tagger. It runs in UC-2 only (never `--mode pre`) and keys off the diff hunk's resolved symbol kind/decorator from steps 2/2a/3 plus the `refs/runtime-surface.md` surface allowlist — **not** off a requirement id that may be mapped later in Wave 1B. It emits `runtime_surface_requirements: [<ids>]` when mapped ids exist; a surface hunk with no mapped requirement is still tagged with `requirement_id: null` and the sweep still runs. Non-surface diffs emit `runtime_surface_requirements: []`, `runtime_surface_sweep_ran: false`, and zero added runtime-surface cost. Kind-resolution failure routes to `DEGRADE` (FR-RSR.3/8 → §10.6 Grounding Gap), never silent-skip. It emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b'", timestamp, outcome, evidence_ref}`.
 
-Step 4b (FR-RSR.2/3/4/8) is a read-only production-caller sweep that **extends the already-fetched step-4 `find_referencing_symbols` result**; it does not add a second referrer-fetch call. For each tagged runtime-surface symbol, it partitions referrers into production vs test/comment using `refs/runtime-surface.md` (including inline-test markers such as Rust `#[cfg(test)]` and in-file `Test*`). It then writes `<output>/artifacts/runtime-surface-ledger.yaml` with one row per evaluated edge (`requirement_id`, `symbol`, `edge`, `status`, `production_referrers`, `evidence_ref`) and reduces edges to a per-symbol verdict under `DEGRADE-on-any-incompleteness > UNREACHED > REACHED`. The sweep MUST consult the degrade oracle (any row match → `DEGRADE`) and the entrypoint-rootwalk (`REACHED` from any enumerated root; partial enumeration → `DEGRADE`) before emitting any `UNREACHED`. It emits `runtime_surface_unreached` as a symbol count, `runtime_surface_degraded` when any symbol reduces to `DEGRADE`, and preserves `len(unreached_surfaces) == runtime_surface_unreached`. It reads the Wave-0 §0.5d availability surface rather than re-probing: `backend: none`, a chain-degraded availability report, Serena unavailable, or a `find_referencing_symbols` failure degrades the affected edge to §10.6 Grounding Gap, sets `runtime_surface_degraded: true`, appends `"runtime-surface:backend_unavailable"` to `degraded_components`, continues over remaining edges with no global abort, and NEVER STOPs. It writes only under `<output>/`, never emits a clean PASS for a tagged surface whose reachability could not be evaluated, and emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b", timestamp, outcome, evidence_ref}`.
+Step 4b (FR-RSR.2/3/4/8) is a read-only production-caller sweep that **extends the already-fetched step-4 Grep referrer result**; it does not add a second referrer-fetch call. For each tagged runtime-surface symbol, it partitions referrers into production vs test/comment using `refs/runtime-surface.md` (including inline-test markers such as Rust `#[cfg(test)]` and in-file `Test*`). It then writes `<output>/artifacts/runtime-surface-ledger.yaml` with one row per evaluated edge (`requirement_id`, `symbol`, `edge`, `status`, `production_referrers`, `evidence_ref`) and reduces edges to a per-symbol verdict under `DEGRADE-on-any-incompleteness > UNREACHED > REACHED`. The sweep MUST consult the degrade oracle (any row match → `DEGRADE`) and the entrypoint-rootwalk (`REACHED` from any enumerated root; partial enumeration → `DEGRADE`) before emitting any `UNREACHED`. It emits `runtime_surface_unreached` as a symbol count, `runtime_surface_degraded` when any symbol reduces to `DEGRADE`, and preserves `len(unreached_surfaces) == runtime_surface_unreached`. It never re-probes tool availability: a failed step-4 Grep or Read for an edge degrades the affected edge to §10.6 Grounding Gap, sets `runtime_surface_degraded: true`, appends `"runtime-surface:backend_unavailable"` to `degraded_components`, continues over remaining edges with no global abort, and NEVER STOPs. It writes only under `<output>/`, never emits a clean PASS for a tagged surface whose reachability could not be evaluated, and emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b", timestamp, outcome, evidence_ref}`.
 
 **Contract emission is mandatory and name-exact (FR-RSR.7).** Whenever the sweep ran (`runtime_surface_sweep_ran: true`), the §9.1 contract MUST carry ALL SIX `runtime_surface_*` fields by their exact names on EVERY path, including a fully-REACHED run. Map each per-symbol verdict ONLY through those fields — a REACHED symbol is `runtime_surface_unreached: 0` + `runtime_surface_degraded: false` + `unreached_surfaces: []`; a DEGRADE symbol is `runtime_surface_degraded: true` plus a §10.6 Grounding Gap (and is NOT added to `unreached_surfaces`); an UNREACHED symbol increments `runtime_surface_unreached` and adds one `unreached_surfaces[]` entry. Do NOT improvise alternative keys (`runtime_surface_reachable`, `reachability_path`, `static_caller_absent_is_expected`, etc.) — they are invisible to the §9.3 consumer map and break the contract. The dynamic/registry/decorator/[project.scripts]/reflection cases resolve to DEGRADE (oracle, FR-RSR.3), never a bespoke "reachable: true" — a confidently-traced dynamic path is still recorded as `runtime_surface_degraded: true` + Grounding Gap, because static reachability cannot soundly prove it.
 
-Step 7 (FR-4) is **conditional**: it fires only on the operationalized trigger predicate — a symbol whose step-2a `find_declaration` resolves to an `<ext:…>` path (a third-party dependency), NOT the vague "cites a third-party API by name". When the LSP has not indexed the dependency (no active venv / unindexed package), it fails open to `degraded_components: ["search_deps:lsp_unindexed"]` and the dependent claim stays marked `[INFERRED]` rather than `[VERIFIED]`. It emits one `audit.log` row per the §4 convention.
+Step 5 (diagnostics) runs the project's own linter or type-checker on the touched file through Bash, choosing the tool from the project's own configuration (`ruff`, `mypy`, `tsc`, `cargo` and the other control-(b) verbs) and building the command from the fixed template under the §6.1.1 envelope. Its exit code is classified by the §10.4 exit-code taxonomy (`ruff` / `mypy` exit 1 is an `S_dev_density` signal, not a Regression). It is gated and skipped exactly like step 5.5 (`--no-verify`, Bash unavailable) with the same `verification_skip_reason` values, and never STOPs the skill.
 
-Step 7' (FR-5) is **UC-2-only** and **prompt-based** (a corroboration meta-tool, NOT a computed diff — it returns instructions to summarize the session's changes, still model-mediated). It is **session-aware**: it must be invoked in the SAME MCP session as the edits; on a cross-session reflect (fresh session, nothing to summarize) it sets `serena_summary_corroboration: unavailable` and the main verdict is unchanged (FR-5.4). It sets `serena_summary_corroboration` ∈ `{agree, partial, disagree, unavailable}` by comparing the Serena change-summary against the supplied diff. It emits `summarize_changes_invoked: true` and `summarize_changes_path: <output>/serena-change-summary.md` to `audit.log` per the §4 per-step emit convention (SKILL.md per-step audit row) — the same way steps 3b/7 emit their own `<tool>_invoked` rows — so the FR-5 telemetry has an explicit producer in the chain. FR-5 **ships last** and is **pilot-gated** (OQ-3 — its signature is "not surfaced"; treat as zero-arg until the eval-workspace pilot probes the return shape).
+Step 5.5 (FR-RV3-MED.4) is the **verification run** — step 5 (does it lint and type-check) plus scoped tests/build (does it pass), both executed through Bash. It is **UC-2 default-on** and gated: it runs only when Bash is available in the active tool set and `--no-verify` was not passed; otherwise it skips with `verification_skip_reason: tool-unavailable` or `--no-verify` (`read-only-project` stays a legal contract value but is no longer produced) and degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry (never STOP). Every invocation is governed by the consumer-side safety envelope specified in §6.1.1 below. It emits one `audit.log` row per the §4 per-step convention whose `evidence_ref` points at the per-invocation artifact.
 
-Step 4.5 (FR-RV3-MED.1) retrieves a type's **transitive supertype/subtype family** in one call. It runs ONLY when (a) the Wave-0 step 0.5d backend probe reports a hierarchy-capable backend, (b) `--with-hierarchy` is set, and (c) the located symbol is a type (FR-1.1). Backend `none`/`lsp-disabled` → skip with `type_hierarchy_invoked: false` and **NO degrade** (expected absence, FR-1.4). An explicit backend error (distinct from "unsupported") → `degraded: ["type_hierarchy:backend_error"]` and fall back to the `find_implementations`/`find_referencing_symbols` chain (FR-1.5). `--with-hierarchy` defaults OFF on `lsp` (no generic `type_hierarchy` tool there until OQ-M3 confirms per-language support) and is unavailable on `none`; non-OO codebases see zero degradation. The skill MUST never abort because hierarchy is unavailable.
+Step 7 (FR-4) `search_deps` is **skipped**: the native floor has no third-party dependency lookup. A claim that rests on an upstream third-party API's behavior stays marked `[INFERRED]` rather than `[VERIFIED]`; `third_party_api_grounding` is emitted as `[]` and `third_party_api_verified` as `false`. No degraded token is emitted for the skip (expected absence).
 
-Step 5.5 (FR-RV3-MED.4) is the **verification triangle** — `get_diagnostics_for_file` (step 5, LSP issues) + `summarize_changes` (step 7', what changed) + `execute_shell_command` (step 5.5, does it pass). It is **UC-2 default-on** and gated: it runs only when `execute_shell_command_available` is true (Wave-0 step 0.5d), `read_only` is not set, and `--no-verify` was not passed; otherwise it skips with the matching `verification_skip_reason` and degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry (never STOP). Every invocation is governed by the consumer-side safety envelope specified in §6.1.1 below. It emits one `audit.log` row per the §4 per-step convention whose `evidence_ref` points at the per-invocation artifact.
+Removed steps. Step 4.5 (transitive type hierarchy) and Step 7' (change-summary corroboration) no longer exist. The stable audit fields `type_hierarchy_invoked: false` and `summarize_changes_invoked: false` are emitted as constants so the audit-log shape stays stable; there is no hierarchy slice, no hierarchy-gap weight and no corroboration signal.
 
-Step 5.6 (FR-RH1, UC-2-only) is the **contracted-sink reachability & oracle-admissibility gate** — it closes the fail-open blindspot where the code is present, the unit tests are green, and a proxy observable is emitted, but the *contracted durable sink is never reached* (composition root never binds the facade; emitter error discarded; oracle greps a proxy sink). It fires **only** for *side-effect-bearing requirements* whose acceptance criterion names a `contracted_sink` the changed symbol does not itself own. **v1 blocking eligibility requires an explicit machine-readable `durable_sink:` / `@sink` annotation**: without that annotation, semantic classification of the effect noun is **advisory telemetry only** — it MAY record an advisory candidate but MUST NOT set `reachability_unproven`, MUST NOT create a Grounding Gap, MUST NOT set `needs_human_decision`, and MUST NOT change `status`. For each eligible requirement the gate grounds two sub-claims by reusing artifacts already in hand — **reachability** (the step-4 `find_referencing_symbols` shows the sink's binder bound at the entry/composition root, and the step-6 re-Read shows the emitter result is not discarded) and **oracle-admissibility** (the acceptance/e2e oracle observes the *contracted* sink, not a proxy such as journald/slog/stdout/unit-pass/code-presence). **Proof bar — Regression is real-boot-only:** only a best-effort step-5.5 `execute_shell_command` boot (under the §6.1.1 envelope) that observes the contracted sink **absent** after exercising the booted entrypoint can set `unreachable` / `regression_present`. Static binding absence, discarded emitter result, unresolved sink identity, oracle mismatch, or real-boot-unavailable are advisory recall signals and can yield at most `unproven` — a §10.6 Grounding Gap — and only when a blocking annotated sink exists; they can NEVER set `regression_present`. **Telemetry-only skips:** `--no-reachability` (the operator rollback path) and the absence of *both* `--spec` and `--tasklist` set `reachability_gate_ran: false` with the matching `reachability_skip_reason` (`--no-reachability` | `spec-and-tasklist-absent`) and a null ledger with zero counters; a skip MUST NOT create or append `grounding-gaps.yaml`, MUST NOT set `needs_human_decision`, and MUST NOT force `status: partial`. The gate adds **no new tool class** (R8: it reuses steps 4, 5.5, and 6) but does add bounded work (1-3 turns per side-effect requirement, ≤12 scanned, ≤36 turns, ≤1 real boot). It writes one row per evaluated requirement to the reachability ledger (schema §9.1) and emits a `reachability_gate_invoked` audit row per the §4 per-step convention. Fail-open per §6.5; NEVER STOP. This is a contracted-sink gate and intentionally does NOT reuse FR-RSR runtime-surface, UNREACHED, or degrade-only semantics. The gate operates under `contract 1.7.0` (UC-2 reachability_* block).
+Step 5.6 (FR-RH1, UC-2-only) is the **contracted-sink reachability & oracle-admissibility gate** — it closes the fail-open blindspot where the code is present, the unit tests are green, and a proxy observable is emitted, but the *contracted durable sink is never reached* (composition root never binds the facade; emitter error discarded; oracle greps a proxy sink). It fires **only** for *side-effect-bearing requirements* whose acceptance criterion names a `contracted_sink` the changed symbol does not itself own. **v1 blocking eligibility requires an explicit machine-readable `durable_sink:` / `@sink` annotation**: without that annotation, semantic classification of the effect noun is **advisory telemetry only** — it MAY record an advisory candidate but MUST NOT set `reachability_unproven`, MUST NOT create a Grounding Gap, MUST NOT set `needs_human_decision`, and MUST NOT change `status`. For each eligible requirement the gate grounds two sub-claims by reusing artifacts already in hand — **reachability** (the step-4 referrer Grep shows the sink's binder bound at the entry/composition root, and the step-6 re-Read shows the emitter result is not discarded) and **oracle-admissibility** (the acceptance/e2e oracle observes the *contracted* sink, not a proxy such as journald/slog/stdout/unit-pass/code-presence). **Proof bar — Regression is real-boot-only:** only a best-effort step-5.5 Bash boot (under the §6.1.1 envelope) that observes the contracted sink **absent** after exercising the booted entrypoint can set `unreachable` / `regression_present`. Static binding absence, discarded emitter result, unresolved sink identity, oracle mismatch, or real-boot-unavailable are advisory recall signals and can yield at most `unproven` — a §10.6 Grounding Gap — and only when a blocking annotated sink exists; they can NEVER set `regression_present`. **Telemetry-only skips:** `--no-reachability` (the operator rollback path) and the absence of *both* `--spec` and `--tasklist` set `reachability_gate_ran: false` with the matching `reachability_skip_reason` (`--no-reachability` | `spec-and-tasklist-absent`) and a null ledger with zero counters; a skip MUST NOT create or append `grounding-gaps.yaml`, MUST NOT set `needs_human_decision`, and MUST NOT force `status: partial`. The gate adds **no new tool class** (R8: it reuses steps 4, 5.5, and 6) but does add bounded work (1-3 turns per side-effect requirement, ≤12 scanned, ≤36 turns, ≤1 real boot). It writes one row per evaluated requirement to the reachability ledger (schema §9.1) and emits a `reachability_gate_invoked` audit row per the §4 per-step convention. Fail-open per §6.5; NEVER STOP. This is a contracted-sink gate and intentionally does NOT reuse FR-RSR runtime-surface, UNREACHED, or degrade-only semantics. The gate operates under `contract 1.7.0` (UC-2 reachability_* block).
 
 **Step 5.6a (C7 — required-capability reachability pass, UC-2, annotation-free blocking).** Step 5.6's durable-sink gate blocks only on an explicit `durable_sink:` / `@sink` annotation and only on a real-boot proof; that is why the v1.4.1 WS-dial capability slipped (it had no annotation and no boot, so the gate was advisory-only, and the FR-RSR sweep reduced `Subscribe` to `REACHED` on a bare production referrer while the caller's `err==nil` guard swallowed the sentinel — see the reflect-miss analysis, Layers 1-3). Step 5.6a closes that with a distinct pass that does NOT depend on an annotation:
 
@@ -559,25 +501,25 @@ Step 5.6 (FR-RH1, UC-2-only) is the **contracted-sink reachability & oracle-admi
 
 This pass reuses steps 4 and 6 (no new tool class), rides the existing `reachability_unreachable`/`regression_present` gating fields, and is additive to Step 5.6 (it does not weaken the durable-sink gate's real-boot rule for annotated sinks; it adds an annotation-free blocking path for spec-declared required capabilities).
 
-Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed auggie query per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent or auggie unavailable → inline serena+ripgrep grep-skeleton, findings CAPPED at advisory L2, `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
+Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed auggie query per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent or auggie unavailable → inline Grep skeleton-grep, findings CAPPED at advisory L2, `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
 
-The chain replaces "think_about_collected_information" — instead of asking the model to self-assess whether it has enough info, the protocol *produces* the evidence and lets the rubric score whether grounding is sufficient.
+The chain does not ask the model to self-assess whether it has enough information — the protocol *produces* the evidence and lets the rubric score whether grounding is sufficient.
 
-### 6.1.1 `execute_shell_command` safety envelope (FR-RV3-MED.4)
+### 6.1.1 Bash verification safety envelope (FR-RV3-MED.4)
 
-`execute_shell_command` runs **non-mutating verification only** (tests/linters/type-checkers/build). This is the **SOLE shell-execution surface** a reflect reviewer may touch — reviewers have no other sanctioned command-execution path, and the restricted `reflect-reviewer` agent (L1) carries no `Bash`/`execute_shell_command` tool at all, so this envelope governs only the orchestrator-driven §6.1 step 5.5 verification call. Serena executes the command via `subprocess.Popen(command, shell=True)` with **no upstream allowlist or sandbox** (Serena Security Audit #380), so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under `shell=True` an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. Note that control (b)'s allowlist is a CLOSED set with `git` absent, so every git verb is already rejected here regardless of the no-mutation denylist below — the denylist's git-verb enumeration (L3) is a defense-in-depth backstop, not the closure of the Bash-tool/L1 incident vector. All nine controls are mandatory:
+The Bash tool runs **non-mutating verification only** (tests/linters/type-checkers/build — the §6.1 step 5 diagnostics and the step 5.5 verification run). This is the **SOLE shell-execution surface** the reflect orchestrator touches for verification — reviewers have no command-execution path, and the restricted `reflect-reviewer` agent (L1) carries no `Bash` tool at all, so this envelope governs only the orchestrator-driven §6.1 step 5 and 5.5 calls. The Bash tool runs the command through a shell with **no upstream allowlist or sandbox of its own**, so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under a shell an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. Note that control (b)'s allowlist is a CLOSED set with `git` absent, so every git verb is already rejected here regardless of the no-mutation denylist below — the denylist's git-verb enumeration (L3) is a defense-in-depth backstop, not the closure of the reviewer-persona Bash/L1 incident vector. All nine controls are mandatory:
 
 - **(a) Template construction, not prose assembly.** The command MUST be built from a fixed allowlisted-verb template with arguments supplied as a vetted token list. The command string is NEVER assembled from raw spec/tasklist prose (untrusted by definition).
 - **(b) Verb allowlist.** The first token MUST be in `{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`; otherwise the command is rejected with `verify_blocked: true` + `verify_blocked_reason: "verb '<v>' not in allowlist"` and is **not** invoked. The allowlist is checked against the **base** verification command's first token, NOT against the fixed protocol-added `timeout` / `env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` wrapper prefix from controls (d)/(i) — those wrappers are protocol-authored, never user-supplied verbs, so `timeout` and `env` are never themselves allowlisted as selectable verbs.
-- **(c) Structural metacharacter rejection (the load-bearing C1 control).** Reject outright with `verify_blocked: true` + `verify_blocked_reason: "metachar-denied"` any command containing a shell control character — semicolon `;`, pipe `|`, ampersand `&`, dollar `$`, backtick `` ` ``, redirect `>` / `<`, newline, or parentheses `(` `)`. This validates the whole command structure; a denylist of mutation *verbs* alone is insufficient against `shell=True` composition. Such a command is **never** passed to `execute_shell_command`.
-- **(d) Per-call timeout.** Wrap every command as `timeout <N> <cmd>` with default **120s, max 600s** (Serena's tool-level timeout is unverified, so the wrap is consumer-side). A timeout kills the command, records `exit_code: 124` + `verify_timeout_hit: true`, classifies it Grounding Gap, and the run continues.
-- **(e) Output cap.** Pass `max_answer_chars=51200` (50 KB, tighter than the 200 KB Serena default) plus a defensive tail-truncate of captured stdout/stderr.
+- **(c) Structural metacharacter rejection (the load-bearing C1 control).** Reject outright with `verify_blocked: true` + `verify_blocked_reason: "metachar-denied"` any command containing a shell control character — semicolon `;`, pipe `|`, ampersand `&`, dollar `$`, backtick `` ` ``, redirect `>` / `<`, newline, or parentheses `(` `)`. This validates the whole command structure; a denylist of mutation *verbs* alone is insufficient against shell composition. Such a command is **never** passed to Bash.
+- **(d) Per-call timeout.** Wrap every command as `timeout <N> <cmd>` with default **120s, max 600s** (the Bash tool's own timeout is not relied on, so the wrap is consumer-side). A timeout kills the command, records `exit_code: 124` + `verify_timeout_hit: true`, classifies it Grounding Gap, and the run continues.
+- **(e) Output cap.** Record and surface at most 51200 characters (50 KB) of captured stdout/stderr per invocation, tail-truncated by the orchestrator after the call returns (control (c) forbids in-command pipes and redirects, so the cap is applied to what is recorded).
 - **(f) `cwd` scoping.** Scope `cwd` to the affected subtree (blast-radius reduction).
 - **(g) Per-invocation audit artifact (M-ARC1).** Each invocation is appended to `<output>/verify-logs/invocations.yaml` as an array entry `{cmd, exit_code, duration_ms, stdout_path, stderr_path, blocked_reason, deviation_class}`. The step-5.5 audit row references this artifact via its `evidence_ref` field — the per-invocation data is **NEVER inlined** into the fixed 5-field per-step audit row.
-- **(h) `--no-verify`.** Disables the verification triangle globally (`verification_skip_reason: --no-verify`).
-- **(i) Wrapper-marker strip (verification subprocess only).** After the base verification command passes controls (a)–(c) and the no-mutation gate, the step-5.5 invocation MUST be executed as the fixed protocol-authored wrapper `timeout <N> env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE <validated base command>`, so the verification subprocess does NOT inherit `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` from a parent reflect-wrapper run. Without this strip, a verification command that itself invokes `superclaude reflect run` (e.g. the reflect CLI's own tests) trips the `commands.py` recursion-breaker guard and self-suppresses, producing a false degraded/null-convergence outcome on a clean audit. This strip applies **only** to the non-mutating verification/build/test subprocess class governed by this envelope. It does **NOT** authorize clearing, unsetting, or overwriting the marker for reflect audits, emitted reflect gate commands, or auto-run corrective `/task` execution — those children MUST keep `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` so nested-gate suppression remains intact. `env -u` here is a fixed wrapper prefix, **not** a user-selectable allowlisted verb (control (b) still validates the base command's first token). The strip preserves controls (d)–(h): the `timeout <N>` wrap from (d) remains the outer wrapper, the executed command is recorded in `<output>/verify-logs/invocations.yaml` per (g), and when `--no-verify` (h) disables the triangle no marker-stripping wrapper runs at all.
+- **(h) `--no-verify`.** Disables the verification run globally (`verification_skip_reason: --no-verify`).
+- **(i) Wrapper-marker strip (verification subprocess only).** After the base verification command passes controls (a)–(c) and the no-mutation gate, every step-5 and step-5.5 invocation MUST be executed as the fixed protocol-authored wrapper `timeout <N> env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE <validated base command>`, so the verification subprocess does NOT inherit `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` from a parent reflect-wrapper run. Without this strip, a verification command that itself invokes `superclaude reflect run` (e.g. the reflect CLI's own tests) trips the `commands.py` recursion-breaker guard and self-suppresses, producing a false degraded/null-convergence outcome on a clean audit. This strip applies **only** to the non-mutating verification/build/test subprocess class governed by this envelope. It does **NOT** authorize clearing, unsetting, or overwriting the marker for reflect audits, emitted reflect gate commands, or auto-run corrective `/task` execution — those children MUST keep `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` so nested-gate suppression remains intact. `env -u` here is a fixed wrapper prefix, **not** a user-selectable allowlisted verb (control (b) still validates the base command's first token). The strip preserves controls (d)–(h): the `timeout <N>` wrap from (d) remains the outer wrapper, the executed command is recorded in `<output>/verify-logs/invocations.yaml` per (g), and when `--no-verify` (h) disables the verification run no marker-stripping wrapper runs at all.
 
-**No-mutation gate.** Independently of (b)/(c), any command matching the mutation denylist (`git commit`/`git push`, the read-but-forbidden working-tree git verbs `git reset` / `git stash` / `git checkout` / `git clean` / `git rebase` / `git merge` / `git worktree` / `git restore` — i.e. `git <any mutation>` as a broad backstop — `pip install`, `rm`, or any redirect to a repo path outside `<output>/`) is rejected with `verify_blocked_reason: "mutation-denied"` and never invoked. In-test side effects (a test that writes fixtures within its own scope) are best-effort only (OQ-M7) — the gate governs the *command*, not the test internals. **(L3 defense-in-depth — NOT the incident vector.)** These git verbs are enumerated as a backstop only: control (b)'s verb allowlist is a CLOSED set (`{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`) that already rejects EVERY git verb because `git` is absent from it, so no git command can reach this gate via the `execute_shell_command`/serena path. The reflect-reviewer mutation incident vector traveled the **Bash-tool / L1** path (all-tools reviewer personas), which L1 + L2 close; §6.1.1 governs only the `execute_shell_command`/serena verification path, so this denylist extension is strictly defense-in-depth and does not by itself close the incident vector.
+**No-mutation gate.** Independently of (b)/(c), any command matching the mutation denylist (`git commit`/`git push`, the read-but-forbidden working-tree git verbs `git reset` / `git stash` / `git checkout` / `git clean` / `git rebase` / `git merge` / `git worktree` / `git restore` — i.e. `git <any mutation>` as a broad backstop — `pip install`, `rm`, or any redirect to a repo path outside `<output>/`) is rejected with `verify_blocked_reason: "mutation-denied"` and never invoked. In-test side effects (a test that writes fixtures within its own scope) are best-effort only (OQ-M7) — the gate governs the *command*, not the test internals. **(L3 defense-in-depth — NOT the incident vector.)** These git verbs are enumerated as a backstop only: control (b)'s verb allowlist is a CLOSED set (`{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`) that already rejects EVERY git verb because `git` is absent from it, so no git command can reach this gate through the orchestrator's verification call. The reflect-reviewer mutation incident vector traveled the **reviewer-persona Bash-tool / L1** path (all-tools reviewer personas), which L1 + L2 close; §6.1.1 governs only the orchestrator-driven verification call, so this denylist extension is strictly defense-in-depth and does not by itself close the incident vector.
 
 ### 6.2 Citation-grounding via re-Read (anti-staleness)
 
@@ -610,21 +552,13 @@ Retention rules:
 
 Every read and write is fail-open per §6.5 and emits one `audit.log` row per the §4 per-step convention; the trim records `memory_retention_actions` (entries trimmed) to §9.2 telemetry. This touches memory files ONLY — it never touches project source.
 
-### 6.4 `think_about_*` as scripted checkpoints (not load-bearing)
+### 6.4 Scripted checkpoints (removed)
 
-The `think_about_*` tools are cheap meta-cognition prompts. They are wired in as *mandatory scripted nudges*, with their output recorded in the audit log but never used as the load-bearing signal:
-
-| When | Tool | Purpose |
-|------|------|---------|
-| End of Wave 1A | `think_about_collected_information` | Cheap sanity nudge after evidence-gathering chain — if model surfaces a gap, log it and influence rubric `S_dev_density` upward |
-| End of Wave 1C | `think_about_task_adherence` | UC-1 mode only — cheap nudge before calibration |
-| End of Wave 5 (after evidence-validator) | `think_about_whether_you_are_done` | Final completion nudge; result logged but does NOT gate ship (evidence-validator gates ship) |
-
-These are scripted, not optional. Their output is captured to `<output>/serena-checkpoints.log` for audit. They are not the reflection — they are a free 200-token nudge layered on top. **They are NOT listed in frontmatter `allowed-tools`** (declaring them as protocol surface would overweight their role).
+The scripted self-assessment checkpoints and their checkpoint log no longer exist. Reflection is grounded solely in the §6.1 evidence chain and scored by the rubric.
 
 ### 6.5 Fail-open policy
 
-Every Serena call is fail-open per `sc-validate-roadmap-protocol` convention. Missing Serena → fall back to `Grep`/`Glob` with `degraded: true` in the audit. The protocol must never abort because Serena is unavailable.
+Every optional tool call (auggie, the Bash verification run, the `reuse-auditor` agent) is fail-open: the protocol must never abort because an MCP tool is unavailable. The native Grep/Glob/Read floor is the permanent baseline of the §6.1 chain, so grounding with it is normal evidence and emits no degraded token. A missing auggie falls back to that floor and records `degraded_components: ["auggie"]` (§14).
 
 ---
 
@@ -727,7 +661,7 @@ Two-block contract: stable + telemetry. Written to `<output>/return-contract.yam
 ### 9.1 Stable contract (contract_version: 1.8.0)
 
 ```yaml
-contract_version: "1.8.0"   # 1.8.0 ADDITIVE ONLY: +remediation_plan_path (plan-route sibling of remediation_task_path); 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
+contract_version: "1.8.0"   # #323: the change-summary corroboration field was removed (no consumer read it); the other fields keep their names. 1.8.0 ADDITIVE ONLY: +remediation_plan_path (plan-route sibling of remediation_task_path); 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -735,7 +669,7 @@ report_path: <abs path to REPORT.md>
 audit_log_path: <abs path>
 confidence_calibrated: <float 0.00-1.00>
 escalation_rule_matched: <int 1-8> | null
-onboarding_ran: <bool>                # FR-2 (Wave 0.7b one-shot --onboard bootstrap; false when gated off)
+onboarding_ran: false                 # constant false since #323: the one-shot onboarding bootstrap was removed; kept for contract stability
 
 # UC-1 specific
 coverage_pct: <float 0.0-1.0> | null            # PARSED-ONLY denominator; pre-D13 semantics UNCHANGED (consumer-safe per the 9.4 additive policy)
@@ -750,8 +684,8 @@ missing_implementations:                              # FR-1
   - abstract_name_path: <string>
     expected_count: <int>
     found_count: <int>
-hierarchy_slice_path: <abs-path> | null               # FR-RV3-MED.1 (<output>/artifacts/hierarchy-slice.yaml; null when unavailable)
-hierarchy_coverage_pct: <float 0.0-1.0> | null        # FR-RV3-MED.1 = registered_subtypes / total_subtypes_in_hierarchy; null when hierarchy empty or backend unavailable
+hierarchy_slice_path: null                            # constant null since #323: the type-hierarchy step was removed; kept for contract stability
+hierarchy_coverage_pct: null                          # constant null since #323 (same reason)
 
 # UC-2 specific
 tasklist_completion_pct: <float 0.0-1.0> | null
@@ -767,9 +701,8 @@ third_party_api_grounding:                 # FR-4
   - api_name: <string>
     dep_version: <string>
     resolution_path: <string>
-third_party_api_verified: <bool>           # FR-4
-serena_summary_corroboration: agree | partial | disagree | unavailable   # FR-5
-verification_ran: <bool>                   # FR-4 (UC-2 verification triangle, §6.1 step 5.5)
+third_party_api_verified: <bool>           # FR-4 (always false while Step 7 `search_deps` is skipped)
+verification_ran: <bool>                   # FR-4 (UC-2 Bash verification run, §6.1 steps 5 and 5.5)
 verification_invocations: <int>            # FR-4 (count of verify-log invocation entries)
 verification_failures: <int>               # FR-4 (exit_code != 0 count)
 verification_regressions_detected: <int>   # FR-4 (taxonomy-classified Regression exits on a claimed-passing file)
@@ -949,7 +882,6 @@ token_usage: { wave_0: <est>, ... }
 reviewer_models: [<list>]
 reviewer_personas: [<list>]
 reviewer_vendors: [<list>]
-serena_checkpoints_path: <path>
 degraded_components: [<list>]   # e.g. ["auggie", "evidence-validator", "env-aliases"]
 fallback_path: null | F1 | F2 | F3
 executor_class_source: flag | env | log-heuristic | unknown
@@ -958,11 +890,6 @@ executor_exclusion_degraded: bool                              # true when execu
 citations_dropped_extrapolated: <int>   # sampled-mode telemetry (recording, not deciding) — see §11.5
 memory_hits: <int>                       # memory-file Read hits in Wave 0 (§6.3)
 memory_misses: <int>
-onboarding_status: bootstrapped | not_bootstrapped | unknown   # FR-6
-serena_version: "<v1.5" | ">=v1.5" | "unknown"   # FR-7 (three-valued — A4/C2)
-serena_config_snapshot_path: <abs path>   # FR-7
-serena_active_context: <string>   # FR-7
-serena_active_modes: [<string>]   # FR-7
 memory_retention_actions: <int>   # FR-8 (entries trimmed from a memory file at write time, §6.3)
 verify_blocked: <bool>   # FR-4 (any invocation rejected by the safety envelope)
 verify_blocked_reason: "verb '<v>' not in allowlist"|metachar-denied|mutation-denied|null   # FR-4 (verb case is a templated message per spec FR-4.2 / §6.1.1(b); metachar/mutation are fixed slugs)
@@ -970,17 +897,12 @@ verify_timeout_hit: <bool>   # FR-4 (a verify invocation hit the timeout → exi
 verify_flaky_suspected: <bool>   # FR-4 (single retry flipped the result → Grounding Gap, not Regression)
 verify_timeout_default: <int>   # FR-4 (the timeout-wrap default in seconds, e.g. 120 — forensic provenance)
 verify_invocations_path: <abs-path>   # FR-4 (M-ARC1 per-invocation array → <output>/verify-logs/invocations.yaml)
-onboarding_succeeded: <bool>   # FR-2 (positive post-onboarding list_memories delta)
-onboarding_memories_count: <int>   # FR-2 (count of memories written by the bootstrap)
-onboarding_skipped_reason: context-excluded|memories-present|null   # FR-2
-onboarding_budget_exceeded: <bool>   # FR-2 / NFR-7 (bootstrap breached the T1 context budget → aborted)
 handoff_memory_written: <bool>   # FR-3 (Wave-6 handoff file persisted)
 handoff_payload_size_bytes: <int>   # FR-3 (size of the handoff blob)
 handoff_persist_failed: <bool>   # FR-3 (the handoff file Write failed → task-builder cold-starts)
-type_hierarchy_invoked: <bool>   # FR-RV3-MED.1 (step 4.5 ran; false when backend-gated off — no degrade)
-hierarchy_backend: jetbrains|lsp|none|lsp-disabled   # FR-RV3-MED.1
-hierarchy_nodes_examined: <int>   # FR-RV3-MED.1
-hierarchy_gaps_found: <int>   # FR-RV3-MED.1 (unregistered subtypes in the transitive family)
+type_hierarchy_invoked: false   # constant false since #323 (the type-hierarchy step was removed; kept so the audit-log shape stays stable)
+summarize_changes_invoked: false   # constant false since #323 (no change-summary corroboration exists)
+references_extended_info_used: false   # constant false since #323 (step 4 is a Grep + Read; no extended-info call)
 ```
 
 ### 9.3 Consumer Field Map
@@ -1066,7 +988,7 @@ Each category has detection signals, a gold-standard reference, and a default re
 - Commit message body (not subject) contains the rationale.
 - Task log contains "blocked by X, deviated to Y" entry.
 - The deviation does NOT contradict any acceptance criterion in the spec.
-- A `third_party_api_verified` flag (FR-4): the divergence resolves to a verified external-API constraint — `find_symbol(search_deps:true)` confirmed the upstream third-party behavior the work conforms to — supporting classification as Necessary (forced by a real upstream constraint) rather than Drift.
+- A divergence attributed to an upstream third-party API constraint (FR-4): Step 7 `search_deps` is skipped, so the constraint cannot be verified and `third_party_api_verified` stays `false`; the attribution is supportable only as `[INFERRED]` and counts toward Necessary only together with the inline-rationale signals above.
 
 **Gold-standard reference.** Inline documentation (comment, commit body, task log) + spec acceptance-criteria check (no contradictions).
 
@@ -1081,7 +1003,6 @@ Each category has detection signals, a gold-standard reference, and a default re
 - Diff hunk does NOT map to any tasklist item.
 - No commit-body rationale, no inline comment, no task-log entry explaining the change.
 - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
-- A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
 
 **Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
 
@@ -1093,8 +1014,8 @@ Each category has detection signals, a gold-standard reference, and a default re
 
 **Detection signals.**
 
-- Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by `get_diagnostics_for_file`).
-- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 verification triangle (`execute_shell_command`), not by the task log's self-report.** In UC-2, scoped verification runs by default; a non-zero exit that the exit-code taxonomy (below) classifies as Regression sets `verification_regressions_detected += 1` then `regression_present: true` (the existing §9.1 field, now verified-sourced). `--no-verify` is the opt-out, and `--rerun-tests` is retained as a **deprecated alias** for "verification on" (the default; emits a deprecation WARN). When verification is unavailable (`--no-verify` / tool context-excluded / `read_only: true`), this signal degrades to the task-log claim with a Grounding Gap entry — it never silently passes.
+- Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by the step-5 linter / type-checker run).
+- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 Bash verification run, not by the task log's self-report.** In UC-2, scoped verification runs by default; a non-zero exit that the exit-code taxonomy (below) classifies as Regression sets `verification_regressions_detected += 1` then `regression_present: true` (the existing §9.1 field, now verified-sourced). `--no-verify` is the opt-out, and `--rerun-tests` is retained as a **deprecated alias** for "verification on" (the default; emits a deprecation WARN). When verification is unavailable (`--no-verify` / Bash unavailable), this signal degrades to the task-log claim with a Grounding Gap entry — it never silently passes.
 - A documented invariant in the spec or in a `@invariant` comment is violated.
 - **A contracted side-effect never reaches its durable sink (fail-open reachability) — detected by the §6.1 step-5.6 contracted-sink gate, NOT by unit-test pass/fail.** This is a Regression **only** when a real-boot verifier observed the contracted sink absent (`reachability_unreachable += 1` → `verification_regressions_detected += 1` → `regression_present: true`). Static binding absence, a discarded emitter result, an unresolved sink identity, an oracle mismatch, or real-boot-unavailable are advisory recall signals → at most `unproven` (a §10.6 Grounding Gap) and only when a blocking annotated (`durable_sink:` / `@sink`) sink exists; they NEVER set `regression_present`. See the contracted-sink mapping below.
 
@@ -1122,7 +1043,7 @@ The §10.5 precedence (Regression > Drift > Necessary > Authorized) is respected
 
 **Skip / fallback are NOT deviations.** `--no-reachability`, `spec-and-tasklist-absent`, and `no-side-effect-requirements` are telemetry-only skips, and semantic-only classification without an explicit `durable_sink:` / `@sink` annotation is advisory telemetry only: none of these may create a Grounding Gap, increment `reachability_unproven`, set `needs_human_decision`, or change `status`.
 
-**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
+**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 Bash exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
 
 **Default remediation.** This is the only class that *unconditionally* triggers a Tier 3 remediation offer in Wave 6 when `--remediate` is set. Also unconditionally forces escalation to Tier 2 per §5.3 rule 3 (the regression is debated by ≥2 reviewers before the report ships).
 
@@ -1333,7 +1254,7 @@ Convergence rule: ship iteration N when N+1 vs N shows <5% absolute improvement 
 - `regex_present` / `regex_absent` — pattern presence/absence checks for seeded requirement mentions and false clean-pass detection.
 - `yaml_list_contains` — list-field membership check (e.g., `deviation-ledger.yaml deviation_class contains regression`).
 - `matrix_covers_items` — verify coverage matrix covers ≥ threshold of source-fixture items.
-- `checkpoint_logged` — verify `audit.log` includes a row for a named checkpoint (scripted Serena think-checkpoints, audit-emit per-step).
+- `checkpoint_logged` — verify `audit.log` includes a row for a named checkpoint (named audit-emit per-step checkpoints).
 - `deviation_class_matches` — given an annotated deviation in the eval fixture, verify the report's deviation register tags the same diff hunk with the same class.
 - `path_exists` / `path_does_not_exist` — Wave 7 promotion-assertion types added per §14.5.7; verify source/destination paths after a promotion mutation step (or that they DON'T exist when the mutation is supposed to have moved them).
 - `falsifier_skeleton_present` — verifies that `falsifier-suite/<case>.yaml` exists, parses, and either has `status: skeleton-pending-iteration-3-fixture` (emitting `skeleton_present: true`) OR `status: active` (meeting the canonical assertion). See §12.5.
@@ -1477,11 +1398,9 @@ Three concrete forces shape the pick:
 | Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |
 | Calibrator class collides with all reviewer classes | Continue with highest-cap calibrator not used by most reviewers; `calibrator_diversity: degraded` | None |
 | Auggie unavailable | Fall back to Grep/Glob in Wave 1A; mark `degraded: ["auggie"]` | Continue |
-| Serena unavailable | Fall back to Grep/Glob; skip `get_diagnostics_for_file`; mark `degraded: ["serena"]` | Continue |
-| Verification triangle unavailable (FR-4: `execute_shell_command` context-excluded OR `read_only: true` OR `--no-verify`) | Continue: emit `verification_ran: false` + `verification_skip_reason: tool-unavailable\|read-only-project\|--no-verify`; degrade §10.4 Regression detection to the task-log claim with a Grounding Gap entry; emit the loud `[reflect][WARN]` from the ops-integration WARN catalog | Continue |
+| Verification run unavailable (FR-4: Bash unavailable OR `--no-verify`) | Continue: emit `verification_ran: false` + `verification_skip_reason: tool-unavailable\|read-only-project\|--no-verify`; degrade §10.4 Regression detection to the task-log claim with a Grounding Gap entry; emit the loud `[reflect][WARN]` from the ops-integration WARN catalog | Continue |
 | Context7 unavailable in `--depth deep` UC-1 | Skip best-practice external lookup; mark `degraded: ["context7"]` | Continue |
 | `--no-mcp` set | Run with native tools only; WARN that quality is degraded | None |
-| `think_about_*` Serena tools unavailable | Skip the scripted checkpoint; emit `checkpoint_logged: skipped` row; not load-bearing so OK | Continue |
 | Token budget exceeded mid-Wave-3 | Hard abort at 1.25× estimate; preserve partial state for `--resume-from` | None |
 | User declines Tier 3 remediation offer | Return success; report stands | None |
 | `--depth deep` on under-specified input (≤10 words spec/diff) | STOP at Wave 0; ask user to add detail | None |
@@ -1491,7 +1410,7 @@ Three concrete forces shape the pick:
 | `--budget-remaining N` with N < 5 | STOP at Wave 0 step 0.9 with `"budget too low for reflect"`; emit `budget_forced_stop: true` | None |
 | `--budget-remaining N` triggers tier downgrade | Run T1 only; emit `budget_forced_tier_downgrade: true`, `forced_tier: 1`; WARN | Continue with T1 only |
 | Wave 1B.3 cross-task interaction scan exceeds top-30 symbol cap | Truncate scan at 30; emit `interaction_effects_truncated: true` in audit; symbols beyond cap not analyzed | Continue with truncated scan |
-| Wave 1B.3 `find_referencing_symbols` fails for one or more symbols | Skip just that symbol; record per-symbol skip in audit; do NOT abort entire scan | Continue |
+| Wave 1B.3 referrer Grep or Read fails for one or more symbols | Skip just that symbol; record per-symbol skip in audit; do NOT abort entire scan | Continue |
 | Wave 7 source path no longer exists (external mutation) | `promotion_action: failed`, `promotion_fail_reason: source_disappeared`; verdict unaffected | None |
 | Wave 7 destination collision, non-identical content (§14.5.5) | `promotion_action: rejected`; diff captured in promotion-log; source untouched | None |
 | Wave 7 destination collision, identical content (idempotent re-run) | `promotion_action: already-promoted`; remove source after second SHA verification | None |
@@ -1851,13 +1770,13 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Run T1 always; respect "quick first" contract.
 - Auto-escalate to T2 only when the rubric in §5 says so, or when `--tier 2`/`--depth deep` is set.
 - Fan out heterogeneous reviewers (different model classes) in Tier 2 to break representational-bias self-confirmation.
-- Use modern Serena symbolic chain (`get_symbols_overview` → `find_symbol` → `find_referencing_symbols`) for evidence; wire `think_about_*` as scripted nudges captured to audit, never as the gating signal.
+- Use the auggie + native Grep/Read symbol chain (definition Grep → Read → word-boundary reference Grep → Read) for evidence; the floor is permanent and never counts as degraded.
 - Run `evidence-validator` as a non-negotiable final gate before any report ships; treat a zero-drop pass as a flag, not a clean signal.
 - Classify every UC-2 deviation under the 4-category taxonomy in §10 with explicit detection signals and gold-standard references.
 - Route evidence-insufficient findings to `grounding-gaps.yaml` (§10.6), NOT to a 5th deviation category.
 - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
 - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
-- Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
+- Fail-open on missing MCPs (auggie, context7, tavily) — fall back to native tools and mark degraded.
 - Tavily evidence searches via `mcp__tavily__tavily_search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
 - Persist deviation patterns to the tracked `docs/memory/reflect/deviation-patterns-{slug}.md` file with 90-day expiry.
 - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
@@ -1880,7 +1799,6 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Treat the executor's commit message as the gold-standard reference for "what was expected" — that is reviewer-side narrative, not spec.
 - Skip the heterogeneous-model requirement at Tier 2 — 3× the same model class defeats the purpose of escalation.
 - Confirm its own conclusions: a zero-drop evidence-validator pass on a non-trivial report is an audit flag, not a green light.
-- Use the `think_about_*` triad as load-bearing — they are nudges, not evidence.
 - Operate against `.claude/{skills,commands,agents}/*` paths as output sinks (CLAUDE.md ABSOLUTE RULE).
 - **Auto-promote a `status: partial` or `status: failed` run** without `--promote-anyway` (and `--promote-anyway` has no effect on `status: failed`). Drift, Regression, citation drops, or grounding gaps hard-block promotion.
 - **Promote without verifying frontmatter agreement.** Tasklist frontmatter `status: done` is a claim that must agree with reflect's independent verification.
@@ -1934,7 +1852,6 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §4 per-step audit emit | `yaml_list_contains` | `audit.log step rows` |
 | §5.3 tier rubric rule fired | `yaml_field` | `tier_decision.yaml fired_rule_number` |
 | §5.4 composite_score recording | `yaml_field` | `tier_decision.yaml composite_score AND per_signal_breakdown` |
-| §6.4 Serena scripted checkpoints | `checkpoint_logged` | `audit.log checkpoint=<name>` |
 | §10 deviation taxonomy = 4 categories | `yaml_list_contains` | `deviation-ledger.yaml deviation_class ∈ {authorized, necessary, drift, regression}` |
 | §10.6 grounding-gaps parallel artifact | `file_exists` + `yaml_field` | `grounding-gaps.yaml hunk_ref AND needs_human_decision` |
 | §11.0 sufficiency-conditional gates | (eval composition) | dimensions #1 / #4 / #5 sub-criteria |
