@@ -4,7 +4,32 @@ This file is the Phase 3 input. Phase 1 of issue #323 removed Serena from the pr
 
 Rule for Phase 3: a codegraph tier goes in front of the `floor` rows only. `deleted` rows get no codegraph slot unless Phase 3 decides to re-add the capability on purpose.
 
-Rows are appended per task. Task 13 (reflect, `reuse-auditor`, reflect command copies) is first; later tasks append below the Task 13 block.
+Rows are appended per task. The memory and decorative-mention steps of Tasks 10-12 come first, then Task 13 (reflect, `reuse-auditor`, reflect command copies); later tasks append below the Task 13 block.
+
+## Tasks 10 to 12: decorative mentions and memory steps (no codegraph slot)
+
+Tasks 10, 11 and 12 touched no symbol, reference or diagnostics step; they dropped decorative Serena mentions and moved Serena memory to plain files. The rows are here so the ledger covers every step touched in Tasks 10-15. Every action below is `deleted` or `floor`; none of them gets a codegraph tier in Phase 3 (codegraph takes no memory job). The floor is the `.superclaude/memory/<key>.md` store (rules M1-M4 of the Phase 1 spec).
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| 48 command, skill and agent files (every `mcp-servers:` frontmatter in `src/superclaude`, `plugins/superclaude`, `commands`, `agents`) | frontmatter `mcp-servers:` list | the `serena` entry | deleted | none | none |
+| core/CLAUDE.md | MCP server table; freshness rule S2 | the `serena` row; `replace_content`, `replace_symbol_body`, `insert_*_symbol` | deleted | S2 now says Edit / Write only | none |
+| core/RESEARCH_CONFIG.md and plugins/superclaude/core/RESEARCH_CONFIG.md | `memory` tool entry; tool-fallback table | `serena` as memory backend | deleted | none | none |
+| skills/sc-adversarial-protocol/SKILL.md | MCP Integration table; `mcp_integration` YAML; framework registration lines | `serena` persistence row and block | deleted | none | none |
+| skills/sc-post-release-protocol/SKILL.md | telemetry `mcps_available` enum | `serena` value | deleted | none | none |
+| skills/sc-roadmap-protocol/SKILL.md | Post-Wave completion step 2; MCP table; circuit-breaker bullet; save points; resume protocol; graceful degradation; Boundaries | Serena session memory | floor | `<output_dir>/.session-memory.md` is the only persistence path (rule M6) | none |
+| commands/research.md (src, plugins, commands/sc-research.md); commands/sc-help.md; commands/sc-task.md; commands/sc-workflow.md | MCP bullets, help rows, examples | Serena memory and persistence wording | deleted | none | none |
+| commands/save.md, load.md, pm.md (src, plugins, commands/sc-*.md) | Memory Store / MCP Integration; tool coordination; flow examples | `write_memory`, `read_memory`, `list_memories`, `edit_memory`; `think_about_*`, `summarize_changes`, `activate_project` | floor / deleted | Write, Read, Glob, Edit on `<project>/.superclaude/memory/<key>.md`; `.superclaude/.gitignore` containing `*` created on first write; `/sc:load` keeps one legacy read of `.serena/memories/<key>.md` for one release | none |
+| agents/pm-agent.md (src, plugins, agents/sc-pm-agent.md) | session start, checkpoints, mistake log, monthly maintenance, self-evaluation | the same memory tools; `think_about_*` | floor / deleted | memory files as above; plan key unified on `current_plan.md` (decision 5); no primitive deletes memory | none |
+| modes/MODE_Task_Management.md (src, plugins) | memory schema, phase / task / todo keys, checkpoints | memory tools; `think_about_*` | floor / deleted | memory files as above | none |
+| skills/sc-pm-protocol/SKILL.md | lifecycle steps | memory tools | floor | memory files as above | none |
+| commands/reflect.md (src, plugins, commands/sc-reflect.md) and skills/sc-reflect-protocol/SKILL.md section 6.3 | calibration hydrate, last-pass, handoff persistence | `read_memory`, `write_memory`, `delete_memory`, `rename_memory`, `edit_memory`, `prepare_for_new_conversation` | floor | calibration in tracked `docs/memory/reflect/deviation-patterns-<slug>.md`; last-pass in `.superclaude/memory/reflect/`; handoff in `.superclaude/memory/reflect/handoff-<slug>-<timestamp>.md` | telemetry `memory_retention_skipped_readonly`, `memory_retention_unbounded`, `handoff_persist_method` removed |
+| skills/sc-reflect-protocol/refs/input-resolution.md | Auggie plus Serena availability bullets | availability probe | deleted | none | none |
+| skills/sc-reflect-protocol/refs/remediation-handoff.md | handoff location | memory write | floor | file under `.superclaude/memory/reflect/` | none |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Hooks 0a-0c and 6a-6d (ledger, terminology map, pattern log, adversarial patterns); Pre-Phase 0 project activation | `read_memory`, `write_memory`, `activate_project` | floor / deleted | `.superclaude/memory/validate-roadmap/<key>-{project-slug}.md`, still fail-open | none |
+| skills/sc-task-protocol/SKILL.md | STRICT tier prerequisites, memory read, completion write | `activate_project`, memory tools, `think_about_*` | floor / deleted | Glob and Read of `.superclaude/memory/**/*.md`; completion writes `.superclaude/memory/task/session-<timestamp>.md` | none |
+| skills/sc-crash-recovery/SKILL.md, refs/investigators.md, refs/report-template.md, scripts/bootstrap_scan.sh | investigator #3; report section; JSON fields | Serena memory directory | floor | investigator `project-memory` reads `.superclaude/memory`; JSON fields renamed `has_memory`, `memory_count` | JSON fields of `bootstrap_scan.sh` |
+| core/HOW-WE-WORK.md and its byte copy plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md | routing-guide wording for session memory | Serena memory | floor | wording points at `.superclaude/memory/` files | none |
 
 ## Task 13: reflect, reflect-reviewer, reuse-auditor
 
