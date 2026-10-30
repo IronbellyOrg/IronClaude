@@ -18,11 +18,16 @@ uv run python script.py          # execute scripts
 | Server         | Primary Use                                  | Flag (advisory) |
 |----------------|----------------------------------------------|-----------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
+| codegraph      | Code graph: symbols, callers, impact, file outlines | (auto) |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
 | playwright     | Browser automation, E2E testing              | --play     |
 
 The Flag column is advisory: these are hints Claude may honour, not options every command accepts. A command's own flags are in its file under `~/.claude/commands/sc/`; check there before passing one.
+
+<!-- SUPERCLAUDE_CODEGRAPH_BEGIN -->
+**codegraph.** For code-structure questions use the codegraph MCP tools: `codegraph_search` (find a symbol by name), `codegraph_node` (one symbol, or a file's outline), `codegraph_callers` and `codegraph_callees`, `codegraph_impact` (what a change reaches) and `codegraph_files`; `codegraph_status` says whether this checkout is indexed. If a codegraph tool says "No CodeGraph project is loaded for this session" or that the index belongs to a different working tree, use Read/Grep for now and run `codegraph init --yes` in the directory printed by `git rev-parse --show-toplevel` (safe to repeat; a session-start hook usually does this already). Run codegraph as the path in `~/.codegraph/.superclaude-bin` when that file exists, else as `codegraph`. Never run `codegraph status`, `codegraph index` or `codegraph sync` while an init or index may be running (`pgrep -f 'codegraph\.js (init|index)'` prints a line): they can empty the index. An interrupted index is repaired by the codegraph MCP server on its next connection. In a checkout indexed for the first time, answers in the first minute can be missing or incomplete; ask again after the init finishes. codegraph tools are read-only; edit with Edit/Write.
+<!-- SUPERCLAUDE_CODEGRAPH_END -->
 
 ## Core Rules
 
