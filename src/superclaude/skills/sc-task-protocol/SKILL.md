@@ -99,7 +99,7 @@ Execute task according to tier requirements:
 **STANDARD Execution**:
 
 1. Load context via codebase-retrieval
-2. Search downstream impacts (find_referencing_symbols OR grep)
+2. Search downstream impacts (Grep with a word-boundary pattern for the changed symbol, then Read the call sites)
 3. Make changes
 4. Run affected tests OR document manual verification
 5. Verify basic functionality
@@ -305,7 +305,7 @@ After completion, collect implicit feedback:
 
 1. Edit/MultiEdit/Write: Make changes
 2. Grep/Glob: Find references
-3. find_referencing_symbols: Trace dependencies
+3. Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
 
 **Verification Phase**:
 

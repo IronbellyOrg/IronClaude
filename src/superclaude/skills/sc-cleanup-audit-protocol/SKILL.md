@@ -80,7 +80,7 @@ Key behaviors:
 ## MCP Integration
 
 - **Native reasoning**: Cross-cutting synthesis during Step 5 report consolidation; ultrathink analysis for systemic pattern detection across all passes
-- **Serena MCP**: Import chain tracing during Step 1 discovery phase; symbol-level understanding for verifying dynamic loading patterns
+- **Native Grep/Read floor**: Import chain tracing during Step 1 discovery phase (Grep with a word-boundary pattern for the module or symbol, then Read the call sites); Grep for the definition (`def name|class name|function name`) then Read the range when verifying dynamic loading patterns
 - **Context7 MCP**: Framework-specific configuration validation; verifying library usage patterns against official documentation
 - **Persona Coordination**: Analyzer leads all passes; Architect activated for infrastructure batches; DevOps for Docker/CI/deploy; QA for test file batches; Refactorer for duplication findings
 - **MCP Constraint**: MCP tools are unavailable to background subagents — all MCP-dependent work (ultrathink synthesis, import chain tracing) executes in the orchestrator only

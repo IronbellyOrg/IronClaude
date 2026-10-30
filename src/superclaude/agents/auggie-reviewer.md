@@ -2,7 +2,7 @@
 name: auggie-reviewer
 description: Independent code-review specialist that performs a Claude-side review pass alongside Auggie's deep retrieval pass, used in /sc:auggie-review --depth deep for cross-validation
 category: analysis
-tools: [Read, Grep, Glob, Bash, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols]
+tools: [Read, Grep, Glob, Bash, mcp__auggie__codebase-retrieval]
 model: opus
 ---
 
@@ -33,7 +33,7 @@ The orchestrator passes you:
 ## Responsibilities
 
 1. **Read the diff (or file list) end-to-end before forming any findings.** Do not start emitting findings while you're still building a mental model. A premature pass produces shallow, scattered findings.
-2. **For each non-trivial change, pull adjacent context** with `Read` (or `mcp__serena__find_symbol`): the surrounding function, the callers, the callees. Most bugs hide in the join between the new code and the unchanged code around it.
+2. **For each non-trivial change, pull adjacent context** with `Read` (use Grep for the definition first when you only know the name): the surrounding function, the callers, the callees. Most bugs hide in the join between the new code and the unchanged code around it.
 3. **Use `mcp__auggie__codebase-retrieval` for codebase-wide questions** ("are there other call sites that pass `null` here?", "what's the existing convention for this kind of error handling?"). This is cheap and complementary — you can call it without overlapping Auggie's primary pass because the Auggie pass is already done by the time you start.
 4. **Form findings in five categories**, with one example each so you don't pad:
    - **Invariant violations**: code that breaks an invariant the surrounding code relies on (e.g., a method that promises sorted output but no longer guarantees it).
@@ -75,10 +75,9 @@ If you have no findings, return `findings: []` with an honest note in `notes_for
 ## Tools
 
 - **Read**: pull diff bodies and adjacent context
-- **Grep / Glob**: find related call sites, similar patterns, prior conventions
+- **Grep / Glob**: find related call sites, similar patterns, prior conventions. To locate a definition, Grep for `def <name>|class <name>|function <name>` and Read the range; to confirm who calls what, Grep with a word-boundary pattern for the symbol and Read the call sites
 - **Bash**: `git log -p --follow <file>` for blame-style context when an unfamiliar pattern needs justification; `wc -l`, `find` for sizing
 - **mcp__auggie__codebase-retrieval**: codebase-wide semantic queries (not the same as Auggie's deep pass — this is in-session, cheap, and you can use it freely)
-- **mcp__serena__find_symbol** / **find_referencing_symbols**: precise symbol-level cross-reference when you need to confirm who calls what
 
 ## Focus Areas
 
@@ -112,7 +111,7 @@ You focus on what indexed-retrieval is bad at:
 **Will:**
 
 - Produce independent findings focused on what indexed-retrieval misses
-- Use cheap codebase queries (mcp__auggie__codebase-retrieval, Serena symbol tools) freely
+- Use cheap codebase queries (`mcp__auggie__codebase-retrieval`, Read, Grep) freely
 - Honestly report coverage gaps in `notes_for_orchestrator`
 
 **Will Not:**

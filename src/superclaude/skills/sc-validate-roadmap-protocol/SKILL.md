@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -19,10 +19,10 @@ version: 2.0.0
 
 **This skill is an inference-only deep-validation protocol.** It is NOT a behavioural mirror of the `superclaude roadmap validate` CLI command, and it is not invoked by that CLI. Treat the two surfaces as **complementary, not equivalent**:
 
-- **Use this skill** for thorough investigative validation — when a human reviewer wants a multi-phase coverage matrix, gap registry, adversarial review, and remediation plan grounded in Auggie/Serena enrichment. This is the right tool when the goal is to *understand* roadmap quality and decide whether the roadmap is ready for tasklist generation.
+- **Use this skill** for thorough investigative validation — when a human reviewer wants a multi-phase coverage matrix, gap registry, adversarial review, and remediation plan grounded in Auggie enrichment. This is the right tool when the goal is to *understand* roadmap quality and decide whether the roadmap is ready for tasklist generation.
 - **Use the CLI** (`superclaude roadmap validate`) for **automated CI/CD gating**. The CLI runs a simpler **reflect + adversarial-merge** flow: it builds reflect/merge prompts (`src/superclaude/cli/roadmap/validate_prompts.py:7,68`), executes the pipeline, and parses report counts to emit a pass/fail verdict against a fixed set of validation dimensions. It is fast, deterministic, and non-interactive — appropriate for pre-merge or pre-tasklist hooks, not for human investigation.
 
-The deep protocol below (phases, CC-agents, GO / CONDITIONAL_GO / NO_GO verdict matrix, Auggie/Serena enrichment) is preserved intentionally: it carries inference value that the single-pass CLI flow does not attempt to reproduce. The CLI does **not** delegate into this skill, and this skill does **not** wrap the CLI; they are two separate validation surfaces operating at different levels of rigour and automation.
+The deep protocol below (phases, CC-agents, GO / CONDITIONAL_GO / NO_GO verdict matrix, Auggie enrichment) is preserved intentionally: it carries inference value that the single-pass CLI flow does not attempt to reproduce. The CLI does **not** delegate into this skill, and this skill does **not** wrap the CLI; they are two separate validation surfaces operating at different levels of rigour and automation.
 
 ### CLI validation dimensions (crosswalk)
 
@@ -44,7 +44,7 @@ The CLI's reflect prompt validates the roadmap against **7 baseline dimensions**
 
 | Skill phase | Closest CLI dimensions | Notes |
 |---|---|---|
-| Phase 1 — Extraction & taxonomy | Coverage (#6, input-aware) | Skill extracts requirements via Auggie/Serena enrichment; CLI relies on caller-supplied input files. |
+| Phase 1 — Extraction & taxonomy | Coverage (#6, input-aware) | Skill extracts requirements via Auggie enrichment; CLI relies on caller-supplied input files. |
 | Phase 2 — Coverage matrix | Traceability (#3), Coverage (#6) | Skill builds an explicit matrix; CLI emits findings against the dimensions but does not persist a matrix artifact. |
 | Phase 3 — Gap registry | Traceability (#3), Coverage (#6), Proportionality (#7) | Skill itemises and severity-sorts gaps; CLI returns BLOCKING/WARNING findings with `file:line` citations. |
 | Phase 4 — Adversarial review | (none direct) | Skill runs CC1–CC4 adversarial agents; CLI runs a single-shot `build_merge_prompt` adversarial merge pass. |
@@ -125,9 +125,6 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
 | Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
 | Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
-| Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Step 0.5) — fail-open |
-| Find symbol | `mcp__serena__find_symbol` | Symbol lookup for context supplement (Step 0.5, deep only) — fail-open |
-| Get symbols overview | `mcp__serena__get_symbols_overview` | File-level symbol map (Step 0.5, deep only) — fail-open |
 
 **Rule**: All verbs in phase instructions MUST resolve to an entry in this glossary. MCP tools marked "fail-open" are optional — their unavailability never blocks validation.
 
@@ -316,7 +313,7 @@ Write artifact: `{OUTPUT_DIR}/00-domain-taxonomy.md`
 
 #### Step 0.5 — Symbol Context Supplement (`--depth deep` only)
 
-**Requires**: `mcp__serena__find_symbol`, `mcp__serena__get_symbols_overview` (fail-open — skip entirely if Serena is unavailable or depth is not `deep`).
+**Requires**: `Grep` and `Read` only (native floor; always available).
 
 **Gate**: Skip this step unless `--depth deep` is set.
 
@@ -325,11 +322,10 @@ At deep depth, produce a supplemental artifact documenting the structural contex
 **Procedure**:
 
 1. **Identify code-referenced requirements**: From the requirement universe, collect requirements whose text contains backtick-wrapped identifiers (class names, function names, module paths).
-2. **Activate Serena project**: Call `mcp__serena__activate_project` (if not already activated in Pre-Phase 0).
-3. **Look up symbols** (hard cap: **30 symbol lookups**):
-   - For each code identifier, call `mcp__serena__find_symbol` with `include_body=False` to locate the symbol's file, type (class/function/method), and parent hierarchy.
-   - For files with multiple related symbols, call `mcp__serena__get_symbols_overview` once per file to capture the structural context.
-4. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
+2. **Look up symbols** (hard cap: **30 symbol lookups**):
+   - For each code identifier, call `Grep` for its definition (`def <name>|class <name>|function <name>`) to locate the symbol's file and type (class/function/method); `Read` the matched range only when the parent hierarchy is needed. A Grep with no match records the symbol as `NOT_FOUND`.
+   - For files with multiple related symbols, `Read` the file once to capture the structural context.
+3. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
 
 ```markdown
 # Symbol Context Supplement (Step 0.5, deep only)
@@ -345,7 +341,7 @@ At deep depth, produce a supplemental artifact documenting the structural contex
 Symbols found: {N} / {N} attempted
 ```
 
-5. **Failure handling**: If Serena is unavailable or no symbols are found, skip entirely — write no artifact. This is non-blocking.
+4. **Failure handling**: Grep and Read are always available, so the artifact is always written at `--depth deep`. Symbols with no definition match are listed as `NOT_FOUND`; when no code-referenced requirement exists, write the artifact with `Symbols found: 0 / 0 attempted`. A failed Grep or Read for one symbol records that row as `NOT_FOUND` and continues. This is non-blocking.
 
 **Constraints**:
 

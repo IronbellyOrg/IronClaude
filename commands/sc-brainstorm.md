@@ -41,7 +41,6 @@ Key behaviors:
 - **Magic MCP**: UI/UX feasibility and design system integration analysis
 - **Playwright MCP**: User experience validation and interaction pattern testing
 - **Morphllm MCP**: Large-scale content analysis and pattern-based transformation
-- **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
 - **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
@@ -75,14 +74,14 @@ Key behaviors:
 ```
 /sc:sc:brainstorm "enterprise data analytics platform" --strategy enterprise --validate
 # Comprehensive validation with security, devops, and architect personas
-# Serena MCP for cross-session persistence and enterprise requirements tracking
+# Requirements written to files for enterprise requirements tracking
 ```
 
 ### Cross-Session Refinement
 ```
 /sc:sc:brainstorm "mobile app monetization strategy" --depth normal
-# Serena MCP manages cross-session context and iterative refinement
-# Progressive dialogue enhancement with memory-driven insights
+# Prior requirements files carry cross-session context into iterative refinement
+# Progressive dialogue enhancement with insights from earlier sessions
 ```
 
 ## Boundaries

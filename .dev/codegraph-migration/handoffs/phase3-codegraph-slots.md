@@ -133,3 +133,67 @@ Rows are appended per task. Task 13 (reflect, `reuse-auditor`, reflect command c
 | tests/troubleshoot/test_diagnostic_worker_contract.py | `TOOLS` set and the `mcp__*` mutation list in `test_profile_guard_rejects_capability_mutants` | roster shrinks to Read, Grep, Glob, auggie; the old `mcp__serena__replace_content` mutant becomes an extra-auggie-tool mutant |
 
 No twins carry Serena wording: `plugins/superclaude/commands/troubleshoot.md` and `commands/sc-troubleshoot.md` are different (older, generic) texts with no Serena mention; there is no plugin or root copy of the skill or the `troubleshoot-analyst` agent.
+
+## Task 15: validate-roadmap, task, tasklist, auggie-review, brainstorm, cleanup-audit, modes, recommend, core refresh row
+
+### `src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md` and `src/superclaude/commands/validate-roadmap.md`
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| commands/validate-roadmap.md | Frontmatter `allowed-tools` | `read_memory`, `write_memory`, `find_symbol`, `get_symbols_overview`, `search_for_pattern`, `activate_project` | deleted | roster keeps Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill and auggie | none |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Frontmatter `allowed-tools` | `find_symbol`, `get_symbols_overview`, `search_for_pattern`, `activate_project` | deleted | roster keeps Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill and auggie | none |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Section 4 Execution Vocabulary (three Serena tool rows) | `activate_project`, `find_symbol`, `get_symbols_overview` | deleted | Grep and Read rows already in the table | none |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Step 0.5 (Symbol Context Supplement, `--depth deep` only), Requires line and procedure steps 2-3 | `activate_project`, `find_symbol` (`include_body=False`), `get_symbols_overview` | floor | Grep for the definition (`def <name>\|class <name>\|function <name>`) then Read the range; one Read per file for the structural context; same 30-lookup hard cap | artifact `00-symbol-context-supplement.md` (INFORMATIONAL ONLY, same table columns) |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Step 0.5 failure handling | "skip entirely if Serena is unavailable, write no artifact" | floor | artifact is always written at `--depth deep`; unmatched symbols are `NOT_FOUND` rows; never skipped | `Symbols found: N / N attempted` line |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Relationship to CLI, crosswalk table, "Auggie/Serena enrichment" wording | none (prose) | deleted (wording) | "Auggie enrichment" | none |
+
+### `src/superclaude/skills/sc-task-protocol/SKILL.md`, `src/superclaude/skills/sc-tasklist-protocol/SKILL.md`
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| skills/sc-task-protocol/SKILL.md | STANDARD Execution step 2 (downstream impacts) | `find_referencing_symbols` | floor | Grep with a word-boundary pattern for the changed symbol, then Read the call sites | none |
+| skills/sc-task-protocol/SKILL.md | Tool Coordination, Execution Phase item 3 (trace dependencies) | `find_referencing_symbols` | floor | same Grep then Read | none |
+| skills/sc-task-protocol/SKILL.md | MCP Integration, STRICT prerequisites | Serena as required server | deleted (already native: "STRICT: None required") | Read, Grep, Glob, Bash, codebase-retrieval | none |
+| skills/sc-tasklist-protocol/SKILL.md | Section 5.5 MCP Tool Requirements table, STRICT row | Serena as required tool | deleted | row now `STRICT \| None \| Context7 \| Yes` | tier tool-requirement table |
+
+### Auggie review
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| agents/auggie-reviewer.md | Frontmatter `tools:` roster | `find_symbol`, `find_referencing_symbols` | deleted | roster keeps Read, Grep, Glob, Bash, auggie; nothing added | none |
+| agents/auggie-reviewer.md | Responsibilities item 2 (adjacent context) | `find_symbol` | floor | Read, with Grep for the definition when only the name is known | none |
+| agents/auggie-reviewer.md | Tools list (Serena bullet) and Boundaries, Will | `find_symbol`, `find_referencing_symbols` | floor | Grep bullet gains the definition and word-boundary reference floor, Serena bullet deleted | none |
+| commands/auggie-review.md | MCP Integration (Serena bullet) | symbol-level cross-reference of Auggie citations | floor | native Read / Grep floor bullet | none |
+
+### Brainstorm
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| skills/sc-brainstorm-protocol/refs/handoff-routing.md | Codebase enrichment, former Tier 2 (fallback_1) | `get_symbols_overview`, `find_symbol` | deleted, tiers renumbered | native Glob/Grep is now Tier 2 (`fallback_1`); former Tier 3 and `fallback_2` are gone | `quality_tier` enum is now `primary \| fallback_1 \| skipped` |
+| skills/sc-brainstorm-protocol/SKILL.md | Output artifacts item 3, Quality-tier tracking, state schema `quality_tier`, Error Handling Matrix codebase row | `get_symbols_overview` | deleted / renumbered | same renumbering | `quality_tier`, `enrichment_used` |
+| commands/sc-brainstorm.md | MCP Integration bullet, two Examples comments | cross-session persistence wording | deleted (wording) | none | none |
+
+### Cleanup audit, modes, recommend, core rules
+
+| File | Step heading / anchor | Former Serena tool | Action | Floor used | Contract fields touched |
+|---|---|---|---|---|---|
+| skills/sc-cleanup-audit-protocol/SKILL.md | MCP Integration (Serena bullet, import chain tracing) | symbol lookup / references | floor | Grep with a word-boundary pattern then Read the call sites; Grep for the definition then Read the range. The `.serena/` ignore in the exclusion list stays (allowlisted) | none |
+| modes/MODE_Orchestration.md and plugins/superclaude/modes/MODE_Orchestration.md | Tool Selection Matrix, "Symbol operations" row | symbol operations | deleted | row removed (Phase 3 may add a codegraph row) | none |
+| skills/sc-recommend/refs/delegation-vs-native-heuristics.md and plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md | Specialized capability table, "Repository-wide semantic ranking" row | "auggie/serena" | floor (wording) | "auggie beats brute Grep" | none |
+| core/CLAUDE.md | Refresh-tool selection table, "Symbolic queries" row | `find_symbol`, `find_referencing_symbols` | floor | Grep for the definition and references, then Read (Phase 3 adds codegraph above this) | none |
+
+### Coverage index: every load-bearing file of source section 4.2
+
+Phase 3 reads the per-task blocks above; this index confirms none is missing. Every path is relative to `src/superclaude/`.
+
+| File | Ledger block | Role |
+|---|---|---|
+| commands/troubleshoot.md | Task 14, Agent and command | SYM |
+| skills/sc-reflect-protocol/SKILL.md | Task 13 | SYM, REF, DIAG, ALLOW, CONTRACT |
+| skills/sc-troubleshoot-protocol/SKILL.md | Task 14 | SYM, ALLOW |
+| skills/sc-validate-roadmap-protocol/SKILL.md | Task 15, validate-roadmap | SYM, ALLOW |
+| commands/validate-roadmap.md | Task 15, validate-roadmap | ALLOW |
+| agents/reuse-auditor.md | Task 13, Agents | REF, G5 roster |
+| agents/reflect-reviewer.md | Task 13, Agents | G5 roster |
+| agents/troubleshoot-analyst.md | Task 14, Agent and command | G5 roster |
+| agents/auggie-reviewer.md | Task 15, Auggie review | G5 roster |
