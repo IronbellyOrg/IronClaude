@@ -232,6 +232,17 @@ def test_a3_newest_codex_marker_wins(findings336):
     assert classify_codex(findings336, CONTRACT) == "polling"  # newest is running
 
 
+def test_a6_codex_root_after_marker_and_review_submission_is_counted(findings336):
+    """A6 (PR 337): roots of the head review count even when posted after it."""
+    summary(findings336)["updated_at"] = "2026-10-31T15:57:20Z"
+    codex_review(findings336)["submitted_at"] = "2026-10-31T15:57:25Z"  # roots :29
+    assert classify_codex(findings336, CONTRACT) == "findings"
+    assert len(codex_finding_comments(findings336, CONTRACT)) == 3
+    # A review that is not on the head does not vouch for its roots.
+    codex_review(findings336)["commit_id"] = "1" * 40
+    assert classify_codex(findings336, CONTRACT) == "polling"
+
+
 def test_a3_older_malformed_marker_does_not_block_a_newer_valid_one(findings336):
     """PR 337 review: a malformed older marker is superseded by a newer valid one."""
     older = copy.deepcopy(summary(findings336))

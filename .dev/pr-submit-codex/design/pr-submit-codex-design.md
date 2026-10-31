@@ -464,3 +464,16 @@ earlier text they contradict. Each amendment is pinned by at least one test in `
   on the pushed SHA, and records `reviewer_incomplete{phase: "rereview"}`; S5b fallback
   re-entry includes the merged Codex findings; the nine events of section 13 carry `reviewer`;
   and resume reads `rebuild_state()["absent_reviewers"]`.
+- **A6 (PR 337 live run, 2026-10-31).** On PR 337 Augment's review was submitted at 21:22:29Z and
+  its only root comment was stamped 21:22:30Z, so the rule "a root created after completion means a
+  newer review is still running" polled until `terminal_timeout` (622 s). For root selection the
+  completion time of either reviewer is therefore the later of (a) the completion time above
+  (Augment: the completed review's `submitted_at`; Codex: A1) and (b) the `createdAt` of the
+  reviewer's own roots whose `pullRequestReview` is a completing formal review (same review id, every
+  commit equal to that review's commit). For Augment the completing review is the selected latest
+  review; for Codex it is each Codex formal review on the expected head. A newer root from any other
+  review, or from an older head, still polls. The fix is in `_thread_findings`, shared by both
+  reviewers; the attribution rules (submission strictly newer than the watermark, no later than
+  `observed_at`) are unchanged. Overrides the "created no later than completion" wording in
+  section 7. Pinned by `tests/pr_submit/test_cosmos_review.py::test_a6_*` (verbatim PR 337 snapshot
+  `fixtures/cosmos-pr337.json`) and `test_codex_reviews.py::test_a6_*`.

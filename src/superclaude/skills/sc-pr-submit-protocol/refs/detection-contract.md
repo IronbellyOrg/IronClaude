@@ -65,6 +65,13 @@ survive a new baseline and the watermark. Their nullable current `line`, `origin
 `comment_id` (root database ID), `thread_id`, `review_id` and `is_outdated` pass through normalization.
 Null current line is not evidence of resolution or a grounded defect.
 
+A root must be created no later than completion. For root selection, completion is the later of the
+completed review's submission time and the `createdAt` of the reviewer's own roots whose
+`pullRequestReview` is that review (same review id, same commit): GitHub can stamp a review's comments
+a second after the review itself (PR 337: review 21:22:29Z, root 21:22:30Z), and those roots are part
+of the review, not a sign of a newer one. A newer root from any other review, or from an older head,
+still keeps the gate `polling`. The same rule applies to Codex roots under its formal head reviews.
+
 `unresolved_count` is a conservative **lower bound** on required usable detail, not equality with all
 historical unresolved threads: positive count with insufficient roots stays polling; zero cannot erase
 independently observed old open roots. Classification and `actionable_finding_comments` share one
@@ -95,7 +102,8 @@ time, incomplete snapshot) is `polling`, never clean. `security_review` is ignor
 
 **Findings** (`codex_finding_comments`): unresolved review threads whose root is Codex-authored, chosen
 by the same root rules as Augment (root only, unique ids, `pullRequestReview` with a commit, nullable
-current `line`, `original_line` hint, created no later than completion). Resolved threads are
+current `line`, `original_line` hint, created no later than completion, where the creation of the
+roots of a Codex formal review on the expected head extends completion). Resolved threads are
 excluded; older unresolved Codex roots stay visible. Each selected root gets `reviewer: "codex"`,
 `codex_priority` and the mapped `severity_hint`. Gate state: no completion or an invalid selection →
 `polling`; unresolved roots → `findings`; none and `has_any_findings` false → `clean`; none,

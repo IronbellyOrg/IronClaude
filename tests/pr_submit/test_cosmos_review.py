@@ -474,6 +474,53 @@ def test_contextual_legacy_observation_rejects_future_or_invalid_evidence():
     assert_polling(payload, watermark=WATERMARK)
 
 
+@pytest.fixture
+def pr337(load_fixture):
+    """Verbatim live poll snapshot of PR 337 (IronbellyOrg/IronClaude, 2026-10-31)."""
+    return load_fixture("cosmos-pr337.json")
+
+
+def _pr337_root(snapshot):
+    return snapshot["threads"][0]["comments"]["nodes"][0]
+
+
+def test_a6_pr337_root_one_second_after_its_review_is_a_finding(pr337):
+    """Design 18 A6: a root of the completed review posted after its submission counts."""
+    assert pr337["reviews"][-1]["submitted_at"] == "2026-10-31T21:22:29Z"
+    assert _pr337_root(pr337)["createdAt"] == "2026-10-31T21:22:30Z"
+    assert classify(pr337, CONTRACT) == "findings"
+    selected = actionable_finding_comments(pr337, CONTRACT)
+    assert [root["comment_id"] for root in selected] == [4433345498]
+    assert selected[0]["review_id"] == 5724978140
+    watermark = "2026-10-31T21:20:00Z"  # an attributed re-review on the same head
+    assert classify(pr337, CONTRACT, watermark=watermark) == "findings"
+
+
+@pytest.mark.parametrize(
+    "origin",
+    ["older head review", "other review on the head", "completed id, old head"],
+)
+def test_a6_newer_root_outside_the_completed_review_still_polls(pr337, origin):
+    root = _pr337_root(pr337)
+    head = pr337["head_sha"]
+    if origin == "older head review":
+        older = copy.deepcopy(pr337["reviews"][-1])
+        older.update(id=5724900000, node_id="PRR_older", commit_id=OLD)
+        older["submitted_at"] = "2026-10-31T21:00:00Z"
+        pr337["reviews"].insert(0, older)
+        ref = {"id": "PRR_older", "databaseId": 5724900000, "commit": {"oid": OLD}}
+        root["pullRequestReview"] = ref
+    elif origin == "other review on the head":
+        ref = {"id": "PRR_other", "databaseId": 5724999999, "commit": {"oid": head}}
+        root["pullRequestReview"] = ref
+    else:
+        root["pullRequestReview"]["commit"]["oid"] = OLD
+    assert_polling(pr337)
+    # The same root created no later than the review submission is selected.
+    root["createdAt"] = "2026-10-31T21:22:29Z"
+    assert classify(pr337, CONTRACT) == "findings"
+
+
 def test_poll_success_missing_additive_flags_is_legacy_only(snapshot):
     legacy = {"head_sha": HEAD, "reviews": [], "comments": []}
     assert poll_succeeded(legacy) is True

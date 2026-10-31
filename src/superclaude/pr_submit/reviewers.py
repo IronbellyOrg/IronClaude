@@ -182,7 +182,7 @@ def codex_review_state(
     marker = newest[0]
     if marker["status"] != "completed" or _sha(marker["commit_sha"]) != head:
         return None
-    review_times = []
+    review_times, head_reviews = [], []
     for review in _augment_entries(payload.get("reviews"), identities):
         if review.get("state") not in _COMPLETED_REVIEW_STATES:
             continue
@@ -192,6 +192,7 @@ def codex_review_state(
         if submitted is None:
             return None
         review_times.append(submitted)
+        head_reviews.append(review)
     completed_at = max([latest, *review_times])
     if completed_at > observed:
         return None
@@ -201,6 +202,7 @@ def codex_review_state(
         "completed_at": completed_at,
         "has_any_findings": marker["has_any_findings"],
         "head_review": bool(review_times),
+        "head_reviews": head_reviews,
         "head_sha": head,
     }
 
@@ -223,6 +225,7 @@ def _codex_selection(
         None,
         reviewer_identities(contract, "codex"),
         completed_at=state["completed_at"],
+        reviews=state["head_reviews"],
     )
     if roots is None:
         return STATE_POLLING, []
