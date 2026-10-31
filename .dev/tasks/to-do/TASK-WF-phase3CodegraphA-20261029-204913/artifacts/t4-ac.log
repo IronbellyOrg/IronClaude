@@ -1,0 +1,10 @@
+$ AC2
+rc=1
+$ AC3
+rc=0
+21:| codegraph      | Code graph: symbols, callers, impact, file outlines (guide: ~/.claude/CODEGRAPH.md) | (auto) |
+$ AC4
+rc=0
+1
+1
+1

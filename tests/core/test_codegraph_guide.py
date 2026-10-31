@@ -116,6 +116,50 @@ def test_plugin_copy_is_byte_identical():
     assert filecmp.cmp(_GUIDE, _PLUGIN_GUIDE, shallow=False)
 
 
+_CORE_CLAUDE = _REPO / "src" / "superclaude" / "core" / "CLAUDE.md"
+_MODES = [
+    _REPO / "src" / "superclaude" / "modes" / "MODE_Orchestration.md",
+    _REPO / "plugins" / "superclaude" / "modes" / "MODE_Orchestration.md",
+]
+_BEGIN = "<!-- SUPERCLAUDE_CODEGRAPH_BEGIN -->"
+_END = "<!-- SUPERCLAUDE_CODEGRAPH_END -->"
+
+
+def test_core_claude_single_codegraph_row_names_guide():
+    lines = _CORE_CLAUDE.read_text(encoding="utf-8").splitlines()
+    rows = [ln for ln in lines if ln.startswith("| codegraph")]
+    assert len(rows) == 1, f"expected exactly one '| codegraph' row, got {len(rows)}"
+    assert "~/.claude/CODEGRAPH.md" in rows[0]
+
+
+def test_core_claude_marked_block_names_guide_once():
+    lines = _CORE_CLAUDE.read_text(encoding="utf-8").splitlines()
+    assert lines.count(_BEGIN) == 1 and lines.count(_END) == 1
+    block = "\n".join(lines[lines.index(_BEGIN) + 1 : lines.index(_END)])
+    assert "~/.claude/CODEGRAPH.md" in block
+
+
+def test_refresh_tool_row_puts_codegraph_above_grep():
+    text = _CORE_CLAUDE.read_text(encoding="utf-8")
+    section = text.split("### Refresh-tool selection", 1)[1].split("\n### ", 1)[0]
+    row = next(ln for ln in section.splitlines() if ln.startswith("| Symbolic queries"))
+    assert "codegraph_search" in row and "Grep" in row
+    assert row.index("codegraph_search") < row.index("Grep"), "codegraph tier must come first"
+
+
+def test_core_and_modes_have_no_serena_or_explore():
+    for path in [_CORE_CLAUDE, *_MODES]:
+        text = path.read_text(encoding="utf-8")
+        assert "serena" not in text.lower(), f"{path.relative_to(_REPO)} still names serena"
+        assert "codegraph_explore" not in text, f"{path.relative_to(_REPO)} names codegraph_explore"
+
+
+def test_orchestration_matrix_has_codegraph_row():
+    row = "| Symbol lookup, callers, impact | codegraph MCP | Grep + Read |"
+    for path in _MODES:
+        assert row in path.read_text(encoding="utf-8"), f"{path.relative_to(_REPO)} lacks the row"
+
+
 def test_sentinel_only_in_the_guide():
     roots = [
         _REPO / "src" / "superclaude" / d for d in ("commands", "skills", "agents", "core", "modes")

@@ -25,7 +25,7 @@ Score the candidate delegation across these five axes. The candidate wins only i
 |---|---|---|
 | Multi-agent debate with adversarial scoring (`/sc:adversarial`) | None | YES |
 | Roadmap plus one task file per phase (`/roadmap`, then `/task` on each phase's task file; `/task-builder` for any build request it leaves) | Manual structured writing | YES if user wants the artifact |
-| Repository-wide semantic ranking | Many Grep/Glob calls | YES (auggie beats brute Grep) |
+| Repository-wide semantic ranking | Many Grep/Glob calls | YES (auggie for semantic ranking; codegraph for definitions and callers) |
 | Multi-pass cleanup audit with evidence (`/sc:cleanup-audit`) | Manual review | YES if scope > a few files |
 | Spec / PRD / TDD generation following project templates | Free-form writing | YES — templates are load-bearing |
 | Single-file refactor of a small util, 5 edits or fewer | Read + Edit | NO — native wins |
