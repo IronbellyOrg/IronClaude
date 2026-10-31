@@ -14,11 +14,18 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "src/superclaude"
 PROFILE = SOURCE / "agents/troubleshoot-analyst.md"
 SKILL_DIR = SOURCE / "skills/sc-troubleshoot-protocol"
+# Roster selected by Phase 3 experiment E-6 (issue #323): the analyst reached the
+# codegraph tools in foreground and background spawns, so it keeps its four exact
+# codegraph names (.dev/codegraph-migration/experiments/P3-T0/E6-agent-matrix.md).
 TOOLS = {
     "Read",
     "Grep",
     "Glob",
     "mcp__auggie__codebase-retrieval",
+    "mcp__codegraph__codegraph_search",
+    "mcp__codegraph__codegraph_node",
+    "mcp__codegraph__codegraph_callers",
+    "mcp__codegraph__codegraph_impact",
 }
 
 
@@ -146,6 +153,8 @@ def test_profile_has_closed_native_tools() -> None:
         "Skill",
         "mcp__*",
         "mcp__auggie__codebase-retrieval-extra",
+        "mcp__codegraph__*",
+        "mcp__codegraph__codegraph_files",
     ],
 )
 def test_profile_guard_rejects_capability_mutants(mutation: str) -> None:

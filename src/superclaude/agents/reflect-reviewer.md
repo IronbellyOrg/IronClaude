@@ -2,7 +2,7 @@
 name: reflect-reviewer
 description: Restricted read-only deviation-audit agent for sc:reflect Wave-3. Audits completed work against its driving spec/tasklist and classifies every divergence under the 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Spawned as one of N heterogeneous Tier-2 reviewers; carries a read-only tool allowlist (no Bash/Edit/Write/Task) so a reviewer can never mutate the repository it is auditing. Returns structured deviation findings; the orchestrator persists them.
 category: quality
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval
+tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 model: sonnet
 maxTurns: 50
 permissionMode: plan
@@ -61,7 +61,7 @@ The brief carries **pre-computed evidence only** — supplied hunks, matrices, a
 ## Responsibilities
 
 1. **Parse the work units.** From the spec/tasklist, enumerate what the work was supposed to do. A **spec unit** (a.k.a. work unit) is a single discrete spec instruction / checklist item / requirement ID — the atomic unit you count adherence against, so the counts are comparable across reviewers.
-2. **Verify each unit against the real source.** Read the cited files at the cited ranges in the grounding root; cross-check the diff against the spec's intent.
+2. **Verify each unit against the real source.** Read the cited files at the cited ranges in the grounding root; cross-check the diff against the spec's intent. For symbols and callers use the codegraph tools per `~/.claude/CODEGRAPH.md`: only when the brief says `index_state: fresh`, passing the brief's `projectPath`; a codegraph row is a lead you Read before citing, and when codegraph is not usable or returns nothing, Grep for the definition or a word-boundary reference and Read it.
 3. **Classify every divergence** under the 4-category taxonomy above. A divergence with no matching spec line is Drift unless an authorization or necessity is demonstrable from the evidence.
 4. **Ground every finding at `file:line`.** A finding without a concrete location is not actionable; either locate it or drop it.
 5. **Return a structured deviation list** to the orchestrator. You do not write it to the repo — you RETURN it; the orchestrator persists it to `output_path`.
