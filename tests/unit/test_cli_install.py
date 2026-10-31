@@ -112,7 +112,7 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
         """
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md build.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
-cli-portify.md design.md document.md explain.md git.md help.md implement.md
+cli-portify.md design.md document.md explain.md git.md graph.md help.md implement.md
 improve.md index-repo.md index.md init-lite.md load.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
 review-translation.md roadmap.md save.md spawn.md spec-panel.md swarm-wizard.md
@@ -213,7 +213,7 @@ sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md
 sc-cleanup-audit-protocol/rules/pass1-surface-scan.md
 sc-cleanup-audit-protocol/rules/pass2-structural-audit.md
 sc-cleanup-audit-protocol/rules/pass3-cross-cutting.md
-sc-cleanup-audit-protocol/rules/verification-protocol.md
+sc-cleanup-audit-protocol/rules/verification-protocol.md sc-graph-protocol/SKILL.md
 sc-cleanup-audit-protocol/scripts/repo-inventory.sh
 sc-cleanup-audit-protocol/templates/batch-report.md
 sc-cleanup-audit-protocol/templates/final-report.md
