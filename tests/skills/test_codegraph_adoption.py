@@ -103,3 +103,74 @@ def test_task_command_mcp_servers_unchanged(path):
 @pytest.mark.parametrize("path", _ALL, ids=_rel)
 def test_no_serena_tool_names(path):
     assert "mcp__serena" not in _text(path)
+
+
+# --- reflect (Task 10): evidence chain rebuilt on codegraph ---------------------------
+
+_RF_DIR = _SRC / "skills" / "sc-reflect-protocol"
+_RF_SKILL = _RF_DIR / "SKILL.md"
+_RF_REFS = [
+    _RF_DIR / "refs" / name
+    for name in (
+        "runtime-surface.md", "coverage-mapping.md", "reviewer-spec.md",
+        "deviation-taxonomy.md", "reflection-rubric.md", "cost-profile.yaml",
+    )
+]
+_RF_CMDS = [_SRC / "commands" / "reflect.md", _PLUGIN / "commands" / "reflect.md"]
+_RF_FILES = [_RF_SKILL, *_RF_REFS, *_RF_CMDS]
+_RF_TOOLS = [f"mcp__codegraph__codegraph_{t}" for t in ("status", "search", "node", "callers", "callees", "impact")]
+_RF_BANNED = ("--with-hierarchy", "get_diagnostics_for_file", "execute_shell_command", "mcp__serena", "search_deps:unindexed")
+
+
+def test_reflect_calls_impact_protocol_with_its_caller():
+    text = _text(_RF_SKILL)
+    assert "Skill sc:impact-protocol" in text
+    assert "--caller sc-reflect-protocol" in text
+    assert "--diff <baseline_ref> --depth 1 --limit 100 --output-dir <output>/artifacts/impact" in text
+
+
+def test_reflect_briefs_pass_codegraph_run_state():
+    text = _text(_RF_SKILL)
+    reviewer = next(ln for ln in text.splitlines() if ln.startswith("**Step 3B.0"))
+    auditor = next(ln for ln in text.splitlines() if ln.startswith("4a. Task(reuse-auditor"))
+    for brief, name in ((reviewer, "Wave 3 reviewer brief"), (auditor, "4a reuse-auditor brief")):
+        for field in _STATE_FIELDS:
+            assert field in brief, f"{name} does not pass {field}"
+
+
+def test_reflect_section6_heading():
+    assert "## 6. Code-graph evidence chain" in _text(_RF_SKILL).splitlines()
+
+
+def test_reflect_allowed_tools_hold_six_codegraph_names():
+    front = re.match(r"\A---\n(.*?)\n---", _text(_RF_SKILL), re.S).group(1)
+    allowed = {t.strip() for t in re.search(r"^allowed-tools:\s*(.*)$", front, re.M).group(1).split(",")}
+    assert set(_RF_TOOLS) <= allowed
+    assert not [t for t in allowed if t.startswith("mcp__codegraph__") and t not in _RF_TOOLS]
+
+
+def test_reflect_step_1b3_logs_prod_and_test_counts_separately():
+    step = _section(_text(_RF_SKILL), "**Step 1B.3", r"^### ")
+    assert "impact_prod_callers" in step and "impact_test_callers" in step
+    assert "HIGH if >5 referencing call sites" in step, "the severity rule keeps today's count"
+    assert "never replace it" in step
+
+
+@pytest.mark.parametrize("path", _RF_FILES, ids=_rel)
+def test_reflect_files_have_no_removed_tool_names(path):
+    text = _text(path)
+    for banned in _RF_BANNED:
+        assert banned not in text, f"{_rel(path)} names {banned}"
+    leftovers = [m for m in re.findall(r"type_hierarchy\w*", text) if m != "type_hierarchy_invoked"]
+    assert not leftovers, f"{_rel(path)} names {leftovers}"
+
+
+def test_reflect_envelope_names_bash():
+    heading = next(ln for ln in _text(_RF_SKILL).splitlines() if ln.startswith("### 6.1.1"))
+    assert "Bash" in heading
+
+
+@pytest.mark.parametrize("path", _RF_CMDS, ids=_rel)
+def test_reflect_commands_mcp_servers_gain_codegraph(path):
+    line = next(ln for ln in _text(path).splitlines() if ln.startswith("mcp-servers:"))
+    assert "codegraph" in line

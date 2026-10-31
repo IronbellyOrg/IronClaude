@@ -170,7 +170,8 @@ route (see fallback below) for tier routing.
 **FR-1 missing-implementor term (UC-1).** `missing_implementations_count` is the
 number of abstract symbols (kind ∈ {Interface, AbstractMethod, Protocol, Trait,
 Class}) whose implementors are unaccounted, surfaced by §6.1 step 3b
-(best-effort Grep for `class .*\(<Base>\)` / `implements <Iface>`). It is added to the UC-1 unmapped numerator above so an
+(`codegraph_search` class candidates confirmed by Grep and Read when the index is usable, plus the
+best-effort Grep for `class .*\(<Base>\)` / `implements <Iface>`). It is added to the UC-1 unmapped numerator above so an
 "interface added, implementor missing" gap raises structural ambiguity exactly
 like an unmapped requirement. The clamp to `[0.0, 1.0]` and the
 `null`-when-`total_requirements_count == 0` rule are unchanged. When the kind-guard

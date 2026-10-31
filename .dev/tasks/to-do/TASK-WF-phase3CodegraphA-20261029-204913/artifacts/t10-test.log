@@ -1,0 +1,74 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 358 items
+
+tests/skills/test_codegraph_adoption.py ................................ [  8%]
+..................                                                       [ 13%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 18%]
+tests/cli/reflect/test_base_precedence.py ......                         [ 19%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 22%]
+tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py .... [ 24%]
+.                                                                        [ 24%]
+tests/cli/reflect/test_cli_smoke.py ............                         [ 27%]
+tests/cli/reflect/test_contract_fallback_metadata.py ........            [ 29%]
+tests/cli/reflect/test_contract_status_cli.py ........                   [ 32%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 32%]
+tests/cli/reflect/test_ensemble_fallback_engage.py ...                   [ 33%]
+tests/cli/reflect/test_ensemble_fallback_stub.py ............            [ 36%]
+tests/cli/reflect/test_ensemble_stub_integration.py ...............      [ 41%]
+tests/cli/reflect/test_ensemble_unit.py ..........................       [ 48%]
+tests/cli/reflect/test_fallback_classify.py ......                       [ 50%]
+tests/cli/reflect/test_fallback_config.py .....                          [ 51%]
+tests/cli/reflect/test_fallback_plan.py .............                    [ 55%]
+tests/cli/reflect/test_fallback_select.py ..........                     [ 57%]
+tests/cli/reflect/test_fallback_slot_factory.py ..                       [ 58%]
+tests/cli/reflect/test_fix_loop.py .........                             [ 60%]
+tests/cli/reflect/test_grader_yaml_root.py .                             [ 61%]
+tests/cli/reflect/test_isolate_reviewers_cli.py .......                  [ 63%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 64%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 66%]
+tests/cli/reflect/test_preflight_phase_complete.py ........              [ 68%]
+tests/cli/reflect/test_promote_plumbing.py .........                     [ 71%]
+tests/cli/reflect/test_remediation_route_table.py ....                   [ 72%]
+tests/cli/reflect/test_remediation_source_template.py .....              [ 73%]
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [ 74%]
+tests/cli/reflect/test_reviewer_finding_parity.py .....                  [ 75%]
+tests/cli/reflect/test_reviewer_isolation_gate.py ....                   [ 77%]
+tests/cli/reflect/test_reviewer_readonly_tools.py .....                  [ 78%]
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py ..             [ 79%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 81%]
+tests/cli/reflect/test_verdict_mapping.py .............................. [ 90%]
+.....                                                                    [ 91%]
+tests/cli/reflect/test_verify_denylist_git_mutations.py ...              [ 92%]
+tests/cli/reflect/test_writeback.py ....                                 [ 93%]
+tests/roadmap/test_threshold_registry.py .......................         [100%]
+
+=============================== warnings summary ===============================
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_runs_without_tasklist
+  /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/cli/reflect/test_contract_status_cli.py:90: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_does_not_launch_reflect_audit_machinery
+  /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/cli/reflect/test_contract_status_cli.py:109: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_does_not_write_lock_by_default
+  /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/cli/reflect/test_contract_status_cli.py:133: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 357 passed, 1 xpassed, 5 warnings in 8.08s ==================
+pytest_rc=0

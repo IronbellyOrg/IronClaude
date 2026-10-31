@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 (opt-in via --remediate) hands off to sc:workflow for a corrective tasklist package the user runs with /sc:implement by default, or to task-builder for a corrective MDTM remediation only with --depth deep. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -16,7 +16,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
 <!-- Extended metadata (for documentation, not parsed):
 category: validation
 complexity: advanced
-mcp-servers: [auggie, context7, tavily]
+mcp-servers: [auggie, codegraph, context7, tavily]
 personas: [analyzer, qa, refactorer, architect]
 spec: .dev/eval-workspaces/sc-reflect/SPEC.md
 supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
@@ -146,7 +146,7 @@ Wave 0:   Parse + Validate Input + Memory Hydrate
             0.7 Memory hydrate (§6.3 file Reads; fail-open)
             0.8 Open audit log + machine-readable header
 Wave 1:   Tier 1 — Grounded Single-Agent Reflection
-            1A. Real-code grounding (auggie + native Grep/Read symbol chain)
+            1A. Real-code grounding (auggie + codegraph + native Grep/Read symbol chain)
             1B. Mode-specific evidence gathering (UC-1: coverage map; UC-2: tasklist-vs-diff map)
                 — zero-task guard (Change #12); coverage_undefined route (Change #11)
             1C. Single-agent reflection (root-cause-analyst OR self-review)
@@ -282,19 +282,21 @@ Telemetry `reviewer_isolation` (`disabled` | `snapshot-children-only` | `stopped
 
 **Step 1B.3 (cross-task interaction-effects scan, UC-2 tasklist-scope only).** When mode is UC-2 AND the tasklist contains ≥3 completed tasks, run the symbol-overlap scan:
 
-1a. (FR-2) For each task's diff hunks, resolve each hunk's declaration site BEFORE deriving touched symbols — Grep for the definition (`def <name>|class <name>|function <name>`) and Read the range — this anchors the overlap graph to resolved declarations rather than raw text, cutting false-positive overlap edges from name collisions. On a zero-hit Grep for a hunk, emit `find_declaration_no_match`. Fail-open per §6.5.
+0. **Codegraph impact (counts only).** When the §6 readiness check gives a usable index, invoke `> Skill sc:impact-protocol` with `--diff <baseline_ref> --depth 1 --limit 100 --output-dir <output>/artifacts/impact --caller sc-reflect-protocol` and read only `<output>/artifacts/impact/return-contract.yaml` (`status`, `advisory`, `degraded`, `readiness.index_state`, `readiness.checked_at`, `symbols[].prod`, `symbols[].test`, `symbols[].truncated`). Copy its `degraded` tokens into `degraded_components`; `status: blocked|failed` counts as `graph:absent`. Log the production and test caller counts separately in `audit.log` (`impact_prod_callers`, `impact_test_callers` per symbol); they are logged only and change no severity (the step-5 rule below keeps today's call-site count).
 
-1. For each task in the tasklist, derive its touched symbols by resolving each of the task's diff hunks to its enclosing definition (the same Grep-for-definition then Read step as 1a).
+1a. (FR-2) For each task's diff hunks, resolve each hunk's declaration site BEFORE deriving touched symbols. Codegraph tier first: `codegraph_node {file, line}` per hunk when the index is usable; a codegraph match is a lead you Read. When codegraph is unusable or finds no declaration for a hunk, the floor runs unchanged for that hunk — Grep for the definition (`def <name>|class <name>|function <name>`) and Read the range — this anchors the overlap graph to resolved declarations rather than raw text, cutting false-positive overlap edges from name collisions. On a zero-hit Grep for a hunk, emit `find_declaration_no_match` (only when the floor also finds nothing). Fail-open per §6.5.
+
+1. For each task in the tasklist, derive its touched symbols by resolving each of the task's diff hunks to its enclosing definition: `codegraph_node {file, symbolsOnly: true}` filtered to the hunk ranges when the index is usable, else the same Grep-for-definition then Read step as 1a.
 2. Build a symbol-overlap graph: nodes = symbols, edges = "touched by task X and task Y." Cap at top-30 most-touched symbols (heuristic; full enumeration is bounded at 30 to control cost).
-3. For each overlap edge, Grep with a word-boundary pattern (`\b<symbol>\b`) and Read the call sites to determine whether the symbol is genuinely shared or just transiently named the same.
+3. For each overlap edge, `codegraph_callers` on the symbol when the index is usable (rows give the caller's definition line; Read the call site), then Grep with a word-boundary pattern (`\b<symbol>\b`) and Read the call sites to determine whether the symbol is genuinely shared or just transiently named the same.
 4. For each confirmed interaction, check whether either task description explicitly cites the other (textual match on task ID). If neither cites the other, **flag as a cross-task interaction risk**.
-5. Each risk becomes a synthetic invariant probe entry tagged `category: cross_task` (in addition to the existing 6 categories — see §11.2). Severity scales with the symbol's call-site count: HIGH if >5 referencing call sites, MEDIUM if 2-5, LOW if 1.
+5. Each risk becomes a synthetic invariant probe entry tagged `category: cross_task` (in addition to the existing 6 categories — see §11.2). Severity scales with the symbol's call-site count: HIGH if >5 referencing call sites, MEDIUM if 2-5, LOW if 1. The count is today's step-3 call-site count; the step-0 production and test counts from `/sc:impact` are logged next to it and never replace it.
 
 Emit `interaction_effects_scanned: true` in the contract when this step runs; `interaction_effects_scanned: false` when skipped (tasklist < 3 tasks OR mode == UC-1). This is the differentiating value of end-of-tasklist reflect — single-scope review misses interaction effects, and this is where reflect catches them.
 
 ### 4.3 Wave 3 — Detailed step addition
 
-**Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing: (a) T1 reflection card slice (the section relevant to this reviewer's persona); (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A); (c) coverage-matrix slice (only the rows the reviewer is responsible for). Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips.
+**Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing: (a) T1 reflection card slice (the section relevant to this reviewer's persona); (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A); (c) coverage-matrix slice (only the rows the reviewer is responsible for); (d) the codegraph run state from the Wave 0 readiness check (§6): `index_state`, `checked_at`, `worktree_root` and the `projectPath` the reviewer passes on every codegraph call (the `reflect-reviewer` agent calls its codegraph tools only when `index_state: fresh`, against the `reviewer_grounding_root` snapshot it is grounded in). Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips.
 
 **Live-execution prohibition (L4, read-only reviewer).** A reviewer brief MUST NOT embed live-execution instructions: no "run pytest", no "run `git diff`", no "compute the baseline test count", no shell/git commands for the reviewer to execute. Reviewers are read-only (the fixed `reflect-reviewer` agent-type carries no Bash/Task tool) and audit ONLY the pre-computed hunks and matrices in the brief. Verification deltas arrive SOLELY via the FR-4 verification-results grounding hunk, produced by the orchestrator running the §6.1 step 5 and 5.5 verification run (`refs/reviewer-spec.md` `## Grounding hunks`) and surfaced as a hunk — verification is NEVER delegated to the reviewer. This preserves the existing "audit the supplied hunks/matrices" directives while forbidding any instruction that would have the reviewer execute anything.
 
@@ -440,9 +442,11 @@ escalation_decision:
 
 ---
 
-## 6. Evidence-Gathering Chain (auggie + native Grep/Read floor)
+## 6. Code-graph evidence chain
 
-The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; `mcp__auggie__codebase-retrieval` is used first wherever the chain says so. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
+The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; `mcp__auggie__codebase-retrieval` is used first wherever the chain says so, and the codegraph tier sits above the floor for definitions, outlines, callers and impact. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
+
+Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Run its readiness check once per run in Wave 0 and record `index_state`, `checked_at`, `worktree_root` and `projectPath` in `audit.log`. A codegraph step below runs only when the index is usable (`fresh`; a `stale` index gives leads that never feed a count, a severity or a verdict) and its lookup tools are listed; otherwise, and whenever a lookup fails or returns nothing, the floor step beside it runs unchanged and the matching `graph:*` token goes into `degraded_components` (§6.5). A codegraph row locates code; it is not a citation until the cited range is re-Read (§6.2).
 
 ### 6.1 Mandatory evidence-gathering chain (Wave 1A)
 
@@ -450,14 +454,14 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 
 ```
 1. (Wave 0 only) memory hydrate per §6.3 — no project-activation step
-2. mcp__auggie__codebase-retrieval <file/module>, then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
-2a. Grep for the hunk's symbol definition (`def <name>|class <name>|function <name>`), then Read the range   # diff-hunk → declaration; zero hits → find_declaration_no_match
-3. Read the located range of <relevant-symbol>          # symbol body
-3b. Grep for `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` (best effort)   # polymorphic surface
-4. Grep with a word-boundary pattern (`\b<symbol>\b`), then Read each call site   # downstream impact + signatures
+2. mcp__auggie__codebase-retrieval <file/module>; codegraph_node {file, symbolsOnly: true} when usable; then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
+2a. codegraph_node {file, line} for the hunk when usable; else (or no match) Grep for the hunk's symbol definition (`def <name>|class <name>|function <name>`), then Read the range   # diff-hunk → declaration; floor zero hits → find_declaration_no_match
+3. codegraph_node {symbol, includeCode: true} to locate when usable; Read the located range of <relevant-symbol>          # symbol body
+3b. codegraph_search {query: <Type>, kind: "class"} candidates when usable, each confirmed by Grep and Read; Grep for `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` (best effort, advisory)   # polymorphic surface
+4. codegraph_callers {symbol} + codegraph_impact {symbol, depth: 1} when usable (signatures via codegraph_node; non-call references via Grep); Grep with a word-boundary pattern (`\b<symbol>\b`), then Read each call site   # downstream impact + signatures
 4b'. Runtime-surface tagger (UC-2 only): classify diff-hunk symbols by resolved symbol kind/decorator against `refs/runtime-surface.md` allowlist; emit `runtime_surface_requirements` (requirement_id optional/null) and one audit.log row
 4b. Runtime-surface production-caller sweep (UC-2 only): extend the already-fetched step-4 referrers; partition production vs test/comment via `refs/runtime-surface.md`, consult degrade oracle + rootwalk before any UNREACHED, write `<output>/artifacts/runtime-surface-ledger.yaml`, and emit one audit.log row
-4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
+4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml, index_state, checked_at, worktree_root, projectPath)  # FR-REUSE.1 — outward reuse/consolidation neighbour search; the four codegraph run-state fields come from the Wave 0 readiness check
     → agent RETURNS findings; orchestrator persists them to output_path, then consumes reuse-audit.yaml
       (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled). stage=post is fixed here
       (Wave 1A is the UC-2 post-execution chain); the pre-stage path lives in /tdd step 2a. Path matches
@@ -472,9 +476,9 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 7. (skipped) third-party / dependency surface — the native floor has no dependency lookup; the dependent claim stays [INFERRED]
 ```
 
-Step 2a (FR-2) resolves a diff hunk to its declaration site before the body is read: Grep for the definition, then Read the range; on a zero-hit Grep it emits `find_declaration_no_match`. Step 3b (FR-1) enumerates the polymorphic surface on a **best-effort** basis and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because a base class is the usual polymorphic anchor: a Grep hit on `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` is an implementor site, and an empty result is recorded as "none found (best effort)" with no degrade, because dynamic registration is invisible to a textual search. Both steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
+Step 2a (FR-2) resolves a diff hunk to its declaration site before the body is read: `codegraph_node {file, line}` when the index is usable, else Grep for the definition, then Read the range; `find_declaration_no_match` is emitted only when the Grep floor also finds nothing. Step 3b (FR-1) enumerates the polymorphic surface on a **best-effort** basis: no codegraph tool resolves dispatch, so `codegraph_search` class candidates are advisory and each is confirmed by Grep and Read and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because a base class is the usual polymorphic anchor: a Grep hit on `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` is an implementor site, and an empty result is recorded as "none found (best effort)" with no degrade, because dynamic registration is invisible to a textual search. Both steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
 
-Step 4 is a Grep with a word-boundary pattern followed by a Read of each call site; the Read yields each referrer's surrounding signature or docstring where it matters, so no separate extended-info call exists. The run emits `references_extended_info_used: false` to `audit.log` as a constant, kept so the audit-log shape stays stable.
+Step 4 uses `codegraph_callers` and `codegraph_impact {depth: 1}` when the index is usable (caller rows give the caller's definition line, so each call site is re-Read before it is cited; non-call references such as imports and string uses come only from Grep), then a Grep with a word-boundary pattern followed by a Read of each call site; the Read yields each referrer's surrounding signature or docstring where it matters, so no separate extended-info call exists. In UC-2 the step-4 counts also come from the Step 1B.3 `/sc:impact` call (`> Skill sc:impact-protocol` with `--diff <baseline_ref> --depth 1 --limit 100 --output-dir <output>/artifacts/impact --caller sc-reflect-protocol`), which is read only through its contract and logs production and test counts separately; the steps 4b'/4b production-caller partition and every severity rule keep using the step-4 referrers. The run emits `references_extended_info_used: false` to `audit.log` as a constant, kept so the audit-log shape stays stable.
 
 Step 4b' (FR-RSR.1) is the deterministic, LLM-free runtime-surface tagger. It runs in UC-2 only (never `--mode pre`) and keys off the diff hunk's resolved symbol kind/decorator from steps 2/2a/3 plus the `refs/runtime-surface.md` surface allowlist — **not** off a requirement id that may be mapped later in Wave 1B. It emits `runtime_surface_requirements: [<ids>]` when mapped ids exist; a surface hunk with no mapped requirement is still tagged with `requirement_id: null` and the sweep still runs. Non-surface diffs emit `runtime_surface_requirements: []`, `runtime_surface_sweep_ran: false`, and zero added runtime-surface cost. Kind-resolution failure routes to `DEGRADE` (FR-RSR.3/8 → §10.6 Grounding Gap), never silent-skip. It emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b'", timestamp, outcome, evidence_ref}`.
 
@@ -558,7 +562,7 @@ The scripted self-assessment checkpoints and their checkpoint log no longer exis
 
 ### 6.5 Fail-open policy
 
-Every optional tool call (auggie, the Bash verification run, the `reuse-auditor` agent) is fail-open: the protocol must never abort because an MCP tool is unavailable. The native Grep/Glob/Read floor is the permanent baseline of the §6.1 chain, so grounding with it is normal evidence and emits no degraded token. A missing auggie falls back to that floor and records `degraded_components: ["auggie"]` (§14).
+Every optional tool call (auggie, codegraph, the `/sc:impact` call, the Bash verification run, the `reuse-auditor` agent) is fail-open: the protocol must never abort because an MCP tool is unavailable. The native Grep/Glob/Read floor is the permanent baseline of the §6.1 chain, so grounding with it is normal evidence and emits no degraded token. A missing auggie falls back to that floor and records `degraded_components: ["auggie"]` (§14). Every codegraph call is fail-open the same way: codegraph absent, unlisted, switched off, not initialized, foreign, stale or failing → the floor, and the matching `graph:*` token (`~/.claude/CODEGRAPH.md`) is added to `degraded_components`. `graph:*` tokens are informational: none is in the halt set, so none turns a run DEGRADED.
 
 ---
 
@@ -1398,6 +1402,7 @@ Three concrete forces shape the pick:
 | Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |
 | Calibrator class collides with all reviewer classes | Continue with highest-cap calibrator not used by most reviewers; `calibrator_diversity: degraded` | None |
 | Auggie unavailable | Fall back to Grep/Glob in Wave 1A; mark `degraded: ["auggie"]` | Continue |
+| codegraph unavailable, unlisted or index missing | Grep/Glob floor in Wave 1A and Step 1B.3; add the matching `graph:*` token to `degraded_components` (never a halt token) | Continue |
 | Verification run unavailable (FR-4: Bash unavailable OR `--no-verify`) | Continue: emit `verification_ran: false` + `verification_skip_reason: tool-unavailable\|read-only-project\|--no-verify`; degrade §10.4 Regression detection to the task-log claim with a Grounding Gap entry; emit the loud `[reflect][WARN]` from the ops-integration WARN catalog | Continue |
 | Context7 unavailable in `--depth deep` UC-1 | Skip best-practice external lookup; mark `degraded: ["context7"]` | Continue |
 | `--no-mcp` set | Run with native tools only; WARN that quality is degraded | None |
@@ -1770,7 +1775,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Run T1 always; respect "quick first" contract.
 - Auto-escalate to T2 only when the rubric in §5 says so, or when `--tier 2`/`--depth deep` is set.
 - Fan out heterogeneous reviewers (different model classes) in Tier 2 to break representational-bias self-confirmation.
-- Use the auggie + native Grep/Read symbol chain (definition Grep → Read → word-boundary reference Grep → Read) for evidence; the floor is permanent and never counts as degraded.
+- Use the auggie + codegraph + native Grep/Read symbol chain (§6: codegraph definitions, outlines and callers above the floor; definition Grep → Read → word-boundary reference Grep → Read) for evidence; the floor is permanent and never counts as degraded.
 - Run `evidence-validator` as a non-negotiable final gate before any report ships; treat a zero-drop pass as a flag, not a clean signal.
 - Classify every UC-2 deviation under the 4-category taxonomy in §10 with explicit detection signals and gold-standard references.
 - Route evidence-insufficient findings to `grounding-gaps.yaml` (§10.6), NOT to a 5th deviation category.
