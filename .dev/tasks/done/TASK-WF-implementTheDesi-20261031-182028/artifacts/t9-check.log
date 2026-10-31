@@ -1,0 +1,12 @@
+PASS Augment+Codex same path/line -> one group of two: got=[2, 1, 2] want=[2, 1, 2]
+PASS group members keep their reviewers: got=['augment', 'codex'] want=['augment', 'codex']
+PASS different lines -> separate groups: got=True want=True
+PASS null line groups by original_line: got=True want=True
+PASS every finding kept: got=5 want=5
+PASS empty input -> no groups: got=[] want=[]
+PASS augment posted, codex missing: got=['codex'] want=['codex']
+PASS reviewer-less event counts as augment: got=['codex'] want=['codex']
+PASS other cycle does not count: got=['augment', 'codex'] want=['augment', 'codex']
+PASS no present reviewers -> nothing to post: got=[] want=[]
+imports ok: merge_wait classify_codex dedup_groups
+rc=0

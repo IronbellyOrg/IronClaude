@@ -4,6 +4,15 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### /sc:pr-submit: Codex reviews
+
+- Codex support: review threads from the Codex connector (`chatgpt-codex-connector[bot]`) go through the same path as Augment's (re-grade, verify, troubleshoot, then fix, push, reply and resolve within the `--monitor` ceiling).
+- Fail-open reviewer detection: a reviewer with no activity on the PR is recorded `reviewer_absent` and ignored. Augment-only PRs behave as before apart from that event, and Codex-only PRs now work. A present reviewer that does not complete by `--timeout` is recorded `reviewer_incomplete` when the other reviewer completed, and the other reviewer's result is used. If no reviewer completes and at least one showed activity, the run ends `terminal_timeout`; if no configured reviewer shows activity, it ends `terminal_augment_no_response`.
+- P0-P3 mapping: a Codex finding's priority badge becomes its severity hint (P0 Critical, P1 High, P2 Medium, P3 Low), which the existing re-grade and routing then use; a missing or malformed badge falls back to Medium.
+- Dedup: findings on the same path and line are routed at the group's highest tier and fixed once, and every verified member's thread is replied to and resolved.
+- Per-reviewer re-trigger: after a push that fixes review findings (when the cycle applied edits), one re-trigger comment per present reviewer (`auggie review`, `@codex review`), each with its own watermark; a CI-fix push posts no re-trigger, and the decline fallback posts no second one.
+- UNVERIFIED: whether Codex updates its summary marker after `@codex review` has not been observed. If it does not, the Codex re-review ends incomplete at `--timeout`; the other reviewer's result is used when it completed, otherwise the run ends `terminal_timeout`.
+
 ### ccsession: one session name for ccsession, Claude Code and Orca (#325)
 
 #### Added (ccsession one name)

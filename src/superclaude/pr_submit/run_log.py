@@ -108,13 +108,14 @@ class RunLog:
     def append(self, event: dict) -> dict:
         """Append a validated, redacted event with a monotonic ``event_id`` and fsync.
 
-        Raises :class:`ValueError` if ``event_type`` is not one of the 37 closed
+        Raises :class:`ValueError` if ``event_type`` is not one of the 41 closed
         enum values (the run-log writer validates against ``models.EventType``).
         """
         event_type = event.get("event_type")
         if event_type not in _VALID_EVENT_VALUES:
             raise ValueError(
-                f"unknown event_type: {event_type!r} (not one of the 37 §11.3 events)"
+                f"unknown event_type: {event_type!r} "
+                f"(not one of the {len(_VALID_EVENT_VALUES)} closed EventType values)"
             )
         self._event_id += 1
         record = {
@@ -163,6 +164,13 @@ class RunLog:
         Reconstructs the FSM state, ``round_counter``, the 7 idempotency sets, and
         ``push_count``/``reply_count`` from the event stream. This is the source of
         truth on any snapshot/JSONL disagreement.
+
+        ``rereview_request_count`` counts re-triggered push cycles: one cycle may
+        post an Augment and a Codex re-trigger comment, so ``rereview_requested``
+        events are folded by distinct ``cycle_id`` (an event without ``cycle_id``
+        still counts once each, so old logs rebuild to the same number).
+        ``absent_reviewers`` is the sorted set of reviewers named by
+        ``reviewer_absent`` events.
         """
         state = {
             "pr_number": self.pr_number,
@@ -175,10 +183,13 @@ class RunLog:
             "rereview_request_count": 0,
             "effective_max_rounds": None,
             "silence_rerequested_at": None,
+            "absent_reviewers": [],
             "last_event_id": 0,
             **{s: [] for s in IDEMPOTENCY_SETS},
         }
         sets = {s: set() for s in IDEMPOTENCY_SETS}
+        retriggered_cycles: set = set()
+        absent: set = set()
         for ev in self.read_events():
             state["last_event_id"] = ev.get("event_id", state["last_event_id"])
             et = ev.get("event_type")
@@ -187,8 +198,14 @@ class RunLog:
             if et == EventType.ROUND_INCREMENTED.value:
                 state["round_counter"] += 1
             elif et == EventType.REREVIEW_REQUESTED.value:
-                # IDIOM A (count fold) — INV-R1 monotone re-trigger count.
-                state["rereview_request_count"] += 1
+                # IDIOM A (count fold) — INV-R1 monotone re-trigger count, by cycle.
+                cycle_id = ev.get("cycle_id")
+                if cycle_id is None or cycle_id not in retriggered_cycles:
+                    state["rereview_request_count"] += 1
+                if cycle_id is not None:
+                    retriggered_cycles.add(cycle_id)
+            elif et == EventType.REVIEWER_ABSENT.value and ev.get("reviewer"):
+                absent.add(ev["reviewer"])
             elif (
                 et == EventType.AUGGIE_FALLBACK_INVOKED.value
                 and ev.get("pr_number") is not None
@@ -239,6 +256,7 @@ class RunLog:
                 sets["processed_finding_ids"].add(ev["fix_key"])
         for s in IDEMPOTENCY_SETS:
             state[s] = sorted(sets[s], key=str)
+        state["absent_reviewers"] = sorted(absent)
         return state
 
     def materialize_snapshot(self) -> dict:

@@ -1,0 +1,7 @@
+syntax ok reply-resolve-thread
+syntax ok retrigger-review
+syntax ok poll-augment-review
+ .../sc-pr-submit-protocol/scripts/poll-augment-review.sh    |  4 +++-
+ .../sc-pr-submit-protocol/scripts/reply-resolve-thread.sh   |  5 +++--
+ .../sc-pr-submit-protocol/scripts/retrigger-review.sh       | 13 ++++++++-----
+ 3 files changed, 14 insertions(+), 8 deletions(-)

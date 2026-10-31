@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementTheDesi-20261031-182028
+plan_path: ./TASK-WF-implementTheDesi-20261031-182028.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/REPORT.md
+unresolved:
+  - "reflect partial: adversarial merge BLOCKED_BY_INVARIANTS (INV-001 Codex completion time, INV-002 sticky absence); 28 merged findings to absorb during implementation (artifacts/reflect-pre/adversarial/merged-verdict.yaml)"

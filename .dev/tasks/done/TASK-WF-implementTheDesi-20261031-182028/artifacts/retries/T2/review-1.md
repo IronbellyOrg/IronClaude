@@ -1,0 +1,4 @@
+start=a57d510652fb9e72b67059ec8436a0f3eb19766d tree=311f44023145c5467375cd82ea219166afc32107
+T2.AC1 met at src/superclaude/pr_submit/detection.py:140-142, src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md:31-33, src/superclaude/pr_submit/detection.py:195-197; tests/pr_submit/test_detection_contract.py:244-252
+T2.AC2 unmet at src/superclaude/pr_submit/detection.py:152-157 (F1.1)
+F1.1 sev=blocking trigger=B1 ac=T2.AC2 at=src/superclaude/pr_submit/detection.py:152 anchor="A local override YAML without Codex fields still loads (Codex identities empty, so Codex is disabled for that override)" chk=y,n,n,n family=codex-override-absent-key-semantics fix=leave absent Codex keys None, or accept the design fallback by Ruling first=A1 origin=new: override without Codex keys gets shipped Codex identities, contradicting the AC

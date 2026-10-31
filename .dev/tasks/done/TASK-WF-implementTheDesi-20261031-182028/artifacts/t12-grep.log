@@ -1,0 +1,4 @@
+start sha: d1b69dd3df21a9feeb693d5f515e4611b521f6a6 tree=50c5db15
+$ grep -n src/superclaude on start-tree SKILL.md
+$ grep -n src/superclaude on live SKILL.md
+rc=1

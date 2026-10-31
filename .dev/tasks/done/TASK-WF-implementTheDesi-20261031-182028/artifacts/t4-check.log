@@ -1,0 +1,6 @@
+augment-only roots: [4296483537] findings
+with codex root   : [4296483537] findings
+same selection    : True
+has_reviewer_activity(codex) on mixed: True on augment-only: False
+has_augment_activity unchanged: True
+rc=0

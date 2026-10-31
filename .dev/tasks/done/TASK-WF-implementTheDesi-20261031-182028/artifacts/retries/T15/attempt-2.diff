@@ -1,0 +1,76 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 77fb89c8..1397cc00 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,19 @@ All notable changes to IronClaude are documented in this file.
+ 
+ ## [Unreleased]
+ 
++### /sc:pr-submit: Codex reviews handled like Augment reviews
++
++#### Added (pr-submit Codex)
++
++- `/sc:pr-submit` now handles the review threads of the Codex connector (`chatgpt-codex-connector[bot]`) the same way as Augment's: one poll snapshot serves both reviewers; Codex findings are re-graded, verified, sent to `/sc:troubleshoot`, fixed, pushed, replied to and resolved through the same path, in the same single fix commit per cycle.
++- Codex completion is read from the `codex-review-state:v1` marker in its summary comment (completed, on the expected head, newer than the re-trigger watermark); anything unproven stays polling, never a false clean.
++- Codex priority badges map onto the existing severity routing as a severity hint: P0 critical and P1 high (`--depth deep --fix`), P2 medium (`--fix`), P3 low (report-only); a missing or malformed badge uses the Medium fallback.
++- Fail-open reviewer detection: a reviewer with no activity on the PR is recorded absent (`reviewer_absent`) and ignored, so Augment-only and Codex-only repositories work unchanged; when a present reviewer never completes but the other reviewer does, the other reviewer's result is used and the incomplete one is recorded `reviewer_incomplete`; if no reviewer completes and at least one showed activity, the run ends `terminal_timeout` as before. `terminal_augment_no_response` now means no configured reviewer responded.
++- Findings of both reviewers on the same path and line form one dedup group: routed at the highest tier, diagnosed and fixed once, with every verified thread replied to and resolved.
++- After a push, one re-trigger comment per present reviewer (`auggie review`, `@codex review`), each with its own watermark and a `rereview_requested{cycle_id, reviewer, timestamp}` event appended right after its successful post; before posting, and again on resume, `pending_retriggers` picks only the reviewers with no such event for the cycle, so a crash between the two posts does not skip the second reviewer. `rereview_request_count` now counts re-triggered cycles.
++- The detection contract gains `codex_bot_login`, `codex_app_slug` and `codex_retrigger_phrase`; an override that omits them keeps the shipped values, and blanking both Codex identities disables Codex. The output contract gains `reviewers`, and the run log two event types (41 in all).
++- UNVERIFIED: whether Codex updates its summary marker for the new commit after `@codex review` has not been observed yet; if it does not, the Codex re-review ends incomplete at `--timeout` and the other reviewer's result is used when there is one (fail open).
++
+ ### ccsession: one session name for ccsession, Claude Code and Orca (#325)
+ 
+ #### Added (ccsession one name)
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 62fb39b6..2602d66f 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -47,7 +47,7 @@ This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's
+ - Push to `upstream` (the `upstream` remote name above). The `origin` remote is the correct push target.
+ - Assume the upstream is the right target because gh's interactive flow suggests it. The interactive flow is the trap.
+ 
+-**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` comes from the `origin` remote, then waits for the Augment review, fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
++**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` comes from the `origin` remote, then waits for the Augment and Codex reviews (each one that is installed on the repository), fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
+ 
+ ```text
+ /sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."
+diff --git a/docs/guides/prd-skill-release-guide.md b/docs/guides/prd-skill-release-guide.md
+index 0305a3b0..6178d015 100644
+--- a/docs/guides/prd-skill-release-guide.md
++++ b/docs/guides/prd-skill-release-guide.md
+@@ -535,7 +535,7 @@ Give that one commit, not a `..HEAD` range: a single commit is compared with you
+ /sc:pr-submit --monitor 3 --head <branch> --title "<title>" --body "<body>"
+ ```
+ 
+-Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app on the repository; without the app use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
++Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app or the Codex review connector on the repository; without either use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
+ 
+ The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sprint run`) is a separate release pipeline; see [roadmap-cli-tools-release-guide.md](roadmap-cli-tools-release-guide.md). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
+ 
+diff --git a/docs/guides/tdd-skill-release-guide.md b/docs/guides/tdd-skill-release-guide.md
+index 8f99dce0..90ec1d28 100644
+--- a/docs/guides/tdd-skill-release-guide.md
++++ b/docs/guides/tdd-skill-release-guide.md
+@@ -557,7 +557,7 @@ Give that one commit, not a `..HEAD` range: a single commit is compared with you
+ /sc:pr-submit --monitor 3 --head <branch> --title "<title>" --body "<body>"
+ ```
+ 
+-Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app on the repository; without the app use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
++Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app or the Codex review connector on the repository; without either use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
+ 
+ The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sprint run`) is a separate release pipeline; see [roadmap-cli-tools-release-guide.md](roadmap-cli-tools-release-guide.md). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
+ 
+diff --git a/docs/user-guide/commands.md b/docs/user-guide/commands.md
+index ea8f3d5a..95e3eed6 100644
+--- a/docs/user-guide/commands.md
++++ b/docs/user-guide/commands.md
+@@ -358,7 +358,7 @@ PM Agent:
+ 
+ ### `/sc:pr-submit` - PR Review Auto-Remediation Monitor
+ 
+-**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment review, verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
++**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment and Codex reviews (a reviewer that never shows activity on the PR is skipped), verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
+ 
+ **Syntax:**
+ 

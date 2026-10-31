@@ -1,0 +1,9 @@
+input_tree_sha256: b19616ace1e3ce5aeaaefe1106200de4ff7472b1308bbfc2991d640459cad5dc
+file_list:
+  - path: .dev/pr-submit-codex/design/pr-submit-codex-design.md
+    sha256: 182cecf005e09e2ea2817d012566c3e0ec9ecf0202d13d85eebc6669c06e4dd0
+  - path: .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md
+    sha256: 1f84077e475af7358384ebaf383d03500bc6d6e46b9a85e8a977a67a18341e0a
+  - path: .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/source.md
+    sha256: 6c0dbc3fe56607ba242e6dea871c0f6469f62dac25d3e33c7417dc0b93c62397
+file_count: 3

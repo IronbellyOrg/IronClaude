@@ -39,6 +39,7 @@ def attended_gate(payload, *, pushed_sha=None, watermark=WATERMARK):
         "contract": core.DetectionContract.load(SKILL / "refs/detection-contract.md"),
         "pushed_sha": pushed_sha,
         "watermark": watermark,
+        "codex_watermark": None,
     }
     exec(compile(blocks[0], str(SKILL / "SKILL.md"), "exec"), namespace)
     return namespace

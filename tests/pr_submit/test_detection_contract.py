@@ -241,6 +241,52 @@ def test_local_override_arms_without_touching_shipped_source(tmp_path, monkeypat
     assert fallback.augment_bot_login == "augmentcode[bot]"
 
 
+def test_shipped_contract_carries_codex_identity_and_direct_construction_is_empty():
+    """The shipped ref supplies the Codex identity and re-trigger phrase; a directly
+    constructed contract keeps the Codex identities empty (fail-safe)."""
+    shipped = DetectionContract.load()
+    assert shipped.codex_bot_login == "chatgpt-codex-connector[bot]"
+    assert shipped.codex_app_slug == "chatgpt-codex-connector"
+    assert shipped.codex_retrigger_phrase == "@codex review"
+    bare = DetectionContract()
+    assert bare.codex_bot_login is None and bare.codex_app_slug is None
+
+
+def test_override_without_codex_keys_keeps_shipped_codex_identity(
+    tmp_path, monkeypatch
+):
+    """An override with no Codex keys (what contract setup writes) keeps Codex on."""
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# local\n\n```yaml\naugment_bot_login: "custom-bot[bot]"\nlocked: true\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "custom-bot[bot]"
+    assert armed.codex_bot_login == "chatgpt-codex-connector[bot]"
+    assert armed.codex_app_slug == "chatgpt-codex-connector"
+    assert armed.codex_retrigger_phrase == "@codex review"
+
+
+def test_override_with_empty_codex_values_disables_codex(tmp_path, monkeypatch):
+    """Explicitly empty (or null) Codex identities disable Codex for that override."""
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# local\n\n```yaml\naugment_bot_login: "custom-bot[bot]"\n'
+        'codex_bot_login: ""\ncodex_app_slug: null\nlocked: true\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.codex_bot_login is None
+    assert armed.codex_app_slug is None
+
+
 def test_t211_different_bot_not_detected(contract):
     """T-211: a comment/review from a different bot login → review not detected."""
     # Phase 10: swap for load_fixture("review-non-augment.json").

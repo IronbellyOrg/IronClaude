@@ -1,0 +1,2 @@
+$ grep -n "the Augment review" CLAUDE.md docs/user-guide/commands.md
+rc=1

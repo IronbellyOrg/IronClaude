@@ -1,9 +1,10 @@
 """Canonical data models for the ``sc:pr-submit`` deterministic core.
 
-Defines the closed run-log event enum (exactly 39 members — the 32 from spec
+Defines the closed run-log event enum (exactly 41 members — the 32 from spec
 §11.3 plus ``push_aborted_or_not_landed`` from §12.1, plus the 4 V1.1
 re-review/fallback events from addendum §6.1, plus ``silence_rerequested`` and
-``terminal_augment_no_response``), the severity tiers, the
+``terminal_augment_no_response``, plus the reviewer events ``reviewer_absent``
+and ``reviewer_incomplete``), the severity tiers, the
 single-FSM state lexicon (spec §5.1; Python identifiers drop the spec's prime, so
 ``S4'_HALT_BEFORE_PUSH`` becomes ``S4_HALT_BEFORE_PUSH``), and the ``Finding`` /
 ``SkillResult`` dataclasses the test bodies assert against.
@@ -19,14 +20,17 @@ from enum import Enum
 
 
 class EventType(str, Enum):
-    """Closed enum of run-log event types — EXACTLY 39 members.
+    """Closed enum of run-log event types — EXACTLY 41 members.
 
     The 32 event types listed in spec §11.3 (merged-spec.md:724-731) PLUS
     ``push_aborted_or_not_landed`` (spec §12.1 line 771 — the crash-window
     not-landed branch) — the 33 prior members — PLUS the 4 V1.1
     re-review/fallback events (``rereview_requested``, ``decline_detected``,
     ``auggie_fallback_invoked``, ``max_rounds_clamped``; addendum §6.1) PLUS
-    ``silence_rerequested`` (INV-S1) and ``terminal_augment_no_response``.
+    ``silence_rerequested`` (INV-S1) and ``terminal_augment_no_response`` PLUS
+    the two reviewer events ``reviewer_absent`` (a reviewer with no activity is
+    ignored for the rest of the run) and ``reviewer_incomplete`` (a present
+    reviewer did not complete within ``--timeout``).
     The run-log writer validates every appended event against this closed set;
     an event outside it is a programming error.
     """
@@ -81,6 +85,9 @@ class EventType(str, Enum):
     MAX_ROUNDS_CLAMPED = "max_rounds_clamped"
     SILENCE_REREQUESTED = "silence_rerequested"
     TERMINAL_AUGMENT_NO_RESPONSE = "terminal_augment_no_response"
+    # --- reviewer presence (Augment + Codex) — the 40th-41st ---
+    REVIEWER_ABSENT = "reviewer_absent"
+    REVIEWER_INCOMPLETE = "reviewer_incomplete"
 
 
 class Severity(str, Enum):
@@ -147,12 +154,13 @@ TERMINAL_STATES = frozenset(
 
 @dataclass
 class Finding:
-    """A normalized Augment review finding.
+    """A normalized review finding from Augment or Codex.
 
-    ``severity_hint``/``category``/``confidence``/``in_diff`` are the raw Augment
+    ``severity_hint``/``category``/``confidence``/``in_diff`` are the raw reviewer
     inputs; ``remapped_severity`` is filled by the severity router (FR-3.1) and
     ``verification_status`` by the verify-before-remediate wave (FR-3.5,
-    one of ``"unverified"`` / ``"verified"`` / ``"report_only"``).
+    one of ``"unverified"`` / ``"verified"`` / ``"report_only"``). ``reviewer``
+    names the bot whose thread this is (``"augment"`` or ``"codex"``).
     """
 
     path: str
@@ -170,6 +178,7 @@ class Finding:
     review_id: int | str | None = None
     original_line: int | None = None
     is_outdated: bool = False
+    reviewer: str = "augment"
 
     @property
     def fix_key(self) -> str:
@@ -209,7 +218,8 @@ class SkillResult:
     # ends in PROPOSED (the L1 ceiling proposes but applies no edits, T-402).
     proposal: str | None = None
     # --- V1.1 re-trigger / fallback fields (addendum §6.1) ---
-    # ``rereview_request_count`` counts S5a re-trigger comments (INV-R1, monotone,
+    # ``rereview_request_count`` counts re-triggered push cycles (one cycle may post
+    # an Augment and a Codex re-trigger comment; INV-R1, monotone,
     # <= max_rounds); ``fallback_engaged``/``auggie_review_invoked`` flag the R2
     # single-shot /sc:auggie-review fallback (INV-R2 strict-once);
     # ``decline_detected`` flags an Augment "abnormally large" decline (FR-9.1);

@@ -1,0 +1,74 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/REPORT.md
+audit_log_path: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/audit.log
+confidence_calibrated: 0.83
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.539
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: "see artifacts/coverage-matrix.yaml (65 rows)"
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 1f84077e475af7358384ebaf383d03500bc6d6e46b9a85e8a977a67a18341e0a
+  spec: 6c0dbc3fe56607ba242e6dea871c0f6469f62dac25d3e33c7417dc0b93c62397
+input_tree_sha256: b19616ace1e3ce5aeaaefe1106200de4ff7472b1308bbfc2991d640459cad5dc
+input_tree_file_count: 3
+input_tree_snapshot_path: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 57
+citations_revalidated: 57
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/reflect-pre/adversarial
+adversarial_convergence_score: 0.94
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+telemetry:
+  degraded_components: []
+  executor_class_source: unknown
+  executor_class_resolved: false
+  memory_hits: 0
+  memory_misses: 2
+  reviewer_models: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  calibrator_model: fable

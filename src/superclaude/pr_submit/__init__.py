@@ -23,6 +23,7 @@ from .classifier import (
     actionable_finding_comments,
     classify,
     has_augment_activity,
+    has_reviewer_activity,
     is_decline,
     poll_succeeded,
 )
@@ -36,6 +37,23 @@ from .models import (
     Severity,
     SkillResult,
 )
+from .reviewers import (
+    REVIEWERS,
+    augment_wait_outcome,
+    classify_codex,
+    codex_finding_comments,
+    codex_review_state,
+    codex_severity_hint,
+    codex_wait_outcome,
+    dedup_groups,
+    list_review_threads,
+    merge_wait,
+    parse_codex_priority,
+    pending_retriggers,
+    retrigger_phrase,
+    reviewer_activity,
+    reviewer_identities,
+)
 from .severity_router import finding_from_comment, remap_severity, route
 
 # NOTE: ``load_fixture`` lives in ``tests/pr_submit/conftest.py`` (Phase 10) per the
@@ -48,6 +66,7 @@ __all__ = [
     "actionable_finding_comments",
     "is_decline",
     "has_augment_activity",
+    "has_reviewer_activity",
     "poll_succeeded",
     "STATE_DECLINED",
     "poll_augment_review",
@@ -59,6 +78,22 @@ __all__ = [
     "parse_args",
     "evaluate_push_decision",
     "RunConfig",
+    # reviewers (Augment + Codex)
+    "REVIEWERS",
+    "reviewer_identities",
+    "retrigger_phrase",
+    "reviewer_activity",
+    "parse_codex_priority",
+    "codex_severity_hint",
+    "codex_review_state",
+    "classify_codex",
+    "codex_finding_comments",
+    "list_review_threads",
+    "augment_wait_outcome",
+    "codex_wait_outcome",
+    "merge_wait",
+    "dedup_groups",
+    "pending_retriggers",
     # severity routing
     "finding_from_comment",
     "remap_severity",

@@ -1,6 +1,6 @@
 # Thread Reply + Resolve (C4) — the reply/resolve contract
 
-This ref pins the exact reply + resolve surfaces for a remediated finding. The order is
+This ref pins the exact reply + resolve surfaces for a remediated review finding (Augment or Codex). The order is
 **reply-FIRST-then-resolve** (T-601 → T-602). Every call pins the RESOLVED origin repo
 (`--repo <owner/repo>` for `gh pr`; `repos/<owner/repo>/...` path for `gh api`; the GraphQL
 `owner`/`repo` vars are split from the same resolved `owner/repo`). The wrapper script
@@ -13,7 +13,9 @@ gh api --method POST repos/<owner/repo>/pulls/<N>/comments/<COMMENT_ID>/replies 
 ```
 
 - `<COMMENT_ID>` MUST be a **top-level review comment** (replies-to-replies are unsupported) — it is
-  the original Augment inline finding comment id captured during polling.
+  the original Augment or Codex inline finding comment id (the thread root's `databaseId`) captured
+  during polling. The wrapper identifies the thread by that root id (and optional `--thread-id`),
+  never by author, so a Codex root works exactly like an Augment root.
 - The reply summarizes **fix + commit SHA + passing validation commands**.
 - **`applied_edits` citation rule (T-603, INV-009):** the reply MUST cite the `applied_edits` status.
   An `applied_edits == 0` / ungroundable cycle MUST say **"no code change applied"** and MUST NEVER

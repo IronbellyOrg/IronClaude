@@ -1,0 +1,4 @@
+$ grep -n src/superclaude SKILL.md
+rc=1
+$ grep -n -i "disabled only\|disables Codex" SKILL.md
+269:- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionCo
