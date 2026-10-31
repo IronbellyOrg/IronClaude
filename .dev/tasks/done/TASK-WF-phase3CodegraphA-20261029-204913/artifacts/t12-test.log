@@ -1,0 +1,52 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 1049 items
+
+tests/commands/test_auggie_review_remediation_chain.py ............      [  1%]
+tests/commands/test_auggie_review_revagent.py ............               [  2%]
+tests/commands/test_graph_command.py ................................... [  5%]
+...............                                                          [  7%]
+tests/commands/test_help_command.py ......                               [  7%]
+tests/commands/test_impact_command.py .................................. [ 10%]
+.......................................                                  [ 14%]
+tests/commands/test_research_command.py ..                               [ 14%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 15%]
+tests/commands/test_workflow_command.py .................                [ 16%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 19%]
+....................................................                     [ 24%]
+tests/cli/test_how_we_work_install.py .......                            [ 25%]
+tests/recommend/test_routing_refresh.py ................................ [ 28%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 48%]
+                                                                         [ 48%]
+tests/skills/test_brainstorm_protocol.py .                               [ 48%]
+tests/skills/test_codegraph_adoption.py ................................ [ 51%]
+..................                                                       [ 53%]
+tests/skills/test_implement_adviser_family.py ...                        [ 53%]
+tests/skills/test_implement_retry_citation.py .....................      [ 55%]
+tests/skills/test_implement_retry_revert.py ............................ [ 58%]
+..........................                                               [ 61%]
+tests/skills/test_implement_severity_replay.py ............              [ 62%]
+tests/skills/test_implement_severity_static.py ....................      [ 64%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 64%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 65%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 66%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 68%]
+......                                                                   [ 68%]
+tests/skills/test_task_builder_merge.py ................................ [ 71%]
+....................................                                     [ 75%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 77%]
+...............................................                          [ 82%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 82%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 83%]
+tests/skills/test_workflow_archive.py .................................. [ 86%]
+........................................................................ [ 93%]
+.......................................................................  [100%]
+
+============================= 1049 passed in 9.93s =============================

@@ -26,6 +26,10 @@ _SKILL = _REPO / "src/superclaude/skills/sc-recommend/SKILL.md"
 _COMMANDS = _REPO / "src/superclaude/commands"
 _SKILLS = _REPO / "src/superclaude/skills"
 _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
+# Commands shipped after the frozen routing-refresh research package was written:
+# issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact. The
+# package is frozen, so the shipped set is compared minus these additions.
+_POST_REFRESH_ADDITIONS = {"graph", "impact"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")
@@ -637,7 +641,7 @@ def test_command_dispositions_trace_appendix_c_and_inventory():
     active = {c["name"] for c in commands if c["history"].startswith("Active")}
     assert (len(active), len(names - active)) == (43, 4)
     shipped = {p.stem for p in _COMMANDS.glob("*.md") if p.name != "README.md"}
-    assert shipped == active
+    assert shipped - _POST_REFRESH_ADDITIONS == active
     for command in commands:
         if command["name"] in _RETIRED:
             assert "R" in command["history"].split("; ", 1)[1].split("+")

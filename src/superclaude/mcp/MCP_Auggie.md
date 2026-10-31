@@ -14,6 +14,7 @@
 
 - **Over Grep/Glob**: When the query is conceptual ("the auth subsystem") rather than literal (a known symbol or path)
 - **Over WebSearch**: When the answer lives in this repository, not on the open web
+- **Over codegraph**: broad semantic recall; use codegraph for exact definitions and callers
 - **For onboarding**: First-pass orientation in a large or unfamiliar codebase
 - **Not for**: Exact symbol lookups, file path resolution, or version-controlled history (use Grep/Glob/git)
 

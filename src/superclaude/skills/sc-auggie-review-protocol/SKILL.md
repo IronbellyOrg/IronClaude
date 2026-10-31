@@ -1,13 +1,13 @@
 ---
 name: sc:auggie-review-protocol
 description: "Auggie-powered code review protocol for PRs, local diffs, and file snapshots — orchestrates Auggie's deep retrieval pass, validates findings against real files, posts to PR, and offers a remediation handoff chain"
-allowed-tools: Read, Grep, Glob, Bash(auggie *), Bash(gh *), Bash(git *), Bash(jq *), Bash(wc *), Bash(find *), Bash(mkdir *), Bash(cat *), Bash(mv *), Bash(cp *), Bash(date *), TodoWrite, Task, Write, Edit, Skill
+allowed-tools: Read, Grep, Glob, Bash(auggie *), Bash(gh *), Bash(git *), Bash(jq *), Bash(wc *), Bash(find *), Bash(mkdir *), Bash(cat *), Bash(mv *), Bash(cp *), Bash(date *), TodoWrite, Task, Write, Edit, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
 category: quality
 complexity: advanced
-mcp-servers: [auggie]
+mcp-servers: [auggie, codegraph]
 personas: [analyzer, architect, security, qa, refactorer]
 -->
 
@@ -136,8 +136,12 @@ revagent: <opus|sonnet|haiku|fable|default>
    - ≤ 1500 diff lines OR ≤ 15 files: single Auggie invocation
    - 1500-5000 lines OR 16-30 files: chunk by directory (one Auggie call per top-level dir)
    - > 5000 lines: STOP unless `--force`; report "diff too large"
+7. Run the codegraph readiness check once (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): MCP `codegraph_status` when it is listed, never the CLI (this skill has no `Bash(codegraph …)` pattern). Record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for the Wave 2 brief and Wave 3; record any `graph:*` token in the audit log. A non-`fresh` state only means Wave 3 uses the Read / Grep floor.
+8. Impact context (diff and PR modes only): invoke
+   > Skill sc:impact-protocol
+   with `--diff <base> --depth 1 --output-dir <output-dir>/inputs/impact --caller sc-auggie-review-protocol` and read only `status`, `degraded`, `readiness.index_state`, `dependents[].caller` and `dependents[].file` from its `return-contract.yaml`. Put only those dependent names and files into the Auggie prompt, as context, and copy `degraded` into the audit log. The Wave 3 diff-hunk rule is unchanged: a finding citing a line outside the diff hunks is still downgraded to "context" or dropped by severity, and a dependent file never brings a finding into scope. `status: blocked|failed` counts as `graph:absent` (continue without it).
 
-**Exit criteria**: `diff.patch` (if applicable), `files.txt`, and `metadata.json` saved under `<output-dir>/inputs/`. Chunking strategy decided.
+**Exit criteria**: `diff.patch` (if applicable), `files.txt`, and `metadata.json` saved under `<output-dir>/inputs/`. Chunking strategy decided. Codegraph run state recorded.
 
 ---
 
@@ -190,7 +194,7 @@ auggie --print \
 > - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
 
 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
-5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
+5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
 
 **Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
 
@@ -216,7 +220,7 @@ auggie --print \
 3. **File:line validation pass** (non-negotiable):
    - For each finding, `Read` the cited file at the cited line range. Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line.
    - For PR/diff mode, additionally confirm the line is within the diff hunks (a finding citing a line nowhere near the changes is downgraded to "context" or dropped, depending on severity).
-   - For `needs-grounding` findings, attempt to ground them using `mcp__auggie__codebase-retrieval` or `Grep`. If grounding succeeds, promote; if not, drop and log.
+   - For `needs-grounding` findings, attempt to ground them using `mcp__auggie__codebase-retrieval`, `codegraph_search` / `codegraph_callers` (definition and caller cross-check, only when `index_state: fresh`; then Read the line) or `Grep`. If grounding succeeds, promote; if not, drop and log.
 4. **Dedupe pass**:
    - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the evidence.
    - Findings that are restatements of the PR description's own caveats → drop with a note in the audit log.

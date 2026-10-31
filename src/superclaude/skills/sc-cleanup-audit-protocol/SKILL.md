@@ -3,9 +3,9 @@ name: sc:cleanup-audit-protocol
 description: "Multi-pass read-only repository audit producing evidence-backed cleanup recommendations"
 category: utility
 complexity: high
-mcp-servers: [context7]
+mcp-servers: [codegraph, context7]
 personas: [analyzer, architect, devops, qa, refactorer]
-allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write
+allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_files
 argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]"
 ---
 
@@ -80,6 +80,7 @@ Key behaviors:
 ## MCP Integration
 
 - **Native reasoning**: Cross-cutting synthesis during Step 5 report consolidation; ultrathink analysis for systemic pattern detection across all passes
+- **codegraph MCP**: import and caller tracing during Step 1 (`codegraph_callers`, `codegraph_files`), only when the guide's readiness check gives `index_state: fresh` (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)); rows are leads and zero callers never proves a file is unused; dynamic loading still needs Grep. The floor below runs unchanged when codegraph is unusable or returns nothing.
 - **Native Grep/Read floor**: Import chain tracing during Step 1 discovery phase (Grep with a word-boundary pattern for the module or symbol, then Read the call sites); Grep for the definition (`def name|class name|function name`) then Read the range when verifying dynamic loading patterns
 - **Context7 MCP**: Framework-specific configuration validation; verifying library usage patterns against official documentation
 - **Persona Coordination**: Analyzer leads all passes; Architect activated for infrastructure batches; DevOps for Docker/CI/deploy; QA for test file batches; Refactorer for duplication findings

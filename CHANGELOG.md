@@ -30,6 +30,13 @@ All notable changes to IronClaude are documented in this file.
 
 - `superclaude mcp --servers litellm` registers the LiteLLM MCP gateway (`http://ibcore:4000/mcp/`) as an HTTP server with an `x-litellm-api-key: Bearer ${LITELLM_API_KEY}` header. The key stays a literal placeholder that Claude Code reads from the environment, so no key is stored. The entry is opt-in: the "all servers" choice skips it. The installer now supports HTTP entries, and compares URL and headers (not a command) to decide whether a registration is already up to date.
 
+### Added: codegraph in commands, skills and agents; `/sc:impact` and `/sc:graph` (#323)
+
+- New `/sc:impact <symbol>...` (or `--diff <base>`) lists what depends on the named symbols or on a diff: production and test dependents with shown/total counts, call sites checked by reading the code, and, with `--tests`, an advisory test list. It writes `impact.md` and `return-contract.yaml` and never stops its caller. `/sc:implement`, `/sc:pr-submit`, `/sc:troubleshoot --fix`, `/sc:auggie-review`, `/sc:task` (STRICT) and `/sc:reflect` call it for warnings and context only; no gate, severity or verdict changes.
+- New `/sc:graph` reports whether this worktree's code-graph index is ready (version, pin, index state, worktree relation, counts). `/sc:graph init` is the manual indexing path for a worktree the session-start hook did not index; no skill or agent runs it.
+- New shared guide `~/.claude/CODEGRAPH.md` (installed with the core files) holds the readiness check, the closed `graph:*` token list and the rules every primitive follows: codegraph answers are leads that are Read before they are cited, and the Grep/Read fallback always stays. Troubleshoot, reflect, validate-roadmap, brainstorm, cleanup-audit, auggie-review, task, tasklist and four agents now use codegraph above that fallback; `/sc:explain` gains a one-hop callers/callees view and `/sc:load` points to `/sc:graph status`.
+- `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` switches off codegraph use in commands, skills and agents only (they fall back to Grep/Read); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` still switches off only the session-start index hook.
+
 ### Added: codegraph installed by default (#323)
 
 - `superclaude install` (and so `./update.sh`) now has a required codegraph phase. It reuses a codegraph `1.6.2` already on `PATH` or in `~/.local/bin`; otherwise it downloads the pinned `v1.6.2` release for Linux or macOS (x64 or arm64), checks its SHA-256 against the value pinned in the source, and installs it under `~/.codegraph/versions/v1.6.2/`. It never runs upstream's installer. A failure keeps the rest of the install and exits 1, naming the failed stage.

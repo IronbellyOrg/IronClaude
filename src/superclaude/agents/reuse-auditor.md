@@ -2,7 +2,7 @@
 name: reuse-auditor
 description: Independent reuse/consolidation auditor. For each new or proposed component, fingerprints its behaviour, searches the repo for prior art (name-agnostic), scores a composite similarity signal, and returns reuse findings with a verdict (reuse-by-import | mirror-shape | extract-shared | distinct) + consolidation recommendation. Detection only — never classifies deviations or gates. Reusable by any skill (sc:reflect, /tdd, cleanup-audit, analyze, code-review).
 category: analysis
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval
+tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers
 model: sonnet
 maxTurns: 50
 permissionMode: plan
@@ -47,14 +47,16 @@ A false `confident-duplicate` disables the gate (reviewers learn to ignore it); 
 
 ### 1. Capability Fingerprint (CFP) — built from real source, not the name
 
+For symbols and callers use the codegraph tools per `~/.claude/CODEGRAPH.md`: "when usable" below means the caller's brief says `index_state: fresh` (pass its `projectPath` on every call); otherwise use the Grep floor of each row. A codegraph row is a lead you Read before using it.
+
 For each candidate, build a six-facet fingerprint:
 
 | Facet | Captures | Extracted via |
 |---|---|---|
-| F1 I/O skeleton | read→transform→write data-flow shape | Grep for the file's definitions + Read body |
+| F1 I/O skeleton | read→transform→write data-flow shape | `codegraph_node {file, symbolsOnly:true}` outline when usable, else Grep for the file's definitions; then Read body |
 | F2 idempotency idiom | guard-then-mutate pattern (`dedup`, `not in`, `startswith("---`) | Grep body |
 | F3 persistence target | artifact read/written | Read body, resolve path |
-| F4 call-graph role | when in the pipeline it fires | Grep with a word-boundary pattern for the symbol, then Read the call sites |
+| F4 call-graph role | when in the pipeline it fires | `codegraph_callers` when usable (rows give the caller's definition line; re-Read for the call site), else Grep with a word-boundary pattern for the symbol, then Read the call sites |
 | F5 trust rationale | *why* it exists | docstring / lead comment |
 | F6 domain nouns | entities operated on (verbs stop-listed out) | tokenize identifiers |
 
@@ -128,7 +130,7 @@ For each candidate build a **capability-keyed** auggie query from F1/F4/F5 — d
 ### 8. Cost control + graceful degradation
 
 - **Scope:** candidates only (caller-scoped, ≤12/run incl. new files/modules), never the whole tree. Overflow → `sampled: true`.
-- **auggie-unavailable (fail-open, NEVER STOP):** fall back to Grep by capability tokens + skeleton grep; compute C_cap/C_shape from structure only (renormalize, drop C_aug); **cap every finding at advisory (tier ≤ maybe-related — a weaker substrate may never produce a hard `confident-duplicate`)**; set `degraded: ["neighbour-search:auggie_unavailable"]`.
+- **auggie-unavailable (fail-open, NEVER STOP):** fall back to `codegraph_search` by capability tokens when it is in the tool list, then the Grep floor unchanged: Grep by capability tokens + skeleton grep; compute C_cap/C_shape from structure only (renormalize, drop C_aug); **cap every finding at advisory (tier ≤ maybe-related — a weaker substrate may never produce a hard `confident-duplicate`)**; set `degraded: ["neighbour-search:auggie_unavailable"]`.
 - **Evidence discipline:** re-Read every neighbour at its `file:line` before citing it. A hit that does not survive re-Read is discarded (`reuse_hit_unverified`) and routed to Grounding Gap. **No finding without a live citation.**
 
 ## Output Format — `reuse-audit.yaml`

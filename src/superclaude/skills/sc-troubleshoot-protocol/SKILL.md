@@ -1,13 +1,13 @@
 ---
 name: sc:troubleshoot-protocol
-description: "Tiered debugging protocol — fast Tier 1 triage with auggie grounding and a native Grep/Read floor, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+description: "Tiered debugging protocol — fast Tier 1 triage with auggie + codegraph grounding and a native Grep/Read floor, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
 category: utility
 complexity: advanced
-mcp-servers: [auggie, context7, tavily]
+mcp-servers: [auggie, codegraph, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 -->
 
@@ -28,8 +28,9 @@ Diagnose a reported issue with the smallest amount of work that produces a high-
 This contract applies to every troubleshooting-owned native diagnostic worker in Waves 1.5, 1.6, 1.7, 3, 4 and the native review fallbacks in Wave 6. It does not change delegated skills' internal agents or user-run remediation executors.
 
 - **Profile, not persona permissions:** use `subagent_type=troubleshoot-analyst`. A documentation branch, specialist or `self-review` is its `lens_name`, never an unrestricted runtime agent type. Keep `confidence-calibrator` and `evidence-validator` on their existing restricted profiles. Do not use forked workers that inherit the parent's capabilities.
-- **Resolve before dispatch:** inspect `.claude/agents/troubleshoot-analyst.md` first, then `~/.claude/agents/troubleshoot-analyst.md` only if the project copy is absent. Read the selected definition; it must declare the closed roster `Read, Grep, Glob, mcp__auggie__codebase-retrieval`. Missing/empty rosters, extra tools or wildcards are invalid. A shadowing invalid project definition is not repaired by silently selecting the global copy. Record availability in the audit log.
+- **Resolve before dispatch:** inspect `.claude/agents/troubleshoot-analyst.md` first, then `~/.claude/agents/troubleshoot-analyst.md` only if the project copy is absent. Read the selected definition; it must declare the closed roster `Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact`. Missing/empty rosters, extra tools or wildcards are invalid. A shadowing invalid project definition is not repaired by silently selecting the global copy. Record availability in the audit log.
 - **No unrestricted fallback:** if the profile is missing or invalid, do not substitute a general-purpose worker or the specialist's unrestricted definition. Record that branch/card/review as unavailable and use the existing degraded, inline-analysis or reporting path without fabricating a returned artifact. Inline analysis does not authorize an experiment or bypass a required independent gate.
+- **Codegraph run state in every brief:** every `troubleshoot-analyst` brief (Waves 1.5, 1.6, 1.7, 3, 4 and 6) carries the Wave 1 readiness result: `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every codegraph call. The analyst calls codegraph only when `index_state: fresh` (`~/.claude/CODEGRAPH.md`); otherwise it stays on its Grep/Read floor.
 - **Parent-owned persistence:** pass the assignment, `lens_name`, existing evidence, required schema and parent-owned `output_path`. The worker returns complete data, not a claimed file path. The orchestrator writes each returned result to that path on receipt, before any read, calibration or downstream consumer. Preserve existing filenames and specialist identities. The already restricted calibrator/validator reports are persisted by the same parent receipt rule.
 - **Parent-owned metadata and observations:** collect timestamps, mtimes, actual log byte counts, external documentation and captured command results in the parent under the existing execution gate. Supply provenance or retain unknown/unobserved values. The worker never runs `stat`, a shell fallback or a reproducer to obtain them.
 - **Experiments remain data:** returned scripts are inert text. Materialize them through file tooling, never host-shell heredoc assembly. The parent may execute a proposed experiment only at an already established trusted confined boundary and under the existing authorization/transport gate. If that boundary is unavailable, retain the measurement as pending; never execute unrestricted or infer that scratch paths alone provide confinement. This profile is not an OS sandbox for the parent and adds no experimental runtime.
@@ -153,7 +154,7 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
    - "auth", "token", "leak", "exposed", "CVE", "vulnerab" → `security`
    - "pytest", "jest", "flake", "intermittent", "passing locally" → `test`
    - On ambiguity, leave `--type` unset and treat all agent specialties as candidates for Tier 2.
-3. Resolve `--scope` to a concrete path/symbol. If given, narrow auggie queries and Grep/Read lookups to that target.
+3. Resolve `--scope` to a concrete path/symbol. If given, narrow auggie/codegraph queries and Grep/Read lookups to that target.
 4. Compute output slug: `<type-or-untyped>-<first-5-words-of-issue-or-scope>-<YYYYMMDDHHMMSS>` and create `<output-dir>/`.
 5. Open audit log; emit machine-readable header:
 
@@ -165,7 +166,7 @@ depth: <quick|standard|deep|auto>
 scope: <path|symbol|none>
 fix_authorized: <bool>
 no_escalate: <bool>
-mcps_available: <auggie|context7|tavily|none>
+mcps_available: <auggie|codegraph|context7|tavily|none>
 output_dir: <abs-path>
 caller: <name|none>
 context_path: <abs-path|none>
@@ -190,6 +191,8 @@ context_path: <abs-path|none>
 
 1. **Ground the symptom in real code** — issue the auggie call (or fall back to native tools):
    - `mcp__auggie__codebase-retrieval` with query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
+   - Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
+   - Codegraph readiness, once per run (guide section 2; skipped under `--no-mcp`): record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for every later brief, and record any `graph:*` token in the audit log and in REPORT.md Grounding Gaps. Only when `index_state` is `fresh` and the lookup tools are listed: `mcp__codegraph__codegraph_node {file, symbolsOnly:true}` on the target file, or, when the issue names a function or class, `mcp__codegraph__codegraph_node {symbol, includeCode:true}` plus `mcp__codegraph__codegraph_callers {symbol, limit:20}`, each with `projectPath`. In the status-only branch (only `codegraph_status` listed, token `graph:unlisted`), when the guide's readiness check gives `access: cli`, use the CLI read verbs instead: `codegraph node --file <path> --symbols-only`, `codegraph node <name>`, `codegraph callers <name> --json --limit 20`. Write the caller rows to `<output-dir>/tier1-callers.md` with `index_state` and each row's `resolution` (`def-line` until the guide's call-site check confirms it). Graph rows are leads: Read the range before citing it, and an empty result never proves absence. When `index_state` is anything but `fresh` (stale, not initialized, foreign, absent, disabled, error), or a codegraph lookup fails or returns nothing, run the native floor of the next bullet for that lookup (the Grep definition and caller steps), even when auggie answered.
    - If `--no-mcp` or auggie is unavailable: fall back to `Glob` + `Grep` on the issue keywords; note the fallback in the audit log. When the issue names a specific function or class, `Grep` for its definition (`def name`, `class name`, `function name`) and `Read` the range; for its callers, `Grep` with a word-boundary pattern and `Read` the call sites.
 1b. **Write the execution-locus card** — `<output-dir>/execution-locus.md`, on every invocation including pasted-log issues, re-derived each run and never carried over. One line each; `unknown` is legal, blank is illegal:
    - `PRINT-SITE:` the file / stream / job / terminal where the failing line appeared. Copy verbatim from the issue.
@@ -213,7 +216,7 @@ context_path: <abs-path|none>
    - For lint, type or compile symptoms on a named file: the orchestrator (never `troubleshoot-analyst`, which has no Bash) runs the project's own linter or type-checker on that file through `Bash`, obeying the step-1b execution gate and the **Bash diagnostics safety envelope**, then passes the captured output to workers as parent-collected evidence with provenance. Envelope (the reflect protocol's section 6.1.1 envelope, retitled for this call; the full text is in `~/.claude/skills/sc-reflect-protocol/SKILL.md` or the project `.claude/skills/sc-reflect-protocol/SKILL.md`): (a) build the command from a fixed template with vetted arguments, never from raw issue prose; (b) first token in the closed set `{ruff, mypy, pytest, make, uv, npm, tsc, cargo}`; (c) reject any command containing `;` `|` `&` `$` a backtick `>` `<` a newline or parentheses; (d) wrap in `timeout <N>` (default 120s, max 600s) and treat a timeout as a pending measurement; (e) record at most 50 KB of output, tail-truncated after the call; (f) scope `cwd` to the affected subtree; (g) refuse mutation (`git` verbs, `pip install`, `rm`, redirects). A rejected command is recorded with its reason and the measurement stays pending; no diagnostics are fabricated.
    - For performance issues: take the user's reported metric as the observation; do not run benchmarks in Tier 1.
 
-**Exit criteria**: Real-code grounding complete (auggie results captured in audit log, or `Glob`/`Grep` fallback noted); observation captured at `<output-dir>/tier1-observation.md` (or "no repro available" recorded in audit). Emit "Wave 1 complete: grounding done; handing off to Wave 1.5".
+**Exit criteria**: Real-code grounding complete (auggie/codegraph results captured in audit log, or `Glob`/`Grep` fallback noted); observation captured at `<output-dir>/tier1-observation.md` (or "no repro available" recorded in audit). Emit "Wave 1 complete: grounding done; handing off to Wave 1.5".
 
 **Token budget for Wave 1**: target ≤ ~3k Claude tokens (MCP retrieval offloads the bulk of the work). Hypothesis formation's separate token budget is in Wave 1.7.
 
@@ -282,7 +285,7 @@ context_path: <abs-path|none>
 
 2. **S1.6.1 — Load `refs/diagnosability-audit.md`** (lazy load, mirroring Wave 1.5's discipline). Read Section 1 (query templates), Section 2 (fallback paths), Section 3 (per-branch schemas), Section 4 (sufficiency rubric + 3-W's synthesis), Section 5 (complexity gate), Section 6 (Diagnosability Context Card template), Section 7 (tasklist rules), Section 8 (T4 worked example).
 
-3. **S1.6.2 — Spawn 2 audit branches in parallel** via `Task` with `subagent_type=troubleshoot-analyst` (single message, two Task calls). Set `lens_name` to the observability branch, pass its existing schema and parent-owned output_path, and request returned data only:
+3. **S1.6.2 — Spawn 2 audit branches in parallel** via `Task` with `subagent_type=troubleshoot-analyst` (single message, two Task calls). Set `lens_name` to the observability branch, pass its existing schema, parent-owned output_path and the codegraph run state (`index_state`, `checked_at`, `worktree_root`, `projectPath`, from Wave 1 step 1), and request returned data only:
    - **Branch A — Log-Call Inspection**: logger/print/exception-handler calls + error-reporter SDK initializations on the `failing_component` and immediate callers. Captures exception-handler richness as a piggyback signal (no separate branch).
    - **Branch B — Log-Config Inspection**: log-config files, env vars, structured-log filters, sampling configuration that governs runtime log emission for the `failing_component`.
 
@@ -401,6 +404,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
    - The original issue + Tier 1 hypothesis card (so they can agree, disagree, or extend)
    - The **Documentation Context Card** at `<output-dir>/doc-context.md` (the same single card produced by Wave 1.5 — agents do NOT re-run discovery). If `--no-doc-discovery` was set, this path is `null` and agents set `consistency_with_docs: not_applicable` in their hypothesis cards.
    - The MCP enrichment results
+   - The codegraph run state from Wave 1 step 1: `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every codegraph call (codegraph only when `index_state: fresh`, `~/.claude/CODEGRAPH.md`)
    - The parent-owned output_path for their returned hypothesis card: `<output-dir>/tier2-<agent-name>-hypothesis.md`. Return complete card data; do not write that file.
    - An instruction to produce **at most one proposed fix** with: claim, evidence (cited file:line or command output), proposed fix, confidence, risks, `consistency_with_docs` (see `refs/hypothesis-card-template.md`), and a one-line "if I'm wrong it's probably because...".
    - When `<output-dir>/producers.md` exists, paste its full `## Producers` table verbatim (never summarised), with `observation-kind`/`producer-count`; also paste tasklist discriminator rows when present. **Menu-equality check** before spawning: compare the SET of surviving producer identities (table row ID plus `file:line`) in the prompt with the SET in the on-disk table; the sets must match, even when several producers emit the same token. Separately require coverage of every surviving enum value; never equate distinct-token count with producer count. Repair missing identities before spawning. If the audit was bypassed and no table exists, explicitly record the absent menu and skip only this table-dependent check, not grounding/calibration; never invent a producer file.
@@ -436,7 +440,7 @@ Verification command: run one initial on-disk completeness check per tier over t
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | Agent subprocess fails | Continue with remaining agents; record failure in audit | If < 2 agents complete, downgrade to "Tier 1 only" and add a warning to the report |
-| MCP call fails (auggie) | Fall back to `Grep`/`Glob`; note in audit | None — proceed without that enrichment |
+| MCP call fails (auggie/codegraph) | Fall back to `Grep`/`Glob`; note in audit; add the matching `graph:*` token for codegraph | None — proceed without that enrichment |
 | MCP call fails (context7/tavily) | Continue without external docs; note in audit | None |
 | All agents converge with high confidence | Skip Wave 4 (adversarial) only if the converged variable was *observed* in this run; otherwise mark the cluster `split-pending` (step 4.5) and append its probe pair to the tasklist; then jump to Wave 5 | None |
 | All agents diverge with low confidence | Proceed to Wave 4; warn in audit that no fix is strongly supported | None |
@@ -581,7 +585,7 @@ return_contract_path: <abs-path|none>
 2. **Present the remediation offer** to the user — read the prompt template in `refs/remediation-handoff.md`. Ask one yes/no question. Wait.
 3. On accept, run the selected route (phase detail lives in `refs/remediation-handoff.md`):
    - **Plan route (`--fix`)**
-     - **Phase A — Build the plan**: write `<output-dir>/remediation-source.md` from REPORT.md (summary, files, acceptance, references, `## Pipeline Hardening` block), then invoke `Skill sc:workflow-protocol` on it with `--depth standard --handoff none`. Never `--handoff implement`.
+     - **Phase A — Build the plan**: first, impact warning: invoke `> Skill sc:impact-protocol` with `<symbols named in Proposed Fix> --depth 2 --output-dir <output-dir>/impact --caller sc-troubleshoot-protocol` and read only `status`, `degraded`, `symbols[].prod.total` and `report_path` from its `return-contract.yaml`; print one warning line per symbol, copy `degraded` into the audit log, and list `report_path` under `## References` in `remediation-source.md` (`status: blocked|failed` counts as `graph:absent`; the warning changes no gate, severity or route). Then write `<output-dir>/remediation-source.md` from REPORT.md (summary, files, acceptance, references, `## Pipeline Hardening` block), then invoke `Skill sc:workflow-protocol` on it with `--depth standard --handoff none`. Never `--handoff implement`.
      - **Phase B — Pre-execution review (consume, do not re-run)**: `sc:workflow` Wave 4 already ran `/sc:reflect --mode pre` on the tasklist; read `reflect_status` / `reflect_report_path` from its `return-contract.yaml` and surface them. If reflect flags issues, ask the user whether to refactor (append to `remediation-review-notes.md`, which Phase A re-includes as `## Review Feedback`; re-run Phase A, which creates a new package) or proceed as-is. `reflect_status: skipped|failed` -> the native fallback uses `subagent_type=troubleshoot-analyst` with `lens_name=self-review`; the orchestrator persists the returned review to the parent-supplied review output_path before consuming it. Never call `/sc:reflect --mode pre` a second time.
      - **Phase C — Execution gate**: do NOT auto-execute. Record `baseline_ref` (`git rev-parse HEAD`), surface the tasklist path (`.dev/tasks/to-do/<id>/<id>.md`) and the literal command (`/sc:implement <pkg>/<id>.md`) the user can run. Stop here — the user runs it. A `TASK-WF-*` package is never given to `/task`.
      - **Phase D — Post-execution validation** (only if the user reports back after `/sc:implement` completes): `/sc:reflect --mode post --spec <REPORT.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` (or `subagent_type=troubleshoot-analyst` with `lens_name=self-review` as the native fallback; the orchestrator persists its returned review before consuming it) before the user commits; `<pkg-now>` is `to-do/<id>` or, after `/sc:implement` archived it, `done/<id>`.
@@ -603,11 +607,12 @@ The table describes orchestrator capabilities. Bash execution, metadata capture 
 | Tool | Tier 1 | Tier 2 | Tier 3 |
 |------|--------|--------|--------|
 | `mcp__auggie__codebase-retrieval` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
+| `mcp__codegraph__codegraph_{status,search,node,callers,impact}` | ✓ (one readiness check; Wave 1 outline, symbol body and callers into `tier1-callers.md`; status-only branch: CLI read verbs through `Bash`) | ✓ (orchestrator lookups; analysts use their own codegraph roster when `index_state: fresh`) | — |
 | `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
 | `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |
 | `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator (C-rule structural assertions via `assertions_path`); Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5 (A-rule structural assertions)) | ✓ (self-review for post-exec) |
 | `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`sc:workflow-protocol` plan route / `task-builder` MDTM route, `/sc:reflect`) |
-| `Read` / `Grep` / `Glob` | ✓ (Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
+| `Read` / `Grep` / `Glob` | ✓ (Wave 1 floor when auggie/codegraph are unavailable or empty; Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
 | `Bash` | ✓ (repro when cheap, run via `OBSERVE-VIA` from the execution-locus card; failing-arm job-log fetch; S1.6.4 read-only rows only through the shared authorization/transport gate, never by executing artifact-file access) | ✓ (diagnostic commands; the project's linter or type-checker under the Bash diagnostics safety envelope) | — |
 | `Write` | ✓ (hypothesis + report) | ✓ (hypothesis cards, fix proposals) | — |
 
@@ -616,7 +621,7 @@ The table describes orchestrator capabilities. Bash execution, metadata capture 
 - Always run Tier 1 first; respect the "quick first option" contract
 - Auto-escalate only when the rubric in `refs/escalation-rubric.md` says so, or when `--depth deep` is set
 - Fan out 2-4 specialist agents in parallel in Tier 2, chosen by signal mix
-- Use auggie every tier for in-repo grounding, with Grep/Read as the native floor for symbol, definition and caller lookups; use context7/tavily for relevant Tier 2 enrichment, with the conditional behaviour-definition fetch also permitted in Tier 1 before pair construction or calibration
+- Use auggie/codegraph every tier for in-repo grounding (codegraph for symbol, definition and caller lookups per `~/.claude/CODEGRAPH.md`), with Grep/Read as the native floor for symbol, definition and caller lookups; use context7/tavily for relevant Tier 2 enrichment, with the conditional behaviour-definition fetch also permitted in Tier 1 before pair construction or calibration
 - Run `/sc:adversarial` only when Tier 2 produces ≥2 competing strong fixes (cap is the Tier-2 agent cap of 4, not a debate min/max of 3) (not when there is consensus — that wastes the debate)
 - Run the `self-review` lens via `subagent_type=troubleshoot-analyst` after the adversarial merge; persist its returned review before consuming it
 - Validate every `file:line` citation in the report against the real file

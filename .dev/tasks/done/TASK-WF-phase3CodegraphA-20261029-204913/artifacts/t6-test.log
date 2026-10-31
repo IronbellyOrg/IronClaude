@@ -1,0 +1,61 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 405 items
+
+tests/troubleshoot/backtest/test_backtest_e1.py ..                       [  0%]
+tests/troubleshoot/backtest/test_backtest_e2.py ..                       [  0%]
+tests/troubleshoot/backtest/test_backtest_e3.py ..                       [  1%]
+tests/troubleshoot/backtest/test_backtest_e4.py ..                       [  1%]
+tests/troubleshoot/backtest/test_backtest_e5.py ..                       [  2%]
+tests/troubleshoot/backtest/test_backtest_status_separation.py ...       [  3%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py .......       [  4%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py .................. [  9%]
+.                                                                        [  9%]
+tests/troubleshoot/backtest/test_git_replay_integration.py ..            [ 10%]
+tests/troubleshoot/backtest/test_git_replay_unit.py ....                 [ 11%]
+tests/troubleshoot/backtest/test_path_resolution.py .                    [ 11%]
+tests/troubleshoot/backtest/test_replay_executor.py ......               [ 12%]
+tests/troubleshoot/backtest/test_waiver_regreen.py .                     [ 13%]
+tests/troubleshoot/test_behaviour_definition_row.py ...                  [ 13%]
+tests/troubleshoot/test_calibrator_assertions.py ....................... [ 19%]
+.......................                                                  [ 25%]
+tests/troubleshoot/test_calibrator_eval_cases.py ....................... [ 30%]
+............                                                             [ 33%]
+tests/troubleshoot/test_codegraph_grounding.py .....                     [ 35%]
+tests/troubleshoot/test_cosmetic_counter.py .                            [ 35%]
+tests/troubleshoot/test_counter_key.py .                                 [ 35%]
+tests/troubleshoot/test_diagnostic_worker_contract.py .................. [ 40%]
+................................                                         [ 47%]
+tests/troubleshoot/test_discriminator_form.py ..                         [ 48%]
+tests/troubleshoot/test_discriminator_rows.py .....                      [ 49%]
+tests/troubleshoot/test_hardening_h0.py ..                               [ 50%]
+tests/troubleshoot/test_hardening_h1.py .                                [ 50%]
+tests/troubleshoot/test_hardening_h2.py ..                               [ 50%]
+tests/troubleshoot/test_hardening_h3.py ...                              [ 51%]
+tests/troubleshoot/test_hardening_h4.py ..                               [ 52%]
+tests/troubleshoot/test_hardening_output_contract.py ...                 [ 52%]
+tests/troubleshoot/test_hardening_verdict.py ......                      [ 54%]
+tests/troubleshoot/test_hardstop_verdicts.py ....                        [ 55%]
+tests/troubleshoot/test_hc_rename_guard.py .                             [ 55%]
+tests/troubleshoot/test_headline_threshold.py ..                         [ 56%]
+tests/troubleshoot/test_inline_fallback_parity.py ...                    [ 56%]
+tests/troubleshoot/test_locus_card.py ................                   [ 60%]
+tests/troubleshoot/test_menu_equality.py ..............                  [ 64%]
+tests/troubleshoot/test_primitive_differential.py ...                    [ 64%]
+tests/troubleshoot/test_primitivegrep_targeting.py .                     [ 65%]
+tests/troubleshoot/test_producers_enumeration.py .......                 [ 66%]
+tests/troubleshoot/test_regression_sysbox.py ...                         [ 67%]
+tests/troubleshoot/test_threshold_bracket.py ...                         [ 68%]
+tests/troubleshoot/test_timestamp_tolerance.py ...                       [ 69%]
+tests/troubleshoot/test_validator_assertions.py ........................ [ 75%]
+........................................................................ [ 92%]
+..........................                                               [ 99%]
+tests/troubleshoot/test_verdict_source.py ...                            [100%]
+
+============================= 405 passed in 15.81s =============================
+pytest_rc=0

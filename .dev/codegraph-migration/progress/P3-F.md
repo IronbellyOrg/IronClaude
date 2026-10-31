@@ -1,0 +1,31 @@
+**Phase 3 (adopt codegraph), group F: callers of /sc:impact and routing: done**
+
+- Commit: 49614436 and review fix ad9aa379 on branch feat/codegraph-adoption
+- Changed:
+  - src/superclaude/skills/sc-implement-protocol/SKILL.md and its plugin twin (Q1: rename, delete or signature tasks get a dependents warning before the first edit; Q6: optional advisory test list that can add tests to the extras run, never remove them)
+  - src/superclaude/skills/sc-pr-submit-protocol/SKILL.md (Wave 3 context for the verifier, VG-1 advisory test list with the gate unchanged) and refs/troubleshoot-dispatch.md (Wave 4 warning before a fix)
+  - src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md (Wave 6 plan route Phase A: warning per symbol named in the proposed fix, report path listed under References in remediation-source.md; Tier 1 keeps its own codegraph calls)
+  - src/superclaude/skills/sc-auggie-review-protocol/SKILL.md (Wave 1: dependent names and files go into the Auggie prompt as context; the diff-hunk rule is unchanged)
+  - src/superclaude/skills/sc-task-protocol/SKILL.md (STRICT step 6 calls /sc:impact instead of the inline impact text, candidates still confirmed with Grep; `Skill` added to allowed tools)
+  - src/superclaude/commands/load.md and explain.md, each with its plugin twin and its root copy commands/sc-load.md, commands/sc-explain.md (load names `/sc:graph status` to the user; explain gets a one-hop callers/callees view, limit 10, rows Read before citing; `codegraph` added to explain's mcp-servers)
+  - src/superclaude/core/HOW-WE-WORK.md and its byte copy plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md (rows for /sc:graph and /sc:impact)
+  - tests/core/test_how_we_work_routing_table.py (`sc:graph`, `sc:impact` added to the pinned set) and tests/commands/test_impact_command.py (`test_impact_callers_wired` over 7 caller files, a troubleshoot Wave 1 negative check, a `Skill` allowed-tools check; 73 tests in the file)
+- Every caller reads only `return-contract.yaml`, copies `degraded`, treats `status: blocked|failed` as `graph:absent`, and changes no gate, severity, route or touched-file rule.
+- Checks run and result:
+  - `uv run pytest tests/commands tests/core/test_how_we_work_routing_table.py tests/cli/test_how_we_work_install.py tests/recommend/test_routing_refresh.py tests/skills`: PASS, 1049 passed.
+  - Related suites (`tests/core tests/pr_submit tests/recommend tests/troubleshoot tests/agents tests/unit/test_cli_install.py tests/cli/reflect/test_remediation_source_template.py`): PASS, 1578 passed.
+  - `cmp` of HOW-WE-WORK.md and of the implement skill against their plugin copies: identical.
+  - Independent review of this task: first pass found three blocking issues (root command copies not edited; three /sc:impact call sites did not copy `degraded`; this comment listed four of the group's decision rows); fixed in the fix commit named above, re-review runs after this update.
+- Decisions made on my own:
+  - The task skill's call sits in STRICT step 6, where the inline impact text was, not step 7 (step 7 is "Update all affected files").
+  - Output paths use each caller's own folder name (`<ledger dir>` in implement, which also runs non-package sources; `<output-dir>` in pr-submit).
+  - Troubleshoot calls /sc:impact only on the plan route; the deep (task-file) route is unchanged, because only the plan route writes remediation-source.md.
+  - /sc:load only tells the user to type `/sc:graph status`; no skill or command runs /sc:graph.
+  - Both explain.md copies get the same one-hop line; their existing one-line difference (an extra example comment in the plugin copy) stays.
+  - `ruff format` reformatted the whole tests/commands/test_impact_command.py, including Task 9 lines (layout only; 73 tests pass).
+  - After review: the root copies commands/sc-load.md and commands/sc-explain.md get the same new bullet (the mirror rule names root copies).
+  - After review: implement Q1 and Q6 copy `degraded` into the task's notes; pr-submit Wave 3 and VG-1 read `degraded` and copy it into the run-log.
+  - implement Q1 writes `index_state` and `checked_at` to the task's notes, not the ledger line, because resume parses the ledger's fixed line format.
+  - After review: all three explain.md copies list `codegraph` in mcp-servers, as reflect.md does.
+- Left for later / blocked: none
+- Next group: G, final verification, PR and Coder addendum

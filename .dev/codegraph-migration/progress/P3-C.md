@@ -1,0 +1,28 @@
+**Phase 3 (adopt codegraph), group C: troubleshoot and other skills: done**
+
+- Commit: afc075af on branch feat/codegraph-adoption (troubleshoot: 28e3597a and fix e6724a7d)
+- Changed:
+  - src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md, refs/triage-checklist.md, refs/diagnosability-audit.md
+  - src/superclaude/commands/troubleshoot.md
+  - src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md and src/superclaude/commands/validate-roadmap.md
+  - src/superclaude/skills/sc-brainstorm-protocol/SKILL.md and refs/handoff-routing.md; src/superclaude/commands/brainstorm.md and its plugin twin
+  - src/superclaude/skills/sc-task-protocol/SKILL.md and src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+  - src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md and src/superclaude/commands/cleanup-audit.md
+  - src/superclaude/skills/sc-auggie-review-protocol/SKILL.md and src/superclaude/commands/auggie-review.md
+  - tests/troubleshoot/test_codegraph_grounding.py (new, 5 tests), tests/skills/test_codegraph_adoption.py (new, 33 tests)
+- Checks run and result:
+  - `uv run pytest tests/troubleshoot`: PASS, 405 passed.
+  - `uv run pytest tests/skills/test_codegraph_adoption.py tests/skills/test_brainstorm_protocol.py tests/skills/test_sc_recommend_routing_contract.py tests/commands tests/sc-roadmap`: PASS, 336 passed, 87 skipped.
+  - Extra run of tests/skills, tests/core, tests/troubleshoot and tests/agents: 1044 passed.
+  - Independent review of the troubleshoot task: first pass found one blocking issue (codegraph was used on a stale index instead of falling to the Grep floor) and one minor wording issue; both fixed in e6724a7d, re-review compliant. The review of the second task runs after this comment.
+- Decisions made on my own:
+  - The troubleshoot command's plugin and root copies stay unchanged: they are older generic texts with no matching sentence.
+  - Troubleshoot Tier 1 writes the caller rows to tier1-callers.md, which the final smoke test expects.
+  - The index-state fields go into every troubleshoot analyst brief, and the skill's roster check now names the analyst's four codegraph tools.
+  - After review: troubleshoot uses codegraph only on a fresh index; any other state or an empty answer runs the unchanged Grep floor.
+  - validate-roadmap Step 0.5's gate is reworded to "Run this step only when --depth deep is set" (same meaning, no "skip").
+  - Skills that run the readiness check also list the codegraph status tool; sc-task-protocol gets only the callers and impact tools the plan names.
+  - Only the byte-identical plugin brainstorm command changes; other copies have no matching text.
+  - auggie-review checks readiness through the MCP status tool only, because its Bash allowlist has no codegraph pattern.
+- Left for later / blocked: none
+- Next group: D, new commands (/sc:graph and /sc:impact)
