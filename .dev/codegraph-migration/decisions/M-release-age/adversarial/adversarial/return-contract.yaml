@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/M-release-age/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/codegraph-migration/decisions/M-release-age/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-2 (Option B, original; default model)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick
+  notes:
+    - "Convergence 14/14: 12 unanimous, 2 by 2-of-3 majority (C-002, A-005)."
+    - "Base chosen by tiebreaker level 1 (debate points 6.5 vs 2.5); combined B 0.819, C 0.806, A 0.685."
+    - "Merge executor ambiguity 1 (stall warning per set) resolved by orchestrator; ambiguity 2 accepted."

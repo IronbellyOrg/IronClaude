@@ -1,0 +1,8 @@
+# STUB (Wave 4 F1 retry): filled after the sc:adversarial debate completes.
+merge_method: adversarial
+convergence_score: null
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/adversarial-retry/adversarial
+verdict: null
+findings: []
+refuted: []
+disagreements: []

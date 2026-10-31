@@ -1,0 +1,1355 @@
+pass1_parsed_count: 0
+inferred_count: 338
+rows:
+  - id: INF-001
+    quote: "the workflow verifies it (SHA-256 against the release's `SHA256SUMS`, plus `gh attestation verify -R colbymchenry/codegraph`)"
+    citation: source.md:7
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-002
+    quote: "rewrites the pin in its single source location"
+    citation: source.md:7
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-003
+    quote: "proves the candidate in an isolated HOME"
+    citation: source.md:7
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-004
+    quote: "opens a pull request on `IronbellyOrg/IronClaude` only (never upstream) with the release notes"
+    citation: source.md:7
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-005
+    quote: "Precondition for execution: PR #329 is merged to `master`; the executor branches from `origin/master` after that (T0)."
+    citation: source.md:9
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-006
+    quote: "A bump that rewrites only `install_codegraph.py` would fail CI. T1 fixes this first."
+    citation: source.md:24
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-007
+    quote: "the monitor dispatches `test.yml` on the bump branch instead (`test.yml` has `workflow_dispatch`)."
+    citation: source.md:26
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-008
+    quote: "Release age uses `published_at`."
+    citation: source.md:28
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-009
+    quote: "Every acceptance block runs from the worktree root under `bash -euo pipefail` and must exit 0 only if its criterion passes"
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-010
+    quote: "one condition per line"
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-011
+    quote: "a negative check is written `if cmd; then exit 1; fi`"
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-012
+    quote: "Every `uv run pytest` uses `-p no:cacheprovider`."
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-013
+    quote: "Run `git status --short` after each task: a modified tracked file the task did not intend to change is a defect to fix before committing."
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-014
+    quote: "Never run `tests/cli/eval/`"
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-015
+    quote: "after any full-suite run, restore that file with `git checkout --`."
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-016
+    quote: "`$PKG` is this plan's task package, found by its stable id prefix wherever `/sc:implement` keeps it: `PKG=$(ls -d .dev/tasks/*/TASK-WF-followupCodegrap-* | head -1)`"
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-017
+    quote: "task evidence goes under `$PKG/artifacts/`, which `git add .dev/tasks` stages."
+    citation: source.md:31
+    section: "0. Goal, inputs and evidence rule"
+  - id: INF-018
+    quote: "the executor locates each seam by the named function, constant or literal, not by line."
+    citation: source.md:35
+    section: "1. Preflight: files that change"
+  - id: INF-019
+    quote: "Copy of `.dev/codegraph-migration/evidence/P2-release-SHA256SUMS.txt` (header comment line plus the four `codegraph-<asset>.tar.gz` lines)."
+    citation: source.md:39
+    section: "1. Preflight: files that change"
+  - id: INF-020
+    quote: "the `.dev/` evidence file stays untouched as history"
+    citation: source.md:39
+    section: "1. Preflight: files that change"
+  - id: INF-021
+    quote: "`test_u2_pin_integrity` reads F1 instead of the `.dev/` file."
+    citation: source.md:40
+    section: "1. Preflight: files that change"
+  - id: INF-022
+    quote: "Every literal `1.6.2` / `v1.6.2` in fixtures and assertions (`:38,45,96,151,171,175,237,270,639,640,659,691`) becomes `cg.VERSION` / `cg.TAG`"
+    citation: source.md:40
+    section: "1. Preflight: files that change"
+  - id: INF-023
+    quote: "`_stub(version=\"1.6.2\")` (`:241`) and `\"the pin is 1.6.2\"` (`:287`) derive from `install_codegraph.VERSION`."
+    citation: source.md:41
+    section: "1. Preflight: files that change"
+  - id: INF-024
+    quote: "`\"codegraph MCP (pinned v1.6.2; user scope):\"` (`:355`) derives from `install_codegraph.TAG`."
+    citation: source.md:42
+    section: "1. Preflight: files that change"
+  - id: INF-025
+    quote: "Replace the literal version (`:9,28,31` and `:29,43`) with \"the pinned version\" plus how to read it"
+    citation: source.md:43
+    section: "1. Preflight: files that change"
+  - id: INF-026
+    quote: "Add one short \"How the pin is updated\" paragraph to `mcp-installation.md` naming the monitor (T5)."
+    citation: source.md:43
+    section: "1. Preflight: files that change"
+  - id: INF-027
+    quote: "`scripts/codegraph_release.py` (new, stdlib only)"
+    citation: source.md:44
+    section: "1. Preflight: files that change"
+  - id: INF-028
+    quote: "The bump logic (§2.2) as pure functions plus a small CLI with subcommands `check`, `fetch`, `bump`, `prove`, `body`."
+    citation: source.md:44
+    section: "1. Preflight: files that change"
+  - id: INF-029
+    quote: "Not packaged (maintainer tooling, like `scripts/verify_deps.py`)."
+    citation: source.md:44
+    section: "1. Preflight: files that change"
+  - id: INF-030
+    quote: "Offline unit tests for F6 (§3)."
+    citation: source.md:45
+    section: "1. Preflight: files that change"
+  - id: INF-031
+    quote: "The script is loaded with `importlib.util.spec_from_file_location`"
+    citation: source.md:45
+    section: "1. Preflight: files that change"
+  - id: INF-032
+    quote: "The scheduled workflow (§2.3). Thin: every decision lives in F6."
+    citation: source.md:46
+    section: "1. Preflight: files that change"
+  - id: INF-033
+    quote: "Static checks of F8 with `yaml.safe_load`"
+    citation: source.md:47
+    section: "1. Preflight: files that change"
+  - id: INF-034
+    quote: "New section \"codegraph-release-monitor.yml\""
+    citation: source.md:48
+    section: "1. Preflight: files that change"
+  - id: INF-035
+    quote: "`## [Unreleased]` Added entry for the monitor. The historical v1.6.2 line (`:35`) is not edited."
+    citation: source.md:49
+    section: "1. Preflight: files that change"
+  - id: INF-036
+    quote: "`src/superclaude/cli/install_codegraph.py` (only the bot's bump PRs rewrite `VERSION` and `SHA256`"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-037
+    quote: "`src/superclaude/cli/install_mcp.py` (the drift check reads `_codegraph_entry`; it does not change it)"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-038
+    quote: "`.github/workflows/test.yml` (dispatched, not edited)"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-039
+    quote: "`pyproject.toml`, `Makefile`, `scripts/dependency_baseline.txt` (no new dependency: stdlib plus the `gh` CLI that GitHub-hosted runners provide)"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-040
+    quote: "no `.claude/` path is ever staged"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-041
+    quote: "`.dev/codegraph-migration/evidence/*` (history)"
+    citation: source.md:51
+    section: "1. Preflight: files that change"
+  - id: INF-042
+    quote: "the workflow only sequences its subcommands, handles git and `gh pr`, and writes summaries"
+    citation: source.md:57
+    section: "2.1 Shape"
+  - id: INF-043
+    quote: "no eligible candidate on either line: summary \"pinned vA is current (vB waiting, eligible <UTC time>)\", exit 0"
+    citation: source.md:60
+    section: "2.1 Shape"
+  - id: INF-044
+    quote: "integrity failure: issue only, stop (§2.5)"
+    citation: source.md:64
+    section: "2.1 Shape"
+  - id: INF-045
+    quote: "uv run pytest on the codegraph test files (the bump must keep them green; a failure is a behaviour failure)"
+    citation: source.md:66
+    section: "2.1 Shape"
+  - id: INF-046
+    quote: "commit + push the new branch (never before verification)"
+    citation: source.md:69
+    section: "2.1 Shape"
+  - id: INF-047
+    quote: "ready (within-major, proof passed) | draft (major, always) | draft \"[proof failed: <stage>]\" (behaviour failure);"
+    citation: source.md:70
+    section: "2.1 Shape"
+  - id: INF-048
+    quote: "then dispatch test.yml on the branch"
+    citation: source.md:71
+    section: "2.1 Shape"
+  - id: INF-049
+    quote: "`REPO = \"colbymchenry/codegraph\"`"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-050
+    quote: "`ASSETS = (\"linux-x64\", \"linux-arm64\", \"darwin-x64\", \"darwin-arm64\")` (asserted equal to `set(install_codegraph.SHA256)` in a test, so the two never drift)"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-051
+    quote: "`PIN_FILE = src/superclaude/cli/install_codegraph.py`"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-052
+    quote: "`SUMS_FIXTURE = tests/cli/fixtures/codegraph-SHA256SUMS.txt`"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-053
+    quote: "`MIN_AGE_DAYS = 14` (§2.4, decision M-b)"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-054
+    quote: "`NOTES_BUDGET = 60_000` characters"
+    citation: source.md:76
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-055
+    quote: "Pure functions (no I/O; every branch unit-tested):"
+    citation: source.md:78
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-056
+    quote: "Accepts only `vMAJOR.MINOR.PATCH` (digits). Anything else (prerelease suffixes, other tags) returns None and is ignored."
+    citation: source.md:82
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-057
+    quote: "exactly one line `^VERSION = \"(\\d+\\.\\d+\\.\\d+)\"$` and exactly one `SHA256 = {` block of four `\"<asset>\": \"<64 hex>\",` lines. Any other count raises `ValueError` naming the line."
+    citation: source.md:83
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-058
+    quote: "Returns one entry per line (`within`, `major`), each `{\"tag\": <tag or None>, \"reason\": <text>, \"waiting\": <tag or None>, \"eligible_at\": <UTC ISO or None>, \"stalled\": <bool>}`, plus `skipped` (tag, reason) for every ignored release."
+    citation: source.md:84
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-059
+    quote: "The four `codegraph-<asset>.tar.gz` lines (`<64 lowercase hex>  <name>`); other lines (Windows zips) ignored; a missing, duplicated or malformed line for one of the four raises."
+    citation: source.md:85
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-060
+    quote: "Replaces exactly the `VERSION` line and the four dict lines, keeping indentation and quoting byte-for-byte, so `ruff format --check` stays clean. Post-condition checked in the function: `read_pin(result) == (version, hashes)` and the diff touches only those five lines."
+    citation: source.md:86
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-061
+    quote: "Header comment (same format as F1's first line, naming the tag, the UTC time and the source) plus the four asset lines sorted by name, as `test_u2_pin_integrity` parses them (`splitlines()[1:]`)."
+    citation: source.md:87
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-062
+    quote: "Compares the `tools/list` names with `{\"codegraph_\" + t for t in mcp_tools.split(\",\")}`: one message per missing tool and per extra tool. Empty list = pass."
+    citation: source.md:88
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-063
+    quote: "Drops lines starting with `#`, parses the JSON, takes `mcpServers.codegraph`, and compares it with `expected` (IronClaude's `_codegraph_entry(...)`) on every key except `command` (IronClaude registers an absolute realpath, upstream the bare name) and `env` (IronClaude-only keys). One message per differing or new key."
+    citation: source.md:89
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-064
+    quote: "Never exceeds 65,000 characters: release notes are added newest-first until `NOTES_BUDGET` is used, the rest replaced by links; for a major, links only."
+    citation: source.md:90
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-065
+    quote: "Fail-closed classifier over the recorded stage results (§2.5 classification table). Anything that fits no row is `integrity`."
+    citation: source.md:91
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-066
+    quote: "returns the actions to take (`open_pr(ready\\|draft, title)`, `comment(pr\\|issue, text)`, `mark_ready`, `retitle`, `open_issue(title, marker)`, `close_superseded(pr)`, `close_issue(marker)`, `noop`)"
+    citation: source.md:92
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-067
+    quote: "The workflow executes the actions; it decides nothing itself."
+    citation: source.md:92
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-068
+    quote: "Stored in an HTML comment `<!-- codegraph-monitor-fp:<value> -->` in the artifact body or its last bot comment; a run comments only when it changed."
+    citation: source.md:93
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-069
+    quote: "`_gh(args, timeout) -> (code, stdout)`: the one subprocess entry for `gh` (argv list, no shell, bounded, the same shape as `install_codegraph.Runner`)."
+    citation: source.md:96
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-070
+    quote: "`gh attestation verify <file> -R colbymchenry/codegraph` (once per file, 5 files)"
+    citation: source.md:96
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-071
+    quote: "`_run(argv, *, env, cwd, timeout)`: bounded subprocess for `codegraph` and `python` in `prove`."
+    citation: source.md:97
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-072
+    quote: "newline-delimited JSON-RPC over stdio: `initialize`, `notifications/initialized`, `tools/list`; kills the process on exit or timeout."
+    citation: source.md:98
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-073
+    quote: "ported to Python so the workflow needs no Node and does not depend on a `.dev/` evidence file."
+    citation: source.md:98
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-074
+    quote: "each subcommand prints a human summary to stdout, appends `key=value` lines to the file named by `--github-output` when given, and exits 0 on success or \"nothing to do\", 1 on a failed check, 2 on an infrastructure error"
+    citation: source.md:100
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-075
+    quote: "`check [--min-age-days N] [--tag vX.Y.Z]` -> `result=none|candidate|infrastructure`, `previous`, `within_tag`, `major_tag` (each empty when that line has nothing), `stalled=true|false`."
+    citation: source.md:101
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-076
+    quote: "`--min-age-days` rejects anything but a whole number >= 0 (exit 2 before any download)."
+    citation: source.md:101
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-077
+    quote: "`--tag` skips selection (manual run; still refuses a tag that is not a published, non-draft, non-prerelease release) and puts it on the line its major selects."
+    citation: source.md:101
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-078
+    quote: "`fetch --tag vX.Y.Z --dir D` -> `result=ok|integrity|infrastructure`, `stage=preflight|download|sums|hash|attestation`, plus `asset`, `expected`, `actual` on a hash failure."
+    citation: source.md:102
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-079
+    quote: "Order: download, check each file's byte length equals the release API asset `size`, parse sums, hash each tarball against its sums line, attestation for the four tarballs and `SHA256SUMS` (W4 §1 `:21`: both carry attestations)."
+    citation: source.md:102
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-080
+    quote: "Retries and classification follow §2.5."
+    citation: source.md:102
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-081
+    quote: "`route --outcome ... --line ... --tag ... --github-output F` -> prints the §2.2 `route` actions as JSON lines for the workflow to execute (it reads existing PRs, issues and run conclusions through `_gh` first)."
+    citation: source.md:103
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-082
+    quote: "rewrites the pin file and F1 from the verified `D/SHA256SUMS`; refuses to run unless `fetch` left `D/.verified` (written last by `fetch`, containing the tag)."
+    citation: source.md:104
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-083
+    quote: "`prove [--keep]` -> `result=pass|fail`, `stage=install|version|index|tools|drift`, plus `home=<sandbox HOME>` when `--keep` leaves it in place."
+    citation: source.md:105
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-084
+    quote: "Runs against the working tree (after `bump`, or on the current pin for a dry run); see §2.5."
+    citation: source.md:105
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-085
+    quote: "`body --tag vX.Y.Z --previous vA.B.C --proof <log> --out <file>` -> writes the PR body."
+    citation: source.md:106
+    section: "2.2 `scripts/codegraph_release.py`"
+  - id: INF-086
+    quote: "`name: codegraph release monitor`; `on: schedule: - cron: \"23 6 * * *\"` (daily, off the hour)"
+    citation: source.md:110
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-087
+    quote: "`workflow_dispatch` with inputs `dry_run` (boolean, default false: run check, fetch, bump, tests and prove, then print the diff and body; no push, no PR, no issue)"
+    citation: source.md:110
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-088
+    quote: "`tag` (string, optional: passed to `check --tag`)"
+    citation: source.md:110
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-089
+    quote: "`min_age_days` (string, optional, default empty = 14; passed to `check --min-age-days`, decision M-b)"
+    citation: source.md:110
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-090
+    quote: "When both lines have a candidate, the bump, proof and PR steps run once per line, sequentially, each from a fresh checkout of `master` (a job matrix over the `check` outputs, `max-parallel: 1`)."
+    citation: source.md:110
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-091
+    quote: "`if: github.repository == 'IronbellyOrg/IronClaude'` on the job, so forks and the upstream parent never run it."
+    citation: source.md:111
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-092
+    quote: "`permissions:` `contents: write` (push the branch), `pull-requests: write` (open, edit, mark ready, close the PR), `issues: write` (integrity and infrastructure issues, label, §2.5), `actions: write`"
+    citation: source.md:112
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-093
+    quote: "Everything else none (repo default is `read`, fact 4)."
+    citation: source.md:112
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-094
+    quote: "Optional repository variable `CODEGRAPH_MONITOR_ASSIGNEE` (a GitHub login): when set, every PR and issue the monitor opens is assigned to it"
+    citation: source.md:113
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-095
+    quote: "When unset, nothing is assigned."
+    citation: source.md:113
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-096
+    quote: "`concurrency: { group: codegraph-release-monitor, cancel-in-progress: false }`"
+    citation: source.md:114
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-097
+    quote: "`runs-on: ubuntu-latest`"
+    citation: source.md:114
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-098
+    quote: "`timeout-minutes: 30` (four tarballs of about 63 MB each, one real install, one index)"
+    citation: source.md:114
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-099
+    quote: "`actions/checkout@v4` (`fetch-depth: 0`)"
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-100
+    quote: "`astral-sh/setup-uv@v10.3.2` with Python 3.10 and `activate-environment: true` (same as `test.yml`)"
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-101
+    quote: "`uv pip install -e \".[dev]\"`"
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-102
+    quote: "then the §2.1 flow, one step per subcommand, each gated on the previous step's outputs."
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-103
+    quote: "`GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` only on steps that call `gh`."
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-104
+    quote: "The `prove` step gets no token in its env (it runs third-party code; Coder strips tokens the same way)."
+    citation: source.md:115
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-105
+    quote: "the workflow only executes the `route` actions."
+    citation: source.md:116
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-106
+    quote: "Commit: author `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`, message `chore(deps): bump codegraph pin to <tag>`"
+    citation: source.md:117
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-107
+    quote: "with body lines `Old: <previous>`, `New: <tag>`, `Release: https://github.com/colbymchenry/codegraph/releases/tag/<tag>`, `Verified: SHA256SUMS hashes and gh attestation verify (5 files)`."
+    citation: source.md:117
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-108
+    quote: "PR: `gh pr create --repo \"$GITHUB_REPOSITORY\" --base master --head <branch> --title \"<title from route>\" --body-file <body>` plus `--draft` when `route` says so"
+    citation: source.md:118
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-109
+    quote: "never a bare `gh pr create`: repo CLAUDE.md rule"
+    citation: source.md:118
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-110
+    quote: "The branch is pushed only after `fetch` passed, so it never carries unverified hashes"
+    citation: source.md:118
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-111
+    quote: "The step that opens the PR uses `if: always() && <branch was pushed>` so a pushed branch is never left without a PR (Coder pattern)"
+    citation: source.md:118
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-112
+    quote: "if the proof step aborted unexpectedly, the PR opens as a behaviour-failure draft (`stage=aborted`)."
+    citation: source.md:118
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-113
+    quote: "after the PR exists, `gh workflow run test.yml --repo \"$GITHUB_REPOSITORY\" --ref <branch>` (fact 5)."
+    citation: source.md:119
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-114
+    quote: "The PR body says CI was dispatched and links the Actions page filtered by branch."
+    citation: source.md:119
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-115
+    quote: "Step summary on every path (none, skipped, pass, behaviour failure, integrity failure, infrastructure failure), so a run is readable without logs."
+    citation: source.md:120
+    section: "2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`"
+  - id: INF-116
+    quote: "`gh api --paginate 'repos/colbymchenry/codegraph/releases?per_page=100'`"
+    citation: source.md:126
+    section: "2.4 Candidate selection"
+  - id: INF-117
+    quote: "Never the `releases/latest` endpoint or flag."
+    citation: source.md:126
+    section: "2.4 Candidate selection"
+  - id: INF-118
+    quote: "drop drafts, prereleases, tags `parse_version` rejects (each logged with its reason in the summary), and releases without `published_at`."
+    citation: source.md:127
+    section: "2.4 Candidate selection"
+  - id: INF-119
+    quote: "Keep releases strictly newer than the pin by semver. Order by semver, never by date."
+    citation: source.md:127
+    section: "2.4 Candidate selection"
+  - id: INF-120
+    quote: "(1) the *within-major line*: releases with the pin's major; (2) the *higher-major line*: releases with a higher major."
+    citation: source.md:128
+    section: "2.4 Candidate selection"
+  - id: INF-121
+    quote: "A pending major never blocks a minor or patch bump. One run can act on both lines."
+    citation: source.md:128
+    section: "2.4 Candidate selection"
+  - id: INF-122
+    quote: "the highest-semver release in that line."
+    citation: source.md:129
+    section: "2.4 Candidate selection"
+  - id: INF-123
+    quote: "It is eligible when `now_utc - published_at >= MIN_AGE_DAYS * 86400` seconds (inclusive, exact seconds), `MIN_AGE_DAYS = 14`."
+    citation: source.md:129
+    section: "2.4 Candidate selection"
+  - id: INF-124
+    quote: "If it is younger, that line does nothing this run: **no fallback** to an older eligible release"
+    citation: source.md:129
+    section: "2.4 Candidate selection"
+  - id: INF-125
+    quote: "`workflow_dispatch` input `min_age_days` (a whole number, 0 or more; any other value fails the run before any download; scheduled runs always use 14)."
+    citation: source.md:130
+    section: "2.4 Candidate selection"
+  - id: INF-126
+    quote: "It changes only the age; pick, verification, proof and human merge stay the same. The summary and the PR body record the override and its value."
+    citation: source.md:130
+    section: "2.4 Candidate selection"
+  - id: INF-127
+    quote: "The `tag` input bypasses the pick for a manual re-proof (§2.2 `check --tag`)."
+    citation: source.md:130
+    section: "2.4 Candidate selection"
+  - id: INF-128
+    quote: "verify, rewrite, proof; ready PR on a passed proof, titled `chore(deps): bump codegraph pin to <tag>`."
+    citation: source.md:131
+    section: "2.4 Candidate selection"
+  - id: INF-129
+    quote: "the same verify, rewrite and proof on the same code path"
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-130
+    quote: "the PR is **always a draft**, even on a passed proof, titled `codegraph MAJOR <tag>: manual review`."
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-131
+    quote: "Its body carries the proof log, hashes and attestation result, a **link** to the release notes (not the text), and a checklist"
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-132
+    quote: "\"read the breaking changes\"; \"check the Phase 3 skills that call codegraph tools (`rg -l 'codegraph_' src/superclaude`)\"; \"check `MCP_TOOLS` still names the tools those skills use\""
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-133
+    quote: "Label `codegraph-major` only if it already exists"
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-134
+    quote: "A person marks it ready and merges, or closes it to decline."
+    citation: source.md:132
+    section: "2.4 Candidate selection"
+  - id: INF-135
+    quote: "one branch per version, `codegraph/bump-<tag>`, on both lines."
+    citation: source.md:133
+    section: "2.4 Candidate selection"
+  - id: INF-136
+    quote: "The monitor never pushes or force-pushes a branch that already exists."
+    citation: source.md:133
+    section: "2.4 Candidate selection"
+  - id: INF-137
+    quote: "If `codegraph/bump-<tag>` exists, the run re-proves that branch head and reports by comment only when the fingerprint changed (§2.5)."
+    citation: source.md:133
+    section: "2.4 Candidate selection"
+  - id: INF-138
+    quote: "One open PR per line at a time: when a newer tag becomes the line's candidate, the monitor opens its PR and closes the line's older open bot PR with the comment \"superseded by `<new tag>`\"; it deletes the older branch only if every commit since `master` is the bot's."
+    citation: source.md:133
+    section: "2.4 Candidate selection"
+  - id: INF-139
+    quote: "the re-proof comment says \"rebase needed\" when `git merge-tree` reports a conflict"
+    citation: source.md:133
+    section: "2.4 Candidate selection"
+  - id: INF-140
+    quote: "later runs do nothing for that tag on either line; a newer release (for example `v2.0.1`) is a new candidate."
+    citation: source.md:134
+    section: "2.4 Candidate selection"
+  - id: INF-141
+    quote: "A PR the monitor itself closed as superseded counts the same."
+    citation: source.md:134
+    section: "2.4 Candidate selection"
+  - id: INF-142
+    quote: "the summary names, per line, the release that is waiting and the UTC time it becomes eligible, and adds `::warning::` when the oldest release newer than the pin is at least 28 days old (`2 * MIN_AGE_DAYS`) and the run bumped nothing on that line."
+    citation: source.md:135
+    section: "2.4 Candidate selection"
+  - id: INF-143
+    quote: "Reporting never changes the pick."
+    citation: source.md:135
+    section: "2.4 Candidate selection"
+  - id: INF-144
+    quote: "a re-created release has a new `published_at`, so its clock restarts; a deleted release drops out of the set on the next run."
+    citation: source.md:136
+    section: "2.4 Candidate selection"
+  - id: INF-145
+    quote: "the monitor comments once \"release `<tag>` was deleted upstream; close this PR\" (fingerprinted) and leaves it to a person; it never merges or silently closes it"
+    citation: source.md:136
+    section: "2.4 Candidate selection"
+  - id: INF-146
+    quote: "with the pin below v1.3.0 and daily runs over 2026, the rule bumps on 08-04 to v1.5.0, 09-09 to v1.6.0 and 10-17 to v1.6.2; today (2026-10-30) it bumps nothing (v1.6.2 is the pin)."
+    citation: source.md:138
+    section: "2.4 Candidate selection"
+  - id: INF-147
+    quote: "`prove` (isolated, never the real HOME; asserts at start that the child `HOME` from `tempfile.mkdtemp()` differs from the parent's `Path.home()` and that `codegraph` is not on the child `PATH`):"
+    citation: source.md:142
+    section: "2.5 Proof and failure handling"
+  - id: INF-148
+    quote: "child process `python -c` with `HOME=<tmp>`, `PATH=<tmp>/home/.local/bin:/usr/bin:/bin`, `CODEGRAPH_TELEMETRY=0`, `DO_NOT_TRACK=1`, `CODEGRAPH_NO_UPDATE_CHECK=1`, running `install_codegraph.acquire(runner)` from the working tree"
+    citation: source.md:143
+    section: "2.5 Proof and failure handling"
+  - id: INF-149
+    quote: "Pass = `ok` and the returned launcher exists."
+    citation: source.md:143
+    section: "2.5 Proof and failure handling"
+  - id: INF-150
+    quote: "`<launcher> --version` prints exactly the new `VERSION`."
+    citation: source.md:144
+    section: "2.5 Proof and failure handling"
+  - id: INF-151
+    quote: "a fresh `git init -q` directory holding a copy of `src/superclaude/cli/install_codegraph.py`; `codegraph init --yes` exits 0; `codegraph query acquire` exits 0 and its output names `install_codegraph.py`"
+    citation: source.md:145
+    section: "2.5 Proof and failure handling"
+  - id: INF-152
+    quote: "`tool_problems(...)` must be empty: every `MCP_TOOLS` tool is listed and nothing else is"
+    citation: source.md:146
+    section: "2.5 Proof and failure handling"
+  - id: INF-153
+    quote: "`<launcher> install --print-config claude` (no file writes, fact 2) exits 0; `entry_drift(install_mcp._codegraph_entry(launcher), stdout)` must be empty."
+    citation: source.md:147
+    section: "2.5 Proof and failure handling"
+  - id: INF-154
+    quote: "Every step's command, exit code and the first 200 lines of output go to the proof log; the temp dir is deleted unless `--keep`."
+    citation: source.md:148
+    section: "2.5 Proof and failure handling"
+  - id: INF-155
+    quote: "Any daemon the index or MCP run started is killed by process group on exit"
+    citation: source.md:148
+    section: "2.5 Proof and failure handling"
+  - id: INF-156
+    quote: "Never both an issue and a PR for one failure: exactly one artifact per class."
+    citation: source.md:150
+    section: "2.5 Proof and failure handling"
+  - id: INF-157
+    quote: "`gh api rate_limit` fails, or a download is still short or erroring after one retry | infrastructure"
+    citation: source.md:156
+    section: "2.5 Proof and failure handling"
+  - id: INF-158
+    quote: "A complete download (exit 0, byte length equals the release API asset `size`) whose SHA-256 mismatches its `SHA256SUMS` line twice (re-downloaded once) | integrity"
+    citation: source.md:157
+    section: "2.5 Proof and failure handling"
+  - id: INF-159
+    quote: "`gh attestation verify` fails twice while the `rate_limit` preflight succeeds | integrity"
+    citation: source.md:158
+    section: "2.5 Proof and failure handling"
+  - id: INF-160
+    quote: "`tests`, install, version, index, tools or drift fails after integrity passed, or the proof step aborted | behaviour"
+    citation: source.md:159
+    section: "2.5 Proof and failure handling"
+  - id: INF-161
+    quote: "Anything else, or ambiguous | integrity"
+    citation: source.md:160
+    section: "2.5 Proof and failure handling"
+  - id: INF-162
+    quote: "**Issue only.** No branch, no PR, no hash written anywhere."
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-163
+    quote: "Title `codegraph <tag>: integrity check failed`, no label."
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-164
+    quote: "Body: run URL, asset, expected and actual hash or the attestation output, reproduce commands"
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-165
+    quote: "HTML marker `<!-- codegraph-monitor:<tag>:integrity -->` in the body (never the title)"
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-166
+    quote: "Comment only when the fingerprint changed. The monitor **never closes** it; only a person does."
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-167
+    quote: "A later pass for the same tag still opens its PR, which links the issue. A newer release adds a link comment and leaves it open."
+    citation: source.md:164
+    section: "2.5 Proof and failure handling"
+  - id: INF-168
+    quote: "**Draft PR only, no issue.** Branch `codegraph/bump-<tag>` (verified hashes only)."
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-169
+    quote: "Title = the pass-path title plus ` [proof failed: <stage>]`"
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-170
+    quote: "Label `needs-codegraph-proof`, created with `gh label create needs-codegraph-proof --force --repo \"$GITHUB_REPOSITORY\"` and applied in a step with `continue-on-error: true`"
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-171
+    quote: "Body: stage, proof log tail, run URL, reproduce commands."
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-172
+    quote: "Re-prove the branch head; comment only when the fingerprint changed."
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-173
+    quote: "If the proof passes at the head **and** the head's `SHA256` table equals the hashes verified in the same run: remove the ` [proof failed: ...]` title suffix and the label, and mark ready (`gh pr ready`) on the within-major line only (a major stays draft, M-a)."
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-174
+    quote: "If the table differs, stay draft and comment."
+    citation: source.md:165
+    section: "2.5 Proof and failure handling"
+  - id: INF-175
+    quote: "`::warning::` plus a step summary; the job ends with a **failed** conclusion so the counter can see it."
+    citation: source.md:166
+    section: "2.5 Proof and failure handling"
+  - id: INF-176
+    quote: "marker `<!-- codegraph-monitor:infra -->`"
+    citation: source.md:166
+    section: "2.5 Proof and failure handling"
+  - id: INF-177
+    quote: "On the 3rd failed run in a row (`gh run list --repo \"$GITHUB_REPOSITORY\" --workflow codegraph-release-monitor.yml --limit 3 --json conclusion`, all `failure`), open one issue `codegraph monitor: cannot reach upstream` (or comment on the open one when the fingerprint changed), with the three run URLs."
+    citation: source.md:166
+    section: "2.5 Proof and failure handling"
+  - id: INF-178
+    quote: "The first run whose preflight passes closes that issue."
+    citation: source.md:166
+    section: "2.5 Proof and failure handling"
+  - id: INF-179
+    quote: "Fingerprint = class, stage, first error line, branch head SHA (`fingerprint`, §2.2). A run whose fingerprint equals the stored one is a no-op for that artifact."
+    citation: source.md:168
+    section: "2.5 Proof and failure handling"
+  - id: INF-180
+    quote: "one-line summary (`codegraph <previous> -> <tag>`, MAJOR/minor/patch)"
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-181
+    quote: "a table of the four assets with their new SHA-256 and \"matches SHA256SUMS: yes\""
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-182
+    quote: "\"Attestation: `gh attestation verify -R colbymchenry/codegraph` passed for 5 files\""
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-183
+    quote: "proof result with the five stages and a link to the run"
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-184
+    quote: "\"CI: `test.yml` dispatched on this branch\" with the link"
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-185
+    quote: "\"Coder: merges reach Coder through its IronClaude SHA bump; Coder's codegraph bake must read `VERSION` and `SHA256` from `src/superclaude/cli/install_codegraph.py` at that SHA\" (fact 6)"
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-186
+    quote: "then \"Release notes\" for every release after the old pin up to the new tag, newest first, each under its own heading with its URL, cut at `NOTES_BUDGET` characters with \"(truncated; full notes: <URL>)\""
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-187
+    quote: "A major PR (§2.4) carries links to those releases instead of their text, plus its review checklist."
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-188
+    quote: "A PR opened with a `min_age_days` override says so with the value."
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-189
+    quote: "A behaviour-failure draft adds the failed stage, the log tail and reproduce commands at the top."
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-190
+    quote: "Every body ends with the fingerprint marker (§2.5)."
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-191
+    quote: "Release-note text is untrusted third-party content: it is placed in the body only through `--body-file`, never interpolated into a shell command."
+    citation: source.md:172
+    section: "2.6 PR body"
+  - id: INF-192
+    quote: "All offline: no test touches the network, the real HOME, the real `gh` or a real `codegraph`"
+    citation: source.md:176
+    section: "3. Tests"
+  - id: INF-193
+    quote: "`_gh` and `_run` are replaced with recording fakes; HOME points at `tmp_path`."
+    citation: source.md:176
+    section: "3. Tests"
+  - id: INF-194
+    quote: "`parse_version`: `v1.6.2` -> (1,6,2); `v2.0.0` -> (2,0,0); `1.6.2`, `v1.6`, `v1.7.0-rc.1`, `nightly` -> None."
+    citation: source.md:182
+    section: "3. Tests"
+  - id: INF-195
+    quote: "`read_pin` on the real `install_codegraph.py` returns `(install_codegraph.VERSION, install_codegraph.SHA256)`; a copy with two `VERSION` lines, a missing asset line, or a 63-hex digest raises `ValueError`."
+    citation: source.md:183
+    section: "3. Tests"
+  - id: INF-196
+    quote: "`ASSETS` equals `set(install_codegraph.SHA256)`."
+    citation: source.md:184
+    section: "3. Tests"
+  - id: INF-197
+    quote: "`pick_candidates` on `fixtures/codegraph_release/releases.json` (the real 8-release list of fact 1 plus synthetic entries, each case sets a fixed `now`): equal pin -> nothing; empty list; only drafts or prereleases; unparsable tag skipped with reason; a release without `published_at` skipped"
+    citation: source.md:185
+    section: "3. Tests"
+  - id: INF-198
+    quote: "age 14 days minus 1 s (not eligible), exactly 14 days (eligible), 14 days plus 1 s; newest too young with an older eligible release -> nothing (no fallback) and `waiting` names the newest"
+    citation: source.md:185
+    section: "3. Tests"
+  - id: INF-199
+    quote: "a backport published after a higher version (semver order wins, not date); a re-created release (new `published_at` restarts the clock); `min_age_days=0`; a pending `v2.0.0` alongside an eligible `v1.7.1` -> both lines set; stall warning at 28 days"
+    citation: source.md:185
+    section: "3. Tests"
+  - id: INF-200
+    quote: "the M-b 2026 replay (pin below v1.3.0, daily `now` from 07-01 to 10-30: bumps exactly on 08-04 to v1.5.0, 09-09 to v1.6.0, 10-17 to v1.6.2)"
+    citation: source.md:185
+    section: "3. Tests"
+  - id: INF-201
+    quote: "`parse_sha256sums` on `fixtures/codegraph_release/SHA256SUMS` (the real v1.6.2 file, 6 archives) returns the four tarball digests; missing asset, duplicate line, uppercase or short hex each raise."
+    citation: source.md:186
+    section: "3. Tests"
+  - id: INF-202
+    quote: "`rewrite_pin` on the real `install_codegraph.py` text with `1.7.0` and four fake digests: `read_pin(result)` matches; `difflib` shows exactly 5 changed lines; the result passes `ruff format --check` (run `ruff format --check -` on it via `subprocess` with stdin); `TAG` line unchanged (it derives from `VERSION`)."
+    citation: source.md:187
+    section: "3. Tests"
+  - id: INF-203
+    quote: "`rewrite_pin` then `importlib` load of the rewritten copy from `tmp_path`: module `VERSION`, `TAG` and `SHA256` equal the new values."
+    citation: source.md:188
+    section: "3. Tests"
+  - id: INF-204
+    quote: "`render_sums_fixture` output parsed exactly as `test_u2_pin_integrity` does (`splitlines()[1:]`, `line.split()`) yields the four assets."
+    citation: source.md:189
+    section: "3. Tests"
+  - id: INF-205
+    quote: "`tool_problems`: exact set passes; one missing tool, one extra tool (`codegraph_explore`) each give one message."
+    citation: source.md:190
+    section: "3. Tests"
+  - id: INF-206
+    quote: "`entry_drift` on `fixtures/codegraph_release/print-config-claude.txt` (the real v1.6.2 output shape: `# Add to ...` line plus JSON with `type`, `command: \"codegraph\"`, `args`, `alwaysLoad`) against `install_mcp._codegraph_entry(Path(\"/x/codegraph\"))`: no drift."
+    citation: source.md:191
+    section: "3. Tests"
+  - id: INF-207
+    quote: "Changed `args`, `alwaysLoad: false`, a new upstream key (`\"timeout\": 30`), and invalid JSON each report drift."
+    citation: source.md:191
+    section: "3. Tests"
+  - id: INF-208
+    quote: "`build_body`: three releases with 40,000-character notes: body <= 65,000 characters, newest notes complete, the rest replaced by \"(truncated; full notes: <URL>)\"; the body contains every asset hash and the Coder line."
+    citation: source.md:192
+    section: "3. Tests"
+  - id: INF-209
+    quote: "OK path writes `.verified` last; a complete tarball whose bytes do not match its sums line on both the first download and the one re-download -> `result=integrity`, `stage=hash`, no `.verified`; a mismatch that clears on re-download passes"
+    citation: source.md:193
+    section: "3. Tests"
+  - id: INF-210
+    quote: "a short download (length differs from the asset `size`) after one retry -> `infrastructure`; attestation failure on any of the 5 files on both attempts with the `rate_limit` preflight passing -> `integrity`, `stage=attestation`; download failure after one retry -> `infrastructure`."
+    citation: source.md:193
+    section: "3. Tests"
+  - id: INF-211
+    quote: "`bump` refuses without `.verified` or with a different tag in it (exit 1, no file changed); with it, rewrites both files in a `tmp_path` copy of the repo layout."
+    citation: source.md:194
+    section: "3. Tests"
+  - id: INF-212
+    quote: "`mcp_tool_names` against `fixtures/codegraph_release/fake_mcp_server.py` (a 30-line stdio JSON-RPC server that lists tools named by its env) returns those names; a server that never answers is killed within the timeout and raises."
+    citation: source.md:195
+    section: "3. Tests"
+  - id: INF-213
+    quote: "`prove` with `_run` and `mcp_tool_names` faked: each stage failure sets the matching `stage=`; it refuses to run when the computed child HOME equals the parent HOME."
+    citation: source.md:196
+    section: "3. Tests"
+  - id: INF-214
+    quote: "CLI: `--github-output <file>` gets `key=value` lines; `check` with a failing `_gh` exits 2 with `result=infrastructure`; a non-integer or negative `--min-age-days` exits 2 before any `_gh` download call."
+    citation: source.md:197
+    section: "3. Tests"
+  - id: INF-215
+    quote: "`classify` (9 cases, M-c merged §9): rate-limit failure; short download after retry; download error after retry; hash mismatch twice on a complete download; hash mismatch once then match (passes); attestation failure twice with preflight OK; attestation failure with preflight failing (infrastructure); tools failure after integrity passed (behaviour); an unknown observation (integrity)."
+    citation: source.md:198
+    section: "3. Tests"
+  - id: INF-216
+    quote: "`route` (15 cases): within-major pass -> ready PR with the plain title; major pass -> draft with `codegraph MAJOR`; integrity -> issue only with the marker, no branch action; behaviour within-major -> draft with ` [proof failed: <stage>]` and label; behaviour major -> draft with both markers in the title"
+    citation: source.md:199
+    section: "3. Tests"
+  - id: INF-217
+    quote: "second run, same fingerprint -> `noop`; second run, changed fingerprint -> one comment; existing branch -> re-prove and comment, never push"
+    citation: source.md:199
+    section: "3. Tests"
+  - id: INF-218
+    quote: "later pass on a behaviour draft with an equal table -> retitle and mark ready (within-major) / retitle only (major); later pass with a different table -> stay draft and comment; newer tag on a line with an open PR -> open new PR and `close_superseded`; closed-unmerged PR for the tag -> `noop`"
+    citation: source.md:199
+    section: "3. Tests"
+  - id: INF-219
+    quote: "integrity issue open and then a pass for the same tag -> PR links the issue and the issue stays open; 3rd failed run in a row -> infra issue; first preflight pass with an infra issue open -> `close_issue`."
+    citation: source.md:199
+    section: "3. Tests"
+  - id: INF-220
+    quote: "Deleted release: an open bot PR whose tag is no longer in the release list gets one fingerprinted comment and is never closed by the monitor."
+    citation: source.md:200
+    section: "3. Tests"
+  - id: INF-221
+    quote: "`on` has `schedule` and `workflow_dispatch` with inputs `dry_run`, `tag` and `min_age_days`; the schedule passes no `min_age_days`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-222
+    quote: "job `if` names `IronbellyOrg/IronClaude`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-223
+    quote: "`permissions` is exactly `{contents: write, pull-requests: write, issues: write, actions: write}`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-224
+    quote: "every `gh pr create` line contains `--repo \"$GITHUB_REPOSITORY\"`; no step text contains `SuperClaude-Org`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-225
+    quote: "the `prove` step has no `GH_TOKEN`/`GITHUB_TOKEN` in its `env`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-226
+    quote: "every `run:` that calls the script uses `scripts/codegraph_release.py`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-227
+    quote: "the PR-open step's `if` starts with `always()`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-228
+    quote: "no `git push` uses `--force` or `--force-with-lease` (M-c: never push an existing branch)"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-229
+    quote: "the `git push` step comes after the `fetch` step and is gated on `fetch` `result == 'ok'`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-230
+    quote: "the label step has `continue-on-error: true`"
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-231
+    quote: "the workflow contains no `gh pr merge` and no `--auto`."
+    citation: source.md:202
+    section: "3. Tests"
+  - id: INF-232
+    quote: "Existing tests kept green (T1):** `tests/cli/test_install_codegraph.py`, `tests/unit/test_cli_doctor.py`, `tests/cli/test_update_command.py`, `tests/cli/test_install_mcp_registry.py`."
+    citation: source.md:204
+    section: "3. Tests"
+  - id: INF-233
+    quote: "a new test `test_no_pinned_version_literals_in_tests` asserts that the three test files contain no literal of the current `install_codegraph.VERSION`"
+    citation: source.md:204
+    section: "3. Tests"
+  - id: INF-234
+    quote: "`uv run python scripts/codegraph_release.py prove` on the current pin, in an isolated HOME, with the network: install, version, index, tools and drift pass for v1.6.2."
+    citation: source.md:206
+    section: "3. Tests"
+  - id: INF-235
+    quote: "Not part of `pytest`."
+    citation: source.md:206
+    section: "3. Tests"
+  - id: INF-236
+    quote: "Each task ends at a conventional commit point; after each commit, post the §5 issue comment."
+    citation: source.md:210
+    section: "4. Task breakdown (execution order)"
+  - id: INF-237
+    quote: "Stage only the files the task names plus `.dev/tasks` (`git add .dev/tasks`, always staged) and, when a decision was taken, `.dev/codegraph-migration/decisions/MX-*`; never a `.claude/` path."
+    citation: source.md:210
+    section: "4. Task breakdown (execution order)"
+  - id: INF-238
+    quote: "`$PKG/artifacts/baseline-failures.txt` (new; `$PKG` per §0)."
+    citation: source.md:213
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-239
+    quote: "confirm PR #329 is merged, create the feature branch from `origin/master`, bring this plan onto it, record the full-suite failure baseline"
+    citation: source.md:214
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-240
+    quote: "test \"$(gh pr view 329 --repo IronbellyOrg/IronClaude --json state --jq .state)\" = MERGED"
+    citation: source.md:215-227
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-241
+    quote: "git switch -c ironbelly/feat-codegraph-release-monitor origin/master"
+    citation: source.md:215-227
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-242
+    quote: "test \"$(git branch --show-current)\" = ironbelly/feat-codegraph-release-monitor"
+    citation: source.md:229-235
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-243
+    quote: "Commit: `chore(tasks): record the test baseline for the codegraph release monitor (#323)` (stages `.dev/tasks`, which holds the baseline)."
+    citation: source.md:236
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-244
+    quote: "If the planning commit's pin line is no longer `1.6.2` on master (someone bumped it by hand), continue: nothing in this plan depends on the value, only the T1 literal lists change (simple decision)."
+    citation: source.md:236
+    section: "4. Task breakdown (execution order) / T0"
+  - id: INF-245
+    quote: "Files: `tests/cli/fixtures/codegraph-SHA256SUMS.txt` (new), `tests/cli/test_install_codegraph.py`, `tests/unit/test_cli_doctor.py`, `tests/cli/test_update_command.py`, `docs/user-guide/mcp-installation.md`, `docs/reference/mcp-server-guide.md`."
+    citation: source.md:239
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-246
+    quote: "copy the evidence checksum lines into F1 and point `test_u2_pin_integrity` at it; replace every pinned-version literal in the three test files with `cg.VERSION` / `cg.TAG` (or `install_codegraph.VERSION` / `.TAG`); add `test_no_pinned_version_literals_in_tests` (§3); docs say \"the pinned version\" and how to read it."
+    citation: source.md:240
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-247
+    quote: "if git grep -n -E '1\\.6\\.2' -- tests/cli/test_install_codegraph.py tests/unit/test_cli_doctor.py tests/cli/test_update_command.py docs/user-guide/mcp-installation.md docs/reference/mcp-server-guide.md; then exit 1; fi"
+    citation: source.md:242-249
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-248
+    quote: "Commit: `test(codegraph): derive the pinned version from install_codegraph in tests and docs`"
+    citation: source.md:250
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-249
+    quote: "Post-commit mutation check (proves the one-file property on the committed tree, in a throwaway worktree under the canonical `.dev/worktrees/`, which is gitignored at `.gitignore:238`; never edits the real worktree)."
+    citation: source.md:251
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-250
+    quote: "Only `test_u2_pin_integrity` is deselected, because `9.9.9` has no matching checksum lines; every other test must pass with the bumped literal. If it fails, fix the missed literal and amend the T1 commit before T2."
+    citation: source.md:251
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-251
+    quote: "(cd \"$M\" && uv run pytest -p no:cacheprovider -q tests/unit/test_cli_doctor.py tests/cli/test_update_command.py tests/cli/test_install_codegraph.py --deselect tests/cli/test_install_codegraph.py::test_u2_pin_integrity)"
+    citation: source.md:252-259
+    section: "4. Task breakdown (execution order) / T1"
+  - id: INF-252
+    quote: "Files: `scripts/codegraph_release.py` (new), `tests/cli/test_codegraph_release.py` (new), `tests/cli/fixtures/codegraph_release/releases.json`, `tests/cli/fixtures/codegraph_release/SHA256SUMS`, `tests/cli/fixtures/codegraph_release/print-config-claude.txt` (new)."
+    citation: source.md:262
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-253
+    quote: "§2.2 constants and every pure function (including `classify`, `route`, `fingerprint`); §2.4 rules; §2.5 tables; tests R1-R11 and R17-R19."
+    citation: source.md:263
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-254
+    quote: "plus synthetic entries appended by hand (documented in a `_comment` key)"
+    citation: source.md:263
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-255
+    quote: "`SHA256SUMS` from `gh release download v1.6.2 -R colbymchenry/codegraph -p SHA256SUMS`"
+    citation: source.md:263
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-256
+    quote: "`print-config-claude.txt` from the T3 live run, or, if T3 has not run yet, written from `claude.ts:241-245` and replaced by the real output in T3 (simple decision)."
+    citation: source.md:263
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-257
+    quote: "uv run pytest -p no:cacheprovider -q tests/cli/test_codegraph_release.py"
+    citation: source.md:264-270
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-258
+    quote: "Commit: `feat(codegraph): add offline-tested release bump logic`"
+    citation: source.md:271
+    section: "4. Task breakdown (execution order) / T2"
+  - id: INF-259
+    quote: "Files: `scripts/codegraph_release.py`, `tests/cli/test_codegraph_release.py`, `tests/cli/fixtures/codegraph_release/fake_mcp_server.py` (new), `tests/cli/fixtures/codegraph_release/print-config-claude.txt` (real output)."
+    citation: source.md:274
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-260
+    quote: "`_gh`, `_run`, `mcp_tool_names`, subcommands `check`, `fetch`, `bump`, `prove`, `body`, `route` (§2.2, §2.5, §2.6); tests R12-R16."
+    citation: source.md:275
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-261
+    quote: "Then the live proof on the current pin, isolated HOME, network on:"
+    citation: source.md:275
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-262
+    quote: "test \"$(jq -S '.mcpServers' \"$HOME/.claude.json\" | sha256sum | cut -d' ' -f1)\" = \"$REAL_SUM\""
+    citation: source.md:276-285
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-263
+    quote: "grep -q '^result=pass$' /tmp/m-prove.out"
+    citation: source.md:287-295
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-264
+    quote: "Commit: `feat(codegraph): verify, prove and describe a codegraph release candidate`."
+    citation: source.md:296
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-265
+    quote: "Copy `/tmp/m-prove.log` to `$PKG/artifacts/live-prove.log` and stage it with this commit (evidence for the issue comment)."
+    citation: source.md:296
+    section: "4. Task breakdown (execution order) / T3"
+  - id: INF-266
+    quote: "Files: `.github/workflows/codegraph-release-monitor.yml` (new), `tests/cli/test_codegraph_release_workflow.py` (new)."
+    citation: source.md:299
+    section: "4. Task breakdown (execution order) / T4"
+  - id: INF-267
+    quote: "Change: §2.3 exactly, plus the §2.5 failure steps; R-workflow checks (§3)."
+    citation: source.md:300
+    section: "4. Task breakdown (execution order) / T4"
+  - id: INF-268
+    quote: "if grep -nE 'gh pr create' .github/workflows/codegraph-release-monitor.yml | grep -v -- '--repo \"\\$GITHUB_REPOSITORY\"'; then exit 1; fi"
+    citation: source.md:302-309
+    section: "4. Task breakdown (execution order) / T4"
+  - id: INF-269
+    quote: "If `actionlint` is on PATH, also run `actionlint .github/workflows/codegraph-release-monitor.yml` (optional; it is not installed by this plan)."
+    citation: source.md:310
+    section: "4. Task breakdown (execution order) / T4"
+  - id: INF-270
+    quote: "Commit: `ci(codegraph): add the scheduled codegraph release monitor`"
+    citation: source.md:311
+    section: "4. Task breakdown (execution order) / T4"
+  - id: INF-271
+    quote: "Files: `.github/workflows/README.md`, `CHANGELOG.md`, `docs/user-guide/mcp-installation.md`."
+    citation: source.md:314
+    section: "4. Task breakdown (execution order) / T5"
+  - id: INF-272
+    quote: "F10, F11, the F5 \"How the pin is updated\" paragraph (what the monitor does, the §2.4 rules, what a failure produces, how to run it by hand: `gh workflow run codegraph-release-monitor.yml --repo IronbellyOrg/IronClaude -f dry_run=true`)."
+    citation: source.md:315
+    section: "4. Task breakdown (execution order) / T5"
+  - id: INF-273
+    quote: "awk '/^## \\[Unreleased\\]/{f=1;next} /^## \\[/{f=0} f' CHANGELOG.md | grep -qi 'codegraph release monitor'"
+    citation: source.md:317-322
+    section: "4. Task breakdown (execution order) / T5"
+  - id: INF-274
+    quote: "Commit: `docs(codegraph): document the codegraph release monitor`"
+    citation: source.md:323
+    section: "4. Task breakdown (execution order) / T5"
+  - id: INF-275
+    quote: "Files: none new."
+    citation: source.md:326
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-276
+    quote: "full-suite comparison against the T0 baseline; the T3 live proof re-run on the final tree; open the PR with `/sc:pr-submit --monitor 3`."
+    citation: source.md:327
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-277
+    quote: "test -z \"$(comm -13 \"$PKG/artifacts/baseline-failures.txt\" /tmp/m-final-failures.txt)\""
+    citation: source.md:335-343
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-278
+    quote: "Then, in Claude Code: `/sc:pr-submit --monitor 3 --head ironbelly/feat-codegraph-release-monitor --title \"feat(codegraph): scheduled codegraph release monitor (#323)\""
+    citation: source.md:344
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-279
+    quote: "Before it: the repo CLAUDE.md pre-PR checks (`git remote -v`; `git fetch origin && git log master..origin/master`, rebase onto `origin/master` if the fork moved)."
+    citation: source.md:344
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-280
+    quote: "After it: the returned URL must start with `https://github.com/IronbellyOrg/IronClaude/pull/`."
+    citation: source.md:344
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-281
+    quote: "Commit point: none new (the PR carries T0-T5); the issue comment links the PR."
+    citation: source.md:345
+    section: "4. Task breakdown (execution order) / T6"
+  - id: INF-282
+    quote: "Change: run the monitor once on `master` in dry-run mode with the current pin forced, then once normally."
+    citation: source.md:349
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-283
+    quote: "gh workflow run codegraph-release-monitor.yml --repo IronbellyOrg/IronClaude --ref master -f dry_run=true -f tag=v1.6.2"
+    citation: source.md:350-356
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-284
+    quote: "the dry run exits 0 with `fetch` `result=ok` and `prove` `result=pass` in its log"
+    citation: source.md:357
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-285
+    quote: "the normal run exits 0 with `result=none` (or, if a release became eligible meanwhile, opens exactly one PR on `IronbellyOrg/IronClaude` whose URL starts with `https://github.com/IronbellyOrg/IronClaude/pull/`)"
+    citation: source.md:357
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-286
+    quote: "`gh pr list --repo IronbellyOrg/IronClaude --search 'bump codegraph pin' --state open` shows at most one PR per tag."
+    citation: source.md:357
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-287
+    quote: "Commit point: none; final issue comment with both run URLs."
+    citation: source.md:358
+    section: "4. Task breakdown (execution order) / T7"
+  - id: INF-288
+    quote: "After each commit point in §4 (T0, T1, T2, T3, T4, T5), after T6 opens the PR, and after T7, post exactly one comment on issue #323."
+    citation: source.md:362
+    section: "5. Progress reporting on issue #323"
+  - id: INF-289
+    quote: "Nowhere else (no PR comments for progress, no Slack)."
+    citation: source.md:362
+    section: "5. Progress reporting on issue #323"
+  - id: INF-290
+    quote: "Body file, so the shell does not mangle it:"
+    citation: source.md:362
+    section: "5. Progress reporting on issue #323"
+  - id: INF-291
+    quote: "gh issue comment 323 --repo IronbellyOrg/IronClaude --body-file /tmp/m-progress.md"
+    citation: source.md:364-377
+    section: "5. Progress reporting on issue #323"
+  - id: INF-292
+    quote: "A failed acceptance run is reported as failed with its summary, never as done."
+    citation: source.md:379
+    section: "5. Progress reporting on issue #323"
+  - id: INF-293
+    quote: "The T6 and T7 comments link the PR and run URLs; a PR URL must start with `https://github.com/IronbellyOrg/IronClaude/pull/`."
+    citation: source.md:379
+    section: "5. Progress reporting on issue #323"
+  - id: INF-294
+    quote: "The executor works without stopping to ask."
+    citation: source.md:383
+    section: "6. Autonomy rules for the executor"
+  - id: INF-295
+    quote: "Simple: one obvious answer, or forced by a pinned test or a verified fact | helper names, message wording, fixture layout, summary text, cron minute | decide yourself"
+    citation: source.md:387
+    section: "6. Autonomy rules for the executor"
+  - id: INF-296
+    quote: "write each option to `.dev/codegraph-migration/decisions/MX-<slug>/option-<x>.md` (under 40 lines each) and spawn an agent (Agent tool) that runs `/sc:adversarial --compare <files> --depth quick`"
+    citation: source.md:388
+    section: "6. Autonomy rules for the executor"
+  - id: INF-297
+    quote: "Complex: changes a §Decisions outcome, the single-pin rule, the PR target, the proof's five stages, or anything Coder consumes (`VERSION`, `SHA256`, `MCP_TOOLS` format in `install_codegraph.py`)"
+    citation: source.md:389
+    section: "6. Autonomy rules for the executor"
+  - id: INF-298
+    quote: "same, without `--depth quick` (`/sc:adversarial --compare <files>`, default standard depth)"
+    citation: source.md:389
+    section: "6. Autonomy rules for the executor"
+  - id: INF-299
+    quote: "Follow the adversarial recommendation."
+    citation: source.md:391
+    section: "6. Autonomy rules for the executor"
+  - id: INF-300
+    quote: "Record every autonomous decision, in the commit that applies it, as a row in `.dev/codegraph-migration/decisions/MX-log.md` (create on first use): decision, options considered, method (self / adversarial quick / adversarial full), rationale, decision folder."
+    citation: source.md:391
+    section: "6. Autonomy rules for the executor"
+  - id: INF-301
+    quote: "Mention the folder in the next issue comment."
+    citation: source.md:391
+    section: "6. Autonomy rules for the executor"
+  - id: INF-302
+    quote: "PRs only on `IronbellyOrg/IronClaude`, through `/sc:pr-submit --monitor 3` (fallback `gh pr create --repo IronbellyOrg/IronClaude`)"
+    citation: source.md:394
+    section: "6. Autonomy rules for the executor"
+  - id: INF-303
+    quote: "never push to `upstream`"
+    citation: source.md:394
+    section: "6. Autonomy rules for the executor"
+  - id: INF-304
+    quote: "never a bare `gh pr create`, also inside the workflow."
+    citation: source.md:394
+    section: "6. Autonomy rules for the executor"
+  - id: INF-305
+    quote: "Never stage a `.claude/` path (only `.claude/settings.json` is tracked, and this plan does not change it)"
+    citation: source.md:395
+    section: "6. Autonomy rules for the executor"
+  - id: INF-306
+    quote: "always `git add .dev/tasks`"
+    citation: source.md:395
+    section: "6. Autonomy rules for the executor"
+  - id: INF-307
+    quote: "feature branch only."
+    citation: source.md:395
+    section: "6. Autonomy rules for the executor"
+  - id: INF-308
+    quote: "Never run `superclaude install`, `claude mcp add/remove`, `./update.sh` or `codegraph install` (without `--print-config`) against the real HOME"
+    citation: source.md:396
+    section: "6. Autonomy rules for the executor"
+  - id: INF-309
+    quote: "`prove` and the live T3 run use a sandbox HOME and the T3 block checks the real `.mcpServers` is unchanged."
+    citation: source.md:396
+    section: "6. Autonomy rules for the executor"
+  - id: INF-310
+    quote: "Never edit `.dev/codegraph-migration/evidence/P2-*` or other historical `.dev/` artifacts"
+    citation: source.md:397
+    section: "6. Autonomy rules for the executor"
+  - id: INF-311
+    quote: "never run `tests/cli/eval/`"
+    citation: source.md:397
+    section: "6. Autonomy rules for the executor"
+  - id: INF-312
+    quote: "restore `.dev/releases/current/cliEval/evidence/T02.15/perf.json` after a full run."
+    citation: source.md:397
+    section: "6. Autonomy rules for the executor"
+  - id: INF-313
+    quote: "The workflow never merges, approves or auto-merges a PR, and never pushes to `master`."
+    citation: source.md:398
+    section: "6. Autonomy rules for the executor"
+  - id: INF-314
+    quote: "PR #329 merged to `master` (the executor checks it in T0 and waits, posting one issue comment, if it is not)."
+    citation: source.md:402
+    section: "7. Human intervention (minimal list)"
+  - id: INF-315
+    quote: "Merging the monitor PR (T6) to `master`; the executor runs T7 after it."
+    citation: source.md:403
+    section: "7. Human intervention (minimal list)"
+  - id: INF-316
+    quote: "Every bump PR the monitor opens later is merged by a person (by design; the workflow never merges)."
+    citation: source.md:404
+    section: "7. Human intervention (minimal list)"
+  - id: INF-317
+    quote: "A major draft is marked ready by a person after its checklist; an integrity issue is closed by a person after investigating (possible tampering upstream: do not change a hash by hand to make it pass)."
+    citation: source.md:404
+    section: "7. Human intervention (minimal list)"
+  - id: INF-318
+    quote: "Optional, once: set the repository variable `CODEGRAPH_MONITOR_ASSIGNEE` to the GitHub login that should be assigned monitor PRs and issues"
+    citation: source.md:405
+    section: "7. Human intervention (minimal list)"
+  - id: INF-319
+    quote: "A GitHub auth failure for `gh` on the executor's machine (the executor cannot log in for the user)."
+    citation: source.md:406
+    section: "7. Human intervention (minimal list)"
+  - id: INF-320
+    quote: "confirm that Coder's codegraph image bake reads `VERSION` and `SHA256` from `src/superclaude/cli/install_codegraph.py` at its pinned IronClaude SHA (fact 6, UNVERIFIED)."
+    citation: source.md:407
+    section: "7. Human intervention (minimal list)"
+  - id: INF-321
+    quote: "The executor states this in the T6 issue comment; the fix is Coder's."
+    citation: source.md:407
+    section: "7. Human intervention (minimal list)"
+  - id: INF-322
+    quote: "a major gets the same verify and proof but always a draft PR titled `codegraph MAJOR <tag>: manual review` with a Phase 3 checklist and linked notes; within-major bumps keep flowing while a major waits."
+    citation: source.md:413
+    section: "Decisions"
+  - id: INF-323
+    quote: "bump only to the highest-semver release once it is at least 14 days old, never to an older one; `min_age_days` dispatch input for a one-off security fix; stall warning at 28 days (§2.4)."
+    citation: source.md:414
+    section: "Decisions"
+  - id: INF-324
+    quote: "Never both: integrity failure -> issue only, no branch (unverified hashes never sit on a branch; the pin is the only trust anchor, `install_codegraph.py:328-330`); behaviour failure -> draft PR with ` [proof failed: <stage>]` and label `needs-codegraph-proof`; infrastructure -> warning, issue after 3 failed runs in a row (§2.5)."
+    citation: source.md:415
+    section: "Decisions"
+  - id: INF-325
+    quote: "M-c's rule governs pushes because branch and push behaviour is the scope of that decision and it keeps unverified or human-edited branches from being overwritten"
+    citation: source.md:416
+    section: "Decisions"
+  - id: INF-326
+    quote: "M-a's stated goal (never a duplicate PR per line, majors never block minors) is kept by superseding the older open PR on the same line."
+    citation: source.md:416
+    section: "Decisions"
+  - id: INF-327
+    quote: "Option 1 needs no stored state and uses a verified `gh` flag (fact 7); a red run is the honest state when upstream cannot be reached."
+    citation: source.md:417
+    section: "Decisions"
+  - id: INF-328
+    quote: "`scripts/` is not installed to users (maintainer tooling, precedent `scripts/verify_deps.py`)"
+    citation: source.md:418
+    section: "Decisions"
+  - id: INF-329
+    quote: "T1 removes them once and adds a guard test, so a bump touches the pin file plus its checksum fixture only."
+    citation: source.md:419
+    section: "Decisions"
+  - id: INF-330
+    quote: "the test keeps catching hand-typed hashes; the bot rewrites the fixture from the same verified `SHA256SUMS`."
+    citation: source.md:420
+    section: "Decisions"
+  - id: INF-331
+    quote: "CI must not depend on a `.dev/` evidence file; Python lets the unit tests fake the server (R14); no Node step needed."
+    citation: source.md:421
+    section: "Decisions"
+  - id: INF-332
+    quote: "so an extra listed tool is a regression too."
+    citation: source.md:422
+    section: "Decisions"
+  - id: INF-333
+    quote: "every other key (`type`, `args`, `alwaysLoad`, any new key) must match upstream's `--print-config claude`."
+    citation: source.md:423
+    section: "Decisions"
+  - id: INF-334
+    quote: "Fact 5: `GITHUB_TOKEN` PRs start runs only in an approval-required state; `workflow_dispatch` always runs."
+    citation: source.md:424
+    section: "Decisions"
+  - id: INF-335
+    quote: "within-major PRs carry up to 60,000 characters newest-first plus links; majors carry links (M-a)."
+    citation: source.md:425
+    section: "Decisions"
+  - id: INF-336
+    quote: "Never close or merge on the bot's own judgment of an upstream deletion; one fingerprinted comment tells the reviewer."
+    citation: source.md:426
+    section: "Decisions"
+  - id: INF-337
+    quote: "`test.yml` already runs every job on `ubuntu-latest`; no Docker or private network is needed."
+    citation: source.md:427
+    section: "Decisions"
+  - id: INF-338
+    quote: "the executor follows the merged rules and lists them in the T6 issue comment"
+    citation: source.md:429
+    section: "Decisions"

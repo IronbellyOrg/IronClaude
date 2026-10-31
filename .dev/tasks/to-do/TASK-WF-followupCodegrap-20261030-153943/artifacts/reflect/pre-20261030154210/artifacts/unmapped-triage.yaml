@@ -1,0 +1,1672 @@
+total_unmapped: 227
+covered_by_reference: 222
+needs_review:
+- INF-042
+- INF-043
+- INF-045
+- INF-046
+- INF-047
+rows:
+- id: INF-001
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:7
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-002
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:7
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-003
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:7
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-004
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:7
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-005
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:9
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-006
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:24
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-008
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:28
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-009
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:31
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-010
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:31
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-011
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:31
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-013
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:31
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-016
+  section: 0. Goal, inputs and evidence rule
+  citation: source.md:31
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+- id: INF-018
+  section: '1. Preflight: files that change'
+  citation: source.md:35
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-020
+  section: '1. Preflight: files that change'
+  citation: source.md:39
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-029
+  section: '1. Preflight: files that change'
+  citation: source.md:44
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-032
+  section: '1. Preflight: files that change'
+  citation: source.md:46
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-036
+  section: '1. Preflight: files that change'
+  citation: source.md:51
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-039
+  section: '1. Preflight: files that change'
+  citation: source.md:51
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-040
+  section: '1. Preflight: files that change'
+  citation: source.md:51
+  triage: covered-by-reference
+  referenced_by:
+  - Task 2
+  - Task 6
+- id: INF-042
+  section: 2.1 Shape
+  citation: source.md:57
+  triage: needs-review
+  referenced_by: []
+- id: INF-043
+  section: 2.1 Shape
+  citation: source.md:60
+  triage: needs-review
+  referenced_by: []
+- id: INF-045
+  section: 2.1 Shape
+  citation: source.md:66
+  triage: needs-review
+  referenced_by: []
+- id: INF-046
+  section: 2.1 Shape
+  citation: source.md:69
+  triage: needs-review
+  referenced_by: []
+- id: INF-047
+  section: 2.1 Shape
+  citation: source.md:70
+  triage: needs-review
+  referenced_by: []
+- id: INF-050
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:76
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-053
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:76
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-054
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:76
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-055
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:78
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-056
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:82
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-057
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:83
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-058
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:84
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-059
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:85
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-060
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:86
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-061
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:87
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-062
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:88
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-063
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:89
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-064
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:90
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-065
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:91
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-066
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:92
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-067
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:92
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-068
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:93
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-069
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:96
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-070
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:96
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-071
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:97
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-072
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:98
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-073
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:98
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-074
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:100
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-075
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:101
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-076
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:101
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-077
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:101
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-078
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:102
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-079
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:102
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-081
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:103
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-082
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:104
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-083
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:105
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-084
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:105
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-085
+  section: 2.2 `scripts/codegraph_release.py`
+  citation: source.md:106
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+- id: INF-087
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:110
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-089
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:110
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-090
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:110
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-093
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:112
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-094
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:113
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-095
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:113
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-098
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:114
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-099
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:115
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-102
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:115
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-103
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:115
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-104
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:115
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-106
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:117
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-107
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:117
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-108
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:118
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-109
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:118
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-110
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:118
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-111
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:118
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-112
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:118
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-114
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:119
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-115
+  section: 2.3 Workflow `.github/workflows/codegraph-release-monitor.yml`
+  citation: source.md:120
+  triage: covered-by-reference
+  referenced_by:
+  - Task 5
+- id: INF-116
+  section: 2.4 Candidate selection
+  citation: source.md:126
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-117
+  section: 2.4 Candidate selection
+  citation: source.md:126
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-118
+  section: 2.4 Candidate selection
+  citation: source.md:127
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-119
+  section: 2.4 Candidate selection
+  citation: source.md:127
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-120
+  section: 2.4 Candidate selection
+  citation: source.md:128
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-121
+  section: 2.4 Candidate selection
+  citation: source.md:128
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-122
+  section: 2.4 Candidate selection
+  citation: source.md:129
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-123
+  section: 2.4 Candidate selection
+  citation: source.md:129
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-124
+  section: 2.4 Candidate selection
+  citation: source.md:129
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-125
+  section: 2.4 Candidate selection
+  citation: source.md:130
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-126
+  section: 2.4 Candidate selection
+  citation: source.md:130
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-127
+  section: 2.4 Candidate selection
+  citation: source.md:130
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-128
+  section: 2.4 Candidate selection
+  citation: source.md:131
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-130
+  section: 2.4 Candidate selection
+  citation: source.md:132
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-131
+  section: 2.4 Candidate selection
+  citation: source.md:132
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-132
+  section: 2.4 Candidate selection
+  citation: source.md:132
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-133
+  section: 2.4 Candidate selection
+  citation: source.md:132
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-134
+  section: 2.4 Candidate selection
+  citation: source.md:132
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-136
+  section: 2.4 Candidate selection
+  citation: source.md:133
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-137
+  section: 2.4 Candidate selection
+  citation: source.md:133
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-138
+  section: 2.4 Candidate selection
+  citation: source.md:133
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-140
+  section: 2.4 Candidate selection
+  citation: source.md:134
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-141
+  section: 2.4 Candidate selection
+  citation: source.md:134
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-142
+  section: 2.4 Candidate selection
+  citation: source.md:135
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-143
+  section: 2.4 Candidate selection
+  citation: source.md:135
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-144
+  section: 2.4 Candidate selection
+  citation: source.md:136
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-145
+  section: 2.4 Candidate selection
+  citation: source.md:136
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 6
+- id: INF-147
+  section: 2.5 Proof and failure handling
+  citation: source.md:142
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-148
+  section: 2.5 Proof and failure handling
+  citation: source.md:143
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-149
+  section: 2.5 Proof and failure handling
+  citation: source.md:143
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-150
+  section: 2.5 Proof and failure handling
+  citation: source.md:144
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-152
+  section: 2.5 Proof and failure handling
+  citation: source.md:146
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-153
+  section: 2.5 Proof and failure handling
+  citation: source.md:147
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-154
+  section: 2.5 Proof and failure handling
+  citation: source.md:148
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-155
+  section: 2.5 Proof and failure handling
+  citation: source.md:148
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-156
+  section: 2.5 Proof and failure handling
+  citation: source.md:150
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-157
+  section: 2.5 Proof and failure handling
+  citation: source.md:156
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-158
+  section: 2.5 Proof and failure handling
+  citation: source.md:157
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-159
+  section: 2.5 Proof and failure handling
+  citation: source.md:158
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-160
+  section: 2.5 Proof and failure handling
+  citation: source.md:159
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-161
+  section: 2.5 Proof and failure handling
+  citation: source.md:160
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-162
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-163
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-164
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-165
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-166
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-167
+  section: 2.5 Proof and failure handling
+  citation: source.md:164
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-168
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-169
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-171
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-172
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-173
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-174
+  section: 2.5 Proof and failure handling
+  citation: source.md:165
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-175
+  section: 2.5 Proof and failure handling
+  citation: source.md:166
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-176
+  section: 2.5 Proof and failure handling
+  citation: source.md:166
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-177
+  section: 2.5 Proof and failure handling
+  citation: source.md:166
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-178
+  section: 2.5 Proof and failure handling
+  citation: source.md:166
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-179
+  section: 2.5 Proof and failure handling
+  citation: source.md:168
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+  - Task 6
+- id: INF-180
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-181
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-182
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-185
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-186
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-187
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-188
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-189
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-191
+  section: 2.6 PR body
+  citation: source.md:172
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+- id: INF-192
+  section: 3. Tests
+  citation: source.md:176
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-193
+  section: 3. Tests
+  citation: source.md:176
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-194
+  section: 3. Tests
+  citation: source.md:182
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-195
+  section: 3. Tests
+  citation: source.md:183
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-196
+  section: 3. Tests
+  citation: source.md:184
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-197
+  section: 3. Tests
+  citation: source.md:185
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-198
+  section: 3. Tests
+  citation: source.md:185
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-199
+  section: 3. Tests
+  citation: source.md:185
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-201
+  section: 3. Tests
+  citation: source.md:186
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-202
+  section: 3. Tests
+  citation: source.md:187
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-203
+  section: 3. Tests
+  citation: source.md:188
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-204
+  section: 3. Tests
+  citation: source.md:189
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-205
+  section: 3. Tests
+  citation: source.md:190
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-206
+  section: 3. Tests
+  citation: source.md:191
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-207
+  section: 3. Tests
+  citation: source.md:191
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-208
+  section: 3. Tests
+  citation: source.md:192
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-209
+  section: 3. Tests
+  citation: source.md:193
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-210
+  section: 3. Tests
+  citation: source.md:193
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-211
+  section: 3. Tests
+  citation: source.md:194
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-212
+  section: 3. Tests
+  citation: source.md:195
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-213
+  section: 3. Tests
+  citation: source.md:196
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-214
+  section: 3. Tests
+  citation: source.md:197
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-215
+  section: 3. Tests
+  citation: source.md:198
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-216
+  section: 3. Tests
+  citation: source.md:199
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-217
+  section: 3. Tests
+  citation: source.md:199
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-218
+  section: 3. Tests
+  citation: source.md:199
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-219
+  section: 3. Tests
+  citation: source.md:199
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-220
+  section: 3. Tests
+  citation: source.md:200
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-225
+  section: 3. Tests
+  citation: source.md:202
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-227
+  section: 3. Tests
+  citation: source.md:202
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-228
+  section: 3. Tests
+  citation: source.md:202
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-235
+  section: 3. Tests
+  citation: source.md:206
+  triage: covered-by-reference
+  referenced_by:
+  - Task 3
+  - Task 4
+  - Task 5
+- id: INF-236
+  section: 4. Task breakdown (execution order)
+  citation: source.md:210
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-237
+  section: 4. Task breakdown (execution order)
+  citation: source.md:210
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-244
+  section: 4. Task breakdown (execution order) / T0
+  citation: source.md:236
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-249
+  section: 4. Task breakdown (execution order) / T1
+  citation: source.md:251
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-250
+  section: 4. Task breakdown (execution order) / T1
+  citation: source.md:251
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-254
+  section: 4. Task breakdown (execution order) / T2
+  citation: source.md:263
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-256
+  section: 4. Task breakdown (execution order) / T2
+  citation: source.md:263
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-262
+  section: 4. Task breakdown (execution order) / T3
+  citation: source.md:276-285
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-265
+  section: 4. Task breakdown (execution order) / T3
+  citation: source.md:296
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-275
+  section: 4. Task breakdown (execution order) / T6
+  citation: source.md:326
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-281
+  section: 4. Task breakdown (execution order) / T6
+  citation: source.md:345
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-282
+  section: 4. Task breakdown (execution order) / T7
+  citation: source.md:349
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 2
+  - Task 3
+  - Task 4
+  - Task 6
+  - Task 7
+  - Task 8
+- id: INF-288
+  section: '5. Progress reporting on issue #323'
+  citation: source.md:362
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-289
+  section: '5. Progress reporting on issue #323'
+  citation: source.md:362
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-290
+  section: '5. Progress reporting on issue #323'
+  citation: source.md:362
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-292
+  section: '5. Progress reporting on issue #323'
+  citation: source.md:379
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-294
+  section: 6. Autonomy rules for the executor
+  citation: source.md:383
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-295
+  section: 6. Autonomy rules for the executor
+  citation: source.md:387
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-296
+  section: 6. Autonomy rules for the executor
+  citation: source.md:388
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-297
+  section: 6. Autonomy rules for the executor
+  citation: source.md:389
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-298
+  section: 6. Autonomy rules for the executor
+  citation: source.md:389
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-299
+  section: 6. Autonomy rules for the executor
+  citation: source.md:391
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-300
+  section: 6. Autonomy rules for the executor
+  citation: source.md:391
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-301
+  section: 6. Autonomy rules for the executor
+  citation: source.md:391
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-303
+  section: 6. Autonomy rules for the executor
+  citation: source.md:394
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-304
+  section: 6. Autonomy rules for the executor
+  citation: source.md:394
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-305
+  section: 6. Autonomy rules for the executor
+  citation: source.md:395
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-312
+  section: 6. Autonomy rules for the executor
+  citation: source.md:397
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-313
+  section: 6. Autonomy rules for the executor
+  citation: source.md:398
+  triage: covered-by-reference
+  referenced_by:
+  - Constraints
+- id: INF-317
+  section: 7. Human intervention (minimal list)
+  citation: source.md:404
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 7
+  - Task 8
+- id: INF-318
+  section: 7. Human intervention (minimal list)
+  citation: source.md:405
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 7
+  - Task 8
+- id: INF-319
+  section: 7. Human intervention (minimal list)
+  citation: source.md:406
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 7
+  - Task 8
+- id: INF-320
+  section: 7. Human intervention (minimal list)
+  citation: source.md:407
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 7
+  - Task 8
+- id: INF-321
+  section: 7. Human intervention (minimal list)
+  citation: source.md:407
+  triage: covered-by-reference
+  referenced_by:
+  - Task 1
+  - Task 7
+  - Task 8
+- id: INF-322
+  section: Decisions
+  citation: source.md:413
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-323
+  section: Decisions
+  citation: source.md:414
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-324
+  section: Decisions
+  citation: source.md:415
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-325
+  section: Decisions
+  citation: source.md:416
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-326
+  section: Decisions
+  citation: source.md:416
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-327
+  section: Decisions
+  citation: source.md:417
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-328
+  section: Decisions
+  citation: source.md:418
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-329
+  section: Decisions
+  citation: source.md:419
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-330
+  section: Decisions
+  citation: source.md:420
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-331
+  section: Decisions
+  citation: source.md:421
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-332
+  section: Decisions
+  citation: source.md:422
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-333
+  section: Decisions
+  citation: source.md:423
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-334
+  section: Decisions
+  citation: source.md:424
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-335
+  section: Decisions
+  citation: source.md:425
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-336
+  section: Decisions
+  citation: source.md:426
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-337
+  section: Decisions
+  citation: source.md:427
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
+- id: INF-338
+  section: Decisions
+  citation: source.md:429
+  triage: covered-by-reference
+  referenced_by:
+  - Task 7
