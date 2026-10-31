@@ -3,7 +3,7 @@ name: explain
 description: "Provide clear explanations of code, concepts, and system behavior with educational clarity"
 category: workflow
 complexity: standard
-mcp-servers: [context7]
+mcp-servers: [context7, codegraph]
 personas: [educator, architect, security]
 ---
 

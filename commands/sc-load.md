@@ -44,6 +44,7 @@ Key behaviors:
 - **Read**: Memory retrieval and session context loading from `.superclaude/memory/<key>.md`
 - **Read/Grep/Glob**: Project structure analysis and configuration discovery
 - **Write**: Session context documentation and checkpoint creation
+- **Code-graph readiness**: end the session summary with one line telling the user to type `/sc:graph status` to see whether this worktree's code-graph index is ready; `/sc:load` never runs `/sc:graph` itself and never waits on the index
 
 ## Key Patterns
 - **Project Context Loading**: Directory analysis → memory retrieval → context establishment
