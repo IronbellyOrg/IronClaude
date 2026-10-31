@@ -58,7 +58,7 @@ Status-only branch: Phase 2 may register only `codegraph_status`; then lookups u
 Caller rows give the caller's definition line, not the call site. Before citing one, confirm the call site:
 
 1. CS1: find the caller's span (`codegraph query <caller> --json` `startLine`/`endLine`, or `codegraph_node {symbol}`); none → `resolution: unresolved`.
-2. CS2: Grep `\b<callee>\s*\(` with line numbers in that file and keep matches inside the span.
+2. CS2: Grep `(^|[^A-Za-z0-9_$])<callee>\s*\(` (the name regex-escaped, `$` as `\$`; `\b` cannot sit beside a `$`) with line numbers in that file and keep matches inside the span. Direct callers only: a transitive (`hop` 2) row has no call to `<callee>` and keeps `resolution: def-line`.
 3. CS3: reject matches in comments, strings or docstrings, bare assignments and attribute-only uses.
 4. CS4: Read the matched line; it must still hold the call → `resolution: call-site-verified`.
 5. CS5: any failure drops the row from cited output; never repair it. At most 5 rows per symbol and 20 per run; every row carries `resolution: def-line|call-site-verified|unresolved`.

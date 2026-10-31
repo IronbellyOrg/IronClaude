@@ -271,6 +271,51 @@ def test_impact_status_only_cli_transport_before_grep_fallback():
         assert form in steps[cli:grep], form
 
 
+def test_impact_diff_default_compares_against_head():
+    # PR 336 review: without HEAD, git diff compares the worktree with the index
+    # and misses fully staged edits.
+    steps = _section(_text(_SKILL), "## 2. Step sequence")
+    assert "`git diff --name-only HEAD`" in steps
+    assert "`git diff -U0 HEAD`" in steps
+    assert "`git diff --name-only` (" not in steps
+
+
+def test_impact_diff_mode_grep_fallback_lists_files_as_unmapped():
+    steps = _section(_text(_SKILL), "## 2. Step sequence")
+    fallback = steps[steps.index("| 9 | Grep fallback") :].split("\n", 1)[0]
+    assert "Diff mode" in fallback
+    assert "`reason: no_graph`" in fallback
+    assert "no dependent row is invented" in fallback
+    assert "no_graph" in steps[steps.index("| 3' |") :].split("\n", 1)[0]
+
+
+def test_impact_call_site_confirmation_is_direct_callers_only():
+    text = _text(_SKILL)
+    steps = _section(text, "## 2. Step sequence")
+    step7 = steps[steps.index("| 7 | Call-site confirmation") :].split("\n", 1)[0]
+    assert "`hop: 1`" in step7 and "keeps `resolution: def-line`" in step7
+    assert "Only `hop: 1` rows (direct callers) enter CS1-CS5" in text
+    guide = (_REPO / "src" / "superclaude" / "core" / "CODEGRAPH.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Direct callers only" in guide
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        _SKILL,
+        _REPO / "src" / "superclaude" / "core" / "CODEGRAPH.md",
+        _REPO / "plugins" / "superclaude" / "core" / "CODEGRAPH.md",
+    ],
+)
+def test_name_patterns_are_dollar_safe(path):
+    # A raw or escaped `$` beside `\b` never matches (`\b` needs a word character).
+    text = path.read_text(encoding="utf-8")
+    assert not re.search(r"\\b<(sym|callee)>|<(sym|callee)>\\b", text)
+    assert "(^|[^A-Za-z0-9_$])<" in text
+
+
 def test_impact_example_uses_placeholders_only():
     text = _text(_SKILL)
     assert "install_codebase_memory_mcp" not in text

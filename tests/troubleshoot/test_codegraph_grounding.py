@@ -19,7 +19,10 @@ _FILES = [
     _SKILL_DIR / "refs" / "triage-checklist.md",
     _SKILL_DIR / "refs" / "diagnosability-audit.md",
 ]
-_TOOLS = [f"mcp__codegraph__codegraph_{t}" for t in ("status", "search", "node", "callers", "impact")]
+_TOOLS = [
+    f"mcp__codegraph__codegraph_{t}"
+    for t in ("status", "search", "node", "callers", "impact")
+]
 _STATE_FIELDS = ("index_state", "checked_at", "worktree_root", "projectPath")
 
 
@@ -45,12 +48,17 @@ def test_wave1_names_codegraph_node_above_glob_grep_floor():
     wave1 = _section(_skill(), "### Wave 1: Tier 1", "### Wave 1.5:")
     assert "codegraph_node" in wave1 and "codegraph_callers" in wave1
     assert "`Glob` + `Grep`" in wave1, "the Phase 1 Glob + Grep floor must stay"
-    assert wave1.index("codegraph_node") < wave1.index("`Glob` + `Grep`"), "codegraph tier goes first"
+    assert wave1.index("codegraph_node") < wave1.index("`Glob` + `Grep`"), (
+        "codegraph tier goes first"
+    )
     assert "tier1-callers.md" in wave1
 
 
 def test_target_header_mcps_available_enum():
-    assert "mcps_available: <auggie|codegraph|context7|tavily|none>" in _skill().splitlines()
+    assert (
+        "mcps_available: <auggie|codegraph|context7|tavily|none>"
+        in _skill().splitlines()
+    )
 
 
 def test_analyst_briefs_carry_codegraph_run_state():
@@ -58,11 +66,17 @@ def test_analyst_briefs_carry_codegraph_run_state():
     delegation = _section(text, "## Native diagnostic delegation", "| Dispatch site |")
     wave16 = _section(text, "### Wave 1.6:", "### Wave 1.7:")
     wave3 = _section(text, "### Wave 3:", "### Wave 4")
-    for part, name in ((delegation, "delegation contract"), (wave16, "Wave 1.6 brief"), (wave3, "Wave 3 brief")):
+    for part, name in (
+        (delegation, "delegation contract"),
+        (wave16, "Wave 1.6 brief"),
+        (wave3, "Wave 3 brief"),
+    ):
         for field in _STATE_FIELDS:
             assert field in part, f"{name} does not pass {field}"
 
 
 def test_no_serena_in_troubleshoot_files():
     for path in _FILES:
-        assert "serena" not in path.read_text(encoding="utf-8").lower(), f"{path.relative_to(_REPO)} names serena"
+        assert "serena" not in path.read_text(encoding="utf-8").lower(), (
+            f"{path.relative_to(_REPO)} names serena"
+        )

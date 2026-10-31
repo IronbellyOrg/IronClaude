@@ -34,7 +34,15 @@ _SKILL_TOOLS = {
     "Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES)",
     "mcp__codegraph__codegraph_status",
 }
-_INDEX_STATES = ["fresh", "stale", "not_initialized", "foreign_index", "absent", "disabled", "error"]
+_INDEX_STATES = [
+    "fresh",
+    "stale",
+    "not_initialized",
+    "foreign_index",
+    "absent",
+    "disabled",
+    "error",
+]
 _RELATIONS = ["own", "parent", "none", "unknown"]
 _NEXT_ACTIONS = [
     "none",
@@ -48,11 +56,33 @@ _NEXT_ACTIONS = [
     "check_codegraph_error",
 ]
 _CONTRACT_FIELDS = [
-    "schema_version", "command", "subcommand", "status", "contract_path", "output_dir",
-    "checked_at", "access", "index_state", "worktree_root", "worktree_relation", "cli_version",
-    "pin", "pin_match", "mcp_tools_listed", "counts", "pending", "telemetry",
-    "telemetry_opt_out", "kill_switch", "next_action", "degraded", "init.requested",
-    "init.form", "init.ran", "init.exit_code", "init.refused_reason",
+    "schema_version",
+    "command",
+    "subcommand",
+    "status",
+    "contract_path",
+    "output_dir",
+    "checked_at",
+    "access",
+    "index_state",
+    "worktree_root",
+    "worktree_relation",
+    "cli_version",
+    "pin",
+    "pin_match",
+    "mcp_tools_listed",
+    "counts",
+    "pending",
+    "telemetry",
+    "telemetry_opt_out",
+    "kill_switch",
+    "next_action",
+    "degraded",
+    "init.requested",
+    "init.form",
+    "init.ran",
+    "init.exit_code",
+    "init.refused_reason",
 ]
 _GUIDE_LINE = (
     "Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, "
@@ -94,7 +124,11 @@ def test_graph_command_invokes_protocol_skill():
 
 
 def test_graph_command_allowed_tools_exact():
-    assert _allowed(_COMMAND) == {"Skill", "Bash(codegraph init --yes *)", "Bash(codegraph init -i)"}
+    assert _allowed(_COMMAND) == {
+        "Skill",
+        "Bash(codegraph init --yes *)",
+        "Bash(codegraph init -i)",
+    }
 
 
 def test_graph_skill_allowed_tools_exact():
@@ -104,7 +138,9 @@ def test_graph_skill_allowed_tools_exact():
 
 
 def test_graph_init_only_in_command():
-    assert not _MUTATING.findall(_text(_SKILL)), "the skill must never name a build or write verb"
+    assert not _MUTATING.findall(_text(_SKILL)), (
+        "the skill must never name a build or write verb"
+    )
     hits = _MUTATING.findall(_text(_COMMAND))
     assert hits and all(h == "codegraph init" for h in hits)
 
@@ -169,7 +205,8 @@ def test_graph_guide_lookup_line(path):
 
 def test_graph_no_skill_callers():
     callers = [
-        p for p in _SKILLS_DIR.glob("*/SKILL.md")
+        p
+        for p in _SKILLS_DIR.glob("*/SKILL.md")
         if p.parent.name != "sc-graph-protocol" and "sc:graph-protocol" in _text(p)
     ]
     assert not callers, f"skills must not call sc:graph-protocol: {callers}"

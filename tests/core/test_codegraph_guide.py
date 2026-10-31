@@ -68,14 +68,18 @@ def test_guide_names_seven_tools_and_closed_token_list():
     for token in _TOKENS:
         assert token in text, f"guide does not name {token}"
     found = set(re.findall(r"graph:[a-z_]+", text))
-    assert found == set(_TOKENS), f"tokens outside the closed list: {found - set(_TOKENS)}"
+    assert found == set(_TOKENS), (
+        f"tokens outside the closed list: {found - set(_TOKENS)}"
+    )
 
 
 def test_guide_fixed_lines_and_pin_parity():
     text = _text()
     pin = re.search(r"^Pinned codegraph version: (\S+)$", text, flags=re.M)
     assert pin, "guide lacks the 'Pinned codegraph version:' line"
-    assert pin.group(1) == VERSION, f"guide pin {pin.group(1)} != installer VERSION {VERSION}"
+    assert pin.group(1) == VERSION, (
+        f"guide pin {pin.group(1)} != installer VERSION {VERSION}"
+    )
     assert re.search(
         r"^Freshness experiment E-1: (pending|outcome-A|outcome-B)$", text, flags=re.M
     ), "guide lacks the 'Freshness experiment E-1:' line"
@@ -86,7 +90,15 @@ def test_banned_names_only_in_never_section():
     hits = _BANNED_OUTSIDE_NEVER.findall(before)
     assert not hits, f"explore or a mutating verb named outside 'Never': {hits}"
     assert "explore" in never
-    for verb in ("index", "sync", "uninit", "unlock", "upgrade", "install", "uninstall"):
+    for verb in (
+        "index",
+        "sync",
+        "uninit",
+        "unlock",
+        "upgrade",
+        "install",
+        "uninstall",
+    ):
         assert f"codegraph {verb}" in never, f"'Never' does not name codegraph {verb}"
 
 
@@ -105,10 +117,16 @@ def test_guide_holds_sentinel_and_no_source_path():
 
 def test_not_initialized_message_names_graph_status():
     line = next(
-        (ln for ln in _text().splitlines() if "graph:not_initialized" in ln and "tell the user" in ln),
+        (
+            ln
+            for ln in _text().splitlines()
+            if "graph:not_initialized" in ln and "tell the user" in ln
+        ),
         "",
     )
-    assert "/sc:graph status" in line, "graph:not_initialized message must name /sc:graph status"
+    assert "/sc:graph status" in line, (
+        "graph:not_initialized message must name /sc:graph status"
+    )
 
 
 def test_plugin_copy_is_byte_identical():
@@ -144,25 +162,34 @@ def test_refresh_tool_row_puts_codegraph_above_grep():
     section = text.split("### Refresh-tool selection", 1)[1].split("\n### ", 1)[0]
     row = next(ln for ln in section.splitlines() if ln.startswith("| Symbolic queries"))
     assert "codegraph_search" in row and "Grep" in row
-    assert row.index("codegraph_search") < row.index("Grep"), "codegraph tier must come first"
+    assert row.index("codegraph_search") < row.index("Grep"), (
+        "codegraph tier must come first"
+    )
 
 
 def test_core_and_modes_have_no_serena_or_explore():
     for path in [_CORE_CLAUDE, *_MODES]:
         text = path.read_text(encoding="utf-8")
-        assert "serena" not in text.lower(), f"{path.relative_to(_REPO)} still names serena"
-        assert "codegraph_explore" not in text, f"{path.relative_to(_REPO)} names codegraph_explore"
+        assert "serena" not in text.lower(), (
+            f"{path.relative_to(_REPO)} still names serena"
+        )
+        assert "codegraph_explore" not in text, (
+            f"{path.relative_to(_REPO)} names codegraph_explore"
+        )
 
 
 def test_orchestration_matrix_has_codegraph_row():
     row = "| Symbol lookup, callers, impact | codegraph MCP | Grep + Read |"
     for path in _MODES:
-        assert row in path.read_text(encoding="utf-8"), f"{path.relative_to(_REPO)} lacks the row"
+        assert row in path.read_text(encoding="utf-8"), (
+            f"{path.relative_to(_REPO)} lacks the row"
+        )
 
 
 def test_sentinel_only_in_the_guide():
     roots = [
-        _REPO / "src" / "superclaude" / d for d in ("commands", "skills", "agents", "core", "modes")
+        _REPO / "src" / "superclaude" / d
+        for d in ("commands", "skills", "agents", "core", "modes")
     ] + [_REPO / "plugins" / "superclaude"]
     allowed = {_GUIDE.resolve(), _PLUGIN_GUIDE.resolve()}
     offenders = [

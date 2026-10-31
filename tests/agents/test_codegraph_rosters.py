@@ -57,10 +57,14 @@ def _split(name: str) -> tuple[list[str], str]:
 @pytest.mark.parametrize("name", sorted(_E6_CODEGRAPH_ROSTERS))
 def test_roster_has_exact_codegraph_names(name):
     tools, _ = _split(name)
-    assert not [t for t in tools if t.startswith("mcp__serena")], f"{name} still lists Serena"
+    assert not [t for t in tools if t.startswith("mcp__serena")], (
+        f"{name} still lists Serena"
+    )
     assert "mcp__codegraph__*" not in tools, f"{name} uses the codegraph wildcard"
     codegraph = {t for t in tools if t.startswith("mcp__codegraph__")}
-    assert codegraph == _E6_CODEGRAPH_ROSTERS[name], f"{name} codegraph roster drifted from E-6"
+    assert codegraph == _E6_CODEGRAPH_ROSTERS[name], (
+        f"{name} codegraph roster drifted from E-6"
+    )
 
 
 @pytest.mark.parametrize("name", sorted(_E6_CODEGRAPH_ROSTERS))
@@ -72,9 +76,13 @@ def test_body_points_to_shared_guide(name):
 def test_reuse_auditor_keeps_grep_floor_below_codegraph():
     _, body = _split("reuse-auditor")
     cost = body.split("### 8. Cost control", 1)[1].split("\n## ", 1)[0]
-    assert "codegraph_" in cost and "Grep" in cost, "section 8 must name codegraph and the Grep floor"
+    assert "codegraph_" in cost and "Grep" in cost, (
+        "section 8 must name codegraph and the Grep floor"
+    )
     f4 = next(ln for ln in body.splitlines() if ln.startswith("| F4 "))
-    assert "codegraph_" in f4 and "Grep" in f4, "F4 must name codegraph and the Grep floor"
+    assert "codegraph_" in f4 and "Grep" in f4, (
+        "F4 must name codegraph and the Grep floor"
+    )
 
 
 def test_auggie_reviewer_bars_codegraph_cli():

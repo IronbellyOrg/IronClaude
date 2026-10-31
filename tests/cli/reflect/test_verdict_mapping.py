@@ -618,9 +618,14 @@ def test_graph_tokens_do_not_halt() -> None:
     from superclaude.cli.reflect.contract import _DEGRADED_COMPONENTS_HALT_SET
 
     with_tokens = _load("degraded_graph_absent.yaml")
-    assert with_tokens["degraded_components"] == ["graph:absent", "graph:not_initialized"]
+    assert with_tokens["degraded_components"] == [
+        "graph:absent",
+        "graph:not_initialized",
+    ]
     without_tokens = dict(with_tokens, degraded_components=[])
-    assert without_tokens == _load("pass.yaml"), "fixture must differ from pass.yaml only by the tokens"
+    assert without_tokens == _load("pass.yaml"), (
+        "fixture must differ from pass.yaml only by the tokens"
+    )
 
     kwargs = dict(expected_tier=2, allow_single_vendor=False, child_rc=0)
     result = derive_verdict(with_tokens, **kwargs)
