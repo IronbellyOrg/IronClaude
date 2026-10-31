@@ -70,5 +70,5 @@ tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_out
     with cli_runner.isolated_filesystem() as fs:
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================== 357 passed, 1 xpassed, 5 warnings in 8.08s ==================
+================== 357 passed, 1 xpassed, 5 warnings in 7.84s ==================
 pytest_rc=0

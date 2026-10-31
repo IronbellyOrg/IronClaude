@@ -56,6 +56,8 @@ Each hunk preserves the `file:line` ref so the `evidence-validator` agent can re
 
 **FR-RSR.9 runtime-surface ledger hunk.** On a Tier-2 UC-2 run with a non-empty runtime-surface ledger, a grounding-hunk entry carrying the artifact-path ref `<output>/artifacts/runtime-surface-ledger.yaml` is injected into this `## Grounding hunks` block for the **`qa`-persona** reviewer (persona-filtered — the qa reviewer owns the coverage/acceptance/runtime-surface reachability surface). The artifact ref is preserved verbatim so the Wave-5 evidence-validator can re-Read the byte-preserved ledger. This is an entry under the existing `## Grounding hunks` section — NOT a fourth brief section; the "exactly three sections" invariant is unchanged. The `reviewer_briefs_materialized` contract emission is unchanged.
 
+**Codegraph run-state entry (every persona).** The first entry of this `## Grounding hunks` block, before any H3 hunk, is one plain line `codegraph run state: index_state=<state> checked_at=<UTC> worktree_root=<abs path> projectPath=<abs path>`, copied from the Wave 0 readiness check (SKILL.md §6). The `reflect-reviewer` agent calls its codegraph tools only when `index_state=fresh`, passing that `projectPath`; otherwise it audits the supplied hunks with Read/Grep/Glob only. This is an entry under the existing `## Grounding hunks` section — NOT a fourth brief section; the "exactly three sections" invariant is unchanged.
+
 #### `## Coverage slice`
 
 The coverage-matrix slice containing **only the rows this reviewer is responsible for**. For UC-1, this is the requirement-to-card mapping subset; for UC-2, this is the tasklist-task-to-diff-hunk mapping subset.
