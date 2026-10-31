@@ -26,6 +26,7 @@ Environment note: the worktree had no virtual environment after the workspace re
 | A shared guide and core docs | `.dev/codegraph-migration/progress/P3-A.md` | https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6544466471 |
 | B agents | `.dev/codegraph-migration/progress/P3-B.md` | https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6544514469 |
 | C troubleshoot and other skills | `.dev/codegraph-migration/progress/P3-C.md` | https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6544681062 |
+| D new commands | `.dev/codegraph-migration/progress/P3-D.md` | https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6544874463 |
 
 ## Decisions
 

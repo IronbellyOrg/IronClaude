@@ -1,0 +1,7 @@
+889a6e1761a021b181184fc4dc8f0a06be41a255 tree=b62254e9ba0b87c74fd00f0d1a1abd6202f9108b
+T9.AC1 met: T9.AC1@.dev/tasks/to-do/TASK-WF-phase3CodegraphA-20261029-204913/artifacts/t9-test.log:21
+T9.AC2 met: T9.AC2@src/superclaude/skills/sc-impact-protocol/SKILL.md:4
+T9.AC3 met: T9.AC3@src/superclaude/commands/impact.md:1
+T9.AC4 met: T9.AC4@.dev/codegraph-migration/progress/P3-D.md:1
+F1.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/skills/sc-impact-protocol/SKILL.md:43 anchor=.dev/codegraph-migration/experiments/P3-T0/E2-help.md:13 chk=n,y,n,n family=impact-self-row fix=In steps 5 and 5', drop the impact row whose name, file and start line equal the queried definition before adding rows with source: impact, and exclude it from transitive.count. first=A1 origin=new: Step 5 adds every impact row not found in step 4, but impact output (MCP and CLI JSON) lists the queried symbol itself first, so each symbol becomes its own transitive dependent and transitive.count is one too high.
+F1.2 sev=minor trigger=none ac=scope at=src/superclaude/skills/sc-impact-protocol/SKILL.md:55 anchor=.dev/codegraph-migration/design/P3-commands/interface-design.md:247 chk=n,n,n,n family=outcome-b-stale fix=optionally add that under Outcome B access: cli runs are stale first=A1 origin=new: Under Outcome B the skill only sets advisory for CLI runs; DES 3.1 also marks them stale. No effect while the guide reads outcome-A.

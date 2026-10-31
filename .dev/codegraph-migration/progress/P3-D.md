@@ -1,0 +1,25 @@
+**Phase 3 (adopt codegraph), group D: new commands: done**
+
+- Commit: 5eb4d336 on branch feat/codegraph-adoption (/sc:graph: 959e9e3d and fix 922adcc3)
+- Changed:
+  - src/superclaude/commands/graph.md and src/superclaude/skills/sc-graph-protocol/SKILL.md (new: index readiness report; the only place that runs `codegraph init`, and only when the user types `/sc:graph init`)
+  - src/superclaude/commands/impact.md and src/superclaude/skills/sc-impact-protocol/SKILL.md (new: dependents of symbols or of a diff, call-site confirmation, advisory test list, impact.md plus return-contract.yaml)
+  - tests/commands/test_graph_command.py (new, 50 tests) and tests/commands/test_impact_command.py (new, 59 tests)
+  - tests/unit/test_cli_install.py (package lists gain both commands and skills)
+  - tests/recommend/test_routing_refresh.py (the two new commands are listed as additions after the frozen routing-refresh study)
+- Checks run and result:
+  - `uv run pytest tests/commands/test_graph_command.py tests/unit/test_cli_install.py tests/recommend/test_routing_refresh.py`: PASS, 394 passed.
+  - `uv run pytest tests/commands/test_impact_command.py tests/commands/test_graph_command.py tests/unit/test_cli_install.py tests/recommend/test_routing_refresh.py`: PASS, 453 passed (log saved in the plan package).
+  - No `Bash(codegraph <build or write verb>` pattern in any command, skill or agent except the two init forms in commands/graph.md: PASS. No old switch name `IRONCLAUDE_CODEGRAPH`: PASS. No wildcard and no explore in the /sc:impact files: PASS.
+  - Independent review of /sc:graph: first pass found one blocking issue (telemetry was read from the first output line, which is blank in codegraph 1.6.2); fixed with two related parse fixes in 922adcc3, re-review compliant. The /sc:impact review runs after this comment.
+- Decisions made on my own:
+  - The new commands go only into the package install lists, not the plugin lists: the plugin lists check files under plugins/, and the new commands have no plugin copy by design.
+  - /sc:graph init refuses while another init or index is running (new refusal reason `init_running`), as the spec requires.
+  - /sc:graph reports pending changes as a count, because codegraph 1.6.2 prints counts, not file names.
+  - The descriptions say "code-graph index", because the phrase "codegraph index" is a banned verb pattern in these files.
+  - After review: /sc:graph reads telemetry from the `Telemetry:` line, strips thousands separators from counts, and defines its fields while an init runs.
+  - /sc:impact's `advisory` flag is false now that the freshness experiment ended with Outcome A (it stays true for CLI-only runs if a future run gives Outcome B).
+  - /sc:impact marks rows found only by the impact tool as `hop: 2` ("two or more"), because the tool's text gives no per-row depth.
+  - In the status-only branch /sc:impact uses the CLI forms captured in experiment E-2 before falling back to Grep.
+- Left for later / blocked: `/sc:graph init --worktree-local` runs `codegraph init -i` without `--yes`, as the spec fixes it; the final smoke test checks whether that form prompts.
+- Next group: E, reflect
