@@ -1,3 +1,5 @@
 # implement ledger — source: ./TASK-WF-phase3CodegraphA-20261029-204913.md — created: 2026-10-29T21:41:10Z
 PLAN: sha256=bfc3635192de31cb2e6b3ce40ca12ae4cf17e2f79a546eca9755d6ca9e24c9a3 source_sha256=71bd93e21b6e3277dfed1b5fb4cdebb66697818d90ad11d91722397aa90ef326
 T1: start sha=18841c6d69836cdf4f17ced792c554a0e80a976e
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3,T1.AC4,T1.AC5,T1.AC6,T1.AC7 evidence=T1.AC1@.dev/codegraph-migration/decisions/P3X-execution-log.md:14,T1.AC2@.dev/codegraph-migration/decisions/P3X-execution-log.md:11,T1.AC3@.dev/codegraph-migration/decisions/P3X-execution-log.md:9,T1.AC4@.dev/codegraph-migration/decisions/P3X-execution-log.md:17,T1.AC5@./artifacts/t1-ac.log:14,T1.AC6@./artifacts/t1-ac.log:16,T1.AC7@.dev/codegraph-migration/decisions/P3X-execution-log.md:1 extras=lint:skip,typecheck:skip,test:pass files=.dev/codegraph-migration/decisions/P3X-execution-log.md,.dev/codegraph-migration/experiments/P3-baseline-failures.txt
+T2: start sha=0d6f67d7e2cdb6b5a496bfc7fb9e70c0487da3cd
