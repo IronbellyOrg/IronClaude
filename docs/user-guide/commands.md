@@ -358,7 +358,7 @@ PM Agent:
 
 ### `/sc:pr-submit` - PR Review Auto-Remediation Monitor
 
-**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment review, verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
+**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment and Codex reviews (a reviewer that never shows activity on the PR is skipped), verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
 
 **Syntax:**
 

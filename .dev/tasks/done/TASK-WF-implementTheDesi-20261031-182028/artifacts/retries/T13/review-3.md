@@ -1,0 +1,7 @@
+start=3939477e29cadc940a1cd304bdf78131bfa8653b tree=367939dd341af696e6a5269861ac1c90978d8949
+F1.1 resolved
+F2.1 resolved
+T13.AC1 met at src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md:77 (augment-poll.md:80-113, severity-routing.md:22-37, finding-verify.md:63-70, troubleshoot-dispatch.md:26-33) — unmet through F3.1
+T13.AC2 met at .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/t13-test.log:44 (rc=0 :45; t13-sync.log:8 and :217)
+F3.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:84 anchor=src/superclaude/pr_submit/reviewers.py:243 chk=n,y,n,n family=codex-wait-completion-wording fix=In the Codex column of the pending and incomplete rows (augment-poll.md:84 and :87), replace "no completion yet" and "no completion" with "gate state not clean/findings (still polling)" first=A3 origin=new: rows say "no completion yet" / "active but no completion at --timeout", but a completed marker with has_any_findings true, no unresolved Codex root and no Codex formal review on head stays polling (reviewers.py:243-245), so codex_wait_outcome gives pending then incomplete (reviewers.py:368-371) while completion exists; wording copied from design s6 (Read-back: reviewers.py:243-245 hold the polling return)
+F3.1 resolved (re-review r3-2: no findings; T13.AC1 met @refs/augment-poll.md:84, T13.AC2 met @artifacts/t13-test.log:45)

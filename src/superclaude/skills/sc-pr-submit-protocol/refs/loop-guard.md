@@ -35,8 +35,9 @@ the increment site (from an optimistic post-resolve tick to the real attributed 
 AFTER the S5a re-trigger). The two counters below are INDEPENDENT and neither can re-open the other's loop.
 
 > **INV-R1 (re-trigger boundedness).** A re-trigger comment is emitted at most once per
-> completed push cycle, on the `RESOLVING → S5a_RETRIGGER_REVIEW` edge, and only when
-> `applied_edits > 0`. `rereview_request_count` is monotonic and
+> completed push cycle **per present reviewer** (Augment, Codex), on the
+> `RESOLVING → S5a_RETRIGGER_REVIEW` edge, and only when `applied_edits > 0`.
+> `rereview_request_count` counts re-triggered push cycles (distinct `cycle_id`), is monotonic and
 > `rereview_request_count <= max_rounds`. The re-trigger does **not** itself increment
 > `round_counter`; INV-001's edge and gate are unchanged.
 >
@@ -51,6 +52,9 @@ AFTER the S5a re-trigger). The two counters below are INDEPENDENT and neither ca
 > cap 1, no loop-back, no auggie re-invoke) guarantees termination structurally, not merely
 > by budget. INV-001's monotonic `round_counter` and its `>=` HALT gate are preserved
 > verbatim; the two counters are **independent** and neither can re-open the other's loop.
+
+One remediation cycle covers the findings of both reviewers from one merged round outcome: one fix
+commit, one push and at most one `round_counter` tick, so `max_rounds=N` still means at most N pushes.
 
 - **`fallback_round_counter` is a SEPARATE counter** from `round_counter`, with its own increment site
   (the single fallback remediation cycle) and the strict-once cap-1 clamp (`should_halt(fallback_round_counter, 1)`
@@ -79,12 +83,14 @@ preceded by a **write-ahead** record fsynced BEFORE the side effect.
 Default `<output-dir>` = `<repo-root>/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/` (cwd-relative; the
 repo the operator runs `sc:pr-submit` from) unless `--resume` supplies an existing log dir.
 
-### The 37 event types (§11.3 + §12.1 + V1.1 §6.1)
+### The 41 event types (§11.3 + §12.1 + V1.1 §6.1 + silence + reviewers)
 
-The closed `EventType` enum has EXACTLY 37 members — the 32 from §11.3 plus
+The closed `EventType` enum has EXACTLY 41 members — the 32 from §11.3 plus
 `push_aborted_or_not_landed` (§12.1, the crash-window not-landed branch) — the 33 prior — plus the 4
 V1.1 re-review/fallback events (`rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
-`max_rounds_clamped`; addendum §6.1):
+`max_rounds_clamped`; addendum §6.1), the 2 silence events (`silence_rerequested`,
+`terminal_augment_no_response`) and the 2 reviewer events (`reviewer_absent`,
+`reviewer_incomplete`):
 `run_started`, `environment_check`, `pr_create_attempted`, `pr_created`, `monitor_armed`,
 `baseline_captured`, `poll_attempt`, `poll_result`, `api_backoff`, `classifier_unknown_shape`,
 `review_detected`, `findings_normalized`, `finding_verified`, `finding_unverified`,
@@ -93,18 +99,36 @@ V1.1 re-review/fallback events (`rereview_requested`, `decline_detected`, `auggi
 `push_completed`, `reply_posted`, `thread_resolved`, `idempotency_skip`, `terminal_clean`,
 `terminal_timeout`, `terminal_max_rounds`, `terminal_halted`, `terminal_failed`,
 `push_aborted_or_not_landed`, `rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
-`max_rounds_clamped`.
+`max_rounds_clamped`, `silence_rerequested`, `terminal_augment_no_response`, `reviewer_absent`,
+`reviewer_incomplete`.
 
 Each line carries `schema_version`, a unique+monotonic `event_id`, `event_type`, `timestamp`,
 `run_id`, `pr{repo,number,url,base,head}`, `state_before`, `state_after`,
 `round_index`/`round_counter`, and `payload`.
 
+**Reviewer field.** Events that concern one reviewer carry `reviewer` (`"augment"` or `"codex"`):
+`poll_result` (with the per-reviewer wait outcomes), `review_detected`, `findings_normalized`,
+`finding_verified`, `finding_unverified`, `route_decision`, `reply_posted`, `thread_resolved` and
+`rereview_requested`. A missing `reviewer` means `augment` (logs written before Codex support).
+`reviewer_absent{reviewer}` records a reviewer that showed no activity (fail-open, sticky);
+`reviewer_incomplete{reviewer, phase: "initial"|"rereview"}` records a present reviewer that did not
+complete by `--timeout` while the other reviewer's result was used. `rereview_requested` carries
+`{cycle_id, reviewer, timestamp}`, `timestamp` being the UTC time taken right after that reviewer's
+successful re-trigger POST.
+
+**Folds.** `rebuild_state()` folds `rereview_requested` into `rereview_request_count` by **distinct
+`cycle_id`**: one push cycle counts once however many reviewers were re-triggered in it (an event
+without `cycle_id` still counts once each, so older logs rebuild to the same number). It folds
+`reviewer_absent` into `absent_reviewers`, the sorted set of reviewers named by those events; a
+resumed run reads that list and keeps those reviewers absent.
+
 > **Producer side of the 4 V1.1 events (NFR-6 boundary).** Per NFR-6 the deterministic core
 > (`fsm.py`/`run_skill`) DECIDES but does not write the run-log — it imports no `run_log` and emits no
 > events (exactly as it does not emit `round_incremented`/`push_completed` in V1.0). The SKILL's
 > orchestration is the PRODUCER that appends these events as its waves act, so the §6.3 rebuild folds
-> have a source: **S5a re-trigger (Wave 6, `applied_edits > 0`) → `rereview_requested`** (folded into
-> `rereview_request_count`, INV-R1); **`declined` classification → `decline_detected`**; **fallback
+> have a source: **S5a re-trigger (Wave 6, `applied_edits > 0`) → one `rereview_requested{cycle_id, reviewer,
+> timestamp}` per re-triggered reviewer** (folded into `rereview_request_count` by distinct
+> `cycle_id`, INV-R1); **`declined` classification → `decline_detected`**; **fallback
 > engage (Wave 6b) → `auggie_fallback_invoked{pr_number}`** (folded into the durable
 > `auggie_review_invoked` set, INV-R2) **and `max_rounds_clamped{effective_max_rounds}`** (monotone-min
 > fold, INV-R3). The SHA-attribution that resolves a re-review to `"attributed"` (gating the relocated

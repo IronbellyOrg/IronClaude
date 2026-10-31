@@ -1,0 +1,21 @@
+$ scripts/poll-augment-review.sh --pr 336 --repo IronbellyOrg/IronClaude | uv run python t7-dry-list.py
+PR 336 head=d40ed729 flags=True,True,True activity={'augment': True, 'codex': True} codex_state_at_head=polling
+  codex   src/superclaude/skills/sc-impact-protocol/SKILL.md:None/41 resolved=True priority=P2 severity=Medium comment=4432330726
+  codex   src/superclaude/skills/sc-impact-protocol/SKILL.md:None/48 resolved=True priority=P2 severity=Medium comment=4432330727
+  codex   src/superclaude/skills/sc-impact-protocol/SKILL.md:None/63 resolved=True priority=P2 severity=Medium comment=4432330729
+  augment src/superclaude/skills/sc-impact-protocol/SKILL.md:None/41 resolved=True priority=None severity=Medium comment=4432345484
+  augment src/superclaude/skills/sc-impact-protocol/SKILL.md:None/48 resolved=True priority=None severity=Medium comment=4432345490
+  augment src/superclaude/skills/sc-impact-protocol/SKILL.md:65/63 resolved=True priority=None severity=Medium comment=4432345493
+  augment src/superclaude/skills/sc-impact-protocol/SKILL.md:23/23 resolved=True priority=None severity=Medium comment=4432345496
+$ scripts/poll-augment-review.sh --pr 335 --repo IronbellyOrg/IronClaude | uv run python t7-dry-list.py
+PR 335 head=72c469f6 flags=True,True,True activity={'augment': True, 'codex': True} codex_state_at_head=polling
+  codex   .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/141 resolved=True priority=P2 severity=Medium comment=4432067304
+  codex   .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/126 resolved=True priority=P2 severity=Medium comment=4432067307
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/141 resolved=True priority=None severity=High comment=4432077161
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/122 resolved=True priority=None severity=Medium comment=4432077165
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/223 resolved=True priority=None severity=Medium comment=4432077168
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/133 resolved=True priority=None severity=High comment=4432284909
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/142 resolved=True priority=None severity=Medium comment=4432284914
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:None/147 resolved=True priority=None severity=High comment=4432284917
+  augment .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md:133/133 resolved=False priority=None severity=Low comment=4432441301
+rc=0

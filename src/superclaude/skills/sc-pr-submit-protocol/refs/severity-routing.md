@@ -15,7 +15,26 @@ After `classify(payload, contract, watermark=watermark, current_head_sha=expecte
 `findings`, obtain `actionable_finding_comments` with the **same payload and attribution context**.
 For each root call `superclaude.pr_submit.severity_router.finding_from_comment(raw)` (also exported
 as `superclaude.pr_submit.finding_from_comment`), then `remap_severity(finding)`, then `route(finding)`.
-Never independently filter raw comments or infer findings from summary prose.
+Never independently filter raw comments or infer findings from summary prose. Codex findings take the
+same seam: after `classify_codex` returns `findings`, `codex_finding_comments` (same payload and
+context) feeds the same `finding_from_comment(raw)` → `remap_severity` → `route` calls. Each `Finding`
+carries `reviewer` (`"augment"` or `"codex"`); the rules below are reviewer-neutral.
+
+**Codex priority → severity hint.** Codex marks each finding with a P0-P3 badge on its first line
+(`parse_codex_priority`, see `detection-contract.md`); `codex_finding_comments` turns it into an
+explicit `severity_hint`, exactly like Augment's `**Severity:**` line:
+
+| Codex badge | `severity_hint` | Route after `remap_severity` (no category, default confidence) |
+|---|---|---|
+| P0 | `critical` | `--depth deep --fix` |
+| P1 | `high` | `--depth deep --fix` |
+| P2 | `medium` | `--fix` |
+| P3 | `low` | report-only |
+| missing / malformed | not set | Medium fallback → `--fix` after verification |
+
+**Dedup groups.** `dedup_groups(findings)` groups the merged findings of both reviewers by path and
+line (`original_line` when `line` is null), keeping every finding. A group routes at the **highest
+remapped tier among its members**; each member keeps its own remapped tier, verdict and thread.
 
 `finding_from_comment` raises `ValueError` for invalid root fields. The SKILL gate treats that or an
 empty selected list (possible for a legacy `has_findings` signal) as incomplete/polling under the
@@ -35,12 +54,13 @@ evidence-validator gate can authorize diagnosis/remediation; unverified findings
 
 ## 1. Grade — DEFER TO the rubric (reuse, do NOT copy)
 
-Re-grading is **not** reinvented here. For every Augment finding, **apply the severity-remap
+Re-grading is **not** reinvented here. For every review finding (Augment or Codex), **apply the severity-remap
 algorithm defined in `sc-auggie-review-protocol/refs/severity-rubric.md` §Severity-remap algorithm**
 (the 5-step pipeline at `severity-rubric.md:63-101`), keyed on the rubric's **category floor/ceiling
 table** (`severity-rubric.md:70-87`). The five steps, applied by reference:
 
-1. Start from Augment's `severity_hint` (a hint, not authoritative — FR-3.1).
+1. Start from the reviewer's `severity_hint` (Augment's `**Severity:**` line or the Codex badge
+   mapping above; a hint, not authoritative — FR-3.1).
 2. **Category floor/ceiling override** (`severity-rubric.md:70-87`) — the category is more reliable
    than the hint; clamp to the category's floor (minimum severity) and ceiling (maximum severity).
    E.g. `security (exploitable)` floor = Critical; `naming`/`style` ceiling = Nit.

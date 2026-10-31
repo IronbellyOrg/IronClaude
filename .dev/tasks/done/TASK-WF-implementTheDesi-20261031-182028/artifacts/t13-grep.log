@@ -1,0 +1,9 @@
+== detection-contract: Codex mentions 30
+== augment-poll: Codex mentions 17
+== severity-routing: Codex mentions 8
+== finding-verify: Codex mentions 2
+== troubleshoot-dispatch: Codex mentions 3
+== gh/git tokens in severity-routing
+rc=1
+== single-key outcome claims
+112:never a false clean (with Codex activity it ends `incomplete` at `--timeout`); a badge format change

@@ -1,6 +1,7 @@
-# Detection Contract (DET) — baked Augment identity
+# Detection Contract (DET) — baked reviewer identities (Augment, Codex)
 
-This ref holds the **default detection contract** for the Augment Code GitHub App.
+This ref holds the **default detection contract** for the two review bots: the Augment Code GitHub
+App and the ChatGPT Codex Connector (Codex).
 The YAML is **configuration, not a parser implementation**. The pure core owns marker validation,
 completion attribution and root selection; the configured identities and decline regexes parameterize
 it. `classify(payload, contract, *, watermark=None, current_head_sha=None)` returns exactly
@@ -26,6 +27,11 @@ probe_evidence: null                                 # optional provenance; not 
 decline_phrase_regex: 'abnormally\s+large'
 decline_retrigger_regex: 'comment\s+["''`*_]*(augment|auggie|augmentcode)\s+review["''`*_]*'
 accepted_trigger_phrases: ["auggie review", "augment review", "augmentcode review"]
+# Codex (ChatGPT Codex Connector) reviewer. An override that omits these keys keeps the
+# shipped values; setting BOTH identities to "" disables Codex.
+codex_bot_login: "chatgpt-codex-connector[bot]"      # REST bot-login shape
+codex_app_slug: "chatgpt-codex-connector"            # GraphQL login shape
+codex_retrigger_phrase: "@codex review"              # documented Codex re-review trigger
 locked: true                                         # vestigial; arming does not check this flag
 ```
 
@@ -66,6 +72,46 @@ selection decision with identical payload/head/watermark. The SKILL gate handles
 and normalization errors without feeding empty findings to the driver. Existing decline precedence,
 finite timeout and autonomy/round gates remain unchanged.
 
+## Codex evidence and selection
+
+Codex is identified by the non-empty members of `{contract.codex_bot_login, contract.codex_app_slug}`
+(REST `chatgpt-codex-connector[bot]`, GraphQL `chatgpt-codex-connector`), read from the contract,
+never a literal. An override file that omits a Codex key keeps the shipped value; an explicit empty or
+null value blanks that one key. Codex is disabled only when the identity set is empty, so to disable
+Codex, blank both keys; blanking one leaves the other identity active.
+
+**Completion** (`codex_review_state` / `classify_codex(payload, contract, *, watermark=None,
+current_head_sha=None)`): a Codex-authored issue comment carries one bounded
+`<!-- codex-review-state:v1 {JSON} -->` marker (JSON object, duplicate keys rejected, as for Cosmos).
+It is valid when `code_review.status` is a string, `code_review.commit_sha` is 40 hex and
+`code_review.has_any_findings` is a boolean. When several Codex comments carry a valid marker, the
+one with the latest `updated_at` is used; two distinct markers with the same latest time stay
+`polling`. The review is complete only when `status == "completed"` and `commit_sha` equals the
+expected head. The completion time is the later of the marker comment's `updated_at` and the
+`submitted_at` of the newest Codex formal review on the expected head (when one exists); both must be
+parseable aware times no later than `observed_at`, and with a watermark the completion must be
+strictly newer than it. Anything else (running, wrong head, malformed or duplicate-key JSON, missing
+time, incomplete snapshot) is `polling`, never clean. `security_review` is ignored.
+
+**Findings** (`codex_finding_comments`): unresolved review threads whose root is Codex-authored, chosen
+by the same root rules as Augment (root only, unique ids, `pullRequestReview` with a commit, nullable
+current `line`, `original_line` hint, created no later than completion). Resolved threads are
+excluded; older unresolved Codex roots stay visible. Each selected root gets `reviewer: "codex"`,
+`codex_priority` and the mapped `severity_hint`. Gate state: no completion or an invalid selection →
+`polling`; unresolved roots → `findings`; none and `has_any_findings` false → `clean`; none,
+`has_any_findings` true and a Codex formal review on the expected head (its threads all resolved) →
+`clean`; otherwise `polling`. Codex has no decline state.
+
+**Badge parser** (`parse_codex_priority(body)`): the first non-blank line must hold exactly one
+`![P<n> Badge](https://img.shields.io/badge/P<m>-<colour>...)` image with `n == m` and `n` in 0-3.
+Zero or two badges, `P4`, or alt/URL disagreement give `None` (the Medium fail-safe). Colour is not
+checked (only P2 yellow has been observed; P0, P1 and P3 colours are UNVERIFIED).
+
+The `codex-review-state:v1` marker and the badge are **observed integration formats, not a stable
+public API** (same standing as the Cosmos marker). A marker format change leaves Codex `polling`,
+never a false clean (with Codex activity it ends `incomplete` at `--timeout`); a badge format change
+gives `None`, the Medium fail-safe.
+
 ## Consequences
 
 1. **Identity is configurable (no literal login).** The classifier builds the non-empty identity
@@ -75,7 +121,9 @@ finite timeout and autonomy/round gates remain unchanged.
    "review not detected" (T-211). When Augment and human reviews are interleaved, only the
    Augment author is parsed (T-212). The default retrigger regex also matches the live
    `comment "**_augment review_**"` Markdown wrapper while still requiring the separate
-   `abnormally\s+large` phrase.
+   `abnormally\s+large` phrase. Codex identities work the same way
+   (`{contract.codex_bot_login, contract.codex_app_slug}`); Codex roots never enter Augment's
+   selection, and Augment roots never enter Codex's.
 
 2. **No lock gate.** Arming loads this shipped contract (or an optional local override).
    `locked: false` / a missing override is not a halt. A local override is a refinement,

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Single repo-pinned poll; raw payloads stay in files (large reviews exceed ARG_MAX).
+# Single repo-pinned poll of every review surface (reviews, issue + inline comments,
+# review threads); one snapshot serves both reviewers, Augment and Codex.
+# Raw payloads stay in files (large reviews exceed ARG_MAX).
 # Classification/backoff belong to superclaude.pr_submit, not this adapter.
 set -euo pipefail
 

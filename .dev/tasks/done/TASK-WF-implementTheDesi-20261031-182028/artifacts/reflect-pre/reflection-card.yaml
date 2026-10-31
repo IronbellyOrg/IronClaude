@@ -1,0 +1,16 @@
+card: t1-card.md
+calibration_source: confidence-calibrator (blind)
+calibrator_model_class: fable
+calibrator_diversity: full
+reviewer_model_classes: [sonnet, haiku, opus]
+dimensions:
+  citation_grounding: 0.88
+  coverage_completeness: 0.82
+  deviation_classification_clarity: 0.80
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.78
+C: 0.83
+escalation_recommendation: escalate
+calibrator_notes:
+  - "Design section 14 says Codex defaults are baked in DetectionContract while also saying direct construction keeps empty identities; Task 2 resolves this one way without classification."
+  - "Design section 17 UNVERIFIED items are not addressed as plan risks."

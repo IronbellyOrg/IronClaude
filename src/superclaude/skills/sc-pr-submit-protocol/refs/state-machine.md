@@ -34,8 +34,9 @@ Working states:
 - `S6_REPLYING` — reply on the finding thread citing the fix + SHA + passing validation.
 - `RESOLVING` — resolve the thread (after the reply).
 - `S5_AWAITING_REREVIEW` — waiting for the re-review attributed to our pushed SHA.
-- `S5a_RETRIGGER_REVIEW` (Python `S5A_RETRIGGER_REVIEW`) — V1.1 (FR-8): post the re-trigger comment
-  (a push does NOT auto-trigger an Augment re-review) BEFORE awaiting the re-review. Non-terminal.
+- `S5a_RETRIGGER_REVIEW` (Python `S5A_RETRIGGER_REVIEW`) — V1.1 (FR-8): post one re-trigger comment
+  per present reviewer (a push does NOT auto-trigger an Augment or a Codex re-review) BEFORE awaiting
+  the re-review. Non-terminal.
 - `S5b_AUGGIE_FALLBACK` (Python `S5B_AUGGIE_FALLBACK`) — V1.1 (FR-9/FR-10): the single-shot oversized-PR
   `/sc:auggie-review` fallback engaged on an Augment "abnormally large" decline. Non-terminal.
 - `S5c_SILENCE_REREQUEST` (Python `S5C_SILENCE_REREQUEST`) — consider the one permitted INV-S1
@@ -50,10 +51,21 @@ Terminals (the FSM never transitions out of these):
 - `HALT_MAX_ROUNDS` (terminal `terminal_max_rounds`) — round cap reached with residual findings.
 - `HALT_HUMAN` (terminal `terminal_halted`) — a `needs_human_decision` finding short-circuited.
 - `VALIDATION_FAIL` — validation failed beyond the retry budget.
-- `TERMINAL_TIMEOUT` — partial Augment activity, but no classified review within `--timeout`.
-- `TERMINAL_AUGMENT_NO_RESPONSE` — zero Augment-attributed activity after the silence window
-  (and the optional L3 poke). Wave 8 still waits; do not claim `TERMINAL_CLEAN` for the review.
+- `TERMINAL_TIMEOUT` — partial reviewer activity, but no classified review from any reviewer within
+  `--timeout`.
+- `TERMINAL_AUGMENT_NO_RESPONSE` — no configured reviewer (Augment, Codex) responded: zero
+  Augment-attributed activity after the silence window (and the optional L3 poke) while Codex is
+  absent too. The name is kept for compatibility. Wave 8 still waits; do not claim `TERMINAL_CLEAN`
+  for the review.
 - `TERMINAL_FAILED` — misrouted PR, corrupt run-log, or other unrecoverable failure.
+
+**Reviewers.** Two reviewers (Augment, Codex) may review the PR. Their per-reviewer results are
+merged into one round outcome (`clean` / `findings` / `declined` / no-response / timeout) **before**
+the FSM sees an outcome, so this machine has no new state or edge for Codex: the FSM consumes the
+merged outcome exactly as it consumed Augment's. A reviewer with no activity is recorded absent and
+ignored. In `S5_AWAITING_REREVIEW` the wait covers only the reviewers re-triggered in this cycle, and
+the INV-001 edge fires once when at least one of them reaches `clean` or `findings` on the pushed SHA
+(an Augment `declined` routes to S5b instead, even when Codex is done).
 
 ## 5.2 The ordinal as a capability ceiling (transition table, NOT nested ifs)
 
@@ -103,8 +115,10 @@ re-review is observed (after S5a posts the re-trigger), not the edge it ticks on
 New edges:
 
 - **`RESOLVING → S5a_RETRIGGER_REVIEW`** (re-trigger emission, INV-R1): after reply+resolve, and only
-  when `applied_edits > 0`, post the re-trigger comment. The re-trigger does NOT tick `round_counter`.
-- **`S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW`**: the comment is posted; await the attributed re-review.
+  when `applied_edits > 0`, post one re-trigger comment per present reviewer. The re-trigger does NOT
+  tick `round_counter`.
+- **`S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW`**: the comments are posted; await the attributed
+  re-review of the re-triggered reviewers.
 - **`S5_AWAITING_REREVIEW → S5b_AUGGIE_FALLBACK`** and **`S2_CLASSIFY → S5b_AUGGIE_FALLBACK`** (decline):
   an Augment "abnormally large" decline observed at the S5 re-trigger poll OR the initial S2 poll routes
   to the fallback. The `needs_human_decision ⇒ HALT_HUMAN` pre-gate override still short-circuits ahead
@@ -125,7 +139,7 @@ this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's 
 
 ### 5.2c CI phase — SKILL-owned `source`, no new FSM edges
 
-After Augment classify would be `clean`, reaches `REPORT_ONLY`, **exhausts**
+After the (merged) review classify would be `clean`, reaches `REPORT_ONLY`, **exhausts**
 `max_rounds` (`HALT_MAX_ROUNDS`), **or** ends in `TERMINAL_AUGMENT_NO_RESPONSE`,
 the SKILL sets `source=ci`, resets the wait clock, and polls CI. A spent round
 budget and a silence terminal permit **waiting only**: CI findings are

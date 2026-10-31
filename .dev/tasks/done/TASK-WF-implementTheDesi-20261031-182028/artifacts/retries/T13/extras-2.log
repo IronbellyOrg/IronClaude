@@ -1,0 +1,13 @@
+== Q6 extras (A2 tree)
+lint: uv run ruff check src/superclaude/pr_submit/detection.py -> All checks passed
+-- t13-test.log
+
+============================== 33 passed in 0.55s ==============================
+rc=0
+-- t13-pr-submit.log
+
+============================= 705 passed in 14.51s =============================
+rc=0
+-- t13-sync.log
+✅ All components in sync.
+verify-sync rc=0

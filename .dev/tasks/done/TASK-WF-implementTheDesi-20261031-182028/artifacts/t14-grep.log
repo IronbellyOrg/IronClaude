@@ -1,0 +1,6 @@
+== event names listed in loop-guard.md vs EventType
+enum 41 missing from list: []
+== gh/git tokens in state-machine.md and loop-guard.md
+rc=1
+== src/superclaude hits in edited primitives
+rc=1

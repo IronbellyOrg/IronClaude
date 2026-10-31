@@ -1,0 +1,27 @@
+{wave: 0, step: 0.1, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.2, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.3, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.4, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.5, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.6, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.7, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.8, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 0, step: 0.9, timestamp: 2026-10-31T18:22:29Z, outcome: ok, evidence_ref: null}
+{wave: 1, step: 1A, timestamp: 2026-10-31T18:26:59Z, outcome: ok, evidence_ref: t1-card.md}
+{wave: 1, step: 1B, timestamp: 2026-10-31T18:26:59Z, outcome: ok, evidence_ref: artifacts/coverage-matrix.yaml}
+{wave: 1, step: 1B.2b, timestamp: 2026-10-31T18:26:59Z, outcome: warn, evidence_ref: coverage_degraded=parsed-sparse}
+{wave: 1, step: 1C, timestamp: 2026-10-31T18:26:59Z, outcome: ok, evidence_ref: t1-card.md}
+{wave: 1, step: 1D, timestamp: 2026-10-31T18:26:59Z, outcome: ok, evidence_ref: reflection-card.yaml}
+{wave: 2, step: 1, timestamp: 2026-10-31T18:26:59Z, outcome: ok, evidence_ref: artifacts/tier_decision.yaml}
+{wave: 0, step: 0.5b, timestamp: 2026-10-31T18:26:59Z, outcome: warn, evidence_ref: executor class not resolved — anti-self-confirmation guarantee weakened}
+{wave: 3, step: 3A, timestamp: 2026-10-31T18:47:13Z, outcome: ok, evidence_ref: reviewer-briefs/}
+{wave: 3, step: 3B, timestamp: 2026-10-31T18:47:13Z, outcome: ok, evidence_ref: reviewer-cards/}
+{wave: 3, step: 3C, timestamp: 2026-10-31T18:47:13Z, outcome: ok, evidence_ref: reviewer-cards/*-calibration.yaml}
+{wave: 4, step: 4.1, timestamp: 2026-10-31T19:11:52Z, outcome: warn, evidence_ref: adversarial/return-contract.yaml (partial, BLOCKED_BY_INVARIANTS)}
+{wave: 4, step: exit-check, timestamp: 2026-10-31T19:11:52Z, outcome: ok, evidence_ref: adversarial/merged-verdict.yaml merge_method adversarial; reviewer-cards 3}
+{wave: 5, step: 5.x, timestamp: 2026-10-31T19:11:52Z, outcome: ok, evidence_ref: input_tree_sha256 unchanged}
+{wave: 5, step: 5.0, timestamp: 2026-10-31T19:13:51Z, outcome: ok, evidence_ref: sc-adversarial-protocol present}
+{wave: 5, step: evidence-validator, timestamp: 2026-10-31T19:13:51Z, outcome: warn, evidence_ref: zero-drop-flag: true (57/57 kept)}
+{wave: 5, step: report, timestamp: 2026-10-31T19:13:51Z, outcome: ok, evidence_ref: REPORT.md}
+{wave: 6, step: skip, timestamp: 2026-10-31T19:13:51Z, outcome: skip, evidence_ref: no --remediate}
+{wave: 7, step: skip, timestamp: 2026-10-31T19:13:51Z, outcome: skip, evidence_ref: mode pre}

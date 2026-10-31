@@ -1,6 +1,6 @@
 ---
 name: pr-submit
-description: "Open a PR on the fork and arm an in-session PR-review auto-remediation monitor — poll for the Augment review, re-grade + verify findings, dispatch verified ones to /sc:troubleshoot, then (at higher --monitor ordinals) fix, validate, push, reply, and resolve under a capped monotonic round counter."
+description: "Open a PR on the fork and arm an in-session PR-review auto-remediation monitor — poll for the Augment and Codex reviews, re-grade + verify findings, dispatch verified ones to /sc:troubleshoot, then (at higher --monitor ordinals) fix, validate, push, reply, and resolve under a capped monotonic round counter."
 category: quality
 complexity: advanced
 mcp-servers: [auggie]
@@ -47,7 +47,7 @@ Explicit only — two activation paths:
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 600 | Per-wait wall-clock timeout (~10 min). CI runs can exceed this; size it to the full check run. |
-| `--silence-timeout S` | 300 | No-Augment-activity window; min 30s; clamped to `--timeout`. L3 at most one poke via INV-S1 write-ahead. |
+| `--silence-timeout S` | 300 | No-activity window per reviewer; min 30s; clamped to `--timeout`. Augment silence: L3 at most one poke via INV-S1 write-ahead. Codex with no activity by then (or once Augment has settled) is recorded absent and ignored; Codex is never poked. |
 | `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view "$REPO" --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--pr <N>` | — | Attach to an existing PR instead of opening one. |
@@ -55,7 +55,7 @@ Explicit only — two activation paths:
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
 | `--resume <jsonl>` | — | Reconstruct state from a write-ahead run-log. |
 
-`status` enum: `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_augment_no_response` / `terminal_failed` / `proposed` / `halt_before_push`. Silence is `terminal_augment_no_response`, not `terminal_clean`.
+`status` enum: `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_augment_no_response` / `terminal_failed` / `proposed` / `halt_before_push`. Silence of every configured reviewer (Augment and Codex) is `terminal_augment_no_response`, not `terminal_clean`; the output also reports each reviewer as `present` / `absent` / `incomplete` (`reviewers`).
 
 ## Behavioral Flow
 
@@ -63,7 +63,7 @@ This command does ONLY parse + environment-validate + handoff. It parses the fla
 
 ## Arming
 
-`--monitor 0` always works (it just opens the PR). At `--monitor >= 1`, `DetectionContract.for_arming()` loads the shipped baked-identity contract (`augmentcode[bot]` / `augmentcode`). A gitignored local override at `<repo-root>/.dev/pr-monitor/detection-contract.locked.md` is preferred when present; a missing or unlocked override is not a halt. No R1 probe is required.
+`--monitor 0` always works (it just opens the PR). At `--monitor >= 1`, `DetectionContract.for_arming()` loads the shipped baked-identity contract: Augment (`augmentcode[bot]` / `augmentcode`) and Codex (`codex_bot_login` `chatgpt-codex-connector[bot]`, `codex_app_slug` `chatgpt-codex-connector`, `codex_retrigger_phrase` `@codex review`). An override that omits the Codex keys keeps the shipped Codex values; blanking both Codex identities disables Codex. A gitignored local override at `<repo-root>/.dev/pr-monitor/detection-contract.locked.md` is preferred when present; a missing or unlocked override is not a halt. No R1 probe is required.
 
 ## Activation
 
@@ -80,7 +80,7 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 ## Boundaries
 
-**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean or `terminal_augment_no_response`, wait on PR checks (silence is wait-only, never claimed as `terminal_clean` for the review).
+**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+ that handles the Augment and Codex reviews the same way (one poll snapshot, merged results, one fix commit per cycle, reply to and resolve every remediated, verified thread of either reviewer, one re-trigger comment per present reviewer); verify before remediating; respect the ordinal ceiling; after a clean review or `terminal_augment_no_response`, wait on PR checks (silence is wait-only, never claimed as `terminal_clean` for the review).
 
 **Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; force-push; push any commit besides the cycle's one fix commit (it halts with `push_range_mismatch` instead, so unreviewed local commits are never published); emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 

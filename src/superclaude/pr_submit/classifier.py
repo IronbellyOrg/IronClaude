@@ -1,6 +1,8 @@
 """Pure, finite review classification and shared actionable-root selection.
 
-Only the configured Augment identities supply evidence. Cosmos completion is an
+Only configured reviewer identities supply evidence: the Augment identities by
+default, or the identity set a caller passes (the Codex adapter in
+``reviewers.py`` passes the Codex identities). Cosmos completion is an
 observed wire format, not a prose heuristic; ambiguous/incomplete evidence polls.
 Legacy injected payloads without attribution context remain supported.
 """
@@ -50,6 +52,28 @@ def _augment_entries(entries: Any, identities: set[str]) -> list[dict]:
     if not isinstance(entries, list):
         return []
     return [e for e in entries if isinstance(e, dict) and _login_of(e) in identities]
+
+
+def has_reviewer_activity(payload: dict, identities: set[str]) -> bool:
+    """Whether any review, comment or review-thread root is authored by ``identities``.
+
+    Used for reviewer presence; Augment's silence path keeps
+    :func:`has_augment_activity` (reviews and comments only), unchanged.
+    """
+    if not isinstance(payload, dict) or not identities:
+        return False
+    if _augment_entries(payload.get("reviews"), identities) or _augment_entries(
+        payload.get("comments"), identities
+    ):
+        return True
+    threads = payload.get("threads")
+    for thread in threads if isinstance(threads, list) else []:
+        connection = thread.get("comments") if isinstance(thread, dict) else None
+        nodes = connection.get("nodes") if isinstance(connection, dict) else None
+        if isinstance(nodes, list) and nodes and isinstance(nodes[0], dict):
+            if _login_of(nodes[0]) in identities:
+                return True
+    return False
 
 
 def has_augment_activity(payload: dict, contract: Any) -> bool:
@@ -256,17 +280,32 @@ def _stable_id(entry: dict) -> str | int | None:
     return None
 
 
-def _thread_findings(threads: Any, contract: Any, completed: dict) -> list[dict] | None:
+def _thread_findings(
+    threads: Any,
+    contract: Any,
+    completed: dict | None,
+    identities: set[str] | None = None,
+    *,
+    completed_at: Any = None,
+) -> list[dict] | None:
     """Return roots only, or None if an unresolved source cannot be safely selected.
 
     Current-null/original-only locations stay hints. Resolution is authoritative;
     neither outdated state nor the re-trigger watermark discards an open root.
+    ``identities`` selects whose roots count (default: the Augment identities).
+    ``completed_at`` overrides the completion time otherwise read from the
+    ``completed`` review's submission time (Codex passes its marker-derived time).
     """
     if not isinstance(threads, list):
         return None
-    identities = _augment_identities(contract)
+    if identities is None:
+        identities = _augment_identities(contract)
     selected, seen_threads, seen_roots = [], set(), set()
-    completed_at = _timestamp(_submission_ts(completed))
+    if completed_at is None:
+        completed_at = (
+            _submission_ts(completed) if isinstance(completed, dict) else None
+        )
+    completed_at = _timestamp(completed_at)
     for thread in threads:
         if not isinstance(thread, dict) or type(thread.get("isResolved")) is not bool:
             return None

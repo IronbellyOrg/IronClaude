@@ -162,10 +162,13 @@ def test_rebuild_from_jsonl_is_authoritative(tmp_path):
 # --- V1.1 closed-enum count + new-event folds (addendum §6.1/§6.3) ------------
 
 
-def test_eventtype_is_39_members_with_silence_events():
-    """The closed EventType enum has EXACTLY 39 members, including INV-S1."""
-    assert len(EventType) == 39
-    assert len(list(EventType)) == 39
+def test_eventtype_is_41_members_with_silence_and_reviewer_events():
+    """The closed EventType enum has EXACTLY 41 members, including INV-S1 and the
+    two reviewer-presence events."""
+    assert len(EventType) == 41
+    assert len(list(EventType)) == 41
+    assert EventType.REVIEWER_ABSENT.value == "reviewer_absent"
+    assert EventType.REVIEWER_INCOMPLETE.value == "reviewer_incomplete"
     assert EventType.REREVIEW_REQUESTED.value == "rereview_requested"
     assert EventType.DECLINE_DETECTED.value == "decline_detected"
     assert EventType.AUGGIE_FALLBACK_INVOKED.value == "auggie_fallback_invoked"
@@ -222,3 +225,26 @@ def test_rereview_count_and_auggie_set_folds(tmp_path):
     state = rl.rebuild_state()
     assert state["rereview_request_count"] == 2
     assert state["auggie_review_invoked"] == [99]
+
+
+def test_rereview_count_folds_by_distinct_cycle_across_reviewers(tmp_path):
+    """One push cycle that re-triggers Augment and Codex counts once (INV-R1)."""
+    rl = RunLog(100, tmp_path)
+    for reviewer in ("augment", "codex"):
+        rl.append(
+            {
+                "event_type": EventType.REREVIEW_REQUESTED.value,
+                "cycle_id": "c1",
+                "reviewer": reviewer,
+            }
+        )
+    assert rl.rebuild_state()["rereview_request_count"] == 1
+
+
+def test_absent_reviewers_fold_is_a_set_and_seeded_empty(tmp_path):
+    """reviewer_absent folds into a sorted set; a log without it rebuilds to []."""
+    rl = RunLog(101, tmp_path)
+    assert rl.rebuild_state()["absent_reviewers"] == []
+    rl.append({"event_type": EventType.REVIEWER_ABSENT.value, "reviewer": "codex"})
+    rl.append({"event_type": EventType.REVIEWER_ABSENT.value, "reviewer": "codex"})
+    assert rl.rebuild_state()["absent_reviewers"] == ["codex"]

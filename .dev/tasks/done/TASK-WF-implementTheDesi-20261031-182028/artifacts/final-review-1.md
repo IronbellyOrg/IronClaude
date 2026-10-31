@@ -1,0 +1,6 @@
+FINAL review 1 (fresh subagent, prompt artifacts/final-review-prompt-1.md): RESULT issues
+Blocking (false-claim, anchored on src/superclaude/pr_submit/reviewers.py:52-59):
+D1 src/superclaude/pr_submit/detection.py:149 and :45-46 say an explicit empty or null Codex value disables Codex; detection.py:166-168 blanks per key and reviewer_identities keeps the other identity. Introduced by T2; T13's A2 fix of this text was reverted by the T13 ladder and its A3 brief excluded the file.
+D2 src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:269 "an empty Codex identity disables Codex" is false for a single empty identity. Introduced by T12; same history.
+Noted (all no): D3 prior-findings slots paraphrased instead of byte-copied in T10/T13/T14/T15 prompts and an empty re-check slot in T13 prompt-3-1; D4 ledger pointer paperwork (T13 notes@ range, T15 missing notes@, T14 moved log pointers, t12-grep.log header sha); D5 loop-guard.md:44 paragraph splits the INV-R1..R3 blockquote; D6 detection.py:80 override selection checks only the Augment identity (pre-existing); D7 classifier.py:3 module docstring says only Augment identities supply evidence (inherited).
+All 33 task AC met at the end state except T2.AC2, which matches the recorded coordinator Ruling.

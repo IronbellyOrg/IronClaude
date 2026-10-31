@@ -1,0 +1,45 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex/.venv/bin/python
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collecting ... collected 33 items
+
+tests/pr_submit/test_static_grep.py::test_tn50_core_pure_no_gh_git_tokens PASSED [  3%]
+tests/pr_submit/test_static_grep.py::test_tn41_core_never_imports_anthropic PASSED [  6%]
+tests/pr_submit/test_static_grep.py::test_t105_runtime_repo_pin PASSED   [  9%]
+tests/pr_submit/test_static_grep.py::test_tn51_run_log_redacts_credentials_static PASSED [ 12%]
+tests/pr_submit/test_static_grep.py::test_t1101_retrigger_gh_is_repo_scoped PASSED [ 15%]
+tests/pr_submit/test_static_grep.py::test_skill_pins_inv_s1_silence_rerequest_tokens PASSED [ 18%]
+tests/pr_submit/test_static_grep.py::test_t1105_retrigger_token_in_script_not_core PASSED [ 21%]
+tests/pr_submit/test_static_grep.py::test_t1115_auggie_fallback_flag_parity PASSED [ 24%]
+tests/pr_submit/test_static_grep.py::test_auggie_review_protocol_defaults_to_prism_b PASSED [ 27%]
+tests/pr_submit/test_static_grep.py::test_poll_script_fetches_issue_and_inline_comments_without_pr_view_comments PASSED [ 30%]
+tests/pr_submit/test_static_grep.py::test_poll_script_stubbed_issue_comments_classify_declined PASSED [ 33%]
+tests/pr_submit/test_static_grep.py::test_poll_script_large_inline_comments_no_argmax PASSED [ 36%]
+tests/pr_submit/test_static_grep.py::test_ci_poll_script_rejects_gh_without_checks_json PASSED [ 39%]
+tests/pr_submit/test_static_grep.py::test_repo_resolution_sed_handles_all_url_forms PASSED [ 42%]
+tests/pr_submit/test_static_grep.py::test_repo_resolution_prefers_origin_over_gh_default PASSED [ 45%]
+tests/pr_submit/test_static_grep.py::test_repo_resolution_runs_origin_first_then_falls_back PASSED [ 48%]
+tests/pr_submit/test_static_grep.py::test_repo_scoped_rejects_bare_gh_bypasses PASSED [ 51%]
+tests/pr_submit/test_static_grep.py::test_skill_binds_checkout_and_push_target_to_pr_head PASSED [ 54%]
+tests/pr_submit/test_static_grep.py::test_skill_forbids_force_push PASSED [ 57%]
+tests/pr_submit/test_skill_parse.py::test_t101_monitor_choices_valid[0] PASSED [ 60%]
+tests/pr_submit/test_skill_parse.py::test_t101_monitor_choices_valid[1] PASSED [ 63%]
+tests/pr_submit/test_skill_parse.py::test_t101_monitor_choices_valid[2] PASSED [ 66%]
+tests/pr_submit/test_skill_parse.py::test_t101_monitor_choices_valid[3] PASSED [ 69%]
+tests/pr_submit/test_skill_parse.py::test_t101_monitor_choice_invalid_rejected PASSED [ 72%]
+tests/pr_submit/test_skill_parse.py::test_t102_max_rounds_default_and_cap PASSED [ 75%]
+tests/pr_submit/test_skill_parse.py::test_t_max_rounds_zero_allowed PASSED [ 78%]
+tests/pr_submit/test_skill_parse.py::test_t103_default_monitor_three_armed PASSED [ 81%]
+tests/pr_submit/test_skill_parse.py::test_explicit_monitor_zero_not_armed PASSED [ 84%]
+tests/pr_submit/test_skill_parse.py::test_t111_poll_interval_below_30_rejected PASSED [ 87%]
+tests/pr_submit/test_skill_parse.py::test_t112_timeout_honored PASSED    [ 90%]
+tests/pr_submit/test_skill_parse.py::test_t113_resume_path_captured PASSED [ 93%]
+tests/pr_submit/test_skill_parse.py::test_pr_attaches_to_existing_pr PASSED [ 96%]
+tests/pr_submit/test_skill_parse.py::test_yes_flag_removed PASSED        [100%]
+
+============================== 33 passed in 0.56s ==============================
+rc=0

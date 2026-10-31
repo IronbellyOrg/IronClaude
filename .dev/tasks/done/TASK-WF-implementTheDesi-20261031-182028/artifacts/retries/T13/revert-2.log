@@ -1,0 +1,12 @@
+MOVED ./artifacts/t13-test.log -> .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/retries/T13/artifacts-2/t13-test.log
+MOVED ./artifacts/t13-sync.log -> .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/retries/T13/artifacts-2/t13-sync.log
+SWEEP refs/superclaude/implement/TASK-WF-implementTheDesi-20261031-182028/retry/T13/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED src/superclaude/pr_submit/detection.py
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/refs/severity-routing.md
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/refs/troubleshoot-dispatch.md
+DONE
