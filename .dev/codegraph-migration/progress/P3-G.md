@@ -1,0 +1,26 @@
+**Phase 3 (adopt codegraph), group G: final verification, PR and Coder addendum: done**
+
+- Pull request: https://github.com/IronbellyOrg/IronClaude/pull/336 (fork, base `master`, head `feat/codegraph-adoption`). Merging is a human decision.
+- Coder addendum: https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6545718652
+- Commits: 31cdca12 (changelog, user guide, sync, smoke record), 4dc5cd9b (review fix to the make-recipe runner docstring), b356399c (Augment review fixes), and the record commit that adds this comment's files. No rebase was needed (branch 0 commits behind `origin/master`), so no group commit SHA changed.
+- Changed:
+  - CHANGELOG.md (entry for `/sc:impact`, `/sc:graph`, `~/.claude/CODEGRAPH.md` and the primitives switch) and docs/user-guide/mcp-installation.md (one paragraph: both commands, the guide path, both switches with their scope)
+  - src/superclaude/skills/sc-impact-protocol/SKILL.md and sc-graph-protocol/SKILL.md (`Edit` added to their allowed tools after the live smoke; each may edit only its own output files)
+  - src/superclaude/skills/sc-impact-protocol/SKILL.md, src/superclaude/core/CODEGRAPH.md and its plugin copy (Augment review: default diff against HEAD; diff mode without codegraph lists changed files as unmapped with reason `no_graph`; call-site checks for direct callers only; `$`-safe name patterns instead of `\b`)
+  - tests/commands/test_impact_command.py (4 new review tests) and six Phase 3 test files formatted with `ruff format`
+- Checks run and result:
+  - Checks 0-9 of the plan: PASS, recorded in `.dev/codegraph-migration/experiments/P3-T11-smoke.md`. Installed-path count 157 (equal to the start); no old tool names, wildcard or explore; pin 1.6.2 matches; targeted tests 2104 passed, 0 failed, no new failure against the start.
+  - Live smoke in fresh headless sessions: `/sc:graph status` reports `fresh`; `/sc:impact install_core_files` lists `install` and `update` in `src/superclaude/cli/main.py` as `call-site-verified` production dependents (after the `Edit` allowlist fix); troubleshoot writes `tier1-callers.md` with both callers verified, through this branch's skill copy.
+  - `/sc:pr-submit --monitor 3`: 4 Medium Augment findings, all verified, diagnosed and fixed in one commit; re-review clean; CI clean (6 checks passed). Monitor status `terminal_clean`, 1 round, 1 push, 4 threads replied to and resolved.
+  - Independent review of each task: Task 12 needed one fix round (root command copies, `degraded` copies, comment F rows), Task 13 one (a runner docstring).
+- Decisions made on my own:
+  - `make` is not installed on this host, so the Makefile's `sync-dev`, `verify-sync` and `lint-architecture` recipes ran unchanged through a small recipe runner.
+  - The installed `~/.claude/skills/sc-troubleshoot-protocol` predates this branch and shadows the project copy, so the troubleshoot smoke followed this branch's copy in a fresh session; both runs are recorded.
+  - The smoke's troubleshoot run folders and the diagnosability counter they created moved into the task package's artifacts, so no smoke counter key stays in the shared counter.
+  - The Task 13 commit also holds CHANGELOG.md and the user guide, which that task creates.
+  - Monitor gate VG-2 ran the plan's targeted test set, not the whole suite (forbidden by the plan); the Phase 3 test files were formatted so the format gate passes.
+  - The review fix also corrects the shared guide's CS2 pattern, so the guide and `/sc:impact` stay the same.
+- Left for later / blocked:
+  - Human: merge PR 336.
+  - After merge and `superclaude install`, run `/sc:troubleshoot "install_core_files skips files" --depth quick` once to confirm the installed command writes `tier1-callers.md`.
+- Next group: none (Phase 3 complete after the final review of the plan)
