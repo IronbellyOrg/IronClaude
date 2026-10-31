@@ -680,7 +680,7 @@ Each task must declare tool dependencies based on tier:
 
 | Tier | Required Tools | Preferred Tools | Fallback Allowed |
 |------|----------------|-----------------|------------------|
-| STRICT | None | Context7 | Yes |
+| STRICT | None | codegraph, Context7 | Yes (recorded) |
 | STANDARD | None | Context7 | Yes |
 | LIGHT | None | None | Yes |
 | EXEMPT | None | None | Yes |

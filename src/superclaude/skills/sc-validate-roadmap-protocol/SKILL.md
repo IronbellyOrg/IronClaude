@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [auggie]
+mcp-servers: [auggie, codegraph]
 personas: [analyzer, architect, qa]
 version: 2.0.0
 -->
@@ -122,6 +122,8 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Dispatch agent | `Task` | Parallel sub-agent validation work |
 | Track progress | `TodoWrite` | Phase completion tracking |
 | Run validation | `Bash` | File existence checks, line counts |
+| Find symbol | `codegraph_search` (`mcp__codegraph__codegraph_search`) | Step 0.5 definition lookup — orchestrator only, fail-open to `Grep` |
+| File outline | `codegraph_node {file, symbolsOnly:true}` (`mcp__codegraph__codegraph_node`) | Step 0.5 structural context — orchestrator only, fail-open to `Read` |
 | Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
 | Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
 | Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
@@ -313,16 +315,18 @@ Write artifact: `{OUTPUT_DIR}/00-domain-taxonomy.md`
 
 #### Step 0.5 — Symbol Context Supplement (`--depth deep` only)
 
-**Requires**: `Grep` and `Read` only (native floor; always available).
+**Requires**: `Grep` and `Read` (native floor; always available). Uses codegraph above that floor when it is usable (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)).
 
-**Gate**: Skip this step unless `--depth deep` is set.
+**Gate**: Run this step only when `--depth deep` is set.
 
 At deep depth, produce a supplemental artifact documenting the structural context of code-referenced requirements. This provides human reviewers and the Phase 4 adversarial reviewer with codebase architecture context.
 
 **Procedure**:
 
 1. **Identify code-referenced requirements**: From the requirement universe, collect requirements whose text contains backtick-wrapped identifiers (class names, function names, module paths).
-2. **Look up symbols** (hard cap: **30 symbol lookups**):
+2. **Look up symbols** (hard cap: **30 symbol lookups**, shared by both tiers):
+   - Codegraph tier first: run the guide's readiness check once. When `index_state` is `fresh` and `mcp__codegraph__codegraph_search` is listed, call `codegraph_search {query: <identifier>, limit: 3, projectPath}` per identifier, then `codegraph_node {file, symbolsOnly: true, projectPath}` once per matched file for the structural context (file, type and parent of each symbol). A graph row is a lead: `Read` the range before recording it.
+   - If codegraph is unavailable, not listed, not `fresh`, or returns nothing for an identifier, the native floor below runs unchanged for that identifier (same 30-lookup cap, same artifact). Record the matching `graph:*` token in the artifact's Notes column; an empty graph answer is never `NOT_FOUND` on its own.
    - For each code identifier, call `Grep` for its definition (`def <name>|class <name>|function <name>`) to locate the symbol's file and type (class/function/method); `Read` the matched range only when the parent hierarchy is needed. A Grep with no match records the symbol as `NOT_FOUND`.
    - For files with multiple related symbols, `Read` the file once to capture the structural context.
 3. **Write supplemental artifact**: `{OUTPUT_DIR}/00-symbol-context-supplement.md`
@@ -341,7 +345,7 @@ At deep depth, produce a supplemental artifact documenting the structural contex
 Symbols found: {N} / {N} attempted
 ```
 
-4. **Failure handling**: Grep and Read are always available, so the artifact is always written at `--depth deep`. Symbols with no definition match are listed as `NOT_FOUND`; when no code-referenced requirement exists, write the artifact with `Symbols found: 0 / 0 attempted`. A failed Grep or Read for one symbol records that row as `NOT_FOUND` and continues. This is non-blocking.
+4. **Failure handling**: Grep and Read are always available, so the artifact is always written at `--depth deep`; a codegraph failure only moves that identifier to the Grep floor. Symbols with no definition match are listed as `NOT_FOUND`; when no code-referenced requirement exists, write the artifact with `Symbols found: 0 / 0 attempted`. A failed Grep or Read for one symbol records that row as `NOT_FOUND` and continues. This is non-blocking.
 
 **Constraints**:
 

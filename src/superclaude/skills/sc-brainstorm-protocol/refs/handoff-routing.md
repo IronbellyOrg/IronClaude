@@ -21,8 +21,9 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - Output budget: ~800-1200 tokens summary per query
 - quality_tier: `primary`
 
-**Tier 2 (fallback_1)**: Native Glob/Grep
+**Tier 2 (fallback_1)**: codegraph, then native Glob/Grep
 
+- codegraph first (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): run the guide's readiness check once; only when `index_state` is `fresh` and the tools are listed, call `codegraph_files {format: "grouped", maxDepth: 2, path: <relevant dir>, projectPath}` on the relevant directories and `codegraph_search {query: <entity>, limit: 10, projectPath}` for each entity name the topic names. Graph rows are leads (Read before quoting); record any `graph:*` token in the seed-brief Note section. When codegraph is unusable or returns nothing, the native steps below run unchanged.
 - Glob for files matching topic keywords
 - Grep for symbol/entity names mentioned in topic (for a named function or class, Grep for `def name|class name|function name`, then Read the range)
 - Output budget: ~300-500 tokens (raw file list + grep hits)

@@ -1,7 +1,7 @@
 ---
 name: sc:task-protocol
 description: Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation. Merges orchestration capabilities with MCP compliance into a single coherent interface.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 
 <!-- markdownlint-disable MD041 MD040 -->
@@ -90,7 +90,7 @@ Execute task according to tier requirements:
 3. Check relevant memory files (Glob `.superclaude/memory/**/*.md`, then Read the relevant ones; skip when none exist)
 4. Identify all affected files and test files
 5. Make changes with full checklist
-6. Identify all files that import changed code
+6. Identify all files that import changed code: run `codegraph_impact` on each changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`), and confirm every candidate file with Grep (word-boundary pattern for the symbol, then Read the call site); when codegraph is unusable or returns nothing, Grep alone, and record that fallback in the task notes
 7. Update all affected files
 8. Spawn verification agent (quality-engineer)
 9. Run comprehensive tests: `pytest [path] -v`
@@ -99,7 +99,7 @@ Execute task according to tier requirements:
 **STANDARD Execution**:
 
 1. Load context via codebase-retrieval
-2. Search downstream impacts (Grep with a word-boundary pattern for the changed symbol, then Read the call sites)
+2. Search downstream impacts: `codegraph_callers` / `codegraph_impact` on the changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`; rows are leads, Read before relying on them), OR Grep with a word-boundary pattern for the changed symbol, then Read the call sites
 3. Make changes
 4. Run affected tests OR document manual verification
 5. Verify basic functionality
@@ -283,7 +283,7 @@ After completion, collect implicit feedback:
 
 **Required Servers by Tier**:
 
-- STRICT: None required (native Read, Grep, Glob, Bash and codebase-retrieval cover the prerequisites)
+- STRICT: None required (native Read, Grep, Glob, Bash and codebase-retrieval cover the prerequisites); codegraph preferred for the "files that import changed code" step; Grep fallback allowed and recorded
 - STANDARD: Context7 (fallback allowed)
 - LIGHT: None required (fallback allowed)
 - EXEMPT: None required
@@ -305,7 +305,7 @@ After completion, collect implicit feedback:
 
 1. Edit/MultiEdit/Write: Make changes
 2. Grep/Glob: Find references
-3. Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
+3. `codegraph_callers` / `codegraph_impact` (when usable), OR Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
 
 **Verification Phase**:
 

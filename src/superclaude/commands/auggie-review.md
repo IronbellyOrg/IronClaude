@@ -3,7 +3,7 @@ name: auggie-review
 description: "Auggie-powered code review for PRs, local diffs, or file snapshots — narrow bugs + architectural risks + anti-patterns, with auto-posted PR review and optional remediation handoff"
 category: quality
 complexity: advanced
-mcp-servers: []
+mcp-servers: [codegraph]
 personas: [analyzer, architect, security, qa, refactorer]
 argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer] [--revagent opus|sonnet|haiku|fable]"
 ---
@@ -75,6 +75,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## MCP Integration
 
 - **Native reasoning**: Multi-step synthesis when reconciling Auggie findings with Claude's diff-level checks
+- **codegraph**: caller and definition cross-check when validating Auggie's `file:line` citations (then Read); only when the index is fresh, guide `~/.claude/CODEGRAPH.md`
 - **Native Read / Grep floor**: Cross-reference when validating Auggie's file:line citations against actual code (Grep for the definition, then Read the range; Grep with a word-boundary pattern for references, then Read the call sites)
 
 External tool (not MCP, but central): **`auggie` CLI** is the primary review engine. The skill shells out to `auggie --print --output-format json --ask` to offload deep analysis to Auggie's indexed codebase context, dramatically reducing Claude token consumption.
@@ -85,6 +86,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - **Bash(gh *)**: Fetch PR metadata, post review comments
 - **Bash(git *)**: Resolve diff ranges, list changed files
 - **Read / Grep / Glob**: Validate Auggie's file:line citations against actual files
+- **mcp__codegraph__codegraph_status / _search / _node / _callers**: one readiness check, then definition and caller cross-checks of cited lines
 - **mcp__auggie__codebase-retrieval**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
 - **Write**: Emit the markdown report and audit log under `--output-dir`
 - **Task**: Spawn the `auggie-reviewer` agent for the `--depth deep` cross-check pass (protocol Wave 2 step 5), passing the `model` parameter when `--revagent` is set (per-persona deep passes are Auggie CLI calls, not agents)
