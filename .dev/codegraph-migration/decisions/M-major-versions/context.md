@@ -1,0 +1,6 @@
+# Decision M-a context: do major codegraph versions bump automatically?
+
+System: a scheduled GitHub workflow in IronbellyOrg/IronClaude watches colbymchenry/codegraph releases. On a newer release it downloads SHA256SUMS + 4 tarballs, checks hashes, runs `gh attestation verify -R colbymchenry/codegraph`, rewrites `VERSION` and the 4-entry `SHA256` table in `src/superclaude/cli/install_codegraph.py`, proves the candidate in an isolated HOME (install, index a fixture, MCP `tools/list` still has every tool in `MCP_TOOLS = "node,search,callers,callees,impact,files,status"`, the `claude mcp add-json` entry still matches `codegraph install --print-config claude`), then opens a PR on IronbellyOrg/IronClaude.
+
+Facts: codegraph is at v1.6.2 (2026-10-03); 8 releases 2026-07-07..2026-10-03, all 1.x (v1.3.0..v1.6.2); single-maintainer project; release notes are long (v1.6.2 body 76,281 chars). A merged pin flows to every Coder workspace through Coder's IronClaude SHA bump. Bot PRs opened with GITHUB_TOKEN get approval-gated CI; a human always merges (no auto-merge exists or is proposed). The proof checks the tool list and the registration shape, not tool semantics (argument names, output format), which Phase 3 skills depend on.
+Question: when the candidate's major number is higher than the pin's (1.x -> 2.0.0), what does the monitor do?

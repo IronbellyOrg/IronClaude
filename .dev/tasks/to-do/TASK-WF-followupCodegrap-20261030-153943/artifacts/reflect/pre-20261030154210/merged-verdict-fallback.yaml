@@ -1,0 +1,15 @@
+merge_method: single-reviewer-fallback
+adversarial_unavailable: true
+fallback_path: F2
+convergence_score: null
+selected_card: reviewer-cards/reviewer-1-card.yaml   # highest calibrated C (0.82); r3 0.81, r2 0.76
+verdict: revise
+reason: >-
+  Two sc:adversarial attempts (adversarial/ at depth standard, adversarial-retry/ at depth quick) wrote diff-analysis.md
+  and a verdict stub, then stalled: the Round 1 advocate subagents they spawned never returned (nested subagents),
+  so no debate, scoring or merge ran. F1 retry failed; F2 applied.
+finding_set: >-
+  Union of T1 findings as adjudicated by the reviewers (confirmed/corrected severities) plus every R1/R2/R3 new finding,
+  each verified by the orchestrator against the cited lines before fixing (see REPORT.md). Severity disputes resolved by the
+  highest-calibrated reviewer: T1-26 critical (reviewer 1 confirmed critical; reviewer 2 proposed important); T1-22 nit
+  (reviewer 1: 20 is the count of rewritten sites).

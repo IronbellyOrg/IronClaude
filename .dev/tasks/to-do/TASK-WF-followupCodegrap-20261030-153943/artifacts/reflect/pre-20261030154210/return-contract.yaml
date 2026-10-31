@@ -1,0 +1,62 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/audit.log
+confidence_calibrated: 0.82
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.3284
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/artifacts/coverage-matrix.yaml   # 227 rows; 222 covered by section reference (/home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/artifacts/unmapped-triage.yaml); 5 real (INF-042,043,045,046,047; spec §2.1)
+best_practice_grade: null
+input_sha256: {tasklist: 9740475c5b3e123f47632b9021a768c6d6e2d3187ba4740456aea16f57b81b99, spec: bde42c6c0921b76eddd16a6e179d823313a776cf5c18b7cf85fc18413e147080}
+input_tree_sha256: 14bdafb31c34b20261a5f01f73c0ff29f07fbd65b3000a294dcdf6b2dbf78944
+input_tree_file_count: 15
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 109
+citations_revalidated: 108
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 2
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: true
+merge_method: single-reviewer-fallback
+fallback_path: F2
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: true   # 27 of the findings are defects inherited from the spec
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+degraded_components: ["serena:activate_project-not-exposed", "get_current_config", "sc-adversarial:advocates-not-returned"]

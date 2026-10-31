@@ -1,0 +1,8 @@
+# STUB: filled after the sc:adversarial run completes (Wave 4, UC-1).
+merge_method: adversarial
+convergence_score: null
+adversarial_artifacts_dir: null
+verdict: null
+findings: []
+refuted: []
+disagreements: []

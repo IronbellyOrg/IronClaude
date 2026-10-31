@@ -1,0 +1,13 @@
+---
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/M-proof-failure/adversarial/M-proof-failure-merged.md"
+  convergence_score: 1.0            # 18/18 diff points; taxonomy gate passed; invariant gate not applied (depth quick)
+  artifacts_dir: ".dev/codegraph-migration/decisions/M-proof-failure/adversarial/adversarial/"
+  status: "success"                 # all 5 steps done; post-merge validation PASS (merge-log.md)
+  base_variant: "Variant 3 (option-c.md, split by failure class; advocate default:qa)"
+  scores: {B: 0.760, C: 0.748, A: 0.606}   # B-C margin 0.012 < 0.05; tiebreaker level 1 (debate points won C 9, B 5, A 2) selected C
+  unresolved_conflicts: 0           # diff points; 8 sub-points (N-001..N-008) settled by majority or orchestrator, 4 flagged for user review
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 skipped at depth quick

@@ -1,0 +1,8 @@
+card: t1-card.md
+calibrator: confidence-calibrator (model class opus; reviewers sonnet, haiku->glm-5.3, fable; disjoint from reviewers; same class as the plan's author)
+calibrator_diversity: full
+executor_calibrator_collision: true
+dimensions: {citation_grounding: 0.92, coverage_completeness: 0.85, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.92, recommendation_actionability: 0.90}
+C: 0.83
+self_reported: 0.80
+escalation_recommendation: escalate
