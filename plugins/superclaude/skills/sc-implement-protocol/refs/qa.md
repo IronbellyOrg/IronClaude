@@ -39,7 +39,7 @@ Every finding has exactly one severity, derived by the parent from the finding's
 | Severity | Definition |
 |---|---|
 | `blocking` | At least one checklist answer is `yes` and its anchor passed the parent's Read-back, and the inherited cap (text with origin `inherited`) does not apply. |
-| `minor` | All four answers are `no`, and the finding is a real defect in what this task delivered: ambiguous wording, a missing or mismatched evidence entry for a claim the reviewer verified true. |
+| `minor` | All four answers are `no`, and the finding is a real defect in what this task delivered: ambiguous wording, a missing or mismatched evidence entry for a claim the reviewer verified true, including a citation or copied value that only drifted (Line-drift boundary below). |
 | `note` | All four answers are `no`, and the finding is cosmetic, a "consider changing" suggestion, or has origin `inherited` or `late`; also any finding whose only `yes` failed its Read-back. |
 
 **Four checklist answers; the blocking triggers.** Every finding carries four factual answers, each `yes` or `no`. Each answer is the confirmation of one blocking trigger, so the trigger names stay as a glossary:
@@ -55,10 +55,26 @@ Every finding has exactly one severity, derived by the parent from the finding's
 
 **Who assigns severity.** The reviewer answers the four questions and cites one anchor per `yes`. The parent orchestrator then derives the severity mechanically and Reads each anchor back once:
 
-- `ac-outcome-missing`: the quoted AC words are byte-present in the AC.
-- `false-claim`: the cited live-source `path:line` holds the contradicting text.
+- `ac-outcome-missing`: the quoted AC words are byte-present in the AC, and the Verified-minor rule below does not apply.
+- `false-claim`: the cited live-source `path:line` holds the contradicting text; an anchor that shows only drift is handled by the Line-drift boundary below, which sets the answer to `no`.
 - `harmful-effect`: the cited diff line is the write.
 - `quoted-constraint-breach`: the quoted text is byte-present in the plan Constraints or a task instruction.
+
+**Verified-minor rule (parent-side).** An `ac-outcome-missing` answer fails its Read-back when all of these hold:
+
+- an earlier review of the current tree chain (all reviews since the task's `start` or its latest revert, as in the notes rule) has a notes-file finding line with all four answers `no` (`minor` or `note`) on the same path and the same `ac=` as the new finding, and that `ac=` is an AC that asks for evidence (Evidence-type AC below);
+- the line that notes line cites, as it stands in that review's pinned tree (the `r<k>-<j>` on the notes line), is not blank and is byte-identical to the new finding's flagged line (`at=`) in the tree under review;
+- every path that the flagged line cites or the AC text names, and that exists in that pinned tree, still exists in the tree under review. An evidence artifact a later change removed stays `ac-outcome-missing=yes` ("the evidence artifact is absent", Evidence-type AC below);
+- that pinned tree exists. With `tree=none`, a missing ref or a notes line without `ac=`, the rule does not apply and the answer is read back as usual.
+
+That earlier review answered `ac-outcome-missing=no` on the same unchanged text (for an evidence claim, it verified the claim true), so a later review that could not verify it cannot turn it into a blocker. The parent checks this from the notes file and the pinned trees only. A `false-claim`, `harmful-effect` or `quoted-constraint-breach` answer on that text is not affected and blocks when its anchor passes.
+
+**Line-drift boundary (parent-side).** A `false-claim` answer counts as `no` in the derivation when one of these string tests shows that only a pointer or a copied value in the delivered text went stale:
+
+- Moved line: the earliest pinned reviewed tree (`r<k>-<j>`) that holds the delivered citation is earlier than the tree under review; the line the citation names in that earlier tree is not blank, holds the citation's quote when it has one, appears exactly once in that file in the earlier tree, is no longer at the cited line number, and appears exactly once, at another line, in the same file in the tree under review. With `tree=none`, a missing ref, a citation present in `$start`, or a citation that first appears in the tree under review, this test does not apply.
+- Copied log value: the anchor is a line of a saved log or command-output file and the delivered text quotes part of it; once every run of digits is replaced by one placeholder, the quote is a substring of the anchor line; no number in the quote changes between zero and non-zero; and no number on the anchor line on either side of `failed`, `failures`, `error` or `errors` (in any case, `word=N` included) is non-zero. A delivered `989 passed` against a log line `=== 990 passed, 3 warnings in 1.2s ===` qualifies; `0 failed` against `2 failed`, and `989 passed` against `1 failed, 989 passed`, do not. This test never applies when the number itself is what an AC asks for.
+
+Such a finding, with no other `yes`, is a mismatched evidence entry for a verified-true claim: all-`no` and `minor`. Any other difference (a changed word, a pass that became a fail, a number that crosses zero, a citation that fails either test) is contradicting text, and the answer stays `yes`. These are file and string comparisons, not a judgment; there is no second model pass.
 
 A finding whose only `yes` fails its Read-back is a note. The reviewer's prose label (low, IMPORTANT, MINOR or any other) is never read. There is no second model pass: one reviewer per review ("## Reviewer contract"), and the Read-back is a file check, not a judgment.
 
@@ -67,10 +83,10 @@ A finding whose only `yes` fails its Read-back is a note. The reviewer's prose l
 **Evidence-type AC.** For an AC that asks for evidence, the AC is unmet only when:
 
 - the evidence artifact is absent (`ac-outcome-missing=yes`);
-- a cited evidence row is false (`false-claim=yes`); or
+- a cited evidence row is false (`false-claim=yes`; a row whose line or copied value only drifted is not false, Line-drift boundary above); or
 - a claim the reviewer could not verify has no evidence row (`ac-outcome-missing=yes`, anchored on the AC words).
 
-A claim the reviewer verified true but that lacks a row, and a saved script/output pair that does not match when the reviewer reproduced the claim itself, are all-`no` findings: `minor`. The reviewer may not widen the AC (for example from "each corrected behavior" to "every sentence asserting a fact").
+A claim the reviewer verified true but that lacks a row, a row for a verified-true claim whose cited line or copied value only drifted (Line-drift boundary above), and a saved script/output pair that does not match when the reviewer reproduced the claim itself, are all-`no` findings: `minor`. The reviewer may not widen the AC (for example from "each corrected behavior" to "every sentence asserting a fact").
 
 **Fix cost and the ponytail lens.** The fix-cost question ("is the fix worth its lines") lives in the `fix=` field of every finding. Over-engineering observations are notes. A ponytail-style judgment never changes a checklist answer, so it never changes a severity or a verdict; never deletes or shrinks text an AC requires; and never reduces the set of sites a family probe listed (it may pick the smaller fix per listed site). The protocol never invokes the `ponytail-review` plugin, so its absence changes nothing.
 
@@ -167,7 +183,7 @@ Origin needs every reviewed tree, including A1's and each repair's, and a repair
 
 ## What each review may raise
 
-Every review at every attempt may raise a new blocker (any confirmed checklist `yes`) anywhere in task-owned text, meaning text the task added or changed; text present in `$start` follows the inherited rule above. A blocker on task-owned text is never capped, whatever its origin or attempt. Only new minors, notes and "cannot verify" findings with no confirmed `yes` on text unchanged since the last pinned reviewed tree are capped at note, so later reviews cannot re-open accepted text with a lower-severity finding. Minors and notes never fail an attempt.
+Every review at every attempt may raise a new blocker (any confirmed checklist `yes`) anywhere in task-owned text, meaning text the task added or changed; text present in `$start` follows the inherited rule above. A blocker on task-owned text is never capped, whatever its origin or attempt. Only new minors, notes and "cannot verify" findings with no confirmed `yes` on text unchanged since the last pinned reviewed tree are capped at note, so later reviews cannot re-open accepted text with a lower-severity finding. This cap also covers a "could not verify" `ac-outcome-missing` on text an earlier review of the current tree chain recorded as an all-`no` finding (`minor` or `note`): by the Verified-minor rule ("## Severity model") its `yes` fails the Read-back, so it is a note at every attempt and never becomes a `late` blocker. Minors and notes never fail an attempt.
 
 | Review of | Scope of audit | Prior-finding re-check | Fails the attempt |
 |---|---|---|---|
@@ -181,7 +197,7 @@ A non-blocking `late` finding is a note. A finding whose flagged text is absent 
 
 ## Notes file and accepted-minor path
 
-**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route dispute rule of procedure step 3 in `refs/retry.md`).
+**Notes file.** The file is `<retries>/T<id>/notes.md`. Line 1 holds the task's `start` sha (see "Pinned reviewed trees and the `start` header"). Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> ac=<Ti.ACk|scope> <checklist answers> <text>`; the `r<k>-<j>` tag names the review that raised it. An answer that the Verified-minor rule or the Line-drift boundary ("## Severity model") set aside is written `n`, so both FINALs cite that entry `noted`. Each dispute line is `A<n> dispute (advice-<n>-<x>.md): F<k>.<i> <minor|note> <reason>` (written by the adviser-route dispute rule of procedure step 3 in `refs/retry.md`).
 
 - The folder already exists for every tree-snapshot task, because Q0 writes `q0-head` there, and the revert domain excludes `<retries>`, so notes survive any revert. A task whose start is `nogit` or a HEAD fallback has no `q0-head`; it creates the folder when it first writes the file.
 - Fail closed: if the file cannot be written, STOP `E-RESUME-NEEDED reason=ref-failed`, with no ledger line and no `blocked` line.

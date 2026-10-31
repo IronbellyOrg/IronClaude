@@ -4,6 +4,7 @@ Enforcement type: STATIC - assertions over protocol Markdown and the archive
 helper source (SPEC AC-01..AC-04, AC-07, AC-10, AC-11; V1 F-05; V2 F-12).
 """
 
+import hashlib
 import importlib.util
 import re
 from pathlib import Path
@@ -474,3 +475,148 @@ def test_retry_repair_round_rules():
         in r
     )
     assert "no ref is pinned" in r
+
+
+# --- #297 text pins P1-P4 (qa-loop investigation FINDINGS.md rec 3) ---------
+
+_STYLE = _REPO / "src/superclaude/output-styles/pragmatic.md"
+
+
+def test_p1_output_style_exempts_implement_severity_model():
+    assert (
+        "- Any issue of ANY severity (CRITICAL, IMPORTANT, or MINOR) MUST result "
+        "in a FAIL verdict, except inside a protocol that defines its own "
+        "severity model, such as `/sc:implement` "
+        '(`~/.claude/skills/sc-implement-protocol/refs/qa.md`); a "minor issues '
+        'still pass" allowance is PROHIBITED.'
+    ) in _STYLE.read_text(encoding="utf-8").splitlines()
+
+
+def test_p2_minors_never_drive_a_fix_pass_repair_or_review():
+    assert "Minors are never the reason for a fix pass, a repair or a review." in _flat(
+        _read("refs/retry.md")
+    )
+
+
+def test_p3_severity_model_precedence_over_output_style():
+    assert (
+        "**Precedence over the output style.** Inside `/sc:implement` this "
+        "protocol severity model governs per-task QA and both FINALs (managed "
+        "and legacy). This precedence covers the session's output style and the "
+        "copy of it that the SubagentStart hook injects into every subagent, "
+        "reviewers and advisers included: only `blocking` findings may fail an "
+        "attempt, halt or prompt the user."
+    ) in QA.splitlines()
+
+
+def test_p4_precedence_line_inside_closed_reviewer_template():
+    assert (
+        "Inside /sc:implement this protocol's severity model governs this review "
+        "and takes precedence over the session's output style and the copy of it "
+        "injected into every subagent; only blocking findings may fail an attempt."
+    ) in _templates()[0].splitlines()
+
+
+# --- Parent-side minor gaps (FINDINGS.md rec 2a and 2b) ---------------------
+
+
+def test_rec2a_verified_minor_rule_stops_late_promotion():
+    assert (
+        "- `ac-outcome-missing`: the quoted AC words are byte-present in the AC, "
+        "and the Verified-minor rule below does not apply."
+    ) in QA.splitlines()
+    for text in (
+        "**Verified-minor rule (parent-side).** An `ac-outcome-missing` answer "
+        "fails its Read-back when all of these hold:",
+        "- an earlier review of the current tree chain (all reviews since the "
+        "task's `start` or its latest revert, as in the notes rule) has a "
+        "notes-file finding line with all four answers `no` (`minor` or `note`) "
+        "on the same path and the same `ac=` as the new finding, and that `ac=` "
+        "is an AC that asks for evidence (Evidence-type AC below);",
+        "- the line that notes line cites, as it stands in that review's pinned "
+        "tree (the `r<k>-<j>` on the notes line), is not blank and is "
+        "byte-identical to the new finding's flagged line (`at=`) in the tree "
+        "under review;",
+        "- every path that the flagged line cites or the AC text names, and that "
+        "exists in that pinned tree, still exists in the tree under review. An "
+        "evidence artifact a later change removed stays `ac-outcome-missing=yes` "
+        '("the evidence artifact is absent", Evidence-type AC below);',
+        "- that pinned tree exists. With `tree=none`, a missing ref or a notes "
+        "line without `ac=`, the rule does not apply and the answer is read back "
+        "as usual.",
+        "A `false-claim`, `harmful-effect` or `quoted-constraint-breach` answer "
+        "on that text is not affected and blocks when its anchor passes.",
+        'This cap also covers a "could not verify" `ac-outcome-missing` on text '
+        "an earlier review of the current tree chain recorded as an all-`no` "
+        'finding (`minor` or `note`): by the Verified-minor rule ("## Severity '
+        'model") its `yes` fails the Read-back, so it is a note at every attempt '
+        "and never becomes a `late` blocker.",
+    ):
+        assert text in QA_FLAT, text
+
+
+def test_rec2_notes_line_carries_ac_and_set_aside_answers():
+    assert (
+        "Each finding line is `A<k> r<k>-<j> F<k>.<i> <minor|note> <path:line> "
+        "ac=<Ti.ACk|scope> <checklist answers> <text>`"
+    ) in QA_FLAT
+    assert (
+        "An answer that the Verified-minor rule or the Line-drift boundary "
+        '("## Severity model") set aside is written `n`, so both FINALs cite '
+        "that entry `noted`."
+    ) in QA_FLAT
+
+
+def test_rec2b_line_drift_boundary_is_minor_not_false_claim():
+    assert (
+        "- `false-claim`: the cited live-source `path:line` holds the "
+        "contradicting text; an anchor that shows only drift is handled by the "
+        "Line-drift boundary below, which sets the answer to `no`."
+    ) in QA.splitlines()
+    for text in (
+        "**Line-drift boundary (parent-side).** A `false-claim` answer counts as "
+        "`no` in the derivation when one of these string tests shows that only a "
+        "pointer or a copied value in the delivered text went stale:",
+        "- Moved line: the earliest pinned reviewed tree (`r<k>-<j>`) that holds "
+        "the delivered citation is earlier than the tree under review; the line "
+        "the citation names in that earlier tree is not blank, holds the "
+        "citation's quote when it has one, appears exactly once in that file in "
+        "the earlier tree, is no longer at the cited line number, and appears "
+        "exactly once, at another line, in the same file in the tree under "
+        "review.",
+        "With `tree=none`, a missing ref, a citation present in `$start`, or a "
+        "citation that first appears in the tree under review, this test does "
+        "not apply.",
+        "- Copied log value: the anchor is a line of a saved log or "
+        "command-output file and the delivered text quotes part of it; once "
+        "every run of digits is replaced by one placeholder, the quote is a "
+        "substring of the anchor line; no number in the quote changes between "
+        "zero and non-zero; and no number on the anchor line on either side of "
+        "`failed`, `failures`, `error` or `errors` (in any case, `word=N` "
+        "included) is non-zero.",
+        "`0 failed` against `2 failed`, and `989 passed` against `1 failed, 989 "
+        "passed`, do not.",
+        "This test never applies when the number itself is what an AC asks for.",
+        "Such a finding, with no other `yes`, is a mismatched evidence entry for "
+        "a verified-true claim: all-`no` and `minor`. Any other difference (a "
+        "changed word, a pass that became a fail, a number that crosses zero, a "
+        "citation that fails either test) is contradicting text, and the answer "
+        "stays `yes`.",
+        "including a citation or copied value that only drifted (Line-drift "
+        "boundary below). |",
+        "- a cited evidence row is false (`false-claim=yes`; a row whose line or "
+        "copied value only drifted is not false, Line-drift boundary above); or",
+        "a row for a verified-true claim whose cited line or copied value only "
+        "drifted (Line-drift boundary above)",
+    ):
+        assert text in QA_FLAT, text
+
+
+# The closed reviewer template is compared byte for byte with every saved
+# prompt by both FINALs; any edit to it needs the saved-prompt migration.
+_TEMPLATE_SHA256 = "d811706b86357603ac213d28538b898467cc7f5bd8cd2c86c79f08a1f06fdb50"
+
+
+def test_rec2_closed_reviewer_template_unchanged():
+    tpl = _templates()[0]
+    assert hashlib.sha256(tpl.encode("utf-8")).hexdigest() == _TEMPLATE_SHA256
