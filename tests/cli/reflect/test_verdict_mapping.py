@@ -604,3 +604,29 @@ def test_fx7_vacuous_no_verify_stays_exempt_but_visible() -> None:
     assert result.verdict is Verdict.PASS
     assert result.verdict.exit_code == 0
     assert result.verification_verified is False
+
+
+def test_graph_tokens_do_not_halt() -> None:
+    """P3-D7 (issue #323): ``graph:*`` codegraph tokens are informational telemetry.
+
+    ``degraded_graph_absent.yaml`` is ``pass.yaml`` plus
+    ``degraded_components: ["graph:absent", "graph:not_initialized"]``. Reflect falls
+    back to its Grep/Read floor when codegraph is missing, so the tokens must map to
+    exactly the verdict, exit code and reason of the same contract without them, and
+    no ``graph:*`` token may join ``_DEGRADED_COMPONENTS_HALT_SET``.
+    """
+    from superclaude.cli.reflect.contract import _DEGRADED_COMPONENTS_HALT_SET
+
+    with_tokens = _load("degraded_graph_absent.yaml")
+    assert with_tokens["degraded_components"] == ["graph:absent", "graph:not_initialized"]
+    without_tokens = dict(with_tokens, degraded_components=[])
+    assert without_tokens == _load("pass.yaml"), "fixture must differ from pass.yaml only by the tokens"
+
+    kwargs = dict(expected_tier=2, allow_single_vendor=False, child_rc=0)
+    result = derive_verdict(with_tokens, **kwargs)
+    baseline = derive_verdict(without_tokens, **kwargs)
+
+    assert result.verdict is baseline.verdict is Verdict.PASS
+    assert result.verdict.exit_code == baseline.verdict.exit_code == 0
+    assert result.reason == baseline.reason
+    assert not [t for t in _DEGRADED_COMPONENTS_HALT_SET if t.startswith("graph:")]
