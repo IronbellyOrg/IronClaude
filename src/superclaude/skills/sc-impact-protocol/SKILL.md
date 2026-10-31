@@ -1,7 +1,7 @@
 ---
 name: sc:impact-protocol
 description: "Codegraph-backed dependents report: definitions, production and test dependents with shown/total and call-site resolution, optional advisory test list from codegraph affected; writes impact.md and return-contract.yaml; never stops its caller."
-allowed-tools: Read, Grep, Glob, Write, Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), Bash(pgrep -f *), Bash(git rev-parse *), Bash(realpath *), Bash(git diff *), Bash(codegraph --version), Bash(codegraph status), Bash(codegraph query *), Bash(codegraph node *), Bash(codegraph callers *), Bash(codegraph impact *), Bash(codegraph affected *), mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), Bash(pgrep -f *), Bash(git rev-parse *), Bash(realpath *), Bash(git diff *), Bash(codegraph --version), Bash(codegraph status), Bash(codegraph query *), Bash(codegraph node *), Bash(codegraph callers *), Bash(codegraph impact *), Bash(codegraph affected *), mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
@@ -177,7 +177,7 @@ The run continues, outputs are written, and the caller is never stopped.
 
 ## Will Not
 
-- Edit code, run tests, or build, sync or remove an index
+- Edit code, run tests, or build, sync or remove an index (Write and Edit touch only `impact.md` and `return-contract.yaml` under `--output-dir`)
 - Use a file-mode `codegraph_node` call without `"symbolsOnly": true`
 - Run CLI `codegraph status` while `pgrep -f 'codegraph\.js (init|index)'` prints a line
 - Prefix a CLI call with environment variables

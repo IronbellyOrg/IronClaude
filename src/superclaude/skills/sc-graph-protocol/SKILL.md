@@ -1,7 +1,7 @@
 ---
 name: sc:graph-protocol
 description: "Readiness report for this worktree's code-graph index (cli_version, pin_match, index_state, worktree_relation, counts, pending files, telemetry, next_action) and the read-only preflight for /sc:graph init. Never runs init itself."
-allowed-tools: Read, Write, Bash(codegraph --version), Bash(codegraph status), Bash(codegraph telemetry status), Bash(git rev-parse --show-toplevel), Bash(realpath *), Bash(pgrep -f *), Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), mcp__codegraph__codegraph_status
+allowed-tools: Read, Write, Edit, Bash(codegraph --version), Bash(codegraph status), Bash(codegraph telemetry status), Bash(git rev-parse --show-toplevel), Bash(realpath *), Bash(pgrep -f *), Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), mcp__codegraph__codegraph_status
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
@@ -155,3 +155,4 @@ Eight lines, fixed order:
 - Build, rebuild, sync or remove an index, or change telemetry or MCP registration
 - Run CLI `codegraph status` while `pgrep -f 'codegraph\.js (init|index)'` prints a line
 - Be called by another skill or agent
+- Write or Edit any file other than `<output-dir>/return-contract.yaml`

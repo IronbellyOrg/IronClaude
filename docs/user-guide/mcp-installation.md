@@ -55,6 +55,10 @@ In the first `superclaude install` where codegraph is registered and usable (`Re
 
 Kept by policy: `~/.serena`, project `.serena/` folders, `~/.cache/codebase-memory-mcp`, the uv cache and, outside Coder, a `serena-agent` uv tool you installed (the removal command is printed). Local-scope (`projects.*.mcpServers`) and `.mcp.json` entries are never read or removed by the installer; if a project still registers `serena` or `codebase-memory-mcp` that way, run `claude mcp remove <name> --scope local` (or `--scope project` for `.mcp.json`) in that project. The root-owned `/usr/local/bin/codebase-memory-mcp` in the Coder image goes only with a new image, and a `~/.local/bin/codebase-memory-mcp` binary with its client companions stays, with its `uninstall -y` command printed.
 
+### Commands and skills that use codegraph
+
+IronClaude's commands, skills and agents use codegraph above a Grep/Read fallback, following the shared guide `~/.claude/CODEGRAPH.md` (installed with the core files). Two commands expose it directly: `/sc:graph` (or `/sc:graph status`) reports whether this worktree's index is ready, and `/sc:graph init` builds it by hand when the session-start hook did not; `/sc:impact <symbol>...` or `/sc:impact --diff <base>` lists production and test dependents, and `--tests` adds an advisory test list. Two switches, each with its own scope: `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` stops commands, skills and agents from using codegraph (they use Grep/Read only), and `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the session-start index hook. Neither touches the MCP registration.
+
 ## What `superclaude install` Does With MCP
 
 `superclaude install` installs framework files, commands, agents, skills, ccsession wiring, hooks, templates and user setup, then the codegraph phase above. It installs no other MCP server: use `superclaude mcp` for those (see below).

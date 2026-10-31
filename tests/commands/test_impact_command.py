@@ -23,6 +23,7 @@ _SKILL_TOOLS = {
     "Grep",
     "Glob",
     "Write",
+    "Edit",
     "Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES)",
     "Bash(pgrep -f *)",
     "Bash(git rev-parse *)",

@@ -24,6 +24,7 @@ _MUTATING = re.compile(
 _SKILL_TOOLS = {
     "Read",
     "Write",
+    "Edit",
     "Bash(codegraph --version)",
     "Bash(codegraph status)",
     "Bash(codegraph telemetry status)",

@@ -1,6 +1,6 @@
 **Phase 3 (adopt codegraph), group F: callers of /sc:impact and routing: done**
 
-- Commit: 49614436 on branch feat/codegraph-adoption
+- Commit: 49614436 and review fix ad9aa379 on branch feat/codegraph-adoption
 - Changed:
   - src/superclaude/skills/sc-implement-protocol/SKILL.md and its plugin twin (Q1: rename, delete or signature tasks get a dependents warning before the first edit; Q6: optional advisory test list that can add tests to the extras run, never remove them)
   - src/superclaude/skills/sc-pr-submit-protocol/SKILL.md (Wave 3 context for the verifier, VG-1 advisory test list with the gate unchanged) and refs/troubleshoot-dispatch.md (Wave 4 warning before a fix)
