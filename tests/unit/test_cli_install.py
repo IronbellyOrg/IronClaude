@@ -123,7 +123,7 @@ validate-tests.md workflow.md
     "core": _names(
         """
 BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md
-HOW-WE-WORK.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md __init__.py
+CODEGRAPH.md HOW-WE-WORK.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md __init__.py
 """
     ),
     "examples": _names(
@@ -400,8 +400,8 @@ spawn.md spec-panel.md task.md test.md troubleshoot.md workflow.md
     ),
     "core": _names(
         """
-BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md PRINCIPLES.md RESEARCH_CONFIG.md
-RULES.md __init__.py
+BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CODEGRAPH.md PRINCIPLES.md
+RESEARCH_CONFIG.md RULES.md __init__.py
 """
     ),
     "examples": _names(

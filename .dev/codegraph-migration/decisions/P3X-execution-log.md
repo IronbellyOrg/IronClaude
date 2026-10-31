@@ -18,6 +18,12 @@ Plan: `.dev/tasks/to-do/TASK-WF-phase3CodegraphA-20261029-204913/TASK-WF-phase3C
 
 Environment note: the worktree had no virtual environment after the workspace restart; `uv sync --all-extras` created the gitignored `.venv` so `uv run --no-sync python -c 'from superclaude.cli.install_codegraph import …'` works. No installer, MCP registration or `~/.claude` file was touched. Claude Code version: 2.1.316.
 
+## Issue #323 group comments
+
+| Group | Body file | Comment URL |
+|---|---|---|
+| 0 prerequisite experiments | `.dev/codegraph-migration/progress/P3-0.md` | https://github.com/IronbellyOrg/IronClaude/issues/323#issuecomment-6544339802 |
+
 ## Decisions
 
 | Date | Task | Decision | Options considered | Method | Rationale | Files touched |
