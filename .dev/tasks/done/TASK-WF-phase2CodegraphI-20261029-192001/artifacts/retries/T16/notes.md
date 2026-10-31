@@ -1,0 +1,3 @@
+4ae89ac09138df1f67a4dfdebe3457ee79f9506d
+A1 r16-1 F1.1 note /tmp/p2-t16.sh:19 chk=amiss:n,false:n,harm:n,constraint:n the executed script was a variant of the plan block (a fail accumulator, doctor piped through tail so its own exit code is masked); the reviewer re-ran the plan block verbatim and doctor alone and both exit 0
+A1 r16-1 F1.2 note ./artifacts/t16-g6-comment.md:36 chk=amiss:n,false:n,harm:n,constraint:n the install --list section of the G6 comment is a grep excerpt: the Owner line is cut mid-path and the codebase-memory-mcp absent row is omitted; Ready for Serena retirement: yes and serena absent are present
