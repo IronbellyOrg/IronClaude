@@ -64,6 +64,7 @@ Every finding has exactly one severity, derived by the parent from the finding's
 
 - an earlier review of the current tree chain (all reviews since the task's `start` or its latest revert, as in the notes rule) has a notes-file finding line with all four answers `no` (`minor` or `note`) on the same path and the same `ac=` as the new finding, and that `ac=` is an AC that asks for evidence (Evidence-type AC below);
 - the line that notes line cites, as it stands in that review's pinned tree (the `r<k>-<j>` on the notes line), is not blank and is byte-identical to the new finding's flagged line (`at=`) in the tree under review;
+- every path that the flagged line cites or the AC text names, and that exists in that pinned tree, still exists in the tree under review. An evidence artifact a later change removed stays `ac-outcome-missing=yes` ("the evidence artifact is absent", Evidence-type AC below);
 - that pinned tree exists. With `tree=none`, a missing ref or a notes line without `ac=`, the rule does not apply and the answer is read back as usual.
 
 That earlier review answered `ac-outcome-missing=no` on the same unchanged text (for an evidence claim, it verified the claim true), so a later review that could not verify it cannot turn it into a blocker. The parent checks this from the notes file and the pinned trees only. A `false-claim`, `harmful-effect` or `quoted-constraint-breach` answer on that text is not affected and blocks when its anchor passes.

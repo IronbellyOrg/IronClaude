@@ -537,6 +537,10 @@ def test_rec2a_verified_minor_rule_stops_late_promotion():
         "tree (the `r<k>-<j>` on the notes line), is not blank and is "
         "byte-identical to the new finding's flagged line (`at=`) in the tree "
         "under review;",
+        "- every path that the flagged line cites or the AC text names, and that "
+        "exists in that pinned tree, still exists in the tree under review. An "
+        "evidence artifact a later change removed stays `ac-outcome-missing=yes` "
+        '("the evidence artifact is absent", Evidence-type AC below);',
         "- that pinned tree exists. With `tree=none`, a missing ref or a notes "
         "line without `ac=`, the rule does not apply and the answer is read back "
         "as usual.",
