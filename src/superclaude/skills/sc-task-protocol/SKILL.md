@@ -1,7 +1,7 @@
 ---
 name: sc:task-protocol
 description: Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation. Merges orchestration capabilities with MCP compliance into a single coherent interface.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 
 <!-- markdownlint-disable MD041 MD040 -->
@@ -90,7 +90,9 @@ Execute task according to tier requirements:
 3. Check relevant memory files (Glob `.superclaude/memory/**/*.md`, then Read the relevant ones; skip when none exist)
 4. Identify all affected files and test files
 5. Make changes with full checklist
-6. Identify all files that import changed code: run `codegraph_impact` on each changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`), and confirm every candidate file with Grep (word-boundary pattern for the symbol, then Read the call site); when codegraph is unusable or returns nothing, Grep alone, and record that fallback in the task notes
+6. Identify all files that import changed code: invoke
+   > Skill sc:impact-protocol
+   with `<changed symbols> --depth 2 --output-dir .dev/impact/task-<slug> --caller sc-task-protocol` and read only `status`, `degraded`, `dependents[].file` and `unmapped_files` from its `return-contract.yaml`; the dependent files are candidates, and every unmapped file is checked with Grep too. Confirm every candidate file with Grep (word-boundary pattern for the symbol, then Read the call site) and copy `degraded` into the task notes. `status: blocked|failed` counts as `graph:absent`: then, or when it returns no rows, Grep alone, and record that fallback in the task notes. The call changes no tier, gate or verification step
 7. Update all affected files
 8. Spawn verification agent (quality-engineer)
 9. Run comprehensive tests: `pytest [path] -v`

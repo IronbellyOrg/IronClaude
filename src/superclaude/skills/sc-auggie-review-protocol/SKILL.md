@@ -137,6 +137,9 @@ revagent: <opus|sonnet|haiku|fable|default>
    - 1500-5000 lines OR 16-30 files: chunk by directory (one Auggie call per top-level dir)
    - > 5000 lines: STOP unless `--force`; report "diff too large"
 7. Run the codegraph readiness check once (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): MCP `codegraph_status` when it is listed, never the CLI (this skill has no `Bash(codegraph …)` pattern). Record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for the Wave 2 brief and Wave 3; record any `graph:*` token in the audit log. A non-`fresh` state only means Wave 3 uses the Read / Grep floor.
+8. Impact context (diff and PR modes only): invoke
+   > Skill sc:impact-protocol
+   with `--diff <base> --depth 1 --output-dir <output-dir>/inputs/impact --caller sc-auggie-review-protocol` and read only `status`, `degraded`, `readiness.index_state`, `dependents[].caller` and `dependents[].file` from its `return-contract.yaml`. Put only those dependent names and files into the Auggie prompt, as context, and copy `degraded` into the audit log. The Wave 3 diff-hunk rule is unchanged: a finding citing a line outside the diff hunks is still downgraded to "context" or dropped by severity, and a dependent file never brings a finding into scope. `status: blocked|failed` counts as `graph:absent` (continue without it).
 
 **Exit criteria**: `diff.patch` (if applicable), `files.txt`, and `metadata.json` saved under `<output-dir>/inputs/`. Chunking strategy decided. Codegraph run state recorded.
 

@@ -27,6 +27,8 @@ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -
 _OTHER_COMMANDS = {
     "sc:build",
     "sc:git",
+    "sc:graph",
+    "sc:impact",
     "sc:spawn",
     "sc:index",
     "sc:index-repo",

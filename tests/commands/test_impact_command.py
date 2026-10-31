@@ -42,20 +42,52 @@ _SKILL_TOOLS = {
     "mcp__codegraph__codegraph_impact",
 }
 _TOKENS = {
-    "graph:absent", "graph:unlisted", "graph:disabled", "graph:not_initialized",
-    "graph:foreign_index", "graph:stale", "graph:version_mismatch",
-    "graph:provenance_unproven", "graph:empty", "graph:ambiguous", "graph:truncated",
-    "graph:parse_failed", "graph:unresolved", "graph:telemetry_on",
+    "graph:absent",
+    "graph:unlisted",
+    "graph:disabled",
+    "graph:not_initialized",
+    "graph:foreign_index",
+    "graph:stale",
+    "graph:version_mismatch",
+    "graph:provenance_unproven",
+    "graph:empty",
+    "graph:ambiguous",
+    "graph:truncated",
+    "graph:parse_failed",
+    "graph:unresolved",
+    "graph:telemetry_on",
 }
 _MUTATING = re.compile(
     r"codegraph (?:init|index|sync|uninit|unlock|upgrade|install|uninstall|telemetry (?:on|off))"
 )
 _CONTRACT_FIELDS = [
-    "schema_version", "command", "status", "caller", "output_dir", "report_path",
-    "contract_path", "input.mode", "input.symbols", "input.diff_base", "input.changed_files",
-    "input.depth", "input.limit", "input.tests", "input.test_depth", "readiness", "advisory",
-    "degraded", "symbols[]", "ambiguous[]", "unmapped_files[]", "dependents[]",
-    "dependents_omitted", "call_sites", "tests[]", "selection_source", "errors[]",
+    "schema_version",
+    "command",
+    "status",
+    "caller",
+    "output_dir",
+    "report_path",
+    "contract_path",
+    "input.mode",
+    "input.symbols",
+    "input.diff_base",
+    "input.changed_files",
+    "input.depth",
+    "input.limit",
+    "input.tests",
+    "input.test_depth",
+    "readiness",
+    "advisory",
+    "degraded",
+    "symbols[]",
+    "ambiguous[]",
+    "unmapped_files[]",
+    "dependents[]",
+    "dependents_omitted",
+    "call_sites",
+    "tests[]",
+    "selection_source",
+    "errors[]",
 ]
 _FAILURES = [
     ("codegraph absent", "graph:absent"),
@@ -74,9 +106,18 @@ _FAILURES = [
     ("output dir unwritable", "failed"),
 ]
 _HEADINGS = [
-    "## Summary", "## How to read this", "## Readiness", "## Input", "## Definitions",
-    "## Production dependents", "## Test dependents", "## Unclassified dependents",
-    "## Tests (advisory)", "## Unmapped files", "## Limits", "## Degraded and fallbacks",
+    "## Summary",
+    "## How to read this",
+    "## Readiness",
+    "## Input",
+    "## Definitions",
+    "## Production dependents",
+    "## Test dependents",
+    "## Unclassified dependents",
+    "## Tests (advisory)",
+    "## Unmapped files",
+    "## Limits",
+    "## Degraded and fallbacks",
 ]
 
 
@@ -104,7 +145,15 @@ def test_impact_command_frontmatter():
     fm = _frontmatter(_COMMAND)
     assert fm["name"] == "impact"
     assert "codegraph" in fm["mcp-servers"]
-    for flag in ("--diff", "--depth", "--limit", "--tests", "--test-depth", "--output-dir", "--caller"):
+    for flag in (
+        "--diff",
+        "--depth",
+        "--limit",
+        "--tests",
+        "--test-depth",
+        "--output-dir",
+        "--caller",
+    ):
         assert flag in fm["argument-hint"], flag
 
 
@@ -155,7 +204,9 @@ def test_impact_guide_lookup_line(path):
 
 def test_impact_runtime_surface_dual_surface():
     text = _text(_SKILL)
-    installed = text.index("~/.claude/skills/sc-reflect-protocol/refs/runtime-surface.md")
+    installed = text.index(
+        "~/.claude/skills/sc-reflect-protocol/refs/runtime-surface.md"
+    )
     project = text.index("`.claude/skills/sc-reflect-protocol/refs/runtime-surface.md`")
     assert installed < project
 
@@ -210,10 +261,64 @@ def test_impact_status_only_cli_transport_before_grep_fallback():
     cli = steps.index("Status-only branch transport")
     grep = steps.index("| 9 | Grep fallback")
     assert cli < grep
-    for form in ("codegraph query", "codegraph node", "codegraph callers", "codegraph impact"):
+    for form in (
+        "codegraph query",
+        "codegraph node",
+        "codegraph callers",
+        "codegraph impact",
+    ):
         assert form in steps[cli:grep], form
 
 
 def test_impact_example_uses_placeholders_only():
     text = _text(_SKILL)
     assert "install_codebase_memory_mcp" not in text
+
+
+_SKILLS = _REPO / "src" / "superclaude" / "skills"
+
+# (caller file, its --caller value): every caller that invokes sc:impact-protocol.
+_IMPACT_CALLERS = [
+    ("sc-reflect-protocol/SKILL.md", "sc-reflect-protocol"),
+    ("sc-implement-protocol/SKILL.md", "sc-implement-protocol"),
+    ("sc-pr-submit-protocol/SKILL.md", "sc-pr-submit-protocol"),
+    ("sc-pr-submit-protocol/refs/troubleshoot-dispatch.md", "sc-pr-submit-protocol"),
+    ("sc-troubleshoot-protocol/SKILL.md", "sc-troubleshoot-protocol"),
+    ("sc-auggie-review-protocol/SKILL.md", "sc-auggie-review-protocol"),
+    ("sc-task-protocol/SKILL.md", "sc-task-protocol"),
+]
+
+
+@pytest.mark.parametrize(("rel", "caller"), _IMPACT_CALLERS)
+def test_impact_callers_wired(rel, caller):
+    text = _text(_SKILLS / rel)
+    assert "Skill sc:impact-protocol" in text, rel
+    assert f"--caller {caller}" in text, rel
+    # Every caller treats a blocked or failed run like graph:absent.
+    assert "`status: blocked|failed` counts as `graph:absent`" in text, rel
+
+
+def test_impact_troubleshoot_wave1_does_not_call_impact():
+    text = _text(_SKILLS / "sc-troubleshoot-protocol" / "SKILL.md")
+    wave1 = text.split("### Wave 1: Tier 1", 1)[1].split("\n### Wave 6:", 1)[0]
+    assert "sc:impact-protocol" not in wave1
+    wave6 = text.split("\n### Wave 6:", 1)[1].split("\n## ", 1)[0]
+    assert "Skill sc:impact-protocol" in wave6
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        "sc-task-protocol/SKILL.md",
+        "sc-pr-submit-protocol/SKILL.md",
+        "sc-troubleshoot-protocol/SKILL.md",
+        "sc-auggie-review-protocol/SKILL.md",
+        "sc-implement-protocol/SKILL.md",
+        "sc-reflect-protocol/SKILL.md",
+    ],
+)
+def test_impact_callers_may_invoke_skill(rel):
+    fm = _frontmatter(_SKILLS / rel)
+    tools = {t.strip() for t in fm.get("allowed-tools", "").split(",")}
+    if fm.get("allowed-tools"):
+        assert "Skill" in tools, rel

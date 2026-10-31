@@ -1,0 +1,22 @@
+**Phase 3 (adopt codegraph), group E: reflect: done**
+
+- Commit: 57d9affc on branch feat/codegraph-adoption (reflect: eb806c2e and fix f8b356c9)
+- Changed:
+  - src/superclaude/skills/sc-reflect-protocol/SKILL.md (allowed tools gain six codegraph tools; section 6 renamed "Code-graph evidence chain" with codegraph above the unchanged Grep/Read floor; Step 1B.3 calls /sc:impact and logs production and test caller counts separately while the severity rule keeps today's count; reviewer and reuse-auditor briefs carry the index state; fail-open and error-table rows for codegraph)
+  - src/superclaude/skills/sc-reflect-protocol/refs/runtime-surface.md, coverage-mapping.md, reviewer-spec.md, reflection-rubric.md, cost-profile.yaml
+  - src/superclaude/commands/reflect.md and its plugin twin (codegraph in mcp-servers, tier table, MCP integration and tool list)
+  - tests/skills/test_codegraph_adoption.py (17 reflect tests added; 50 in the file)
+  - tests/cli/reflect/test_verdict_mapping.py (new test) and tests/cli/reflect/fixtures/degraded_graph_absent.yaml (new fixture)
+- Checks run and result:
+  - `uv run pytest tests/skills/test_codegraph_adoption.py tests/skills/test_reflect_input_snapshot.py tests/cli/reflect tests/roadmap/test_threshold_registry.py`: PASS, 357 passed, 1 xpassed.
+  - `uv run pytest tests/cli/reflect`: PASS, 270 passed, 1 xpassed; the new test shows a contract with `graph:absent` and `graph:not_initialized` gets the same PASS verdict, exit code and reason as the same contract without them.
+  - `git diff --name-only <merge-base> -- src/superclaude/cli/reflect/contract.py` prints nothing: the reflect contract code is untouched.
+  - Independent review of the reflect task: first pass found one blocking issue (the new reviewer-brief field had no place inside the brief's closed three-section shape); fixed in f8b356c9 by making it the first entry of the "Grounding hunks" section, re-review compliant. The review of the test task runs after this comment.
+- Decisions made on my own:
+  - After review (group D): /sc:impact never counts the queried symbol as its own dependent.
+  - Reflect runs the codegraph readiness check once in Wave 0 and calls /sc:impact as a separate counts-only first step of Step 1B.3.
+  - A stale index gives reflect leads only; nothing stale feeds a count, severity or verdict.
+  - refs/deviation-taxonomy.md is unchanged: it has no symbol or caller lookup sentence left.
+  - Both reflect.md copies get the same four edits, because the plugin copy holds those sentences word for word.
+- Left for later / blocked: none
+- Next group: F, callers of /sc:impact and routing

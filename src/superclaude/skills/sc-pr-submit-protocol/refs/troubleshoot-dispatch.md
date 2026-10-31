@@ -49,3 +49,16 @@ FSM `S3_FIXING` state (spec §5.1, `state-machine.md`). The dispatch here drives
 working-tree edit is applied by `sc:pr-submit`, not by troubleshoot. C3b also inherits troubleshoot's
 **user-gated, never-auto-execute** discipline, which dovetails with the autonomy ceiling and the
 `needs_human_decision` override (FR-4.4).
+
+## Impact warning before a fix (Wave 4)
+
+Before `S3_FIXING` applies the cycle's first edit, invoke
+
+> Skill sc:impact-protocol
+
+with `<symbols the fix edits> --depth 2 --output-dir <output-dir>/impact/round-<n> --caller sc-pr-submit-protocol`
+and read only `status`, `degraded`, `symbols[].prod.total`, `symbols[].transitive.count` and `report_path`
+from its `return-contract.yaml`. Print one warning line per symbol (production dependents and
+transitive count, with `report_path`) and copy `degraded` into the run-log. This is a warning only: it
+changes no severity, no route, no gate and no edit, and `status: blocked|failed` counts as `graph:absent`
+(continue natively).
