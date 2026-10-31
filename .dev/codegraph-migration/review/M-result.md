@@ -12,7 +12,7 @@ Findings that change the original outline:
 - Bot PRs opened with `GITHUB_TOKEN` get approval-gated CI, so the monitor dispatches `test.yml` on the bump branch.
 - `actions/checkout` keeps the token in `.git/config` by default; the workflow uses `persist-credentials: false` because `prove` runs the third-party binary.
 - Release notes can exceed the PR body limit (v1.6.2: 76,281 characters); bodies are budgeted at 60,000 characters with links.
-- Whether Coder's codegraph image bake reads `VERSION`/`SHA256` from `install_codegraph.py` is UNVERIFIED (human item 6).
+- Coder's codegraph image bake hard-codes v1.6.2 and both linux SHA-256 values instead of reading `install_codegraph.py`, so Coder's next IronClaude-SHA bump after a codegraph bump needs a Coder-side edit (`.dev/codegraph-migration/review/M-open-questions-analysis.md`, question 2; spec fact 6 and human item 6).
 
 ## Package
 
@@ -49,7 +49,7 @@ PR #329 merged to `master`, the executor branching from `master` after that. **M
 ## Open items
 
 - Items the decision debates flagged for the user (none blocks execution): spec `## Decisions`, last paragraph.
-- UNVERIFIED: whether `gh attestation verify` in Actions needs `attestations: read` (T7 dry run shows it; the fix path is in the spec).
-- UNVERIFIED: Coder's bake reading the pin from `install_codegraph.py` (human item 6).
+- Resolved: `gh attestation verify` in Actions does not need `attestations: read` for colbymchenry/codegraph's public attestations (`.dev/codegraph-migration/review/M-open-questions-analysis.md`, question 1; spec §2.3).
+- Resolved: Coder's bake hard-codes the pin (`.dev/codegraph-migration/review/M-open-questions-analysis.md`, question 2); human item 6 is now the Coder-side action.
 - The planning branch is local only (not pushed, per this task's constraints); the setup block must run in this clone, or someone pushes the branch first.
 - One `python3` call (not `uv run`) edited `return-contract.yaml` during this task; it changed no tracked file.
