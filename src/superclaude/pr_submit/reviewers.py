@@ -167,18 +167,17 @@ def codex_review_state(
         body = comment.get("body")
         if not isinstance(body, str) or _CODEX_TOKEN not in body:
             continue
-        marker, updated = (
-            _codex_marker(comment),
-            _timestamp(_comment_updated_at(comment)),
-        )
-        if marker is None or updated is None:
-            return None  # recognisable but invalid evidence never falls back
-        candidates.append((updated, marker))
+        updated = _timestamp(_comment_updated_at(comment))
+        if updated is None:
+            return None  # an unordered candidate could be the newest: keep polling
+        candidates.append((updated, _codex_marker(comment)))
     if not candidates:
         return None
+    # The newest marker decides (A3). An older malformed marker is superseded;
+    # a newest marker that is malformed, or a tie at the newest time, polls.
     latest = max(updated for updated, _ in candidates)
     newest = [marker for updated, marker in candidates if updated == latest]
-    if len(newest) != 1:
+    if len(newest) != 1 or newest[0] is None:
         return None
     marker = newest[0]
     if marker["status"] != "completed" or _sha(marker["commit_sha"]) != head:

@@ -232,6 +232,20 @@ def test_a3_newest_codex_marker_wins(findings336):
     assert classify_codex(findings336, CONTRACT) == "polling"  # newest is running
 
 
+def test_a3_older_malformed_marker_does_not_block_a_newer_valid_one(findings336):
+    """PR 337 review: a malformed older marker is superseded by a newer valid one."""
+    older = copy.deepcopy(summary(findings336))
+    older["id"] += 1
+    older["updated_at"] = "2026-10-31T15:00:00Z"
+    older["body"] = older["body"].replace('{"code_review"', '{"code_review" x', 1)
+    findings336["comments"].insert(0, older)
+    assert classify_codex(findings336, CONTRACT) == "findings"
+    # A malformed marker that is the newest still polls (never falls back).
+    older["updated_at"] = "2026-10-31T16:30:00Z"
+    findings336["observed_at"] = "2026-10-31T23:00:00Z"
+    assert classify_codex(findings336, CONTRACT) == "polling"
+
+
 # --- 4. reviewer detection and the merge -------------------------------------------
 
 
