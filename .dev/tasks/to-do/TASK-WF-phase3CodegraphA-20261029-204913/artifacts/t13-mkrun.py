@@ -2,7 +2,8 @@
 
 usage: mkrun.py <Makefile> <target>
 Each logical recipe line (backslash continuations joined) runs in its own
-`/bin/sh -c`; a leading `@` only suppresses the echo; `$$` becomes `$`.
+`<SHELL> -c`, where SHELL is the Makefile's `SHELL :=` value (default `/bin/sh`;
+this repository sets `/bin/bash`); a leading `@` only suppresses the echo; `$$` becomes `$`.
 Stops at the first non-zero line and exits with its status (make's default).
 Refuses targets with prerequisites or recipes that use make variables `$(...)`
 or `${...}`, because those need real make.

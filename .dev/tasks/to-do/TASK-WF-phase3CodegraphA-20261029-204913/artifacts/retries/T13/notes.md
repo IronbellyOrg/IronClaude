@@ -1,0 +1,2 @@
+9c7fb5c2f278ff95bb7ac6a7340852a54987fd3c
+A1 r1-1 F2.1 minor .dev/codegraph-migration/experiments/P3-T11-smoke.md:97 chk=n,n,n,n The real /sc:troubleshoot command loaded the stale installed skill (no tier1-callers.md); the tier1-callers.md evidence comes from a session told to follow the dev copy. Re-run /sc:troubleshoot "install_core_files skips files" --depth quick once after merge and superclaude install.
