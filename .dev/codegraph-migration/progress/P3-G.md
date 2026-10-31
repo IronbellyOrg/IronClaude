@@ -20,6 +20,11 @@
   - The Task 13 commit also holds CHANGELOG.md and the user guide, which that task creates.
   - Monitor gate VG-2 ran the plan's targeted test set, not the whole suite (forbidden by the plan); the Phase 3 test files were formatted so the format gate passes.
   - The review fix also corrects the shared guide's CS2 pattern, so the guide and `/sc:impact` stay the same.
+  - After the first live smoke, `Edit` was added to the allowed tools of the `/sc:impact` and `/sc:graph` skills (each may edit only its own output files), because a stub-then-edit report was denied.
+  - Pre-PR check: no rebase was needed (0 commits behind `origin/master`), so the Task 13 checks were not re-run.
+  - The monitor's diagnosis of the review findings ran the installed (pre-Phase-3) troubleshoot skill, whose analyst roster rejects the synced agent, so its waves ran inline and its diagnosability verdict was capped at partial; the diagnosis itself was Tier 1 at confidence 0.92.
+  - The record commit (`docs(codegraph): record PR and Coder addendum links`) departs from the source plan's "no new commit unless the monitor pushes fixes", because the plan also requires a commit after every task.
+  - The final monitor run on the record commit ended `terminal_timeout`: Augment does not review a docs-only push on its own and had already reviewed the PR, so no re-request was sent; CI on that commit passed (6 checks).
 - Left for later / blocked:
   - Human: merge PR 336.
   - After merge and `superclaude install`, run `/sc:troubleshoot "install_core_files skips files" --depth quick` once to confirm the installed command writes `tier1-callers.md`.
