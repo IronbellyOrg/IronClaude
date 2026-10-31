@@ -112,7 +112,7 @@ swarm/lenses/templates/troubleshoot-hypothesis-output.md user_settings_defaults.
         """
 README.md __init__.py adversarial.md agent.md analyze.md auggie-review.md
 brainstorm.md build.md business-panel.md cleanup-audit.md cleanup.md cli-eval.md
-cli-portify.md design.md document.md explain.md git.md graph.md help.md implement.md
+cli-portify.md design.md document.md explain.md git.md graph.md help.md impact.md implement.md
 improve.md index-repo.md index.md init-lite.md load.md pm.md post-release.md
 pr-submit.md recommend.md reflect.md release-split.md research.md
 review-translation.md roadmap.md save.md spawn.md spec-panel.md swarm-wizard.md
@@ -232,7 +232,8 @@ sc-cli-portify-protocol/refs/pipeline-spec.md sc-crash-recovery/SKILL.md
 sc-crash-recovery/refs/investigators.md sc-crash-recovery/refs/pipelines.md
 sc-crash-recovery/refs/report-template.md
 sc-crash-recovery/scripts/bootstrap_scan.sh
-sc-crash-recovery/scripts/parse_session_log.py sc-implement-protocol/SKILL.md
+sc-crash-recovery/scripts/parse_session_log.py sc-impact-protocol/SKILL.md
+sc-implement-protocol/SKILL.md
 sc-implement-protocol/refs/ledger.md sc-implement-protocol/refs/managed-workspace.md
 sc-implement-protocol/refs/qa.md sc-implement-protocol/refs/retry.md
 sc-implement-protocol/scripts/archive_workspace.py

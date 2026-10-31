@@ -27,9 +27,9 @@ _COMMANDS = _REPO / "src/superclaude/commands"
 _SKILLS = _REPO / "src/superclaude/skills"
 _PACKAGE = "TASK-RESEARCH-recommend-refresh-20261024-044336"
 # Commands shipped after the frozen routing-refresh research package was written:
-# issue #323 (codegraph adoption, Phase 3) adds /sc:graph. The package is frozen,
-# so the shipped set is compared minus these additions.
-_POST_REFRESH_ADDITIONS = {"graph"}
+# issue #323 (codegraph adoption, Phase 3) adds /sc:graph and /sc:impact. The
+# package is frozen, so the shipped set is compared minus these additions.
+_POST_REFRESH_ADDITIONS = {"graph", "impact"}
 
 _TOKEN_RE = re.compile(r"`/([a-z][a-z0-9:-]*)")
 _FLAG_RE = re.compile(r"--[a-z][a-z0-9-]*")

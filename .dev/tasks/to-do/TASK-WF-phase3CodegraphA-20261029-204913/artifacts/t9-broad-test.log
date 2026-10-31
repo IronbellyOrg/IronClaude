@@ -1,0 +1,62 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 1107 items
+
+tests/commands/test_auggie_review_remediation_chain.py ............      [  1%]
+tests/commands/test_auggie_review_revagent.py ............               [  2%]
+tests/commands/test_graph_command.py ................................... [  5%]
+...............                                                          [  6%]
+tests/commands/test_help_command.py ......                               [  7%]
+tests/commands/test_impact_command.py .................................. [ 10%]
+.........................                                                [ 12%]
+tests/commands/test_research_command.py ..                               [ 12%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 13%]
+tests/commands/test_workflow_command.py .................                [ 14%]
+tests/core/test_claude_md_routing_block.py ......                        [ 15%]
+tests/core/test_codegraph_guide.py ...............                       [ 16%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 19%]
+....................................................                     [ 23%]
+tests/core/test_research_config.py ....                                  [ 24%]
+tests/recommend/test_best_model.py ........                              [ 24%]
+tests/recommend/test_cache.py ...............                            [ 26%]
+tests/recommend/test_cli_registration.py ...                             [ 26%]
+tests/recommend/test_dispatch.py ................                        [ 27%]
+tests/recommend/test_eval_pipeline.py .....                              [ 28%]
+tests/recommend/test_plugin_eval.py ........                             [ 29%]
+tests/recommend/test_routing_refresh.py ................................ [ 31%]
+........................................................................ [ 38%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+                                                                         [ 51%]
+tests/recommend/test_telemetry.py .........                              [ 52%]
+tests/skills/test_brainstorm_protocol.py .                               [ 52%]
+tests/skills/test_codegraph_adoption.py ................................ [ 55%]
+.                                                                        [ 55%]
+tests/skills/test_implement_adviser_family.py ...                        [ 55%]
+tests/skills/test_implement_retry_citation.py .....................      [ 57%]
+tests/skills/test_implement_retry_revert.py ............................ [ 60%]
+..........................                                               [ 62%]
+tests/skills/test_implement_severity_replay.py ............              [ 63%]
+tests/skills/test_implement_severity_static.py ....................      [ 65%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 65%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 66%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 67%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 69%]
+......                                                                   [ 69%]
+tests/skills/test_task_builder_merge.py ................................ [ 72%]
+....................................                                     [ 75%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 78%]
+...............................................                          [ 82%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 82%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 83%]
+tests/skills/test_workflow_archive.py .................................. [ 86%]
+........................................................................ [ 92%]
+.......................................................................  [ 99%]
+tests/cli/test_how_we_work_install.py .......                            [100%]
+
+============================ 1107 passed in 13.53s =============================
