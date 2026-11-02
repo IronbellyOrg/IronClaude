@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeTheAnyIssu-20261102-053741
+plan_path: ./TASK-WF-removeTheAnyIssu-20261102-053741.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261102054021/REPORT.md
+unresolved:
+  - "Pre-review 3 of 3 (the last review allowed by the 2-fix-cycle cap) found 10 blocking findings B3-01..B3-10, listed in the report. Cap reached: escalated to the user with the open blocking findings."
+  - "User decision 2026-11-02 08:41 UTC (coordinator msg_9d0fe67f82c7): B3-01..B3-10 added to the plan by hand (Tasks 2, 6, 19, 20 and text-anchored acceptance checks), site sweep recorded in .dev/review-severity-rule/site-sweep.md with edits in .dev/review-severity-rule/sweep-edits.yaml; no fourth plan review; execute with /sc:implement."

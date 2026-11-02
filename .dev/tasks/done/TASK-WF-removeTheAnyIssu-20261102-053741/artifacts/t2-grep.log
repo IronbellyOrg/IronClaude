@@ -1,0 +1,21 @@
+$ git grep forbidden phrases in rf-qa.md
+rc=1 (1 = no match)
+S-line pragmatic:225 present
+S-line pragmatic:226 present
+S-line pragmatic:227 present
+S-line pragmatic:229 present
+$ rule 10
+547:10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. All blocking findings must be resolved; minor findings are recorded as notes.
+$ verdict bullets
+180:- **PASS** — No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed as notes. Green light for synthesis.
+181:- **FAIL** — Any CRITICAL or IMPORTANT gap exists. List each with a specific remediation action. All blocking gaps must be resolved before proceeding; MINOR gaps never fail the gate.
+$ R-008
+r008_rc=1 (1 = nothing printed)
+$ invariant test one-LOW
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:345:    def test_one_low_finding_scores_pass(self):
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:464:        one_low = _score_rf_qa_verdict(FIX_ONE_LOW.read_text(encoding="utf-8"))
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:466:            "PASS" if (bullets_ok and one_low == "PASS") else "FAIL"
+$ other importers
+tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md
+tests/audit/test_invariant_preservation_NFR_6_through_10.py
+tests/audit/test_nfr_conv_9_zero_trust.py

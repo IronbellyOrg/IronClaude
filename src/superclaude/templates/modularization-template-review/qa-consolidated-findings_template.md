@@ -99,7 +99,7 @@ WRITING DISCIPLINE:
 - **Topic:** {{RF_PLACEHOLDER:TOPIC}}
 - **Date:** {{RF_PLACEHOLDER:DATE}}
 - **Phase:** {{RF_PLACEHOLDER:PHASE}}
-- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Source Lens Reports
 

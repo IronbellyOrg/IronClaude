@@ -1161,7 +1161,7 @@ Assume everything is wrong until you verify it.
 3. Scope coverage -- every key product area from research-notes examined
 4. Documentation cross-validation -- doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
 5. Contradiction resolution -- no unresolved conflicting findings
-6. Gap severity -- Critical gaps block synthesis, Important reduce quality, Minor are low priority
+6. Gap severity -- Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
 7. Depth appropriateness -- matches tier '{config.tier}'
 8. User flow coverage -- key user interactions documented
 9. Integration point coverage -- external dependencies documented
@@ -1170,7 +1170,7 @@ Assume everything is wrong until you verify it.
 
 VERDICTS:
 - PASS: Green light for synthesis
-- FAIL: ALL findings must be resolved. Only PASS or FAIL -- no conditional pass.
+- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL -- no conditional pass.
 
 Zero tolerance -- if you can't verify it, it fails.
 
@@ -1275,8 +1275,8 @@ CHECKLIST:
 8. Content rules compliance (tables over prose, no code reproductions)
 
 VERDICTS:
-- PASS: All synth files meet quality standards
-- FAIL: Issues found with specific fixes listed
+- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found with specific fixes listed; MINOR issues alone are listed as notes and do not fail
 
 EXIT_RECOMMENDATION: CONTINUE
 """
@@ -1328,8 +1328,8 @@ PROCESS:
 12. No hallucinated file paths
 
 VERDICTS:
-- PASS: All synth files meet quality standards
-- FAIL: Issues found (list with fixes, note which were fixed in-place)
+- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list with fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail
 
 EXIT_RECOMMENDATION: CONTINUE
 """

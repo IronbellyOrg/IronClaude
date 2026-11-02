@@ -380,11 +380,11 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
 
 | Gate Type | Max Cycles | After Max |
 |-----------|-----------|-----------|
-| research-gate | 3 | HALT and escalate |
-| synthesis-gate | 2 | Open Questions |
-| report-validation | 3 | HALT and escalate |
-| task-integrity | 2 | Open Questions |
-| Any qualitative gate | 3 | HALT and escalate |
+| research-gate | 2 | HALT and escalate |
+| synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
+| report-validation | 2 | HALT and escalate |
+| task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
+| Any qualitative gate | 2 | HALT and escalate |
 
 **Halt-precedence rule (COMP-002-M5, applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression -> monotonicity -> hard-cap -> proceed` (per FR-CONV.5 / API-004). On every cycle transition `n -> n+1` within a gate, the regression halt-message `Regression detected on Item X.Y, previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead's Fix Cycles rule`). Per-gate counters are independent and NEVER collapsed across gates: research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
 

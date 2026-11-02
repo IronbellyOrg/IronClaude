@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeTheAnyIssu-20261101-225338
+plan_path: ./TASK-WF-removeTheAnyIssu-20261101-225338.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "SUPERSEDED before its pre-review: do not execute this package. Its source labels requirements R1-R10, which the reflect requirement-ID regex (R-NNN) does not parse, so the pre-review could not map them to tasks. A regenerated package with R-001..R-010 ids cited in every task replaces it (same content)."

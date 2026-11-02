@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeTheAnyIssu-20261102-042031
+plan_path: ./TASK-WF-removeTheAnyIssu-20261102-042031.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md
+unresolved:
+  - "Pre-review (review 2 of 3) stopped on input_drift (inventory.md recorded the coordinator's cli-portify decision) after finding 7 blocking findings P2-B1..P2-B7. Do not execute this package; it is superseded by the fix-cycle-2 package."

@@ -92,12 +92,12 @@ The orchestrator (skill session or team lead) is responsible for:
 0. **Adversarial stance**: Begin from adversarial position. Assume mistakes were made. Your job is to find them. A review that finds 0 issues should be treated with suspicion, not satisfaction.
 
 <!-- SPECIALIZATION: DOMAIN_PRINCIPLES — Domain-specific verification principles. Number sequentially starting from 1. Examples from existing QA agents:
-  - rf-qa (10 principles total): Zero tolerance, Evidence-based, Clear documentation, Actionable feedback, Consistent standards, Source truth is king, Complete means complete, NO LENIENCY, Self-audit
+  - rf-qa (10 principles total): Zero tolerance for blocking defects, Evidence-based, Clear documentation, Actionable feedback, Consistent standards, Source truth is king, Complete means complete, NO LENIENCY, Self-audit
   - rf-qa-qualitative (12 principles total): Read as the audience would, Scope awareness, Internal consistency, Logical flow, No red flags, Actionable feedback, Context matters, NO LENIENCY, Ban N/A, Exhaustive verification, Self-audit
   Add as many domain-specific principles as needed for this agent's verification scope. -->
 [1-N. Domain-specific verification principles appropriate for this agent's QA focus]
 
-N+1. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS
+N+1. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS. Grade what you find by the review severity rule: an unverified or 'probably fine' claim is blocking; a cosmetic or wording finding is minor.
 
 <!-- GUIDANCE: Additional domain-specific principles may be placed here, between NO LENIENCY and Self-audit. rf-qa-qualitative uses this pattern: principles 9 (Ban N/A) and 10 (Exhaustive verification) appear AFTER NO LENIENCY (principle 8) and BEFORE Self-audit (principle 11). The only hard constraint is that Self-audit is always the LAST principle. -->
 [N+2 through M. Optional additional domain-specific principles — see GUIDANCE above]
@@ -137,6 +137,7 @@ M+1. **Self-audit**: Before writing your verdict, ask: 'If I told the user I fou
 - **CRITICAL:** [Domain-specific definition of critical severity in this phase — e.g., "Missing entire required section", "Fabricated evidence"]
 - **IMPORTANT:** [Domain-specific definition of important severity — e.g., "Incomplete coverage of a required area", "Inconsistent cross-references"]
 - **MINOR:** [Domain-specific definition of minor severity — e.g., "Formatting issues", "Unclear but not incorrect phrasing"]
+- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
 
 <!-- SPECIALIZATION: HAS_SELF_AUDIT — Include if this agent uses deep adversarial depth (multi-persona reading). rf-qa-qualitative includes per-phase self-audit; rf-qa does not. -->
 ### Self-Audit
@@ -153,8 +154,13 @@ Read through these lenses simultaneously:
 - **[Persona 3]:** [What this persona cares about — e.g., "QA Engineer: Can I write test cases from these requirements?"]
 
 ### Verdict
-- **PASS** — All checks pass, no issues of any severity.
-- **FAIL** — Any issues exist (CRITICAL, IMPORTANT, or MINOR). List each with specific remediation. ALL issues must be resolved before proceeding — no severity level is exempt.
+- **PASS** — No CRITICAL or IMPORTANT issues; any MINOR issues are listed as notes.
+- **FAIL** — Any CRITICAL or IMPORTANT issue exists. List each with specific remediation. All blocking issues must be resolved before proceeding; MINOR issues never fail the review.
+
+Review severity rule (applies to every verdict):
+- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
+- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
+- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
 
 ---
 
@@ -169,19 +175,19 @@ Read through these lenses simultaneously:
 ### Process
 
 1. Read the previous QA report (path provided in prompt)
-2. For each issue flagged in the previous report:
+2. For each blocking issue flagged in the previous report (minor findings are notes and are not rechecked):
    - Verify the fix was applied
    - Verify the fix is correct (not just present)
-   - If the fix introduced new issues, flag them
+   - If the fix introduced new blocking issues, flag them (record new minor findings as notes)
 3. Produce an updated QA report with:
-   - Previously failed items that now pass
-   - Previously failed items that still fail
-   - New issues introduced by fixes
+   - Previously failed blocking items that now pass
+   - Previously failed blocking items that still fail
+   - New blocking issues introduced by fixes (new minor findings listed as notes)
 4. Updated verdict: PASS / FAIL
 
 ### Rules
 
-- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions.
+- Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. Do NOT convert unfixed findings to Open Questions.
 - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
 
 ### Fixing Issues (When Authorized)
@@ -207,7 +213,7 @@ If `fix_authorization: false`:
 **Topic:** [topic]
 **Date:** [today]
 **Phase:** [phase-1 / phase-2 / ... / fix-cycle]
-**Fix cycle:** [1 / 2 / 3 / N/A]
+**Fix cycle:** [1 / 2 / N/A]
 
 ---
 
@@ -259,7 +265,7 @@ After writing your QA report:
    SendMessage:
      type: "message"
      recipient: "team-lead"
-     content: "[QA Type Prefix] [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] issues before proceeding.' If PASS: 'Green light to proceed.'] Report: [path]."
+     content: "[QA Type Prefix] [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] blocking (CRITICAL/IMPORTANT) issues before proceeding; MINOR issues are notes.' If PASS: 'Green light to proceed.'] Report: [path]."
      summary: "[QA Type Prefix] [phase] complete — [PASS/FAIL]"
    ```
    <!-- SPECIALIZATION: QA_TYPE_PREFIX — The prefix used in completion messages. Examples: "QA" (rf-qa), "Qualitative QA" (rf-qa-qualitative). Replace [QA Type Prefix] with the agent's domain prefix. -->
@@ -317,7 +323,7 @@ For qualitative checks that involve judgment calls (e.g., "is the audience appro
 
 ---
 
-<!-- CLASSIFICATION: SUBSTITUTE — Shared boilerplate rules at template positions (1, N+1, N+2, N+3) copied verbatim from rf-qa.md. Mapping: template position 1 = rf-qa.md rule 1 (incremental writing), template position N+1 = rf-qa.md rule 4 (fix then verify), template position N+2 = rf-qa.md rule 9 (report honestly), template position N+3 = rf-qa.md rule 10 (max 3 fix cycles). Domain-specific rules (2 through N) are placeholders for per-agent customization. -->
+<!-- CLASSIFICATION: SUBSTITUTE — Shared boilerplate rules at template positions (1, N+1, N+2, N+3) copied verbatim from rf-qa.md. Mapping: template position 1 = rf-qa.md rule 1 (incremental writing), template position N+1 = rf-qa.md rule 4 (fix then verify), template position N+2 = rf-qa.md rule 9 (report honestly), template position N+3 = rf-qa.md rule 10 (max 2 fix cycles). Domain-specific rules (2 through N) are placeholders for per-agent customization. -->
 ## Critical Rules
 
 1. **NEVER one-shot your output file** — Create the file immediately with a header (Write), then append findings incrementally section by section (Edit). Never accumulate the entire report in context and write it in one shot. One-shotting hits max token output limits and freezes the process. This is the #1 failure mode for all agents.
@@ -332,4 +338,4 @@ N+1. **Fix then verify** — If authorized to fix, always verify the fix worked.
 
 N+2. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
 
-N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
+N+3. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. All blocking findings must be resolved; minor findings are recorded as notes.

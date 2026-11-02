@@ -279,7 +279,7 @@ Apply the full 10-item Research Gate checklist independently.
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
 4. Documentation cross-validation — all doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
 5. Contradiction resolution — no unresolved conflicting findings
-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
+6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
 7. Depth appropriateness — matches the tier expectation
 8. Integration point coverage — connection points documented
 9. Pattern documentation — code patterns and conventions captured
@@ -288,7 +288,7 @@ Apply the full 10-item Research Gate checklist independently.
 VERDICTS:
 
 - PASS: Green light for synthesis
-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
+- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
@@ -337,8 +337,8 @@ PROCESS:
 
 VERDICTS:
 
-- PASS: All synth files meet quality standards
-- FAIL: Issues found (list with specific fixes, note which were fixed in-place)
+- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail
 
 ```
 

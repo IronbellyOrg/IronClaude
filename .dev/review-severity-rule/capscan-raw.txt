@@ -1,0 +1,160 @@
+plugins/superclaude/commands/reflect.md:157: (verification run)**: UC-2 §6.1 step 5 / 5.5 — the project's own linter 
+plugins/superclaude/skills/confidence-check/confidence.ts:180:    // 3. Verify no helper modules pro
+plugins/superclaude/skills/confidence-check/confidence.ts:198:    // 3. Check not reinventing provid
+plugins/superclaude/skills/confidence-check/confidence.ts:216:    // 3. Verify approach matches comm
+plugins/superclaude/skills/confidence-check/confidence.ts:234:    // 3. Confirm fix aligns with best
+src/superclaude/agents/rf-analyst.md:74: Fix Cycles rule` fix-cycle escalation (max-3-cycles HALT-and-ask-user contract) w
+src/superclaude/agents/rf-qa-qualitative.md:83: Fix Cycles rule` fix-cycle escalation (max-3-cycles HALT-and-ask-user contract) w
+src/superclaude/agents/rf-qa-qualitative.md:797:- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execu
+src/superclaude/agents/rf-qa-qualitative.md:827:**Fix cycle:** [1 / 2 / 3 / N/A]
+src/superclaude/agents/rf-qa-qualitative.md:940:d/low-confidence items, then recompute. Maximum 3 additional rounds.
+src/superclaude/agents/rf-qa-qualitative.md:941:- After 3 rounds still below 95%: must explici
+src/superclaude/agents/rf-qa-qualitative.md:982:10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, 
+src/superclaude/agents/rf-qa.md:82: Fix Cycles rule` fix-cycle escalation (max-3-cycles HALT-and-ask-user contract) w
+src/superclaude/agents/rf-qa.md:390:- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execu
+src/superclaude/agents/rf-qa.md:393: (FR-CONV.5 / PR-02 -- strengthens this 3-fix-cycle):**
+src/superclaude/agents/rf-qa.md:395: wrapper layered on top of the existing 3-fix-cycle above. No new loop or stage i
+src/superclaude/agents/rf-qa.md:395:ted in strict order BEFORE the existing 3-cycle cap fires.
+src/superclaude/agents/rf-qa.md:403:ence (e.g., `|F|=5,4`) continues to the 3-cycle cap.
+src/superclaude/agents/rf-qa.md:406:y -- they never loosen it. The existing 3-cycle hard cap at `rf-team-lead's F
+src/superclaude/agents/rf-qa.md:418:**Fix cycle:** [1 / 2 / 3 / N/A]
+src/superclaude/agents/rf-qa.md:498:d/low-confidence items, then recompute. Maximum 3 additional rounds.
+src/superclaude/agents/rf-qa.md:499:- After 3 rounds still below 95%: must explici
+src/superclaude/agents/rf-qa.md:537:10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, 
+src/superclaude/agents/rf-team-lead.md:462:ke another pipeline with a FIX request (max 3 cycles per phase). If max cycles exh
+src/superclaude/cli/audit/batch_decomposer.py:141:        return file_sizes[file_path] // 4
+src/superclaude/cli/audit/escalation.py:134:    return len(content) // 4
+src/superclaude/cli/cli_portify/convergence.py:70:        return total / 4.0
+src/superclaude/cli/cli_portify/convergence.py:128:        return total / 4.0
+src/superclaude/cli/cli_portify/convergence.py:149:        engine = ConvergenceEngine(max_iterations=3)
+src/superclaude/cli/cli_portify/steps/panel_review.py:95:    return total / 4.0
+src/superclaude/cli/cli_portify/steps/panel_review.py:352:    engine = ConvergenceEngine(max_iterations=3)
+src/superclaude/cli/eval/suites/adversarial_merge_consistency.yaml:94: - FR-004: Rate limit: 5 login attempts / 5 minutes / IP
+src/superclaude/cli/init_lite.py:12:mated deterministically as ``ceil(bytes / 4)``.
+src/superclaude/cli/init_lite.py:47:istic token estimate: ``ceil(size_bytes / 4)`` via integer math."""
+src/superclaude/cli/init_lite.py:50:    return (size_bytes + 3) // 4
+src/superclaude/cli/prd/models.py:203:    max_research_fix_cycles: int = 3
+src/superclaude/cli/roadmap/semantic_layer.py:68:        return raw / 3.0  # Normalize: max raw per c
+src/superclaude/commands/init-lite.md:40:h surface's token weight as `ceil(bytes / 4)` and classify low/medium/hig
+src/superclaude/commands/init-lite.md:86:t weight deterministically (`ceil(bytes / 4)`)
+src/superclaude/commands/reflect.md:166: (verification run)**: UC-2 §6.1 step 5 / 5.5 — the project's own linter 
+src/superclaude/hooks/scripts/freshness-session-start.sh:27:w unbounded (it had reached 23.8k lines / 5.4 MB before
+src/superclaude/rules/core/ib_agent_core.md:633:- Maximum 5 correction attempts per batch
+src/superclaude/rules/core/ib_agent_core.md:913:imit hit** - Manual intervention needed after 3 attempts
+src/superclaude/skills/operational-guide/SKILL.md:427:l fixes. Verification round (2 agents). Max 3 fix cycles. Partitioning >6 files double
+src/superclaude/skills/operational-guide/SKILL.md:439:rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >6 files double
+src/superclaude/skills/operational-guide/SKILL.md:447:ive (4 content + 1 domain) = 11 agents. Max 3 fix cycles. Domain lenses: procedural-st
+src/superclaude/skills/operational-guide/SKILL.md:514:existing research files, run serialized fix cycle (max 3 cycles). (b) For findings req
+src/superclaude/skills/operational-guide/SKILL.md:571:tion finds new issues, repeat Step 6.4 (max 3 cycles total). After 3 cycles, HALT:
+src/superclaude/skills/operational-guide/SKILL.md:1349:ix agent, then verification round). Max fix cycles: 3 for research, 2 for synthesis
+src/superclaude/skills/operational-guide/SKILL.md:1371:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/prd/refs/build-request-template.md:130:awn `rf-qa` with qa_phase: "fix-cycle". Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all rema
+src/superclaude/skills/readme/SKILL.md:188:s, apply fixes via serialized protocol (max 3 cycles), fill coverage gaps if neede
+src/superclaude/skills/readme/SKILL.md:191:olidate-fix-verify serialized protocol (max 3 fix cycles per gate)
+src/superclaude/skills/readme/SKILL.md:451:rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >6 files.
+src/superclaude/skills/readme/SKILL.md:460:endency-list-completeness) = 11 agents. Max 3 fix cycles.
+src/superclaude/skills/readme/SKILL.md:464:-qa fidelity agents. HALT if unresolved after 3 cycles.
+src/superclaude/skills/readme/SKILL.md:546:finds new issues, repeat Steps 3.3-3.4. Maximum 3 fix cycles for Sub-flow A.
+src/superclaude/skills/readme/SKILL.md:553:- **Total cycle budget:** Sub-flow A (max 3 fix cycles) and Sub-flow B (max 2 gap-fi
+src/superclaude/skills/readme/SKILL.md:602:n finds issues, repeat Steps 6.2c-6.2d (max 3 cycles). If unresolved after 3 cycle
+src/superclaude/skills/readme/SKILL.md:607:ol: 1 fix agent, 2 verification agents, max 3 cycles).
+src/superclaude/skills/readme/SKILL.md:608:  If unresolved after 3 cycles, HALT and present findings to
+src/superclaude/skills/readme/SKILL.md:1690:Fix cycle budget: Maximum 3 fix cycles for the fidelity gate. After 
+src/superclaude/skills/readme/SKILL.md:1690:3 cycles, HALT and escalate to user.
+src/superclaude/skills/readme/SKILL.md:1715:Fix cycle budget: Maximum 3 fix cycles for the fidelity gate. After 
+src/superclaude/skills/readme/SKILL.md:1715:3 cycles, HALT and escalate to user.
+src/superclaude/skills/readme/SKILL.md:2034:ule source code + assembled README. Max fix cycles: 3 for research gate, 2 for synt
+src/superclaude/skills/readme/SKILL.md:2058:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/roadmap/SKILL.md:435:d, 2 for single-source) = 17-19 agents. Max 3 fix cycles. Serialized fix protocol (Ste
+src/superclaude/skills/roadmap/SKILL.md:440:detail-preservation rf-qa-qualitative). Max 3 fix cycles.
+src/superclaude/skills/roadmap/SKILL.md:554:OLDER:*}}` sentinels. Any found = FAIL. Fix cycle (max 3): identify unpopulated sectio
+src/superclaude/skills/roadmap/SKILL.md:563:issues remain, repeat fix-verify cycle (max 3 total cycles). HALT if unresolved after 3 
+src/superclaude/skills/roadmap/SKILL.md:577:lly to its originating coverage agent). Max 3 fix cycles.
+src/superclaude/skills/roadmap/SKILL.md:2073:es not override them): Stage 1 lens QA: max 3 fix cycles. Stage 1 fidelity: max 2 fix 
+src/superclaude/skills/roadmap/SKILL.md:2073:t iterative editing). Stage 2 coverage: max 3 fix cycles. Stage 3 per-BUILD_REQUEST: m
+src/superclaude/skills/roadmap/SKILL.md:2587:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md:3:is a starting point, not authoritative. After Wave 3 grounding completes, every finding i
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:336:mpleteness + testability + consistency) / 4` (Constraint 6, SC-010).
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:367:RING → REVIEWING transition. Hard cap: `max_iterations = 3` (SC-008).
+src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:121:RATING → SCORING → CONVERGED|ESCALATED. Max 3 iterations. Implemented as bounded condi
+src/superclaude/skills/sc-init-lite-protocol/SKILL.md:50:h surface's token weight as `ceil(bytes / 4)` and classify: `low` (< 1000
+src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md:165:> (4) `round_counter < max_rounds`; (5) the cycle produced at least one grounde
+src/superclaude/skills/sc-reflect-protocol/SKILL.md:188:.8 / M-COR2).** Because the §6.1 step 5 / 5.5 verification run runs `pyte
+src/superclaude/skills/sc-reflect-protocol/refs/coverage-mapping.md:186:fication_failures` from the §6.1 step 5 / 5.5 verification run, **restric
+src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md:102:A non-zero exit from the §6.1 step 5 / 5.5 verification run is **NOT**
+src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:126:oes not expose Bash, so the §6.1 step 5 / 5.5 verification run cannot exe
+src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md:127:fication_failures` from the §6.1 step 5 / 5.5 verification run, **restric
+src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:79:th in the dependency graph | `min(depth / 8, 1.0)` — depth 8+ = maximum c
+src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:80:with ≥10% representation | `min(domains / 5, 1.0)` — 5 domains = maximum 
+src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:135: chain in dependency graph | `min(depth / 8, 1.0)` | 0.20 |
+src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:136:epresentation (out of 7) | `min(domains / 7, 1.0)` | 0.15 |
+src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1660:  + 1 * ceil(n_tasks / 5) # raw size, bucketed by the 
+src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1661:  + 1 * ceil(n_R / 5)     # requirement coverage b
+src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:86:s is `partial` unless S1.6.4 precedence / 3-round cap / A8 contributes `b
+src/superclaude/skills/sc-troubleshoot-protocol/refs/primitive-differential.md:28: pack extension. Thus full core permits at most 38 core attempts plus 3 optional attempts, not an unbounded pack rerun;
+src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:52:| Phase 0 / 6 — Schema, parseability, struc
+src/superclaude/skills/task-builder/SKILL.md:204:inimum), with gap-fill cycle if needed (max 3 rounds) (A.8)
+src/superclaude/skills/task-builder/SKILL.md:872:4. **Maximum 3 gap-fill rounds** (aligned with canonical ski
+src/superclaude/skills/task-builder/SKILL.md:873:5. After 3 rounds, proceed with remaining gaps 
+src/superclaude/skills/task-builder/SKILL.md:1147:    6. Max 3 fix-verify cycles.
+src/superclaude/skills/task-builder/SKILL.md:1275:rch-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix
+src/superclaude/skills/task-builder/SKILL.md:1275:cles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper int
+src/superclaude/skills/task-builder/SKILL.md:1275:sting iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead's F
+src/superclaude/skills/task-builder/SKILL.md:1282:rch-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in r
+src/superclaude/skills/task-builder/SKILL.md:1310:.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead's F
+src/superclaude/skills/task-builder/SKILL.md:1412:  Max 3 fix-verify cycles.
+src/superclaude/skills/task-builder/SKILL.md:1419:- **FAIL with unfixable issues after 3 fix-verify cycles** → Present the issues to the
+src/superclaude/skills/task-builder/SKILL.md:1420:unts against the A.10 fix-cycle budget, max 3 cycles). At max cycle, surface the m
+src/superclaude/skills/task-builder/SKILL.md:1471:A.10.25 findings (independent of A.10's 3-cycle budget). If unfixable after 1
+src/superclaude/skills/task-builder/SKILL.md:2369:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/task/SKILL.md:120:e issue, (2) a phase-gate QA has failed 3 fix cycles, (3) an item's output fundame
+src/superclaude/skills/task/SKILL.md:254:new + remaining findings, fix, verify). Maximum 3 fix cycles total (per I16 (MDTM template
+src/superclaude/skills/task/SKILL.md:254: rule: maximum 3 fix-verify cycles per gate)6). After 3 failed c
+src/superclaude/skills/task/SKILL.md:271:ets a section range (e.g., Sections 1-7 / 8-14 / 15-21 / 22-28) IN ADDITI
+src/superclaude/skills/task/SKILL.md:336:e fix agent, then a verification round. Maximum 3 fix cycles.
+src/superclaude/skills/task/SKILL.md:366:ed issues and newly introduced issues). Maximum 3 fix cycles total per gate.
+src/superclaude/skills/task/SKILL.md:368:6. **Escalation:** After 3 failed cycles, HALT — log all remaining iss
+src/superclaude/skills/task/SKILL.md:405: fidelity fixes were applied correctly. Maximum 3 fix cycles (per I16), then HALT and esca
+src/superclaude/skills/task/SKILL.md:477:**Fix cycle:** [1 / 2 / 3 / N/A]
+src/superclaude/skills/task/SKILL.md:616:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/tdd/refs/build-request-template.md:125:- Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all rema
+src/superclaude/skills/tech-reference/SKILL.md:412: round (1 rf-qa + 1 rf-qa-qualitative). Max 3 cycles. Partitioning >6 research fil
+src/superclaude/skills/tech-reference/SKILL.md:415:true), then 2-agent verification round (max 3 cycles). After lens-based QA passes,
+src/superclaude/skills/tech-reference/SKILL.md:424:rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 gap-fill cycles. Partitioning >6 files (each 
+src/superclaude/skills/tech-reference/SKILL.md:428:rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >4 files.
+src/superclaude/skills/tech-reference/SKILL.md:432:ion-value-verification) = 11-15 agents. Max 3 fix cycles.
+src/superclaude/skills/tech-reference/SKILL.md:436: at 1000-2000 source lines, 8 at >2000. Max 3 fix cycles.
+src/superclaude/skills/tech-reference/SKILL.md:512:w findings, spawn gap-fillers, verify). Maximum 3 cycles — after 3 failed cycles, HALT execution: log all rema
+src/superclaude/skills/tech-reference/SKILL.md:529:hs), then re-spawn `rf-qa` (fix-cycle). Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all rema
+src/superclaude/skills/tech-reference/SKILL.md:534:inds new issues, repeat from fix agent (max 3 total cycles). After 3 cycles, HALT: log r
+src/superclaude/skills/tech-reference/SKILL.md:535:qualitative, fix_authorization: false) (max 3 fix cycles). HALT after max cycles excee
+src/superclaude/skills/tech-reference/SKILL.md:1307:are not optional and cannot be skipped. Maximum 3 fix cycles per gate — after 3 failed cyc
+src/superclaude/skills/tech-reference/SKILL.md:1327:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/skills/tech-research/SKILL.md:398:rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >6 files.
+src/superclaude/skills/tech-research/SKILL.md:406:ation-plan-concreteness) = 9-13 agents. Max 3 fix cycles.
+src/superclaude/skills/tech-research/SKILL.md:486:tion finds new issues: repeat Step 3.2 (max 3 cycles total), then HALT — log issue
+src/superclaude/skills/tech-research/SKILL.md:551: If issues found: repeat Steps 6.5-6.6 (max 3 cycles), then HALT if unresolved.
+src/superclaude/skills/tech-research/SKILL.md:1643:ecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamenta
+src/superclaude/templates/documents/agent_template_qa.md:184:- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execu
+src/superclaude/templates/documents/agent_template_qa.md:210:**Fix cycle:** [1 / 2 / 3 / N/A]
+src/superclaude/templates/documents/agent_template_qa.md:292:d/low-confidence items, then recompute. Maximum 3 additional rounds.
+src/superclaude/templates/documents/agent_template_qa.md:293:- After 3 rounds still below 95%: must explici
+src/superclaude/templates/documents/agent_template_qa.md:320:mplate position N+3 = rf-qa.md rule 10 (max 3 fix cycles). Domain-specific rules (2 th
+src/superclaude/templates/documents/agent_template_qa.md:335:N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, 
+src/superclaude/templates/documents/skill_template.md:427:n) + rf-qa (research-gate) in parallel, max 3 fix cycles, partitioning >6 files.
+src/superclaude/templates/modularization-template-review/qa-consolidated-findings_template.md:102:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-cross-source-contradictions_template.md:101:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md:96:Fix cycle: {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md:105:<!-- Feeds the max-3-cycle escalation: if a finding rema
+src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md:105:ins unfixed at Fix cycle 3/3,
+src/superclaude/templates/modularization-template-review/qa-research-depth_report_template.md:105:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-research-evidence_report_template.md:100:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-research-gap_report_template.md:103:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-source-fidelity_template.md:95:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-task-validation-b2_report_template.md:101:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/modularization-template-review/qa-task-validation-structure_report_template.md:104:x cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:787:enses | Per I21 (2-8 agents) | Per I16 (2-3 per gate) | 2 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:753:e and task-integrity). If issues remain after 3 cycles, HALT and escalate to user.
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:804:enses | Per I21 (2-8 agents) | Per I16 (2-3 per gate) | 2 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1090:-integrity) (per I16). If issues remain after 3 cycles, HALT and escalate to user. A
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1119:ectly. Same cycle control as M3 Step 8 (max 3 cycles, then HALT).

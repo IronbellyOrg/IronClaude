@@ -1,0 +1,71 @@
+diff --git a/src/superclaude/skills/tech-reference/SKILL.md b/src/superclaude/skills/tech-reference/SKILL.md
+index def4a1dc..ad68d2fb 100644
+--- a/src/superclaude/skills/tech-reference/SKILL.md
++++ b/src/superclaude/skills/tech-reference/SKILL.md
+@@ -533,7 +533,7 @@ Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA
+ - **Step 6a: Lens-Based QA (PARALLEL, all fix_authorization: false).** After the assembler returns the document path, determine the document's line count and select the lens agent count from this table: <500 lines = 4+4; 500-1500 = 4+4; 1500-3000 = 5+5; >3000 = 6+6 (rf-qa structural + rf-qa-qualitative content). At higher tiers, the additional agents are partitioned instances of existing lenses with assigned section ranges (e.g., at 5+5: split the completeness lens across 2 agents, each covering half the document; at 6+6: also split evidence-quality). PLUS 3 tech-reference domain-specific lens agents (see below). Spawn ALL lens agents IN PARALLEL. Each agent gets a lens-specific prompt, its own report file, and fix_authorization: false (report only). **Standard structural lenses (rf-qa):** (1) template-conformance — all required sections present, correct ordering, no remaining placeholders; (2) internal-consistency — IDs match across tables, counts agree, cross-references resolve; (3) evidence-quality — all claims cite file paths/line numbers, no unverified assertions, no hallucinated paths; (4) completeness — every topic from scope discovery appears in the output. **Standard content lenses (rf-qa-qualitative):** (1) actionability — every Extension Guide entry is specific enough to execute; (2) numbers-metrics — quantitative claims are consistent and sourced; (3) crossref-chain-integrity — subsystem→API→config→example chains all resolve; (4) domain-accuracy — claims about codebase match actual code, no aspirational features described as current. **Tech-reference domain-specific lenses:** (1) code-example-accuracy (rf-qa) — code snippets match actual source files; (2) api-signature-correctness (rf-qa) — documented API signatures match actual code; (3) configuration-value-verification (rf-qa-qualitative) — config values and defaults match actual files. Each lens agent writes to `${TASK_DIR}qa/qa-lens-[lens-name]-report.md`. Embed lens-specific prompt with adversarial framing in each checklist item per B2: "Assume this document has at least N errors in your lens area. Find them." (N = document_lines / 100, minimum 5).
+ - **Step 6b: Consolidate Findings + Serialized Fix.** Read ALL lens reports. Consolidate into a single findings list at `${TASK_DIR}qa/qa-consolidated-findings.md`. Spawn ONE rf-qa fix agent (fix_authorization: true) with the consolidated findings list — it applies ALL fixes to the document. Then spawn a 2-agent verification round: 1 rf-qa (structural verification, fix_authorization: false) + 1 rf-qa-qualitative (content verification, fix_authorization: false). If verification finds new issues, repeat from fix agent (max 3 total cycles). After 3 cycles, HALT: log remaining issues, present to user, ask for guidance.
+ - **Step 6c: Source-Document Fidelity Gate (PARALLEL, fix_authorization: false).** After lens-based QA passes, spawn minimum 5 rf-qa fidelity agents (scale to 6 if the research files reference 1000-2000 lines of source code total, 8 if >2000 lines). Each fidelity agent reads BOTH its assigned source-code-file range (from Phase 2 research file paths) AND the FULL assembled tech reference. Each fidelity agent is assigned ONE focused lens from the list below. Fidelity lenses: (a) semantic-coverage — every subsystem, API endpoint, and configuration item documented in the tech reference can be traced to actual source code; (b) detail-preservation — function signatures, config defaults, error codes, and type shapes match the code exactly; (c) phantom-coverage-detection — file paths referenced in the tech reference must exist and contain what the doc says they contain; (d) aspirational-content-detection — no planned/aspirational features described as current; (e) cross-reference-verification — all cross-references between sections resolve correctly and reference the right content. Each fidelity agent writes to `${TASK_DIR}qa/qa-source-fidelity-[N]-report.md`. If fidelity agents find issues: consolidate findings, spawn ONE fix agent (fix_authorization: true), then 2-agent verification round (1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) (max 3 fix cycles). HALT after max cycles exceeded.
+-- **Step 6d: Verify all QA complete.** Read all lens reports, consolidated findings, verification reports, and fidelity reports. If any unresolved issues remain at any severity (CRITICAL, IMPORTANT, MINOR), address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
++- **Step 6d: Verify all QA complete.** Read all lens reports, consolidated findings, verification reports, and fidelity reports. If any blocking (CRITICAL or IMPORTANT) issue remains unresolved, address it before proceeding to Phase 7; MINOR issues are recorded as notes and do not block.
+ 
+ Phase 7 — Present to User & Complete Task:
+ - Present summary to user: document location, line count and tier classification, sections populated vs skipped, research/synth artifact locations, gaps needing manual review
+@@ -875,7 +875,7 @@ Apply the full 10-item Research Gate checklist independently.
+ 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
+ 4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
+ 5. Contradiction resolution — no unresolved conflicting findings
+-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
++6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+ 7. Depth appropriateness — matches the tier expectation
+ 8. Integration point coverage — connection points documented
+ 9. Pattern documentation — code patterns and conventions captured
+@@ -883,7 +883,7 @@ Apply the full 10-item Research Gate checklist independently.
+ 
+ VERDICTS:
+ - PASS: Green light for synthesis
+-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
+ 
+ Use the full QA report output format from your agent definition.
+ Zero tolerance — if you can't verify it, it fails.
+diff --git a/src/superclaude/skills/tech-research/SKILL.md b/src/superclaude/skills/tech-research/SKILL.md
+index a92394fb..d3f72afa 100644
+--- a/src/superclaude/skills/tech-research/SKILL.md
++++ b/src/superclaude/skills/tech-research/SKILL.md
+@@ -564,7 +564,7 @@ Step 6.7b: Anti-omission gate (source→output completeness, PARALLEL): MANDATOR
+   - [ ] Consolidate anti-omission findings. For EACH omission: either RECOVER it (the single fix agent adds the dropped finding to the report) or EXPLICITLY JUSTIFY it as intentional dedup / out-of-scope (recorded in the consolidated findings). NEVER silently drop an omission. Apply via the serialized fix protocol (report-only agents → consolidate → single fix agent → verification round). Max 2 fix cycles, then HALT and present to user.
+   - [ ] This gate is the INVERSE of Step 6.7 (fidelity verifies output→source: no fabrication/distortion; anti-omission verifies source→output: no dropped finding). BOTH are mandatory; passing fidelity does NOT imply completeness.
+ 
+-- Zero leniency — no severity level is exempt. ALL findings must be resolved before Phase 7.
++- Every blocking finding must be resolved before Phase 7; minor findings are recorded as notes and do not block.
+ 
+ Phase 7 — Present to User & Complete Task:
+ - Present summary to user (report location, key findings, recommendation, research file count, open questions)
+@@ -883,7 +883,7 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
+ 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
+ 4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
+ 5. Contradiction resolution — no unresolved conflicting findings
+-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
++6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+ 7. Depth appropriateness — matches the tier expectation
+ 8. Integration point coverage — connection points documented
+ 9. Pattern documentation — code patterns and conventions captured
+@@ -891,7 +891,7 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
+ 
+ VERDICTS:
+ - PASS: Green light for synthesis
+-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
+ 
+ Use the full QA report output format from your agent definition.
+ Zero tolerance — if you can't verify it, it fails.
+@@ -1147,7 +1147,7 @@ OUTPUT FORMAT:
+ - Critical: [count]
+ - Important: [count]
+ - Minor: [count]
+-- Verdict: PASS (0 critical + 0 important + 0 minor) / FAIL
++- Verdict: PASS (0 critical + 0 important; minor findings listed as notes) / FAIL
+ ```
+ 
+ ### Source-Document Fidelity Agent Prompt (rf-qa — Fidelity Gate)

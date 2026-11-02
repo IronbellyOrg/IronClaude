@@ -1,0 +1,9 @@
+$ git grep (forbidden wording)
+git-grep rc=1 (1 = no match)
+$ S1-S3 / sweep-old / R-008 per file
+src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md S1=1 S2=1 S3=1 sweep_old=1 EXACT_FAIL=1
+src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md S1=1 S2=1 S3=1 sweep_old=1 EXACT_FAIL=1
+src/superclaude/rules/prompts/documentation_expert_qa_prompt.md S1=1 S2=1 S3=1 sweep_old=1 EXACT_FAIL=1
+src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md S1=1 S2=1 S3=1 sweep_old=1 EXACT_FAIL=1
+$ R-008
+r008 rc=1 (1 = nothing printed)

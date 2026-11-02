@@ -641,7 +641,7 @@ I15. PHASE-GATE QA ENFORCEMENT
    1. An aggregation item that collects all outputs from the preceding phase (L6 pattern)
    2. Lens-based QA agent spawn items — multiple rf-qa agents (each with a focused structural lens) and multiple rf-qa-qualitative agents (each with a focused content lens), ALL spawned in parallel with `fix_authorization: false` (see M3 for the full sequence)
    3. A findings consolidation item that reads all lens agent reports and produces a single consolidated findings file
-   4. A fix agent spawn item — ONE rf-qa agent with `fix_authorization: true` that applies all consolidated findings (see I20 for serialized fix protocol)
+   4. A fix agent spawn item — ONE rf-qa agent with `fix_authorization: true` that applies all consolidated blocking findings (minor findings stay as notes; see I20 for serialized fix protocol)
    5. A verification round — minimum 2 agents confirming fixes were applied correctly
    6. A conditional-action item that proceeds to the next phase on PASS or triggers another fix cycle on FAIL (max cycles per I16)
    7. (If applicable) Source-document fidelity gate items per M4
@@ -651,24 +651,28 @@ I15. PHASE-GATE QA ENFORCEMENT
    Every QA gate step — each lens agent spawn, the consolidation, the fix agent, each verification agent — MUST be encoded as individual `- [ ]` checklist items in the task file. No QA is implicit. No QA lives only in prose.
 
 I16. QA GATE VERDICT AND FIX CYCLES
-   QA agents produce binary verdicts: PASS or FAIL. Any issue of any severity (CRITICAL, IMPORTANT, or MINOR) results in FAIL.
+   QA agents produce binary verdicts: PASS or FAIL.
+   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
+   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
+   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+   - On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
 
-   **Multi-Agent Verdict Consolidation:** When multiple lens agents evaluate the same document (see M3), their individual reports are consolidated into a single findings list. The consolidated verdict is FAIL if ANY individual agent's report contains ANY issue of any severity. The consolidated findings file lists all issues from all agents, deduplicated, with the originating lens agent identified for each issue.
+   **Multi-Agent Verdict Consolidation:** When multiple lens agents evaluate the same document (see M3), their individual reports are consolidated into a single findings list. The consolidated verdict is FAIL if any individual agent's report contains a blocking issue; minor issues from every agent are carried into the consolidated file as notes. The consolidated findings file lists all issues from all agents, deduplicated, with the originating lens agent identified for each issue.
 
    Fix cycle rules per gate type:
 
    | Gate Type | Max Fix Cycles | After Max Reached |
    |-----------|---------------|-------------------|
-   | research-gate | 3 | HALT and escalate to user |
-   | synthesis-gate | 2 | Unresolved issues become Open Questions |
-   | report-validation | 3 | HALT and escalate to user |
-   | task-integrity | 2 | Unresolved issues become Open Questions |
-   | Any qualitative gate | 3 | HALT and escalate to user |
-   | source-fidelity | 3 | HALT and escalate to user |
+   | research-gate | 2 | HALT and escalate to user |
+   | synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
+   | report-validation | 2 | HALT and escalate to user |
+   | task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
+   | Any qualitative gate | 2 | HALT and escalate to user |
+   | source-fidelity | 2 | HALT and escalate to user |
 
-   **Serialized Fix Protocol (MANDATORY):** Fix cycles MUST follow the serialized fix authorization protocol defined in I20. Parallel fix authorization (multiple agents editing the same file concurrently) is PROHIBITED. The cycle is: (1) all lens agents report findings with `fix_authorization: false`, (2) findings are consolidated, (3) ONE fix agent applies ALL fixes with `fix_authorization: true`, (4) a verification round (minimum 2 agents) confirms fixes were applied correctly. Only if verification fails does the cycle repeat (back to step 2 -- the consolidation phase).
+   **Serialized Fix Protocol (MANDATORY):** Fix cycles MUST follow the serialized fix authorization protocol defined in I20. Parallel fix authorization (multiple agents editing the same file concurrently) is PROHIBITED. The cycle is: (1) all lens agents report findings with `fix_authorization: false`, (2) findings are consolidated, (3) ONE fix agent applies ALL blocking fixes with `fix_authorization: true` (minor findings stay as notes), (4) a verification round (minimum 2 agents) confirms fixes were applied correctly. Only if verification fails does the cycle repeat (back to step 2 -- the consolidation phase).
 
-   Each fix cycle MUST re-verify ALL previously failed items plus check for new issues introduced by fixes. If the number of issues increases across cycles, flag this as a systemic problem.
+   Each fix cycle MUST re-verify every previously failed blocking item plus check for new blocking issues introduced by fixes; minor findings are not rechecked. If the number of issues increases across cycles, flag this as a systemic problem.
 
    The orchestrator MUST encode fix cycle logic as conditional-action items (L5 pattern) or as explicit IF/ELSE instructions within the QA gate checklist item. Every step of the fix cycle (consolidation, fix agent spawn, verification spawn) MUST be an explicit `- [ ]` checklist item.
 
@@ -748,9 +752,9 @@ I20. SERIALIZED FIX AUTHORIZATION
    **The Serialized Fix Protocol:**
    1. **Report phase:** Spawn all lens-based QA agents in parallel with `fix_authorization: false`. Each agent produces a report file listing findings only — it does NOT modify the target document.
    2. **Consolidation phase:** Read all agent reports. Produce a single consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md` listing all issues, deduplicated, with originating lens identified.
-   3. **Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document.
-   4. **Verification phase:** Spawn a verification round (minimum 2 agents: 1 rf-qa + 1 rf-qa-qualitative) with `fix_authorization: false` to confirm fixes were applied correctly and no new issues were introduced.
-   5. **Cycle control:** If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new findings + original unfixed findings, spawn fix agent, verify. Maximum cycles per I16 gate-type table (3 for most gates, 2 for synthesis-gate and task-integrity). If issues remain after 3 cycles, HALT and escalate to user.
+   3. **Fix phase:** If the consolidated findings file lists blocking findings, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the target document.
+   4. **Verification phase:** Spawn a verification round (minimum 2 agents: 1 rf-qa + 1 rf-qa-qualitative) with `fix_authorization: false` to confirm the blocking fixes were applied correctly and no new blocking issues were introduced (minor findings are notes and are not rechecked).
+   5. **Cycle control:** If verification finds new blocking issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new blocking findings + original unfixed blocking findings, spawn fix agent, verify (new minor findings are notes and do not restart the cycle). Maximum cycles per I16 gate-type table (2 for every gate). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 
    **Why serialized:** Parallel fix authorization causes churn. Agent A fixes line 50 one way, Agent B fixes line 50 a different way. The next round has to fix the contradictions. Serialized fixes eliminate this.
 
@@ -801,7 +805,7 @@ I22. QA INTENSITY LEVELS
    |-------|-------------|--------------------------|------------------------|---------------------|------------|---------------------|
    | **lite** | Quick/Lightweight tier, small outputs (<300 lines), basic tasks, user says "quick" or "light" | 2 (1 rf-qa + 1 rf-qa-qualitative) | 3 (1 structural + 1 content + 1 domain) | 1 agent (combined lenses) | 1 max per gate | 1 |
    | **standard** | Standard tier, medium outputs (300-1500 lines), most tasks | 3 (1 rf-analyst + 1 rf-qa + 1 rf-qa-qualitative) | 7 (3 structural + 3 content + 1 domain) | 2 agents | 2 max per gate | 2 |
-   | **full** | Deep/Heavyweight tier, large outputs (>1500 lines), critical docs, user says "thorough" | Per I19 tables (5+ intermediate, 6-12+ final) | Per I19 tables + all domain lenses | Per I21 (2-8 agents) | Per I16 (2-3 per gate) | 2 |
+   | **full** | Deep/Heavyweight tier, large outputs (>1500 lines), critical docs, user says "thorough" | Per I19 tables (5+ intermediate, 6-12+ final) | Per I19 tables + all domain lenses | Per I21 (2-8 agents) | Per I16 (2 per gate) | 2 |
 
    **Default mapping (skills override in their tier section):**
    - Quick / Lightweight → lite
@@ -817,7 +821,7 @@ I22. QA INTENSITY LEVELS
    - Intermediate gates: 1 rf-qa (combined evidence-quality + gap-detection) + 1 rf-qa-qualitative (combined research-depth + completeness). No rf-analyst.
    - Final gate: 1 rf-qa (combined structural lenses) + 1 rf-qa-qualitative (combined content lenses) + 1 domain lens agent (skill picks the highest-value domain lens). Total: 3 agents.
    - Fidelity gate (M4): 1 rf-qa agent with combined fidelity lenses (semantic-coverage + phantom-detection). Max 1 fix cycle.
-   - Fix cycles: 1 max. If issues remain after 1 fix cycle, log as Open Questions and proceed.
+   - Fix cycles: 1 max. After 1 fix cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes.
    - Verification: 1 agent (rf-qa, combined structural + content check).
    - Partitioning: NEVER triggers (lite tasks don't produce enough files).
    - Double QA: DISABLED. If the task file contains skill-specific QA items AND /task would add phase-gate QA, only the skill-specific QA runs.
@@ -1083,11 +1087,11 @@ M3. LENS-BASED QA SEQUENCE
 
    **Step 5 (Findings Consolidation):** Read ALL lens agent reports (from Steps 2-4). Produce a single consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md`. The file lists all issues from all agents, deduplicated (same issue found by multiple lenses listed once with all originating lenses noted), with severity (CRITICAL/IMPORTANT/MINOR) and originating lens.
 
-   **Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document. No other agent modifies the document.
+   **Step 6 (Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (minor findings stay as notes). This single agent applies ALL blocking fixes to the target document. No other agent modifies the document.
 
    **Step 7 (Verification Round — PARALLEL):** Spawn minimum 2 verification agents (1 at lite intensity per I22) (1 rf-qa + 1 rf-qa-qualitative) with `fix_authorization: false`. They verify: (a) all findings from Step 5 were addressed, (b) no new issues were introduced by the fixes, (c) document structural integrity is maintained. Output: `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`.
 
-   **Step 8 (Conditional Proceed — L5 pattern):** IF both verification agents report PASS, proceed. IF either reports FAIL, repeat Steps 5-7 (consolidate new + remaining findings, fix, verify). Maximum cycles per I16 gate-type table (3 for most gates, 2 for synthesis-gate and task-integrity) (per I16). If issues remain after 3 cycles, HALT and escalate to user. At lite intensity per I22: max 1 fix cycle; unresolved issues become Open Questions.
+   **Step 8 (Conditional Proceed — L5 pattern):** IF both verification agents report PASS, proceed. IF either reports FAIL, repeat Steps 5-7 (consolidate new + remaining findings, fix, verify). Maximum cycles per I16 gate-type table (2 for every gate) (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. At lite intensity per I22: max 1 fix cycle; then HALT and escalate to the user with the open blocking findings; minor findings stay as notes.
 
    **Intermediate Gate Adaptation:** For INTERMEDIATE gates (research-gate, synthesis-gate, task-integrity), Steps 2-3 adapt to the agent types specified in I19's intermediate gate table. rf-analyst agents replace some rf-qa/rf-qa-qualitative slots per I19. The total agent count floor (5 for intermediate, 6 for output/final) and serialized fix protocol (I20) remain the same.
 
@@ -1114,9 +1118,9 @@ M4. SOURCE-DOCUMENT FIDELITY GATE
 
    **Step 4 (Fidelity Findings Consolidation):** Read all fidelity and contradiction reports. Produce a consolidated fidelity findings file at `${TASK_DIR}qa/qa-fidelity-consolidated-findings.md`.
 
-   **Step 5 (Fidelity Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes.
+   **Step 5 (Fidelity Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes).
 
-   **Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents (1 rf-qa + 1 rf-qa-qualitative) to confirm fidelity fixes were applied correctly. Same cycle control as M3 Step 8 (max 3 cycles, then HALT).
+   **Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents (1 rf-qa + 1 rf-qa-qualitative) to confirm fidelity fixes were applied correctly. Same cycle control as M3 Step 8 (max 2 cycles; after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings).
 
    **Task file encoding:** Same rule as M3 — every step is an explicit `- [ ]` checklist item.
 
@@ -1385,7 +1389,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 **Step PG.4:** Consolidate findings and apply fixes (serialized per I20)
 - [ ] [Read all 8 QA reports from Steps PG.2-PG.3, consolidate into `${TASK_DIR}qa/qa-consolidated-findings.md`. Deduplicate issues, note originating lens for each.]
-- [ ] [Spawn rf-qa (fix agent, fix_authorization: true) with consolidated findings — apply ALL fixes to the Phase 2 output document(s).]
+- [ ] [Spawn rf-qa (fix agent, fix_authorization: true) with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the Phase 2 output document(s).]
 
 **Step PG.5:** Verification round (PARALLEL)
 - [ ] [Spawn rf-qa (verification) — verify fixes applied correctly, no new issues introduced. Output: `${TASK_DIR}qa/qa-verification-structural-report.md`. fix_authorization: false.]
@@ -1397,7 +1401,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - [ ] [Spawn rf-qa (fidelity-agent-2) — reads source docs sections N-Z + full output, checks semantic coverage + detail preservation. Output: `${TASK_DIR}qa/qa-source-fidelity-report-2.md`. fix_authorization: false.]
 - [ ] [Spawn rf-qa (cross-source-contradictions) — reads ALL source docs, checks for contradictions between sources. Output: `${TASK_DIR}qa/qa-cross-source-contradictions-report.md`. fix_authorization: false.]
 - [ ] [Consolidate fidelity findings from all fidelity agent reports into `${TASK_DIR}qa/qa-fidelity-consolidated-findings.md`. Deduplicate issues, note originating fidelity agent for each.]
-- [ ] [Spawn rf-qa (fidelity fix agent, fix_authorization: true) with fidelity consolidated findings -- apply ALL fidelity fixes to the output document(s).]
+- [ ] [Spawn rf-qa (fidelity fix agent, fix_authorization: true) with the blocking fidelity consolidated findings (minor findings stay as notes) -- apply ALL blocking fidelity fixes to the output document(s).]
 - [ ] [Spawn verification round (minimum 2 agents: 1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) to confirm fidelity fixes were applied correctly. Output: `${TASK_DIR}qa/qa-fidelity-verification-*.md`.]
 - [ ] [Read fidelity verification reports. IF both PASS, proceed. IF either FAIL, repeat fidelity consolidation-fix-verify cycle (max cycles per I16 gate-type table (orchestrator: substitute the correct max cycle count for the gate type being applied)). If unresolved after max cycles, HALT and escalate.]
 

@@ -1,0 +1,268 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 3201bb9e..071319d5 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -140,7 +140,7 @@ Trust ledger + git history after compaction. Do not ask the user to paste prior
+ 
+ Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`. Before any row except Row 1 runs for a task with a tree `start`, every `r<k>-<j>` ref of the task is re-pinned from its recorded tree (review header or repair `applied tree=` line, `refs/qa.md`), so Rows V, S, H, B and X re-pin as well.
+ 
+-Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
++Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean no repair is spent.
+ 
+ Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
+ 
+@@ -154,11 +154,11 @@ First match wins; the row order is part of the rule:
+ | R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
+ | P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
+ | H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
+-| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
++| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
+ | X | Last record is `retry n=<n> step=revert` | Run `sc_retry_revert` directly: its ledger binding and guards (tail, tree, HEAD, evidence) are the re-check, and exit 2 maps to the halt after any move-back or keep of failed-attempt artifacts (`refs/retry.md`, The revert). Otherwise the revert re-runs (idempotent: fresh `now`, create-only sweep), then procedure step 7. |
+ | O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha and every `r<k>-<j>` ref from its recorded tree, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
+ | B | Last record is a `blocked` line and the task has a `retry` record | k from the k rule (here the n of the latest `retry`, because this `blocked` follows its `step=review`). k = 5 → append `halt review=5 reason=ladder-end` → STOP. Otherwise continue at the ladder-condition checks for this k, then procedure step 1. |
+-| S | Start line only | If a `repair-2-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
++| S | Start line only | If a `repair-2-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
+ 
+ ## Examples (must match)
+ 
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+index c15662d5..4496f6c9 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -264,7 +264,7 @@ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cos
+ | Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |
+ |---|---|---|---|---|
+ | A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |
+-| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
++| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
+ | A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
+ | A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
+ | A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 4b961945..25a95daf 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -138,15 +138,15 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 2. **Probe before locality (deliberate SPEC correction of FR-024 and FR-026).** Before the parent decides locality for a failed review, every blocking family of that review with no probe entry written since the latest Q0 rebuild (the same tree chain as the notes rule: since the task's `start` or its latest revert; entries from before a revert are re-check items only) is probe-pending. The parent asks the fixer for that family's probe only (read-only search, no edit), in the probe format of "Family probe" in `refs/qa.md`, and saves it as `probe-<k>-<j>.md`; only then does it apply the locality predicate. A probe entry is complete for locality when it holds the defect form, the search command, its before-output and the coupled sites; the after-output is appended later as `after:` lines to that same entry, the one allowed in-place addition to a probe file. A family whose probe is still missing or incomplete after that step is non-local.
+ 3. **Locality predicate**, decided by the parent before the fixer runs. The open blocking set is local when it has at most 5 blocking families (`family=`) and at most 2 files named by finding lines. Probe-listed hits inside touched or AC-named files are in scope and are not counted again. A probe hit outside touched or AC-named files is listed in the probe file with a one-line reason and is not edited. A family whose probe is missing or incomplete after the probe-only step is non-local. A missing required outcome (`ac-outcome-missing=yes`) is non-local.
+ 4. **Repair file** `repair-<k>-<j>.md` in `<retries>/T<id>/`: line 1 the `start` sha; line 2 `reviewed=<40-hex of the tree review-<k>.md holds> ref=r<k>-<j>`; then the blocking finding lines it applies, verbatim from `review-<k>.md`; last line `applied tree=<40-hex>`, written after the fixer finishes. That tree is the one the re-review grades and is pinned as `r<k>-<j+1>`. When `$start` is not a tree, line 2 is `reviewed=none ref=none` and the last line is `applied tree=none`; it is still written as the applied marker, and no ref is pinned. The parent writes the file up to the finding lines before the fixer runs. The fixer applies the blocker fixes plus probe-listed sibling and coupled lines only. A fresh subagent re-reviews. No ledger line, no checkpoint, no revert, no adviser.
+-5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is 1, or 2 only for the second A2 repair.
+-6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A second A2 repair is allowed when the first did not fail (Convergence), every new blocker is `late`, the set passes the predicate, and the 2-per-task cap is not spent.
++5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is always 1, because an attempt gets at most one repair.
++6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A2 gets one repair at most.
+ 7. **A3 to A5 timing.** A repair runs after the review of attempt k fails and before procedure step 0 for that attempt, with no `blocked` line first; the last ledger record stays `retry n=<k> step=review`.
+ 8. **File naming.** `review-<k>.md` is the last failing review of attempt k; no `review-<k>-pre.md` is written. Adviser citations, the adviser pick and the brief-5 lessons check read `review-<k>.md` only.
+ 9. **Passing re-review.** Before `complete`, the parent appends the passing re-review's `F<m>.<j> resolved` status lines to `review-<k>.md`, so no unresolved-looking blocker line is left for FINAL.
+ 10. **Minors.** At A1 and A2 a fixer may edit a minor only inside lines it is already changing for a blocker; from A3 minors are recorded only. Minors are never the reason for a fix pass, a repair or a review.
+-11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no further repair in that attempt and no new halt reason. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
+-12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take the highest j of `repair-<n>-<j>.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for n = 2 the second-repair conditions, else procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
+-13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair failed.
++11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no new halt reason; no attempt gets a second repair (item 5), whether or not its repair failed. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
++12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take `repair-<n>-1.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for every n, procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
++13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair's re-review still has a confirmed blocker.
+ 
+ ### Escalation 3 (after A4 fails): runner-up refactor
+ 
+@@ -186,11 +186,11 @@ The adviser's effort is pinned by `effort:` in its agent file; do not rely on an
+ 
+ ### Cost and caps
+ 
+-Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
++Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`; the repair count stays 2 with one repair per attempt, because repairs are still capped at 1 per attempt and 2 per task, so two attempts can each spend one), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
+ 
+ Each review may also spawn one reviewer respawn (up to 18 reviewer spawns per task). Each crash during a review adds one Row V re-review (Resume in `refs/ledger.md`). A resume into an escalation whose advice was not recorded spawns that escalation's advisers again (counted per pass). Each resume after a halt adds one operator review. Per run: at most `RETRY_BUDGET` tasks enter the ladder (When the ladder runs, check 4).
+ 
+-Repairs: at most 1 per attempt, except the second A2 repair (Repair round), and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
++Repairs: at most 1 per attempt and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
+ 
+ No token cap. Token use is not written to the ledger or any retry file, because resume dispatches from the ledger alone and a token gate could not be recomputed on resume; the attempt and spawn caps above already bound the worst case.
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 3201bb9e..071319d5 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -140,7 +140,7 @@ Trust ledger + git history after compaction. Do not ask the user to paste prior
+ 
+ Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`. Before any row except Row 1 runs for a task with a tree `start`, every `r<k>-<j>` ref of the task is re-pinned from its recorded tree (review header or repair `applied tree=` line, `refs/qa.md`), so Rows V, S, H, B and X re-pin as well.
+ 
+-Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
++Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean no repair is spent.
+ 
+ Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
+ 
+@@ -154,11 +154,11 @@ First match wins; the row order is part of the rule:
+ | R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
+ | P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
+ | H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
+-| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
++| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
+ | X | Last record is `retry n=<n> step=revert` | Run `sc_retry_revert` directly: its ledger binding and guards (tail, tree, HEAD, evidence) are the re-check, and exit 2 maps to the halt after any move-back or keep of failed-attempt artifacts (`refs/retry.md`, The revert). Otherwise the revert re-runs (idempotent: fresh `now`, create-only sweep), then procedure step 7. |
+ | O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha and every `r<k>-<j>` ref from its recorded tree, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
+ | B | Last record is a `blocked` line and the task has a `retry` record | k from the k rule (here the n of the latest `retry`, because this `blocked` follows its `step=review`). k = 5 → append `halt review=5 reason=ladder-end` → STOP. Otherwise continue at the ladder-condition checks for this k, then procedure step 1. |
+-| S | Start line only | If a `repair-2-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
++| S | Start line only | If a `repair-2-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
+ 
+ ## Examples (must match)
+ 
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index c15662d5..4496f6c9 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -264,7 +264,7 @@ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cos
+ | Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |
+ |---|---|---|---|---|
+ | A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |
+-| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
++| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
+ | A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
+ | A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
+ | A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/retry.md b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 4b961945..25a95daf 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -138,15 +138,15 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 2. **Probe before locality (deliberate SPEC correction of FR-024 and FR-026).** Before the parent decides locality for a failed review, every blocking family of that review with no probe entry written since the latest Q0 rebuild (the same tree chain as the notes rule: since the task's `start` or its latest revert; entries from before a revert are re-check items only) is probe-pending. The parent asks the fixer for that family's probe only (read-only search, no edit), in the probe format of "Family probe" in `refs/qa.md`, and saves it as `probe-<k>-<j>.md`; only then does it apply the locality predicate. A probe entry is complete for locality when it holds the defect form, the search command, its before-output and the coupled sites; the after-output is appended later as `after:` lines to that same entry, the one allowed in-place addition to a probe file. A family whose probe is still missing or incomplete after that step is non-local.
+ 3. **Locality predicate**, decided by the parent before the fixer runs. The open blocking set is local when it has at most 5 blocking families (`family=`) and at most 2 files named by finding lines. Probe-listed hits inside touched or AC-named files are in scope and are not counted again. A probe hit outside touched or AC-named files is listed in the probe file with a one-line reason and is not edited. A family whose probe is missing or incomplete after the probe-only step is non-local. A missing required outcome (`ac-outcome-missing=yes`) is non-local.
+ 4. **Repair file** `repair-<k>-<j>.md` in `<retries>/T<id>/`: line 1 the `start` sha; line 2 `reviewed=<40-hex of the tree review-<k>.md holds> ref=r<k>-<j>`; then the blocking finding lines it applies, verbatim from `review-<k>.md`; last line `applied tree=<40-hex>`, written after the fixer finishes. That tree is the one the re-review grades and is pinned as `r<k>-<j+1>`. When `$start` is not a tree, line 2 is `reviewed=none ref=none` and the last line is `applied tree=none`; it is still written as the applied marker, and no ref is pinned. The parent writes the file up to the finding lines before the fixer runs. The fixer applies the blocker fixes plus probe-listed sibling and coupled lines only. A fresh subagent re-reviews. No ledger line, no checkpoint, no revert, no adviser.
+-5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is 1, or 2 only for the second A2 repair.
+-6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A second A2 repair is allowed when the first did not fail (Convergence), every new blocker is `late`, the set passes the predicate, and the 2-per-task cap is not spent.
++5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is always 1, because an attempt gets at most one repair.
++6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A2 gets one repair at most.
+ 7. **A3 to A5 timing.** A repair runs after the review of attempt k fails and before procedure step 0 for that attempt, with no `blocked` line first; the last ledger record stays `retry n=<k> step=review`.
+ 8. **File naming.** `review-<k>.md` is the last failing review of attempt k; no `review-<k>-pre.md` is written. Adviser citations, the adviser pick and the brief-5 lessons check read `review-<k>.md` only.
+ 9. **Passing re-review.** Before `complete`, the parent appends the passing re-review's `F<m>.<j> resolved` status lines to `review-<k>.md`, so no unresolved-looking blocker line is left for FINAL.
+ 10. **Minors.** At A1 and A2 a fixer may edit a minor only inside lines it is already changing for a blocker; from A3 minors are recorded only. Minors are never the reason for a fix pass, a repair or a review.
+-11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no further repair in that attempt and no new halt reason. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
+-12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take the highest j of `repair-<n>-<j>.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for n = 2 the second-repair conditions, else procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
+-13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair failed.
++11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no new halt reason; no attempt gets a second repair (item 5), whether or not its repair failed. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
++12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take `repair-<n>-1.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for every n, procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
++13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair's re-review still has a confirmed blocker.
+ 
+ ### Escalation 3 (after A4 fails): runner-up refactor
+ 
+@@ -186,11 +186,11 @@ The adviser's effort is pinned by `effort:` in its agent file; do not rely on an
+ 
+ ### Cost and caps
+ 
+-Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
++Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`; the repair count stays 2 with one repair per attempt, because repairs are still capped at 1 per attempt and 2 per task, so two attempts can each spend one), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
+ 
+ Each review may also spawn one reviewer respawn (up to 18 reviewer spawns per task). Each crash during a review adds one Row V re-review (Resume in `refs/ledger.md`). A resume into an escalation whose advice was not recorded spawns that escalation's advisers again (counted per pass). Each resume after a halt adds one operator review. Per run: at most `RETRY_BUDGET` tasks enter the ladder (When the ladder runs, check 4).
+ 
+-Repairs: at most 1 per attempt, except the second A2 repair (Repair round), and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
++Repairs: at most 1 per attempt and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
+ 
+ No token cap. Token use is not written to the ledger or any retry file, because resume dispatches from the ledger alone and a token gate could not be recomputed on resume; the attempt and spawn caps above already bound the worst case.
+ 
+diff --git a/tests/skills/test_implement_severity_replay.py b/tests/skills/test_implement_severity_replay.py
+index f8d24b0c..f93d1ef8 100644
+--- a/tests/skills/test_implement_severity_replay.py
++++ b/tests/skills/test_implement_severity_replay.py
+@@ -127,19 +127,17 @@ def local(findings, probes):
+     )
+ 
+ 
+-def route(k, findings, probes, repairs, prior_failed=False, first_repair_ok=True):
+-    """Outcome after a review of attempt k: complete / repair / adviser."""
++def route(k, findings, probes, repairs, prior_failed=False, attempt_repaired=False):
++    """Outcome after a review of attempt k: complete / repair / adviser.
++
++    repairs: repairs spent by the task; attempt_repaired: attempt k already spent
++    its one repair (option A: no second A2 repair).
++    """
+     blk = blockers(findings)
+     if not blk:
+         return "complete"
+     probe_only({f["family"] for f in blk}, probes)
+-    second_a2 = (
+-        k == 2
+-        and repairs == 1
+-        and first_repair_ok
+-        and all(f["origin"] == "late" for f in blk)
+-    )
+-    cap_ok = repairs < 2 and (repairs == 0 or second_a2)
++    cap_ok = repairs < 2 and not attempt_repaired
+     return (
+         "repair"
+         if not prior_failed and k >= 2 and cap_ok and local(findings, probes)
+@@ -217,11 +215,11 @@ def test_r_a2_low_label_ignored_blocks_and_probe_before_locality_repairs():
+     )  # V3 F-05
+ 
+ 
+-def test_r_a3_late_blockers_local_second_a2_repair():
++def test_r_a3_late_blockers_after_a2_repair_take_adviser_route():
+     assert sevs(R_A3) == ["blocking", "blocking", "note", "note"]
+-    assert route(2, R_A3, {}, repairs=1) == "repair"
+-    assert route(2, R_A3, {}, repairs=1, first_repair_ok=False) == "adviser"
+-    assert route(2, R_A3, {}, repairs=2) == "adviser"
++    assert route(2, R_A3, {}, repairs=1, attempt_repaired=True) == "adviser"
++    assert route(3, R_A3, {}, repairs=1) == "repair"  # A3 still gets its one repair
++    assert route(3, R_A3, {}, repairs=2) == "adviser"  # 2-per-task cap spent
+ 
+ 
+ def test_r_a4_passes_with_notes():
+@@ -240,16 +238,21 @@ def test_r_a5_parent_caps_inherited_harm_and_computes_compliant():
+ 
+ 
+ def test_t1_end_state_and_notes_chain():
+-    reviews = [("r1-1", R_A1), ("r2-1", R_A2), ("r2-2", R_A3), ("r2-3", [])]
++    # Option A: the recorded T1 run's r2-2 (late, local blockers after repair 1)
++    # now takes the adviser route; no second A2 repair.
++    assert route(2, R_A2, {}, 0) == "repair"
++    assert route(2, R_A3, {}, 1, attempt_repaired=True) == "adviser"
++    # End state when repair 1's re-review (r2-2) passes.
++    reviews = [("r1-1", R_A1), ("r2-1", R_A2), ("r2-2", [])]
+     probes, repairs, notes, ledger = {}, 0, [], ["T1: start sha=05644ca4"]
+     for rid, fs in reviews[1:]:  # A1 failure goes to the Q5 fix pass, not a repair
+         notes += [(rid, f) for f in fs if severity(f) != "blocking"]
+-        r = route(2, fs, probes, repairs)
++        r = route(2, fs, probes, repairs, attempt_repaired=repairs > 0)
+         if r == "repair":
+             repairs += 1
+     notes = [("r1-1", f) for f in R_A1 if severity(f) != "blocking"] + notes
+-    assert r == "complete" and repairs == 2 and len(reviews) == 4
+-    final_tree = {"readme", "a1-broad", "D3", "D4"}  # the A1 pipe text was fixed away
++    assert r == "complete" and repairs == 1 and len(reviews) == 3
++    final_tree = {"readme", "a1-broad"}  # the A1 pipe text was fixed away
+     lines, m = notes_rewrite("05644ca4", notes, final_tree)
+     ledger.append(
+         f"T1: complete verdict={verdict(met_marks(ACS), [], ACS)} ac={','.join(ACS)} "
+@@ -258,7 +261,7 @@ def test_t1_end_state_and_notes_chain():
+     assert "verdict=compliant" in ledger[1] and len(ledger) == 2
+     assert not any("revert" in x or "halt" in x or "Ruling:" in x for x in ledger)
+     assert all(not x.startswith("superseded") for x in lines[1:m])
+-    assert {x.split()[0] for x in lines[1:m]} == {"r1-1", "r2-2"}
++    assert {x.split()[0] for x in lines[1:m]} == {"r1-1"}
+     assert all(x.startswith("superseded") for x in lines[m:])
+ 
+ 
+diff --git a/tests/skills/test_implement_severity_static.py b/tests/skills/test_implement_severity_static.py
+index 690fec0a..bce69d35 100644
+--- a/tests/skills/test_implement_severity_static.py
++++ b/tests/skills/test_implement_severity_static.py
+@@ -275,7 +275,7 @@ def test_ac10_per_attempt_table_rows():
+     for row in (
+         "| Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |",
+         "| A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |",
+-        "| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |",
++        "| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |",
+         "| A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |",
+         "| A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |",
+         "| A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |",
+diff --git a/tests/skills/test_task_workspace_lifecycle.py b/tests/skills/test_task_workspace_lifecycle.py
+index 582346af..63904ee9 100644
+--- a/tests/skills/test_task_workspace_lifecycle.py
++++ b/tests/skills/test_task_workspace_lifecycle.py
+@@ -581,7 +581,9 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
+     assert (
+         "Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair "
+         "re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, "
+-        "`refs/qa.md`), and at most 6 adviser spawns "
++        "`refs/qa.md`; the repair count stays 2 with one repair per attempt, "
++        "because repairs are still capped at 1 per attempt and 2 per task, so two "
++        "attempts can each spend one), and at most 6 adviser spawns "
+         "(2 at escalation 1, 2 at escalation 2, plus 2 critiques)."
+     ) in r
+     # model ladder: both ladder sentences and the four fallback rows, exactly

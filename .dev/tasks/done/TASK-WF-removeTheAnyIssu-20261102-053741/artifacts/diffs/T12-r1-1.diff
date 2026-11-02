@@ -1,0 +1,119 @@
+diff --git a/src/superclaude/agents/rf-qa-qualitative.md b/src/superclaude/agents/rf-qa-qualitative.md
+index 65597158..846b57a1 100644
+--- a/src/superclaude/agents/rf-qa-qualitative.md
++++ b/src/superclaude/agents/rf-qa-qualitative.md
+@@ -804,7 +804,7 @@ Before issuing your verdict, answer these questions in your report:
+ 
+ ### Rules
+ 
+-- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions. All blocking findings must be resolved; minor findings are recorded as notes.
++- Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. Do NOT convert unfixed findings to Open Questions. All blocking findings must be resolved; minor findings are recorded as notes.
+ - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
+ - **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+ 
+@@ -834,7 +834,7 @@ If `fix_authorization: false`:
+ **Topic:** [topic]
+ **Date:** [today]
+ **Phase:** [prd-qualitative / tdd-qualitative / tech-ref-qualitative / ops-guide-qualitative / readme-qualitative / report-qualitative / task-qualitative / doc-qualitative / fix-cycle]
+-**Fix cycle:** [1 / 2 / 3 / N/A]
++**Fix cycle:** [1 / 2 / N/A]
+ 
+ ---
+ 
+diff --git a/src/superclaude/agents/rf-qa.md b/src/superclaude/agents/rf-qa.md
+index 4ea0d096..2ecc7793 100644
+--- a/src/superclaude/agents/rf-qa.md
++++ b/src/superclaude/agents/rf-qa.md
+@@ -397,12 +397,12 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
+ 
+ ### Rules
+ 
+-- Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions.
++- Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. Do NOT convert unfixed findings to Open Questions.
+ - Each cycle MUST have strictly fewer issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`). If the count does NOT strictly shrink, the QA agent MUST HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>` -- see the Retry Monotonicity Protocol below for the full 4-step precedence (regression -> monotonicity -> hard-cap -> proceed). Non-shrinking issue count is a systemic problem and triggers the FR-CONV.5 monotonicity halt-guard; it is no longer a soft flag.
+ 
+-**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 -- strengthens this 3-fix-cycle):**
++**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 -- strengthens this 2-fix-cycle):**
+ 
+-This is the FR-CONV.5 halt-guards wrapper layered on top of the existing 3-fix-cycle above. No new loop or stage is introduced; the wrapper adds two halt guards evaluated in strict order BEFORE the existing 3-cycle cap fires.
++This is the FR-CONV.5 halt-guards wrapper layered on top of the existing 2-fix-cycle above. No new loop or stage is introduced; the wrapper adds two halt guards evaluated in strict order BEFORE the existing 2-cycle cap fires.
+ 
+ - **Regression detection (runs FIRST per cycle transition).** At the end of each cycle, record the
+   PASS set. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit
+@@ -410,10 +410,10 @@ This is the FR-CONV.5 halt-guards wrapper layered on top of the existing 3-fix-c
+   Halt overrides monotonicity check.` Regression takes precedence over monotonicity -- when both would
+   trigger in the same cycle, the regression halt is emitted and the monotonicity check is NOT consulted
+   on the regressed cycle transition.
+-- **Monotonicity guard (runs only after regression check passes).** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` -- i.e., the count did NOT strictly shrink -- HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. The guard fires only on strict non-shrink and is only consulted when `|F_n| > 0`; slow convergence (e.g., `|F|=5,4`) continues to the 3-cycle cap.
++- **Monotonicity guard (runs only after regression check passes).** At the end of each cycle `n`, record the count of remaining failures `F_n`. If `F_{n+1} >= F_n` -- i.e., the count did NOT strictly shrink -- HALT and emit the byte-exact halt-message `[HALT-MONOTONICITY] |F|=<n>`. The guard fires only on strict non-shrink and is only consulted when `|F_n| > 0`; slow convergence (e.g., `|F|=5,4`) continues to the 2-cycle cap.
+ - **PR-03 DNSP composition (INV-012).** Synthetic-dnsp findings count as failures for `|F_n|`. A synthetic with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key re-appearing across cycles is a DEDUP case, not a regression -- the regression check compares by dedup key when synthetic findings are involved.
+ 
+-This protocol is part of zero-trust QA. The guards strengthen the gate strictly -- they never loosen it. The existing 3-cycle hard cap at `rf-team-lead's Fix Cycles rule` remains as the fourth-precedence backstop after regression -> monotonicity.
++This protocol is part of zero-trust QA. The guards strengthen the gate strictly -- they never loosen it. The existing 2-cycle hard cap at `rf-team-lead's Fix Cycles rule` remains as the fourth-precedence backstop after regression -> monotonicity.
+ 
+ ---
+ 
+@@ -425,7 +425,7 @@ This protocol is part of zero-trust QA. The guards strengthen the gate strictly
+ **Topic:** [topic]
+ **Date:** [today]
+ **Phase:** [research-gate / synthesis-gate / report-validation / task-integrity / fix-cycle]
+-**Fix cycle:** [1 / 2 / 3 / N/A]
++**Fix cycle:** [1 / 2 / N/A]
+ 
+ ---
+ 
+@@ -544,6 +544,6 @@ If your total (Read + Grep + Glob) calls < TOTAL checklist items, the review is
+ 7. **Be specific about fixes** — "This needs to be better" is useless. "Line 47 of synth-03 claims `backend/app/workers/vm_worker.py` exports `VMWorker` class but this file doesn't exist — remove this claim or verify the actual path" is useful.
+ 8. **Read EVERY file in scope** — Do not skip files or skim sections.
+ 9. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
+-10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. All blocking findings must be resolved; minor findings are recorded as notes.
++10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. All blocking findings must be resolved; minor findings are recorded as notes.
+ 11. **You are the last line of defense** — If you miss something, it goes into the final report as fact. Take this seriously.
+ 12. **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+diff --git a/src/superclaude/agents/rf-task-builder.md b/src/superclaude/agents/rf-task-builder.md
+index 580b0f2a..898efc44 100644
+--- a/src/superclaude/agents/rf-task-builder.md
++++ b/src/superclaude/agents/rf-task-builder.md
+@@ -380,11 +380,11 @@ When the BUILD_REQUEST includes `QA_GATE_REQUIREMENTS`, `VALIDATION_REQUIREMENTS
+ 
+ | Gate Type | Max Cycles | After Max |
+ |-----------|-----------|-----------|
+-| research-gate | 3 | HALT and escalate |
+-| synthesis-gate | 2 | Open Questions |
+-| report-validation | 3 | HALT and escalate |
+-| task-integrity | 2 | Open Questions |
+-| Any qualitative gate | 3 | HALT and escalate |
++| research-gate | 2 | HALT and escalate |
++| synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
++| report-validation | 2 | HALT and escalate |
++| task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes |
++| Any qualitative gate | 2 | HALT and escalate |
+ 
+ **Halt-precedence rule (COMP-002-M5, applies to every row in the table below).** Each per-gate fix cycle in the table below is governed by the strict 4-step ordering `regression -> monotonicity -> hard-cap -> proceed` (per FR-CONV.5 / API-004). On every cycle transition `n -> n+1` within a gate, the regression halt-message `Regression detected on Item X.Y, previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string), and BOTH are evaluated BEFORE the per-gate cap in the "Max Cycles" column fires. The "After Max" column is the fourth-precedence step (hard-cap fallback at `rf-team-lead's Fix Cycles rule`). Per-gate counters are independent and NEVER collapsed across gates: research-gate's `F_n` is independent from task-integrity's `F_n`. The full operational specification is in the Retry Monotonicity Protocol below.
+ 
+diff --git a/src/superclaude/agents/rf-task-executor.md b/src/superclaude/agents/rf-task-executor.md
+index 5ba3a116..911b71b7 100644
+--- a/src/superclaude/agents/rf-task-executor.md
++++ b/src/superclaude/agents/rf-task-executor.md
+@@ -223,7 +223,7 @@ Failed items:
+ - Step 2.5: Content doesn't match source
+ 
+ Correction loop initiated...
+-Will retry up to 5 times.
++Will retry up to 2 times.
+ ```
+ 
+ ### Execution Errors
+diff --git a/tests/skills/test_task_builder_merge.py b/tests/skills/test_task_builder_merge.py
+index 7d5b98be..a79d6174 100644
+--- a/tests/skills/test_task_builder_merge.py
++++ b/tests/skills/test_task_builder_merge.py
+@@ -432,7 +432,7 @@ class TestPR02RetryMonotonicityGuards:
+         assert "regression detected" in rf_task_builder_text.lower()
+ 
+     def test_rf_qa_has_protocol_in_fix_cycle(self, rf_qa_text: str) -> None:
+-        # rf-qa.md's 3-fix-cycle rules must adopt the same guards.
++        # rf-qa.md's 2-fix-cycle rules must adopt the same guards.
+         assert "Retry Monotonicity Protocol" in rf_qa_text
+         assert "PR-02" in rf_qa_text
+         # Composition with PR-03 DNSP cited.

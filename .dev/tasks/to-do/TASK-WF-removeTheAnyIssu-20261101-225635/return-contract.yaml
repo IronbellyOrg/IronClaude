@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeTheAnyIssu-20261101-225635
+plan_path: ./TASK-WF-removeTheAnyIssu-20261101-225635.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261101225845/REPORT.md
+unresolved:
+  - "Pre-review (Tier 2) found 11 blocking findings (B-01..B-11 in the reflect report): task checks that cannot pass (hash-pinned Critical Rules block, Task 8 grep, R-008 header grep) and 3-cycle caps the plan misses (prd CLI code, prd prompt, 'failing 3 fix cycles' halt rule at 8 sites, 'After 3 failed cycles', '2-3 per gate', ib_agent_core correction loop, rf-team-lead FIX trigger). Do not execute this package; it is superseded by a regenerated package that folds in these fixes (plan review fix cycle 1 of 2)."

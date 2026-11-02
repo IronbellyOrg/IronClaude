@@ -1,0 +1,49 @@
+diff --git a/src/superclaude/skills/task-builder/SKILL.md b/src/superclaude/skills/task-builder/SKILL.md
+index a53e4b2c..559654d2 100644
+--- a/src/superclaude/skills/task-builder/SKILL.md
++++ b/src/superclaude/skills/task-builder/SKILL.md
+@@ -862,11 +862,11 @@ Agent 5 (rf-qa-qualitative — research-depth lens):
+ 
+ **Partitioning:** When >6 research files per track, partition across agent types: spawn 4 rf-analyst instances (2 lenses x 2 partitions) + 4 rf-qa instances (2 lenses x 2 partitions) + 2 rf-qa-qualitative instances (1 lens x 2 partitions) = 10 agents total, each with assigned_files subsets. Merge reports per lens after all return.
+ 
+-**Gate evaluation:** Read ALL 5 agent reports (2 analyst + 2 QA + 1 qualitative). Gate PASSES when ALL verdicts are PASS with ALL findings resolved regardless of severity. A single FAIL from any agent fails the gate.
++**Gate evaluation:** Read ALL 5 agent reports (2 analyst + 2 QA + 1 qualitative). Gate PASSES when ALL verdicts are PASS with every blocking finding resolved; minor findings are carried as notes. A single FAIL from any agent fails the gate.
+ 
+ **Gap-fill cycle:** If the gate fails:
+ 
+-1. Compile all CRITICAL, IMPORTANT, and MINOR issues from analyst + QA reports into a structured gap list
++1. Compile all CRITICAL and IMPORTANT issues from analyst + QA reports into a structured gap list (MINOR issues stay as notes and are not sent to gap-fill)
+ 2. Spawn targeted gap-fill researcher(s) via Agent tool (`subagent_type: "general-purpose"`) with specific gaps to fill
+ 3. After gap-fill, re-run analyst + QA on the NEW research files only
+ 4. **Maximum 3 gap-fill rounds** (aligned with canonical skills and rf-qa agent definition)
+@@ -892,7 +892,7 @@ When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partiti
+ 
+ **Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation`, `dedup_key`, and `found_n_times` fields complete the DM-003 emitter rejection contract. The `recommendation` field is a fixed-value invariant pinned to the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix); the emitter MUST reject any synthetic-dnsp emission carrying any other value, including same-prefix-with-trailing-suffix variants (the wrapper's earlier `on this range` extension was a pre-T06.01 drift and is removed by T06.05). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`. The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse; the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer >=1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively and MUST NOT be silently coerced.
+ 
+-**API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted by the orchestrator as a structured Markdown block written into the partition agent's **normal output stream**, the same stdout/report channel that real findings use, with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the merge step at SKILL.md §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge); the merge step picks up the synthetic block alongside real findings and treats it as a real finding for the existing "any gap regardless of severity = FAIL" gating rule. The `escalation_ladder_exhaust_point` value (the second element of the `dedup_key` 2-tuple at R-118) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., `"second retry"`, `"gap-fill round 2"`, `"after WebSearch exhaustion"`, `"escalation-ladder rung 3"` - all rejected). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors and MUST NOT be silently coerced.
++**API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted by the orchestrator as a structured Markdown block written into the partition agent's **normal output stream**, the same stdout/report channel that real findings use, with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the merge step at SKILL.md §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge); the merge step picks up the synthetic block alongside real findings and treats it as a real blocking finding (severity HIGH) under the review severity rule. The `escalation_ladder_exhaust_point` value (the second element of the `dedup_key` 2-tuple at R-118) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., `"second retry"`, `"gap-fill round 2"`, `"after WebSearch exhaustion"`, `"escalation-ladder rung 3"` - all rejected). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors and MUST NOT be silently coerced.
+ 
+ Then the orchestrator **merges with the remaining N-1 partition agents' findings** rather than aborting. This preserves the parallel-research invariant (N-1 partitions still complete) and the zero-trust QA invariant (the gap is surfaced HIGH-severity, never silently passed).
+ 
+@@ -1597,7 +1597,7 @@ Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
+ - **FAIL with all fixes applied** → QA fixed all issues in-place. Verify fixes by re-reading affected sections. Proceed to A.11.
+ - **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+ 
+-Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected task file sections. If issues remain unfixed, address ALL of them before proceeding to A.11. Zero leniency — no severity level is exempt.
++Read the qualitative QA report. If any blocking (CRITICAL or IMPORTANT) issue was found, verify fixes were applied correctly by re-reading the affected task file sections. If a blocking issue remains unfixed, address it before proceeding to A.11; MINOR issues are recorded as notes.
+ 
+ **Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):** Any re-entry into A.10.5 — whether triggered by an A.10 producer fix-cycle (rf-qa re-ran and rewrote `${TASK_DIR}qa/qa-task-validation-report.md`), an A.10.5 consumer fix-cycle (rf-qa-qualitative re-spawn after task-file edits), or any external orchestrator-driven re-run — MUST execute the following procedure BEFORE re-issuing the Agent spawn call. Skipping the procedure and re-using a verdict block from the prior cycle is forbidden (INV-002).
+ 
+diff --git a/src/superclaude/skills/task/SKILL.md b/src/superclaude/skills/task/SKILL.md
+index 0303480b..7b33cbdb 100644
+--- a/src/superclaude/skills/task/SKILL.md
++++ b/src/superclaude/skills/task/SKILL.md
+@@ -344,7 +344,7 @@ After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol
+ - Any step FAIL with all fixes applied → verify fixes, then proceed
+ - Any step FAIL with unfixable issues → log issues, present to user, ask for guidance before marking done
+ 
+-**Read ALL QA reports (lens reports + fidelity reports). If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly. If issues remain unfixed, address ALL of them before marking the task done. Zero leniency — no severity level is exempt.**
++**Read ALL QA reports (lens reports + fidelity reports). If any blocking (CRITICAL or IMPORTANT) issue was found, verify fixes were applied correctly. If a blocking issue remains unfixed, address it before marking the task done; MINOR issues are recorded as notes.**
+ 
+ ### Serialized Fix Protocol
+ 

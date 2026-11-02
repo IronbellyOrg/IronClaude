@@ -1,0 +1,46 @@
+diff --git a/src/superclaude/output-styles/pragmatic.md b/src/superclaude/output-styles/pragmatic.md
+index 28909f28..f3f56fd5 100644
+--- a/src/superclaude/output-styles/pragmatic.md
++++ b/src/superclaude/output-styles/pragmatic.md
+@@ -222,7 +222,11 @@ Every report of every kind, produced by any agent, skill, gate, or human anywher
+ - Treat a review that surfaces zero issues as suspect, never as automatic proof of quality: a zero-finding result is either genuinely perfect (rare) or a sign the agent did not look hard enough. On a zero-finding verdict, the agent MUST emit a brief Self-Audit naming what it actively checked and why it concluded no defect exists, rather than reporting a bare "no issues found."
+ - When two component, research, or output files conflict on the same component or claim, the gate MUST first determine whether one source is accurate from authoritative evidence. If one source is verified accurate, use it and continue. If the conflict cannot be resolved, record BOTH conflicting versions with an explicit searchable contradiction marker that cites both file paths and flag the conflict for resolution; NEVER silently pick one version and assert it as fact.
+ - Every review agent MUST produce a binary verdict: PASS or FAIL. There is no "conditional pass" and no partial pass.
+-- Any issue of ANY severity (CRITICAL, IMPORTANT, or MINOR) MUST result in a FAIL verdict, except inside a protocol that defines its own severity model, such as `/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`); a "minor issues still pass" allowance is PROHIBITED.
++- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
++- A protocol that defines its own severity model, such as `/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`), applies that model and its own escalation path.
++- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
+ - Declare a unit complete only when its functionality is tested and every claim it makes is verified; when any claim is not verified, give a precise partial status instead of calling the unit complete.
+ - All task outputs must pass appropriate quality gates before being considered complete.
+ - Failure to meet quality gates requires revision before task completion.
+diff --git a/tests/skills/test_implement_severity_static.py b/tests/skills/test_implement_severity_static.py
+index ac07dab8..690fec0a 100644
+--- a/tests/skills/test_implement_severity_static.py
++++ b/tests/skills/test_implement_severity_static.py
+@@ -483,13 +483,18 @@ _STYLE = _REPO / "src/superclaude/output-styles/pragmatic.md"
+ 
+ 
+ def test_p1_output_style_exempts_implement_severity_model():
++    lines = _STYLE.read_text(encoding="utf-8").splitlines()
+     assert (
+-        "- Any issue of ANY severity (CRITICAL, IMPORTANT, or MINOR) MUST result "
+-        "in a FAIL verdict, except inside a protocol that defines its own "
+-        "severity model, such as `/sc:implement` "
+-        '(`~/.claude/skills/sc-implement-protocol/refs/qa.md`); a "minor issues '
+-        'still pass" allowance is PROHIBITED.'
+-    ) in _STYLE.read_text(encoding="utf-8").splitlines()
++        "- Minor findings never fail a review: the reviewer records them in its "
++        "report as notes, the verdict is PASS (with notes), and work proceeds. "
++        "Minor findings are not rechecked in later rounds and never trigger a "
++        "fix pass on their own. Only blocking findings produce FAIL."
++    ) in lines
++    assert (
++        "- A protocol that defines its own severity model, such as "
++        "`/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`), "
++        "applies that model and its own escalation path."
++    ) in lines
+ 
+ 
+ def test_p2_minors_never_drive_a_fix_pass_repair_or_review():
