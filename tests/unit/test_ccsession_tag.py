@@ -3026,3 +3026,12 @@ def test_a_session_belongs_to_the_worktree_it_was_started_in(tmp_path: Path) -> 
     assert _listed(b, env, "--here") == {}
     assert "WARNING" in _ccs(b, env, "started in main").stderr
     assert "WARNING" not in _ccs(main, env, "started in main").stderr
+
+
+def test_worktree_list_ignores_git_variables_from_the_caller(tmp_path: Path) -> None:
+    # A hook or script run for another checkout can leave GIT_DIR and
+    # GIT_WORK_TREE set; the list must still follow the current folder.
+    main, b, _, env = _three_worktrees(tmp_path)
+    env.update({"GIT_DIR": str(main / ".git"), "GIT_WORK_TREE": str(main)})
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "WARNING" in _ccs(b, env, "main work").stderr

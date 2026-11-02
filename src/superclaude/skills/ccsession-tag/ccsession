@@ -1064,17 +1064,24 @@ session_home() {
   printf '%s' "$first"
 }
 
+git_here() (
+  # git for the current folder, as name_key does: GIT_DIR and friends from the
+  # caller (a hook, a script run inside another checkout) never redirect it.
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
+  git "$@"
+)
+
 load_worktrees() {
   # Sets WT_HERE (this worktree's folder, or this folder outside git) and
   # WT_ALL (every worktree of the repo, one real path per line).
-  WT_HERE=$(git rev-parse --show-toplevel 2>/dev/null) &&
+  WT_HERE=$(git_here rev-parse --show-toplevel 2>/dev/null) &&
     WT_HERE=$(cd "$WT_HERE" 2>/dev/null && pwd -P) || WT_HERE=$(pwd -P)
   WT_ALL=""
   local w real
   while IFS= read -r w; do
     real=$(cd "$w" 2>/dev/null && pwd -P) || continue
     WT_ALL="$WT_ALL$real"$'\n'
-  done < <(git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+  done < <(git_here worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
 }
 
 session_place() {
