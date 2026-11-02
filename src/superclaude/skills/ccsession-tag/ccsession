@@ -1064,6 +1064,15 @@ session_home() {
   printf '%s' "$first"
 }
 
+session_branch() {
+  # <transcript> -> the git branch the session started on, or nothing.
+  local b LC_ALL=C
+  [ -f "$1" ] || return 0
+  b=$(head -c 262144 "$1" 2>/dev/null | grep -oE '"gitBranch":"[^"\\]*"' | head -n 1) || true
+  b=${b#\"gitBranch\":\"}
+  printf '%s' "${b%\"}"
+}
+
 git_here() (
   # git for the current folder, as name_key does: GIT_DIR and friends from the
   # caller (a hook, a script run inside another checkout) never redirect it.
@@ -1085,14 +1094,14 @@ load_worktrees() {
 }
 
 session_place() {
-  # <folder a session belongs to> -> "here" (this worktree), "gone" (its
-  # worktree was removed) or "other" (another worktree or copy of the repo
-  # that still exists). Needs load_worktrees.
-  local real w best="" missing="" base
+  # <folder a session belongs to> [<its transcript>] -> "here" (this
+  # worktree), "gone" (its worktree was removed) or "other" (another worktree
+  # or copy of the repo that still exists). Needs load_worktrees.
+  local real w best="" missing="" base top branch
   [ -n "$1" ] || { echo here; return; }  # unknown: the old behaviour
   if ! real=$(cd "$1" 2>/dev/null && pwd -P); then
-    # The folder is gone. Resolve its nearest existing parent: a deleted
-    # folder of a live worktree still belongs to that worktree.
+    # The folder is gone. A deleted folder of a checkout that still exists
+    # belongs to that checkout: find the one holding its nearest parent.
     case "$1" in /*) ;; *) echo gone; return ;; esac
     base=$1
     while [ ! -d "$base" ]; do
@@ -1100,8 +1109,23 @@ session_place() {
       base=${base%/*}
       [ -n "$base" ] || base=/
     done
-    real=$(cd "$base" 2>/dev/null && pwd -P) || { echo gone; return; }
-    real="${real%/}$missing"
+    base=$(cd "$base" 2>/dev/null && pwd -P) || { echo gone; return; }
+    real="${base%/}$missing"
+    # No checkout there, or another repo's: its worktree was removed.
+    top=$(cd "$base" && git_here rev-parse --show-toplevel 2>/dev/null) &&
+      top=$(cd "$top" 2>/dev/null && pwd -P) &&
+      [ "$(cd "$top" && name_key)" = "$(name_key)" ] || { echo gone; return; }
+    # A worktree removed from inside another (an ignored folder such as
+    # .dev/worktrees/<name>) ran on a branch of its own: git never checks one
+    # branch out in two worktrees at once.
+    branch=$(session_branch "${2:-}")
+    if [ -n "$branch" ] &&
+      [ "$branch" != "$(git_here -C "$top" symbolic-ref --short -q HEAD 2>/dev/null)" ] &&
+      git_here -C "$top" check-ignore -q -- "${real#"$top"/}" 2>/dev/null; then
+      echo gone; return
+    fi
+    if [ "$top" = "$WT_HERE" ]; then echo here; else echo other; fi
+    return
   fi
   # The worktree holding the folder is the longest worktree path above it
   # (worktrees can sit inside the main checkout, e.g. .dev/worktrees/<name>).
@@ -1111,15 +1135,6 @@ session_place() {
       "$w"/*) [ "${#w}" -gt "${#best}" ] && best=$w ;;
     esac
   done <<< "$WT_ALL"
-  if [ -n "$missing" ]; then
-    # Outside every live worktree, or in a folder the enclosing worktree
-    # ignores (where worktrees are kept, e.g. .dev/worktrees/<name>): the
-    # session's own worktree was removed.
-    [ -n "$best" ] || { echo gone; return; }
-    if git_here -C "$best" check-ignore -q -- "${real#"$best"/}" 2>/dev/null; then
-      echo gone; return
-    fi
-  fi
   if [ -z "$best" ]; then  # not a worktree of this repo (or not a repo)
     case "$real/" in
       "$WT_HERE"/*) best=$WT_HERE ;;
@@ -1249,7 +1264,7 @@ list_sessions() {
       else
         if [ "$filter" = worktree ]; then
           was=$(session_home "$jsonl")
-          place=$(session_place "$was")
+          place=$(session_place "$was" "$jsonl")
         fi
         start_ts=$(get_btime "$jsonl")
         last_ts=$(get_mtime "$jsonl")
@@ -1581,9 +1596,10 @@ if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   # Claude Code continues a resumed conversation in this folder. One that
   # belongs to another worktree that still exists would now edit and commit here.
-  _was=$(session_home "$(session_transcript "$SESSION_ID")")
+  _jsonl=$(session_transcript "$SESSION_ID")
+  _was=$(session_home "$_jsonl")
   load_worktrees
-  if [ "$(session_place "$_was")" = other ]; then
+  if [ "$(session_place "$_was" "$_jsonl")" = other ]; then
     echo "[ccsession] WARNING: '$TOPIC' was started in ${_was/#"$HOME"/\~}. It continues here, in ${PWD/#"$HOME"/\~}: its edits and commits go to this worktree. To work in its own worktree instead, exit and run ccsession there." >&2
   fi
   if [ -n "${PROFILE_MODEL:-}" ]; then

@@ -2277,11 +2277,16 @@ def _named_repo(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
     return main, worktree, home / ".claude" / "projects", env
 
 
-def _transcript(projects: Path, folder: Path, session: str, *titles: str) -> Path:
+def _transcript(
+    projects: Path, folder: Path, session: str, *titles: str, branch: str = ""
+) -> Path:
     """A saved conversation, written the way Claude Code writes it (compact JSON)."""
     saved = projects / str(folder).replace("/", "-")
     saved.mkdir(parents=True, exist_ok=True)
-    rows = [{"type": "user", "cwd": str(folder), "sessionId": session}]
+    first: dict[str, str] = {"type": "user", "cwd": str(folder), "sessionId": session}
+    if branch:
+        first["gitBranch"] = branch
+    rows = [first]
     rows += [
         {"type": "custom-title", "customTitle": t, "sessionId": session} for t in titles
     ]
@@ -3060,9 +3065,62 @@ def test_a_removed_worktree_inside_an_ignored_folder_is_still_removed(
     _git(main, "worktree", "add", "-q", "-b", "nested", str(nested))
     projects = tmp_path / "home" / ".claude" / "projects"
     session = "55550000-0000-0000-0000-000000000000"
-    _transcript(projects, nested, session)
+    _transcript(projects, nested, session, branch="nested")
     topics = projects / "github.com-Org-Repo" / "topics"
     (topics / "nested work.txt").write_text(f"{session}\n")
     _git(main, "worktree", "remove", str(nested))
     assert "nested work" in _listed(b, env, "--here")
     assert "WARNING" not in _ccs(b, env, "nested work").stderr
+
+
+def _branch(repo: Path) -> str:
+    return subprocess.run(
+        ["git", "symbolic-ref", "--short", "HEAD"],
+        cwd=repo,
+        env=_git_env(repo),
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+
+
+def _add_session(
+    env: dict[str, str], folder: Path, n: int, name: str, branch: str
+) -> None:
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+    _transcript(projects, folder, session, branch=branch)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / f"{name}.txt").write_text(f"{session}\n")
+
+
+def test_a_deleted_ignored_folder_of_a_live_worktree_stays_with_it(
+    tmp_path: Path,
+) -> None:
+    # An ignored folder (build output) is not a worktree: a session started
+    # there on the worktree's own branch still belongs to that worktree.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text("build\n")
+    (main / "build").mkdir()
+    _add_session(env, main / "build", 6, "build work", _branch(main))
+    shutil.rmtree(main / "build")
+    assert "build work" not in _listed(b, env, "--here")
+    assert "build work" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "build work").stderr
+
+
+def test_a_deleted_folder_of_another_copy_of_the_repo_stays_with_that_copy(
+    tmp_path: Path,
+) -> None:
+    # Another clone of the same repo is not one of this clone's worktrees,
+    # but it still exists: its session is not an orphan.
+    main, b, _, env = _three_worktrees(tmp_path)
+    clone = tmp_path / "clone"
+    _git(tmp_path, "clone", "-q", str(main), str(clone))
+    _git(clone, "remote", "set-url", "origin", "https://github.com/Org/Repo")
+    (clone / "sub").mkdir()
+    _add_session(env, clone / "sub", 7, "clone sub", _branch(clone))
+    (clone / "sub").rmdir()
+    assert "clone sub" not in _listed(b, env, "--here")
+    assert "clone sub" not in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "clone sub").stderr
