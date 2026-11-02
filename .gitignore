@@ -117,6 +117,10 @@ poetry.lock
 
 # Project specific
 Tests/
+# Git matches the line above case-sensitively, so tests/ stays tracked.
+# Tools that read .gitignore case-insensitively (codegraph's matcher) would
+# also drop tests/; this negation keeps it in their scope. No-op for Git.
+!tests/
 temp/
 tmp/
 .cache/
