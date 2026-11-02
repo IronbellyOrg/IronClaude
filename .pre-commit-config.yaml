@@ -82,6 +82,7 @@ repos:
             .*node_modules.*|
             .*\.min\.md$|
             \.dev/.*|
+            src/superclaude/core/ISSUE-.*\.md|
             tests/swarm/fixtures/bare_review_v1/golden/.*|
             tests/troubleshoot/fixtures/.*
           )$
