@@ -4,6 +4,10 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-11-02
+
+Major release: codegraph replaces codebase-memory-mcp and Serena, and several commands, flags and core files are removed. Read the [5.0.0 release notes](docs/releases/v5.0.0.md) for the breaking changes and upgrade steps. This is the first versioned section of this changelog; it covers every change since the package version was set to 4.3.5 (2026-06-04), which was never tagged.
+
 ### ccsession: shim survives its launching terminal (#341)
 
 #### Fixed (ccsession shim survives its terminal)
