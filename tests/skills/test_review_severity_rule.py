@@ -176,6 +176,22 @@ def test_a_no_any_severity_wording_in_tracked_primitives():
     assert not hits, "any-severity wording survives:\n" + "\n".join(hits)
 
 
+COSMETIC_FAIL_LINES = (
+    "Unclear or confusing writing = FAIL",
+    "Poor grammar/spelling/formatting = FAIL",
+    "Section name doesn't exactly match spec = FAIL",
+    "Wrong heading level (H1 vs H2 vs H3) = FAIL",
+    'TODO note too vague ("Add content") = FAIL',
+)
+
+
+def test_a_documentation_expert_cosmetic_findings_are_minor():
+    text = _read("src/superclaude/rules/prompts/documentation_expert_qa_prompt.md")
+    assert not [line for line in COSMETIC_FAIL_LINES if line in text]
+    for unless in ("exact name", "exact level", "exact wording"):
+        assert f"= minor (note) unless the spec requires that {unless}" in text
+
+
 # --- (c) S1-S3 / S5 copies in the ten-file set -----------------------------
 
 S1_S3_FILES = (
