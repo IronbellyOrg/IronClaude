@@ -1,0 +1,14 @@
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/unit/test_ccsession_tiers.py -k directly_started_shim -q -p no:cacheprovider
+====================== 1 passed, 128 deselected in 0.75s =======================
+rc=0
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/unit/test_ccsession_tiers.py -q -p no:cacheprovider
+tests/unit/test_ccsession_tiers.py:1536: in test_shim_outlives_the_terminal_that_started_it
+E   assert 2501629 not in {2501629}
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it
+================== 1 failed, 128 passed in 126.79s (0:02:06) ===================
+rc=1
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/unit/test_ccsession_tag.py -q -p no:cacheprovider
+============================= 133 passed in 41.63s =============================
+rc=0
+$ pgrep -af "[p]ytest-of-.*/shim-under-test.py"
+pgrep: none running

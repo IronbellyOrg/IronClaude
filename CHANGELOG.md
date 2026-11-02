@@ -4,6 +4,11 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: shim survives its launching terminal (#341)
+
+#### Fixed (ccsession shim survives its terminal)
+
+- The shared gateway shim was started inside the terminal that first launched it, so closing that terminal (Orca kills its descendants) cut every other session's reply and refused new ones until a later launch started a new shim. ccsession now starts it from a subshell and the shim starts its own session, so it keeps running until stopped (`pkill -f local-gateway-alias-proxy.py`). A shim already running keeps the old behaviour until it is stopped and a launch starts a new one.
 ### Reviews: minor findings never fail a review; review loops capped at 2 fix cycles
 
 User decision (release blocker for 5.0.0; evidence: the QA-loop investigation `FINDINGS.md`, bundle A).

@@ -13,6 +13,7 @@ import json
 import os
 import re
 import runpy
+import signal
 import socket
 import ssl
 import stat
@@ -1417,6 +1418,149 @@ def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
             ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
         )
         gateway.close()
+
+
+def _descendants(root: int) -> set[int]:
+    """Every process whose parent chain leads to root (root excluded)."""
+    children: dict[int, list[int]] = {}
+    out = subprocess.run(
+        ["ps", "-axo", "pid=,ppid="], capture_output=True, text=True, check=True
+    ).stdout
+    for line in out.splitlines():
+        pid, ppid = (int(x) for x in line.split())
+        children.setdefault(ppid, []).append(pid)
+    found, todo = set(), [root]
+    while todo:
+        for child in children.get(todo.pop(), []):
+            if child not in found:
+                found.add(child)
+                todo.append(child)
+    return found
+
+
+def _is_running(pid: int, marker: str) -> bool:
+    """True when pid is alive and its command line names marker (never reused pids)."""
+    try:
+        cmd = subprocess.run(
+            ["ps", "-p", str(pid), "-o", "command="], capture_output=True, text=True
+        ).stdout
+    except OSError:
+        return False
+    return marker in cmd
+
+
+def test_shim_outlives_the_terminal_that_started_it(tmp_path: Path) -> None:
+    """Issue #341: closing the terminal that launched the shim must not stop it.
+
+    Orca closes a terminal by sending SIGTERM, then SIGKILL, to every
+    descendant of the terminal's shell. A shim started by ccsession in that
+    terminal is shared by other sessions, so it must not be one of them.
+    """
+    shim_copy = tmp_path / "shim-under-test.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir()
+    fake.write_text(
+        '#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\nexec sleep 60\n'
+    )
+    fake.chmod(0o755)
+    (tmp_path / "home").mkdir()
+    seen = tmp_path / "seen"
+    port = _free_port()
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        CC_SHIM_SCRIPT=str(shim_copy),
+        CC_SHIM_PORT=str(port),
+        SEEN_FILE=str(seen),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    gateway = StandInGateway()
+    env["ANTHROPIC_BASE_URL"] = gateway.url
+    shim_pid = None
+    terminal = None
+    try:
+        # The terminal: its own session, like a shell in a new pty.
+        with open(tmp_path / "terminal.log", "w") as log:
+            terminal = subprocess.Popen(
+                [str(SKILL_DIR / "ccsession"), "work"],
+                cwd=tmp_path,
+                env=env,
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        for _ in range(600):
+            if seen.exists() and seen.read_text().strip():
+                break
+            assert terminal.poll() is None, (tmp_path / "terminal.log").read_text()
+            time.sleep(0.1)
+        url = seen.read_text().strip()
+        assert url == f"http://127.0.0.1:{port}"
+        health_url = f"{url}/__ccsession_shim"
+        shim_pid = json.loads(urllib.request.urlopen(health_url, timeout=5).read())[
+            "pid"
+        ]
+
+        gateway.script["muse-spark-1.3"] = [("pause-stream", 4)]
+        result: dict = {}
+
+        def ask():
+            try:
+                result["r"] = _ask_raw(url, "claude-gw-tier2", stream=True, timeout=30)
+            except Exception as exc:  # recorded and asserted below
+                result["e"] = exc
+
+        streaming = threading.Thread(target=ask, daemon=True)
+        streaming.start()
+        time.sleep(1)  # the reply has started and is paused
+
+        # Close the terminal the way Orca does.
+        under_terminal = _descendants(terminal.pid)
+        for pid in [*under_terminal, terminal.pid]:
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        time.sleep(0.5)
+        for pid in [*_descendants(terminal.pid), terminal.pid]:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        terminal.wait(timeout=10)
+        streaming.join(30)
+
+        assert shim_pid not in under_terminal
+        assert _is_running(shim_pid, str(shim_copy))
+        assert os.getsid(shim_pid) != terminal.pid  # not in the terminal's session
+        assert "e" not in result, result.get("e")
+        status, body = result["r"]
+        assert status == 200 and b"message_stop" in body  # never cut
+        health = json.loads(urllib.request.urlopen(health_url, timeout=5).read())
+        assert health["pid"] == shim_pid
+    finally:
+        if shim_pid and _is_running(shim_pid, str(shim_copy)):
+            os.kill(shim_pid, signal.SIGKILL)
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+        gateway.close()
+        if terminal is not None and terminal.poll() is None:
+            terminal.kill()
+            terminal.wait(timeout=10)
+
+
+def test_a_directly_started_shim_leaves_the_launchers_session(shim) -> None:
+    """Issue #341: signals aimed at the starter's session or group miss the shim."""
+    _, start, _ = shim
+    base = start()
+    health = json.loads(
+        urllib.request.urlopen(f"{base}/__ccsession_shim", timeout=5).read()
+    )
+    pid = health["pid"]
+    assert os.getsid(pid) != os.getsid(0)
+    assert os.getpgid(pid) != os.getpgid(0)
 
 
 # --- review round 3 -----------------------------------------------------------

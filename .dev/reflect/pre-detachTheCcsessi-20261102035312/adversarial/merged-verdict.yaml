@@ -1,0 +1,17 @@
+merge_method: adversarial
+adversarial_artifacts_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial   # remapped from sc-adversarial `artifacts_dir`
+merged_output_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial/merged-output.md
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+base_variant: reviewer-1-card (analyzer, sonnet)
+reviewer_cards:
+  - /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/reviewer-cards/reviewer-2-card.md
+calibrated_confidence: { reviewer-1: 0.85, reviewer-2: 0.78 }
+verdict:
+  regression_present: false        # UC-1: plan-level; no finding classified Regression after merge
+  drift_findings: [F1, F2, F3, F4, F5, F12, F13, F14, F15]
+  medium_findings: [F1, F3, F4, F5, F14, F15]
+  high_findings: []
+  plan_gap: INF-044 (HC5 off-path review)
+unaddressed_invariants_medium: [INV-001, INV-002]

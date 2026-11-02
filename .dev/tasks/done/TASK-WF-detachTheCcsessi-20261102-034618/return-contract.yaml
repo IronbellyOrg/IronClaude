@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-detachTheCcsessi-20261102-034618
+plan_path: ./TASK-WF-detachTheCcsessi-20261102-034618.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/REPORT.md
+unresolved: []

@@ -1,0 +1,132 @@
+contract_version: "1.8.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/REPORT.md
+audit_log_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 1.0
+deviation_count_by_class: {authorized: 0, necessary: 3, drift: 2, regression: 0}
+deviation_register_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/adversarial/merged-output.md
+grounding_gaps_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/grounding-gaps.yaml
+hunk_to_declaration_map_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/artifacts/tasklist-diff-map.md
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: true
+verification_invocations: 2
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements: [T3.AC1, T4.AC1]
+runtime_surface_sweep_ran: true
+runtime_surface_ledger_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: no-side-effect-requirements
+reuse_sweep_ran: true
+reuse_audit_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/artifacts/reuse-audit.yaml
+reuse_miss_blocking: 0
+reuse_miss_advisory: 2
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 5}
+reuse_grounding_gap_count: 2
+neighbour_search_sampled: false
+neighbour_search_degraded: true
+max_overlap_score: 0.93
+input_sha256:
+  tasklist: 15b1a9a41b1390e7fc76eb9c142cbd4c4bd4ac2d1875bf20dacb0541758ab3ce
+  spec: 1f17b986394a22af4e4c740c1cff24f6a663902017992df66ef5c293b6cf5ce7
+input_tree_sha256: afaad2aa3a330eeb881ec24c5b95b1853acce58d308142aeb984e5a6c946aa5a
+input_tree_file_count: 27
+input_tree_snapshot_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 55
+citations_revalidated: 55
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/reviewer-cards/reviewer-1-card.md, /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/reviewer-cards/reviewer-2-card.md]
+adversarial_artifacts_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/adversarial
+adversarial_convergence_score: 0.94
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: multi
+t2_effective_diversity: vendor-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: true
+per_task_verdicts:
+  - {task_id: T1, status: success, deviation_class: necessary, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: tests/unit/test_ccsession_tiers.py:1536}
+  - {task_id: T2, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: tests/unit/test_ccsession_tiers.py:1562}
+  - {task_id: T3, status: success, deviation_class: necessary, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:863}
+  - {task_id: T4, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: src/superclaude/skills/ccsession-tag/ccsession:804}
+  - {task_id: T5, status: success, deviation_class: drift, citations_dropped: 0, per_task_validation_strength: 0.76, evidence_anchor: CHANGELOG.md:9}
+interaction_effects_scanned: true
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: user-flag
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components: ["neighbour-search:auggie_unavailable", "auggie"]
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  memory_hits: 1
+  memory_misses: 1
+  memory_retention_actions: 0
+  verify_blocked: false
+  verify_timeout_default: 120
+  verify_invocations_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/post-detachTheCcsessi-20261102044547/verify-logs/invocations.yaml
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false
+  reviewer_isolation: disabled

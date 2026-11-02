@@ -1,0 +1,18 @@
+# FR-RSR runtime-surface ledger (sc:reflect §6.1 steps 4b'/4b), one row per evaluated edge.
+# Tagged surfaces: the proxy's script entry block and the bash launcher hunk. Both reduce to DEGRADE
+# (static reachability cannot soundly prove them), even though real runs exercise both
+# (verify-logs/pytest-ccsession.stdout.txt: 262 passed, including the tests that launch the real ccsession).
+- requirement_id: T3.AC1
+  symbol: "local-gateway-alias-proxy.py::__main__ (script entry block, lines 857-881)"
+  edge: "__main__ -> src/superclaude/skills/ccsession-tag/ccsession:808 (nohup python3 \"$CC_SHIM_SCRIPT\")"
+  status: DEGRADE
+  production_referrers: ["src/superclaude/skills/ccsession-tag/ccsession:808"]
+  evidence_ref: "src/superclaude/skills/ccsession-tag/ccsession:808"
+  reason: "degrade oracle (b)/(c): a script started by a path held in a variable is a packaging/string-dispatch entrypoint; never UNREACHED"
+- requirement_id: T4.AC1
+  symbol: "ccsession::setup_shim start statement (bash, lines 804-809)"
+  edge: "setup_shim -> ccsession launch path (bash; not indexed by codegraph)"
+  status: DEGRADE
+  production_referrers: []
+  evidence_ref: "src/superclaude/skills/ccsession-tag/ccsession:804"
+  reason: "language table: bash is unknown/unsupported, so production-vs-test classification is incomplete"

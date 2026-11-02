@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial/merged-output.md
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial
+  status: success
+  base_variant: "variant-1 (reviewer-1-card, analyzer, sonnet)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # no HIGH-severity UNADDRESSED items; MEDIUM warnings INV-001, INV-002 recorded in invariant-probe.md

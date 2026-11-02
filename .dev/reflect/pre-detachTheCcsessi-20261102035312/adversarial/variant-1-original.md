@@ -1,0 +1,20 @@
+# Reviewer 1 card — analyzer (sonnet), reflect-reviewer agent; persisted by the parent on receipt
+
+Verdict: the two-part fix (subshell + os.setsid) is sound; no HIGH issues; several MEDIUM under-specifications. Self-reported confidence: 0.72.
+
+| id | category | severity | citation | rationale | recommendation |
+|---|---|---|---|---|---|
+| F1 | Drift (spec constraint left unguarded) | MEDIUM | Task 1 text; ccsession:832; test_ccsession_tiers.py:1354-1361 | Task 1 says "Mirror `_real_launch`" but does not name `HOME=tmp_path/home`; setup_shim warms `$HOME/.claude/cache/gateway-models.json` (ccsession:832), so without it the test overwrites the user's real cache, breaking Constraint 2 / AC5 | list the env explicitly: HOME, AIDEV_AI_DEFAULTS_PATH, CLAUDE_BIN, ANTHROPIC_BASE_URL, CC_SHIM_SCRIPT, CC_SHIM_PORT, SEEN_FILE; tier mode (ccsession:688) turns the shim on |
+| F2 | Drift (risk) | MEDIUM | Task 4 last AC; tier1-observation.md | live-shim "same pid before and after" has no baseline step; the 4114 shim can die for outside reasons (the bug itself) | take the baseline before any change; an outside-caused change is recorded, not a failure |
+| F3 | Regression (inherent to the goal, unplanned) | MEDIUM | ccsession:769-795; models.py:772-784 | shims used to die with their terminal (accidental cleanup); now they persist; the code digest changes with this edit, so upgraded workspaces start new shims on +101 ports; 6 attempts can run out ("no free shim port", ccsession:793-795) | no code change; CHANGELOG says shims now stay up until stopped and old shims keep old behavior; keep the `pkill -f` hint |
+| F4 | Drift (under-specified) | MEDIUM | Task 1 | if the descendant assertion runs before the sweep, the before-run only proves that assertion; a killed shim makes the stream thread raise (`KeyError` on result) | sweep first; thread stores exceptions; then assert descendant, 200 + message_stop, same pid; guard root pid != os.getpid(); wait() the root in finally |
+| F5 | Drift (under-specified) | MEDIUM | Task 2 AC2 | "assert in the test" after teardown is impossible; a generic `pgrep -f local-gateway-alias-proxy.py` would match the live 4013/4114 shims | verify by recorded pid (`kill -0`) or `pgrep -f` on the full per-test path only; never pkill by generic name |
+| F6 | Refinement | LOW | Task 1 cleanup; tests:1416-1418 | after the fix the shim is an orphan under pid 1; root pid becomes `sleep` after exec | pgrep -f on the copy path for the shim; Popen.poll()/wait() for the root |
+| F7 | Aligned (gap carried from spec) | LOW | local-gateway-alias-proxy.py:857-872 | the "already a group leader -> OSError" branch is untested | one-off manual check in t3-tests.log (start with start_new_session=True, still serves) |
+| F8 | Aligned | LOW | tasklist line 21 | INF-038..041 have no task AC | Task 3 AC: diff shows only the setsid try block + comment |
+| F9 | Refinement | LOW | live-check/orca_close_repro.py; tier1-hypothesis.md | stand-in terminal root; real Orca tree (possible subreaper) not exercised | say so in the final artifacts |
+| F10 | Refinement | LOW | Task 5 AC2 vs remediation-source.md:22 | Task 5 grep finds the spec's 6 files plus tests/cli/test_install_hooks.py (superset) | confirm install/update tests use temp HOMEs before running them |
+| F11 | Refinement | LOW | Task 1 AC1 vs remediation-source.md:14 | "contains" vs "ends with" message_stop; matches existing pattern at tests:1405 | accept |
+| F12 | Refinement | LOW | remediation-source.md:35 (HC5) | independent review not a task | leave to PR review / reflect post; state it in the final report |
+
+Checked and aligned (condensed): subshell orphans the shim; os.setsid before bind leaves the session/group; `set -e` (ccsession:86) does not break the subshell; no `$!`/wait/trap/disown tied to the shim; listener/health waits do not need a child; pgrep fallback still works by argv; Task 3 expectation correct; Task 2 sound (fixture terminate at tests:612); README recipe (480-497) already uses a subshell; test_ccsession_tag.py:849-892 shim startup unaffected; macOS paths fine.

@@ -1,0 +1,19 @@
+input_tree_files:
+  - path: .dev/tasks/to-do/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md
+    sha256: 15b1a9a41b1390e7fc76eb9c142cbd4c4bd4ac2d1875bf20dacb0541758ab3ce
+  - path: .dev/tasks/to-do/TASK-WF-detachTheCcsessi-20261102-034618/source.md
+    sha256: 1f17b986394a22af4e4c740c1cff24f6a663902017992df66ef5c293b6cf5ce7
+  - path: src/superclaude/skills/ccsession-tag/ccsession
+    sha256: d8cd94a794ba881e4a99f0d3b4052bc239108b114b2691bd2eb03191dbb8c4c3
+  - path: src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+    sha256: 43f3fc4ae5e847f2a0223fd7b813f512673493d86204dc366af523b19e00bd06
+  - path: tests/unit/test_ccsession_tiers.py
+    sha256: 23fb88ec9af2c62aff48a6664ced6fb836afd784330750bb25f60ef32fbf84d5
+  - path: CHANGELOG.md
+    sha256: 4c3c67a383762a3b1abb17e0673d5759ca35e952c6d5ce79ecd183a8edbf402f
+  - path: .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md
+    sha256: 437a7af42a64817e33ad6806119b27d1359d1dd0696b1d4e849dbb8a8fd0f48f
+  - path: .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py
+    sha256: 5c745afd48e6ec8a6cbdcf2ade171fbeb62e156aa1206bbb7fc025fc7cfb7e2b
+input_tree_sha256: b99590042a5711b47cafc8683c4d26726228ab65223ac456fe34932bde47119f
+file_count: 8

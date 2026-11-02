@@ -1,0 +1,5 @@
+terminal root pid=2296743 shim pid=2296833 base=http://127.0.0.1:49961
+shim is a descendant of the terminal: True
+stream finished: False error=None bytes=53
+port after close: URLError(ConnectionRefusedError(111, 'Connection refused'))
+cleanup: shim pid 2296833 already gone
