@@ -1,0 +1,34 @@
+# sc:reflect §10.6 Grounding Gaps (evidence-insufficient findings; NOT deviations)
+findings:
+  - hunk_ref: "src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:857-881"
+    evidence_missing: "static proof that the script entry block is reached from a runtime root; the shim is started by path from a bash variable (ccsession:808), which the static sweep cannot follow"
+    why_not_classifiable: "runtime-surface degrade oracle (packaging / string-dispatch entrypoint) forces DEGRADE regardless of runtime evidence"
+    next_evidence_needed: "none beyond what exists: tests that launch the real ccsession pass (verify-logs/pytest-ccsession.stdout.txt) and the live check after.txt shows the shim answering; a human confirms this runtime evidence is acceptable"
+    owner: user
+    decision_needed_by_user: false
+  - hunk_ref: "src/superclaude/skills/ccsession-tag/ccsession:804-809"
+    evidence_missing: "static reachability classification for a bash hunk (bash is not in the runtime-surface language table and not indexed)"
+    why_not_classifiable: "language table: unknown/unsupported language -> DEGRADE"
+    next_evidence_needed: "none beyond what exists: test_shim_outlives_the_terminal_that_started_it runs this statement through the real launcher and passes"
+    owner: user
+    decision_needed_by_user: false
+  - hunk_ref: "tests/unit/test_ccsession_tiers.py:1423-1439"
+    evidence_missing: "a semantic neighbour search (auggie unavailable); the Grep/codegraph fallback caps every reuse tier at maybe-related"
+    why_not_classifiable: "reuse finding below the L3 blocking bar (degraded neighbour search)"
+    next_evidence_needed: "none; the only matching neighbour is the untracked investigation script orca_close_repro.py:58, which is not importable; verdict distinct"
+    owner: user
+    decision_needed_by_user: false
+    reuse_candidate: "_descendants"
+    nearest_neighbour: ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py:58"
+    similarity_tier: maybe-related
+    composite_scores: {C_cap: 0.95, C_shape: 0.90, C_aug: 0.0, S_reuse: 0.93}
+  - hunk_ref: "tests/unit/test_ccsession_tiers.py:1441-1451"
+    evidence_missing: "a semantic neighbour search (auggie unavailable)"
+    why_not_classifiable: "reuse finding below the L3 blocking bar (degraded neighbour search)"
+    next_evidence_needed: "none; nearest neighbour is a README shell snippet (README.md:487), not importable Python; verdict distinct"
+    owner: user
+    decision_needed_by_user: false
+    reuse_candidate: "_is_running"
+    nearest_neighbour: "src/superclaude/skills/ccsession-tag/README.md:487"
+    similarity_tier: maybe-related
+    composite_scores: {C_cap: 0.75, C_shape: 0.70, C_aug: 0.0, S_reuse: 0.73}

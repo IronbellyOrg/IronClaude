@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: .dev/reflect/post-detachTheCcsessi-20261102044547/adversarial/merged-output.md
+  convergence_score: 0.94
+  artifacts_dir: .dev/reflect/post-detachTheCcsessi-20261102044547/adversarial
+  status: success
+  base_variant: "haiku(glm-5.3):qa (variant 2, reviewer 2)"
+  unresolved_conflicts: 1          # C-004 (CHANGELOG last sentence: drift LOW vs documentation note), decided by evidence
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []       # INV-002 (HIGH) addressed in a targeted round; residual MEDIUM non-gating

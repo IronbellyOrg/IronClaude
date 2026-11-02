@@ -1,0 +1,5 @@
+terminal root pid=2517801 shim pid=2517827 base=http://127.0.0.1:39229
+shim is a descendant of the terminal: False
+stream finished: True error=None bytes=104
+port after close: answers (pid 2517827)
+cleanup: stopped surviving shim pid 2517827

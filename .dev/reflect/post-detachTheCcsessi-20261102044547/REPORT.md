@@ -1,0 +1,160 @@
+# Reflect Report — UC-2 post-execution: TASK-WF-detachTheCcsessi-20261102-034618
+
+```yaml
+contract_version: 1.8.0
+status: needs_human_decision
+mode: post
+tier_reached: 2
+confidence_calibrated: 0.76
+citations_total: 55
+citations_revalidated: 55
+citations_dropped: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: no-side-effect-requirements
+```
+
+Audited: the uncommitted change on branch `fix/ccsession-proxy-stall` (`git diff HEAD`, 4 files) against the plan `.dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md` and its ledger `progress.md`. Merge: `adversarial/merged-output.md` (2 heterogeneous reviewers, sonnet and glm-5.3; converged 0.94).
+
+## Verdict
+
+All 13 acceptance criteria are met and there is no regression. Five deviations, all LOW: three necessary, two drift (both in the CHANGELOG wording). The status is `needs_human_decision` (contract status `partial`) because four grounding-gap rows exist (two runtime-surface DEGRADE rows that static analysis cannot prove, and two reuse findings capped by a degraded neighbour search) and the evidence validator dropped one unsupported sentence; none of them changes a task verdict.
+
+## Verification (orchestrator-run, §6.1 steps 5 and 5.5)
+
+- `ruff check` on the two Python files: exit 0 (verify-logs/invocations.yaml:2-9).
+- `pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py`: `262 passed` (verify-logs/pytest-ccsession.stdout.txt:17).
+- Not re-run here: `bash -n` on the launcher (bash is outside the verification verb allowlist); the implement run recorded it (package artifacts/t4-tests.log:1-2).
+
+## Per-Task Verdicts
+
+### Task T1
+- **Status:** success
+- **Deviation class:** necessary (R2-F2: extra getsid assertion and exception-recording thread)
+- **Evidence:** tests/unit/test_ccsession_tiers.py:1536 (not a descendant), :1541 (status 200 and message_stop), :1543 (same pid); fails on the unmodified source (package artifacts/t1-before.log:16-20)
+
+### Task T2
+- **Status:** success
+- **Deviation class:** none
+- **Evidence:** tests/unit/test_ccsession_tiers.py:1562-1563; fails on the unmodified source (package artifacts/t1-before.log:25-39)
+
+### Task T3
+- **Status:** success
+- **Deviation class:** necessary (R2-F1: the `isatty` guard)
+- **Evidence:** src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:863-867, before the bind at :869
+
+### Task T4
+- **Status:** success
+- **Deviation class:** none
+- **Evidence:** src/superclaude/skills/ccsession-tag/ccsession:804-809; waits unchanged at :811-829; live check .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/after.txt:2-5; live shims untouched (package artifacts/t4-tests.log:13-15)
+
+### Task T5
+- **Status:** success
+- **Deviation class:** drift (R2-F3a, R2-F3b; both LOW) and necessary (R2-F4)
+- **Evidence:** CHANGELOG.md:7-11; package artifacts/t5-checks.log:11 (457 passed), :21 (lint), :39 (verify-sync)
+
+## Deviation register (merged)
+
+### Deviation D-1 (R2-F1): `setsid` runs only when stderr is not a terminal
+- **Location:** src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:863
+- **Mapped tasklist item:** T3
+- **Spec section:** plan Task 3 (plan:52)
+- **Evidence:** `if not sys.stderr.isatty():` (local-gateway-alias-proxy.py:863); inline rationale at :859-862
+- **Classification:** necessary
+- **Classification rationale:** not in the task text, but rationale is recorded inline and no AC is contradicted (drift requires no inline comment: ~/.claude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md:63). The launcher always sends stderr to /dev/null (ccsession:808), so every launched shim calls setsid.
+- **Default remediation:** Add a documentation note: CHANGELOG.md:11 says "the shim starts its own session" without the terminal exception; the tty branch has no test.
+
+### Deviation D-2 (R2-F2): extra assertions in the T1 test
+- **Location:** tests/unit/test_ccsession_tiers.py:1538
+- **Mapped tasklist item:** T1
+- **Spec section:** plan Task 1 AC (plan:32)
+- **Evidence:** `assert os.getsid(shim_pid) != terminal.pid  # not in the terminal's session` (test_ccsession_tiers.py:1538)
+- **Classification:** necessary
+- **Classification rationale:** strengthens the AC; inline comment; follows the pre-execution reflection finding F15 (.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial/merge-log.md:23, not re-read by the validator).
+- **Default remediation:** None; note it in the task ledger.
+
+### Deviation D-3 (R2-F3a): CHANGELOG heading suffix
+- **Location:** CHANGELOG.md:9
+- **Mapped tasklist item:** T5
+- **Spec section:** plan Task 5 (plan:78)
+- **Evidence:** `#### Fixed (ccsession shim survives its terminal)` (CHANGELOG.md:9)
+- **Classification:** drift (LOW, cosmetic)
+- **Classification rationale:** the plan says `#### Fixed`; no rationale recorded; matches the file's house style.
+- **Default remediation:** None (accept).
+
+### Deviation D-4 (R2-F3b): extra CHANGELOG sentence on shims already running
+- **Location:** CHANGELOG.md:11
+- **Mapped tasklist item:** T5
+- **Spec section:** plan Task 5 (plan:78)
+- **Evidence:** "A shim already running keeps the old behaviour until it is stopped and a launch starts a new one." (CHANGELOG.md:11)
+- **Classification:** drift (LOW)
+- **Classification rationale:** not requested by the plan or by pre-execution finding F3, which asked only for "shims stay up until stopped" (.dev/reflect/pre-detachTheCcsessi-20261102035312/REPORT.md:45); the only rationale is an after-the-fact executor note. Accurate: a changed shim file changes the code digest (ccsession:766), so old shims read as stale and launches move on (ccsession:782-784). Unresolved debate point C-004.
+- **Default remediation:** None (accurate, harmless).
+
+### Deviation D-5 (R2-F4): `make sync-dev` before `make verify-sync`
+- **Location:** package artifacts/t5-checks.log:31-34
+- **Mapped tasklist item:** T5
+- **Spec section:** plan Task 5 AC (plan:82)
+- **Evidence:** first `make verify-sync` failed in a fresh worktree without the gitignored `.claude/` copies (t5-checks.log:23-30); passed after `make sync-dev` (:39)
+- **Classification:** necessary
+- **Classification rationale:** forced by the environment; writes only the worktree's gitignored `.claude/`.
+- **Default remediation:** None.
+
+## Risks (non-gating)
+
+- Other hosts are unverified (MEDIUM): Orca on macOS, logind/sshd session teardown, an environment-tag teardown. In this workspace every process shares one cgroup and the detached 4013 shim has survived every terminal close since Oct 31 (adversarial/invariant-probe.md, Resolution).
+- Under job control the shim would lead its own group and `setsid` would fail silently (MEDIUM); ccsession is a non-interactive `#!/bin/bash` script with no `set -m` (ccsession:1).
+- `os.getsid` on another session's pid is unconfirmed on macOS; CI runs Ubuntu only (.github/workflows/test.yml:13).
+- A shim started with stderr closed fails at start-up on `sys.stderr.isatty()` (local-gateway-alias-proxy.py:863); the old code already wrote to stderr unguarded on every request (local-gateway-alias-proxy.py:126).
+- Detached stale shims accumulate until stopped; each launch moves to the next port in steps of 101, six tries before "no free shim port" (ccsession:769-770, 793-796).
+
+## Grounding Gaps
+
+### Gap G-1
+- **Hunk ref:** src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:857-881
+- **Evidence missing:** static proof the script entry block is reached; it is started by a path held in a variable (ccsession:808)
+- **Why not classifiable:** runtime-surface degrade oracle (packaging / string-dispatch entrypoint)
+- **Next evidence needed:** none beyond the runtime evidence already captured (262 passed; live-check after.txt)
+
+### Gap G-2
+- **Hunk ref:** src/superclaude/skills/ccsession-tag/ccsession:804-809
+- **Evidence missing:** static reachability classification for a bash hunk
+- **Why not classifiable:** bash is not in the runtime-surface language table
+- **Next evidence needed:** none beyond `test_shim_outlives_the_terminal_that_started_it`, which runs this statement through the real launcher and passes
+
+### Gap G-3
+- **Hunk ref:** tests/unit/test_ccsession_tiers.py:1423-1439
+- **Evidence missing:** a semantic neighbour search (auggie unavailable); tiers capped at maybe-related
+- **Why not classifiable:** reuse finding below the blocking bar
+- **Next evidence needed:** none; the nearest neighbour is the untracked repro .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py:58, not importable; verdict distinct
+
+### Gap G-4
+- **Hunk ref:** tests/unit/test_ccsession_tiers.py:1441-1451
+- **Evidence missing:** a semantic neighbour search (auggie unavailable)
+- **Why not classifiable:** reuse finding below the blocking bar
+- **Next evidence needed:** none; the nearest neighbour is a README shell snippet (src/superclaude/skills/ccsession-tag/README.md:487); verdict distinct
+
+### Dropped by the evidence validator (evidence-validation.md)
+
+- "No leftover test shim afterwards." (Verification section) — the cited log line holds only the pass count, and no captured process check exists in this run's verify-logs. Removed. The implement run's logged checks remain (package artifacts/t4-tests.log:6-7, t5-checks.log:13-14).
+
+## Recommendations
+
+- R-001: Soften CHANGELOG.md:11 to say the shim starts its own session "when not started on a terminal" (LOW, documentation; optional).
+- R-002: Before relying on the fix on macOS hosts, run `test_shim_outlives_the_terminal_that_started_it` there (getsid portability, Orca kill mechanism).
+- R-003: Carry the operator workaround and the stale-shim note into the PR body (shims already running keep the old behaviour until restarted).
+
+## Audit
+
+- Tier decision: rule 4 (three domains), Tier 1 C 0.62 (artifacts/tier_decision.yaml, t1-calibration.md)
+- Reviewer cards: reviewer-cards/reviewer-1-card.md (C 0.75), reviewer-cards/reviewer-2-card.md (C 0.76)
+- Adversarial merge: adversarial/ (convergence 0.94, base reviewer 2, invariant gate cleared after a targeted round)
+- Reuse audit: artifacts/reuse-audit.yaml; runtime-surface ledger: artifacts/runtime-surface-ledger.yaml; impact: artifacts/impact/return-contract.yaml
+- Input snapshot: artifacts/input-snapshot.yaml (27 files, no drift at Wave 5)
+- Promotion: suppressed (`--no-promote`); the package was already archived by `/sc:implement`.
