@@ -364,7 +364,7 @@ SCORING → REVIEWING (unaddressed CRITICALs remain, iteration < max_iterations)
 SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= max_iterations)
 ```
 
-**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 1` (one iteration = 3 reviews + 2 fix passes, the 2-fix-cycle cap) (SC-008).
+**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 1` (one iteration = 2 review passes, 4a focus and 4c critique, each followed by step 4b or 4d, within the 2-fix-cycle cap) (SC-008).
 
 **Convergence predicate**: After SCORING, check if any findings with `severity: CRITICAL` have status other than `[INCORPORATED]` or `[DISMISSED]`. If zero unaddressed CRITICALs → transition to CONVERGED. Otherwise → check iteration counter.
 

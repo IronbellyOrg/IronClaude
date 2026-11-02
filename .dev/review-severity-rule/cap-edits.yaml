@@ -2,7 +2,7 @@
 #
 # Date: 2026-11-02. Branch: fix/review-severity-rule (src unchanged from f90877be; line numbers verified on disk today).
 # Inputs: .dev/review-severity-rule/cap-sites.md (every IN row), inventory.md sections 3.1 and 4 (item 3a: cli-portify
-# default = 1 iteration = 3 reviews + 2 fix passes), .dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
+# default = 1 iteration = 2 review passes, 4a and 4c; corrected after PR #343 review),.dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
 # Rule: a review loop runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings.
 # Canonical at-cap clause: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings".
 # Open-Questions-and-proceed at-cap rules become "HALT and escalate to the user with the open blocking findings; minor
@@ -1217,7 +1217,7 @@ rows:
     line: 367
     group: portify
     old: "Hard cap: `max_iterations = 3`"
-    new: "Hard cap: `max_iterations = 1` (one iteration = 3 reviews + 2 fix passes, the 2-fix-cycle cap)"
+    new: "Hard cap: `max_iterations = 1` (one iteration = 2 review passes, 4a focus and 4c critique, each followed by step 4b or 4d, within the 2-fix-cycle cap)"
     kind: cap
     occurrences: 1
   - id: C-148
@@ -1241,7 +1241,7 @@ rows:
     line: 121
     group: portify
     old: "Max 3 iterations."
-    new: "Max 1 iteration (3 reviews, 2 fix passes)."
+    new: "Max 1 iteration (2 review passes, 4a and 4c, each followed by step 4b or 4d)."
     kind: cap
     occurrences: 1
   - id: C-151
