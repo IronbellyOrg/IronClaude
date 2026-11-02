@@ -5,7 +5,7 @@
 ### **Transform Claude Code with commands, agents, skills, and MCP integrations**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-4.3.5-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-5.0.0-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge" alt="Python">
   <img src="https://img.shields.io/badge/Platform-Linux%20|%20macOS%20|%20Windows-orange?style=for-the-badge" alt="Platform">
 </p>

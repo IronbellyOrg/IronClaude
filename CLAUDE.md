@@ -103,10 +103,10 @@ uv run python script.py          # Execute scripts
 
 ## 📂 Project Structure
 
-**Current v4.3.5 Architecture**: Python package with slash commands
+**Current v5.0.0 Architecture**: Python package with slash commands
 
 ```text
-# Claude Code Configuration (v4.3.5)
+# Claude Code Configuration (v5.0.0)
 .claude/
 ├── settings.json        # User settings
 ├── commands/sc/         # Dev copies of the slash commands, synced from src/ by `make sync-dev`
@@ -242,13 +242,13 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
 
-### Slash Commands (v4.3.5)
+### Slash Commands (v5.0.0)
 
 - Install via: `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the PyPI `superclaude` package is the upstream project, not this fork)
 - Commands installed to: `~/.claude/commands/sc/`
 - Available: run `/sc:help` to list every installed command and skill
 
-> **Note**: TypeScript plugin system planned for v5.0 ([#419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419))
+> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 5.0.0.
 
 ## 🧪 Testing with PM Agent
 
@@ -388,7 +388,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v4.3.5)
+### Current Installation Method (v5.0.0)
 
 **Standard Installation**:
 
@@ -423,15 +423,15 @@ make test
 make verify
 ```
 
-### Plugin System (v5.0 - Not Yet Available)
+### Plugin System (Not Yet Available)
 
-The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for v5.0.
+The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 5.0.0 does not include it.
 See `docs/plugin-reorg.md` for details.
 
 ## 📊 Package Information
 
 **Package name**: `superclaude`
-**Version**: 4.3.5 (see `version` in `pyproject.toml`)
+**Version**: 5.0.0 (see `version` in `pyproject.toml`)
 **Python**: >=3.10
 **Build system**: hatchling (PEP 517)
 
