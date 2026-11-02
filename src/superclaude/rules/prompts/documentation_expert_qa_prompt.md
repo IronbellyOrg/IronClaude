@@ -320,13 +320,13 @@ Some actual content here  [should be placeholder only unless task specifies cont
 
 **Section Structure Failures**:
 - Missing ANY required section = FAIL
-- Section name doesn't exactly match spec = FAIL
-- Wrong heading level (H1 vs H2 vs H3) = FAIL
+- Section name doesn't exactly match spec = minor (note) unless the spec requires that exact name
+- Wrong heading level (H1 vs H2 vs H3) = minor (note) unless the spec requires that exact level
 - Sections out of order = FAIL
 
 **Placeholder Failures** (for template/structure tasks):
 - ANY empty section without TODO note = FAIL
-- TODO note too vague ("Add content") = FAIL
+- TODO note too vague ("Add content") = minor (note) unless the spec requires that exact wording
 - TODO doesn't explain what content or why = FAIL
 
 **Product Document Failures**:
