@@ -798,10 +798,15 @@ setup_shim() {
     echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
     # The shim inherits this session's env (tier settings fallback, show-all,
     # cooldown length); it reads the workspace env file itself on each request.
-    GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
-      GW_PROXY_PORT="$CC_SHIM_PORT" \
-      CCSESSION_DIR="$CCSESSION_DIR" \
-      nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
+    # Start it from a subshell that exits at once, so the shim is not a
+    # descendant of this terminal: closing a terminal (Orca kills its
+    # descendants) must not stop a shim other sessions use (issue #341).
+    (
+      GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
+        GW_PROXY_PORT="$CC_SHIM_PORT" \
+        CCSESSION_DIR="$CCSESSION_DIR" \
+        nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
+    )
     # Wait briefly for the port to come up.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
       [ -n "$(shim_listener_pid)" ] && break

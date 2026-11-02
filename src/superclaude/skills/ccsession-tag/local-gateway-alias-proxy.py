@@ -856,6 +856,15 @@ class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 if __name__ == "__main__":
     host, port = LISTEN
+    # One shim serves every session on its port, so signals aimed at the
+    # terminal session or process group that started it must not reach it
+    # (issue #341). Run by hand with output on a terminal, it stays there so
+    # Ctrl-C still stops it; setsid fails harmlessly for a group leader.
+    if not sys.stderr.isatty():
+        try:
+            os.setsid()
+        except OSError:
+            pass
     try:
         srv = ThreadingServer(LISTEN, Handler)
     except OSError as e:
