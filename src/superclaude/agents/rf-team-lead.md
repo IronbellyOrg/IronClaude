@@ -459,7 +459,7 @@ For complex projects requiring multiple task cycles (multiple phases, iterative 
 - **Direct pipeline invocation**: `/rf:project` invokes `/rf:pipeline` directly via the Skill tool for each phase — the session becomes the team lead for each pipeline run sequentially
 - **Phase 0 (Planning)**: Pipeline produces feature brief, PRD, architecture proposal using template 02
 - **Phase 1..N (Execution)**: Each phase gets its own pipeline invocation — fresh agents, full orchestration, automatic parallel track support
-- **Fix Cycles**: If a phase pipeline returns issues, invoke another pipeline with a FIX request (max 3 cycles per phase). If max cycles exhausted, HALT and ask user — do NOT proceed with unresolved findings.
+- **Fix Cycles**: If a phase pipeline returns blocking findings, invoke another pipeline with a FIX request (minor findings are recorded as notes), max 2 cycles per phase. If max cycles exhausted, HALT and ask user with the open blocking findings — do NOT proceed with unresolved blocking findings.
 - **Project Plan**: Maintained using `.claude/templates/workflow/03_project_plan_template.md`
 - **File-Based Context**: Context flows between phases via files on disk — no agent reuse needed
 - **No subagent nesting**: The session runs each pipeline directly rather than spawning agents to run pipelines

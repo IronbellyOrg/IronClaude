@@ -98,7 +98,7 @@ WRITING DISCIPLINE:
 - **Topic:** {{RF_PLACEHOLDER:TOPIC}}
 - **Date:** {{RF_PLACEHOLDER:DATE}}
 - **Phase:** task-validation-b2
-- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Overall Verdict: {{RF_PLACEHOLDER:VERDICT}}
 

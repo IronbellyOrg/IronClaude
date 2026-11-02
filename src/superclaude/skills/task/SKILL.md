@@ -117,7 +117,7 @@ These actions are NEVER permitted during task file execution:
 - **Skipping phase-gate QA** — After completing all items in a phase (Phase 2+), you MUST run the full lens-based QA gate (minimum 6 agents: 3+ rf-qa structural lenses + 3+ rf-qa-qualitative content lenses, followed by the Serialized Fix Protocol) before executing any item in the next phase. This is not optional. See Phase-Gate QA Verification for the full protocol. Proceeding to the next phase without a passing QA gate is a prohibited action equivalent to skipping items.
 - **Spawning fewer than 6 agents at any QA gate** — Every QA gate (phase-gate and post-completion) requires a minimum of 6 agents (3 rf-qa structural + 3 rf-qa-qualitative content). For intermediate gates (research-gate, synthesis-gate), the minimum is 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) per I19 (MDTM template rule defining discrete error-target tiers and minimum agent count floors)9. For task-integrity gates, the minimum is 5 agents (2 rf-qa + 2 rf-qa-qualitative + 1 rf-analyst) per I19. Gates with fewer agents than these floors are a protocol violation equivalent to skipping QA entirely. See Phase-Gate QA Verification for size-based scaling.
 - **Skipping post-completion validation** — After the final phase's phase-gate QA passes, you MUST run the full Post-Completion Validation: lens-based structural validation (Step 1), lens-based content validation (Step 2), serialized fix protocol (Step 3), and source-document fidelity gate (Step 4) BEFORE marking the task "Done." See Post-Completion Validation for the full protocol. Marking a task done without running all four steps is a prohibited action.
-- **Pausing execution mid-flow to present scope, cost, or time-estimate concerns to the user** — The F1 loop executes every item sequentially per the task file. Cost, scope, and time estimates are established at task file creation time (Stage A of the calling skill). Once execution begins, the executor MUST proceed through every item without pausing to ask the user "are you sure you want to continue given the scope?" or presenting options like "stop here and review, or continue to phase N?". The ONLY halts permitted mid-execution are: (1) all remaining items are blocked by the same unrecoverable issue, (2) a phase-gate QA has failed 3 fix cycles, (3) an item's output fundamentally invalidates the rest of the task file. "This is going to take a while" is not a valid halt reason. "Phase N will spawn many subagents" is not a valid halt reason. "The user might want to review before the next phase" is not a valid halt reason. Scope-awareness pauses violate the F1 loop discipline and the skill's trust model — the user already committed to the full task file when they invoked /task.
+- **Pausing execution mid-flow to present scope, cost, or time-estimate concerns to the user** — The F1 loop executes every item sequentially per the task file. Cost, scope, and time estimates are established at task file creation time (Stage A of the calling skill). Once execution begins, the executor MUST proceed through every item without pausing to ask the user "are you sure you want to continue given the scope?" or presenting options like "stop here and review, or continue to phase N?". The ONLY halts permitted mid-execution are: (1) all remaining items are blocked by the same unrecoverable issue, (2) a phase-gate QA has failed 2 fix cycles, (3) an item's output fundamentally invalidates the rest of the task file. "This is going to take a while" is not a valid halt reason. "Phase N will spawn many subagents" is not a valid halt reason. "The user might want to review before the next phase" is not a valid halt reason. Scope-awareness pauses violate the F1 loop discipline and the skill's trust model — the user already committed to the full task file when they invoked /task.
 
 ### Parallel Agent Spawning
 
@@ -247,11 +247,11 @@ rf-qa-qualitative at intermediate gates is mandatory. It catches the gap where r
 
 6. **Findings Consolidation (M3 Step 5)** — After ALL lens agents (Steps 3-5) return, read all QA reports and consolidate into a single findings list at `${TASK_DIR}qa/qa-phase-[N]-consolidated-findings.md` (where [N] is the phase number, e.g., `qa-phase-2-consolidated-findings.md`; for post-completion use `${TASK_DIR}qa/qa-final-consolidated-findings.md`). Deduplicate overlapping findings (same issue found by multiple lenses listed once with all originating lenses noted). Preserve the highest severity rating when duplicates disagree. If zero findings across all agents: verdict is PASS, log and proceed to the next phase. Each step below becomes its own `- [ ]` checklist item when encoded in a task file.
 
-7. **Fix Agent (M3 Step 6)** — If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the output files. No other agent modifies files during this step.
+7. **Fix Agent (M3 Step 6)** — If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the output files. No other agent modifies files during this step.
 
-8. **Verification Round (M3 Step 7, PARALLEL)** — After the fix agent returns, spawn a verification round: minimum 2 agents (1 rf-qa + 1 rf-qa-qualitative, both `fix_authorization: false`). Verification rounds are exempt from the 6-agent minimum — they use a reduced 2-agent minimum because they verify a targeted set of fixes against the consolidated findings list, not the full document. They verify: (a) all findings from the consolidated list were addressed, (b) fixes were applied correctly (no garbled text, no lost content), (c) no new issues were introduced by the fixes. Output: `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`.
+8. **Verification Round (M3 Step 7, PARALLEL)** — After the fix agent returns, spawn a verification round: minimum 2 agents (1 rf-qa + 1 rf-qa-qualitative, both `fix_authorization: false`). Verification rounds are exempt from the 6-agent minimum — they use a reduced 2-agent minimum because they verify a targeted set of fixes against the consolidated findings list, not the full document. They verify: (a) all blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked), (b) fixes were applied correctly (no garbled text, no lost content), (c) no new blocking issues were introduced by the fixes (new minor findings are recorded as notes). Output: `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`.
 
-9. **Conditional Proceed (M3 Step 8)** — IF both verification agents report PASS, proceed to the next phase. IF either reports FAIL, repeat Steps 6-8 (consolidate new + remaining findings, fix, verify). Maximum 3 fix cycles total (per I16 (MDTM template rule: maximum 3 fix-verify cycles per gate)6). After 3 failed cycles: HALT execution — log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance. Do NOT continue to the next phase without user approval.
+9. **Conditional Proceed (M3 Step 8)** — IF both verification agents report PASS, proceed to the next phase. IF either reports FAIL, repeat Steps 6-8 (consolidate new + remaining findings, fix, verify). Maximum 2 fix cycles total (per I16 (MDTM template rule: maximum 2 fix-verify cycles per gate)). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings — log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance. Do NOT continue to the next phase without user approval.
 
 10. **Verify all QA reports exist on disk** — Check that each lens agent wrote its report to the expected path. If any reports are missing, the agent may have failed silently — log missing reports as blockers in Task Log. The expected paths are `${TASK_DIR}qa/qa-structural-[lens-name]-report.md` (rf-qa) or `${TASK_DIR}qa/qa-content-[lens-name]-report.md` (rf-qa-qualitative). The consolidated findings file, verification reports, and fix reports also persist. The `qa/` subfolder should be created during Phase 1 setup alongside `research/` and `synthesis/` subfolders.
 
@@ -333,7 +333,7 @@ Every agent receives:
 
 **Step 3: Consolidate findings and apply fixes (Serialized Fix Protocol)**
 
-After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol (see dedicated section below). Consolidate all findings, spawn a single fix agent, then a verification round. Maximum 3 fix cycles.
+After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol (see dedicated section below). Consolidate all findings, spawn a single fix agent, then a verification round. Maximum 2 fix cycles.
 
 **Step 4: Source-Document Fidelity Gate (M4: Source-Document Fidelity Gate pattern from the MDTM template)** — Follow the Source-Document Fidelity Gate protocol defined in the dedicated section below. If the task did not consume source documents to produce its outputs, skip this step.
 
@@ -344,7 +344,7 @@ After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol
 - Any step FAIL with all fixes applied → verify fixes, then proceed
 - Any step FAIL with unfixable issues → log issues, present to user, ask for guidance before marking done
 
-**Read ALL QA reports (lens reports + fidelity reports). If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly. If issues remain unfixed, address ALL of them before marking the task done. Zero leniency — no severity level is exempt.**
+**Read ALL QA reports (lens reports + fidelity reports). If any blocking (CRITICAL or IMPORTANT) issue was found, verify fixes were applied correctly. If a blocking issue remains unfixed, address it before marking the task done; MINOR issues are recorded as notes.**
 
 ### Serialized Fix Protocol
 
@@ -356,16 +356,16 @@ When multiple QA agents evaluate the same document or set of output files, fixes
 
 2. **Consolidate findings:** Read all QA reports. Merge findings into a single consolidated findings list at the designated path (e.g., `${TASK_DIR}qa/qa-consolidated-findings.md` or `${TASK_DIR}qa/qa-final-consolidated-findings.md`). Deduplicate findings that multiple agents flagged independently. Preserve the highest severity rating when duplicates disagree. **Scope filtering:** After merging, read the task file's checklist items to identify which files and components the task touches. Separate findings into in-scope (affected file/component appears in a checklist item) and out-of-scope (it does not). Write ONLY in-scope findings to the consolidated findings file. Log out-of-scope findings as **Follow-Up Items** in the task file's Task Log / Notes section — these are valuable findings but outside this task's scope and must not be fixed here.
 
-3. **Single fix agent (SEQUENTIAL):** If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list. This agent applies ALL fixes. No other agent modifies files during this step.
+3. **Single fix agent (SEQUENTIAL):** If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list (a minors-only list spawns no fix agent; minor findings stay as notes). This agent applies ALL blocking fixes. No other agent modifies files during this step.
 
 4. **Verification round (PARALLEL):** After the fix agent returns, spawn a verification round: minimum 2 agents (1 rf-qa + 1 rf-qa-qualitative, both `fix_authorization: false`) to confirm:
-   - All findings from the consolidated list were addressed
+   - All blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked)
    - Fixes were applied correctly (no garbled text, no lost content)
-   - No new issues were introduced by the fixes
+   - No new blocking issues were introduced by the fixes (new minor findings are recorded as notes)
 
-5. **Iteration:** If verification finds new issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed issues and newly introduced issues). Maximum 3 fix cycles total per gate.
+5. **Iteration:** If verification finds new blocking issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed blocking issues and newly introduced blocking issues; new minor findings are notes and do not restart the cycle). Maximum 2 fix cycles total per gate.
 
-6. **Escalation:** After 3 failed cycles, HALT — log all remaining issues in the Task Log, present findings to the user, and ask for guidance.
+6. **Escalation:** After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in the Task Log.
 
 **Where this applies:** Every QA gate that spawns 3+ agents evaluating the same file(s). This includes phase-gate QA, post-completion validation, and source-document fidelity gates.
 
@@ -400,9 +400,9 @@ Report output: `${TASK_DIR}qa/qa-source-fidelity-[N]-report.md` (numbered if par
 
 **Step 4 (Fidelity Findings Consolidation):** Read all fidelity reports (from Step 2) and the contradiction report (from Step 3, if applicable). Produce a consolidated fidelity findings file at `${TASK_DIR}qa/qa-fidelity-consolidated-findings.md`.
 
-**Step 5 (Fidelity Fix Agent):** If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes.
+**Step 5 (Fidelity Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes).
 
-**Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents to confirm fidelity fixes were applied correctly. Maximum 3 fix cycles (per I16), then HALT and escalate to user.
+**Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents to confirm fidelity fixes were applied correctly. Maximum 2 fix cycles (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 
 **Agent count (Step 2):**
 - Minimum 2 fidelity agents
@@ -474,7 +474,7 @@ All lens agents MUST use this report format (matching the rf-qa agent definition
 **Date:** [today]
 **Phase:** [phase-gate / post-completion / fidelity]
 **Lens:** [lens name]
-**Fix cycle:** [1 / 2 / 3 / N/A]
+**Fix cycle:** [1 / 2 / N/A]
 
 ---
 
@@ -613,7 +613,7 @@ These rules apply across ALL task file executions. Violations compromise executi
 
 15. **Report progress at milestones.** At the end of each phase (when all items in that phase are `- [x]`), run the phase-gate QA check (see Phase-Gate QA Verification), then briefly inform the user: which phase completed, key outputs produced, QA verdict, which phase is next, and any issues logged. Keep these updates concise — 2-3 sentences maximum. After the FINAL phase's phase-gate QA passes, run the Post-Completion Validation (pre-QA verification + lens-based structural + lens-based content + serialized fix + source-document fidelity gate) before marking the task done.
 
-16. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+16. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 2 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
 
 ---
 

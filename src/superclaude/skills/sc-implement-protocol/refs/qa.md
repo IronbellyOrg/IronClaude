@@ -264,7 +264,7 @@ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cos
 | Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |
 |---|---|---|---|---|
 | A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |
-| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
+| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
 | A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
 | A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |
 | A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |

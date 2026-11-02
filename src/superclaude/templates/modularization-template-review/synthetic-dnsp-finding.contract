@@ -49,7 +49,7 @@ found_n_times: 1
 
 ## Emission wire-shape
 
-Emitted as a structured Markdown block into the partition agent's normal output stream, the same stdout/report channel real findings use, with no sideband or separate signalling channel. Consumed by the merge step at task-builder `SKILL.md` A.8 (Research Quality Gate merge) and A.10 (Task File Validation merge); the merge step treats the synthetic-dnsp record as a real finding for the existing "any gap regardless of severity = FAIL" gating rule until the operator manually reviews per the fixed `recommendation` literal above.
+Emitted as a structured Markdown block into the partition agent's normal output stream, the same stdout/report channel real findings use, with no sideband or separate signalling channel. Consumed by the merge step at task-builder `SKILL.md` A.8 (Research Quality Gate merge) and A.10 (Task File Validation merge); the merge step treats the synthetic-dnsp record as a real blocking finding (severity HIGH) under the review severity rule until the operator manually reviews per the fixed `recommendation` literal above.
 
 ## Emitter rejection symbols (preserve verbatim if this contract is documented downstream)
 

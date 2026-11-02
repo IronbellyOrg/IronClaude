@@ -50,7 +50,7 @@ def load_portify_config(
     model: str = "",
     stall_timeout: int = 300,
     skip_review: bool = False,
-    max_convergence: int = 3,
+    max_convergence: int = 1,
     iteration_timeout: int = 300,
 ) -> PortifyConfig:
     """Construct a PortifyConfig from CLI arguments.

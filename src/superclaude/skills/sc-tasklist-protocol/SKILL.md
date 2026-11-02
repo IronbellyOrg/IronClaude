@@ -1436,18 +1436,18 @@ Findings are merged and deduplicated (steps 1a–4 above) before Stage 8 consume
 
 **Purpose**: Transform the consolidated findings from Stage 7 into 2 actionable artifacts written to `TASKLIST_ROOT/validation/`.
 
-**Short-circuit rule**: If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:
+**Short-circuit rule**: If Stage 7 produced zero High or Medium (blocking) findings across all agents, write a clean `ValidationReport.md` containing (any Low findings are listed after it as notes; they are not patched or re-validated):
 
 ```text
 # Validation Report
 Generated: <ISO-8601 date>
 Roadmap: <roadmap path>
-Result: CLEAN — no drift detected across N phases and M tasks.
+Result: CLEAN — no blocking drift detected across N phases and M tasks (Low findings, if any, listed as notes).
 ```
 
 Then skip Stages 9 and 10. The skill is complete.
 
-**Synthetic-dnsp short-circuit guard (P3):** A `source: "synthetic-dnsp"` finding IS a finding — the zero-finding short-circuit above MUST NOT be taken when one or more synthetic-dnsp records are present in the consolidated findings list. A present synthetic HIGH must flow into `ValidationReport.md` and force human attention (it is treated as FAIL until manual review per its fixed `recommendation` literal; it is recorded for manual review and the Stage-9 patch executor MUST NOT auto-resolve / auto-patch it). This guard only fences the synthetic-present case — the genuine zero-finding short-circuit (no real findings AND no synthetic findings) is unchanged.
+**Synthetic-dnsp short-circuit guard (P3):** A `source: "synthetic-dnsp"` finding IS a finding — the zero-finding short-circuit above MUST NOT be taken when one or more synthetic-dnsp records are present in the consolidated findings list. A present synthetic HIGH must flow into `ValidationReport.md` and force human attention (it is treated as FAIL until manual review per its fixed `recommendation` literal; it is recorded for manual review and the Stage-9 patch executor MUST NOT auto-resolve / auto-patch it). This guard only fences the synthetic-present case — the genuine zero-finding short-circuit (no real High or Medium findings AND no synthetic findings) is unchanged.
 
 **Artifact 1: `TASKLIST_ROOT/validation/ValidationReport.md`**
 
@@ -1478,7 +1478,7 @@ Total findings: X (High: H, Medium: M, Low: L)
 ### Medium Severity
 ...
 
-### Low Severity
+### Low Severity (notes: not patched, not re-validated)
 ...
 ```
 
@@ -1528,13 +1528,13 @@ Rules:
 - Diff intents are specific enough to execute without ambiguity
 - Cross-file consistency sweep items collected at the end
 - Suggested execution order listed (highest-impact files first)
-- **`source: "synthetic-dnsp"` findings are EXCLUDED from the actionable PatchChecklist** (P3): a synthetic-dnsp finding carries only `recommendation: Manual review required — partition agent failed twice` and no `Exact fix`, so it has no executable edit. It is recorded in `ValidationReport.md` under a dedicated **`## Manual Review Required (synthetic-dnsp)`** section (a human-review gate), and it does NOT generate any `- [ ]` item in `PatchChecklist.md`. Only real, patchable findings produce PatchChecklist items.
+- **`source: "synthetic-dnsp"` findings are EXCLUDED from the actionable PatchChecklist** (P3): a synthetic-dnsp finding carries only `recommendation: Manual review required — partition agent failed twice` and no `Exact fix`, so it has no executable edit. It is recorded in `ValidationReport.md` under a dedicated **`## Manual Review Required (synthetic-dnsp)`** section (a human-review gate), and it does NOT generate any `- [ ]` item in `PatchChecklist.md`. Only real, patchable High or Medium (blocking) findings produce PatchChecklist items; Low findings stay as notes in `ValidationReport.md` and produce none.
 
 **Stage gate**: Both artifacts written to `TASKLIST_ROOT/validation/`. Directory created via `Bash` (`mkdir -p`) — this `mkdir -p` is now idempotent and remains safe because the `TASKLIST_ROOT/validation/` directory already exists from Stage 6 (the gate-results artifact creates it earlier); `mkdir -p` is a no-op when the directory is already present.
 
 ### Stage 9: Patch Execution (Delegate to `sc:task`)
 
-**Purpose**: Apply all corrections from the PatchChecklist to the generated phase files.
+**Purpose**: Apply all blocking (High and Medium) corrections from the PatchChecklist to the generated phase files; Low findings stay as notes and are not patched.
 
 **Mechanism**: Invoke `sc:task` via the `Skill` tool with:
 
@@ -1558,11 +1558,11 @@ The orchestrator does NOT apply patches itself. Separation of concerns: the task
 
 ### Stage 10: Spot-Check Verification
 
-**Purpose**: Re-verify only the specific findings from Stage 7 to confirm patches were applied correctly.
+**Purpose**: Re-verify only the specific High and Medium (blocking) findings from Stage 7 to confirm patches were applied correctly; Low findings are notes and are not re-verified.
 
 **Mechanism**: A single verification pass (not parallelized — the finding list is typically small and each check is a targeted read):
 
-For each finding in `ValidationReport.md`:
+For each High or Medium finding in `ValidationReport.md`:
 
 1. Read the specific section/task in the phase file that was flagged
 2. Verify the exact fix described in the finding was applied
@@ -1580,7 +1580,7 @@ Findings resolved: X/Y
 |---------|--------|-------|
 | H1 | RESOLVED | Rollback drill added to T05.09 |
 | M2 | RESOLVED | Test command aligned to roadmap |
-| L1 | UNRESOLVED | Cross-phase wording still inconsistent in T03.06 |
+| M3 | UNRESOLVED | Cross-phase dependency still inconsistent in T03.06 |
 ```
 
 **P2 bounded-loop iteration state.** When the P2 bounded patch loop runs, append a per-iteration loop-state table to this `## Verification Results` section so the PR-02 monotonicity/regression guards have the prior-pass state they require. Each row records, for pass `k`: the pass index `k`, the patchable failing-set cardinality `|F_{k-1}|` carried in from the prior pass, `|F_k|`, the PASS-set (items that passed at pass `k`), and the regression set (previously-PASS items now FAILing). This per-iteration history is the P2 loop's OWN independent `F_n` history — it is never collapsed with any other counter — and is sufficient to evaluate the regression-then-monotonicity-then-hard-cap ordering on each `k → k+1` transition:
@@ -1599,13 +1599,13 @@ Findings resolved: X/Y
 
 Let `k` be the pass index (`k = 1` is the initial Stage 7→10 pass). At the end of pass `k`:
 
-1. **Compute `F_k` by re-running the FULL Stage-7 2N validation set** (reuse the Stage-7 fan-out primitive — a complete re-validation of every phase, NOT a subset re-read of only the previously-failing items), so regressions in previously-PASS items are detectable. The loop-back re-run applies the **same Stage-7 some-vs-zero gate** as the initial pass: a fresh agent exhaustion during a re-run emits a `synthetic-dnsp` as usual (≥1 sibling succeeded → synthesize + PROCEED), and a zero-success outcome on a re-run routes to the report-validation-error terminal — identical to the Stage-7 first-pass behavior. `F_k` is the **post-dedup cardinality** of the **patchable** failing findings: it EXCLUDES `source: "synthetic-dnsp"` records (a synthetic is non-patchable and persists across cycles by design — a DEDUP case, not a regression, per the DM-003 cross-cycle rule; counting it would spuriously trip the monotonicity halt). The synthetic still forces human review via Stage 8 — it is simply not part of the patchable monotonicity comparison.
+1. **Compute `F_k` by re-running the FULL Stage-7 2N validation set** (reuse the Stage-7 fan-out primitive — a complete re-validation of every phase, NOT a subset re-read of only the previously-failing items), so regressions in previously-PASS items are detectable. The loop-back re-run applies the **same Stage-7 some-vs-zero gate** as the initial pass: a fresh agent exhaustion during a re-run emits a `synthetic-dnsp` as usual (≥1 sibling succeeded → synthesize + PROCEED), and a zero-success outcome on a re-run routes to the report-validation-error terminal — identical to the Stage-7 first-pass behavior. `F_k` is the **post-dedup cardinality** of the **patchable** failing findings (High and Medium, i.e. blocking, only; Low findings are notes and are never counted, patched or re-validated): it EXCLUDES `source: "synthetic-dnsp"` records (a synthetic is non-patchable and persists across cycles by design — a DEDUP case, not a regression, per the DM-003 cross-cycle rule; counting it would spuriously trip the monotonicity halt). The synthetic still forces human review via Stage 8 — it is simply not part of the patchable monotonicity comparison.
 2. **Apply the PR-02 4-step ordering on each pass transition `k → k+1`, in this exact order, EXIT on the first match — `regression → monotonicity → hard-cap → proceed`:**
-   - **Regression check (precedence over monotonicity):** if any patchable item that PASSED at pass `k` is FAILing at pass `k+1`, HALT immediately and emit the byte-exact halt string `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (em-dash preserved; `X.Y` = the regressed item id, `N` = the prior-PASS pass). Regression ALWAYS runs and exits BEFORE the monotonicity check.
+   - **Regression check (precedence over monotonicity):** if any patchable item that PASSED at pass `k` is FAILing with a High or Medium (blocking) finding at pass `k+1`, HALT immediately and emit the byte-exact halt string `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (em-dash preserved; `X.Y` = the regressed item id, `N` = the prior-PASS pass). Regression ALWAYS runs and exits BEFORE the monotonicity check.
    - **Monotonicity check:** if `|F_k| > 0` AND `|F_{k+1}| >= |F_k|` (the patchable failing set did NOT strictly shrink), HALT and emit the byte-exact halt string `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{k+1}|`). Consulted only after the regression check passes.
    - **Hard-cap:** if `k+1 > 2` (i.e. one re-patch pass already ran), STOP — the cap is 2 TOTAL passes.
    - **Proceed (loop):** otherwise, if `F_k` is non-empty AND `|F_k|` strictly shrank AND no regression AND `k < 2`, loop back to **Stage 9** — re-delegate `sc:task --compliance strict` against a **residual PatchChecklist scoped to `F_k`** — then re-run Stage 10.
-3. On any STOP outcome (clean: `F_k` empty | capped at `k=2` | monotonicity/regression halt), finalize `ValidationReport.md`. Findings that remain `UNRESOLVED` at termination are logged for human review (the bundle still ships; the loop is an advisory remediation, not a hard blocker). The P2 loop keeps its OWN independent `F_n` history (never collapsed with any other counter).
+3. On any STOP outcome (clean: `F_k` empty | capped at `k=2` | monotonicity/regression halt), finalize `ValidationReport.md`. High or Medium (blocking) findings that remain `UNRESOLVED` at termination HALT the skill: escalate them to the user as the open blocking findings in `ValidationReport.md` (the bundle does not ship as clean); Low findings stay as notes. The P2 loop keeps its OWN independent `F_n` history (never collapsed with any other counter).
 
 ---
 

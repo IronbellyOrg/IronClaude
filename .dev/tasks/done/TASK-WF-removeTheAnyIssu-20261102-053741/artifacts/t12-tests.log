@@ -1,0 +1,139 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 1228 items
+
+tests/audit/test_ac_validation.py ...................................... [  3%]
+..                                                                       [  3%]
+tests/audit/test_agent_regression.py ................................... [  6%]
+.......                                                                  [  6%]
+tests/audit/test_already_tracked.py .......                              [  7%]
+tests/audit/test_anti_lazy.py ........                                   [  7%]
+tests/audit/test_artifact_emitter.py ...........                         [  8%]
+tests/audit/test_auto_config.py ...........                              [  9%]
+tests/audit/test_axis_column_populated.py ..........                     [ 10%]
+tests/audit/test_batch_decomposer.py ...............                     [ 11%]
+tests/audit/test_batch_retry.py ...........                              [ 12%]
+tests/audit/test_benchmark.py .........                                  [ 13%]
+tests/audit/test_budget.py .............................                 [ 15%]
+tests/audit/test_budget_caveat.py ......                                 [ 16%]
+tests/audit/test_checkpoint.py ......                                    [ 16%]
+tests/audit/test_classification.py ..............                        [ 17%]
+tests/audit/test_concurrent_isolation.py ........                        [ 18%]
+tests/audit/test_consolidation.py ............                           [ 19%]
+tests/audit/test_coverage.py .......                                     [ 20%]
+tests/audit/test_credential_scanner.py ..............                    [ 21%]
+tests/audit/test_dead_code.py ........                                   [ 21%]
+tests/audit/test_dependency_graph.py ..........                          [ 22%]
+tests/audit/test_dir_assessment.py ............                          [ 23%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ........................ [ 25%]
+..........................                                               [ 27%]
+tests/audit/test_dnsp_dedup_collapse.py .......................          [ 29%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py ..................... [ 31%]
+...........                                                              [ 32%]
+tests/audit/test_dnsp_twice_exhaust.py ................................. [ 34%]
+.                                                                        [ 34%]
+tests/audit/test_docs_audit.py .............                             [ 35%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py .....      [ 36%]
+tests/audit/test_dry_run.py ............                                 [ 37%]
+tests/audit/test_duplication.py .........                                [ 38%]
+tests/audit/test_dynamic_enumeration_inv_010.py .......s...............  [ 39%]
+tests/audit/test_dynamic_imports.py ............                         [ 40%]
+tests/audit/test_env_matrix.py ................                          [ 42%]
+tests/audit/test_escalation.py ............                              [ 43%]
+tests/audit/test_eval_wiring_multifile.py .........                      [ 43%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [ 44%]
+tests/audit/test_execution_context_full.py .....                         [ 45%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [ 45%]
+tests/audit/test_execution_context_no_file_paths.py .....                [ 46%]
+tests/audit/test_filetype_rules.py ......................                [ 47%]
+tests/audit/test_five_axes_overlay.py ..........                         [ 48%]
+tests/audit/test_full_docs_audit.py ...................                  [ 50%]
+tests/audit/test_gitignore_checker.py ........                           [ 50%]
+tests/audit/test_hidden_input_guard.py ....................              [ 52%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [ 53%]
+........                                                                 [ 54%]
+tests/audit/test_inherited_verdict_present.py ...........                [ 55%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ............ [ 56%]
+......                                                                   [ 56%]
+tests/audit/test_known_issues.py ............                            [ 57%]
+tests/audit/test_known_issues_lifecycle.py ............                  [ 58%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ...............            [ 60%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [ 60%]
+tests/audit/test_nfr_conv_9_zero_trust.py .............................. [ 63%]
+..........                                                               [ 64%]
+tests/audit/test_profile_generator.py .................                  [ 65%]
+tests/audit/test_profiler.py .............................               [ 67%]
+tests/audit/test_regression_halt_pass1_fail2.py ....................     [ 69%]
+tests/audit/test_report_completeness.py ...........                      [ 70%]
+tests/audit/test_report_depth.py ..................                      [ 71%]
+tests/audit/test_report_limitations.py .......                           [ 72%]
+tests/audit/test_resume.py .......                                       [ 72%]
+tests/audit/test_scanner_schema.py .............                         [ 74%]
+tests/audit/test_self_audit_inv_019.py ........................          [ 75%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........................ [ 77%]
+.....                                                                    [ 78%]
+tests/audit/test_severity_floor_unweakened.py ........                   [ 78%]
+tests/audit/test_slow_shrink_continues.py ..............                 [ 80%]
+tests/audit/test_spot_check.py ..........                                [ 80%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [ 82%]
+..                                                                       [ 82%]
+tests/audit/test_tiered_keep.py .............                            [ 83%]
+tests/audit/test_tool_orchestrator.py ................                   [ 84%]
+tests/audit/test_validation.py .........                                 [ 85%]
+tests/audit/test_validation_output.py ........                           [ 86%]
+tests/audit/test_wiring_analyzer.py ...................                  [ 87%]
+tests/audit/test_wiring_gate.py ........................................ [ 90%]
+.......................................                                  [ 94%]
+tests/audit/test_wiring_integration.py ....                              [ 94%]
+tests/skills/test_task_builder_merge.py ................................ [ 97%]
+....................................                                     [100%]
+
+=============================== warnings summary ===============================
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_source
+  /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'src_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_mirror
+  /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'mirror_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant3_PersistentArtifact::test_canonical_subdirs_all_present
+  /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'observed_subdirs' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant4_ZeroTrustQA::test_pass_bullet_byte_identical
+  /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'rf_qa_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_names_nfr_conv_2
+  /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'doc_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 1227 passed, 1 skipped, 5 warnings in 2.94s ==================
+rc=0

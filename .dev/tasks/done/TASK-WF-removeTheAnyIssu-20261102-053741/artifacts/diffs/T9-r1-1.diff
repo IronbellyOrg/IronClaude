@@ -1,0 +1,98 @@
+diff --git a/src/superclaude/skills/operational-guide/SKILL.md b/src/superclaude/skills/operational-guide/SKILL.md
+index 8eaa2f7a..4b3a979e 100644
+--- a/src/superclaude/skills/operational-guide/SKILL.md
++++ b/src/superclaude/skills/operational-guide/SKILL.md
+@@ -511,7 +511,7 @@ Phase 3 — Research Completeness Verification (MULTI-AGENT LENS GATE, PARALLEL)
+ - **Parallel partitioning for large workloads:** When >6 research files exist, DOUBLE agent counts: spawn 4 rf-analyst + 4 rf-qa + 2 rf-qa-qualitative = 10 agents. Each partition instance gets an assigned_files subset and writes to a numbered report. After all complete, merge reports: union of all findings, take more severe rating for items flagged by multiple partitions, deduplicate gaps.
+ - **Serialized fix protocol:** Read ALL reports. Consolidate all findings into `${TASK_DIR}qa/qa-research-consolidated-findings.md`. Spawn 1 rf-qa fix agent (fix_authorization: true) with the consolidated findings to apply ALL fixes. Then spawn a verification round (2 agents: 1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) to confirm fixes.
+ - Determine verdict from consolidated reports (PASS / FAIL).
+-- If PASS → proceed to Phase 4. If FAIL → fix ALL findings regardless of severity. (a) For findings fixable in existing research files, run serialized fix cycle (max 3 cycles). (b) For findings requiring new investigation, spawn targeted research agents (max 2 gap-fill rounds). These are independent budgets. After max cycles/rounds, HALT: log remaining issues in Task Log, present findings to user.
++- If PASS → proceed to Phase 4. If FAIL → fix every blocking finding (minor findings are recorded as notes). (a) For findings fixable in existing research files, run serialized fix cycle (max 3 cycles). (b) For findings requiring new investigation, spawn targeted research agents (max 2 gap-fill rounds). These are independent budgets. After max cycles/rounds, HALT: log remaining issues in Task Log, present findings to user.
+ - Compile final gaps into ${TASK_DIR}gaps-and-questions.md
+ - Do NOT proceed to Phase 4 until verdict is PASS
+ 
+@@ -979,7 +979,7 @@ Apply the full 10-item Research Gate checklist independently.
+ 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
+ 4. Documentation cross-validation — all doc-sourced claims tagged [CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED], Verify EVERY CODE-VERIFIED claim
+ 5. Contradiction resolution — no unresolved conflicting findings about the same config, port, or procedure step
+-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
++6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+ 7. Depth appropriateness — matches the tier expectation (Lightweight/Standard/Heavyweight)
+ 8. Integration point coverage — service boundaries, network topology, port mappings, and dependency chains documented
+ 9. Procedure completeness — every operational phase (prerequisites, setup steps, verification, troubleshooting, maintenance) has research backing
+@@ -987,7 +987,7 @@ Apply the full 10-item Research Gate checklist independently.
+ 
+ VERDICTS:
+ - PASS: Green light for synthesis
+-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass. List each finding with specific remediation.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass. List each finding with specific remediation.
+ 
+ Use the full QA report output format from your agent definition.
+ Zero tolerance — if you can't verify it, it fails.
+@@ -1346,7 +1346,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
+ 
+ 7. **Report all uncertainty.** If something is unclear, ambiguous, or requires a judgment call, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
+ 
+-8. **Quality gates mandatory with minimum agent counts.** Post-research gate: minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative). Post-synthesis gate: minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative). Post-assembly gate: minimum 9–11 lens-focused agents (3–4 rf-qa structural + 3–4 rf-qa-qualitative content + 3 ops-guide domain lenses) plus source-document fidelity gate (minimum 2 agents). All gates use serialized fix protocol (report-only agents first, then single fix agent, then verification round). Max fix cycles: 3 for research, 2 for synthesis, 3 for final document, 2 for source-document fidelity. After max fix cycles, HALT and ask user for guidance. ALL findings must be resolved. NO gate uses fewer than 5 agents combined — this is the absolute floor. (Intermediate gates: 5 minimum. Output/final gates: 6 minimum before domain lenses are added.)
++8. **Quality gates mandatory with minimum agent counts.** Post-research gate: minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative). Post-synthesis gate: minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative). Post-assembly gate: minimum 9–11 lens-focused agents (3–4 rf-qa structural + 3–4 rf-qa-qualitative content + 3 ops-guide domain lenses) plus source-document fidelity gate (minimum 2 agents). All gates use serialized fix protocol (report-only agents first, then single fix agent, then verification round). Max fix cycles: 3 for research, 2 for synthesis, 3 for final document, 2 for source-document fidelity. After max fix cycles, HALT and ask user for guidance. All blocking findings must be resolved; minor findings are recorded as notes. NO gate uses fewer than 5 agents combined — this is the absolute floor. (Intermediate gates: 5 minimum. Output/final gates: 6 minimum before domain lenses are added.)
+ 
+ 9. **No one-shotting documents.** Agents must write incrementally as they discover information. The assembler must write the final guide section by section. This is non-negotiable.
+ 
+diff --git a/src/superclaude/skills/readme/SKILL.md b/src/superclaude/skills/readme/SKILL.md
+index 54e82b66..cae978c3 100644
+--- a/src/superclaude/skills/readme/SKILL.md
++++ b/src/superclaude/skills/readme/SKILL.md
+@@ -546,7 +546,7 @@ Phase 3 — Research Completeness Verification (LENS-BASED GATE, 5 AGENTS MINIMU
+   - If verification finds new issues, repeat Steps 3.3-3.4. Maximum 3 fix cycles for Sub-flow A.
+ - **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE instances of each of the 5 agent roles in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. For example, with 10 research files: spawn 2 instances of each role (5 files each). Each partition instance writes to a numbered report (e.g., `${TASK_DIR}qa/analyst-completeness-report-1.md`, `${TASK_DIR}qa/analyst-completeness-report-2.md`). After all instances complete, merge their reports: union of all findings, take the more severe rating for any item flagged by multiple partitions, deduplicate gaps.
+ - Read ALL reports (or the merged report). Determine verdict from the QA report(s) (PASS / FAIL), cross-referenced with analyst findings.
+-- If PASS → proceed to Phase 4. If FAIL → fix ALL findings regardless of severity before proceeding. Reports list gaps with specific remediation actions.
++- If PASS → proceed to Phase 4. If FAIL → fix every blocking finding (minor findings are recorded as notes) before proceeding. Reports list gaps with specific remediation actions.
+ - **Sub-flow B: Fill coverage gaps (runs only when gap-detection lens identifies missing topics):**
+   - Spawn additional targeted research agents (one item per gap-filling agent, from merged gap list). Each gap-filling agent follows the same incremental writing protocol. Wait for gap-filling agents to complete before proceeding.
+   - After gap-filling agents add NEW research files, spawn `rf-qa` with qa_phase: "fix-cycle" and the previous QA report path to re-verify only the previously-failed items against the new research files. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. Maximum 2 gap-fill rounds for Sub-flow B.
+@@ -606,7 +606,7 @@ Phase 6 — Assembly & Lens-Based Validation (RF-ASSEMBLER + 11 LENS AGENTS + SO
+     - rf-qa (fidelity-phantom agent): reads module source code + full assembled README. Checks: every README claim traces to real code (no phantom features, no fabricated commands, no invented file paths), detail preservation (specific names, counts, config keys survive from code into README). Report: `${TASK_DIR}qa/qa-source-fidelity-phantom.md`
+   Step 6.3b: Consolidate fidelity findings, apply fixes (same serialized protocol: 1 fix agent, 2 verification agents, max 3 cycles).
+   If unresolved after 3 cycles, HALT and present findings to user.
+-- Step 6.4: Read all QA reports (lens + fidelity). If any issues remain unresolved, address ALL before proceeding to Phase 7. Zero leniency.
++- Step 6.4: Read all QA reports (lens + fidelity). If any blocking issue remains unresolved, address it before Phase 7; minor issues are recorded as notes.
+ 
+ Phase 7 — Present to User & Complete Task:
+ - Present summary to user (README location, key sections, tier used, research file count, open questions from gaps-and-questions.md)
+@@ -1004,7 +1004,7 @@ Adversarial framing: "Assume at least 3 claims in the research files are unverif
+ 
+ VERDICTS:
+ - PASS: Evidence quality meets standards
+-- FAIL: ALL findings must be resolved. List each with specific remediation.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. List each with specific remediation.
+ 
+ Zero tolerance — if you can’t verify it, it fails.
+ ```
+@@ -1026,7 +1026,7 @@ You focus on COVERAGE GAPS — whether all required topics were investigated tho
+ 
+ CHECKLIST:
+ 1. Scope coverage — every key file/directory from research-notes EXISTING_FILES examined
+-2. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
++2. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+ 3. Depth appropriateness — matches the tier expectation (Lightweight/Standard/Heavyweight)
+ 4. Tech reference utilization (README-specific) — if companion tech reference files exist, verify research agents actually read them and extracted relevant content rather than re-investigating from scratch
+ 5. Feature completeness — user-facing features identified from code, not just from documentation. Features described from user perspective, not implementer perspective
+@@ -1035,7 +1035,7 @@ Adversarial framing: "Assume the research has at least 3 coverage gaps that will
+ 
+ VERDICTS:
+ - PASS: No significant gaps found
+-- FAIL: ALL findings must be resolved. List each with specific remediation.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. List each with specific remediation.
+ 
+ Zero tolerance — if you can’t verify it, it fails.
+ ```
+@@ -2031,7 +2031,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
+ 
+ 7. **Report all uncertainty.** If something is unclear, ambiguous, or requires a judgment call, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
+ 
+-8. **Quality gates mandatory with lens-based minimums.** Intermediate gates (research, synthesis): minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) with lens-based focus and serialized fix authorization. Final document gate: minimum 11 lens agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific) with serialized fix protocol (report-only -> consolidate -> single fix agent -> verification). Source-document fidelity gate: minimum 2 rf-qa fidelity agents reading module source code + assembled README. Max fix cycles: 3 for research gate, 2 for synthesis gate, 3 for final document gate, 3 for fidelity gate. After max fix cycles, HALT and ask user for guidance. ALL findings must be resolved. An intermediate QA gate (research-gate, synthesis-gate) with fewer than 5 total agents is PROHIBITED. A final QA gate (report-validation, source-fidelity) with fewer than 6 total agents is PROHIBITED.
++8. **Quality gates mandatory with lens-based minimums.** Intermediate gates (research, synthesis): minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) with lens-based focus and serialized fix authorization. Final document gate: minimum 11 lens agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific) with serialized fix protocol (report-only -> consolidate -> single fix agent -> verification). Source-document fidelity gate: minimum 2 rf-qa fidelity agents reading module source code + assembled README. Max fix cycles: 3 for research gate, 2 for synthesis gate, 3 for final document gate, 3 for fidelity gate. After max fix cycles, HALT and ask user for guidance. All blocking findings must be resolved; minor findings are recorded as notes. An intermediate QA gate (research-gate, synthesis-gate) with fewer than 5 total agents is PROHIBITED. A final QA gate (report-validation, source-fidelity) with fewer than 6 total agents is PROHIBITED.
+ 
+ 9. **No one-shotting documents.** Agents must write incrementally as they discover information. The assembler must write the final README section by section. This is non-negotiable.
+ 

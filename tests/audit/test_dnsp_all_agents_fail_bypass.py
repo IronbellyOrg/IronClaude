@@ -11,7 +11,7 @@ guard precedence as three mutually-exclusive cohort-outcome paths:
 
   - **Path A** (``success_count == 0``) — zero partitions succeeded.
     The orchestrator MUST activate the byte-stable
-    ``rf-team-lead's Fix Cycles rule`` max-3-cycles HALT-and-ask-user escalation
+    ``rf-team-lead's Fix Cycles rule`` max-2-cycles HALT-and-ask-user escalation
     and MUST NOT emit any synthetic-dnsp block.
   - **Path B** (``success_count >= 1`` AND ``exhaust_count >= 1``) —
     mixed cohort. The orchestrator MUST emit one synthetic-dnsp block
@@ -29,7 +29,8 @@ escalation-ladder semantics) is a contract violation and surfaces as
 ``R-122-guard-precedence-violation``.
 
 The rf-team-lead's Fix Cycles rule line is byte-stable across the M6 landing
-under COMP-006-M6 (sha256 ``51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0``).
+under COMP-006-M6 (sha256 ``c1c4ae4d8fa874df75b1ab4ca17891c01635ca522df6383cbfcb6fbfa480b4ee``;
+re-pinned when the line moved to blocking findings and max 2 cycles per phase).
 TEST-020 verifies the sha256 at runtime so a regression that mutates
 the escalation line breaks the fixture immediately.
 
@@ -73,9 +74,10 @@ RF_TEAM_LEAD_FIX_CYCLES_FIXTURE_PATH = (
 # rf-team-lead.md by content match (not line index).
 RF_TEAM_LEAD_FIX_CYCLES_ANCHOR = "- **Fix Cycles**: "
 # SHA-256 of the snapshot fixture. Derived at module import so the value
-# stays in sync with the fixture file. Equals the legacy COMP-006-M6 pin
-# (`51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0`)
-# as long as the rule content has not been mutated.
+# stays in sync with the fixture file. Equals the COMP-006-M6 pin
+# (`c1c4ae4d8fa874df75b1ab4ca17891c01635ca522df6383cbfcb6fbfa480b4ee`, re-pinned
+# for the blocking-findings / max-2-cycles rule) as long as the rule content
+# has not been mutated.
 RF_TEAM_LEAD_FIX_CYCLES_SHA256 = hashlib.sha256(
     RF_TEAM_LEAD_FIX_CYCLES_FIXTURE_PATH.read_bytes()
 ).hexdigest()
@@ -392,11 +394,11 @@ class TestRfTeamLeadFixCyclesByteStability:
             f"{hashlib.sha256(live_bytes).hexdigest()!r}."
         )
 
-    def test_fix_cycles_line_contains_max_3_cycles_token(self, rf_team_lead_text: str):
+    def test_fix_cycles_line_contains_max_2_cycles_token(self, rf_team_lead_text: str):
         rule_line = _find_fix_cycles_line(rf_team_lead_text)
-        assert "max 3 cycles per phase" in rule_line, (
+        assert "max 2 cycles per phase" in rule_line, (
             f"rf-team-lead Fix Cycles rule no longer names the "
-            f"max-3-cycles contract: {rule_line!r}"
+            f"max-2-cycles contract: {rule_line!r}"
         )
 
     def test_fix_cycles_line_contains_halt_and_ask_user_token(
@@ -637,7 +639,7 @@ class TestPathMutualExclusivity:
 class TestPathAExecutionLogHaltBinding:
     """The R-135 roadmap evidence row names
     ``execution-log:shows-HALT-path`` — Path A activates the
-    rf-team-lead's Fix Cycles rule max-3-cycles HALT-and-ask-user escalation.
+    rf-team-lead's Fix Cycles rule max-2-cycles HALT-and-ask-user escalation.
     Bind the HALT verb to the rf-team-lead source so a regression
     breaking the HALT activation breaks TEST-020."""
 

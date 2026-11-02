@@ -1,0 +1,2 @@
+768902a72df6987ea226fa70bafdc22e8422ac21
+A1 r1-1 F1.2 note tests/cli_portify/test_failures.py:209 ac=scope n,n,n,n test_resume_command_with_increased_budget and failures.py:259-261 "Increase convergence budget: ... --max-convergence {n+2}" present a higher flag value as a bigger budget; inherited text (present at start), part of the unwired-flag follow-up listed in the PR body (quoted operator instruction is not in the plan AC or Constraints, so the inherited cap applies)

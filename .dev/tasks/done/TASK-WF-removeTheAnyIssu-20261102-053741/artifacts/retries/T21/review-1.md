@@ -1,0 +1,3 @@
+61710bd91a59d7ae759a5ff33d6cd3dfaeade8fb tree=118575e6fd2e510cb40106753fe553af60ddb734
+T21.AC1 unmet [F1.1] T21.AC1@CHANGELOG.md:5-21
+F1.1 sev=blocking trigger=B2 ac=T21.AC1 at=CHANGELOG.md:16 anchor=src/superclaude/cli/cli_portify/steps/panel_review.py:352 chk=n,y,n,n family=changelog-portify-max-convergence-claim fix=Reword CHANGELOG.md:16 to say only that the cli-portify convergence default is 1 iteration, and drop "and `--max-convergence` can raise it" first=A1 origin=new: The entry says "`--max-convergence` can raise it", but panel_review.py:352 builds ConvergenceEngine(max_iterations=1) with a fixed value and config.max_convergence is never passed to the engine; raising --max-convergence does not change the convergence cap.

@@ -432,7 +432,7 @@ class TestPR02RetryMonotonicityGuards:
         assert "regression detected" in rf_task_builder_text.lower()
 
     def test_rf_qa_has_protocol_in_fix_cycle(self, rf_qa_text: str) -> None:
-        # rf-qa.md's 3-fix-cycle rules must adopt the same guards.
+        # rf-qa.md's 2-fix-cycle rules must adopt the same guards.
         assert "Retry Monotonicity Protocol" in rf_qa_text
         assert "PR-02" in rf_qa_text
         # Composition with PR-03 DNSP cited.

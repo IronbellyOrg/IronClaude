@@ -1,0 +1,3123 @@
+diff --git a/tests/skills/fixtures/review_severity_cap_edits.yaml b/tests/skills/fixtures/review_severity_cap_edits.yaml
+new file mode 100644
+index 00000000..03a6f302
+--- /dev/null
++++ b/tests/skills/fixtures/review_severity_cap_edits.yaml
+@@ -0,0 +1,1398 @@
++# cap-edits.yaml: literal, mechanically checkable edit table for review-loop caps and at-cap rules.
++#
++# Date: 2026-11-02. Branch: fix/review-severity-rule (src unchanged from f90877be; line numbers verified on disk today).
++# Inputs: .dev/review-severity-rule/cap-sites.md (every IN row), inventory.md sections 3.1 and 4 (item 3a: cli-portify
++# default = 1 iteration = 3 reviews + 2 fix passes), .dev/reflect/pre-removeTheAnyIssu-20261102042426/REPORT.md P2-B1..P2-B7.
++# Rule: a review loop runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings.
++# Canonical at-cap clause: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings".
++# Open-Questions-and-proceed at-cap rules become "HALT and escalate to the user with the open blocking findings; minor
++# findings stay as notes."
++#
++# Row contract (check each row mechanically):
++#   - `old` is a literal substring of `file`; `grep -n -F -- "<old>" <file>` hits only the listed line(s) and the number of
++#     matches equals `occurrences` (verified 2026-11-02 with grep -n -o -F, every hit attributed to a listed site).
++#   - `old` holds only the cap / at-cap fragment; severity wording on the same line (e.g. "ALL findings regardless of
++#     severity must be resolved.") is deliberately left out so the severity task can edit it independently.
++#   - `new` never contains `old`. After applying: count(old) == 0 and count(new) >= 1 in `file`.
++#   - Rows whose `occurrences` > 1 list every site in `lines`; apply them with replace-all.
++#   - Multi-line `old` (one test row) uses YAML "\n" escapes; its uniqueness is anchored by a unique line inside it.
++# Groups: agents | templates | skills-a (operational-guide, readme, roadmap, tech-reference, tech-research, prd/tdd
++# build-request templates) | skills-b (task, task-builder) | portify (cli_portify code, sc-cli-portify-protocol,
++# tests/cli_portify/test_convergence.py) | prd-core (cli/prd/models.py, rules/core/ib_agent_core.md).
++rows:
++  # ---------------------------------------------------------------- agents
++  - id: C-001
++    file: src/superclaude/agents/rf-qa-qualitative.md
++    line: 797
++    group: agents
++    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
++    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-002
++    file: src/superclaude/agents/rf-qa-qualitative.md
++    line: 827
++    group: agents
++    old: "[1 / 2 / 3 / N/A]"
++    new: "[1 / 2 / N/A]"
++    kind: cap
++    occurrences: 1
++  - id: C-003
++    file: src/superclaude/agents/rf-qa-qualitative.md
++    line: 982
++    group: agents
++    old: "10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
++    new: "10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-004
++    file: src/superclaude/agents/rf-qa.md
++    line: 390
++    group: agents
++    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
++    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-005
++    file: src/superclaude/agents/rf-qa.md
++    line: 393
++    group: agents
++    old: "strengthens this 3-fix-cycle"
++    new: "strengthens this 2-fix-cycle"
++    kind: cap
++    occurrences: 1
++  - id: C-006
++    file: src/superclaude/agents/rf-qa.md
++    line: 395
++    group: agents
++    old: "the existing 3-fix-cycle above"
++    new: "the existing 2-fix-cycle above"
++    kind: cap
++    occurrences: 1
++  - id: C-007
++    file: src/superclaude/agents/rf-qa.md
++    line: 395
++    group: agents
++    old: "BEFORE the existing 3-cycle cap fires"
++    new: "BEFORE the existing 2-cycle cap fires"
++    kind: cap
++    occurrences: 1
++  - id: C-008
++    file: src/superclaude/agents/rf-qa.md
++    line: 403
++    group: agents
++    old: "continues to the 3-cycle cap"
++    new: "continues to the 2-cycle cap"
++    kind: cap
++    occurrences: 1
++  - id: C-009
++    file: src/superclaude/agents/rf-qa.md
++    line: 406
++    group: agents
++    old: "The existing 3-cycle hard cap"
++    new: "The existing 2-cycle hard cap"
++    kind: cap
++    occurrences: 1
++  - id: C-010
++    file: src/superclaude/agents/rf-qa.md
++    line: 418
++    group: agents
++    old: "[1 / 2 / 3 / N/A]"
++    new: "[1 / 2 / N/A]"
++    kind: cap
++    occurrences: 1
++  - id: C-011
++    file: src/superclaude/agents/rf-qa.md
++    line: 537
++    group: agents
++    old: "10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
++    new: "10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-012
++    file: src/superclaude/agents/rf-task-builder.md
++    line: 383
++    group: agents
++    old: "| research-gate | 3 |"
++    new: "| research-gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-013
++    file: src/superclaude/agents/rf-task-builder.md
++    line: 384
++    group: agents
++    old: "synthesis-gate | 2 | Open Questions"
++    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-014
++    file: src/superclaude/agents/rf-task-builder.md
++    line: 385
++    group: agents
++    old: "| report-validation | 3 |"
++    new: "| report-validation | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-015
++    file: src/superclaude/agents/rf-task-builder.md
++    line: 386
++    group: agents
++    old: "task-integrity | 2 | Open Questions"
++    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-016
++    file: src/superclaude/agents/rf-task-builder.md
++    line: 387
++    group: agents
++    old: "| Any qualitative gate | 3 |"
++    new: "| Any qualitative gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-017
++    file: src/superclaude/agents/rf-task-executor.md
++    line: 226
++    group: agents
++    old: "Will retry up to 5 times."
++    new: "Will retry up to 2 times."
++    kind: cap
++    occurrences: 1
++    note: "newly found (grep 'retry up to [3-9]'); sample output of the automated_qa_workflow correction loop; follows ib_agent_core.md MAX_CORRECTION_ATTEMPTS 5 -> 2 (C-153..C-156)"
++  # ---------------------------------------------------------------- templates
++  - id: C-018
++    file: src/superclaude/templates/documents/agent_template_qa.md
++    line: 184
++    group: templates
++    old: "Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance."
++    new: "Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-019
++    file: src/superclaude/templates/documents/agent_template_qa.md
++    line: 210
++    group: templates
++    old: "[1 / 2 / 3 / N/A]"
++    new: "[1 / 2 / N/A]"
++    kind: cap
++    occurrences: 1
++  - id: C-020
++    file: src/superclaude/templates/documents/agent_template_qa.md
++    line: 320
++    group: templates
++    old: "rf-qa.md rule 10 (max 3 fix cycles)"
++    new: "rf-qa.md rule 10 (max 2 fix cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-021
++    file: src/superclaude/templates/documents/agent_template_qa.md
++    line: 335
++    group: templates
++    old: "N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user."
++    new: "N+3. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-022
++    file: src/superclaude/templates/documents/skill_template.md
++    line: 427
++    group: templates
++    old: "in parallel, max 3 fix cycles, partitioning >6 files."
++    new: "in parallel, max 2 fix cycles, partitioning >6 files."
++    kind: cap
++    occurrences: 1
++  - id: C-023
++    file: src/superclaude/templates/modularization-template-review/qa-consolidated-findings_template.md
++    line: 102
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-024
++    file: src/superclaude/templates/modularization-template-review/qa-cross-source-contradictions_template.md
++    line: 101
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-025
++    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
++    line: 96
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-026
++    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
++    line: 105
++    group: templates
++    old: "Feeds the max-3-cycle escalation"
++    new: "Feeds the max-2-cycle escalation"
++    kind: cap
++    occurrences: 1
++  - id: C-027
++    file: src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md
++    line: 105
++    group: templates
++    old: "unfixed at Fix cycle 3/3"
++    new: "unfixed at Fix cycle 2/2"
++    kind: cap
++    occurrences: 1
++  - id: C-028
++    file: src/superclaude/templates/modularization-template-review/qa-research-depth_report_template.md
++    line: 105
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-029
++    file: src/superclaude/templates/modularization-template-review/qa-research-evidence_report_template.md
++    line: 100
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-030
++    file: src/superclaude/templates/modularization-template-review/qa-research-gap_report_template.md
++    line: 103
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-031
++    file: src/superclaude/templates/modularization-template-review/qa-source-fidelity_template.md
++    line: 95
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-032
++    file: src/superclaude/templates/modularization-template-review/qa-task-validation-b2_report_template.md
++    line: 101
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-033
++    file: src/superclaude/templates/modularization-template-review/qa-task-validation-structure_report_template.md
++    line: 104
++    group: templates
++    old: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 3"
++    new: "{{RF_PLACEHOLDER:FIX_CYCLE}} / 2"
++    kind: cap
++    occurrences: 1
++  - id: C-034
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 649
++    group: templates
++    old: "| research-gate | 3 |"
++    new: "| research-gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-035
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 650
++    group: templates
++    old: "synthesis-gate | 2 | Unresolved issues become Open Questions"
++    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-036
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 651
++    group: templates
++    old: "| report-validation | 3 |"
++    new: "| report-validation | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-037
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 652
++    group: templates
++    old: "task-integrity | 2 | Unresolved issues become Open Questions"
++    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-038
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 653
++    group: templates
++    old: "| Any qualitative gate | 3 |"
++    new: "| Any qualitative gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-039
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 787
++    group: templates
++    old: "Per I16 (2-3 per gate)"
++    new: "Per I16 (2 per gate)"
++    kind: cap
++    occurrences: 1
++  - id: C-040
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 803
++    group: templates
++    old: "If issues remain after 1 fix cycle, log as Open Questions and proceed."
++    new: "After 1 fix cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++  - id: C-041
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 938
++    group: templates
++    old: "unresolved issues become Open Questions."
++    new: "then HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++    note: "P2-B1 lite at-cap; case-sensitive: lines 650/652 start with capital 'Unresolved' and are rows C-035/C-037"
++  - id: C-042
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 662
++    group: templates
++    old: "| research-gate | 3 |"
++    new: "| research-gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-043
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 663
++    group: templates
++    old: "synthesis-gate | 2 | Unresolved issues become Open Questions"
++    new: "synthesis-gate | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-044
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 664
++    group: templates
++    old: "| report-validation | 3 |"
++    new: "| report-validation | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-045
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 665
++    group: templates
++    old: "task-integrity | 2 | Unresolved issues become Open Questions"
++    new: "task-integrity | 2 | HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++  - id: C-046
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 666
++    group: templates
++    old: "| Any qualitative gate | 3 |"
++    new: "| Any qualitative gate | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-047
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 667
++    group: templates
++    old: "| source-fidelity | 3 |"
++    new: "| source-fidelity | 2 |"
++    kind: cap
++    occurrences: 1
++  - id: C-048
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 753
++    group: templates
++    old: "(3 for most gates, 2 for synthesis-gate and task-integrity). If issues remain after 3 cycles, HALT and escalate to user."
++    new: "(2 for every gate). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-049
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 804
++    group: templates
++    old: "Per I16 (2-3 per gate)"
++    new: "Per I16 (2 per gate)"
++    kind: cap
++    occurrences: 1
++  - id: C-050
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 820
++    group: templates
++    old: "If issues remain after 1 fix cycle, log as Open Questions and proceed."
++    new: "After 1 fix cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++  - id: C-051
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1090
++    group: templates
++    old: "(3 for most gates, 2 for synthesis-gate and task-integrity) (per I16). If issues remain after 3 cycles, HALT and escalate to user."
++    new: "(2 for every gate) (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-052
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1090
++    group: templates
++    old: "unresolved issues become Open Questions."
++    new: "then HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++    note: "P2-B1 lite at-cap; does not overlap C-051 on the same line"
++  - id: C-053
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1119
++    group: templates
++    old: "Same cycle control as M3 Step 8 (max 3 cycles, then HALT)."
++    new: "Same cycle control as M3 Step 8 (max 2 cycles; after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings)."
++    kind: both
++    occurrences: 1
++  # ---------------------------------------------------------------- skills-a
++  - id: C-054
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 427
++    group: skills-a
++    old: "Verification round (2 agents). Max 3 fix cycles."
++    new: "Verification round (2 agents). Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-055
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 439
++    group: skills-a
++    old: "= 5 agents. Max 3 fix cycles."
++    new: "= 5 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-056
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 447
++    group: skills-a
++    old: "= 11 agents. Max 3 fix cycles."
++    new: "= 11 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-057
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 514
++    group: skills-a
++    old: "run serialized fix cycle (max 3 cycles)"
++    new: "run serialized fix cycle (max 2 cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-058
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 571
++    group: skills-a
++    old: "repeat Step 6.4 (max 3 cycles total). After 3 cycles, HALT: log remaining issues in Task Log, present to user."
++    new: "repeat Step 6.4 (max 2 cycles total). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log remaining issues in Task Log."
++    kind: both
++    occurrences: 1
++  - id: C-059
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1349
++    group: skills-a
++    old: "Max fix cycles: 3 for research, 2 for synthesis, 3 for final document, 2 for source-document fidelity. After max fix cycles, HALT and ask user for guidance."
++    new: "Max fix cycles: 2 for research, 2 for synthesis, 2 for final document, 2 for source-document fidelity. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++    note: "the following sentence 'ALL findings must be resolved.' is severity wording and stays out of old"
++  - id: C-060
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1371
++    group: skills-a
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-061
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 188
++    group: skills-a
++    old: "apply fixes via serialized protocol (max 3 cycles)"
++    new: "apply fixes via serialized protocol (max 2 cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-062
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 191
++    group: skills-a
++    old: "(max 3 fix cycles per gate)"
++    new: "(max 2 fix cycles per gate)"
++    kind: cap
++    occurrences: 1
++  - id: C-063
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 451
++    group: skills-a
++    old: "= 5 agents. Max 3 fix cycles."
++    new: "= 5 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-064
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 460
++    group: skills-a
++    old: "= 11 agents. Max 3 fix cycles."
++    new: "= 11 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-065
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 464
++    group: skills-a
++    old: "HALT if unresolved after 3 cycles."
++    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-066
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 546
++    group: skills-a
++    old: "Maximum 3 fix cycles for Sub-flow A."
++    new: "Maximum 2 fix cycles for Sub-flow A."
++    kind: cap
++    occurrences: 1
++  - id: C-067
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 553
++    group: skills-a
++    old: "Sub-flow A (max 3 fix cycles)"
++    new: "Sub-flow A (max 2 fix cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-068
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 602
++    group: skills-a
++    old: "(max 3 cycles). If unresolved after 3 cycles, HALT and present findings to user."
++    new: "(max 2 cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-069
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 607
++    group: skills-a
++    old: "2 verification agents, max 3 cycles)"
++    new: "2 verification agents, max 2 cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-070
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 608
++    group: skills-a
++    old: "  If unresolved after 3 cycles, HALT and present findings to user."
++    new: "  After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: at-cap
++    occurrences: 1
++    note: "old starts with exactly two spaces (the line's indentation); that keeps it from matching the same sentence inside C-068 on line 602"
++  - id: C-071
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1690
++    lines: [1690, 1715]
++    group: skills-a
++    old: "Maximum 3 fix cycles for the fidelity gate."
++    new: "Maximum 2 fix cycles for the fidelity gate."
++    kind: cap
++    occurrences: 2
++    note: "lines 1690 and 1715 are byte-identical, so no single-site literal exists; replace-all covers both sites"
++  - id: C-072
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1690
++    lines: [1690, 1715]
++    group: skills-a
++    old: "After 3 cycles, HALT and escalate to user."
++    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: at-cap
++    occurrences: 2
++    note: "same byte-identical pair as C-071; replace-all covers both sites"
++  - id: C-073
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 2034
++    group: skills-a
++    old: "Max fix cycles: 3 for research gate, 2 for synthesis gate, 3 for final document gate, 3 for fidelity gate. After max fix cycles, HALT and ask user for guidance."
++    new: "Max fix cycles: 2 for research gate, 2 for synthesis gate, 2 for final document gate, 2 for fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++    note: "the following sentence 'ALL findings must be resolved.' is severity wording and stays out of old"
++  - id: C-074
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 2058
++    group: skills-a
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-075
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 435
++    group: skills-a
++    old: "= 17-19 agents. Max 3 fix cycles."
++    new: "= 17-19 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-076
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 440
++    group: skills-a
++    old: "detail-preservation rf-qa-qualitative). Max 3 fix cycles."
++    new: "detail-preservation rf-qa-qualitative). Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-077
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 554
++    group: skills-a
++    old: "Fix cycle (max 3): identify unpopulated sections"
++    new: "Fix cycle (max 2): identify unpopulated sections"
++    kind: cap
++    occurrences: 1
++  - id: C-078
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 563
++    group: skills-a
++    old: "repeat fix-verify cycle (max 3 total cycles). HALT if unresolved after 3 cycles."
++    new: "repeat fix-verify cycle (max 2 total cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-079
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 569
++    group: skills-a
++    old: "If gaps remain after 2 cycles, document remaining gaps in S10 Open Questions and proceed to Phase 3 Coverage Validation."
++    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++    note: "P2-B2; the earlier 'document it in S10 Open Questions with the source reference and justification for deferral' on the same line is a fix option, not the at-cap rule, and stays"
++  - id: C-080
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 577
++    group: skills-a
++    old: "originating coverage agent). Max 3 fix cycles."
++    new: "originating coverage agent). Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-081
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2073
++    group: skills-a
++    old: "Stage 1 lens QA: max 3 fix cycles."
++    new: "Stage 1 lens QA: max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-082
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2073
++    group: skills-a
++    old: "Stage 2 coverage: max 3 fix cycles."
++    new: "Stage 2 coverage: max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-083
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2587
++    group: skills-a
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-084
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2608
++    group: skills-a
++    old: "Unresolvable gaps MUST be documented in S10 Open Questions — they cannot be silently dropped."
++    new: "Gaps still open after 2 fix cycles (3 reviews) MUST be escalated: HALT and escalate to the user with the open blocking findings; minor findings stay as notes — they cannot be silently dropped."
++    kind: at-cap
++    occurrences: 1
++    note: "newly found: rule 26 restates the Step 2.VERIFY.FIX at-cap outcome (C-079) as 'document in S10 Open Questions'"
++  - id: C-085
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 177
++    group: skills-a
++    old: "gap-fill cycles if needed (max 3)"
++    new: "gap-fill cycles if needed (max 2)"
++    kind: cap
++    occurrences: 1
++  - id: C-086
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 412
++    group: skills-a
++    old: "1 rf-qa-qualitative). Max 3 cycles."
++    new: "1 rf-qa-qualitative). Max 2 cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-087
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 415
++    group: skills-a
++    old: "then 2-agent verification round (max 3 cycles)"
++    new: "then 2-agent verification round (max 2 cycles)"
++    kind: cap
++    occurrences: 1
++  - id: C-088
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 424
++    group: skills-a
++    old: "Max 3 gap-fill cycles."
++    new: "Max 2 gap-fill cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-089
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 428
++    group: skills-a
++    old: "= 5 agents. Max 3 fix cycles."
++    new: "= 5 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-090
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 432
++    group: skills-a
++    old: "= 11-15 agents. Max 3 fix cycles."
++    new: "= 11-15 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-091
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 436
++    group: skills-a
++    old: "8 at >2000. Max 3 fix cycles."
++    new: "8 at >2000. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-092
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 512
++    group: skills-a
++    old: "Maximum 3 cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed."
++    new: "Maximum 2 cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
++    kind: both
++    occurrences: 1
++  - id: C-093
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 529
++    group: skills-a
++    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user, ask for guidance."
++    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
++    kind: both
++    occurrences: 1
++  - id: C-094
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 534
++    group: skills-a
++    old: "(max 3 total cycles). After 3 cycles, HALT: log remaining issues, present to user, ask for guidance."
++    new: "(max 2 total cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-095
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 535
++    group: skills-a
++    old: "(max 3 fix cycles). HALT after max cycles exceeded."
++    new: "(max 2 fix cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-096
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 1307
++    group: skills-a
++    old: "Maximum 3 fix cycles per gate — after 3 failed cycles, HALT execution and ask the user for guidance."
++    new: "Maximum 2 fix cycles per gate — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-097
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 1327
++    group: skills-a
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-098
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 398
++    group: skills-a
++    old: "= 5 agents. Max 3 fix cycles."
++    new: "= 5 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-099
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 406
++    group: skills-a
++    old: "= 9-13 agents. Max 3 fix cycles."
++    new: "= 9-13 agents. Max 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-100
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 486
++    group: skills-a
++    old: "repeat Step 3.2 (max 3 cycles total), then HALT — log issues in Task Log, present to user"
++    new: "repeat Step 3.2 (max 2 cycles total). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log issues in Task Log"
++    kind: both
++    occurrences: 1
++  - id: C-101
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 551
++    group: skills-a
++    old: "repeat Steps 6.5-6.6 (max 3 cycles), then HALT if unresolved."
++    new: "repeat Steps 6.5-6.6 (max 2 cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-102
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 1643
++    group: skills-a
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-103
++    file: src/superclaude/skills/prd/refs/build-request-template.md
++    line: 130
++    group: skills-a
++    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user."
++    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
++    kind: both
++    occurrences: 1
++  - id: C-104
++    file: src/superclaude/skills/tdd/refs/build-request-template.md
++    line: 125
++    group: skills-a
++    old: "Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed."
++    new: "Maximum 2 fix cycles — after 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in Task Log."
++    kind: both
++    occurrences: 1
++  # ---------------------------------------------------------------- skills-b
++  - id: C-105
++    file: src/superclaude/skills/task/SKILL.md
++    line: 120
++    group: skills-b
++    old: "a phase-gate QA has failed 3 fix cycles"
++    new: "a phase-gate QA has failed 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-106
++    file: src/superclaude/skills/task/SKILL.md
++    line: 254
++    group: skills-b
++    old: "Maximum 3 fix cycles total (per I16 (MDTM template rule: maximum 3 fix-verify cycles per gate)6)."
++    new: "Maximum 2 fix cycles total (per I16 (MDTM template rule: maximum 2 fix-verify cycles per gate))."
++    kind: cap
++    occurrences: 1
++    note: "also drops the stray '6' after the closing parenthesis"
++  - id: C-107
++    file: src/superclaude/skills/task/SKILL.md
++    line: 254
++    group: skills-b
++    old: "After 3 failed cycles: HALT execution — log all remaining issues"
++    new: "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings — log all remaining issues"
++    kind: at-cap
++    occurrences: 1
++  - id: C-108
++    file: src/superclaude/skills/task/SKILL.md
++    line: 336
++    group: skills-b
++    old: "then a verification round. Maximum 3 fix cycles."
++    new: "then a verification round. Maximum 2 fix cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-109
++    file: src/superclaude/skills/task/SKILL.md
++    line: 366
++    group: skills-b
++    old: "Maximum 3 fix cycles total per gate."
++    new: "Maximum 2 fix cycles total per gate."
++    kind: cap
++    occurrences: 1
++  - id: C-110
++    file: src/superclaude/skills/task/SKILL.md
++    line: 368
++    group: skills-b
++    old: "6. **Escalation:** After 3 failed cycles, HALT — log all remaining issues in the Task Log, present findings to the user, and ask for guidance."
++    new: "6. **Escalation:** After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in the Task Log."
++    kind: both
++    occurrences: 1
++  - id: C-111
++    file: src/superclaude/skills/task/SKILL.md
++    line: 405
++    group: skills-b
++    old: "Maximum 3 fix cycles (per I16), then HALT and escalate to user."
++    new: "Maximum 2 fix cycles (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings."
++    kind: both
++    occurrences: 1
++  - id: C-112
++    file: src/superclaude/skills/task/SKILL.md
++    line: 477
++    group: skills-b
++    old: "[1 / 2 / 3 / N/A]"
++    new: "[1 / 2 / N/A]"
++    kind: cap
++    occurrences: 1
++  - id: C-113
++    file: src/superclaude/skills/task/SKILL.md
++    line: 616
++    group: skills-b
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-114
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 204
++    group: skills-b
++    old: "with gap-fill cycle if needed (max 3 rounds)"
++    new: "with gap-fill cycle if needed (max 2 rounds)"
++    kind: cap
++    occurrences: 1
++  - id: C-115
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 872
++    group: skills-b
++    old: "4. **Maximum 3 gap-fill rounds**"
++    new: "4. **Maximum 2 gap-fill rounds**"
++    kind: cap
++    occurrences: 1
++  - id: C-116
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 873
++    group: skills-b
++    old: "5. After 3 rounds, proceed with remaining gaps as Open Questions in the task file"
++    new: "5. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: both
++    occurrences: 1
++  - id: C-117
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1147
++    group: skills-b
++    old: "6. Max 3 fix-verify cycles."
++    new: "6. Max 2 fix-verify cycles."
++    kind: cap
++    occurrences: 1
++  - id: C-118
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1259
++    group: skills-b
++    old: "proceed with gaps as Open Questions in the task file"
++    new: "HALT and escalate to the user with the open blocking findings; minor findings stay as notes"
++    kind: at-cap
++    occurrences: 1
++    note: "inventory 3.1; RESEARCH_NEEDED flow, cap already 2 ('Maximum 2 RESEARCH_NEEDED rounds'), so only the at-cap outcome changes; does not match line 873 ('proceed with remaining gaps')"
++  - id: C-119
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1275
++    group: skills-b
++    old: "rf-qa's 3-fix-cycle in rf-qa.md"
++    new: "rf-qa's 2-fix-cycle in rf-qa.md"
++    kind: cap
++    occurrences: 1
++  - id: C-120
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1275
++    group: skills-b
++    old: "the existing 3-cycle hard cap"
++    new: "the existing 2-cycle hard cap"
++    kind: cap
++    occurrences: 1
++  - id: C-121
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1310
++    group: skills-b
++    old: "research-gate=3"
++    new: "research-gate=2"
++    kind: cap
++    occurrences: 1
++  - id: C-122
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1310
++    group: skills-b
++    old: "report-validation=3"
++    new: "report-validation=2"
++    kind: cap
++    occurrences: 1
++  - id: C-123
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1310
++    group: skills-b
++    old: "qualitative=3"
++    new: "qualitative=2"
++    kind: cap
++    occurrences: 1
++  - id: C-124
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1310
++    group: skills-b
++    old: "with the global 3-cycle backstop"
++    new: "with the global 2-cycle backstop"
++    kind: cap
++    occurrences: 1
++  - id: C-125
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1310
++    group: skills-b
++    old: "(HALT-and-escalate or Open Questions)"
++    new: "(HALT and escalate to the user with the open blocking findings; minor findings stay as notes)"
++    kind: at-cap
++    occurrences: 1
++    note: "newly found: the hard-cap step names Open Questions as an at-cap path"
++  - id: C-126
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1412
++    group: skills-b
++    old: "  Max 3 fix-verify cycles."
++    new: "  Max 2 fix-verify cycles."
++    kind: cap
++    occurrences: 1
++    note: "old starts with exactly two spaces; that keeps it from matching inside C-117 ('6. Max 3 fix-verify cycles.' on line 1147)"
++  - id: C-127
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1419
++    group: skills-b
++    old: "**FAIL with unfixable issues after 3 fix-verify cycles**"
++    new: "**FAIL with unfixable issues after 2 fix-verify cycles (3 reviews)**"
++    kind: cap
++    occurrences: 1
++  - id: C-128
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1420
++    group: skills-b
++    old: "counts against the A.10 fix-cycle budget, max 3 cycles"
++    new: "counts against the A.10 fix-cycle budget, max 2 cycles"
++    kind: cap
++    occurrences: 1
++  - id: C-129
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1420
++    group: skills-b
++    old: "At max cycle, surface the missing/malformed report to the user as an Open Question in the task file and proceed to A.10.25 with the issue documented."
++    new: "At max cycle (after 2 fix cycles, 3 reviews), HALT and escalate to the user with the open blocking findings, including the missing/malformed report path; minor findings stay as notes."
++    kind: at-cap
++    occurrences: 1
++    note: "P2-B2. The DM-005 token 'failure_mode: retry-into-max-cycle-then-Open-Questions' at the end of this line (and lines 1490, 1620, 1644, 1660) is NOT edited here; see flagged_for_decision"
++  - id: C-130
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1471
++    group: skills-b
++    old: "(independent of A.10's 3-cycle budget)"
++    new: "(independent of A.10's 2-cycle budget)"
++    kind: cap
++    occurrences: 1
++  - id: C-131
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2369
++    group: skills-b
++    old: "phase-gate QA failing 3 fix cycles"
++    new: "phase-gate QA failing 2 fix cycles"
++    kind: cap
++    occurrences: 1
++  # ---------------------------------------------------------------- portify
++  - id: C-132
++    file: src/superclaude/cli/cli_portify/convergence.py
++    line: 149
++    group: portify
++    old: "engine = ConvergenceEngine(max_iterations=3)"
++    new: "engine = ConvergenceEngine(max_iterations=1)"
++    kind: cap
++    occurrences: 1
++  - id: C-133
++    file: src/superclaude/cli/cli_portify/convergence.py
++    line: 150
++    group: portify
++    old: "for i in range(1, 4):"
++    new: "for i in range(1, 2):"
++    kind: cap
++    occurrences: 1
++  - id: C-134
++    file: src/superclaude/cli/cli_portify/convergence.py
++    line: 165
++    group: portify
++    old: "max_iterations: int = 3,"
++    new: "max_iterations: int = 1,"
++    kind: cap
++    occurrences: 1
++  - id: C-135
++    file: src/superclaude/cli/cli_portify/steps/panel_review.py
++    line: 352
++    group: portify
++    old: "ConvergenceEngine(max_iterations=3)"
++    new: "ConvergenceEngine(max_iterations=1)"
++    kind: cap
++    occurrences: 1
++  - id: C-136
++    file: src/superclaude/cli/cli_portify/commands.py
++    line: 100
++    group: portify
++    old: "default=3,"
++    new: "default=1,"
++    kind: cap
++    occurrences: 1
++  - id: C-137
++    file: src/superclaude/cli/cli_portify/commands.py
++    line: 101
++    group: portify
++    old: "(default: 3)"
++    new: "(default: 1; follows the 2-fix-cycle cap)"
++    kind: cap
++    occurrences: 1
++  - id: C-138
++    file: src/superclaude/cli/cli_portify/config.py
++    line: 53
++    group: portify
++    old: "max_convergence: int = 3"
++    new: "max_convergence: int = 1"
++    kind: cap
++    occurrences: 1
++  - id: C-139
++    file: src/superclaude/cli/cli_portify/models.py
++    line: 583
++    group: portify
++    old: "max_convergence: int = 3"
++    new: "max_convergence: int = 1"
++    kind: cap
++    occurrences: 1
++  - id: C-140
++    file: src/superclaude/cli/cli_portify/prompts.py
++    line: 68
++    group: portify
++    old: "max_convergence: int = 3"
++    new: "max_convergence: int = 1"
++    kind: cap
++    occurrences: 1
++  - id: C-141
++    file: src/superclaude/cli/cli_portify/resume.py
++    line: 136
++    group: portify
++    old: "max_convergence: int = 3"
++    new: "max_convergence: int = 1"
++    kind: cap
++    occurrences: 1
++  - id: C-142
++    file: tests/cli_portify/test_convergence.py
++    line: 78
++    group: portify
++    old: "def test_default_max_iterations_is_3(self):"
++    new: "def test_default_max_iterations_is_1(self):"
++    kind: cap
++    occurrences: 1
++  - id: C-143
++    file: tests/cli_portify/test_convergence.py
++    line: 81
++    lines: [81, 82, 83, 84, 85]
++    group: portify
++    old: "        assert not engine.is_done\n        engine.submit(IterationResult(iteration=2, unaddressed_criticals=3))\n        assert not engine.is_done\n        engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))\n        assert engine.is_done\n"
++    new: "        assert engine.is_done\n"
++    kind: cap
++    occurrences: 1
++    note: "multi-line old (8-space indent); unique because its line 84 'engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))' occurs once in the file. Result: with the default of 1 the first submit (iteration=1, 5 CRITICALs) is terminal and line 86 'assert engine.state == ConvergenceState.ESCALATED' still holds"
++  - id: C-144
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 355
++    group: portify
++    old: "Terminal state: 3 iterations exhausted"
++    new: "Terminal state: 1 iteration exhausted"
++    kind: cap
++    occurrences: 1
++  - id: C-145
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 363
++    group: portify
++    old: "iteration < 3)"
++    new: "iteration < max_iterations)"
++    kind: cap
++    occurrences: 1
++  - id: C-146
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 364
++    group: portify
++    old: "iteration >= 3)"
++    new: "iteration >= max_iterations)"
++    kind: cap
++    occurrences: 1
++  - id: C-147
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 367
++    group: portify
++    old: "Hard cap: `max_iterations = 3`"
++    new: "Hard cap: `max_iterations = 1` (one iteration = 3 reviews + 2 fix passes, the 2-fix-cycle cap)"
++    kind: cap
++    occurrences: 1
++  - id: C-148
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 374
++    group: portify
++    old: "— 3 iterations exhausted with"
++    new: "— 1 iteration exhausted with"
++    kind: cap
++    occurrences: 1
++  - id: C-149
++    file: src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++    line: 534
++    group: portify
++    old: "Maximum convergence iterations (3) reached"
++    new: "Maximum convergence iterations (1) reached"
++    kind: cap
++    occurrences: 1
++  - id: C-150
++    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
++    line: 121
++    group: portify
++    old: "Max 3 iterations."
++    new: "Max 1 iteration (3 reviews, 2 fix passes)."
++    kind: cap
++    occurrences: 1
++  - id: C-151
++    file: src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
++    line: 123
++    group: portify
++    old: "ESCALATED = 3 iterations exhausted"
++    new: "ESCALATED = 1 iteration exhausted"
++    kind: cap
++    occurrences: 1
++  # ---------------------------------------------------------------- prd-core
++  - id: C-152
++    file: src/superclaude/cli/prd/models.py
++    line: 203
++    group: prd-core
++    old: "max_research_fix_cycles: int = 3"
++    new: "max_research_fix_cycles: int = 2"
++    kind: cap
++    occurrences: 1
++    note: "executor.py runs range(max_cycles + 1) = initial QA + N fix cycles, so 2 gives 3 QA runs"
++  - id: C-153
++    file: src/superclaude/rules/core/ib_agent_core.md
++    line: 574
++    group: prd-core
++    old: "Maximum 5 correction loops per batch"
++    new: "Maximum 2 correction loops per batch"
++    kind: cap
++    occurrences: 1
++    note: "P2-B6"
++  - id: C-154
++    file: src/superclaude/rules/core/ib_agent_core.md
++    line: 633
++    group: prd-core
++    old: "Maximum 5 correction attempts per batch"
++    new: "Maximum 2 correction attempts per batch"
++    kind: cap
++    occurrences: 1
++  - id: C-155
++    file: src/superclaude/rules/core/ib_agent_core.md
++    line: 913
++    group: prd-core
++    old: "Manual intervention needed after 3 attempts"
++    new: "Manual intervention needed after 2 attempts"
++    kind: cap
++    occurrences: 1
++  - id: C-156
++    file: src/superclaude/rules/core/ib_agent_core.md
++    line: 933
++    group: prd-core
++    old: "`MAX_CORRECTION_ATTEMPTS` (default: 5)"
++    new: "`MAX_CORRECTION_ATTEMPTS` (default: 2)"
++    kind: cap
++    occurrences: 1
++    note: "documents automated_qa_workflow.sh, which is not in this repo; doc-only change"
++  # ---------------------------------------------------------------- resolved flagged_for_decision items (orchestrator, 2026-11-02, under rule B1: never pass open blocking findings at the cap)
++  - id: C-157
++    file: src/superclaude/skills/task-builder/SKILL.md
++    lines: [1420, 1490, 1620, 1644, 1660]
++    group: skills-b
++    old: "retry-into-max-cycle-then-Open-Questions"
++    new: "retry-into-max-cycle-then-halt-escalate"
++    kind: at-cap
++    occurrences: 5
++    note: "DM-005 failure_mode token; only consumer is this file; no test pins it"
++  - id: C-158
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1620
++    group: skills-b
++    old: "retry into the max cycle then Open Questions"
++    new: "retry into the max cycle, then HALT and escalate to the user with the open blocking findings"
++    kind: at-cap
++    occurrences: 1
++  - id: C-159
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1660
++    group: skills-b
++    old: "(per DET-015 no-halt decision)"
++    new: "(at the cap, HALT and escalate to the user with the open blocking findings)"
++    kind: at-cap
++    occurrences: 1
++  - id: C-160
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1471
++    group: skills-b
++    old: "If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5."
++    new: "If blocking findings remain after 1 cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes in the consolidated file."
++    kind: at-cap
++    occurrences: 1
++  - id: C-161
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 1232
++    group: templates
++    old: "HALT and escalate by logging unresolved issues in ### Phase Gate Findings below with a note that manual intervention is required, then mark this item complete."
++    new: "HALT and escalate to the user with the open blocking findings (log them in ### Phase Gate Findings below); do not mark this item complete while blocking findings are open."
++    kind: at-cap
++    occurrences: 1
++
++handled_elsewhere:
++  - site: "src/superclaude/skills/sc-implement-protocol/refs/{retry,qa,ledger}.md and plugins/superclaude/skills/sc-implement-protocol/refs/{retry,qa,ledger}.md"
++    reason: "/sc:implement keeps its own severity model and ladder; option A (remove the second A2 repair) is a separate task (inventory section 4 item 2), with its tests test_implement_severity_static.py, test_implement_severity_replay.py, test_task_workspace_lifecycle.py"
++  - site: "src/superclaude/agents/rf-team-lead.md:462"
++    text: "(max 3 cycles per phase). If max cycles exhausted, HALT and ask user"
++    reason: "changes the sha256 pinned by tests/audit/test_dnsp_all_agents_fail_bypass.py and tests/audit/fixtures/rf-team-lead-fix-cycles-rule.txt; edited together with the DNSP lines below"
++  - site: "src/superclaude/agents/rf-analyst.md:74"
++    text: "(max-3-cycles HALT-and-ask-user contract); sha256 frozen at `51725c0f…`"
++    reason: "DNSP clause: 'max-3-cycles' token and sha re-pin"
++  - site: "src/superclaude/agents/rf-qa.md:82"
++    text: "same DNSP clause ('max-3-cycles', sha256 51725c0f…)"
++    reason: "DNSP clause: token and sha re-pin"
++  - site: "src/superclaude/agents/rf-qa-qualitative.md:83"
++    text: "same DNSP clause ('max-3-cycles', sha256 51725c0f…)"
++    reason: "DNSP clause: token and sha re-pin"
++  - site: "src/superclaude/skills/task-builder/SKILL.md:901"
++    text: "sha256 frozen at `51725c0f…`"
++    reason: "sha re-pin of the new rf-team-lead.md:462 line"
++  - site: "tests/audit/test_dnsp_all_agents_fail_bypass.py and tests/audit/fixtures/rf-team-lead-fix-cycles-rule.txt"
++    reason: "pin the rf-team-lead.md:462 text, its sha256 and the 'max-3-cycles' token"
++
++dependent_repins:
++  - test: "tests/audit/test_severity_floor_unweakened.py:48 BASELINE_BLOCK_SHA"
++    triggered_by: C-003
++    reason: "hashes the rf-qa-qualitative.md Critical Rules block that contains rule 10 (line 982)"
++  - test: "tests/skills/test_task_builder_merge.py:435"
++    triggered_by: C-011
++    reason: "comment names rf-qa.md's '3-fix-cycle'"
++
++flagged_for_decision:   # RESOLVED 2026-11-02 by the orchestrator under rule B1: items 1-3 became rows C-157..C-161; item 4 (sc-cli-eval schema loop) stays OUT (not a review loop)
++  - site: "src/superclaude/skills/task-builder/SKILL.md:1420 (tail), 1490, 1620, 1644, 1660"
++    text: "DM-005 token `failure_mode: retry-into-max-cycle-then-Open-Questions` (1660: 'per DET-015 no-halt decision')"
++    why: "a published wire value naming an Open-Questions-and-proceed at-cap path; after C-129 it contradicts the new HALT rule. No test pins it (git grep tests: 0 hits). Renaming it (e.g. retry-into-max-cycle-then-halt-escalate) is a contract change, so it needs a coordinator decision"
++  - site: "src/superclaude/skills/task-builder/SKILL.md:1471"
++    text: "If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5."
++    why: "A.10.25 at-cap (cap 1) proceeds with open findings without using the words 'Open Question'; same pattern as the at-cap rules being replaced"
++  - site: "src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:1232"
++    text: "HALT and escalate by logging unresolved issues in ### Phase Gate Findings below with a note that manual intervention is required, then mark this item complete."
++    why: "says HALT but then marks the item complete, so execution continues with open findings"
++  - site: "src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:204 and refs/create-pipeline.md:50"
++    text: "SKILL.md:204 'Max 3 fix loops'; create-pipeline.md:50 '(max 3 fix loops), then report blocked'"
++    why: "already flagged OUT in cap-sites.md section 17 (schema-loader fix loop, not a review); listed again so the decision is not lost"
++
++totals:
++  rows: 161
++  by_group:
++    agents: 17
++    templates: 37
++    skills-a: 51
++    skills-b: 31
++    portify: 20
++    prd-core: 5
++  by_kind:
++    cap: 111
++    at-cap: 23
++    both: 27
++  multi_site_rows: [C-071, C-072, C-143]
+diff --git a/tests/skills/fixtures/review_severity_sweep_edits.yaml b/tests/skills/fixtures/review_severity_sweep_edits.yaml
+new file mode 100644
+index 00000000..c485e452
+--- /dev/null
++++ b/tests/skills/fixtures/review_severity_sweep_edits.yaml
+@@ -0,0 +1,1145 @@
++# sweep-edits.yaml: literal, mechanically checkable edit table for the review severity rule (sweep rows).
++#
++# Date: 2026-11-02. Branch: fix/review-severity-rule (HEAD f90877be; src unmodified; line numbers verified on disk today).
++# Rule applied (S1/S2): grade every finding as blocking (CRITICAL / IMPORTANT: wrong, unsafe, incomplete against stated
++# requirements, or unverifiable) or minor (MINOR / LOW: cosmetic, wording, style, optional polish). Only blocking findings
++# fail a review; minor findings are recorded as notes, are not rechecked, and never trigger a fix pass on their own.
++# At the cap, open blocking findings HALT and escalate to the user (cap numbers and at-cap clauses live in cap-edits.yaml).
++# Inputs: .dev/review-severity-rule/sweep/fixloop-hits.tsv (scanner: sweep/fixloop_scan.py),
++# .dev/reflect/pre-removeTheAnyIssu-20261102054021/adversarial/merged-verdict.md (B3-01, B3-02, B3-03, B3-04, B3-07, B3-10).
++#
++# Row contract (same as cap-edits.yaml; check each row mechanically):
++#   - `old` is a literal substring of `file`; `grep -n -F -- "<old>" <file>` hits only the listed line(s) and the number of
++#     matches equals `occurrences` (every row here has occurrences 1).
++#   - No `old` occurrence shares any character position with a cap-edits.yaml `old` occurrence in the same file, so the two
++#     tables apply in either order.
++#   - `new` never contains `old`. After applying: count(old) == 0 and count(new) >= 1 in `file`.
++#   - Multi-line `old` (verdict PASS+FAIL pairs, the agent_template_qa Fix Cycle block, two short anchors) uses YAML "\n"
++#     escapes and lists every spanned line in `lines`.
++#   - Every `fixloop` row's `new` contains "blocking".
++#   - Not covered here (owned by other tasks): prd/refs/build-request-template.md:157, tdd/refs/build-request-template.md:152,
++#     task-builder/SKILL.md:1600, task/SKILL.md:347, every line in inventory.md sections 2.2-2.5, and the pm-agent example
++#     lines (agents/sc-pm-agent.md:541, src/superclaude/agents/pm-agent.md:564, plugins/superclaude/agents/pm-agent.md:564).
++# Groups (fixloop 96, verdict 14, halt 2, template-qa 1, reflect-gate 5, tasklist 12, zero-tolerance 5):
++#   fixloop        fix passes and repeat triggers carry blocking findings only (finding B3-03 for its 8 site sets, else sweep)
++#   verdict        "FAIL: Issues found" -> "FAIL: Blocking issues found"; PASS allows MINOR notes (B3-07)
++#   halt           rf-qa HALT-MONOTONICITY counts blocking issues only (B3-01)
++#   template-qa    agent_template_qa.md Fix Cycle rechecks previously failed blocking items only (B3-02)
++#   reflect-gate   task-builder POST reflect gate: Regression / unauthorized Drift is remediated or HALTs and escalates (B3-04)
++#   tasklist       sc-tasklist-protocol Stages 8-10: Low findings are notes; open High/Medium findings HALT at the cap (B3-10)
++#   zero-tolerance QA prompt intros: zero tolerance applies to blocking errors (sweep)
++rows:
++  - id: S-001
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 27
++    group: fixloop
++    finding: sweep
++    old: "a single fix agent then applies ALL collected fixes,"
++    new: "a single fix agent then applies ALL collected blocking fixes (minor findings stay as notes),"
++    occurrences: 1
++  - id: S-002
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 427
++    group: fixloop
++    finding: sweep
++    old: "then 1 rf-qa fix agent applies all fixes."
++    new: "then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-003
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 430
++    group: fixloop
++    finding: sweep
++    old: "then 1 rf-qa fix agent applies ALL fixes."
++    new: "then 1 rf-qa fix agent applies ALL blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-004
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 512
++    group: fixloop
++    finding: sweep
++    old: "with the consolidated findings to apply ALL fixes."
++    new: "with the consolidated blocking findings to apply ALL blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-005
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 538
++    group: fixloop
++    finding: sweep
++    old: "Spawn 1 rf-qa fix agent (fix_authorization: true). Verification round"
++    new: "Spawn 1 rf-qa fix agent (fix_authorization: true) for the blocking findings only (minor findings stay as notes). Verification round"
++    occurrences: 1
++  - id: S-006
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 569
++    group: fixloop
++    finding: B3-03
++    old: "with the consolidated findings list. It applies ALL fixes to the guide."
++    new: "with the consolidated blocking findings list (a minors-only list spawns no fix agent; minor findings stay as notes). It applies ALL blocking fixes to the guide."
++    occurrences: 1
++  - id: S-007
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 571
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues,"
++    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle),"
++    occurrences: 1
++  - id: S-008
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1042
++    group: fixloop
++    finding: sweep
++    old: "a separate fix agent applies all fixes via serialized protocol"
++    new: "a separate fix agent applies all blocking fixes via serialized protocol"
++    occurrences: 1
++  - id: S-009
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1055
++    group: fixloop
++    finding: sweep
++    old: "a dedicated fix agent will apply all consolidated findings"
++    new: "a dedicated fix agent will apply all consolidated blocking findings (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-010
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1561
++    group: fixloop
++    finding: sweep
++    old: "A serialized fix agent applies all collected findings."
++    new: "A serialized fix agent applies all collected blocking findings (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-011
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 1575
++    group: fixloop
++    finding: sweep
++    old: "the serialized fix agent applies all collected fixes from all QA reports. Issues remaining"
++    new: "the serialized fix agent applies all collected blocking fixes from all QA reports (minor findings stay as notes). Blocking issues remaining"
++    occurrences: 1
++  - id: S-012
++    file: src/superclaude/skills/prd/refs/build-request-template.md
++    line: 155
++    group: fixloop
++    finding: sweep
++    old: "If issues remain unfixed, address them before proceeding to qualitative QA."
++    new: "If blocking issues remain unfixed, address them before proceeding to qualitative QA (minor issues stay as notes)."
++    occurrences: 1
++  - id: S-013
++    file: src/superclaude/skills/tdd/refs/build-request-template.md
++    line: 150
++    group: fixloop
++    finding: sweep
++    old: "If issues remain unfixed, address them before proceeding to qualitative QA."
++    new: "If blocking issues remain unfixed, address them before proceeding to qualitative QA (minor issues stay as notes)."
++    occurrences: 1
++  - id: S-014
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 29
++    group: fixloop
++    finding: sweep
++    old: "a single fix agent applies consolidated fixes,"
++    new: "a single fix agent applies the consolidated blocking fixes (minor findings stay as notes),"
++    occurrences: 1
++  - id: S-015
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 442
++    group: fixloop
++    finding: sweep
++    old: "consolidated findings, 1 fix agent, 2 verification agents"
++    new: "consolidated findings, 1 fix agent for the blocking findings (minor findings stay as notes), 2 verification agents"
++    occurrences: 1
++  - id: S-016
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 452
++    group: fixloop
++    finding: sweep
++    old: "unless a gate-specific override is defined.**"
++    new: "unless a gate-specific override is defined. Fix agents receive blocking findings only; minor findings stay as notes.**"
++    occurrences: 1
++  - id: S-017
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 544
++    group: fixloop
++    finding: sweep
++    old: "If any findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with consolidated findings to apply all fixes"
++    new: "If any blocking findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with the consolidated blocking findings (minor findings stay as notes) to apply all blocking fixes"
++    occurrences: 1
++  - id: S-018
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 546
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat Steps 3.3-3.4."
++    new: "If verification finds new blocking issues, repeat Steps 3.3-3.4 (new minor findings are notes and do not restart the cycle)."
++    occurrences: 1
++  - id: S-019
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 577
++    group: fixloop
++    finding: sweep
++    old: "then 1 rf-qa fix agent applies all fixes, then 2 verification agents confirm."
++    new: "then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes), then 2 verification agents confirm."
++    occurrences: 1
++  - id: S-020
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 579
++    group: fixloop
++    finding: sweep
++    old: "The fix agent applies all consolidated fixes."
++    new: "The fix agent applies all consolidated blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-021
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 600
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings — apply ALL fixes to the README."
++    new: "with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the README."
++    occurrences: 1
++  - id: S-022
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1328
++    group: fixloop
++    finding: sweep
++    old: "findings are consolidated and a single fix agent applies all fixes."
++    new: "findings are consolidated and a single fix agent applies all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-023
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1580
++    group: fixloop
++    finding: sweep
++    old: "#### Consolidated Fix Agent Prompt (rf-qa)"
++    new: "#### Consolidated Fix Agent Prompt (rf-qa; blocking findings only)"
++    occurrences: 1
++  - id: S-024
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1590
++    group: fixloop
++    finding: sweep
++    old: "Read the consolidated findings list and apply ALL fixes using Edit."
++    new: "Read the consolidated findings list and apply ALL blocking fixes using Edit; minor findings stay as notes."
++    occurrences: 1
++  - id: S-025
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1880
++    group: fixloop
++    finding: sweep
++    old: "a single fix agent applies consolidated findings using the serialized fix protocol."
++    new: "a single fix agent applies the consolidated blocking findings using the serialized fix protocol (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-026
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 1955
++    group: fixloop
++    finding: sweep
++    old: "Single fix agent applied ALL consolidated fixes"
++    new: "Single fix agent applied ALL consolidated blocking fixes (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-027
++    file: src/superclaude/skills/readme/SKILL.md
++    line: 2060
++    group: fixloop
++    finding: sweep
++    old: "applies ALL fixes. Then 2 verification agents confirm fixes."
++    new: "applies ALL blocking fixes (minor findings stay as notes). Then 2 verification agents confirm fixes."
++    occurrences: 1
++  - id: S-028
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 27
++    group: fixloop
++    finding: sweep
++    old: "then a single fix agent applies all corrections, then verification agents confirm."
++    new: "then a single fix agent applies all blocking corrections (minor findings stay as notes), then verification agents confirm."
++    occurrences: 1
++  - id: S-029
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 562
++    group: fixloop
++    finding: sweep
++    old: "Fix round — Count consolidated lens findings."
++    new: "Fix round — Count consolidated blocking lens findings (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-030
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 566
++    group: fixloop
++    finding: sweep
++    old: "based on consolidated fidelity findings count."
++    new: "based on the consolidated blocking fidelity findings count (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-031
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 569
++    group: fixloop
++    finding: sweep
++    old: "(4) Determine K per Rule 24 thresholds based on consolidated gap count."
++    new: "(4) Determine K per Rule 24 thresholds based on the consolidated count of blocking gaps (MISSING or PARTIAL; minor findings stay as notes)."
++    occurrences: 1
++  - id: S-032
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 577
++    group: fixloop
++    finding: sweep
++    old: "based on consolidated coverage finding count."
++    new: "based on the consolidated blocking coverage finding count (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-033
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 589
++    group: fixloop
++    finding: sweep
++    old: "based on that BUILD_REQUEST's consolidated finding count"
++    new: "based on that BUILD_REQUEST's consolidated blocking finding count (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-034
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 668
++    group: fixloop
++    finding: sweep
++    old: "If issues found: for each failing task file independently"
++    new: "If blocking issues found (minor findings stay as notes): for each failing task file independently"
++    occurrences: 1
++  - id: S-035
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2071
++    group: fixloop
++    finding: sweep
++    old: "Count fixable findings in the consolidated file."
++    new: "Count fixable blocking findings in the consolidated file (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-036
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2073
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat steps 3-4."
++    new: "If verification finds new blocking issues, repeat steps 3-4 (new minor findings are notes and do not restart the cycle)."
++    occurrences: 1
++  - id: S-037
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2107
++    group: fixloop
++    finding: sweep
++    old: "3. Log fix outcomes (succeeded / failed / skipped with reason) in a summary block"
++    new: "3. Log fix outcomes (succeeded / failed / skipped with reason) for each blocking finding in a summary block"
++    occurrences: 1
++  - id: S-038
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2591
++    group: fixloop
++    finding: sweep
++    old: "then fix agents apply corrections SERIALLY (one at a time, never concurrently)."
++    new: "then fix agents apply the blocking corrections SERIALLY (one at a time, never concurrently; minor findings stay as notes)."
++    occurrences: 1
++  - id: S-039
++    file: src/superclaude/skills/roadmap/SKILL.md
++    line: 2594
++    group: fixloop
++    finding: sweep
++    old: "K=1 fix agent applies all corrections"
++    new: "K=1 fix agent applies all blocking corrections"
++    occurrences: 1
++  - id: S-040
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1144
++    group: fixloop
++    finding: sweep
++    old: "4. Spawn ONE fix agent (fix_authorization: true) with consolidated"
++    new: "4. Spawn ONE fix agent (fix_authorization: true) with the consolidated blocking"
++    occurrences: 1
++  - id: S-041
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1145
++    group: fixloop
++    finding: sweep
++    old: "findings to apply ALL fixes."
++    new: "findings to apply ALL blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-042
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1174
++    group: fixloop
++    finding: sweep
++    old: "A single fix agent applies all fixes."
++    new: "A single fix agent applies all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-043
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1319
++    group: fixloop
++    finding: sweep
++    old: "focused structural lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings."
++    new: "focused structural lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated blocking findings (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-044
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1409
++    group: fixloop
++    finding: sweep
++    old: "SINGLE rf-qa fix agent (fix_authorization: true) with the consolidated"
++    new: "SINGLE rf-qa fix agent (fix_authorization: true) with the blocking findings from the consolidated"
++    occurrences: 1
++  - id: S-045
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1410
++    group: fixloop
++    finding: sweep
++    old: "findings list to apply ALL fixes to the task file."
++    new: "findings list to apply ALL blocking fixes to the task file (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-046
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1471
++    group: fixloop
++    finding: sweep
++    old: "with the alignment findings appended to the consolidated file. This fix agent applies alignment fixes to the task file."
++    new: "with the blocking alignment findings appended to the consolidated file (minor findings stay as notes). This fix agent applies the blocking alignment fixes to the task file."
++    occurrences: 1
++  - id: S-047
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 1477
++    group: fixloop
++    finding: sweep
++    old: "a focused lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings."
++    new: "a focused lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated blocking findings (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-048
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2111
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings to apply all fixes"
++    new: "with the consolidated blocking findings to apply all blocking fixes (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-049
++    file: src/superclaude/skills/task-builder/SKILL.md
++    lines: [2145, 2146]
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings\n3. Verification round to confirm fixes applied correctly"
++    new: "with the consolidated blocking findings (minor findings stay as notes)\n3. Verification round to confirm fixes applied correctly"
++    occurrences: 1
++  - id: S-050
++    file: src/superclaude/skills/task/SKILL.md
++    line: 250
++    group: fixloop
++    finding: sweep
++    old: "If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the output files."
++    new: "If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the output files."
++    occurrences: 1
++  - id: S-051
++    file: src/superclaude/skills/task/SKILL.md
++    line: 252
++    group: fixloop
++    finding: sweep
++    old: "(a) all findings from the consolidated list were addressed,"
++    new: "(a) all blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked),"
++    occurrences: 1
++  - id: S-052
++    file: src/superclaude/skills/task/SKILL.md
++    line: 252
++    group: fixloop
++    finding: sweep
++    old: "(c) no new issues were introduced by the fixes."
++    new: "(c) no new blocking issues were introduced by the fixes (new minor findings are recorded as notes)."
++    occurrences: 1
++  - id: S-053
++    file: src/superclaude/skills/task/SKILL.md
++    line: 359
++    group: fixloop
++    finding: B3-03
++    old: "If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list. This agent applies ALL fixes."
++    new: "If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list (a minors-only list spawns no fix agent; minor findings stay as notes). This agent applies ALL blocking fixes."
++    occurrences: 1
++  - id: S-054
++    file: src/superclaude/skills/task/SKILL.md
++    line: 362
++    group: fixloop
++    finding: B3-03
++    old: "- All findings from the consolidated list were addressed"
++    new: "- All blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked)"
++    occurrences: 1
++  - id: S-055
++    file: src/superclaude/skills/task/SKILL.md
++    line: 364
++    group: fixloop
++    finding: B3-03
++    old: "- No new issues were introduced by the fixes"
++    new: "- No new blocking issues were introduced by the fixes (new minor findings are recorded as notes)"
++    occurrences: 1
++  - id: S-056
++    file: src/superclaude/skills/task/SKILL.md
++    line: 366
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed issues and newly introduced issues)."
++    new: "If verification finds new blocking issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed blocking issues and newly introduced blocking issues; new minor findings are notes and do not restart the cycle)."
++    occurrences: 1
++  - id: S-057
++    file: src/superclaude/skills/task/SKILL.md
++    line: 403
++    group: fixloop
++    finding: sweep
++    old: "If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes."
++    new: "If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-058
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 180
++    group: fixloop
++    finding: sweep
++    old: "then consolidated findings, then a single serialized fix agent, then verification round"
++    new: "then consolidated findings, then a single serialized fix agent for the blocking findings (minor findings stay as notes), then verification round"
++    occurrences: 1
++  - id: S-059
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 414
++    group: fixloop
++    finding: sweep
++    old: "applying all consolidated findings, then 2-agent verification round"
++    new: "applying all consolidated blocking findings (minor findings stay as notes), then 2-agent verification round"
++    occurrences: 1
++  - id: S-060
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 510
++    group: fixloop
++    finding: sweep
++    old: "is any FAIL-rated finding from the consolidated findings list."
++    new: "is any FAIL-rated (blocking) finding from the consolidated findings list; minor findings stay as notes and get no gap-filling agent."
++    occurrences: 1
++  - id: S-061
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 527
++    group: fixloop
++    finding: sweep
++    old: "to apply all fixes, then 2-agent verification round."
++    new: "to apply all blocking fixes (minor findings stay as notes), then 2-agent verification round."
++    occurrences: 1
++  - id: S-062
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 529
++    group: fixloop
++    finding: sweep
++    old: "if fix agent could not resolve all findings,"
++    new: "if fix agent could not resolve all blocking findings (minor findings stay as notes),"
++    occurrences: 1
++  - id: S-063
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 534
++    group: fixloop
++    finding: B3-03
++    old: "with the consolidated findings list — it applies ALL fixes to the document."
++    new: "with the consolidated blocking findings list (a minors-only list spawns no fix agent; minor findings stay as notes) — it applies ALL blocking fixes to the document."
++    occurrences: 1
++  - id: S-064
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 534
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat from fix agent"
++    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle), repeat from fix agent"
++    occurrences: 1
++  - id: S-065
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 899
++    group: fixloop
++    finding: sweep
++    old: "a separate fix agent applies all fixes via serialized protocol"
++    new: "a separate fix agent applies all blocking fixes via serialized protocol"
++    occurrences: 1
++  - id: S-066
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 914
++    group: fixloop
++    finding: sweep
++    old: "a dedicated fix agent will apply all consolidated findings"
++    new: "a dedicated fix agent will apply all consolidated blocking findings (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-067
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 1219
++    group: fixloop
++    finding: sweep
++    old: "a dedicated fix agent applies all fixes per the serialized fix protocol. Remaining unfixed issues"
++    new: "a dedicated fix agent applies all blocking fixes per the serialized fix protocol (minor findings stay as notes). Remaining unfixed blocking issues"
++    occurrences: 1
++  - id: S-068
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 1307
++    group: fixloop
++    finding: sweep
++    old: "then a single fix agent applies consolidated findings, then a verification round confirms."
++    new: "then a single fix agent applies the consolidated blocking findings (minor findings stay as notes), then a verification round confirms."
++    occurrences: 1
++  - id: S-069
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 27
++    group: fixloop
++    finding: sweep
++    old: "then a single fix agent applies all corrections, then a verification round confirms"
++    new: "then a single fix agent applies all blocking corrections (minor findings stay as notes), then a verification round confirms"
++    occurrences: 1
++  - id: S-070
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 484
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings. Fix agent spawns additional targeted research agents for gaps requiring new research (one per gap). Applies all fixes."
++    new: "with consolidated blocking findings (minor findings stay as notes). Fix agent spawns additional targeted research agents for blocking gaps requiring new research (one per gap). Applies all blocking fixes."
++    occurrences: 1
++  - id: S-071
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 486
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues:"
++    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle):"
++    occurrences: 1
++  - id: S-072
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 513
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings. Fixes issues in synth files in-place."
++    new: "with consolidated blocking findings (minor findings stay as notes). Fixes blocking issues in synth files in-place."
++    occurrences: 1
++  - id: S-073
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 546
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings list. The fix agent reads the report, applies ALL fixes from the consolidated list,"
++    new: "with the consolidated blocking findings list (minor findings stay as notes). The fix agent reads the report, applies ALL blocking fixes from the consolidated list,"
++    occurrences: 1
++  - id: S-074
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 551
++    group: fixloop
++    finding: sweep
++    old: "- [ ] If issues found:"
++    new: "- [ ] If blocking issues found (new minor findings are notes and do not restart the cycle):"
++    occurrences: 1
++  - id: S-075
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 564
++    group: fixloop
++    finding: sweep
++    old: "Consolidate anti-omission findings."
++    new: "Consolidate anti-omission findings (each unrecovered, unjustified omission is a blocking finding; minor findings stay as notes)."
++    occurrences: 1
++  - id: S-076
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 909
++    group: fixloop
++    finding: sweep
++    old: "a separate fix agent applies all fixes via serialized protocol"
++    new: "a separate fix agent applies all blocking fixes via serialized protocol"
++    occurrences: 1
++  - id: S-077
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 959
++    group: fixloop
++    finding: sweep
++    old: "A serialized fix agent applies all corrections."
++    new: "A serialized fix agent applies all blocking corrections (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-078
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 1508
++    group: fixloop
++    finding: sweep
++    old: "a single fix agent then applies all collected findings via serialized fix protocol."
++    new: "a single fix agent then applies all collected blocking findings via serialized fix protocol (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-079
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 1529
++    group: fixloop
++    finding: sweep
++    old: "the serialized fix agent applies all collected fixes. Issues remaining"
++    new: "the serialized fix agent applies all collected blocking fixes (minor findings stay as notes). Blocking issues remaining"
++    occurrences: 1
++  - id: S-080
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 1637
++    group: fixloop
++    finding: sweep
++    old: "A single fix agent applies all collected findings."
++    new: "A single fix agent applies all collected blocking findings (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-081
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 734
++    group: fixloop
++    finding: B3-03
++    old: "**Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
++    new: "**Fix phase:** If the consolidated findings file lists blocking findings, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
++    occurrences: 1
++  - id: S-082
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 735
++    group: fixloop
++    finding: B3-03
++    old: "to confirm fixes were applied correctly and no new issues were introduced."
++    new: "to confirm the blocking fixes were applied correctly and no new blocking issues were introduced (minor findings are notes and are not rechecked)."
++    occurrences: 1
++  - id: S-083
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 736
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) — consolidate new findings + original unfixed findings, spawn fix agent, verify."
++    new: "If verification finds new blocking issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) — consolidate new blocking findings + original unfixed blocking findings, spawn fix agent, verify (new minor findings are notes and do not restart the cycle)."
++    occurrences: 1
++  - id: S-084
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 934
++    group: fixloop
++    finding: sweep
++    old: "**Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
++    new: "**Step 6 (Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
++    occurrences: 1
++  - id: S-085
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 965
++    group: fixloop
++    finding: sweep
++    old: "and the fidelity findings file as input. Apply all fixes."
++    new: "and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-086
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 1224
++    group: fixloop
++    finding: sweep
++    old: "If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. The fix agent reads each finding and applies"
++    new: "If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). The fix agent reads each blocking finding and applies"
++    occurrences: 1
++  - id: S-087
++    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++    line: 1261
++    group: fixloop
++    finding: sweep
++    old: "spawn one fix agent with `fix_authorization: true`, then spawn verification agents."
++    new: "spawn one fix agent with `fix_authorization: true` for the blocking findings (minor findings stay as notes), then spawn verification agents."
++    occurrences: 1
++  - id: S-088
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 644
++    group: fixloop
++    finding: sweep
++    old: "that applies all consolidated findings (see I20 for serialized fix protocol)"
++    new: "that applies all consolidated blocking findings (minor findings stay as notes; see I20 for serialized fix protocol)"
++    occurrences: 1
++  - id: S-089
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 669
++    group: fixloop
++    finding: sweep
++    old: "(3) ONE fix agent applies ALL fixes with `fix_authorization: true`,"
++    new: "(3) ONE fix agent applies ALL blocking fixes with `fix_authorization: true` (minor findings stay as notes),"
++    occurrences: 1
++  - id: S-090
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 751
++    group: fixloop
++    finding: B3-03
++    old: "**Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
++    new: "**Fix phase:** If the consolidated findings file lists blocking findings, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
++    occurrences: 1
++  - id: S-091
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 752
++    group: fixloop
++    finding: B3-03
++    old: "to confirm fixes were applied correctly and no new issues were introduced."
++    new: "to confirm the blocking fixes were applied correctly and no new blocking issues were introduced (minor findings are notes and are not rechecked)."
++    occurrences: 1
++  - id: S-092
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 753
++    group: fixloop
++    finding: B3-03
++    old: "If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new findings + original unfixed findings, spawn fix agent, verify."
++    new: "If verification finds new blocking issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new blocking findings + original unfixed blocking findings, spawn fix agent, verify (new minor findings are notes and do not restart the cycle)."
++    occurrences: 1
++  - id: S-093
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1086
++    group: fixloop
++    finding: sweep
++    old: "**Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
++    new: "**Step 6 (Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
++    occurrences: 1
++  - id: S-094
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1117
++    group: fixloop
++    finding: sweep
++    old: "and the fidelity findings file as input. Apply all fixes."
++    new: "and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
++    occurrences: 1
++  - id: S-095
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1388
++    group: fixloop
++    finding: sweep
++    old: "with consolidated findings — apply ALL fixes to the Phase 2 output document(s)."
++    new: "with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the Phase 2 output document(s)."
++    occurrences: 1
++  - id: S-096
++    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++    line: 1400
++    group: fixloop
++    finding: sweep
++    old: "with fidelity consolidated findings -- apply ALL fidelity fixes"
++    new: "with the blocking fidelity consolidated findings (minor findings stay as notes) -- apply ALL blocking fidelity fixes"
++    occurrences: 1
++  - id: S-097
++    file: src/superclaude/templates/documents/skill_template.md
++    lines: [883, 884]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-098
++    file: src/superclaude/skills/prd/refs/agent-prompts.md
++    lines: [332, 333]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-099
++    file: src/superclaude/skills/tdd/refs/agent-prompts.md
++    lines: [340, 341]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-100
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    lines: [1073, 1074]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and suggested remediation)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and suggested remediation); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-101
++    file: src/superclaude/skills/readme/SKILL.md
++    lines: [1105, 1106]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synthesis files are accurate and traceable\n- FAIL: Issues found (list each with specific location, severity, and remediation action)"
++    new: "- PASS: All synthesis files are accurate and traceable (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location, severity, and remediation action); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-102
++    file: src/superclaude/skills/readme/SKILL.md
++    lines: [1138, 1139]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: Synthesis faithfully represents research findings\n- FAIL: Issues found (list each with specific location and remediation)"
++    new: "- PASS: Synthesis faithfully represents research findings (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location and remediation); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-103
++    file: src/superclaude/skills/readme/SKILL.md
++    lines: [1171, 1172]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet structural standards\n- FAIL: Issues found (list with specific fixes)"
++    new: "- PASS: All synth files meet structural standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-104
++    file: src/superclaude/skills/readme/SKILL.md
++    lines: [1200, 1201]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet content quality standards\n- FAIL: Issues found (list with specific fixes)"
++    new: "- PASS: All synth files meet content quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-105
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    lines: [932, 933]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and suggested remediation)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and suggested remediation); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-106
++    file: src/superclaude/skills/tech-research/SKILL.md
++    lines: [940, 941]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and locations)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and locations); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-107
++    file: src/superclaude/cli/prd/prompts.py
++    lines: [1278, 1279]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found with specific fixes listed"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found with specific fixes listed; MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-108
++    file: src/superclaude/cli/prd/prompts.py
++    lines: [1331, 1332]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with fixes, note which were fixed in-place)"
++    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-109
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    lines: [1028, 1029]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: All synthesis files meet quality standards, no critical issues\n- FAIL: Issues found (list each with specific location, severity, and remediation action)"
++    new: "- PASS: All synthesis files meet quality standards, no blocking (CRITICAL or IMPORTANT) issues (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location, severity, and remediation action); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-110
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    lines: [1004, 1005]
++    group: verdict
++    finding: B3-07
++    old: "- PASS: No fidelity issues found (with evidence of thorough checking)\n- FAIL: Issues found (list each with: documented claim, actual code, file path, line number, severity)"
++    new: "- PASS: No blocking fidelity issues found (with evidence of thorough checking; MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with: documented claim, actual code, file path, line number, severity); MINOR issues alone are listed as notes and do not fail"
++    occurrences: 1
++  - id: S-111
++    file: src/superclaude/agents/rf-qa.md
++    line: 391
++    group: halt
++    finding: B3-01
++    old: "Each cycle MUST have strictly fewer issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`)."
++    new: "Each cycle MUST have strictly fewer blocking issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`, where `F_n` counts open blocking findings only; new minor findings are notes and do not count)."
++    occurrences: 1
++  - id: S-112
++    file: src/superclaude/agents/rf-qa.md
++    line: 391
++    group: halt
++    finding: B3-01
++    old: "Non-shrinking issue count is a systemic problem"
++    new: "Non-shrinking blocking-issue count is a systemic problem"
++    occurrences: 1
++  - id: S-113
++    file: src/superclaude/templates/documents/agent_template_qa.md
++    lines: [172, 173, 174, 175, 176, 177, 178, 179]
++    group: template-qa
++    finding: B3-02
++    old: "2. For each issue flagged in the previous report:\n   - Verify the fix was applied\n   - Verify the fix is correct (not just present)\n   - If the fix introduced new issues, flag them\n3. Produce an updated QA report with:\n   - Previously failed items that now pass\n   - Previously failed items that still fail\n   - New issues introduced by fixes"
++    new: "2. For each blocking issue flagged in the previous report (minor findings are notes and are not rechecked):\n   - Verify the fix was applied\n   - Verify the fix is correct (not just present)\n   - If the fix introduced new blocking issues, flag them (record new minor findings as notes)\n3. Produce an updated QA report with:\n   - Previously failed blocking items that now pass\n   - Previously failed blocking items that still fail\n   - New blocking issues introduced by fixes (new minor findings listed as notes)"
++    occurrences: 1
++  - id: S-114
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2225
++    group: reflect-gate
++    finding: B3-04
++    old: "apply the remediations the skill offers under `--remediate`, or append the unresolved deviations to the `### Open Questions` section of {TASK_FILE} (never delete existing items)."
++    new: "apply the remediations the skill offers under `--remediate`; if any Regression or unauthorized Drift stays unresolved, HALT and escalate to the user with those deviations (never log them to Open Questions and proceed). Only Authorized or Necessary deviations and minor findings may be appended as notes to the `### Open Questions` section of {TASK_FILE} (never delete existing items)."
++    occurrences: 1
++  - id: S-115
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2231
++    group: reflect-gate
++    finding: B3-04
++    old: "If reflect surfaced deviations, the remediations were applied or the deviations were logged to `### Open Questions`."
++    new: "If reflect surfaced Regression or unauthorized Drift deviations, the remediations were applied or the task HALTed and escalated them to the user; only Authorized or Necessary deviations and minor findings were logged as notes to `### Open Questions`."
++    occurrences: 1
++  - id: S-116
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2232
++    group: reflect-gate
++    finding: B3-04
++    old: "and any flagged deviations were remediated or logged."
++    new: "and every flagged Regression or unauthorized Drift deviation was remediated (otherwise the task HALTed and escalated it to the user); only Authorized or Necessary deviations and minor findings were logged as notes."
++    occurrences: 1
++  - id: S-117
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2238
++    group: reflect-gate
++    finding: B3-04
++    old: "If the wrapper surfaces unresolved deviations (exit 10/11/2), apply remediations or append them to `### Open Questions` (never delete existing items)."
++    new: "If the wrapper surfaces unresolved deviations (exit 10/11/2), HALT and escalate the open Regression or unauthorized Drift deviations to the user (per the Action above); only Authorized or Necessary deviations and minor findings may be appended as notes to `### Open Questions` (never delete existing items)."
++    occurrences: 1
++  - id: S-118
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 2239
++    group: reflect-gate
++    finding: B3-04
++    old: "any flagged deviations were remediated or logged to Open Questions."
++    new: "every flagged Regression or unauthorized Drift deviation was remediated (otherwise the task HALTed and escalated it to the user); only Authorized or Necessary deviations and minor findings were logged as notes to Open Questions."
++    occurrences: 1
++  - id: S-119
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1439
++    group: tasklist
++    finding: B3-10
++    old: "If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:"
++    new: "If Stage 7 produced zero High or Medium (blocking) findings across all agents, write a clean `ValidationReport.md` containing (any Low findings are listed after it as notes; they are not patched or re-validated):"
++    occurrences: 1
++  - id: S-120
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1445
++    group: tasklist
++    finding: B3-10
++    old: "Result: CLEAN — no drift detected across N phases and M tasks."
++    new: "Result: CLEAN — no blocking drift detected across N phases and M tasks (Low findings, if any, listed as notes)."
++    occurrences: 1
++  - id: S-121
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1450
++    group: tasklist
++    finding: B3-10
++    old: "the genuine zero-finding short-circuit (no real findings AND no synthetic findings)"
++    new: "the genuine zero-finding short-circuit (no real High or Medium findings AND no synthetic findings)"
++    occurrences: 1
++  - id: S-122
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1481
++    group: tasklist
++    finding: B3-10
++    old: "### Low Severity\n"
++    new: "### Low Severity (notes: not patched, not re-validated)\n"
++    occurrences: 1
++  - id: S-123
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1531
++    group: tasklist
++    finding: B3-10
++    old: "Only real, patchable findings produce PatchChecklist items."
++    new: "Only real, patchable High or Medium (blocking) findings produce PatchChecklist items; Low findings stay as notes in `ValidationReport.md` and produce none."
++    occurrences: 1
++  - id: S-124
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1537
++    group: tasklist
++    finding: B3-10
++    old: "**Purpose**: Apply all corrections from the PatchChecklist to the generated phase files."
++    new: "**Purpose**: Apply all blocking (High and Medium) corrections from the PatchChecklist to the generated phase files; Low findings stay as notes and are not patched."
++    occurrences: 1
++  - id: S-125
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1561
++    group: tasklist
++    finding: B3-10
++    old: "**Purpose**: Re-verify only the specific findings from Stage 7 to confirm patches were applied correctly."
++    new: "**Purpose**: Re-verify only the specific High and Medium (blocking) findings from Stage 7 to confirm patches were applied correctly; Low findings are notes and are not re-verified."
++    occurrences: 1
++  - id: S-126
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1565
++    group: tasklist
++    finding: B3-10
++    old: "For each finding in `ValidationReport.md`:"
++    new: "For each High or Medium finding in `ValidationReport.md`:"
++    occurrences: 1
++  - id: S-127
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1583
++    group: tasklist
++    finding: B3-10
++    old: "| L1 | UNRESOLVED | Cross-phase wording still inconsistent in T03.06 |"
++    new: "| M3 | UNRESOLVED | Cross-phase dependency still inconsistent in T03.06 |"
++    occurrences: 1
++  - id: S-128
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1602
++    group: tasklist
++    finding: B3-10
++    old: "failing findings: it EXCLUDES"
++    new: "failing findings (High and Medium, i.e. blocking, only; Low findings are notes and are never counted, patched or re-validated): it EXCLUDES"
++    occurrences: 1
++  - id: S-129
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1604
++    group: tasklist
++    finding: B3-10
++    old: "if any patchable item that PASSED at pass `k` is FAILing at pass `k+1`,"
++    new: "if any patchable item that PASSED at pass `k` is FAILing with a High or Medium (blocking) finding at pass `k+1`,"
++    occurrences: 1
++  - id: S-130
++    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++    line: 1608
++    group: tasklist
++    finding: B3-10
++    old: "Findings that remain `UNRESOLVED` at termination are logged for human review (the bundle still ships; the loop is an advisory remediation, not a hard blocker)."
++    new: "High or Medium (blocking) findings that remain `UNRESOLVED` at termination HALT the skill: escalate them to the user as the open blocking findings in `ValidationReport.md` (the bundle does not ship as clean); Low findings stay as notes."
++    occurrences: 1
++  - id: S-131
++    file: src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
++    line: 2
++    group: zero-tolerance
++    finding: sweep
++    old: "zero-tolerance policy for errors or omissions"
++    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
++    occurrences: 1
++  - id: S-132
++    file: src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
++    line: 5
++    group: zero-tolerance
++    finding: sweep
++    old: "zero-tolerance policy for errors or omissions"
++    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
++    occurrences: 1
++  - id: S-133
++    file: src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
++    line: 5
++    group: zero-tolerance
++    finding: sweep
++    old: "zero-tolerance policy for errors or omissions"
++    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
++    occurrences: 1
++  - id: S-134
++    file: src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
++    line: 5
++    group: zero-tolerance
++    finding: sweep
++    old: "zero-tolerance policy for errors or omissions"
++    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
++    occurrences: 1
++  - id: S-135
++    file: src/superclaude/rules/core/ib_agent_core.md
++    line: 390
++    group: zero-tolerance
++    finding: sweep
++    old: "Zero-tolerance policy for errors"
++    new: "Zero-tolerance policy for blocking errors; minor findings are recorded as notes"
++    occurrences: 1
++  # Added by the orchestrator after the site-sweep disposition pass (pattern "if issues remain" / at-cap log of all issues).
++  - id: S-136
++    file: src/superclaude/skills/tech-research/SKILL.md
++    line: 515
++    group: fixloop
++    finding: B3-03
++    old: "- [ ] If issues remain: repeat Steps 5.N+2"
++    new: "- [ ] If blocking issues remain (minor findings stay as notes): repeat Steps 5.N+2"
++    occurrences: 1
++  - id: S-137
++    file: src/superclaude/skills/tech-reference/SKILL.md
++    line: 1388
++    group: fixloop
++    finding: B3-03
++    old: "HALT: log remaining issues, present findings to user"
++    new: "HALT: log the remaining blocking issues and present them to the user (minor findings stay as notes)"
++    occurrences: 1
++  - id: S-138
++    file: src/superclaude/skills/operational-guide/SKILL.md
++    line: 583
++    group: fixloop
++    finding: B3-03
++    old: "Consolidate fidelity reports, spawn 1 fix agent, verification round"
++    new: "Consolidate fidelity reports, spawn 1 fix agent on the blocking findings only (minor findings stay as notes), verification round"
++    occurrences: 1
++  # Added after the Task 15 review (note F1.1): stale name of the flow that cap-edits row C-116 changed.
++  - id: S-139
++    file: src/superclaude/skills/task-builder/SKILL.md
++    line: 899
++    group: reflect-gate
++    finding: sweep
++    old: "the existing retry-then-Open-Questions flow"
++    new: "the existing retry-then-halt-escalate flow"
++    occurrences: 1
+diff --git a/tests/skills/test_implement_severity_static.py b/tests/skills/test_implement_severity_static.py
+index bce69d35..4a74b3b8 100644
+--- a/tests/skills/test_implement_severity_static.py
++++ b/tests/skills/test_implement_severity_static.py
+@@ -9,6 +9,8 @@ import importlib.util
+ import re
+ from pathlib import Path
+ 
++from tests.skills.test_review_severity_rule import canonical_rule_bullets
++
+ _REPO = Path(__file__).resolve().parents[2]
+ _P = _REPO / "src/superclaude/skills/sc-implement-protocol"
+ _HELPER = _P / "scripts/archive_workspace.py"
+@@ -479,22 +481,21 @@ def test_retry_repair_round_rules():
+ 
+ # --- #297 text pins P1-P4 (qa-loop investigation FINDINGS.md rec 3) ---------
+ 
+-_STYLE = _REPO / "src/superclaude/output-styles/pragmatic.md"
+-
+ 
+ def test_p1_output_style_exempts_implement_severity_model():
+-    lines = _STYLE.read_text(encoding="utf-8").splitlines()
+-    assert (
++    # S1-S5 come from the helper shared with tests/skills/test_review_severity_rule.py.
++    _s1, s2, _s3, s4, _s5 = canonical_rule_bullets()
++    assert s2 == (
+         "- Minor findings never fail a review: the reviewer records them in its "
+         "report as notes, the verdict is PASS (with notes), and work proceeds. "
+         "Minor findings are not rechecked in later rounds and never trigger a "
+         "fix pass on their own. Only blocking findings produce FAIL."
+-    ) in lines
+-    assert (
++    )
++    assert s4 == (
+         "- A protocol that defines its own severity model, such as "
+         "`/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`), "
+         "applies that model and its own escalation path."
+-    ) in lines
++    )
+ 
+ 
+ def test_p2_minors_never_drive_a_fix_pass_repair_or_review():
+diff --git a/tests/skills/test_review_severity_rule.py b/tests/skills/test_review_severity_rule.py
+new file mode 100644
+index 00000000..1132df6e
+--- /dev/null
++++ b/tests/skills/test_review_severity_rule.py
+@@ -0,0 +1,520 @@
++"""Static pins for the review severity rule and the 2-fix-cycle review cap.
++
++Rule (``src/superclaude/output-styles/pragmatic.md``, bullets S1-S5): every
++review finding is blocking or minor; minor findings are notes that never fail a
++review, are never rechecked and never trigger a fix pass; a review loop runs at
++most 2 fix cycles (3 reviews) and then escalates the open blocking findings to
++the user. The edit tables ``fixtures/review_severity_cap_edits.yaml`` and
++``fixtures/review_severity_sweep_edits.yaml`` are byte copies of the plan's
++cap-edits.yaml and sweep-edits.yaml; every row must stay applied.
++
++Enforcement type: STATIC - assertions over tracked primitive text.
++"""
++
++from __future__ import annotations
++
++import functools
++import re
++import subprocess
++from pathlib import Path
++
++import pytest
++import yaml
++
++_REPO = Path(__file__).resolve().parents[2]
++_FIXTURES = Path(__file__).resolve().parent / "fixtures"
++STYLE = _REPO / "src/superclaude/output-styles/pragmatic.md"
++
++_SCAN_TREES = ("src", "plugins", "commands", "agents", "skills")
++
++
++def _flat(text: str) -> str:
++    return " ".join(text.split())
++
++
++@functools.lru_cache(maxsize=1)
++def _tracked_text() -> dict[str, str]:
++    """Every tracked text file under the scanned trees, read once."""
++    out = subprocess.run(
++        ["git", "ls-files", "-z", "--", *_SCAN_TREES],
++        cwd=_REPO,
++        capture_output=True,
++        text=True,
++        check=True,
++    ).stdout
++    texts: dict[str, str] = {}
++    for rel in filter(None, out.split("\0")):
++        try:
++            texts[rel] = (_REPO / rel).read_text(encoding="utf-8")
++        except (UnicodeDecodeError, IsADirectoryError, FileNotFoundError):
++            continue
++    return texts
++
++
++def _files_under(*trees: str) -> dict[str, str]:
++    prefixes = tuple(f"{t}/" for t in trees)
++    return {p: t for p, t in _tracked_text().items() if p.startswith(prefixes)}
++
++
++def _read(rel: str) -> str:
++    cached = _tracked_text().get(rel)
++    return cached if cached is not None else (_REPO / rel).read_text(encoding="utf-8")
++
++
++# --- (b) canonical S1-S5, shared with the P1 pin ---------------------------
++
++BINARY_VERDICT_BULLET = (
++    "- Every review agent MUST produce a binary verdict: PASS or FAIL."
++)
++S_OPENINGS = (
++    "- Grade every review finding as blocking or minor.",
++    "- Minor findings never fail a review:",
++    "- A review loop (review, fix, re-review) runs at most 2 fix cycles",
++    "- A protocol that defines its own severity model,",
++    "- On a CRITICAL / IMPORTANT / MINOR scale,",
++)
++
++
++@functools.lru_cache(maxsize=1)
++def canonical_rule_bullets() -> tuple[str, str, str, str, str]:
++    """Return S1-S5: the five bullets after the binary-verdict bullet of pragmatic.md.
++
++    Each bullet is checked by its opening phrase. Used by this module and by the
++    P1 pin in ``tests/skills/test_implement_severity_static.py``.
++    """
++    lines = STYLE.read_text(encoding="utf-8").splitlines()
++    starts = [
++        i for i, line in enumerate(lines) if line.startswith(BINARY_VERDICT_BULLET)
++    ]
++    assert len(starts) == 1, f"binary-verdict bullet found {len(starts)} times"
++    bullets = tuple(lines[starts[0] + 1 : starts[0] + 6])
++    assert len(bullets) == 5
++    for n, (bullet, opening) in enumerate(zip(bullets, S_OPENINGS), 1):
++        assert bullet.startswith(opening), (
++            f"S{n} does not open with {opening!r}: {bullet!r}"
++        )
++    return bullets  # type: ignore[return-value]
++
++
++def _rule_body(bullet: str) -> str:
++    return _flat(bullet[2:] if bullet.startswith("- ") else bullet)
++
++
++def test_b_canonical_bullets_follow_binary_verdict_bullet():
++    bullets = canonical_rule_bullets()
++    assert all(b.startswith("- ") for b in bullets)
++    assert not any(re.search(r"\(S[1-5]\)", b) for b in bullets)
++    assert not any("contains the canonical cap text" in b for b in bullets)
++
++
++# --- (a) any-severity wording ----------------------------------------------
++
++BANNED_SEVERITY_PHRASES = (
++    "any issue of any severity",
++    "issues of any severity",
++    "gaps of any severity",
++    "at any severity",
++    "regardless of severity",
++    "no severity level is exempt",
++    "minor issues still pass",
++    "must still be fixed",
++    "still must be fixed",
++    "must be perfect to pass",
++    "ALL findings must be resolved",
++    "CRITICAL, IMPORTANT, and MINOR issues",
++)
++
++
++def _phrase_hits(text: str, phrases) -> list[str]:
++    low = text.lower()
++    return [p for p in phrases if p.lower() in low]
++
++
++def _scan_phrases(files: dict[str, str], phrases) -> list[str]:
++    hits = []
++    for path, text in sorted(files.items()):
++        for n, line in enumerate(text.splitlines(), 1):
++            for p in _phrase_hits(line, phrases):
++                hits.append(f"{path}:{n}: {p!r}")
++    return hits
++
++
++@pytest.mark.parametrize(
++    "scratch",
++    [
++        "Any issue of ANY severity (CRITICAL, IMPORTANT, or MINOR) MUST result in a FAIL verdict",
++        "Report issues of any severity.",
++        "List gaps of any severity in the table.",
++        "A finding at any severity blocks the gate.",
++        "ALL findings regardless of severity must be resolved.",
++        "No severity level is exempt from fixing.",
++        "A 'minor issues still pass' allowance is PROHIBITED.",
++        "Minor issues must still be fixed before PASS.",
++        "Cosmetic gaps still must be fixed.",
++        "Zero tolerance: The batch must be perfect to pass",
++        "All findings must be resolved before the next phase.",
++        "Send CRITICAL, IMPORTANT, and MINOR issues to gap-fill.",
++    ],
++)
++def test_a_matcher_fires_on_any_severity_wording(scratch):
++    assert _phrase_hits(scratch, BANNED_SEVERITY_PHRASES)
++
++
++def test_a_matcher_ignores_the_new_rule_text():
++    assert not _phrase_hits(
++        "All blocking findings must be resolved; minor findings are recorded as notes.",
++        BANNED_SEVERITY_PHRASES,
++    )
++    for bullet in canonical_rule_bullets():
++        assert not _phrase_hits(bullet, BANNED_SEVERITY_PHRASES)
++
++
++def test_a_no_any_severity_wording_in_tracked_primitives():
++    hits = _scan_phrases(
++        _files_under("src", "plugins", "commands", "agents"), BANNED_SEVERITY_PHRASES
++    )
++    assert not hits, "any-severity wording survives:\n" + "\n".join(hits)
++
++
++# --- (c) S1-S3 / S5 copies in the ten-file set -----------------------------
++
++S1_S3_FILES = (
++    "src/superclaude/agents/rf-qa.md",
++    "src/superclaude/agents/rf-qa-qualitative.md",
++    "src/superclaude/templates/documents/agent_template_qa.md",
++    "src/superclaude/templates/documents/skill_template.md",
++    "src/superclaude/templates/workflow/01_mdtm_template_generic_task.md",
++    "src/superclaude/templates/workflow/02_mdtm_template_complex_task.md",
++    "src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md",
++    "src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md",
++    "src/superclaude/rules/prompts/documentation_expert_qa_prompt.md",
++    "src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md",
++)
++S5_FILES = S1_S3_FILES[:6]
++
++
++@pytest.mark.parametrize("rel", S1_S3_FILES)
++def test_c_s1_s3_copied_verbatim(rel):
++    flat = _flat(_read(rel))
++    s1, s2, s3, _s4, s5 = canonical_rule_bullets()
++    for n, bullet in ((1, s1), (2, s2), (3, s3)):
++        assert _rule_body(bullet) in flat, f"S{n} missing from {rel}"
++    if rel in S5_FILES:
++        assert _rule_body(s5) in flat, f"S5 missing from {rel}"
++
++
++@pytest.mark.parametrize("rel", S1_S3_FILES)
++def test_c_no_inventory_labels_or_annotation(rel):
++    text = _read(rel)
++    assert not re.search(r"\(S[1-5]\)", text), rel
++    assert "contains the canonical cap text" not in text, rel
++
++
++# --- (d) canonical cap text and at-cap clause -------------------------------
++
++CANONICAL_CAP_TEXT = "at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings"
++AT_CAP_CLAUSES = (
++    "After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings",
++    "HALT and escalate to the user with the open blocking findings",
++)
++
++
++@functools.lru_cache(maxsize=None)
++def _rows(fixture: str) -> tuple[dict, ...]:
++    data = yaml.safe_load((_FIXTURES / fixture).read_text(encoding="utf-8"))
++    return tuple(data["rows"])
++
++
++def test_d_canonical_cap_text_in_style():
++    assert CANONICAL_CAP_TEXT in _flat(STYLE.read_text(encoding="utf-8"))
++    assert CANONICAL_CAP_TEXT in canonical_rule_bullets()[2]
++
++
++def test_d_at_cap_clause_present_where_cap_rows_add_it():
++    expected: dict[str, set[str]] = {}
++    for row in _rows("review_severity_cap_edits.yaml"):
++        for clause in AT_CAP_CLAUSES:
++            if clause in row["new"]:
++                expected.setdefault(row["file"], set()).add(clause)
++    assert expected, "no cap-edits row carries the at-cap clause"
++    missing = [
++        f"{rel}: {clause!r}"
++        for rel, clauses in sorted(expected.items())
++        for clause in sorted(clauses)
++        if clause not in _read(rel)
++    ]
++    assert not missing, "at-cap clause missing:\n" + "\n".join(missing)
++
++
++# --- (e) / (j) edit-table rows hold ----------------------------------------
++
++
++def _failing_rows(fixture: str) -> list[str]:
++    bad = []
++    for row in _rows(fixture):
++        text = _read(row["file"])
++        if row["old"] in text or row["new"] not in text:
++            bad.append(f"{row['id']} {row['file']}")
++    return bad
++
++
++def test_e_every_cap_edits_row_holds():
++    rows = _rows("review_severity_cap_edits.yaml")
++    assert len(rows) == 161
++    bad = _failing_rows("review_severity_cap_edits.yaml")
++    assert not bad, "cap-edits rows not applied:\n" + "\n".join(bad)
++
++
++def test_j_every_sweep_edits_row_holds():
++    rows = _rows("review_severity_sweep_edits.yaml")
++    assert len(rows) == 139
++    bad = _failing_rows("review_severity_sweep_edits.yaml")
++    assert not bad, "sweep-edits rows not applied:\n" + "\n".join(bad)
++
++
++def test_ej_fixtures_are_byte_copies_of_the_plan_tables():
++    for fixture, source in (
++        ("review_severity_cap_edits.yaml", "cap-edits.yaml"),
++        ("review_severity_sweep_edits.yaml", "sweep-edits.yaml"),
++    ):
++        plan_copy = _REPO / ".dev/review-severity-rule" / source
++        if not plan_copy.exists():
++            pytest.skip(f"{plan_copy} not present in this checkout")
++        assert (_FIXTURES / fixture).read_bytes() == plan_copy.read_bytes(), fixture
++
++
++# --- (f) old cap numbers do not come back -----------------------------------
++
++CAP_REGRESSION = re.compile(
++    r"(max(imum)?|after|up to) [3-9] (fix|fix-verify|correction) (cycles?|loops?|attempts?)"
++    r"|(failing|failed) [3-9] fix cycles|max-[3-9]-cycles?|\b[3-9]-(fix-)?cycles?\b"
++    r"|fix cycles?: [3-9]\b|after [3-9] failed cycles",
++    re.IGNORECASE,
++)
++# (path, text the line must contain): sc-cli-eval's manifest fix loop is not a review loop.
++CAP_REGRESSION_ALLOW = {
++    (
++        "src/superclaude/skills/sc-cli-eval-protocol/SKILL.md",
++        "Max 3 fix loops, then report blocked",
++    ),
++    (
++        "src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md",
++        "(max 3 fix loops), then report blocked",
++    ),
++}
++
++
++@pytest.mark.parametrize(
++    "scratch",
++    [
++        "Max 3 fix cycles",
++        "phase-gate QA failing 3 fix cycles",
++        "after 3 failed cycles",
++        "max-3-cycles",
++    ],
++)
++def test_f_regression_matcher_fires(scratch):
++    assert CAP_REGRESSION.search(scratch)
++
++
++def test_f_no_old_cap_numbers_outside_implement_protocol():
++    files = {
++        p: t
++        for p, t in _files_under("src", "plugins").items()
++        if "sc-implement-protocol" not in p
++    }
++    hits, used = [], set()
++    for path, text in sorted(files.items()):
++        for n, line in enumerate(text.splitlines(), 1):
++            if not CAP_REGRESSION.search(line):
++                continue
++            allowed = [a for a in CAP_REGRESSION_ALLOW if a[0] == path and a[1] in line]
++            if allowed:
++                used.update(allowed)
++                continue
++            hits.append(f"{path}:{n}: {line.strip()[:160]}")
++    assert not hits, "old review-loop cap survives:\n" + "\n".join(hits)
++    assert used == CAP_REGRESSION_ALLOW, (
++        f"stale allowlist entries: {CAP_REGRESSION_ALLOW - used}"
++    )
++
++
++# --- (g) shared verdict suffixes kept ---------------------------------------
++
++NO_CONDITIONAL_PASS = "Only PASS or FAIL — no conditional pass."
++
++
++@pytest.mark.parametrize(
++    "rel",
++    [
++        "src/superclaude/templates/documents/skill_template.md",
++        "src/superclaude/skills/prd/refs/agent-prompts.md",
++        "src/superclaude/skills/tdd/refs/agent-prompts.md",
++        "src/superclaude/skills/tech-reference/SKILL.md",
++        "src/superclaude/skills/tech-research/SKILL.md",
++        "src/superclaude/skills/operational-guide/SKILL.md",
++    ],
++)
++def test_g_no_conditional_pass_kept(rel):
++    assert NO_CONDITIONAL_PASS in _read(rel)
++
++
++def test_g_readme_remediation_suffix_kept():
++    assert "List each with specific remediation." in _read(
++        "src/superclaude/skills/readme/SKILL.md"
++    )
++
++
++# --- (h) sc-implement-protocol plugin twins ---------------------------------
++
++
++def test_h_implement_protocol_plugin_twins_byte_equal():
++    plugin_root = "plugins/superclaude/skills/sc-implement-protocol/"
++    files = sorted(p for p in _tracked_text() if p.startswith(plugin_root))
++    assert files, "no plugin sc-implement-protocol files tracked"
++    diff = [
++        p
++        for p in files
++        if (_REPO / p).read_bytes()
++        != (
++            _REPO
++            / "src/superclaude/skills/sc-implement-protocol"
++            / p[len(plugin_root) :]
++        ).read_bytes()
++    ]
++    assert not diff, f"plugin twins differ from src: {diff}"
++
++
++# --- (i) site-sweep wordings -------------------------------------------------
++
++SWEEP_PHRASES = (
++    "FAIL: Issues found",
++    "strictly fewer issues",
++    "logged for human review",
++    "zero-tolerance policy for errors",
++    "issues of any severity",
++)
++# Same patterns as .dev/review-severity-rule/sweep/fixloop_scan.py (F1-F6).
++FIX_LOOP_PATTERNS = {
++    "F1": r"\bif (any )?(findings|issues) (exist|are found|found)\b",
++    "F2": r"\bfinds new issues\b",
++    "F3": r"\bissues remain unfixed\b",
++    "F4": r"\b(apply|applies|applying|applied) (all|ALL) (the )?(consolidated |collected |fidelity )?(fixes|findings|corrections)\b",
++    "F5": r"(fix(-| )agent|fix_authorization: true)[^\n]*\bconsolidated\b|\bconsolidated\b[^\n]*(fix(-| )agent|fix_authorization: true)",
++    "F6": r"\bif (any )?(unresolved )?(issues|findings) remain",
++}
++_FIX_LOOP_RES = {k: re.compile(p, re.IGNORECASE) for k, p in FIX_LOOP_PATTERNS.items()}
++_PM_EXAMPLE_REASON = "pm-agent example: describes the PM agent's self-improvement doc update after a mistake, not a review fix loop"
++SWEEP_ALLOW = {
++    (
++        "agents/sc-pm-agent.md",
++        "- Adds prevention checklist if issues found",
++    ): _PM_EXAMPLE_REASON,
++    (
++        "src/superclaude/agents/pm-agent.md",
++        "- Adds prevention checklist if issues found",
++    ): _PM_EXAMPLE_REASON,
++    (
++        "plugins/superclaude/agents/pm-agent.md",
++        "- Adds prevention checklist if issues found",
++    ): _PM_EXAMPLE_REASON,
++}
++
++
++def _sweep_hits(line: str) -> list[str]:
++    ids = _phrase_hits(line, SWEEP_PHRASES)
++    if "blocking" not in line.lower():
++        ids += [k for k, rx in _FIX_LOOP_RES.items() if rx.search(line)]
++    return ids
++
++
++@pytest.mark.parametrize(
++    "scratch",
++    [
++        "If findings exist, spawn ONE rf-qa agent",
++        "If verification finds new issues, repeat",
++        "FAIL: Issues found (list with specific fixes)",
++        "logged for human review",
++    ],
++)
++def test_i_sweep_matcher_fires(scratch):
++    assert _sweep_hits(scratch)
++
++
++def test_i_blocking_line_is_in_scope():
++    assert not _sweep_hits("If blocking findings exist, spawn ONE rf-qa agent")
++
++
++def test_i_no_swept_wording_in_tracked_primitives():
++    hits, used = [], set()
++    for path, text in sorted(_files_under(*_SCAN_TREES).items()):
++        for n, line in enumerate(text.splitlines(), 1):
++            ids = _sweep_hits(line)
++            if not ids:
++                continue
++            key = (path, line.strip())
++            if key in SWEEP_ALLOW:
++                used.add(key)
++                continue
++            hits.append(f"{','.join(ids)} {path}:{n}: {line.strip()[:160]}")
++    assert not hits, "swept wording survives:\n" + "\n".join(hits)
++    assert used == set(SWEEP_ALLOW), (
++        f"stale allowlist entries: {set(SWEEP_ALLOW) - used}"
++    )
++    assert all(SWEEP_ALLOW.values())
++
++
++# --- (k) zero tolerance only with a site-sweep qualifier --------------------
++
++ZERO_TOLERANCE = re.compile(r"zero[- ]tolerance", re.IGNORECASE)
++ZERO_TOLERANCE_QUALIFIERS = re.compile(
++    r"fabricat|forger|hallucinat|verification|verify|accuracy|dismissal|incremental writing|blocking"
++    r'|The "Zero tolerance" closing line is VERBATIM',
++    re.IGNORECASE,
++)
++# Lines whose qualifier is in their heading, not on the line (site-sweep reasons).
++_FORGERY_REASON = "closes the 'Penalty for Forgery - ZERO TOLERANCE' rule (fabricated sources); fabrication is blocking"
++ZERO_TOLERANCE_ALLOW = {
++    (
++        "src/superclaude/rules/core/anti_hallucination_task_completion_rules.md",
++        "- This is a zero-tolerance rule with NO exceptions",
++    ): _FORGERY_REASON,
++    (
++        "src/superclaude/rules/core/anti_sycophancy.md",
++        "- This is a zero-tolerance rule with NO exceptions",
++    ): _FORGERY_REASON,
++}
++
++
++def _zero_tolerance_unqualified(line: str) -> bool:
++    return bool(ZERO_TOLERANCE.search(line)) and not ZERO_TOLERANCE_QUALIFIERS.search(
++        line
++    )
++
++
++@pytest.mark.parametrize(
++    "scratch",
++    [
++        "Zero tolerance: The batch must be perfect to pass",
++        "You enforce a zero-tolerance policy for errors.",
++    ],
++)
++def test_k_unqualified_zero_tolerance_fires(scratch):
++    assert _zero_tolerance_unqualified(scratch)
++
++
++def test_k_zero_tolerance_only_with_a_qualifier():
++    hits, used = [], set()
++    for path, text in sorted(_files_under(*_SCAN_TREES).items()):
++        for n, line in enumerate(text.splitlines(), 1):
++            if not _zero_tolerance_unqualified(line):
++                continue
++            key = (path, line.strip())
++            if key in ZERO_TOLERANCE_ALLOW:
++                used.add(key)
++                continue
++            hits.append(f"{path}:{n}: {line.strip()[:160]}")
++    assert not hits, "unqualified zero tolerance:\n" + "\n".join(hits)
++    assert used == set(ZERO_TOLERANCE_ALLOW), (
++        f"stale allowlist entries: {set(ZERO_TOLERANCE_ALLOW) - used}"
++    )

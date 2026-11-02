@@ -352,7 +352,7 @@ Steps 4a through 4d execute within a bounded convergence loop using state machin
 - `INCORPORATING` — Executing incorporation (4b or 4d)
 - `SCORING` — Evaluating convergence after scoring (4d)
 - `CONVERGED` — Terminal state: zero unaddressed CRITICALs, `status: success`
-- `ESCALATED` — Terminal state: 3 iterations exhausted, `status: partial`
+- `ESCALATED` — Terminal state: 1 iteration exhausted, `status: partial`
 
 **Transitions**:
 
@@ -360,18 +360,18 @@ Steps 4a through 4d execute within a bounded convergence loop using state machin
 REVIEWING → INCORPORATING (findings produced)
 INCORPORATING → SCORING (incorporation complete, scores computed)
 SCORING → CONVERGED (zero unaddressed CRITICALs remaining)
-SCORING → REVIEWING (unaddressed CRITICALs remain, iteration < 3)
-SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= 3)
+SCORING → REVIEWING (unaddressed CRITICALs remain, iteration < max_iterations)
+SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= max_iterations)
 ```
 
-**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 3` (SC-008).
+**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 1` (one iteration = 2 review passes, 4a focus and 4c critique, each followed by step 4b or 4d, within the 2-fix-cycle cap) (SC-008).
 
 **Convergence predicate**: After SCORING, check if any findings with `severity: CRITICAL` have status other than `[INCORPORATED]` or `[DISMISSED]`. If zero unaddressed CRITICALs → transition to CONVERGED. Otherwise → check iteration counter.
 
 **Terminal states**:
 
 - **CONVERGED**: `status: success` — all CRITICALs addressed, spec is review-complete
-- **ESCALATED**: `status: partial` — 3 iterations exhausted with unaddressed CRITICALs remaining. Escalate to user with: remaining CRITICAL findings, iteration history, and recommendation for manual resolution.
+- **ESCALATED**: `status: partial` — 1 iteration exhausted with unaddressed CRITICALs remaining. Escalate to user with: remaining CRITICAL findings, iteration history, and recommendation for manual resolution.
 
 #### Downstream Ready Gate
 
@@ -531,7 +531,7 @@ The `failure_type` field uses the following enumeration to classify failures:
 | `brainstorm_timeout` | Brainstorm pass exceeded time budget | Yes | `3c` |
 | `focus_failed` | Spec panel focus pass failed to produce findings | Yes | `4a` |
 | `critique_failed` | Spec panel critique pass failed to produce scores | Yes | `4a` |
-| `convergence_exhausted` | Maximum convergence iterations (3) reached with unresolved CRITICALs | No | — |
+| `convergence_exhausted` | Maximum convergence iterations (1) reached with unresolved CRITICALs | No | — |
 | `user_rejected` | User rejected spec at an approval gate | No | — |
 | `prerequisite_failed` | Phase entry gate condition not met | No | — |
 

@@ -9,6 +9,29 @@ All notable changes to IronClaude are documented in this file.
 #### Fixed (ccsession shim survives its terminal)
 
 - The shared gateway shim was started inside the terminal that first launched it, so closing that terminal (Orca kills its descendants) cut every other session's reply and refused new ones until a later launch started a new shim. ccsession now starts it from a subshell and the shim starts its own session, so it keeps running until stopped (`pkill -f local-gateway-alias-proxy.py`). A shim already running keeps the old behaviour until it is stopped and a launch starts a new one.
+### Reviews: minor findings never fail a review; review loops capped at 2 fix cycles
+
+User decision (release blocker for 5.0.0; evidence: the QA-loop investigation `FINDINGS.md`, bundle A).
+
+#### Changed (review severity)
+
+- The Pragmatic output style (`output-styles/pragmatic.md`) replaces "any issue of ANY severity fails" with five rules: grade every finding blocking or minor; only blocking findings fail a review, and minor findings are recorded as notes, are not rechecked and never trigger a fix pass; a review loop runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings; a protocol with its own severity model, such as `/sc:implement`, keeps it; findings are graded by definition, and on a CRITICAL / IMPORTANT / MINOR scale CRITICAL and IMPORTANT are blocking and MINOR is minor.
+- The rf-qa, rf-qa-qualitative, rf-analyst and rf-team-lead agents, the QA agent and skill templates, both MDTM task templates, the prd, tdd, tech-reference, tech-research, readme, operational-guide, task and task-builder skills, the prd CLI prompts and the legacy QA rule prompts follow the same rule: PASS allows minor findings as notes, FAIL needs a CRITICAL or IMPORTANT finding, and fix agents receive, apply and recheck blocking findings only.
+- At the cap, every loop now HALTs and escalates the open blocking findings to the user instead of turning them into Open Questions and proceeding. This covers task-builder's post-execution reflect gate (open Regression or Drift deviations) and sc:tasklist's patch loop, which no longer patches Low findings or ships open blocking findings "logged for human review".
+- Every review-loop cap above 2 is lowered to 2 fix cycles. The prd CLI's research fix cycles default to 2; cli-portify's convergence engine and its `--max-convergence` flag default to 1 iteration (2 review passes per iteration).
+- `/sc:implement` drops its second A2 in-place repair (one repair per attempt; attempts A3-A5, the halt contract and FINAL are unchanged).
+
+#### Added (review severity)
+
+- `tests/skills/test_review_severity_rule.py` fails CI if any wording of the old rule, a fix-cycle cap above 2, an Open Questions at-cap rule, or a fix loop that sends minor findings to a fix pass comes back, and checks the S1-S5 rules against `pragmatic.md`.
+
+### GitHub issue body files and a CLAUDE.md rule line
+
+#### Added (issue body files)
+
+- `superclaude install` now also copies `ISSUE-HANDOFF.md` and `ISSUE-BACKLOG.md` to `~/.claude/` (core files, so a plain install skips them if they already exist, as for every core file). Each holds four `##` sections to fill: Handoff has What was tried, Relevant files and links, Done when, Who it is for; Backlog has the same first three, then Pick-up note.
+- The distributed `CLAUDE.md` gains Core Rules item 10: before filing a GitHub issue, copy the matching template to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`. It never edits the installed template. As for every core file, a plain `superclaude install` leaves an existing `~/.claude/CLAUDE.md` alone; `--force` or `superclaude update` replaces it.
+- No `sc:issue` skill or command is added, and the repository's own `.github/ISSUE_TEMPLATE` forms are unchanged.
 
 ### /sc:pr-submit: Codex reviews
 

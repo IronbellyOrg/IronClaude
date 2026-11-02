@@ -118,6 +118,6 @@ decisions:
   ADR-SM01:
     title: "State machine convergence model"
     blocking: false
-    resolution: "Phase 4 convergence loop uses state machine terminology: REVIEWING → INCORPORATING → SCORING → CONVERGED|ESCALATED. Max 3 iterations. Implemented as bounded conditional loop in SKILL.md, documented with state machine semantics for edge-case reasoning."
+    resolution: "Phase 4 convergence loop uses state machine terminology: REVIEWING → INCORPORATING → SCORING → CONVERGED|ESCALATED. Max 1 iteration (2 review passes, 4a and 4c, each followed by step 4b or 4d). Implemented as bounded conditional loop in SKILL.md, documented with state machine semantics for edge-case reasoning."
     evidence: "spec-cli-portify-workflow-evolution.md §FR-060.2; SKILL.md §Convergence Loop; debate D-03 synthesis; roadmap.md line 125"
-    impact: "Provides formal semantics for loop behavior; CONVERGED = all CRITICALs addressed, ESCALATED = 3 iterations exhausted with unaddressed CRITICALs"
+    impact: "Provides formal semantics for loop behavior; CONVERGED = all CRITICALs addressed, ESCALATED = 1 iteration exhausted with unaddressed CRITICALs"

@@ -1,0 +1,53 @@
+diff --git a/src/superclaude/cli/prd/models.py b/src/superclaude/cli/prd/models.py
+index e82b36cf..3bf8795e 100644
+--- a/src/superclaude/cli/prd/models.py
++++ b/src/superclaude/cli/prd/models.py
+@@ -200,7 +200,7 @@ class PrdConfig(PipelineConfig):
+     max_turns: int = 300
+     stall_timeout: int = 120
+     stall_action: str = "warn"
+-    max_research_fix_cycles: int = 3
++    max_research_fix_cycles: int = 2
+     max_synthesis_fix_cycles: int = 2
+     research_partition_threshold: int = 6
+     synthesis_partition_threshold: int = 4
+diff --git a/src/superclaude/rules/core/ib_agent_core.md b/src/superclaude/rules/core/ib_agent_core.md
+index 87ec456b..380ade3f 100644
+--- a/src/superclaude/rules/core/ib_agent_core.md
++++ b/src/superclaude/rules/core/ib_agent_core.md
+@@ -571,7 +571,7 @@ This framework integrates with the automated QA workflow system (Rigorflow) thro
+ - Failed items unmarked in taskspec
+ - Worker receives qa_report feedback
+ - Re-attempts with evidence of prior failure
+-- Maximum 5 correction loops per batch
++- Maximum 2 correction loops per batch
+ 
+ #### 4. PABLOV Safeguards (automatic)
+ 
+@@ -630,7 +630,7 @@ These files ensure the workflow can always resume from where it left off, even a
+ #### QA Failure Handling
+ 
+ - Items automatically unmarked and retried
+-- Maximum 5 correction attempts per batch
++- Maximum 2 correction attempts per batch
+ - Manual intervention required after correction limit hit
+ 
+ #### DNSP Protocol Implementation
+@@ -910,7 +910,7 @@ Simply re-run with a different batch size - completed batches retain their origi
+ 
+ 1. **"Session appears to be dead"** - Normal, system will continue anyway
+ 2. **QA failures** - Check `qa_reports/` for specific issues
+-3. **Correction limit hit** - Manual intervention needed after 3 attempts
++3. **Correction limit hit** - Manual intervention needed after 2 attempts
+ 4. **"Context length exceeded"** - System automatically handles with proactive rollover
+ 5. **"Worker didn't create handoff"** - System nudges then creates programmatically
+ 6. **"Worker completed extra items"** - System detects and unchecks overrun items
+@@ -930,7 +930,7 @@ Simply re-run with a different batch size - completed batches retain their origi
+ 
+ - `MAX_NUDGE_WORKER` (default: 2) - Max nudges for Worker handoff creation
+ - `MAX_NUDGE_QA` (default: 2) - Max nudges for QA verdict
+-- `MAX_CORRECTION_ATTEMPTS` (default: 5) - Maximum correction loop iterations per batch
++- `MAX_CORRECTION_ATTEMPTS` (default: 2) - Maximum correction loop iterations per batch
+ - `MAX_MESSAGES_PER_SESSION` (default: 375) - Message count for proactive rollover
+ - `MAX_TOKENS_PER_SESSION` (default: 175000) - Token count for proactive rollover
+ - `PABLOV_STRICT` (default: false) - Fail batch if programmatic handoff fails

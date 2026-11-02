@@ -72,7 +72,7 @@ THE SECTIONS (header block plus 9 required `##` sections, fixed order):
 4. Documentation Staleness -- Claim / Source Doc / Verification Tag / Status table
 5. Completeness -- Research File / Status / Summary / Gaps Section / Key Takeaways / Rating table
 6. Contradictions Found -- bullet list, each citing both files
-7. Compiled Gaps -- three `###` sub-sections: Critical Gaps (block synthesis), Important Gaps (affect quality), Minor Gaps (must still be fixed)
+7. Compiled Gaps -- three `###` sub-sections: Critical Gaps (block synthesis), Important Gaps (affect quality), Minor Gaps (notes; do not block synthesis)
 8. Depth Assessment -- Expected depth / Actual depth achieved / Missing depth elements
 9. Recommendations -- specific actions to address gaps before proceeding
 
@@ -156,7 +156,7 @@ WRITING DISCIPLINE:
 
 {{RF_PLACEHOLDER:IMPORTANT_GAPS_BODY}}
 
-### Minor Gaps (must still be fixed)
+### Minor Gaps (notes; do not block synthesis)
 
 {{RF_PLACEHOLDER:MINOR_GAPS_BODY}}
 

@@ -9,6 +9,8 @@ import importlib.util
 import re
 from pathlib import Path
 
+from tests.skills.test_review_severity_rule import canonical_rule_bullets
+
 _REPO = Path(__file__).resolve().parents[2]
 _P = _REPO / "src/superclaude/skills/sc-implement-protocol"
 _HELPER = _P / "scripts/archive_workspace.py"
@@ -275,7 +277,7 @@ def test_ac10_per_attempt_table_rows():
     for row in (
         "| Attempt | May fail the attempt | May halt | May prompt the user | Minors may be edited |",
         "| A1 | `blocking` only | `blocking` only (in practice never: an A1 failure goes to the A2 fix pass) | `blocking` only (in practice never) | only inside lines already changed for a blocker |",
-        "| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |",
+        "| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |",
         "| A3 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |",
         "| A4 | `blocking` only | `blocking` only | `blocking` only | no, recorded only |",
         "| A5 | `blocking` only | `blocking` only (`ladder-end`) | `blocking` only | no, recorded only |",
@@ -479,17 +481,21 @@ def test_retry_repair_round_rules():
 
 # --- #297 text pins P1-P4 (qa-loop investigation FINDINGS.md rec 3) ---------
 
-_STYLE = _REPO / "src/superclaude/output-styles/pragmatic.md"
-
 
 def test_p1_output_style_exempts_implement_severity_model():
-    assert (
-        "- Any issue of ANY severity (CRITICAL, IMPORTANT, or MINOR) MUST result "
-        "in a FAIL verdict, except inside a protocol that defines its own "
-        "severity model, such as `/sc:implement` "
-        '(`~/.claude/skills/sc-implement-protocol/refs/qa.md`); a "minor issues '
-        'still pass" allowance is PROHIBITED.'
-    ) in _STYLE.read_text(encoding="utf-8").splitlines()
+    # S1-S5 come from the helper shared with tests/skills/test_review_severity_rule.py.
+    _s1, s2, _s3, s4, _s5 = canonical_rule_bullets()
+    assert s2 == (
+        "- Minor findings never fail a review: the reviewer records them in its "
+        "report as notes, the verdict is PASS (with notes), and work proceeds. "
+        "Minor findings are not rechecked in later rounds and never trigger a "
+        "fix pass on their own. Only blocking findings produce FAIL."
+    )
+    assert s4 == (
+        "- A protocol that defines its own severity model, such as "
+        "`/sc:implement` (`~/.claude/skills/sc-implement-protocol/refs/qa.md`), "
+        "applies that model and its own escalation path."
+    )
 
 
 def test_p2_minors_never_drive_a_fix_pass_repair_or_review():
