@@ -2277,11 +2277,16 @@ def _named_repo(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
     return main, worktree, home / ".claude" / "projects", env
 
 
-def _transcript(projects: Path, folder: Path, session: str, *titles: str) -> Path:
+def _transcript(
+    projects: Path, folder: Path, session: str, *titles: str, branch: str = ""
+) -> Path:
     """A saved conversation, written the way Claude Code writes it (compact JSON)."""
     saved = projects / str(folder).replace("/", "-")
     saved.mkdir(parents=True, exist_ok=True)
-    rows = [{"type": "user", "cwd": str(folder), "sessionId": session}]
+    first: dict[str, str] = {"type": "user", "cwd": str(folder), "sessionId": session}
+    if branch:
+        first["gitBranch"] = branch
+    rows = [first]
     rows += [
         {"type": "custom-title", "customTitle": t, "sessionId": session} for t in titles
     ]
@@ -2350,12 +2355,13 @@ def _hook(
 
 
 def _listed(cwd: Path, env: dict[str, str], *args: str) -> dict[str, str]:
-    """The names `ccsession --here` lists, each with its session's short id."""
+    """The names `ccsession --here --all` (or the given listing) shows, each
+    with its session's short id."""
     rows = {}
-    for line in _ccs(cwd, env, *(args or ("--here",))).stdout.splitlines():
+    for line in _ccs(cwd, env, *(args or ("--here", "--all"))).stdout.splitlines():
         match = re.match(
-            r"^  (.+?) {2,}(?:started |\(transcript missing\)|\(times unavailable\)).*"
-            r" (\S+)$",
+            r"^  (.+?) {2,}(?:started |\(transcript missing\)|\(times unavailable\)).*?"
+            r" (\S+)(?:  \(was [^)]*\))?$",
             line,
         )
         if match:
@@ -2892,3 +2898,229 @@ def test_framework_hooks_register_the_rename_hook() -> None:
         commands = [h["command"] for reg in hooks[event] for h in reg["hooks"]]
         assert "~/.claude/skills/ccsession-tag/hooks/session-name.sh" in commands
     assert os.access(SKILL_DIR / "hooks" / "session-name.sh", os.X_OK)
+
+
+# The default list follows the worktree (#347): Claude Code continues a resumed
+# conversation in the folder it starts in, so a session of another worktree
+# that still exists is counted, not listed; one whose worktree was removed has
+# nowhere else to go and is listed in a section of its own.
+
+
+def _three_worktrees(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
+    """main, worktree b and a removed worktree, each with one session (and one
+    more in a folder of main), all named in the repo's one list."""
+    main, b, projects, env = _named_repo(tmp_path)
+    removed = tmp_path / "wt-removed"
+    _git(main, "worktree", "add", "-q", "-b", "removed", str(removed))
+    (main / "sub").mkdir()
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    for n, (folder, name) in enumerate(
+        [
+            (main, "main work"),
+            (main / "sub", "main sub"),
+            (b, "b work"),
+            (removed, "removed work"),
+        ],
+        start=1,
+    ):
+        session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+        _transcript(projects, folder, session)
+        (topics / f"{name}.txt").write_text(f"{session}\n")
+    _git(main, "worktree", "remove", str(removed))
+    return main, b, removed, env
+
+
+def test_here_lists_this_worktree_then_removed_ones_and_counts_the_rest(
+    tmp_path: Path,
+) -> None:
+    main, b, removed, env = _three_worktrees(tmp_path)
+    out = _ccs(main, env, "--here").stdout
+    assert _listed(main, env, "--here") == {
+        "main work": "11110000",
+        "main sub": "22220000",
+        "removed work": "44440000",
+    }
+    rows = out.splitlines()
+    section = rows.index("Sessions whose worktree was removed (they continue here):")
+    assert [r for r in rows[section:] if "removed work" in r] == [
+        next(r for r in rows if "removed work" in r)
+    ]
+    assert f"(was {removed})" in out
+    assert (
+        "1 more session in other worktrees of this repo: ccsession --here --all" in out
+    )
+    assert _listed(b, env, "--here") == {
+        "b work": "33330000",
+        "removed work": "44440000",
+    }
+    assert "2 more sessions in other worktrees" in _ccs(b, env, "--here").stdout
+    # --here --all lists every worktree's sessions, as before.
+    assert set(_listed(b, env, "--here", "--all")) == {
+        "main work",
+        "main sub",
+        "b work",
+        "removed work",
+    }
+
+
+def test_resuming_a_session_of_another_live_worktree_warns(tmp_path: Path) -> None:
+    main, b, _, env = _three_worktrees(tmp_path)
+    other = _ccs(b, env, "main work")
+    assert json.loads(other.stdout.strip().splitlines()[-1])[-2:] == [
+        "--resume",
+        "11110000-0000-0000-0000-000000000000",
+    ]
+    assert f"WARNING: 'main work' was started in {main}" in other.stderr
+    assert f"It continues here, in {b}" in other.stderr
+    # Its own worktree, or a removed one: no warning.
+    assert "WARNING" not in _ccs(b, env, "b work").stderr
+    assert "WARNING" not in _ccs(b, env, "removed work").stderr
+    assert "WARNING" not in _ccs(main, env, "main sub").stderr
+
+
+def test_name_question_lists_this_worktree_and_star_lists_every_one(
+    tmp_path: Path,
+) -> None:
+    _, b, _, env = _three_worktrees(tmp_path)
+    question = "Session name (q): "
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", "q"], env, b, stdout=subprocess.PIPE
+    )
+    try:
+        first = _read_pty(master, until=question)
+        assert "b work" in first and "removed work" in first
+        assert "main work" not in first
+        assert (
+            "2 more sessions in other worktrees of this repo: type * to list them"
+            in first
+        )
+        os.write(master, b"*\r")
+        every = _read_pty(master, until=question)
+        assert "Saved sessions in every worktree of this repo" in every
+        assert "main work" in every and "main sub" in every
+        os.write(master, b"\r")
+        assert proc.wait(timeout=60) == 0
+        assert proc.stdout.read() == b"\n"  # Enter: untagged
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+def test_a_session_belongs_to_the_worktree_it_was_started_in(tmp_path: Path) -> None:
+    # Transcript lines record the session shell's folder, which follows a cd;
+    # Claude Code stores the transcript under the folder the session was
+    # started in (each character other than a letter or digit becomes "-").
+    main, b, projects, env = _named_repo(tmp_path)
+    session = "abcd1234-0000-0000-0000-000000000000"
+    store = projects / re.sub(r"[^A-Za-z0-9]", "-", str(main))
+    store.mkdir(parents=True)
+    rows = [  # copied from another machine first, then cd'ed into worktree b
+        {"type": "user", "cwd": "/Users/someone/orca/Repo", "sessionId": session},
+        {"type": "user", "cwd": str(main), "sessionId": session},
+        {"type": "assistant", "cwd": str(b), "sessionId": session},
+    ]
+    (store / f"{session}.jsonl").write_text(
+        "".join(json.dumps(r, separators=(",", ":")) + "\n" for r in rows)
+    )
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    (topics / "started in main.txt").write_text(f"{session}\n")
+    assert _listed(main, env, "--here") == {"started in main": "abcd1234"}
+    assert _listed(b, env, "--here") == {}
+    assert "WARNING" in _ccs(b, env, "started in main").stderr
+    assert "WARNING" not in _ccs(main, env, "started in main").stderr
+
+
+def test_worktree_list_ignores_git_variables_from_the_caller(tmp_path: Path) -> None:
+    # A hook or script run for another checkout can leave GIT_DIR and
+    # GIT_WORK_TREE set; the list must still follow the current folder.
+    main, b, _, env = _three_worktrees(tmp_path)
+    env.update({"GIT_DIR": str(main / ".git"), "GIT_WORK_TREE": str(main)})
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "WARNING" in _ccs(b, env, "main work").stderr
+
+
+def test_a_deleted_folder_of_a_live_worktree_stays_with_that_worktree(
+    tmp_path: Path,
+) -> None:
+    # Deleting the folder a session started in does not remove its worktree:
+    # the session is still main's, not an orphan shown everywhere.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / "sub").rmdir()
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "main sub" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "main sub").stderr
+
+
+def test_a_removed_worktree_inside_an_ignored_folder_is_still_removed(
+    tmp_path: Path,
+) -> None:
+    # A worktree under the main checkout (e.g. .dev/worktrees/<name>, which is
+    # gitignored) leaves only its ignored parent behind when removed.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text(".dev/worktrees/\n")
+    nested = main / ".dev" / "worktrees" / "gone"
+    _git(main, "worktree", "add", "-q", "-b", "nested", str(nested))
+    projects = tmp_path / "home" / ".claude" / "projects"
+    session = "55550000-0000-0000-0000-000000000000"
+    _transcript(projects, nested, session, branch="nested")
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / "nested work.txt").write_text(f"{session}\n")
+    _git(main, "worktree", "remove", str(nested))
+    assert "nested work" in _listed(b, env, "--here")
+    assert "WARNING" not in _ccs(b, env, "nested work").stderr
+
+
+def _branch(repo: Path) -> str:
+    return subprocess.run(
+        ["git", "symbolic-ref", "--short", "HEAD"],
+        cwd=repo,
+        env=_git_env(repo),
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+
+
+def _add_session(
+    env: dict[str, str], folder: Path, n: int, name: str, branch: str
+) -> None:
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+    _transcript(projects, folder, session, branch=branch)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / f"{name}.txt").write_text(f"{session}\n")
+
+
+def test_a_deleted_ignored_folder_of_a_live_worktree_stays_with_it(
+    tmp_path: Path,
+) -> None:
+    # An ignored folder (build output) is not a worktree: a session started
+    # there on the worktree's own branch still belongs to that worktree.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text("build\n")
+    (main / "build").mkdir()
+    _add_session(env, main / "build", 6, "build work", _branch(main))
+    shutil.rmtree(main / "build")
+    assert "build work" not in _listed(b, env, "--here")
+    assert "build work" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "build work").stderr
+
+
+def test_a_deleted_folder_of_another_copy_of_the_repo_stays_with_that_copy(
+    tmp_path: Path,
+) -> None:
+    # Another clone of the same repo is not one of this clone's worktrees,
+    # but it still exists: its session is not an orphan.
+    main, b, _, env = _three_worktrees(tmp_path)
+    clone = tmp_path / "clone"
+    _git(tmp_path, "clone", "-q", str(main), str(clone))
+    _git(clone, "remote", "set-url", "origin", "https://github.com/Org/Repo")
+    (clone / "sub").mkdir()
+    _add_session(env, clone / "sub", 7, "clone sub", _branch(clone))
+    (clone / "sub").rmdir()
+    assert "clone sub" not in _listed(b, env, "--here")
+    assert "clone sub" not in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "clone sub").stderr

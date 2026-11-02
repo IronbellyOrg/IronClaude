@@ -24,8 +24,11 @@
 #   Extra local profiles can be added in ~/.config/ccsession/profiles.d/*.sh
 #   A label resumes the same project session regardless of profile or shim.
 #   ccsession --list          List all labeled sessions across all workspaces
-#   ccsession --here          List labeled sessions for this repo only (names are
-#                             shared by every worktree, branch and copy of a repo)
+#   ccsession --here          List this worktree's sessions, then those whose
+#                             worktree was removed, and count the sessions of the
+#                             repo's other worktrees (names are shared by every
+#                             worktree, branch and copy of a repo)
+#   ccsession --here --all    List the sessions of every worktree of this repo
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
 #   ccsession --key           Print the name-list key for this folder
 #   ccsession --migrate-names Copy names saved per folder (older versions) into
@@ -41,8 +44,9 @@
 #                             Everything after --claude-args goes to Claude Code
 #                             exactly as given; none of it is read as a label or
 #                             an option
-#   ccsession --ask [<hint>]  List this repo's saved sessions, ask for a session
-#                             name and print it (empty: untagged). The hint goes
+#   ccsession --ask [<hint>]  List saved sessions as --here does, ask for a session
+#                             name and print it (empty: untagged; "*" lists every
+#                             worktree's sessions and asks again). The hint goes
 #                             in the question's brackets. Exit 1: not asked (no
 #                             terminal, or keys already waiting), no answer within
 #                             CCSESSION_ASK_TIMEOUT seconds (unset or 0: no
@@ -1028,6 +1032,122 @@ workspace_name() {
   echo "$slug" | sed 's|^-||; s|-|/|g' | xargs basename 2>/dev/null || echo "$slug"
 }
 
+# Which worktree a session belongs to: Claude Code works in the folder it is
+# started in, and --resume <id> continues a conversation in the folder it is
+# resumed from, whichever worktree the conversation was working in. Claude Code
+# keeps a session's transcript under a folder named after the folder the
+# session was started in (each character other than a letter or digit becomes
+# "-"), which its own /resume picker groups by. Transcript lines record their
+# working folder ("cwd"), but that follows the session's shell when it changes
+# directory, so the newest one is not where the session belongs.
+session_home() {
+  # <transcript> -> the folder the session was started in: the first recorded
+  # folder whose name matches the transcript's folder, else the first one.
+  # Only the start and the end of the file are read (transcripts can be
+  # gigabytes); a session copied from another machine records that machine's
+  # folders first, and this machine's ones later.
+  local store want cwd first="" LC_ALL=C
+  store=$(basename "$(dirname "$1")")
+  while IFS= read -r cwd; do
+    cwd=${cwd#\"cwd\":\"}
+    cwd=${cwd%\"}
+    cwd=${cwd//\\\"/\"}
+    cwd=${cwd//\\\\/\\}
+    [ -n "$first" ] || first=$cwd
+    want=${cwd//[^A-Za-z0-9]/-}
+    if [ "$want" = "$store" ]; then
+      printf '%s' "$cwd"
+      return 0
+    fi
+  done < <({ head -c 262144 "$1"; echo; tail -c 1048576 "$1"; } 2>/dev/null |
+    grep -oE '"cwd":"([^"\\]|\\.)*"' | awk '!seen[$0]++')
+  printf '%s' "$first"
+}
+
+session_branch() {
+  # <transcript> -> the git branch the session started on, or nothing.
+  local b LC_ALL=C
+  [ -f "$1" ] || return 0
+  b=$(head -c 262144 "$1" 2>/dev/null | grep -oE '"gitBranch":"[^"\\]*"' | head -n 1) || true
+  b=${b#\"gitBranch\":\"}
+  printf '%s' "${b%\"}"
+}
+
+git_here() (
+  # git for the current folder, as name_key does: GIT_DIR and friends from the
+  # caller (a hook, a script run inside another checkout) never redirect it.
+  unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY
+  git "$@"
+)
+
+load_worktrees() {
+  # Sets WT_HERE (this worktree's folder, or this folder outside git) and
+  # WT_ALL (every worktree of the repo, one real path per line).
+  WT_HERE=$(git_here rev-parse --show-toplevel 2>/dev/null) &&
+    WT_HERE=$(cd "$WT_HERE" 2>/dev/null && pwd -P) || WT_HERE=$(pwd -P)
+  WT_ALL=""
+  local w real
+  while IFS= read -r w; do
+    real=$(cd "$w" 2>/dev/null && pwd -P) || continue
+    WT_ALL="$WT_ALL$real"$'\n'
+  done < <(git_here worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+}
+
+session_place() {
+  # <folder a session belongs to> [<its transcript>] -> "here" (this
+  # worktree), "gone" (its worktree was removed) or "other" (another worktree
+  # or copy of the repo that still exists). Needs load_worktrees.
+  local real w best="" missing="" base top branch
+  [ -n "$1" ] || { echo here; return; }  # unknown: the old behaviour
+  if ! real=$(cd "$1" 2>/dev/null && pwd -P); then
+    # The folder is gone. A deleted folder of a checkout that still exists
+    # belongs to that checkout: find the one holding its nearest parent.
+    case "$1" in /*) ;; *) echo gone; return ;; esac
+    base=$1
+    while [ ! -d "$base" ]; do
+      missing="/${base##*/}$missing"
+      base=${base%/*}
+      [ -n "$base" ] || base=/
+    done
+    base=$(cd "$base" 2>/dev/null && pwd -P) || { echo gone; return; }
+    real="${base%/}$missing"
+    # No checkout there, or another repo's: its worktree was removed.
+    top=$(cd "$base" && git_here rev-parse --show-toplevel 2>/dev/null) &&
+      top=$(cd "$top" 2>/dev/null && pwd -P) &&
+      [ "$(cd "$top" && name_key)" = "$(name_key)" ] || { echo gone; return; }
+    # A worktree removed from inside another (an ignored folder such as
+    # .dev/worktrees/<name>) ran on a branch of its own: git never checks one
+    # branch out in two worktrees at once.
+    branch=$(session_branch "${2:-}")
+    if [ -n "$branch" ] &&
+      [ "$branch" != "$(git_here -C "$top" symbolic-ref --short -q HEAD 2>/dev/null)" ] &&
+      git_here -C "$top" check-ignore -q -- "${real#"$top"/}" 2>/dev/null; then
+      echo gone; return
+    fi
+    if [ "$top" = "$WT_HERE" ]; then echo here; else echo other; fi
+    return
+  fi
+  # The worktree holding the folder is the longest worktree path above it
+  # (worktrees can sit inside the main checkout, e.g. .dev/worktrees/<name>).
+  while IFS= read -r w; do
+    [ -n "$w" ] || continue
+    case "$real/" in
+      "$w"/*) [ "${#w}" -gt "${#best}" ] && best=$w ;;
+    esac
+  done <<< "$WT_ALL"
+  if [ -z "$best" ]; then  # not a worktree of this repo (or not a repo)
+    case "$real/" in
+      "$WT_HERE"/*) best=$WT_HERE ;;
+    esac
+  fi
+  if [ "$best" = "$WT_HERE" ]; then echo here; else echo other; fi
+}
+
+session_transcript() {
+  # <session id> -> its transcript (the newest copy), or nothing.
+  ls -t "$PROJECTS_DIR"/*/"$1".jsonl 2>/dev/null | head -n 1 || true
+}
+
 # Birth time (start) in epoch seconds — macOS APFS supports it natively;
 # Linux fallback requires ext4+ with birthtime tracking and returns "-" if
 # unavailable.
@@ -1099,9 +1219,16 @@ format_duration() {
 
 list_sessions() {
   local scope_slug="$1"  # empty = all workspaces, else filter to this slug
+  # "worktree": list this worktree's sessions, then those whose worktree was
+  # removed, and only count the ones that belong to another worktree or copy
+  # of the repo that still exists (resuming one continues it here, so it would
+  # edit this worktree). Like Claude Code's /resume picker, which lists the
+  # current worktree's sessions until Ctrl+W widens it.
+  local filter="${2:-}"
   # Row colours, set by ask_session_name; plain text otherwise.
   local on="${LIST_NAME_ON-}" dim="${LIST_DETAIL_ON-}" off="${LIST_OFF-}"
-  local found=0
+  local found=0 heading="" other_n=0 here_rows=() gone_rows=()
+  [ "$filter" = worktree ] && load_worktrees
   for ws_dir in "$PROJECTS_DIR"/*/topics; do
     [ -d "$ws_dir" ] || continue
     local ws_slug
@@ -1112,55 +1239,77 @@ list_sessions() {
     [ -f "$ws_dir/$LIST_MIGRATED" ] && [ "$ws_slug" != "$scope_slug" ] && continue
 
     local first=1
+    [ "$filter" = worktree ] && heading=$(workspace_name "$ws_dir")
     for topic_file in "$ws_dir"/*.txt; do
       [ -f "$topic_file" ] || continue
-      if [ $first = 1 ]; then
+      if [ $first = 1 ] && [ "$filter" != worktree ]; then
         echo ""
         echo "$(workspace_name "$ws_dir")"
         first=0
       fi
       local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
+      local row place="here" was=""
       topic=$(file_to_name "$(basename "$topic_file" .txt)")
       uuid=$(head -n 1 "$topic_file")
       jsonl="$(dirname "$ws_dir")/$uuid.jsonl"
       # Claude Code keeps the conversation under the folder it ran in, which
       # is not where a repo's name list lives; take the newest copy.
       if [ ! -f "$jsonl" ]; then
-        jsonl=$(ls -t "$PROJECTS_DIR"/*/"$uuid".jsonl 2>/dev/null | head -n 1) || jsonl=""
+        jsonl=$(session_transcript "$uuid")
       fi
 
       if [ ! -f "$jsonl" ]; then
-        printf '  %s%-22s%s  %s%s  %s%s\n' "$on" "$topic" "$off" \
+        printf -v row '  %s%-22s%s  %s%s  %s%s' "$on" "$topic" "$off" \
           "$dim" "(transcript missing)" "${uuid:0:8}" "$off"
-        found=1
-        continue
-      fi
-
-      start_ts=$(get_btime "$jsonl")
-      last_ts=$(get_mtime "$jsonl")
-
-      if [ -z "$start_ts" ] || [ -z "$last_ts" ]; then
-        printf '  %s%-22s%s  %s%s  %s%s\n' "$on" "$topic" "$off" \
-          "$dim" "(times unavailable)" "${uuid:0:8}" "$off"
-        found=1
-        continue
-      fi
-
-      start_str=$(format_epoch "$start_ts")
-      last_str=$(format_epoch "$last_ts")
-      dur_str=$(format_duration $((last_ts - start_ts)))
-      # If start and last are on the same day, show last as time-only for
-      # compactness; otherwise show full date on both.
-      if [ "${start_str%% *}" = "${last_str%% *}" ]; then
-        range="started $start_str  last ${last_str#* }"
       else
-        range="started $start_str  last $last_str"
+        if [ "$filter" = worktree ]; then
+          was=$(session_home "$jsonl")
+          place=$(session_place "$was" "$jsonl")
+        fi
+        start_ts=$(get_btime "$jsonl")
+        last_ts=$(get_mtime "$jsonl")
+        if [ -z "$start_ts" ] || [ -z "$last_ts" ]; then
+          printf -v row '  %s%-22s%s  %s%s  %s%s' "$on" "$topic" "$off" \
+            "$dim" "(times unavailable)" "${uuid:0:8}" "$off"
+        else
+          start_str=$(format_epoch "$start_ts")
+          last_str=$(format_epoch "$last_ts")
+          dur_str=$(format_duration $((last_ts - start_ts)))
+          # If start and last are on the same day, show last as time-only for
+          # compactness; otherwise show full date on both.
+          if [ "${start_str%% *}" = "${last_str%% *}" ]; then
+            range="started $start_str  last ${last_str#* }"
+          else
+            range="started $start_str  last $last_str"
+          fi
+          printf -v row '  %s%-22s%s  %s%s  (%s)  %s%s' "$on" "$topic" "$off" \
+            "$dim" "$range" "$dur_str" "${uuid:0:8}" "$off"
+        fi
       fi
-      printf '  %s%-22s%s  %s%s  (%s)  %s%s\n' "$on" "$topic" "$off" \
-        "$dim" "$range" "$dur_str" "${uuid:0:8}" "$off"
       found=1
+      case "$place" in
+        here)
+          if [ "$filter" = worktree ]; then here_rows+=("$row"); else printf '%s\n' "$row"; fi
+          ;;
+        gone) gone_rows+=("$row  ${dim}(was ${was/#"$HOME"/\~})${off}") ;;
+        *) other_n=$((other_n + 1)) ;;
+      esac
     done
   done
+  if [ "$filter" = worktree ] && [ $found = 1 ]; then
+    echo ""
+    echo "$heading"
+    [ "${#here_rows[@]}" -gt 0 ] && printf '%s\n' "${here_rows[@]}"
+    if [ "${#gone_rows[@]}" -gt 0 ]; then
+      echo "Sessions whose worktree was removed (they continue here):"
+      printf '%s\n' "${gone_rows[@]}"
+    fi
+    if [ "$other_n" -gt 0 ]; then
+      local s="s"
+      [ "$other_n" = 1 ] && s=""
+      echo "${dim}${other_n} more session$s in other worktrees of this repo: ${LIST_MORE_HINT:-ccsession --here --all}${off}"
+    fi
+  fi
   if [ $found = 0 ]; then
     if [ -n "$scope_slug" ]; then
       echo "No labeled sessions in this workspace yet."
@@ -1193,10 +1342,12 @@ ask_session_name() {
     trap - INT
     return 1
   fi
-  # List this repo's sessions (every worktree and copy of it), not every
-  # repo's. Nothing is shown when the repo has none.
-  local name sessions line
+  # List this worktree's sessions and those whose worktree was removed; the
+  # sessions of the repo's other worktrees are counted, and "*" lists them.
+  # Nothing is shown when the repo has none.
+  local name key
   ensure_names_migrated
+  key=$(name_key)
   # Palette tokens (Coder's design-tokens.sh) when exported and on a
   # terminal; NO_COLOR or missing tokens give plain text.
   local bold="" accent="" dim="" reset=""
@@ -1204,21 +1355,24 @@ ask_session_name() {
     bold=${ANSI_FG_EMPHASIS-} accent=${ANSI_ACCENT_PRIMARY-}
     dim=${ANSI_FG_DIM-} reset=${ANSI_RESET-}
   fi
-  sessions=$(LIST_NAME_ON="$accent" LIST_DETAIL_ON="$dim" LIST_OFF="$reset" \
-    list_sessions "$(name_key)")
-  case "$sessions" in
-    ''|'No labeled sessions'*|$'\n''No labeled sessions'*) : ;;
-    *)
-      printf '\n%sSaved sessions in %s (type a name to resume it):%s\n' \
-        "$bold" "${PWD/#"$HOME"/\~}" "$reset" >&2
-      # list_sessions prints a folder heading, then "  <name>  <details>" rows
-      # (names may hold spaces); the heading is replaced by the line above.
-      while IFS= read -r line; do
-        [[ $line == "  "* ]] && printf '%s\n' "$line" >&2
-      done <<< "$sessions"
-      printf '%sSessions from other folders: ccsession --list%s\n\n' "$dim" "$reset" >&2
-      ;;
-  esac
+  show_saved() {
+    # <filter> <title>: print list_sessions' rows under a title, to stderr.
+    local sessions line n=0
+    sessions=$(LIST_NAME_ON="$accent" LIST_DETAIL_ON="$dim" LIST_OFF="$reset" \
+      LIST_MORE_HINT="type * to list them" list_sessions "$key" "$1")
+    case "$sessions" in
+      ''|'No labeled sessions'*|$'\n''No labeled sessions'*) return 0 ;;
+    esac
+    printf '\n%s%s (type a name to resume it):%s\n' "$bold" "$2" "$reset" >&2
+    # list_sessions prints a blank line and a folder heading first; the title
+    # above replaces them. Rows, section lines and the count follow.
+    while IFS= read -r line; do
+      n=$((n + 1))
+      [ "$n" -gt 2 ] && printf '%s\n' "$line" >&2
+    done <<< "$sessions"
+    printf '%sSessions from other repos and folders: ccsession --list%s\n\n' "$dim" "$reset" >&2
+  }
+  show_saved worktree "Saved sessions in ${PWD/#"$HOME"/\~}"
   # A caller with something waiting on it (Orca's supervised workers time out
   # at 60s) sets CCSESSION_ASK_TIMEOUT so an unanswered question gives up.
   local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-0}"
@@ -1235,6 +1389,10 @@ ask_session_name() {
     read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " name ||
       { echo >&2; return 1; }
     [ -z "$name" ] && break
+    if [ "$name" = "*" ]; then
+      show_saved "" "Saved sessions in every worktree of this repo"
+      continue
+    fi
     validate_label "$name" >/dev/null && break
   done
   trap - INT
@@ -1282,7 +1440,11 @@ case "${1:-}" in
     ;;
   --here)
     ensure_names_migrated
-    list_sessions "$(name_key)"
+    if [ "${2:-}" = --all ]; then
+      list_sessions "$(name_key)"
+    else
+      list_sessions "$(name_key)" worktree
+    fi
     exit 0
     ;;
   --ask)
@@ -1432,6 +1594,14 @@ fi
 # resume passes the session's current name.
 if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
+  # Claude Code continues a resumed conversation in this folder. One that
+  # belongs to another worktree that still exists would now edit and commit here.
+  _jsonl=$(session_transcript "$SESSION_ID")
+  _was=$(session_home "$_jsonl")
+  load_worktrees
+  if [ "$(session_place "$_was" "$_jsonl")" = other ]; then
+    echo "[ccsession] WARNING: '$TOPIC' was started in ${_was/#"$HOME"/\~}. It continues here, in ${PWD/#"$HOME"/\~}: its edits and commits go to this worktree. To work in its own worktree instead, exit and run ccsession there." >&2
+  fi
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" --resume "$SESSION_ID" "$@"
   else
