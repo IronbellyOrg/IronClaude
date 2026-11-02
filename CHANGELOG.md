@@ -4,15 +4,16 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-11-02
+
+Major release: codegraph replaces codebase-memory-mcp and Serena, and several commands, flags and core files are removed. Read the [5.0.0 release notes](docs/releases/v5.0.0.md) for the breaking changes and upgrade steps. This is the first versioned section of this changelog; it covers every change since the package version was set to 4.3.5 (2026-06-04), which was never tagged.
+
 ### ccsession: the session list follows the worktree (#347)
 
 #### Changed (ccsession list per worktree)
 
 - `ccsession --here` and the session-name question (`ccsession --ask`, used by `ccsession-orca`) list the sessions started in this worktree, then, in a section of their own, the sessions whose worktree was removed (with the folder they were started in), and only count the sessions of the repo's other worktrees or copies that still exist. `ccsession --here --all`, or `*` at the question, lists every worktree's sessions. Claude Code continues a resumed conversation in the folder it is started in, so picking another worktree's session put its edits and commits in this worktree. A session's folder is the one Claude Code named its transcript folder after (the folder it was started in), as Claude Code's own `/resume` picker groups sessions; the `cwd` a transcript records follows the shell's `cd`, so it is used only to recover the real path.
 - Resuming a session by name that was started in another worktree that still exists works as before, with a warning naming that worktree.
-## [5.0.0] - 2026-11-02
-
-Major release: codegraph replaces codebase-memory-mcp and Serena, and several commands, flags and core files are removed. Read the [5.0.0 release notes](docs/releases/v5.0.0.md) for the breaking changes and upgrade steps. This is the first versioned section of this changelog; it covers every change since the package version was set to 4.3.5 (2026-06-04), which was never tagged.
 
 ### ccsession: shim survives its launching terminal (#341)
 
