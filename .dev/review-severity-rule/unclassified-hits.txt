@@ -1,0 +1,31 @@
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:183:| 3 | Functional Requirements | One FR per generated pipeline step from Phase 2 `step_mapping` — every `step_m
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:184:| 4 | Architecture | Phase 2 `module_plan` (new files), Phase 0 prerequisites (modified files) |
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:189:| 6 | NFRs | Standard portification NFRs (sync execution, gate signatures, runner-authored truth) |
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:190:| 7 | Risk Assessment | Derived from Phase 1 classification confidence scores + unsupported patterns |
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:191:| 8 | Test Plan | Structural test plan from Phase 2 pattern coverage matrix |
+src/superclaude/skills/task-builder/SKILL.md:136:| **Quick** | Small scope, <5 relevant files, single concern | 3 | 0 | Fast task file for simple requests |
+src/superclaude/skills/task-builder/SKILL.md:1036:      | Research gate | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + gap-d
+src/superclaude/skills/task-builder/SKILL.md:1037:      | Synthesis gate | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content
+src/superclaude/skills/task-builder/SKILL.md:1166:    | Research gate | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + gap-det
+src/superclaude/skills/task-builder/SKILL.md:1167:    | Synthesis gate | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content-q
+src/superclaude/skills/task/SKILL.md:194:| <500 lines | 3 | 3 | 6 |
+src/superclaude/skills/task/SKILL.md:195:| 500-1500 lines | 4 | 4 | 8 |
+src/superclaude/skills/task/SKILL.md:196:| 1500-3000 lines | 5 | 5 | 10 |
+src/superclaude/skills/task/SKILL.md:197:| >3000 lines | 6 | 6 | 12 |
+src/superclaude/skills/task/SKILL.md:207:| Research gate (Phase 3) | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + g
+src/superclaude/skills/task/SKILL.md:208:| Synthesis gate (Phase 5) | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + con
+src/superclaude/skills/task/SKILL.md:209:| Task-integrity gate | 5 | 2 rf-qa (B2-self-containment + phase-structure) + 2 rf-qa-qualitative (operational
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:691:   | <500 lines | 3 | 3 | 6 |
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:692:   | 500-1500 lines | 4 | 4 | 8 |
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:693:   | 1500-3000 lines | 5 | 5 | 10 |
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:694:   | >3000 lines | 6 | 6 | 12 |
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:718:   | Research gate (Phase 3) | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality 
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:719:   | Synthesis gate (Phase 5) | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + 
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:720:   | Task-integrity gate | 5 | 2 rf-qa (B2-self-containment + phase-structure) + 2 rf-qa-qualitative (operatio
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:708:   | <500 lines | 3 | 3 | 6 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:709:   | 500-1500 lines | 4 | 4 | 8 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:710:   | 1500-3000 lines | 5 | 5 | 10 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:711:   | >3000 lines | 6 | 6 | 12 |
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:735:   | Research gate (Phase 3) | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality 
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:736:   | Synthesis gate (Phase 5) | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + 
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:737:   | task-integrity (Phase 5.5) | 5 | 2 rf-qa (structure + evidence-quality) + 2 rf-qa-qualitative (actionabil

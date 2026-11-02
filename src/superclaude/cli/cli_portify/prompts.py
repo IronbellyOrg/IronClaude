@@ -65,7 +65,7 @@ class PromptContext:
     cli_name: str
     source_skill: str
     iteration: int = 1
-    max_convergence: int = 3
+    max_convergence: int = 1
     component_count: int = 0
     pipeline_steps: int = 0
     prior_findings: list[str] = field(default_factory=list)

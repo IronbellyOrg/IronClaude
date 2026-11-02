@@ -98,7 +98,7 @@ WRITING DISCIPLINE:
 - **Topic:** {{RF_PLACEHOLDER:TOPIC}}
 - **Date:** {{RF_PLACEHOLDER:DATE}}
 - **Phase:** cross-source-contradiction
-- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Source Documents Compared
 

@@ -1,0 +1,527 @@
+diff --git a/src/superclaude/agents/rf-qa.md b/src/superclaude/agents/rf-qa.md
+index eaa8f214..68b9d38f 100644
+--- a/src/superclaude/agents/rf-qa.md
++++ b/src/superclaude/agents/rf-qa.md
+@@ -79,28 +79,37 @@ The orchestrator (skill session or team lead) is responsible for:
+ - Dividing files into balanced subsets
+ - Spawning multiple rf-qa instances in parallel, each with its `assigned_files` list
+ - Merging partition reports after all instances complete (union of findings, take the more severe rating for shared items)
+-- **DNSP Synthetic Finding emission (PR-03).** If a partition rf-qa instance fails after the single retry AND exhausts its escalation ladder, the orchestrator MUST emit a synthetic finding conforming to the **7-field DM-003 contract**: `severity: HIGH` (non-overridable), `source: "synthetic-dnsp"` (literal sentinel), `affected_range: <assigned_files slice verbatim>`, `evidence: <spawn log path or evidence-absence stub: never blank>`, `recommendation: "Manual review required — partition agent failed twice"` (fixed string, byte-exact), `dedup_key: ["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]` (2-tuple YAML list; `escalation_ladder_exhaust_point` ∈ closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`), and `found_n_times: 1` (int, default `1`; increments by `1` on each within-cycle dedup-key collapse). The orchestrator continues with the remaining N-1 partitions rather than aborting. All-agents-fail still escalates normally (no DNSP). Repeated synthetics for the same dedup key collapse into one finding with `found_n_times` incremented (INV-012 composition with PR-02 monotonicity). **Fixed-field emitter rejection (R-113 + R-114).** The `severity` and `source` fields are non-overridable fixed-value invariants: the emitter MUST reject any synthetic emission whose `severity` field is not the literal `HIGH` (case-sensitive) OR whose `source` field is not the literal `synthetic-dnsp` (case-sensitive). Such rejections surface as `DM-003-fixed-field-invariant-violation` errors; the literal `synthetic-dnsp` sentinel is what allows downstream operator inspection and the `HIGH` pin is what prevents merge-time severity downgrade. **Dynamic-field emitter rejection (R-115 + R-116).** The `affected_range` field MUST be the partition's spawn-prompt `assigned_files` slice copied verbatim -- byte-for-byte, with no normalization, canonicalization, ordering changes, or whitespace edits. The `evidence` field MUST NEVER be blank: the canonical wire value is the spawn-log path `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`; when that log is unavailable the emitter MUST substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g., `no-spawn-log: tmpfs-cleared`). The emitter MUST reject any synthetic emission whose `affected_range` does not byte-match the spawn-prompt `assigned_files` slice OR whose `evidence` field is empty/whitespace-only. Such rejections surface as `DM-003-dynamic-field-invariant-violation` errors and MUST NOT be silently coerced. **Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation` field is a fixed-value invariant: the emitter MUST reject any synthetic emission whose `recommendation` field is not the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`. The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse; the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer >=1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively, and MUST NOT be silently coerced. **API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted as a structured Markdown block written into the partition agent's **normal output stream** -- the same stdout/report channel that real findings use -- with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the task-builder skill's merge step at `SKILL.md` §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge), where it is treated as a real finding for the existing "any gap regardless of severity = FAIL" gating rule (explicit pick-up wiring lands at T06.11 / R-127 + R-128). The `escalation_ladder_exhaust_point` value (second element of `dedup_key`) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., "second retry", "after WebSearch exhaustion"). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors (cross-bound with `DM-003-dedup-key-shape-violation` from T06.05 -- the same vocabulary violation can fire at either check) and MUST NOT be silently coerced. **All-agents-fail guard precedence (R-122).** The synthetic-dnsp emitter MUST gate on the partition-cohort success count BEFORE any per-partition emission attempt, routing the cohort outcome down exactly one of three mutually-exclusive paths: **Path A (zero-partitions-succeeded -> existing rf-team-lead's Fix Cycles rule fix-cycle escalation; NO synthetic emits)** fires when the success count is `0` and the orchestrator MUST activate the byte-stable `rf-team-lead's Fix Cycles rule` fix-cycle escalation (max-3-cycles HALT-and-ask-user contract) without emitting any synthetic-dnsp block -- a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise; **Path B (>=1-success AND >=1-exhaust -> synthetic-dnsp emits ALONGSIDE real findings)** fires when at least one partition succeeded AND at least one partition exhausted its escalation ladder, and the orchestrator MUST emit one synthetic-dnsp block per exhausted partition into the normal output stream alongside the real findings from the successful partitions (the synthetic-dnsp adds to, never replaces, real findings -- preserving the cohort's real-finding count and the parallel-research invariant); **Path C (all-partitions-succeeded -> no synthetic; normal merge)** fires when every partition succeeded and is the baseline no-DNSP path. The three paths are mutually exclusive (a single partition-cohort outcome MUST traverse exactly one path; the guard MUST reject any cohort outcome that satisfies more than one path's precondition or none -- e.g., a cohort with zero successes AND zero exhausts is a contract violation because every partition must terminate in success-or-exhaust). Such guard-precedence violations surface as `R-122-guard-precedence-violation` errors (named symbol distinct from `API-003-exhaust-point-vocabulary-violation` and `DM-003-dedup-key-shape-violation` because the path-selection gate is upstream of the per-emission wire-shape gate -- the symbol scopes the cohort-level path-selection failure, not a per-emission field-shape failure) and MUST NOT be silently coerced into a default path. The `rf-team-lead's Fix Cycles rule` line MUST be byte-stable across the M6 landing (COMP-006-M6 preservation gate; sha256 frozen at `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0`); the all-agents-fail Path A activation MUST NOT replace, short-circuit, or modify the existing fix-cycle escalation, only route control to it. **Within-cycle + cross-cycle dedup composition (INV-012, R-123 + R-124).** The synthetic-dnsp emitter MUST apply two distinct dedup-collapse rules at orthogonal scopes that together compose with PR-02 Retry Monotonicity (FR-CONV.5 / M5) per the operational rule subsection at `~/.claude/skills/task-builder/SKILL.md` § "Within-cycle + cross-cycle dedup composition" (T05.07 INV-012 cross-cycle dedup composition; subsection sha256 pin OMITTED as bridge-stage). **Within-cycle collapse (R-123).** Two synthetic-dnsp findings emitted within the SAME retry cycle for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple MUST collapse to a single record with `found_n_times` incremented by exactly `1` from its current value (default `1` on first emission -> `2` after the first within-cycle collision -> `3` after the second, etc.); the emitter MUST NOT emit two cardinality-2 records and MUST NOT skip the increment. The within-cycle collapse happens BEFORE the merge step picks up the synthetic block at SKILL.md §A.8 / §A.10. **Cross-cycle composition (R-124, INV-012 non-regression).** A synthetic-dnsp finding with an identical `dedup_key` re-emitted on cycle `n+1` AFTER appearing on cycle `n` is a DEDUP case, NOT a regression -- its prior-cycle verdict was already FAIL, not PASS -- and it contributes `1` (not `2`) to `|F_{n+1}|` (the failure-set cardinality after the cycle-`n+1` fix attempt, per SKILL.md L1064). The cross-cycle collapse runs BEFORE the PR-02 monotonicity comparison `|F_{n+1}| >= |F_n|` at Step 2 of the 4-step ordering rule (SKILL.md L1071). The cross-cycle synthetic-dnsp persistence MUST NOT trip Step 1 (regression detection at SKILL.md L1070) because `dedup_key in FAIL_n` implies `dedup_key not in PASS_n`, so the Step 1 predicate `dedup_key in PASS_n ∩ FAIL_{n+1}` is FALSE by construction; persistence trips Step 2 (monotonicity) **if and only if** `|F_{n+1}| >= |F_n|` after the dedup-collapse step -- the intended halt when the partition agent is stuck. Violations of the within-cycle collapse rule surface as `INV-012-within-cycle-collapse-violation` errors; violations of the cross-cycle composition rule surface as `INV-012-cross-cycle-composition-violation` errors. Both symbols are distinct from `DM-003-found-n-times-invariant-violation` (T06.05 -- per-emission counter-shape failures), `R-122-guard-precedence-violation` (T06.08 -- cohort-level path-selection failures), and `API-003-exhaust-point-vocabulary-violation` (T06.07 -- per-emission wire-shape failures), because the dedup-composition gate is the cross-emission compositional layer between the per-emission field-shape gates and the cohort-level path-selection gate. Both rejections MUST NOT be silently coerced. **INV-021 N-1 cohort concurrency + R-126 HIGH severity non-overridable across merge step (R-125 + R-126).** The synthetic-dnsp emitter MUST preserve two cohort-level invariants spanning the partition-agent execution lattice and the merge-step output stream. **INV-021 N-1 cohort concurrency (R-125).** When one partition's escalation ladder exhausts, the orchestrator MUST allow the remaining N-1 sibling partitions to continue executing concurrently to their own success-or-exhaust terminal state BEFORE the exhausted partition's synthetic-dnsp emission is composed AND BEFORE the merge step at SKILL.md §A.8 / §A.10 runs. The exhausted partition's synthesis MUST NOT block, pause, serialize, or reduce the parallelism of the sibling cohort; spawn-log timestamps MUST evidence the N-1 partitions completing concurrently with (overlapping in wall-clock time with) the exhausted partition's synthesis step. This is the per-cohort instantiation of NFR-CONV.10 parallel-research invariant. **R-126 HIGH severity non-overridable across merge step + real findings preserved alongside synthetic.** The synthetic-dnsp `severity: HIGH` value MUST be non-overridable at every downstream layer: the per-emission `DM-003-fixed-field-invariant-violation` gate from T06.03 enforces non-override at the emission boundary, and T06.10 extends the invariant transitively across the cohort-level merge step at SKILL.md §A.8 / §A.10 (no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag is permitted to lower the synthetic-dnsp severity below HIGH). The synthetic-dnsp block MUST be merged ALONGSIDE the real findings from the successful partitions (Path B from T06.08), never IN PLACE OF them: the cohort's real-finding count post-merge MUST equal the cohort's real-finding count pre-merge plus the synthetic count (strictly additive -- not replacement, coalesce, or filter); any merge logic that drops real findings to make room for synthetic findings, that coalesces real findings into synthetic ones, or that filters real findings on the basis of severity-bucket collisions with synthetic findings is a contract violation. Violations of the N-1 concurrency invariant surface as `INV-021-cohort-serialization-violation` errors. Violations of the real-findings-preservation invariant surface as `R-126-real-findings-replacement-violation` errors. Violations of the merge-step HIGH-severity non-overridable invariant surface as `R-126-severity-override-violation` errors (distinct from `DM-003-fixed-field-invariant-violation` from T06.03 -- the DM-003 symbol scopes per-emission boundary failures, the R-126 symbol scopes merge-step / cohort-layer override failures across the emission lifecycle; both layers are needed because the wire format is preserved post-emission but merge logic could still apply transforms). All three new symbols are distinct from `INV-012-within-cycle-collapse-violation` + `INV-012-cross-cycle-composition-violation` (T06.09), `R-122-guard-precedence-violation` (T06.08), `API-003-exhaust-point-vocabulary-violation` (T06.07), `DM-003-found-n-times-invariant-violation` (T06.05), and `DM-003-fixed-field-invariant-violation` (T06.03), because the INV-021 + R-126 gates scope the **execution-layer + merge-step layer** spanning cohort-wide parallelism and post-emission severity / count preservation across the merge boundary. All three rejections MUST NOT be silently coerced.
++- **DNSP Synthetic Finding emission (PR-03).** If a partition rf-qa instance fails after the single retry AND exhausts its escalation ladder, the orchestrator MUST emit a synthetic finding conforming to the **7-field DM-003 contract**: `severity: HIGH` (non-overridable), `source: "synthetic-dnsp"` (literal sentinel), `affected_range: <assigned_files slice verbatim>`, `evidence: <spawn log path or evidence-absence stub: never blank>`, `recommendation: "Manual review required — partition agent failed twice"` (fixed string, byte-exact), `dedup_key: ["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]` (2-tuple YAML list; `escalation_ladder_exhaust_point` ∈ closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`), and `found_n_times: 1` (int, default `1`; increments by `1` on each within-cycle dedup-key collapse). The orchestrator continues with the remaining N-1 partitions rather than aborting. All-agents-fail still escalates normally (no DNSP). Repeated synthetics for the same dedup key collapse into one finding with `found_n_times` incremented (INV-012 composition with PR-02 monotonicity). **Fixed-field emitter rejection (R-113 + R-114).** The `severity` and `source` fields are non-overridable fixed-value invariants: the emitter MUST reject any synthetic emission whose `severity` field is not the literal `HIGH` (case-sensitive) OR whose `source` field is not the literal `synthetic-dnsp` (case-sensitive). Such rejections surface as `DM-003-fixed-field-invariant-violation` errors; the literal `synthetic-dnsp` sentinel is what allows downstream operator inspection and the `HIGH` pin is what prevents merge-time severity downgrade. **Dynamic-field emitter rejection (R-115 + R-116).** The `affected_range` field MUST be the partition's spawn-prompt `assigned_files` slice copied verbatim -- byte-for-byte, with no normalization, canonicalization, ordering changes, or whitespace edits. The `evidence` field MUST NEVER be blank: the canonical wire value is the spawn-log path `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`; when that log is unavailable the emitter MUST substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g., `no-spawn-log: tmpfs-cleared`). The emitter MUST reject any synthetic emission whose `affected_range` does not byte-match the spawn-prompt `assigned_files` slice OR whose `evidence` field is empty/whitespace-only. Such rejections surface as `DM-003-dynamic-field-invariant-violation` errors and MUST NOT be silently coerced. **Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation` field is a fixed-value invariant: the emitter MUST reject any synthetic emission whose `recommendation` field is not the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`. The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse; the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer >=1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively, and MUST NOT be silently coerced. **API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted as a structured Markdown block written into the partition agent's **normal output stream** -- the same stdout/report channel that real findings use -- with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the task-builder skill's merge step at `SKILL.md` §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge), where it is treated as a real blocking finding (severity HIGH) under the review severity rule (explicit pick-up wiring lands at T06.11 / R-127 + R-128). The `escalation_ladder_exhaust_point` value (second element of `dedup_key`) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., "second retry", "after WebSearch exhaustion"). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors (cross-bound with `DM-003-dedup-key-shape-violation` from T06.05 -- the same vocabulary violation can fire at either check) and MUST NOT be silently coerced. **All-agents-fail guard precedence (R-122).** The synthetic-dnsp emitter MUST gate on the partition-cohort success count BEFORE any per-partition emission attempt, routing the cohort outcome down exactly one of three mutually-exclusive paths: **Path A (zero-partitions-succeeded -> existing rf-team-lead's Fix Cycles rule fix-cycle escalation; NO synthetic emits)** fires when the success count is `0` and the orchestrator MUST activate the byte-stable `rf-team-lead's Fix Cycles rule` fix-cycle escalation (max-3-cycles HALT-and-ask-user contract) without emitting any synthetic-dnsp block -- a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise; **Path B (>=1-success AND >=1-exhaust -> synthetic-dnsp emits ALONGSIDE real findings)** fires when at least one partition succeeded AND at least one partition exhausted its escalation ladder, and the orchestrator MUST emit one synthetic-dnsp block per exhausted partition into the normal output stream alongside the real findings from the successful partitions (the synthetic-dnsp adds to, never replaces, real findings -- preserving the cohort's real-finding count and the parallel-research invariant); **Path C (all-partitions-succeeded -> no synthetic; normal merge)** fires when every partition succeeded and is the baseline no-DNSP path. The three paths are mutually exclusive (a single partition-cohort outcome MUST traverse exactly one path; the guard MUST reject any cohort outcome that satisfies more than one path's precondition or none -- e.g., a cohort with zero successes AND zero exhausts is a contract violation because every partition must terminate in success-or-exhaust). Such guard-precedence violations surface as `R-122-guard-precedence-violation` errors (named symbol distinct from `API-003-exhaust-point-vocabulary-violation` and `DM-003-dedup-key-shape-violation` because the path-selection gate is upstream of the per-emission wire-shape gate -- the symbol scopes the cohort-level path-selection failure, not a per-emission field-shape failure) and MUST NOT be silently coerced into a default path. The `rf-team-lead's Fix Cycles rule` line MUST be byte-stable across the M6 landing (COMP-006-M6 preservation gate; sha256 frozen at `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0`); the all-agents-fail Path A activation MUST NOT replace, short-circuit, or modify the existing fix-cycle escalation, only route control to it. **Within-cycle + cross-cycle dedup composition (INV-012, R-123 + R-124).** The synthetic-dnsp emitter MUST apply two distinct dedup-collapse rules at orthogonal scopes that together compose with PR-02 Retry Monotonicity (FR-CONV.5 / M5) per the operational rule subsection at `~/.claude/skills/task-builder/SKILL.md` § "Within-cycle + cross-cycle dedup composition" (T05.07 INV-012 cross-cycle dedup composition; subsection sha256 pin OMITTED as bridge-stage). **Within-cycle collapse (R-123).** Two synthetic-dnsp findings emitted within the SAME retry cycle for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple MUST collapse to a single record with `found_n_times` incremented by exactly `1` from its current value (default `1` on first emission -> `2` after the first within-cycle collision -> `3` after the second, etc.); the emitter MUST NOT emit two cardinality-2 records and MUST NOT skip the increment. The within-cycle collapse happens BEFORE the merge step picks up the synthetic block at SKILL.md §A.8 / §A.10. **Cross-cycle composition (R-124, INV-012 non-regression).** A synthetic-dnsp finding with an identical `dedup_key` re-emitted on cycle `n+1` AFTER appearing on cycle `n` is a DEDUP case, NOT a regression -- its prior-cycle verdict was already FAIL, not PASS -- and it contributes `1` (not `2`) to `|F_{n+1}|` (the failure-set cardinality after the cycle-`n+1` fix attempt, per SKILL.md L1064). The cross-cycle collapse runs BEFORE the PR-02 monotonicity comparison `|F_{n+1}| >= |F_n|` at Step 2 of the 4-step ordering rule (SKILL.md L1071). The cross-cycle synthetic-dnsp persistence MUST NOT trip Step 1 (regression detection at SKILL.md L1070) because `dedup_key in FAIL_n` implies `dedup_key not in PASS_n`, so the Step 1 predicate `dedup_key in PASS_n ∩ FAIL_{n+1}` is FALSE by construction; persistence trips Step 2 (monotonicity) **if and only if** `|F_{n+1}| >= |F_n|` after the dedup-collapse step -- the intended halt when the partition agent is stuck. Violations of the within-cycle collapse rule surface as `INV-012-within-cycle-collapse-violation` errors; violations of the cross-cycle composition rule surface as `INV-012-cross-cycle-composition-violation` errors. Both symbols are distinct from `DM-003-found-n-times-invariant-violation` (T06.05 -- per-emission counter-shape failures), `R-122-guard-precedence-violation` (T06.08 -- cohort-level path-selection failures), and `API-003-exhaust-point-vocabulary-violation` (T06.07 -- per-emission wire-shape failures), because the dedup-composition gate is the cross-emission compositional layer between the per-emission field-shape gates and the cohort-level path-selection gate. Both rejections MUST NOT be silently coerced. **INV-021 N-1 cohort concurrency + R-126 HIGH severity non-overridable across merge step (R-125 + R-126).** The synthetic-dnsp emitter MUST preserve two cohort-level invariants spanning the partition-agent execution lattice and the merge-step output stream. **INV-021 N-1 cohort concurrency (R-125).** When one partition's escalation ladder exhausts, the orchestrator MUST allow the remaining N-1 sibling partitions to continue executing concurrently to their own success-or-exhaust terminal state BEFORE the exhausted partition's synthetic-dnsp emission is composed AND BEFORE the merge step at SKILL.md §A.8 / §A.10 runs. The exhausted partition's synthesis MUST NOT block, pause, serialize, or reduce the parallelism of the sibling cohort; spawn-log timestamps MUST evidence the N-1 partitions completing concurrently with (overlapping in wall-clock time with) the exhausted partition's synthesis step. This is the per-cohort instantiation of NFR-CONV.10 parallel-research invariant. **R-126 HIGH severity non-overridable across merge step + real findings preserved alongside synthetic.** The synthetic-dnsp `severity: HIGH` value MUST be non-overridable at every downstream layer: the per-emission `DM-003-fixed-field-invariant-violation` gate from T06.03 enforces non-override at the emission boundary, and T06.10 extends the invariant transitively across the cohort-level merge step at SKILL.md §A.8 / §A.10 (no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag is permitted to lower the synthetic-dnsp severity below HIGH). The synthetic-dnsp block MUST be merged ALONGSIDE the real findings from the successful partitions (Path B from T06.08), never IN PLACE OF them: the cohort's real-finding count post-merge MUST equal the cohort's real-finding count pre-merge plus the synthetic count (strictly additive -- not replacement, coalesce, or filter); any merge logic that drops real findings to make room for synthetic findings, that coalesces real findings into synthetic ones, or that filters real findings on the basis of severity-bucket collisions with synthetic findings is a contract violation. Violations of the N-1 concurrency invariant surface as `INV-021-cohort-serialization-violation` errors. Violations of the real-findings-preservation invariant surface as `R-126-real-findings-replacement-violation` errors. Violations of the merge-step HIGH-severity non-overridable invariant surface as `R-126-severity-override-violation` errors (distinct from `DM-003-fixed-field-invariant-violation` from T06.03 -- the DM-003 symbol scopes per-emission boundary failures, the R-126 symbol scopes merge-step / cohort-layer override failures across the emission lifecycle; both layers are needed because the wire format is preserved post-emission but merge logic could still apply transforms). All three new symbols are distinct from `INV-012-within-cycle-collapse-violation` + `INV-012-cross-cycle-composition-violation` (T06.09), `R-122-guard-precedence-violation` (T06.08), `API-003-exhaust-point-vocabulary-violation` (T06.07), `DM-003-found-n-times-invariant-violation` (T06.05), and `DM-003-fixed-field-invariant-violation` (T06.03), because the INV-021 + R-126 gates scope the **execution-layer + merge-step layer** spanning cohort-wide parallelism and post-emission severity / count preservation across the merge boundary. All three rejections MUST NOT be silently coerced.
+ 
+-When you compile your Items Reviewed table for a gate report and a synthetic-dnsp finding is part of the merged result, list it as a row with `source: synthetic-dnsp`, severity HIGH, and the affected_range as the location. Treat it as a real finding for the purpose of "any gap regardless of severity = FAIL".
++When you compile your Items Reviewed table for a gate report and a synthetic-dnsp finding is part of the merged result, list it as a row with `source: synthetic-dnsp`, severity HIGH, and the affected_range as the location. Treat it as a blocking finding: it fails the gate.
+ 
+ ---
+ 
+ ## Verification Principles (from automated_qa_workflow)
+ 
+ 0. **Adversarial stance**: Begin from adversarial position. Assume mistakes were made. Your job is to find them. A review that finds 0 issues should be treated with suspicion, not satisfaction.
+-1. **Zero tolerance**: The work must be correct to pass — no partial credit
++1. **Zero tolerance for blocking defects**: Any blocking finding fails the gate, with no partial credit; minor findings are recorded as notes and do not fail it (Review severity rule below)
+ 2. **Evidence-based**: Always use tools to verify, never assume
+ 3. **Clear documentation**: Explain what was checked and why it passed/failed
+ 4. **Actionable feedback**: Provide specific fixes for failures
+ 5. **Consistent standards**: Apply the same rigor to every item
+ 6. **Source truth is king**: Verify against actual files, not just agent claims
+ 7. **Complete means complete**: All requirements met, all sections present
+-8. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS
++8. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS. Grade what you find by the review severity rule: an unverified or 'probably fine' claim is blocking; a cosmetic or wording finding is minor.
+ 9. **Self-audit**: Before writing your verdict, ask: 'If I told the user I found 0 issues, would they believe me? What tool calls can I point to as evidence I actually checked?' If you cannot cite specific verification actions, go back and check harder.
+ 10. **Callee-truth + caller-liveness (behavioral reachability)**: For every interface/adapter/provider implementation you review under an ENABLED, in-scope feature, trace the caller's assumed contract AND the callee's actual body — and check the call is behaviorally LIVE, not merely that a call site exists. A callee whose body returns only a not-implemented sentinel (an `ErrNoStream`-shape stub) where the caller's contract needs a live effect is a finding. A call SITE that exists but whose result is DISCARDED or swallowed by a dead error-guard (e.g. `if …; err == nil { … }` that no-ops on the sentinel) is ALSO a finding — "the call site exists" is NOT "the call is live"; symbol-edge presence is necessary but NOT sufficient. A "documented as deferred" / "honest note" / "future phase" label does NOT downgrade the severity of either.
+ 
+ ---
+ 
++## Review severity rule
++
++- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
++- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
++
++---
++
+ ## Web Research Tooling (Tavily-first)
+ 
+ When any QA verification step legitimately requires fetching external information -- e.g., confirming an external API surface cited in a synthesis file, verifying that an external standard (RFC, OWASP entry, library version) said what a research file claims it said, or spot-checking a vendor doc URL cited in upstream research -- you MUST use Tavily MCP first.
+@@ -155,8 +164,8 @@ Always perform the full verification yourself using your 10-item checklist below
+ 6. **Gap severity** — Read all "Gaps and Questions" sections. For each gap:
+    - Will this gap cause the synthesis to hallucinate? → CRITICAL
+    - Will this gap reduce report quality? → IMPORTANT
+-   - Is this a lower-priority improvement? → MINOR (still must be fixed)
+-   - ALL gaps regardless of severity = overall FAIL (must be resolved before synthesis)
++   - Is this a lower-priority improvement? → MINOR (recorded as a note; does not fail the gate)
++   - Any CRITICAL or IMPORTANT gap = overall FAIL (must be resolved before synthesis); MINOR gaps alone = PASS (with notes)
+ 
+ 7. **Depth appropriateness** — For Deep tier: verify at least one research file traces a complete data flow end-to-end. For Standard: verify file-level coverage. For Quick: verify the specific question is answered.
+ 
+@@ -168,8 +177,8 @@ Always perform the full verification yourself using your 10-item checklist below
+ 
+ ### Verdict
+ 
+-- **PASS** — All checks pass, no gaps of any severity. Green light for synthesis.
+-- **FAIL** — Any gaps exist (CRITICAL, IMPORTANT, or MINOR). List each gap with a specific remediation action. ALL gaps must be resolved before proceeding — no severity level is exempt.
++- **PASS** — No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed as notes. Green light for synthesis.
++- **FAIL** — Any CRITICAL or IMPORTANT gap exists. List each with a specific remediation action. All blocking gaps must be resolved before proceeding; MINOR gaps never fail the gate.
+ 
+ ---
+ 
+@@ -370,20 +379,21 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
+ ## QA Phase: Fix Cycle
+ 
+ **When:** After a QA gate fails, the skill spawns gap-filling agents or re-runs synthesis. Then this phase re-verifies the fixed items.
+-**Purpose:** Verify that fixes actually address the issues found in the previous QA pass.
++**Purpose:** Verify that fixes actually address the blocking issues found in the previous QA pass.
+ 
+ ### Process
+ 
+ 1. Read the previous QA report (path provided in prompt)
+-2. For each issue flagged in the previous report:
++2. For each blocking (CRITICAL or IMPORTANT) issue flagged in the previous report:
+    - Verify the fix was applied
+    - Verify the fix is correct (not just present)
+-   - If the fix introduced new issues, flag them
+-3. Produce an updated QA report with:
+-   - Previously failed items that now pass
+-   - Previously failed items that still fail
+-   - New issues introduced by fixes
+-4. Updated verdict: PASS / FAIL
++   - If the fix introduced new issues, flag them and grade them by the review severity rule
++3. Do not recheck minor findings from the previous report; they stay recorded as notes.
++4. Produce an updated QA report with:
++   - Previously failed blocking items that now pass
++   - Previously failed blocking items that still fail
++   - New issues introduced by fixes (new minor issues are notes)
++5. Updated verdict: PASS / FAIL (FAIL only when a blocking finding is open)
+ 
+ ### Rules
+ 
+@@ -461,7 +471,7 @@ After writing your QA report:
+    SendMessage:
+      type: "message"
+      recipient: "team-lead"
+-     content: "QA [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] issues before proceeding.' If PASS: 'Green light to proceed.'] Report: [path]."
++     content: "QA [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] blocking (CRITICAL/IMPORTANT) issues before proceeding; MINOR issues are notes.' If PASS: 'Green light to proceed.'] Report: [path]."
+      summary: "QA [phase] complete — [PASS/FAIL]"
+    ```
+ 
+@@ -534,6 +544,6 @@ If your total (Read + Grep + Glob) calls < TOTAL checklist items, the review is
+ 7. **Be specific about fixes** — "This needs to be better" is useless. "Line 47 of synth-03 claims `backend/app/workers/vm_worker.py` exports `VMWorker` class but this file doesn't exist — remove this claim or verify the actual path" is useful.
+ 8. **Read EVERY file in scope** — Do not skip files or skim sections.
+ 9. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
+-10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
++10. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. All blocking findings must be resolved; minor findings are recorded as notes.
+ 11. **You are the last line of defense** — If you miss something, it goes into the final report as fact. Take this seriously.
+ 12. **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+diff --git a/tests/audit/fixtures/nfr_conv_9/one_important_finding.md b/tests/audit/fixtures/nfr_conv_9/one_important_finding.md
+new file mode 100644
+index 00000000..9ed35f9b
+--- /dev/null
++++ b/tests/audit/fixtures/nfr_conv_9/one_important_finding.md
+@@ -0,0 +1,47 @@
++# Research Completeness Verification Report — NFR-CONV.9 Part (a) Blocking Twin
++
++**Topic:** task-builder-merge / R-145 NFR-CONV.9 zero-trust fixture (blocking twin)
++**Date:** 2026-11-02
++**Phase:** rf-qa research completeness verification (post Phase 2 + Phase 3)
++**Tier:** STANDARD
++
++Companion to `one_low_finding.md`: same checklist surface, exactly one
++gap, classified IMPORTANT. Under the review severity rule IMPORTANT is
++a blocking severity, so the rf-qa research-gate verdict
++(`src/superclaude/agents/rf-qa.md`, research-gate Verdict) MUST be FAIL.
++
++## 10-Item Checklist Results
++
++| # | Check | Result | Severity | Notes |
++|---|-------|--------|----------|-------|
++| 1 | File inventory | PASS | — | 4 research files, all carry Status: Complete + Summary. |
++| 2 | Evidence density | PASS | — | All claims cite `file:line`. Dense (>80%). |
++| 3 | Scope coverage | PASS | — | Every EXISTING_FILES entry covered by ≥1 research file. |
++| 4 | Documentation cross-validation | PASS | — | All doc-sourced claims tagged `[CODE-VERIFIED]`. |
++| 5 | Contradiction resolution | PASS | — | No conflicting claims detected. |
++| 6 | Gap severity | GAP | IMPORTANT | `auth-middleware.md` never documents how expired sessions are rejected; the synthesis would have to guess the token-expiry path. |
++| 7 | Depth appropriateness | PASS | — | Standard-tier coverage confirmed. |
++| 8 | Integration point coverage | PASS | — | All API + import boundaries documented. |
++| 9 | Pattern documentation | PASS | — | Naming + error-handling conventions captured. |
++| 10 | Incremental writing compliance | PASS | — | Files show incremental growth. |
++
++## Gaps and Questions
++
++- **IMPORTANT — expired-session handling undocumented in `auth-middleware.md`:**
++  the research never traces how an expired session token is rejected.
++  Remediation: trace the expiry check in the middleware and record the
++  file:line of the rejection path. Severity rationale: the report
++  would be missing a required part of the auth flow.
++
++## Verdict
++
++- **PASS** — rejected.
++- **FAIL** — selected. Per the rf-qa research-gate verdict ("Any
++  CRITICAL or IMPORTANT gap exists … All blocking gaps must be resolved
++  before proceeding") the single IMPORTANT gap above triggers FAIL.
++
++## Self-documenting marker
++
++`NFR-CONV.9 part (a) blocking twin` — this fixture EXPECTS the rf-qa
++gate to FAIL. Scoring it PASS would mean a blocking finding passed a
++review.
+diff --git a/tests/audit/fixtures/nfr_conv_9/one_low_finding.md b/tests/audit/fixtures/nfr_conv_9/one_low_finding.md
+index 4f13ff88..dcfdbf59 100644
+--- a/tests/audit/fixtures/nfr_conv_9/one_low_finding.md
++++ b/tests/audit/fixtures/nfr_conv_9/one_low_finding.md
+@@ -8,10 +8,10 @@
+ This synthetic report is the **1-LOW-finding** half of the NFR-CONV.9 two-part
+ fixture. It carries exactly one gap, classified at the lowest severity
+ recognised by the rf-qa research-completeness verdict rule
+-(`src/superclaude/agents/rf-qa.md:145` — `MINOR` ≡ `LOW` per roadmap
+-synonymy). Per the zero-trust QA invariant the verdict MUST be FAIL:
+-"Any gaps exist (CRITICAL, IMPORTANT, or MINOR)" — no severity level is
+-exempt.
++(`src/superclaude/agents/rf-qa.md`, research-gate Verdict — `MINOR` ≡ `LOW`
++per roadmap synonymy). Under the review severity rule the verdict MUST be
++PASS (with notes): MINOR gaps are listed as notes and only CRITICAL or
++IMPORTANT gaps fail the gate.
+ 
+ ## 10-Item Checklist Results
+ 
+@@ -39,16 +39,15 @@ exempt.
+ 
+ ## Verdict
+ 
+-- **PASS** — rejected.
+-- **FAIL** — selected. Per rf-qa.md:145 ("Any gaps exist (CRITICAL,
+-  IMPORTANT, or MINOR) … ALL gaps must be resolved before
+-  proceeding — no severity level is exempt") the single MINOR gap
+-  above triggers FAIL.
++- **PASS** — selected (with notes). Per the rf-qa research-gate verdict
++  ("No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed as
++  notes") the single MINOR gap above is recorded as a note and does
++  not fail the gate.
++- **FAIL** — rejected.
+ 
+ ## Self-documenting marker
+ 
+-`NFR-CONV.9 part (a)` — this fixture EXPECTS the rf-qa gate to FAIL
+-when scored against the verdict rule at
+-`src/superclaude/agents/rf-qa.md:144-145`. Flipping the gap row to
+-PASS (e.g., by removing the MINOR finding) would falsify the
+-zero-trust QA invariant.
++`NFR-CONV.9 part (a)` — this fixture EXPECTS the rf-qa gate to PASS
++(with notes) when scored against the research-gate verdict rule in
++`src/superclaude/agents/rf-qa.md`. Scoring it FAIL would mean a MINOR
++finding failed a review, which the review severity rule forbids.
+diff --git a/tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md b/tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md
+index 36d507cb..abdf3474 100644
+--- a/tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md
++++ b/tests/audit/fixtures/nfr_conv_9/zero_findings_baseline.md
+@@ -6,10 +6,9 @@
+ **Tier:** STANDARD
+ 
+ Companion to `one_low_finding.md`: same checklist surface, **zero
+-gaps of any severity**. Establishes that the test recognises a
+-genuine PASS path (PASS is reachable when no gap exists) so the
+-1-LOW failure mode cannot be confused with a checker-side false
+-positive.
++gaps (no CRITICAL, IMPORTANT or MINOR gap)**. Establishes that the
++test recognises the clean PASS path (no gap and no notes) alongside
++the 1-LOW PASS-with-notes path.
+ 
+ ## 10-Item Checklist Results
+ 
+@@ -32,14 +31,13 @@ None. All 10 checks PASS.
+ 
+ ## Verdict
+ 
+-- **PASS** — selected. All checks pass; no gaps of any severity
+-  per `src/superclaude/agents/rf-qa.md:144`. Green light for
+-  synthesis.
++- **PASS** — selected. All checks pass; no CRITICAL or IMPORTANT
++  gaps and no MINOR notes per the research-gate verdict in
++  `src/superclaude/agents/rf-qa.md`. Green light for synthesis.
+ - **FAIL** — rejected.
+ 
+ ## Self-documenting marker
+ 
+ `NFR-CONV.9 baseline` — this fixture EXPECTS PASS. It anchors the
+-positive arm of the zero-trust verdict rule and proves the
+-1-LOW-finding fixture's FAIL is not a side-effect of an over-eager
+-checker.
++zero-gap arm of the research-gate verdict rule, beside the 1-LOW
++PASS-with-notes fixture and the 1-IMPORTANT FAIL fixture.
+diff --git a/tests/audit/test_invariant_preservation_NFR_6_through_10.py b/tests/audit/test_invariant_preservation_NFR_6_through_10.py
+index 836525ae..76387e5c 100644
+--- a/tests/audit/test_invariant_preservation_NFR_6_through_10.py
++++ b/tests/audit/test_invariant_preservation_NFR_6_through_10.py
+@@ -48,7 +48,8 @@ Invariant → surface re-exercised:
+      ``src/superclaude/agents/rf-qa.md`` are byte-identical to the
+      frozen baseline (anchor: ``rf-qa.md:141-142`` pre-PR-03 /
+      ``:144-145`` post-PR-03; the test asserts the *bytes*, not the
+-     line numbers); a 1-LOW-finding fixture scores FAIL.
++     line numbers); a 1-LOW-finding fixture scores PASS (with notes)
++     under the review severity rule.
+      Detector source: ``test_nfr_conv_9_zero_trust.py``.
+ 
+   5. NFR-CONV.10 parallel-research — on one partition's escalation
+@@ -312,7 +313,7 @@ class TestInvariant3_PersistentArtifact:
+ # ---------------------------------------------------------------------------
+ # Invariant 4 — NFR-CONV.9 zero-trust QA.
+ # Re-exercise: PASS/FAIL bullet strings are byte-identical in rf-qa.md;
+-# 1-LOW-finding fixture scores FAIL.
++# 1-LOW-finding fixture scores PASS (MINOR gaps are notes).
+ # ---------------------------------------------------------------------------
+ 
+ 
+@@ -341,12 +342,12 @@ class TestInvariant4_ZeroTrustQA:
+                 f"{self.INVARIANT_LABEL}: severity label {label!r} missing"
+             )
+ 
+-    def test_one_low_finding_scores_fail(self):
++    def test_one_low_finding_scores_pass(self):
+         report = FIX_ONE_LOW.read_text(encoding="utf-8")
+         verdict = _score_rf_qa_verdict(report)
+-        assert verdict == "FAIL", (
+-            f"{self.INVARIANT_LABEL}: 1-LOW-finding fixture must score FAIL "
+-            f"per rf-qa.md:145; got {verdict}"
++        assert verdict == "PASS", (
++            f"{self.INVARIANT_LABEL}: 1-LOW-finding fixture must score PASS "
++            f"(MINOR gaps are notes under the review severity rule); got {verdict}"
+         )
+ 
+ 
+@@ -457,12 +458,12 @@ class TestCompositeAggregateVerdict:
+         v8 = "PASS" if all(n in live for n in CANONICAL_SUBDIRS) else "FAIL"
+         verdicts["NFR-CONV.8"] = v8
+ 
+-        # NFR-CONV.9 — PASS/FAIL bullets byte-identical + 1-LOW scores FAIL.
++        # NFR-CONV.9 — PASS/FAIL bullets byte-identical + 1-LOW scores PASS.
+         rf_qa_text = RF_QA_SRC.read_text(encoding="utf-8")
+         bullets_ok = PASS_BULLET in rf_qa_text and FAIL_BULLET in rf_qa_text
+         one_low = _score_rf_qa_verdict(FIX_ONE_LOW.read_text(encoding="utf-8"))
+         verdicts["NFR-CONV.9"] = (
+-            "PASS" if (bullets_ok and one_low == "FAIL") else "FAIL"
++            "PASS" if (bullets_ok and one_low == "PASS") else "FAIL"
+         )
+ 
+         # NFR-CONV.10 — concurrent accepts AND serialized rejects.
+diff --git a/tests/audit/test_nfr_conv_9_zero_trust.py b/tests/audit/test_nfr_conv_9_zero_trust.py
+index 7be92a9c..827b80d5 100644
+--- a/tests/audit/test_nfr_conv_9_zero_trust.py
++++ b/tests/audit/test_nfr_conv_9_zero_trust.py
+@@ -3,13 +3,14 @@
+ 
+ Two-part fixture per `phase-7-tasklist.md` lines 327-339:
+ 
+-1. **Part (a) — 1-LOW-finding fixture → gate FAILS.** A research
+-   completeness verification report with exactly one MINOR-severity gap
+-   MUST yield FAIL when scored against the verdict rule at
+-   ``src/superclaude/agents/rf-qa.md:144-145``. Per that rule "Any gaps
+-   exist (CRITICAL, IMPORTANT, or MINOR) … ALL gaps must be resolved
+-   before proceeding — no severity level is exempt." The PRD's "LOW" is
+-   the synonym used in the roadmap; the rf-qa source uses "MINOR".
++1. **Part (a) — 1-LOW-finding fixture → gate PASSES (with notes).** A
++   research completeness verification report with exactly one
++   MINOR-severity gap MUST yield PASS when scored against the research-gate
++   verdict rule in ``src/superclaude/agents/rf-qa.md``. Under the review
++   severity rule only CRITICAL or IMPORTANT gaps fail the gate; MINOR gaps
++   are listed as notes. A one-IMPORTANT-gap twin MUST yield FAIL. The
++   PRD's "LOW" is the synonym used in the roadmap; the rf-qa source uses
++   "MINOR".
+ 
+ 2. **Part (b) — FR-CONV.3 inherited-verdict applied → no VERIFIED
+    without independent semantic-check engagement.** Reuses the K-003
+@@ -25,9 +26,9 @@ Additionally enforces the invariant anchor cited in
+ strings carried by ``src/superclaude/agents/rf-qa.md`` are byte-equal
+ to the recorded baseline. The roadmap row was anchored at lines
+ 141-142 (pre-FR-CONV.* commit ``fd41178``); after PR-03 added three
+-lines earlier in the file the bullets sit at lines 144-145 in HEAD —
+-the *content* (the byte-string of each line) is byte-identical from
+-``fd41178`` through HEAD across all nine intervening commits.
++lines earlier in the file the bullets moved down. The review severity
++rule rewrote both bullets (MINOR gaps are notes; only CRITICAL or
++IMPORTANT gaps FAIL); the pinned strings below are the rewritten ones.
+ 
+ Closes the structural-annotations-byte-equal-across-2-runs check from
+ the NFR-CONV.2 acceptance row (`structural annotations within prose
+@@ -61,6 +62,7 @@ RF_QA_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa.md"
+ 
+ FIXTURE_DIR = REPO_ROOT / "tests" / "audit" / "fixtures" / "nfr_conv_9"
+ FIX_ONE_LOW = FIXTURE_DIR / "one_low_finding.md"
++FIX_ONE_IMPORTANT = FIXTURE_DIR / "one_important_finding.md"
+ FIX_ZERO_BASELINE = FIXTURE_DIR / "zero_findings_baseline.md"
+ FIX_INHERIT_NO_SEMANTIC = FIXTURE_DIR / "inherited_verdict_no_semantic.md"
+ FIX_INHERIT_WITH_SEMANTIC = FIXTURE_DIR / "inherited_verdict_with_semantic.md"
+@@ -76,21 +78,25 @@ NFR_CONV_2_DOC = REPO_ROOT / "docs" / "reference" / "nfr-conv-2-prose-determinis
+ # index.
+ # ---------------------------------------------------------------------------
+ PASS_BULLET = (
+-    "- **PASS** — All checks pass, no gaps of any severity. Green light for synthesis."
++    "- **PASS** — No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed "
++    "as notes. Green light for synthesis."
+ )
+ FAIL_BULLET = (
+-    "- **FAIL** — Any gaps exist (CRITICAL, IMPORTANT, or MINOR). "
+-    "List each gap with a specific remediation action. ALL gaps must "
+-    "be resolved before proceeding — no severity level is exempt."
++    "- **FAIL** — Any CRITICAL or IMPORTANT gap exists. List each with a "
++    "specific remediation action. All blocking gaps must be resolved before "
++    "proceeding; MINOR gaps never fail the gate."
+ )
+ 
+-# Roadmap anchor — the literal "(CRITICAL, IMPORTANT, or MINOR)" triple
+-# that defines the zero-trust QA invariant.
++# Roadmap anchor — the CRITICAL / IMPORTANT / MINOR scale the research-gate
++# verdict rule grades against.
+ SEVERITY_TRIPLE = ("CRITICAL", "IMPORTANT", "MINOR")
+ 
++# Blocking severities under the review severity rule: only these fail the gate.
++BLOCKING_SEVERITIES = frozenset({"CRITICAL", "IMPORTANT"})
++
+ 
+ # ---------------------------------------------------------------------------
+-# rf-qa verdict scorer — ports the rule body at rf-qa.md:144-145.
++# rf-qa verdict scorer — ports the research-gate Verdict bullets in rf-qa.md.
+ # ---------------------------------------------------------------------------
+ 
+ _SEVERITY_LINE_RE = re.compile(
+@@ -103,12 +109,13 @@ _SEVERITY_LINE_RE = re.compile(
+ def _score_rf_qa_verdict(report: str) -> str:
+     """Return 'PASS' or 'FAIL' for a research-completeness report.
+ 
+-    Implements the rule at ``rf-qa.md:144-145`` literally:
+-      - PASS: no gaps of any severity.
+-      - FAIL: any gap (CRITICAL, IMPORTANT, MINOR/LOW) present.
++    Implements the research-gate Verdict bullets in ``rf-qa.md``:
++      - PASS: no CRITICAL or IMPORTANT gap; MINOR/LOW gaps are notes.
++      - FAIL: any CRITICAL or IMPORTANT gap present.
+     """
+     for line in report.splitlines():
+-        if _SEVERITY_LINE_RE.match(line):
++        match = _SEVERITY_LINE_RE.match(line)
++        if match and match.group(2).upper() in BLOCKING_SEVERITIES:
+             return "FAIL"
+     return "PASS"
+ 
+@@ -122,6 +129,9 @@ class TestFixturesExist:
+     def test_one_low_finding_fixture_exists(self):
+         assert FIX_ONE_LOW.is_file(), f"missing {FIX_ONE_LOW}"
+ 
++    def test_one_important_finding_fixture_exists(self):
++        assert FIX_ONE_IMPORTANT.is_file(), f"missing {FIX_ONE_IMPORTANT}"
++
+     def test_zero_findings_baseline_fixture_exists(self):
+         assert FIX_ZERO_BASELINE.is_file(), f"missing {FIX_ZERO_BASELINE}"
+ 
+@@ -214,13 +224,14 @@ class TestPassFailBulletsByteIdentical:
+ 
+ 
+ # ---------------------------------------------------------------------------
+-# Part (a): 1-LOW-finding fixture → gate FAILS.
++# Part (a): 1-LOW-finding fixture → gate PASSES (with notes);
++# 1-IMPORTANT-finding fixture → gate FAILS.
+ # ---------------------------------------------------------------------------
+ 
+ 
+-class TestPartA_OneLowFindingFailsGate:
+-    """1-LOW (MINOR) finding fixture FAILS the rf-qa research-completeness
+-    gate per rf-qa.md:145."""
++class TestPartA_OneLowFindingPassesGateWithNotes:
++    """1-LOW (MINOR) finding fixture PASSES the rf-qa research-completeness
++    gate with the MINOR gap recorded as a note (review severity rule)."""
+ 
+     @pytest.fixture
+     def report(self) -> str:
+@@ -239,24 +250,59 @@ class TestPartA_OneLowFindingFailsGate:
+             "the NFR-CONV.9 spec line 304 of phase-7-tasklist.md"
+         )
+ 
+-    def test_gate_returns_fail(self, report: str):
++    def test_gate_returns_pass(self, report: str):
+         verdict = _score_rf_qa_verdict(report)
+-        assert verdict == "FAIL", (
+-            f"zero-trust QA invariant violated: 1-LOW-finding fixture scored "
+-            f"{verdict}; rf-qa.md:145 mandates FAIL for any severity (MINOR included)."
++        assert verdict == "PASS", (
++            f"review severity rule violated: 1-LOW-finding fixture scored "
++            f"{verdict}; rf-qa.md's research-gate verdict lists MINOR gaps as "
++            "notes and fails only on CRITICAL or IMPORTANT gaps."
+         )
+ 
+     def test_fixture_is_self_documenting(self, report: str):
+         assert "NFR-CONV.9 part (a)" in report, (
+             "fixture lost its self-documenting marker — future maintainers "
+-            "could 'fix' the FAIL and silently regress the invariant."
++            "could turn the MINOR note into a FAIL and silently regress the "
++            "review severity rule."
++        )
++
++
++class TestPartA_OneImportantFindingFailsGate:
++    """1-IMPORTANT finding fixture FAILS the rf-qa research-completeness
++    gate: IMPORTANT is a blocking severity."""
++
++    @pytest.fixture
++    def report(self) -> str:
++        return FIX_ONE_IMPORTANT.read_text(encoding="utf-8")
++
++    def test_fixture_contains_one_important_gap(self, report: str):
++        gap_rows = [
++            line for line in report.splitlines() if _SEVERITY_LINE_RE.match(line)
++        ]
++        assert len(gap_rows) == 1, (
++            f"one-IMPORTANT fixture must carry exactly 1 gap; found "
++            f"{len(gap_rows)} rows matching the severity regex."
++        )
++        assert "IMPORTANT" in gap_rows[0].upper(), (
++            "the single gap must be classified IMPORTANT"
++        )
++
++    def test_gate_returns_fail(self, report: str):
++        verdict = _score_rf_qa_verdict(report)
++        assert verdict == "FAIL", (
++            f"review severity rule violated: 1-IMPORTANT-finding fixture scored "
++            f"{verdict}; an IMPORTANT gap is blocking and must FAIL the gate."
++        )
++
++    def test_fixture_is_self_documenting(self, report: str):
++        assert "NFR-CONV.9 part (a) blocking twin" in report, (
++            "fixture lost its self-documenting marker"
+         )
+ 
+ 
+ class TestPartA_ZeroFindingsBaselinePasses:
+     """Baseline twin: the same checklist surface with zero gaps PASSES
+-    the gate. Anchors the positive arm so the FAIL above isn't a
+-    checker-side false positive."""
++    the gate. Anchors the zero-gap arm alongside the MINOR-note PASS and
++    the IMPORTANT FAIL above."""
+ 
+     @pytest.fixture
+     def report(self) -> str:
+@@ -274,8 +320,7 @@ class TestPartA_ZeroFindingsBaselinePasses:
+         verdict = _score_rf_qa_verdict(report)
+         assert verdict == "PASS", (
+             f"baseline 0-gap fixture must PASS; scorer returned {verdict}. "
+-            "If this fails, the 1-LOW FAIL is meaningless — investigate the "
+-            "scorer regex before touching the fixtures."
++            "Investigate the scorer regex before touching the fixtures."
+         )
+ 
+ 
+@@ -404,6 +449,7 @@ class TestStructuralAnnotationsByteEqualAcrossRuns:
+         "fixture_path",
+         [
+             FIX_ONE_LOW,
++            FIX_ONE_IMPORTANT,
+             FIX_ZERO_BASELINE,
+             FIX_INHERIT_NO_SEMANTIC,
+             FIX_INHERIT_WITH_SEMANTIC,
+@@ -429,7 +475,7 @@ class TestStructuralAnnotationsByteEqualAcrossRuns:
+         verdict_b = _score_rf_qa_verdict(report_v2)
+         bullets_a = (PASS_BULLET in report_v1, FAIL_BULLET in report_v1)
+         bullets_b = (PASS_BULLET in report_v2, FAIL_BULLET in report_v2)
+-        assert verdict_a == verdict_b == "FAIL"
++        assert verdict_a == verdict_b == "PASS"
+         assert bullets_a == bullets_b
+ 
+ 

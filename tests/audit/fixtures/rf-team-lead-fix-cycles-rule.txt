@@ -1,1 +1,1 @@
-- **Fix Cycles**: If a phase pipeline returns issues, invoke another pipeline with a FIX request (max 3 cycles per phase). If max cycles exhausted, HALT and ask user — do NOT proceed with unresolved findings.
+- **Fix Cycles**: If a phase pipeline returns blocking findings, invoke another pipeline with a FIX request (minor findings are recorded as notes), max 2 cycles per phase. If max cycles exhausted, HALT and ask user with the open blocking findings — do NOT proceed with unresolved blocking findings.

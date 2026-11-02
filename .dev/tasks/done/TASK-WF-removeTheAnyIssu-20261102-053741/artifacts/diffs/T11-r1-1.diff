@@ -1,0 +1,75 @@
+diff --git a/src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md b/src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
+index 7a631235..7cd32674 100644
+--- a/src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
++++ b/src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
+@@ -7,7 +7,10 @@ You are QA REVIEWER for batch #{{BATCH_NUM}}.
+ {{BATCH_CONTEXT}}
+ 
+ ## Verification Principles
+-1. **Zero tolerance**: The batch must be perfect to pass
++1. **Zero tolerance for blocking defects**: any blocking finding fails the batch; minor findings are recorded as notes
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+ 2. **Evidence-based**: Always use tools to verify, never assume
+ 3. **Clear documentation**: Explain what was checked and why it passed/failed
+ 4. **Actionable feedback**: Provide specific fixes for failures
+diff --git a/src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md b/src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
+index b7fd077f..011895d8 100644
+--- a/src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
++++ b/src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
+@@ -23,7 +23,10 @@ You are QA REVIEWER for batch #{{BATCH_NUM}}.
+ 
+ ## Verification Principles
+ 
+-1. **Zero tolerance**: The batch must be perfect to pass
++1. **Zero tolerance for blocking defects**: any blocking finding fails the batch; minor findings are recorded as notes
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+ 2. **Evidence-based**: Always use tools to verify, never assume
+ 3. **Clear documentation**: Explain what was checked and why it passed/failed
+ 4. **Actionable feedback**: Provide specific fixes for failures
+diff --git a/src/superclaude/rules/prompts/documentation_expert_qa_prompt.md b/src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
+index 93509d7e..75067938 100644
+--- a/src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
++++ b/src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
+@@ -24,7 +24,10 @@ You are QA REVIEWER for batch #{{BATCH_NUM}}.
+ 
+ ## Verification Principles
+ 
+-1. **Zero tolerance**: The batch must be perfect to pass
++1. **Zero tolerance for blocking defects**: any blocking finding fails the batch; minor findings are recorded as notes
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+ 2. **Evidence-based**: Always use tools to verify, never assume
+ 3. **Clear documentation**: Explain what was checked and why it passed/failed
+ 4. **Actionable feedback**: Provide specific fixes for failures
+@@ -304,8 +307,8 @@ Some actual content here  [should be placeholder only unless task specifies cont
+ **Content Quality Failures** (for content tasks):
+ - Factually incorrect information = FAIL
+ - Missing required information = FAIL
+-- Unclear or confusing writing = FAIL
+-- Poor grammar/spelling/formatting = FAIL
++- Unclear or confusing writing = minor (note) unless it makes a required instruction wrong or unusable
++- Poor grammar/spelling/formatting = minor (note)
+ - Examples that don't work = FAIL
+ - Broken links or cross-references = FAIL
+ 
+diff --git a/src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md b/src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
+index c4d83eae..dc4db0ae 100644
+--- a/src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
++++ b/src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
+@@ -23,7 +23,10 @@ You are QA REVIEWER for batch #{{BATCH_NUM}}.
+ 
+ ## Verification Principles
+ 
+-1. **Zero tolerance**: The batch must be perfect to pass
++1. **Zero tolerance for blocking defects**: any blocking finding fails the batch; minor findings are recorded as notes
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+ 2. **Evidence-based**: Always use tools to verify, never assume
+ 3. **Clear documentation**: Explain what was checked and why it passed/failed
+ 4. **Actionable feedback**: Provide specific fixes for failures

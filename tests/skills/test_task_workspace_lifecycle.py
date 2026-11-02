@@ -581,7 +581,9 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
     assert (
         "Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair "
         "re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, "
-        "`refs/qa.md`), and at most 6 adviser spawns "
+        "`refs/qa.md`; the repair count stays 2 with one repair per attempt, "
+        "because repairs are still capped at 1 per attempt and 2 per task, so two "
+        "attempts can each spend one), and at most 6 adviser spawns "
         "(2 at escalation 1, 2 at escalation 2, plus 2 critiques)."
     ) in r
     # model ladder: both ladder sentences and the four fallback rows, exactly

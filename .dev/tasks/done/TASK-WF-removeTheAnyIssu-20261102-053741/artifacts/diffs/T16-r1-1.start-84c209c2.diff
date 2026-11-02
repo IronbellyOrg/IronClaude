@@ -1,0 +1,185 @@
+diff --git a/src/superclaude/cli/cli_portify/commands.py b/src/superclaude/cli/cli_portify/commands.py
+index f1c96cef..03dd818a 100644
+--- a/src/superclaude/cli/cli_portify/commands.py
++++ b/src/superclaude/cli/cli_portify/commands.py
+@@ -97,8 +97,12 @@ def cli_portify_group():
+ @click.option(
+     "--max-convergence",
+     type=int,
+-    default=3,
+-    help="Maximum convergence iterations for panel-review (default: 3)",
++    default=1,
++    help=(
++        "Maximum convergence iterations for panel-review "
++        "(default: 1; follows the 2-fix-cycle cap). "
++        "You may raise it to allow more iterations."
++    ),
+ )
+ @click.option(
+     "--debug",
+diff --git a/src/superclaude/cli/cli_portify/config.py b/src/superclaude/cli/cli_portify/config.py
+index 7586e459..260ba38e 100644
+--- a/src/superclaude/cli/cli_portify/config.py
++++ b/src/superclaude/cli/cli_portify/config.py
+@@ -50,7 +50,7 @@ def load_portify_config(
+     model: str = "",
+     stall_timeout: int = 300,
+     skip_review: bool = False,
+-    max_convergence: int = 3,
++    max_convergence: int = 1,
+     iteration_timeout: int = 300,
+ ) -> PortifyConfig:
+     """Construct a PortifyConfig from CLI arguments.
+diff --git a/src/superclaude/cli/cli_portify/convergence.py b/src/superclaude/cli/cli_portify/convergence.py
+index 1f2ee9b8..eccf8f35 100644
+--- a/src/superclaude/cli/cli_portify/convergence.py
++++ b/src/superclaude/cli/cli_portify/convergence.py
+@@ -146,8 +146,8 @@ class ConvergenceEngine:
+ 
+     Usage::
+ 
+-        engine = ConvergenceEngine(max_iterations=3)
+-        for i in range(1, 4):
++        engine = ConvergenceEngine(max_iterations=1)
++        for i in range(1, 2):
+             result = IterationResult(iteration=i, unaddressed_criticals=count)
+             state = engine.submit(result)
+             if engine.is_done:
+@@ -162,7 +162,7 @@ class ConvergenceEngine:
+ 
+     def __init__(
+         self,
+-        max_iterations: int = 3,
++        max_iterations: int = 1,
+         budget_guard: Optional[SimpleBudgetGuard] = None,
+     ) -> None:
+         self._max_iterations = max_iterations
+diff --git a/src/superclaude/cli/cli_portify/models.py b/src/superclaude/cli/cli_portify/models.py
+index 02ed1761..b837957d 100644
+--- a/src/superclaude/cli/cli_portify/models.py
++++ b/src/superclaude/cli/cli_portify/models.py
+@@ -580,7 +580,7 @@ class PortifyConfig:
+     model: str = ""
+     stall_timeout: int = 300
+     skip_review: bool = False
+-    max_convergence: int = 3
++    max_convergence: int = 1
+     iteration_timeout: int = 300
+     resume_from: str = ""
+     gate_mode: str = "shadow"
+diff --git a/src/superclaude/cli/cli_portify/prompts.py b/src/superclaude/cli/cli_portify/prompts.py
+index b7cf0dde..7a3bf303 100644
+--- a/src/superclaude/cli/cli_portify/prompts.py
++++ b/src/superclaude/cli/cli_portify/prompts.py
+@@ -65,7 +65,7 @@ class PromptContext:
+     cli_name: str
+     source_skill: str
+     iteration: int = 1
+-    max_convergence: int = 3
++    max_convergence: int = 1
+     component_count: int = 0
+     pipeline_steps: int = 0
+     prior_findings: list[str] = field(default_factory=list)
+diff --git a/src/superclaude/cli/cli_portify/resume.py b/src/superclaude/cli/cli_portify/resume.py
+index 6d3d37db..80310db4 100644
+--- a/src/superclaude/cli/cli_portify/resume.py
++++ b/src/superclaude/cli/cli_portify/resume.py
+@@ -133,7 +133,7 @@ def get_preserved_context(step_name: str) -> tuple[str, ...]:
+ 
+ def suggest_budget(
+     step_name: str,
+-    max_convergence: int = 3,
++    max_convergence: int = 1,
+ ) -> Optional[int]:
+     """Return suggested turn budget for resuming at step_name.
+ 
+diff --git a/src/superclaude/cli/cli_portify/steps/panel_review.py b/src/superclaude/cli/cli_portify/steps/panel_review.py
+index 8fe9ff7f..872b2900 100644
+--- a/src/superclaude/cli/cli_portify/steps/panel_review.py
++++ b/src/superclaude/cli/cli_portify/steps/panel_review.py
+@@ -349,7 +349,7 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
+     unaddressed = count_unaddressed_criticals(output_text)
+ 
+     # --- Run convergence engine (internal loop, not outer retry) ---
+-    engine = ConvergenceEngine(max_iterations=3)
++    engine = ConvergenceEngine(max_iterations=1)
+     engine.submit(
+         IterationResult(
+             iteration=1,
+diff --git a/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md b/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+index 7c2442c9..8e6f72e7 100644
+--- a/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+@@ -352,7 +352,7 @@ Steps 4a through 4d execute within a bounded convergence loop using state machin
+ - `INCORPORATING` — Executing incorporation (4b or 4d)
+ - `SCORING` — Evaluating convergence after scoring (4d)
+ - `CONVERGED` — Terminal state: zero unaddressed CRITICALs, `status: success`
+-- `ESCALATED` — Terminal state: 3 iterations exhausted, `status: partial`
++- `ESCALATED` — Terminal state: 1 iteration exhausted, `status: partial`
+ 
+ **Transitions**:
+ 
+@@ -360,18 +360,18 @@ Steps 4a through 4d execute within a bounded convergence loop using state machin
+ REVIEWING → INCORPORATING (findings produced)
+ INCORPORATING → SCORING (incorporation complete, scores computed)
+ SCORING → CONVERGED (zero unaddressed CRITICALs remaining)
+-SCORING → REVIEWING (unaddressed CRITICALs remain, iteration < 3)
+-SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= 3)
++SCORING → REVIEWING (unaddressed CRITICALs remain, iteration < max_iterations)
++SCORING → ESCALATED (unaddressed CRITICALs remain, iteration >= max_iterations)
+ ```
+ 
+-**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 3` (SC-008).
++**Iteration counter**: Initialize `iteration = 1` before first pass. Increment after each SCORING → REVIEWING transition. Hard cap: `max_iterations = 1` (one iteration = 3 reviews + 2 fix passes, the 2-fix-cycle cap) (SC-008).
+ 
+ **Convergence predicate**: After SCORING, check if any findings with `severity: CRITICAL` have status other than `[INCORPORATED]` or `[DISMISSED]`. If zero unaddressed CRITICALs → transition to CONVERGED. Otherwise → check iteration counter.
+ 
+ **Terminal states**:
+ 
+ - **CONVERGED**: `status: success` — all CRITICALs addressed, spec is review-complete
+-- **ESCALATED**: `status: partial` — 3 iterations exhausted with unaddressed CRITICALs remaining. Escalate to user with: remaining CRITICAL findings, iteration history, and recommendation for manual resolution.
++- **ESCALATED**: `status: partial` — 1 iteration exhausted with unaddressed CRITICALs remaining. Escalate to user with: remaining CRITICAL findings, iteration history, and recommendation for manual resolution.
+ 
+ #### Downstream Ready Gate
+ 
+@@ -531,7 +531,7 @@ The `failure_type` field uses the following enumeration to classify failures:
+ | `brainstorm_timeout` | Brainstorm pass exceeded time budget | Yes | `3c` |
+ | `focus_failed` | Spec panel focus pass failed to produce findings | Yes | `4a` |
+ | `critique_failed` | Spec panel critique pass failed to produce scores | Yes | `4a` |
+-| `convergence_exhausted` | Maximum convergence iterations (3) reached with unresolved CRITICALs | No | — |
++| `convergence_exhausted` | Maximum convergence iterations (1) reached with unresolved CRITICALs | No | — |
+ | `user_rejected` | User rejected spec at an approval gate | No | — |
+ | `prerequisite_failed` | Phase entry gate condition not met | No | — |
+ 
+diff --git a/src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml b/src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
+index f2c9515b..44b17213 100644
+--- a/src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
++++ b/src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml
+@@ -118,6 +118,6 @@ decisions:
+   ADR-SM01:
+     title: "State machine convergence model"
+     blocking: false
+-    resolution: "Phase 4 convergence loop uses state machine terminology: REVIEWING → INCORPORATING → SCORING → CONVERGED|ESCALATED. Max 3 iterations. Implemented as bounded conditional loop in SKILL.md, documented with state machine semantics for edge-case reasoning."
++    resolution: "Phase 4 convergence loop uses state machine terminology: REVIEWING → INCORPORATING → SCORING → CONVERGED|ESCALATED. Max 1 iteration (3 reviews, 2 fix passes). Implemented as bounded conditional loop in SKILL.md, documented with state machine semantics for edge-case reasoning."
+     evidence: "spec-cli-portify-workflow-evolution.md §FR-060.2; SKILL.md §Convergence Loop; debate D-03 synthesis; roadmap.md line 125"
+-    impact: "Provides formal semantics for loop behavior; CONVERGED = all CRITICALs addressed, ESCALATED = 3 iterations exhausted with unaddressed CRITICALs"
++    impact: "Provides formal semantics for loop behavior; CONVERGED = all CRITICALs addressed, ESCALATED = 1 iteration exhausted with unaddressed CRITICALs"
+diff --git a/tests/cli_portify/test_convergence.py b/tests/cli_portify/test_convergence.py
+index 6dcb76c4..60a35afb 100644
+--- a/tests/cli_portify/test_convergence.py
++++ b/tests/cli_portify/test_convergence.py
+@@ -75,13 +75,9 @@ class TestEscalationPath:
+         assert final.is_escalated
+         assert final.escalation_reason == EscalationReason.MAX_ITERATIONS
+ 
+-    def test_default_max_iterations_is_3(self):
++    def test_default_max_iterations_is_1(self):
+         engine = ConvergenceEngine()
+         engine.submit(IterationResult(iteration=1, unaddressed_criticals=5))
+-        assert not engine.is_done
+-        engine.submit(IterationResult(iteration=2, unaddressed_criticals=3))
+-        assert not engine.is_done
+-        engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))
+         assert engine.is_done
+         assert engine.state == ConvergenceState.ESCALATED
+ 

@@ -6,10 +6,9 @@
 **Tier:** STANDARD
 
 Companion to `one_low_finding.md`: same checklist surface, **zero
-gaps of any severity**. Establishes that the test recognises a
-genuine PASS path (PASS is reachable when no gap exists) so the
-1-LOW failure mode cannot be confused with a checker-side false
-positive.
+gaps (no CRITICAL, IMPORTANT or MINOR gap)**. Establishes that the
+test recognises the clean PASS path (no gap and no notes) alongside
+the 1-LOW PASS-with-notes path.
 
 ## 10-Item Checklist Results
 
@@ -32,14 +31,13 @@ None. All 10 checks PASS.
 
 ## Verdict
 
-- **PASS** — selected. All checks pass; no gaps of any severity
-  per `src/superclaude/agents/rf-qa.md:144`. Green light for
-  synthesis.
+- **PASS** — selected. All checks pass; no CRITICAL or IMPORTANT
+  gaps and no MINOR notes per the research-gate verdict in
+  `src/superclaude/agents/rf-qa.md`. Green light for synthesis.
 - **FAIL** — rejected.
 
 ## Self-documenting marker
 
 `NFR-CONV.9 baseline` — this fixture EXPECTS PASS. It anchors the
-positive arm of the zero-trust verdict rule and proves the
-1-LOW-finding fixture's FAIL is not a side-effect of an over-eager
-checker.
+zero-gap arm of the research-gate verdict rule, beside the 1-LOW
+PASS-with-notes fixture and the 1-IMPORTANT FAIL fixture.

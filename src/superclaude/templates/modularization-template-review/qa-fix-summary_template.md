@@ -93,7 +93,7 @@ WRITING DISCIPLINE:
 
 <!-- Disposition enum: fixed | deferred | not-reproduced | out-of-scope -->
 
-Fix cycle: {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+Fix cycle: {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Residual / Unfixed Rollup
 
@@ -102,5 +102,5 @@ Fix cycle: {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
 | {{RF_PLACEHOLDER:RESIDUAL_FINDING_ID}} | {{RF_PLACEHOLDER:RESIDUAL_SEVERITY}} | {{RF_PLACEHOLDER:RESIDUAL_REASON}} | {{RF_PLACEHOLDER:RESIDUAL_ESCALATION_STATUS}} |
 {{RF_PLACEHOLDER:RESIDUAL_ROLLUP_ROW}}
 
-<!-- Feeds the max-3-cycle escalation: if a finding remains unfixed at Fix cycle 3/3,
+<!-- Feeds the max-2-cycle escalation: if a finding remains unfixed at Fix cycle 2/2,
 escalation_status MUST read "escalate to user" per the Serialized Fix Protocol. -->

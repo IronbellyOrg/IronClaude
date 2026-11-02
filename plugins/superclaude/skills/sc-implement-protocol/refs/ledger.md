@@ -140,7 +140,7 @@ Trust ledger + git history after compaction. Do not ask the user to paste prior 
 
 Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`. Before any row except Row 1 runs for a task with a tree `start`, every `r<k>-<j>` ref of the task is re-pinned from its recorded tree (review header or repair `applied tree=` line, `refs/qa.md`), so Rows V, S, H, B and X re-pin as well.
 
-Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
+Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean no repair is spent.
 
 Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
 
@@ -154,11 +154,11 @@ First match wins; the row order is part of the rule:
 | R | An eligible Ruling with no `complete` after it | Append the post-ruling `complete` with the latest `blocked` line's verdict unchanged (Post-ruling complete line), with no review, then row 1. |
 | P | Latest verdict is `blocked`, and the task has no `retry` and no `halt` record | One fresh operator review of the tree as it stands, nothing reverted. `compliant` → `complete`. Otherwise append `blocked` and `halt review=2 reason=operator-review` → STOP `E-HALT-QA`. |
 | H | A `halt` record exists | If the last record is a `blocked` after the latest `halt`, append `halt review=<k> reason=<r>` with r = `operator-review` → STOP. Otherwise one fresh operator review of the tree as it stands: `compliant` → `complete`; else `blocked`, then `halt review=<k> reason=<r>` with r = `operator-review` → STOP `E-HALT-QA`. |
-| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
+| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
 | X | Last record is `retry n=<n> step=revert` | Run `sc_retry_revert` directly: its ledger binding and guards (tail, tree, HEAD, evidence) are the re-check, and exit 2 maps to the halt after any move-back or keep of failed-attempt artifacts (`refs/retry.md`, The revert). Otherwise the revert re-runs (idempotent: fresh `now`, create-only sweep), then procedure step 7. |
 | O | Last record is `retry n=<n> step=open` | Re-check the ladder conditions (`refs/retry.md`, When the ladder runs), re-pin the checkpoint ref to the recorded sha and every `r<k>-<j>` ref from its recorded tree, then continue at procedure step 2. n = 3, 4: advisers re-spawned (procedure step 4). n = 5: escalation 3 runs again (no adviser; `T<id>_brief-5.md` rewritten). |
 | B | Last record is a `blocked` line and the task has a `retry` record | k from the k rule (here the n of the latest `retry`, because this `blocked` follows its `step=review`). k = 5 → append `halt review=5 reason=ladder-end` → STOP. Otherwise continue at the ladder-condition checks for this k, then procedure step 1. |
-| S | Start line only | If a `repair-2-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
+| S | Start line only | If a `repair-2-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
 
 ## Examples (must match)
 

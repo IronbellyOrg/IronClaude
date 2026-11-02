@@ -1,0 +1,62 @@
+== grep (expect nothing)
+grep rc=1 (1 = no match)
+== retry.md anchors A3/A4/A5 rows
+11:| A3 | executor, following brief 3 from **two** advisers 
+12:| A4 | executor, following brief 4 from **two** advisers 
+13:| A5 | executor, following brief 5: the escalation-2 **ru
+14:| A5 fails | `blocked`, then `halt review=5 reason=ladder
+14:| A5 fails | `blocked`, then `halt review=5 reason=ladder-end`; HALT `E-HALT-
+158:- If A5 fails, procedure step 0 records its evidence and `blocked` line, the
+== ledger row V
+157:| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-1.md` for the current `start` exists, resume the r
+== cmp
+retry.md cmp silent
+qa.md cmp silent
+ledger.md cmp silent
+== full diff of edited refs (src)
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 3201bb9e..071319d5 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -143 +143 @@ Definitions, over the task's records after its latest `start`: "Last record" = t
+-Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
++Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean no repair is spent.
+@@ -157 +157 @@ First match wins; the row order is part of the rule:
+-| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
++| V | Last record is `retry n=<n> step=review` | If a `repair-<n>-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Otherwise: Re-run only the review of attempt n (fresh reviewer). `compliant` → Q6-Q8; otherwise the Repair round decides as an uninterrupted run would, then procedure step 0 with k = n. |
+@@ -161 +161 @@ First match wins; the row order is part of the rule:
+-| S | Start line only | If a `repair-2-<j>.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
++| S | Start line only | If a `repair-2-1.md` for the current `start` exists, resume the repair (`refs/retry.md`, Repair round). Else A1, as today. |
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index c15662d5..4496f6c9 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -267 +267 @@ T<id>: Ruling: <what, including user confirmation provenance> — <why> — <cos
+-| A2 with repairs 1 and 2 | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
++| A2 with its one repair | `blocking` only | `blocking` only | `blocking` only | only inside lines already changed for a blocker |
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/retry.md b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 4b961945..25a95daf 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -141,2 +141,2 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+-5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is 1, or 2 only for the second A2 repair.
+-6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A second A2 repair is allowed when the first did not fail (Convergence), every new blocker is `late`, the set passes the predicate, and the 2-per-task cap is not spent.
++5. **Valid names.** k is 2 to 5 (an A1 failure goes to the Q5 fix pass, never to a repair); j is always 1, because an attempt gets at most one repair.
++6. **A2 timing.** An A2 repair runs after the A2 review and before procedure step 0, with no `blocked` line first, so Resume row P stays unreachable. A2 gets one repair at most.
+@@ -147,3 +147,3 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+-11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no further repair in that attempt and no new halt reason. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
+-12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take the highest j of `repair-<n>-<j>.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for n = 2 the second-repair conditions, else procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
+-13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair failed.
++11. **Convergence.** Progress is counted in distinct open blocking families (`family=`). An in-place fix (the A2 fix pass or a repair) has failed when any family it targeted is still `open` or `regressed`, or the next review has a `fix-induced` blocker. After a failed in-place fix the next step is the adviser route, with no new halt reason; no attempt gets a second repair (item 5), whether or not its repair failed. `late` and `new` blockers are not regressions. Regressions are listed first, verbatim, in the next fixer or adviser input. Minor, note and total finding counts are never read by any decision, and there is no count halt. A regression is a prior blocking finding the reviewer marks `regressed` (Finding origin and first-seen attempt, `refs/qa.md`); on a Q0-rebuilt tree (A3 to A5 after a revert) a prior finding marked `regressed` counts as `open`.
++12. **Resume a repair** (one rule for Resume rows S and V in `refs/ledger.md`). Take `repair-<n>-1.md` for the current `start`. If its last line is not `applied tree=…`, re-run that repair's fixer with the same finding lines (no new repair counted) and write the line. Run its re-review (fresh subagent). Then the Repair round continues exactly as an uninterrupted run would: for every n, procedure step 0 with k = n. A repair is spent once its file exists; there is no `state=` field.
++13. **Advisers and revert** run only when a blocker is still open after A2 and the in-place fix failed, the set is non-local, or its repair's re-review still has a confirmed blocker.
+@@ -189 +189 @@ The adviser's effort is pinned by `effort:` in its agent file; do not rely on an
+-Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
++Cost per escalated task, counted rather than measured: escalation 1 adds 2 adviser spawns, one from each model family, escalation 2 adds 2, each of those two escalations adds at most 1 critique spawn (only when no answer passed), escalation 3 adds none, and every attempt gets one QA review as today. Worst case: 9 reviews instead of 2 (5 ladder reviews, at most 2 repair re-reviews and at most 2 inline-review re-runs, one each for A1 and A2, `refs/qa.md`; the repair count stays 2 with one repair per attempt, because repairs are still capped at 1 per attempt and 2 per task, so two attempts can each spend one), and at most 6 adviser spawns (2 at escalation 1, 2 at escalation 2, plus 2 critiques).
+@@ -193 +193 @@ Each review may also spawn one reviewer respawn (up to 18 reviewer spawns per ta
+-Repairs: at most 1 per attempt, except the second A2 repair (Repair round), and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
++Repairs: at most 1 per attempt and at most 2 per task, counted as `repair-<k>-<j>.md` files, so a resume gives the same answer. A repair writes no `step=open` record, so it does not spend a `RETRY_BUDGET` slot. Reverts: at most 3, and only on the adviser route; a repair never reverts.
+== diff lines mentioning FINAL or Subagent prompt
+0
+== R-008
+r008 rc=1 (1 = none)

@@ -92,7 +92,7 @@ WRITING DISCIPLINE:
 - **Topic:** {{RF_PLACEHOLDER:TOPIC}}
 - **Date:** {{RF_PLACEHOLDER:DATE}}
 - **Phase:** source-fidelity
-- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Sources Reviewed
 

@@ -127,19 +127,17 @@ def local(findings, probes):
     )
 
 
-def route(k, findings, probes, repairs, prior_failed=False, first_repair_ok=True):
-    """Outcome after a review of attempt k: complete / repair / adviser."""
+def route(k, findings, probes, repairs, prior_failed=False, attempt_repaired=False):
+    """Outcome after a review of attempt k: complete / repair / adviser.
+
+    repairs: repairs spent by the task; attempt_repaired: attempt k already spent
+    its one repair (option A: no second A2 repair).
+    """
     blk = blockers(findings)
     if not blk:
         return "complete"
     probe_only({f["family"] for f in blk}, probes)
-    second_a2 = (
-        k == 2
-        and repairs == 1
-        and first_repair_ok
-        and all(f["origin"] == "late" for f in blk)
-    )
-    cap_ok = repairs < 2 and (repairs == 0 or second_a2)
+    cap_ok = repairs < 2 and not attempt_repaired
     return (
         "repair"
         if not prior_failed and k >= 2 and cap_ok and local(findings, probes)
@@ -217,11 +215,11 @@ def test_r_a2_low_label_ignored_blocks_and_probe_before_locality_repairs():
     )  # V3 F-05
 
 
-def test_r_a3_late_blockers_local_second_a2_repair():
+def test_r_a3_late_blockers_after_a2_repair_take_adviser_route():
     assert sevs(R_A3) == ["blocking", "blocking", "note", "note"]
-    assert route(2, R_A3, {}, repairs=1) == "repair"
-    assert route(2, R_A3, {}, repairs=1, first_repair_ok=False) == "adviser"
-    assert route(2, R_A3, {}, repairs=2) == "adviser"
+    assert route(2, R_A3, {}, repairs=1, attempt_repaired=True) == "adviser"
+    assert route(3, R_A3, {}, repairs=1) == "repair"  # A3 still gets its one repair
+    assert route(3, R_A3, {}, repairs=2) == "adviser"  # 2-per-task cap spent
 
 
 def test_r_a4_passes_with_notes():
@@ -240,16 +238,21 @@ def test_r_a5_parent_caps_inherited_harm_and_computes_compliant():
 
 
 def test_t1_end_state_and_notes_chain():
-    reviews = [("r1-1", R_A1), ("r2-1", R_A2), ("r2-2", R_A3), ("r2-3", [])]
+    # Option A: the recorded T1 run's r2-2 (late, local blockers after repair 1)
+    # now takes the adviser route; no second A2 repair.
+    assert route(2, R_A2, {}, 0) == "repair"
+    assert route(2, R_A3, {}, 1, attempt_repaired=True) == "adviser"
+    # End state when repair 1's re-review (r2-2) passes.
+    reviews = [("r1-1", R_A1), ("r2-1", R_A2), ("r2-2", [])]
     probes, repairs, notes, ledger = {}, 0, [], ["T1: start sha=05644ca4"]
     for rid, fs in reviews[1:]:  # A1 failure goes to the Q5 fix pass, not a repair
         notes += [(rid, f) for f in fs if severity(f) != "blocking"]
-        r = route(2, fs, probes, repairs)
+        r = route(2, fs, probes, repairs, attempt_repaired=repairs > 0)
         if r == "repair":
             repairs += 1
     notes = [("r1-1", f) for f in R_A1 if severity(f) != "blocking"] + notes
-    assert r == "complete" and repairs == 2 and len(reviews) == 4
-    final_tree = {"readme", "a1-broad", "D3", "D4"}  # the A1 pipe text was fixed away
+    assert r == "complete" and repairs == 1 and len(reviews) == 3
+    final_tree = {"readme", "a1-broad"}  # the A1 pipe text was fixed away
     lines, m = notes_rewrite("05644ca4", notes, final_tree)
     ledger.append(
         f"T1: complete verdict={verdict(met_marks(ACS), [], ACS)} ac={','.join(ACS)} "
@@ -258,7 +261,7 @@ def test_t1_end_state_and_notes_chain():
     assert "verdict=compliant" in ledger[1] and len(ledger) == 2
     assert not any("revert" in x or "halt" in x or "Ruling:" in x for x in ledger)
     assert all(not x.startswith("superseded") for x in lines[1:m])
-    assert {x.split()[0] for x in lines[1:m]} == {"r1-1", "r2-2"}
+    assert {x.split()[0] for x in lines[1:m]} == {"r1-1"}
     assert all(x.startswith("superseded") for x in lines[m:])
 
 

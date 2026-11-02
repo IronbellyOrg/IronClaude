@@ -75,13 +75,9 @@ class TestEscalationPath:
         assert final.is_escalated
         assert final.escalation_reason == EscalationReason.MAX_ITERATIONS
 
-    def test_default_max_iterations_is_3(self):
+    def test_default_max_iterations_is_1(self):
         engine = ConvergenceEngine()
         engine.submit(IterationResult(iteration=1, unaddressed_criticals=5))
-        assert not engine.is_done
-        engine.submit(IterationResult(iteration=2, unaddressed_criticals=3))
-        assert not engine.is_done
-        engine.submit(IterationResult(iteration=3, unaddressed_criticals=1))
         assert engine.is_done
         assert engine.state == ConvergenceState.ESCALATED
 

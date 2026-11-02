@@ -580,7 +580,7 @@ class PortifyConfig:
     model: str = ""
     stall_timeout: int = 300
     skip_review: bool = False
-    max_convergence: int = 3
+    max_convergence: int = 1
     iteration_timeout: int = 300
     resume_from: str = ""
     gate_mode: str = "shadow"

@@ -1,0 +1,55 @@
+diff --git a/src/superclaude/templates/workflow/01_mdtm_template_generic_task.md b/src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+index 23abb5fa..fc0fa548 100644
+--- a/src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
++++ b/src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+@@ -640,7 +640,11 @@ I15. PHASE-GATE QA ENFORCEMENT
+    See M3 for the complete 8-step lens-based QA sequence, I19 for minimum agent counts, and I20 for serialized fix authorization protocol.
+ 
+ I16. QA GATE VERDICT AND FIX CYCLES
+-   QA agents produce binary verdicts: PASS or FAIL. Any issue of any severity (CRITICAL, IMPORTANT, or MINOR) results in FAIL.
++   QA agents produce binary verdicts: PASS or FAIL.
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
++   - On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
+ 
+    Fix cycle rules per gate type:
+ 
+@@ -652,7 +656,7 @@ I16. QA GATE VERDICT AND FIX CYCLES
+    | task-integrity | 2 | Unresolved issues become Open Questions |
+    | Any qualitative gate | 3 | HALT and escalate to user |
+ 
+-   Each fix cycle MUST re-verify ALL previously failed items plus check for new issues introduced by fixes. If the number of issues increases across cycles, flag this as a systemic problem.
++   Each fix cycle MUST re-verify every previously failed blocking item plus check for new blocking issues introduced by fixes; minor findings are not rechecked. If the number of issues increases across cycles, flag this as a systemic problem.
+ 
+    The orchestrator MUST encode fix cycle logic as conditional-action items or as explicit IF/ELSE instructions within the QA gate checklist item.
+ 
+diff --git a/src/superclaude/templates/workflow/02_mdtm_template_complex_task.md b/src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+index bf446e7f..1301361c 100644
+--- a/src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
++++ b/src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+@@ -651,9 +651,13 @@ I15. PHASE-GATE QA ENFORCEMENT
+    Every QA gate step — each lens agent spawn, the consolidation, the fix agent, each verification agent — MUST be encoded as individual `- [ ]` checklist items in the task file. No QA is implicit. No QA lives only in prose.
+ 
+ I16. QA GATE VERDICT AND FIX CYCLES
+-   QA agents produce binary verdicts: PASS or FAIL. Any issue of any severity (CRITICAL, IMPORTANT, or MINOR) results in FAIL.
++   QA agents produce binary verdicts: PASS or FAIL.
++   - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++   - Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++   - A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
++   - On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
+ 
+-   **Multi-Agent Verdict Consolidation:** When multiple lens agents evaluate the same document (see M3), their individual reports are consolidated into a single findings list. The consolidated verdict is FAIL if ANY individual agent's report contains ANY issue of any severity. The consolidated findings file lists all issues from all agents, deduplicated, with the originating lens agent identified for each issue.
++   **Multi-Agent Verdict Consolidation:** When multiple lens agents evaluate the same document (see M3), their individual reports are consolidated into a single findings list. The consolidated verdict is FAIL if any individual agent's report contains a blocking issue; minor issues from every agent are carried into the consolidated file as notes. The consolidated findings file lists all issues from all agents, deduplicated, with the originating lens agent identified for each issue.
+ 
+    Fix cycle rules per gate type:
+ 
+@@ -668,7 +672,7 @@ I16. QA GATE VERDICT AND FIX CYCLES
+ 
+    **Serialized Fix Protocol (MANDATORY):** Fix cycles MUST follow the serialized fix authorization protocol defined in I20. Parallel fix authorization (multiple agents editing the same file concurrently) is PROHIBITED. The cycle is: (1) all lens agents report findings with `fix_authorization: false`, (2) findings are consolidated, (3) ONE fix agent applies ALL fixes with `fix_authorization: true`, (4) a verification round (minimum 2 agents) confirms fixes were applied correctly. Only if verification fails does the cycle repeat (back to step 2 -- the consolidation phase).
+ 
+-   Each fix cycle MUST re-verify ALL previously failed items plus check for new issues introduced by fixes. If the number of issues increases across cycles, flag this as a systemic problem.
++   Each fix cycle MUST re-verify every previously failed blocking item plus check for new blocking issues introduced by fixes; minor findings are not rechecked. If the number of issues increases across cycles, flag this as a systemic problem.
+ 
+    The orchestrator MUST encode fix cycle logic as conditional-action items (L5 pattern) or as explicit IF/ELSE instructions within the QA gate checklist item. Every step of the fix cycle (consolidation, fix agent spawn, verification spawn) MUST be an explicit `- [ ]` checklist item.
+ 
