@@ -1085,12 +1085,24 @@ load_worktrees() {
 }
 
 session_place() {
-  # <folder a session belongs to> -> "here" (this worktree), "gone" (the
-  # folder no longer exists: its worktree was removed) or "other" (another
-  # worktree or copy of the repo that still exists). Needs load_worktrees.
-  local real w best=""
+  # <folder a session belongs to> -> "here" (this worktree), "gone" (its
+  # worktree was removed) or "other" (another worktree or copy of the repo
+  # that still exists). Needs load_worktrees.
+  local real w best="" missing="" base
   [ -n "$1" ] || { echo here; return; }  # unknown: the old behaviour
-  real=$(cd "$1" 2>/dev/null && pwd -P) || { echo gone; return; }
+  if ! real=$(cd "$1" 2>/dev/null && pwd -P); then
+    # The folder is gone. Resolve its nearest existing parent: a deleted
+    # folder of a live worktree still belongs to that worktree.
+    case "$1" in /*) ;; *) echo gone; return ;; esac
+    base=$1
+    while [ ! -d "$base" ]; do
+      missing="/${base##*/}$missing"
+      base=${base%/*}
+      [ -n "$base" ] || base=/
+    done
+    real=$(cd "$base" 2>/dev/null && pwd -P) || { echo gone; return; }
+    real="${real%/}$missing"
+  fi
   # The worktree holding the folder is the longest worktree path above it
   # (worktrees can sit inside the main checkout, e.g. .dev/worktrees/<name>).
   while IFS= read -r w; do
@@ -1099,6 +1111,15 @@ session_place() {
       "$w"/*) [ "${#w}" -gt "${#best}" ] && best=$w ;;
     esac
   done <<< "$WT_ALL"
+  if [ -n "$missing" ]; then
+    # Outside every live worktree, or in a folder the enclosing worktree
+    # ignores (where worktrees are kept, e.g. .dev/worktrees/<name>): the
+    # session's own worktree was removed.
+    [ -n "$best" ] || { echo gone; return; }
+    if git_here -C "$best" check-ignore -q -- "${real#"$best"/}" 2>/dev/null; then
+      echo gone; return
+    fi
+  fi
   if [ -z "$best" ]; then  # not a worktree of this repo (or not a repo)
     case "$real/" in
       "$WT_HERE"/*) best=$WT_HERE ;;

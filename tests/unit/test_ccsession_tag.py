@@ -3035,3 +3035,34 @@ def test_worktree_list_ignores_git_variables_from_the_caller(tmp_path: Path) -> 
     env.update({"GIT_DIR": str(main / ".git"), "GIT_WORK_TREE": str(main)})
     assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
     assert "WARNING" in _ccs(b, env, "main work").stderr
+
+
+def test_a_deleted_folder_of_a_live_worktree_stays_with_that_worktree(
+    tmp_path: Path,
+) -> None:
+    # Deleting the folder a session started in does not remove its worktree:
+    # the session is still main's, not an orphan shown everywhere.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / "sub").rmdir()
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "main sub" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "main sub").stderr
+
+
+def test_a_removed_worktree_inside_an_ignored_folder_is_still_removed(
+    tmp_path: Path,
+) -> None:
+    # A worktree under the main checkout (e.g. .dev/worktrees/<name>, which is
+    # gitignored) leaves only its ignored parent behind when removed.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text(".dev/worktrees/\n")
+    nested = main / ".dev" / "worktrees" / "gone"
+    _git(main, "worktree", "add", "-q", "-b", "nested", str(nested))
+    projects = tmp_path / "home" / ".claude" / "projects"
+    session = "55550000-0000-0000-0000-000000000000"
+    _transcript(projects, nested, session)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / "nested work.txt").write_text(f"{session}\n")
+    _git(main, "worktree", "remove", str(nested))
+    assert "nested work" in _listed(b, env, "--here")
+    assert "WARNING" not in _ccs(b, env, "nested work").stderr
