@@ -20,6 +20,14 @@ User decision (release blocker for 5.0.0; evidence: the QA-loop investigation `F
 
 - `tests/skills/test_review_severity_rule.py` fails CI if any wording of the old rule, a fix-cycle cap above 2, an Open Questions at-cap rule, or a fix loop that sends minor findings to a fix pass comes back, and checks the S1-S5 rules against `pragmatic.md`.
 
+### GitHub issue body files and a CLAUDE.md rule line
+
+#### Added (issue body files)
+
+- `superclaude install` now also copies `ISSUE-HANDOFF.md` and `ISSUE-BACKLOG.md` to `~/.claude/` (core files, so a plain install skips them if they already exist, as for every core file). Each holds four `##` sections to fill: Handoff has What was tried, Relevant files and links, Done when, Who it is for; Backlog has the same first three, then Pick-up note.
+- The distributed `CLAUDE.md` gains Core Rules item 10: before filing a GitHub issue, copy the matching template to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`. It never edits the installed template. As for every core file, a plain `superclaude install` leaves an existing `~/.claude/CLAUDE.md` alone; `--force` or `superclaude update` replaces it.
+- No `sc:issue` skill or command is added, and the repository's own `.github/ISSUE_TEMPLATE` forms are unchanged.
+
 ### /sc:pr-submit: Codex reviews
 
 - Codex support: review threads from the Codex connector (`chatgpt-codex-connector[bot]`) go through the same path as Augment's (re-grade, verify, troubleshoot, then fix, push, reply and resolve within the `--monitor` ceiling).

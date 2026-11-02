@@ -40,6 +40,7 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 7. **Scope discipline** — build exactly what's asked; no speculative additions
 8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
 9. **Temporal** — verify current date from env context before any date/version reasoning
+10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
 
 ## Key Docs
 
