@@ -123,7 +123,8 @@ part of this package, and it belongs in no git repository.
 ccsession notes              # start or resume the session named "notes"
 ccsession notes --shim       # same, but with the extra gateway models available
 ccsession --list             # every named session on this machine
-ccsession --here             # named sessions for this repo only
+ccsession --here             # named sessions of this worktree (and of removed ones)
+ccsession --here --all       # named sessions of every worktree of this repo
 ccsession --rm notes         # forget the name (the conversation itself is kept)
 ccsession notes --claude-args "fix it"
                              # everything after --claude-args goes to Claude Code
@@ -163,6 +164,28 @@ and a fresh copy of the repo still sees its names. The same name in two
 different repos points at two different conversations. A folder that is not a
 git repo keeps its own list, as before.
 
+The list you see follows the worktree, like Claude Code's own `/resume`
+picker. Claude Code continues a resumed conversation in the folder you start
+it in, so a session that was working in another worktree would make its edits
+and commits in this one. `ccsession --here` and the session-name question
+therefore show:
+
+- the sessions that were started in this worktree;
+- under "Sessions whose worktree was removed", the sessions whose worktree no
+  longer exists, with the folder they were started in: they have nowhere else
+  to go, so they are listed in every worktree;
+- a count of the sessions that were started in another worktree (or copy of
+  the repo) that still exists. `ccsession --here --all`, or `*` at the
+  question, lists them.
+
+A session's folder is the one it was started in, which Claude Code names its
+transcript folder after (`~/.claude/projects/<folder with every character
+other than a letter or digit as ->`), as its own picker does. The working
+folders the transcript records follow the session's shell when it changes
+directory, so they are not used alone. A session from another worktree still
+resumes by name from anywhere, and ccsession then warns which worktree it was
+started in.
+
 Older versions kept one list per folder. The first run of this version copies
 those names into their repo's list, once per old list (`ccsession
 --migrate-names`, which every install also runs, retrying only lists that
@@ -199,7 +222,8 @@ example:
 
 Orca accepts one executable there, with no arguments. Each Orca launch then:
 
-- Lists this repo's saved sessions and asks
+- Lists this worktree's saved sessions (as `ccsession --here` does; `*` lists
+  every worktree's) and asks
   `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
   starts or resumes that session; Enter, Ctrl+C, or no answer within 30
   seconds starts an untagged one, so the tab never ends at a dead prompt. A
