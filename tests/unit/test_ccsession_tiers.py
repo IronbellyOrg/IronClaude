@@ -302,6 +302,27 @@ def _launch(
     tmp_path: Path, *args: str, defaults: str | None = TIER_BLOCK, **extra: str
 ):
     """Run ccsession with a fake claude and a fake running shim; return (rc, out, err, seen)."""
+    env = _launch_env(tmp_path, defaults, **extra)
+    proc = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    seen = (
+        json.loads((tmp_path / "seen.json").read_text())
+        if (tmp_path / "seen.json").exists()
+        else None
+    )
+    return proc.returncode, proc.stdout, proc.stderr, seen
+
+
+def _launch_env(
+    tmp_path: Path, defaults: str | None = TIER_BLOCK, **extra: str
+) -> dict[str, str]:
+    """The environment of _launch: a fake claude that writes seen.json and a fake running shim."""
     home = tmp_path / "home"
     home.mkdir(exist_ok=True)
     fake_claude = tmp_path / "claude"
@@ -359,20 +380,7 @@ json.dump({
     )
     env.update(extra)
     (tmp_path / "seen.json").unlink(missing_ok=True)
-    proc = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), *args],
-        cwd=tmp_path,
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
-    seen = (
-        json.loads((tmp_path / "seen.json").read_text())
-        if (tmp_path / "seen.json").exists()
-        else None
-    )
-    return proc.returncode, proc.stdout, proc.stderr, seen
+    return env
 
 
 def _compact(seen: dict, model: str) -> int:
@@ -399,6 +407,70 @@ def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
     assert seen["custom"] == ""  # tiers are already in the picker
     assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
     assert "tier2" in out and "muse-spark-1.3" in out
+
+
+def test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier(
+    tmp_path: Path,
+) -> None:
+    # Coder #433 in a tier-mode workspace: after a restart Orca relaunches the
+    # tab with ccsession-orca and its default option only; the tab's recorded
+    # session is resumed by name, with the tier settings of a normal launch.
+    import fcntl
+    import pty
+    import termios
+
+    session = "abc12345-0000-0000-0000-000000000000"
+    env = _launch_env(tmp_path)
+    for name in ("CLAUDECODE", "XDG_STATE_HOME", "CCSESSION_ASK_TIMEOUT"):
+        env.pop(name, None)
+    env.update(ORCA_PANE_KEY="tab-1:leaf-1", ORCA_TERMINAL_HANDLE="term_after")
+    folder = str(tmp_path.resolve())
+    projects = tmp_path / "home" / ".claude" / "projects" / folder.replace("/", "-")
+    (projects / "topics").mkdir(parents=True)
+    (projects / "topics" / "brain.txt").write_text(f"{session}\n")
+    (projects / f"{session}.jsonl").write_text("{}\n")
+    tabs = tmp_path / "home" / ".local" / "state" / "ccsession" / "orca-tabs"
+    tabs.mkdir(parents=True)
+    (tabs / "tab-1+leaf-1").write_text(f"{session}\n{folder}\nterm_before\n")
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(
+        [str(SKILL_DIR / "ccsession-orca"), "--dangerously-skip-permissions"],
+        cwd=tmp_path,
+        env=env,
+        stdin=slave,
+        stdout=slave,
+        stderr=slave,
+        start_new_session=True,
+        preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+    )
+    os.close(slave)
+    output = b""
+    try:
+        while True:
+            try:
+                chunk = os.read(master, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            output += chunk
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert b"Session name" not in output
+    seen = json.loads((tmp_path / "seen.json").read_text())
+    assert seen["argv"][-5:] == [
+        "--name",
+        "brain",
+        "--resume",
+        session,
+        "--dangerously-skip-permissions",
+    ]
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    assert seen["base_url"] == "http://127.0.0.1:4555"
 
 
 def test_tier_flag_and_named_model(tmp_path: Path) -> None:

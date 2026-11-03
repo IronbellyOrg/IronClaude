@@ -40,6 +40,14 @@
 #   ccsession --orca-tab-clear
 #                             Take a tab title ccsession set off this Orca tab
 #                             (the hook runs it when Claude Code ends)
+#   ccsession --orca-tab-session <session id>
+#                             Remember that this Orca tab runs the session (the
+#                             hooks run it), so the tab reopens it when Orca
+#                             relaunches the tab after a restart
+#   ccsession --orca-tab-reopen
+#                             Print the session (id and name) to reopen in this
+#                             relaunched Orca tab; exit 1 when there is none
+#                             (ccsession-orca runs it)
 #   ccsession [<topic>] [options] --claude-args <claude args>
 #                             Everything after --claude-args goes to Claude Code
 #                             exactly as given; none of it is read as a label or
@@ -507,6 +515,83 @@ print((r.get("terminal") or r).get("title") or "")' 2>/dev/null) || return 0
   orca terminal rename --terminal "$ORCA_TERMINAL_HANDLE" >/dev/null 2>&1 || true
 }
 
+# Which session each Orca tab runs, so ccsession-orca can reopen it when Orca
+# relaunches the tab after a workspace restart (Coder #433). Orca then types the
+# tab's launch command again with nothing that names the session, but the same
+# ORCA_PANE_KEY (tab and pane id, kept across restarts) and a new
+# ORCA_TERMINAL_HANDLE (one per terminal process). A new tab or split pane has a
+# new pane key. One file per pane: session id, launch folder, terminal handle.
+ORCA_TABS_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ccsession/orca-tabs"
+
+orca_tab_file() {
+  # "+" is never in a pane key, so writing ":" as "+" keeps file names apart.
+  case "${ORCA_PANE_KEY:-}" in
+    '' | *[!A-Za-z0-9_:-]*) return 1 ;;
+  esac
+  printf '%s/%s' "$ORCA_TABS_DIR" "${ORCA_PANE_KEY//:/+}"
+}
+
+orca_tab_session() {
+  # ccsession --orca-tab-session <session id>: this Orca tab runs the session,
+  # launched in the current folder. The hooks run it at each session start and
+  # prompt, so /clear and /resume inside Claude Code move it along. A session
+  # belongs to one tab: its id is taken off every other tab, so two tabs never
+  # reopen it, and tabs whose conversation no longer exists are forgotten.
+  local session="$1" file want folder f other status=0
+  case "$session" in
+    '' | *[!A-Za-z0-9_-]*) return 2 ;;
+  esac
+  file=$(orca_tab_file) || return 0
+  case "${ORCA_TERMINAL_HANDLE:-}" in
+    '' | *[!A-Za-z0-9_-]*) return 0 ;;
+  esac
+  folder=$(pwd -P) || return 1
+  case "$folder" in *[[:cntrl:]]*) return 0 ;; esac
+  want="$session"$'\n'"$folder"$'\n'"$ORCA_TERMINAL_HANDLE"
+  [ "$(cat "$file" 2>/dev/null)" != "$want" ] || return 0  # already so
+  mkdir -p "$ORCA_TABS_DIR" || return 1
+  lock_list "$ORCA_TABS_DIR" || return 1
+  for f in "$ORCA_TABS_DIR"/*; do
+    [ -f "$f" ] && [ "$f" != "$file" ] || continue
+    other=$(head -n 1 "$f" 2>/dev/null) || other=""
+    if [ "$other" = "$session" ] || ! session_saved "$other"; then
+      rm -f "$f"
+    fi
+  done
+  f=$(mktemp "$ORCA_TABS_DIR/.ccsession-tab.XXXXXX") &&
+    printf '%s\n' "$want" > "$f" && mv -f "$f" "$file" || { rm -f "$f"; status=1; }
+  exec 9>&-  # releases the lock
+  return "$status"
+}
+
+orca_tab_reopen() {
+  # ccsession --orca-tab-reopen: for ccsession-orca. Prints this tab's session
+  # id and its name in this repo's list (empty: it has none), tab-separated,
+  # when Orca relaunched the tab: same pane, a new terminal, the same folder,
+  # and the conversation still saved. Exit 1: nothing to reopen. The same
+  # terminal means a person ran the command again in the tab: they get the
+  # question, as in a new tab.
+  local file session="" folder="" handle="" f name=""
+  [ -z "${CLAUDECODE:-}" ] || return 1  # inside Claude Code: not the tab's own
+  file=$(orca_tab_file) && [ -f "$file" ] || return 1
+  [ -n "${ORCA_TERMINAL_HANDLE:-}" ] || return 1
+  { IFS= read -r session; IFS= read -r folder; IFS= read -r handle; } 2>/dev/null < "$file" || true
+  case "$session" in
+    '' | *[!A-Za-z0-9_-]*) return 1 ;;
+  esac
+  [ -n "$handle" ] && [ "$handle" != "$ORCA_TERMINAL_HANDLE" ] || return 1
+  [ "$folder" = "$(pwd -P)" ] || return 1
+  session_saved "$session" || return 1
+  for f in "$PROJECTS_DIR/$(name_key)/topics"/*.txt; do
+    [ -f "$f" ] || continue
+    if [ "$(head -n 1 "$f" 2>/dev/null)" = "$session" ]; then
+      name=$(file_to_name "$(basename "$f" .txt)")
+      break
+    fi
+  done
+  printf '%s\t%s\n' "$session" "$name"
+}
+
 # Fast paths that need no settings, env file or model data. The hooks use
 # --key and --sync-name so all of them agree on the name list.
 case "${1:-}" in
@@ -531,6 +616,14 @@ case "${1:-}" in
   --orca-tab-clear)
     orca_tab_clear
     exit 0
+    ;;
+  --orca-tab-session)
+    orca_tab_session "${2:-}"
+    exit $?
+    ;;
+  --orca-tab-reopen)
+    orca_tab_reopen
+    exit $?
     ;;
 esac
 
@@ -1534,6 +1627,10 @@ fi
 # claude started inside it inherits this variable but is another process.
 CCSESSION_LAUNCH_ID="$$.$RANDOM$RANDOM"
 export CCSESSION_LAUNCH_ID
+# The folder of this launch, for the record of an Orca tab's session (the
+# hooks' own folder follows Claude Code when it changes directory).
+CCSESSION_LAUNCH_CWD=$(pwd -P)
+export CCSESSION_LAUNCH_CWD
 
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$NAME_GIVEN" != 1 ] && { [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; }; then

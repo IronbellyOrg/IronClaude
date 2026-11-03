@@ -14,7 +14,9 @@
 #     a /rename just before quitting is kept.
 # A session without a name changes nothing: Claude Code reports only names a
 # person gave, never its automatic ones. In an Orca tab whose title ccsession
-# owns, a new name is shown on the tab too (ccsession --sync-name does it).
+# owns, a new name is shown on the tab too (ccsession --sync-name does it), and
+# the tab's session is remembered so the tab reopens it after a restart
+# (ccsession --orca-tab-session).
 # Always exits 0: a naming problem must never block a prompt.
 
 PAYLOAD=$(cat)
@@ -168,6 +170,15 @@ if [ "$EVENT" = SessionStart ] && [ "$OWNER" = 1 ] && [ -n "${CLAUDE_TOPIC:-}" ]
 fi
 # Only the launched session shows its name on the Orca tab.
 [ "$OWNER" = 1 ] || unset ORCA_TERMINAL_HANDLE
+# The session the launched Claude Code runs in an Orca tab is the tab's own:
+# remembered so ccsession-orca reopens it when Orca relaunches the tab after a
+# restart. At each start and prompt, so /clear and /resume move it along.
+ORCA_TAB=0
+if [ "$OWNER" = 1 ] && [ -n "${CCSESSION_LAUNCH_ID:-}" ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
+  case "$EVENT" in
+    SessionStart | UserPromptSubmit) ORCA_TAB=1 ;;
+  esac
+fi
 
 # The ccsession beside this hook (following a symlinked hook), else the
 # installed one. Only a ccsession that knows --sync-name is asked.
@@ -189,6 +200,11 @@ for _ccs in "$(dirname "$_self")/../ccsession" \
     [ "$EVENT" = UserPromptSubmit ] && _check=""
     (cd "$CWD" 2>/dev/null && "$_ccs" --sync-name "$SESSION_ID" "$NAME" $_check) \
       >/dev/null 2>&1 || true
+  fi
+  # In the folder ccsession launched it in (Claude Code's own one can move).
+  if [ "$ORCA_TAB" = 1 ] && grep -q -- '--orca-tab-session)' "$_ccs" 2>/dev/null; then
+    (cd "${CCSESSION_LAUNCH_CWD:-$CWD}" 2>/dev/null &&
+      "$_ccs" --orca-tab-session "$SESSION_ID") >/dev/null 2>&1 || true
   fi
   # Leaving Claude Code (not /clear): take a tab title ccsession set back off,
   # so the tab no longer shows a session that has ended.
