@@ -1,0 +1,266 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collected 3022 items
+
+tests/core/test_claude_md_routing_block.py ......                        [  0%]
+tests/core/test_codegraph_guide.py ...............                       [  0%]
+tests/core/test_how_we_work_routing_table.py ........................... [  1%]
+....................................................                     [  3%]
+tests/core/test_research_config.py ....                                  [  3%]
+tests/commands/test_auggie_review_remediation_chain.py ............      [  3%]
+tests/commands/test_auggie_review_revagent.py ............               [  4%]
+tests/commands/test_graph_command.py ................................... [  5%]
+...............                                                          [  5%]
+tests/commands/test_help_command.py ......                               [  6%]
+tests/commands/test_impact_command.py .................................. [  7%]
+.............................................                            [  8%]
+tests/commands/test_research_command.py ..                               [  8%]
+tests/commands/test_routing_plugin_parity.py .....                       [  8%]
+tests/commands/test_workflow_command.py .................                [  9%]
+tests/recommend/test_best_model.py ........                              [  9%]
+tests/recommend/test_cache.py ...............                            [ 10%]
+tests/recommend/test_cli_registration.py ...                             [ 10%]
+tests/recommend/test_dispatch.py ................                        [ 10%]
+tests/recommend/test_eval_pipeline.py .....                              [ 11%]
+tests/recommend/test_plugin_eval.py ........                             [ 11%]
+tests/recommend/test_routing_refresh.py ................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+                                                                         [ 19%]
+tests/recommend/test_telemetry.py .........                              [ 19%]
+tests/cli/eval/test_artifact_layout.py ...................               [ 20%]
+tests/cli/eval/test_artifact_reproducibility.py ........                 [ 20%]
+tests/cli/eval/test_atomic_setup.py ...................                  [ 21%]
+tests/cli/eval/test_ban_import_rule.py FFF                               [ 21%]
+tests/cli/eval/test_capability_classifications.py ....................   [ 22%]
+tests/cli/eval/test_capability_dataclass.py ................             [ 22%]
+tests/cli/eval/test_capability_gates.py ..................               [ 23%]
+tests/cli/eval/test_capability_report.py ..........                      [ 23%]
+tests/cli/eval/test_claude_process_adapter.py ..........FF.              [ 23%]
+tests/cli/eval/test_config.py ......                                     [ 24%]
+tests/cli/eval/test_containment.py ...............................       [ 25%]
+tests/cli/eval/test_coverage_gate.py ...........................         [ 26%]
+tests/cli/eval/test_coverage_gate_integration.py ......                  [ 26%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 26%]
+tests/cli/eval/test_describe.py .........................                [ 27%]
+tests/cli/eval/test_disk_budget.py .................................     [ 28%]
+tests/cli/eval/test_doctor.py .......................................... [ 30%]
+......                                                                   [ 30%]
+tests/cli/eval/test_doctor_version.py .............                      [ 30%]
+tests/cli/eval/test_eval_context.py .............................        [ 31%]
+tests/cli/eval/test_eval_group.py .....                                  [ 31%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 33%]
+................................                                         [ 34%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 34%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 35%]
+tests/cli/eval/test_eval_result.py ................                      [ 36%]
+tests/cli/eval/test_eval_run.py .................                        [ 36%]
+tests/cli/eval/test_exit_codes.py .s.s.                                  [ 36%]
+tests/cli/eval/test_expect_duration.py ...................               [ 37%]
+tests/cli/eval/test_expect_exit_code.py ....................             [ 38%]
+tests/cli/eval/test_expect_failure.py .............                      [ 38%]
+tests/cli/eval/test_expect_file.py ..................                    [ 39%]
+tests/cli/eval/test_expect_jsonl.py ...................                  [ 39%]
+tests/cli/eval/test_expect_primitives.py ...........................     [ 40%]
+tests/cli/eval/test_expect_result.py ............                        [ 41%]
+tests/cli/eval/test_expect_settings_json.py .....................        [ 41%]
+tests/cli/eval/test_expect_stdio.py .......................              [ 42%]
+tests/cli/eval/test_hard_guard_real_home.py ......                       [ 42%]
+tests/cli/eval/test_home_isolation.py ...........................        [ 43%]
+tests/cli/eval/test_home_isolation_extend.py ........................... [ 44%]
+............                                                             [ 45%]
+tests/cli/eval/test_hook_adapter.py ............                         [ 45%]
+tests/cli/eval/test_isolation_dataclass.py ............................. [ 46%]
+...                                                                      [ 46%]
+tests/cli/eval/test_isolation_layers_probe.py .............              [ 46%]
+tests/cli/eval/test_list.py ...................                          [ 47%]
+tests/cli/eval/test_mcp_retry_once.py ..........................         [ 48%]
+tests/cli/eval/test_no_mcp_skip.py ...........s                          [ 48%]
+tests/cli/eval/test_no_pty_exclusion.py ..............                   [ 49%]
+tests/cli/eval/test_no_shared_state.py ..........                        [ 49%]
+tests/cli/eval/test_orchestrator.py ......................               [ 50%]
+tests/cli/eval/test_parallel_15.py .......                               [ 50%]
+tests/cli/eval/test_path_containment.py ................................ [ 51%]
+...............                                                          [ 52%]
+tests/cli/eval/test_path_traversal.py ...............                    [ 52%]
+tests/cli/eval/test_perf_resource_bounds.py ..                           [ 52%]
+tests/cli/eval/test_phase_report_probe.py .........................      [ 53%]
+tests/cli/eval/test_pty_driver.py .....................                  [ 54%]
+tests/cli/eval/test_pty_lifecycle.py .....                               [ 54%]
+tests/cli/eval/test_pty_stream.py ..............................         [ 55%]
+tests/cli/eval/test_reporter.py .........................                [ 56%]
+tests/cli/eval/test_reporter_contract.py ....                            [ 56%]
+tests/cli/eval/test_retention_policy.py ....s.                           [ 56%]
+tests/cli/eval/test_retry_policy.py ...........                          [ 56%]
+tests/cli/eval/test_run_report.py ...................                    [ 57%]
+tests/cli/eval/test_run_summary.py .........................             [ 58%]
+tests/cli/eval/test_runner_class.py ...........                          [ 58%]
+tests/cli/eval/test_schema_id_rejection.py ....................          [ 59%]
+tests/cli/eval/test_schema_load.py .............                         [ 59%]
+tests/cli/eval/test_schema_validate.py ..............                    [ 60%]
+tests/cli/eval/test_scratch_root_allowlist.py ....................       [ 60%]
+tests/cli/eval/test_scratch_root_policy.py ..................            [ 61%]
+tests/cli/eval/test_signal_handling.py .........................         [ 62%]
+tests/cli/eval/test_single_command.py ..                                 [ 62%]
+tests/cli/eval/test_suite_loader.py .........................            [ 63%]
+tests/cli/eval/test_suite_runtime.py .......                             [ 63%]
+tests/cli/eval/test_summary_schema.py .................                  [ 64%]
+tests/cli/eval/test_symlink_attacks.py ..............                    [ 64%]
+tests/cli/eval/test_tavily_eval_capability.py ...                        [ 64%]
+tests/cli/eval/test_validation_commands.py ..................            [ 65%]
+tests/cli/eval/test_workflow_vs_task_builder_companion.py .............. [ 65%]
+........................................................................ [ 68%]
+.......................................                                  [ 69%]
+tests/cli/prd/test_cli_smoke.py ......                                   [ 69%]
+tests/cli/prd/test_config.py .                                           [ 69%]
+tests/cli/prd/test_e2e.py .............                                  [ 70%]
+tests/cli/prd/test_executor.py ..........                                [ 70%]
+tests/cli/prd/test_filtering.py ..........                               [ 70%]
+tests/cli/prd/test_gates.py ............................................ [ 72%]
+.........................................                                [ 73%]
+tests/cli/prd/test_integration.py .........                              [ 73%]
+tests/cli/prd/test_inventory.py .......                                  [ 74%]
+tests/cli/prd/test_models.py .......                                     [ 74%]
+tests/cli/prd/test_path_resolution.py ........                           [ 74%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 74%]
+tests/cli/prd/test_prompts.py ..........                                 [ 75%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 75%]
+tests/cli/prd/test_resolve_step_content.py ..............                [ 75%]
+tests/cli/prd/test_resume_skip.py .......                                [ 75%]
+tests/cli/prd/test_spec_flag.py ..............................           [ 76%]
+tests/cli/reflect/test_base_precedence.py ......                         [ 77%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 77%]
+tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py .... [ 77%]
+.                                                                        [ 77%]
+tests/cli/reflect/test_cli_smoke.py ............                         [ 78%]
+tests/cli/reflect/test_contract_fallback_metadata.py ........            [ 78%]
+tests/cli/reflect/test_contract_status_cli.py ........                   [ 78%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 78%]
+tests/cli/reflect/test_ensemble_fallback_engage.py ...                   [ 78%]
+tests/cli/reflect/test_ensemble_fallback_stub.py ............            [ 79%]
+tests/cli/reflect/test_ensemble_stub_integration.py ...............      [ 79%]
+tests/cli/reflect/test_ensemble_unit.py ..........................       [ 80%]
+tests/cli/reflect/test_fallback_classify.py ......                       [ 80%]
+tests/cli/reflect/test_fallback_config.py .....                          [ 80%]
+tests/cli/reflect/test_fallback_plan.py .............                    [ 81%]
+tests/cli/reflect/test_fallback_select.py ..........                     [ 81%]
+tests/cli/reflect/test_fallback_slot_factory.py ..                       [ 81%]
+tests/cli/reflect/test_fix_loop.py .........                             [ 81%]
+tests/cli/reflect/test_grader_yaml_root.py .                             [ 82%]
+tests/cli/reflect/test_isolate_reviewers_cli.py .......                  [ 82%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 82%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 82%]
+tests/cli/reflect/test_preflight_phase_complete.py ........              [ 82%]
+tests/cli/reflect/test_promote_plumbing.py .........                     [ 83%]
+tests/cli/reflect/test_remediation_route_table.py ....                   [ 83%]
+tests/cli/reflect/test_remediation_source_template.py .....              [ 83%]
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [ 83%]
+tests/cli/reflect/test_reviewer_finding_parity.py .....                  [ 83%]
+tests/cli/reflect/test_reviewer_isolation_gate.py ....                   [ 83%]
+tests/cli/reflect/test_reviewer_readonly_tools.py .....                  [ 84%]
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py ..             [ 84%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 84%]
+tests/cli/reflect/test_verdict_mapping.py .............................. [ 85%]
+......                                                                   [ 85%]
+tests/cli/reflect/test_verify_denylist_git_mutations.py ...              [ 85%]
+tests/cli/reflect/test_writeback.py ....                                 [ 85%]
+tests/cli/test_bash_inspection_policy.py ...                             [ 86%]
+tests/cli/test_cli_registration.py ......                                [ 86%]
+tests/cli/test_codegraph_session_start_hook.py ............              [ 86%]
+tests/cli/test_how_we_work_install.py .......                            [ 86%]
+tests/cli/test_init_lite.py ............................................ [ 88%]
+                                                                         [ 88%]
+tests/cli/test_install_codegraph.py .................................... [ 89%]
+......................                                                   [ 90%]
+tests/cli/test_install_failures.py ....                                  [ 90%]
+tests/cli/test_install_hooks.py ...........................              [ 91%]
+tests/cli/test_install_mcp_cli.py .........................              [ 92%]
+tests/cli/test_install_mcp_registry.py ..................                [ 92%]
+tests/cli/test_install_mcp_tavily.py ...............s                    [ 93%]
+tests/cli/test_install_retired_mcp.py .................................. [ 94%]
+..................................................                       [ 95%]
+tests/cli/test_install_user_setup.py ..............                      [ 96%]
+tests/cli/test_issue_body_templates.py .......                           [ 96%]
+tests/cli/test_mcp_project_config.py .                                   [ 96%]
+tests/cli/test_tdd_extract_prompt.py ................................... [ 97%]
+.................................                                        [ 98%]
+tests/cli/test_update_command.py ....................                    [ 99%]
+tests/cli/test_update_script.py .....                                    [ 99%]
+tests/cli/test_verify_sync_hooks.py .......                              [100%]
+
+=================================== FAILURES ===================================
+______________________ test_clean_tree_passes_ruff_check _______________________
+tests/cli/eval/test_ban_import_rule.py:88: in test_clean_tree_passes_ruff_check
+    assert result.returncode == 0, (
+E   AssertionError: Clean tree should pass ruff check but returned 2.
+E     stdout:
+E     
+E     stderr:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['uv', 'run', 'ruff', 'check', '--no-cache', '/home/coder/workspaces/worktrees/IronClaude/OrcaCL...eturncode=2, stdout='', stderr='error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n').returncode
+______________ test_synthetic_import_anthropic_is_flagged_by_ruff ______________
+tests/cli/eval/test_ban_import_rule.py:125: in test_synthetic_import_anthropic_is_flagged_by_ruff
+    assert "TID251" in combined, f"expected TID251 in ruff output; got:\n{combined}"
+E   AssertionError: expected TID251 in ruff output; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'TID251' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+______________________ test_ban_message_references_fr_g1 _______________________
+tests/cli/eval/test_ban_import_rule.py:159: in test_ban_message_references_fr_g1
+    assert "FR-G1" in combined, (
+E   AssertionError: expected 'FR-G1' in ruff output to confirm the banned-api msg survived; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'FR-G1' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+__________ test_ruff_flags_synthetic_anthropic_import_under_cli_eval ___________
+tests/cli/eval/test_claude_process_adapter.py:457: in test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+    assert "TID251" in result.stdout, (
+E   AssertionError: Expected TID251 ban-api violation in ruff output; got: ''
+E   assert 'TID251' in ''
+E    +  where '' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python', '-...rr='/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n').stdout
+___________________ test_ruff_passes_on_real_adapter_module ____________________
+tests/cli/eval/test_claude_process_adapter.py:481: in test_ruff_passes_on_real_adapter_module
+    assert result.returncode == 0, (
+E   AssertionError: adapter module trips its own ban rule: '' '/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n'
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python', '-...rr='/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n').returncode
+=============================== warnings summary ===============================
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_runs_without_tasklist
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:90: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_does_not_launch_reflect_audit_machinery
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:109: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_does_not_write_lock_by_default
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:133: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_ban_import_rule.py::test_clean_tree_passes_ruff_check
+FAILED tests/cli/eval/test_ban_import_rule.py::test_synthetic_import_anthropic_is_flagged_by_ruff
+FAILED tests/cli/eval/test_ban_import_rule.py::test_ban_message_references_fr_g1
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+= 5 failed, 3011 passed, 5 skipped, 1 xpassed, 5 warnings in 60.60s (0:01:00) ==
+rc=1

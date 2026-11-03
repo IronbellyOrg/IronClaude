@@ -391,3 +391,14 @@ The `changes_files` column is not a zero-write promise: `yes` includes requested
 | tier-validation | validate task-tier behavior against YAML expectations, not application coverage | - | 1. verify supplied YAML file/directory or advertised default suite exists<br>2. `/sc:validate-tests <verified target>` with supplied controls only when prerequisites exist<br>3. stop at classification result and requested report | - | no | 3.13, 3.14 | retain `/sc:validate-tests --verbose --summary --category <name> --stop-on-fail --report <path>` only as requested and without conflicting verbosity; advertised tests/sc-task default is absent here, so report missing prerequisite rather than invent a fixture/result; no code/config repairs or fabricated counts |
 
 <!-- /routing-table -->
+
+## Orca coordination
+
+Orca can run IronClaude commands as workers. The rules live in `~/.claude/WORKER-CONTRACT.md`; this section only says how the pieces fit.
+
+- **The coordinator is a session the person opened.** It plans the work, creates one Orca Task per unit of work, starts one worker per Task and reads each worker's report. It is never a session that Orca itself started as a worker.
+- **Each worker runs one IronClaude command.** The coordinator writes each Task's brief from the brief template in `~/.claude/WORKER-CONTRACT.md`, with the guard line first and the command on its own `Command:` line. The command runs at the top level of the worker session, never inside a subagent, and commands themselves never call Orca.
+- **`--unattended` only where the command supports it.** A command is dispatched with `--unattended` only when its command file has an `## Unattended mode` section. Check the command file instead of relying on a list here; which commands have the section changes as the rollout proceeds.
+- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md` stay with the coordinator or the person.
+- **Orca creates the worktrees.** Feature and child worktrees are created by Orca at its default paths, not with raw `git worktree add` and not under `.dev/worktrees/`.
+- **Outward actions stay with the coordinator.** Every push, PR, merge, comment, install and paid run is done by the coordinator, on `IronbellyOrg/IronClaude` only, never on the SuperClaude upstream. PRs go through `/sc:pr-submit --monitor 3` as section 4 says.

@@ -1,0 +1,505 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collected 3022 items
+
+tests/core/test_claude_md_routing_block.py ......                        [  0%]
+tests/core/test_codegraph_guide.py ...............                       [  0%]
+tests/core/test_how_we_work_routing_table.py ........................... [  1%]
+....................................................                     [  3%]
+tests/core/test_research_config.py ....                                  [  3%]
+tests/commands/test_auggie_review_remediation_chain.py ............      [  3%]
+tests/commands/test_auggie_review_revagent.py ............               [  4%]
+tests/commands/test_graph_command.py ................................... [  5%]
+...............                                                          [  5%]
+tests/commands/test_help_command.py ......                               [  6%]
+tests/commands/test_impact_command.py .................................. [  7%]
+.............................................                            [  8%]
+tests/commands/test_research_command.py ..                               [  8%]
+tests/commands/test_routing_plugin_parity.py .....                       [  8%]
+tests/commands/test_workflow_command.py .................                [  9%]
+tests/recommend/test_best_model.py ........                              [  9%]
+tests/recommend/test_cache.py ...............                            [ 10%]
+tests/recommend/test_cli_registration.py ...                             [ 10%]
+tests/recommend/test_dispatch.py ................                        [ 10%]
+tests/recommend/test_eval_pipeline.py .....                              [ 11%]
+tests/recommend/test_plugin_eval.py ........                             [ 11%]
+tests/recommend/test_routing_refresh.py ................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+                                                                         [ 19%]
+tests/recommend/test_telemetry.py .........                              [ 19%]
+tests/cli/eval/test_artifact_layout.py ...................               [ 20%]
+tests/cli/eval/test_artifact_reproducibility.py ........                 [ 20%]
+tests/cli/eval/test_atomic_setup.py ...................                  [ 21%]
+tests/cli/eval/test_ban_import_rule.py FFF                               [ 21%]
+tests/cli/eval/test_capability_classifications.py ....................   [ 22%]
+tests/cli/eval/test_capability_dataclass.py ................             [ 22%]
+tests/cli/eval/test_capability_gates.py ..................               [ 23%]
+tests/cli/eval/test_capability_report.py ..........                      [ 23%]
+tests/cli/eval/test_claude_process_adapter.py ..........FF.              [ 23%]
+tests/cli/eval/test_config.py ......                                     [ 24%]
+tests/cli/eval/test_containment.py ...............................       [ 25%]
+tests/cli/eval/test_coverage_gate.py ...........................         [ 26%]
+tests/cli/eval/test_coverage_gate_integration.py ......                  [ 26%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 26%]
+tests/cli/eval/test_describe.py .........................                [ 27%]
+tests/cli/eval/test_disk_budget.py .................................     [ 28%]
+tests/cli/eval/test_doctor.py .......................................... [ 30%]
+......                                                                   [ 30%]
+tests/cli/eval/test_doctor_version.py .............                      [ 30%]
+tests/cli/eval/test_eval_context.py .............................        [ 31%]
+tests/cli/eval/test_eval_group.py .....                                  [ 31%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 33%]
+................................                                         [ 34%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 34%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 35%]
+tests/cli/eval/test_eval_result.py ................                      [ 36%]
+tests/cli/eval/test_eval_run.py .................                        [ 36%]
+tests/cli/eval/test_exit_codes.py .s.s.                                  [ 36%]
+tests/cli/eval/test_expect_duration.py ...................               [ 37%]
+tests/cli/eval/test_expect_exit_code.py ....................             [ 38%]
+tests/cli/eval/test_expect_failure.py .............                      [ 38%]
+tests/cli/eval/test_expect_file.py ..................                    [ 39%]
+tests/cli/eval/test_expect_jsonl.py ...................                  [ 39%]
+tests/cli/eval/test_expect_primitives.py ...........................     [ 40%]
+tests/cli/eval/test_expect_result.py ............                        [ 41%]
+tests/cli/eval/test_expect_settings_json.py .....................        [ 41%]
+tests/cli/eval/test_expect_stdio.py .......................              [ 42%]
+tests/cli/eval/test_hard_guard_real_home.py ......                       [ 42%]
+tests/cli/eval/test_home_isolation.py ...........................        [ 43%]
+tests/cli/eval/test_home_isolation_extend.py ........................... [ 44%]
+............                                                             [ 45%]
+tests/cli/eval/test_hook_adapter.py ............                         [ 45%]
+tests/cli/eval/test_isolation_dataclass.py ............................. [ 46%]
+...                                                                      [ 46%]
+tests/cli/eval/test_isolation_layers_probe.py .............              [ 46%]
+tests/cli/eval/test_list.py ...................                          [ 47%]
+tests/cli/eval/test_mcp_retry_once.py ..........................         [ 48%]
+tests/cli/eval/test_no_mcp_skip.py ...........s                          [ 48%]
+tests/cli/eval/test_no_pty_exclusion.py ..............                   [ 49%]
+tests/cli/eval/test_no_shared_state.py ..........                        [ 49%]
+tests/cli/eval/test_orchestrator.py ......................               [ 50%]
+tests/cli/eval/test_parallel_15.py .......                               [ 50%]
+tests/cli/eval/test_path_containment.py ................................ [ 51%]
+...............                                                          [ 52%]
+tests/cli/eval/test_path_traversal.py ...............                    [ 52%]
+tests/cli/eval/test_perf_resource_bounds.py ..                           [ 52%]
+tests/cli/eval/test_phase_report_probe.py .........................      [ 53%]
+tests/cli/eval/test_pty_driver.py .....................                  [ 54%]
+tests/cli/eval/test_pty_lifecycle.py .....                               [ 54%]
+tests/cli/eval/test_pty_stream.py ..............................         [ 55%]
+tests/cli/eval/test_reporter.py .........................                [ 56%]
+tests/cli/eval/test_reporter_contract.py ....                            [ 56%]
+tests/cli/eval/test_retention_policy.py ....s.                           [ 56%]
+tests/cli/eval/test_retry_policy.py ...........                          [ 56%]
+tests/cli/eval/test_run_report.py ...................                    [ 57%]
+tests/cli/eval/test_run_summary.py .........................             [ 58%]
+tests/cli/eval/test_runner_class.py ...........                          [ 58%]
+tests/cli/eval/test_schema_id_rejection.py ....................          [ 59%]
+tests/cli/eval/test_schema_load.py .............                         [ 59%]
+tests/cli/eval/test_schema_validate.py ..............                    [ 60%]
+tests/cli/eval/test_scratch_root_allowlist.py ....................       [ 60%]
+tests/cli/eval/test_scratch_root_policy.py ..................            [ 61%]
+tests/cli/eval/test_signal_handling.py .........................         [ 62%]
+tests/cli/eval/test_single_command.py ..                                 [ 62%]
+tests/cli/eval/test_suite_loader.py .........................            [ 63%]
+tests/cli/eval/test_suite_runtime.py .......                             [ 63%]
+tests/cli/eval/test_summary_schema.py .................                  [ 64%]
+tests/cli/eval/test_symlink_attacks.py ..............                    [ 64%]
+tests/cli/eval/test_tavily_eval_capability.py ...                        [ 64%]
+tests/cli/eval/test_validation_commands.py ..................            [ 65%]
+tests/cli/eval/test_workflow_vs_task_builder_companion.py .............. [ 65%]
+........................................................................ [ 68%]
+.......................................                                  [ 69%]
+tests/cli/prd/test_cli_smoke.py ......                                   [ 69%]
+tests/cli/prd/test_config.py .                                           [ 69%]
+tests/cli/prd/test_e2e.py .............                                  [ 70%]
+tests/cli/prd/test_executor.py ..........                                [ 70%]
+tests/cli/prd/test_filtering.py ..........                               [ 70%]
+tests/cli/prd/test_gates.py ............................................ [ 72%]
+.........................................                                [ 73%]
+tests/cli/prd/test_integration.py .........                              [ 73%]
+tests/cli/prd/test_inventory.py .......                                  [ 74%]
+tests/cli/prd/test_models.py .......                                     [ 74%]
+tests/cli/prd/test_path_resolution.py ........                           [ 74%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 74%]
+tests/cli/prd/test_prompts.py ..........                                 [ 75%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 75%]
+tests/cli/prd/test_resolve_step_content.py ..............                [ 75%]
+tests/cli/prd/test_resume_skip.py .......                                [ 75%]
+tests/cli/prd/test_spec_flag.py ..............................           [ 76%]
+tests/cli/reflect/test_base_precedence.py ......                         [ 77%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 77%]
+tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py .... [ 77%]
+.                                                                        [ 77%]
+tests/cli/reflect/test_cli_smoke.py ............                         [ 78%]
+tests/cli/reflect/test_contract_fallback_metadata.py ........            [ 78%]
+tests/cli/reflect/test_contract_status_cli.py ........                   [ 78%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 78%]
+tests/cli/reflect/test_ensemble_fallback_engage.py ...                   [ 78%]
+tests/cli/reflect/test_ensemble_fallback_stub.py ............            [ 79%]
+tests/cli/reflect/test_ensemble_stub_integration.py ...............      [ 79%]
+tests/cli/reflect/test_ensemble_unit.py ..........................       [ 80%]
+tests/cli/reflect/test_fallback_classify.py ......                       [ 80%]
+tests/cli/reflect/test_fallback_config.py .....                          [ 80%]
+tests/cli/reflect/test_fallback_plan.py .............                    [ 81%]
+tests/cli/reflect/test_fallback_select.py ..........                     [ 81%]
+tests/cli/reflect/test_fallback_slot_factory.py ..                       [ 81%]
+tests/cli/reflect/test_fix_loop.py .........                             [ 81%]
+tests/cli/reflect/test_grader_yaml_root.py .                             [ 82%]
+tests/cli/reflect/test_isolate_reviewers_cli.py .......                  [ 82%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 82%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 82%]
+tests/cli/reflect/test_preflight_phase_complete.py ........              [ 82%]
+tests/cli/reflect/test_promote_plumbing.py .........                     [ 83%]
+tests/cli/reflect/test_remediation_route_table.py ....                   [ 83%]
+tests/cli/reflect/test_remediation_source_template.py .....              [ 83%]
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [ 83%]
+tests/cli/reflect/test_reviewer_finding_parity.py .....                  [ 83%]
+tests/cli/reflect/test_reviewer_isolation_gate.py ....                   [ 83%]
+tests/cli/reflect/test_reviewer_readonly_tools.py .....                  [ 84%]
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py ..             [ 84%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 84%]
+tests/cli/reflect/test_verdict_mapping.py .............................. [ 85%]
+......                                                                   [ 85%]
+tests/cli/reflect/test_verify_denylist_git_mutations.py ...              [ 85%]
+tests/cli/reflect/test_writeback.py ....                                 [ 85%]
+tests/cli/test_bash_inspection_policy.py ...                             [ 86%]
+tests/cli/test_cli_registration.py ......                                [ 86%]
+tests/cli/test_codegraph_session_start_hook.py ............              [ 86%]
+tests/cli/test_how_we_work_install.py .......                            [ 86%]
+tests/cli/test_init_lite.py ............................................ [ 88%]
+                                                                         [ 88%]
+tests/cli/test_install_codegraph.py .................................... [ 89%]
+......................                                                   [ 90%]
+tests/cli/test_install_failures.py ....                                  [ 90%]
+tests/cli/test_install_hooks.py ...........................              [ 91%]
+tests/cli/test_install_mcp_cli.py .........................              [ 92%]
+tests/cli/test_install_mcp_registry.py ..................                [ 92%]
+tests/cli/test_install_mcp_tavily.py ...............s                    [ 93%]
+tests/cli/test_install_retired_mcp.py .................................. [ 94%]
+..................................................                       [ 95%]
+tests/cli/test_install_user_setup.py ..............                      [ 96%]
+tests/cli/test_issue_body_templates.py .......                           [ 96%]
+tests/cli/test_mcp_project_config.py .                                   [ 96%]
+tests/cli/test_tdd_extract_prompt.py ................................... [ 97%]
+.................................                                        [ 98%]
+tests/cli/test_update_command.py ....................                    [ 99%]
+tests/cli/test_update_script.py .....                                    [ 99%]
+tests/cli/test_verify_sync_hooks.py FF....F                              [100%]
+
+=================================== FAILURES ===================================
+______________________ test_clean_tree_passes_ruff_check _______________________
+tests/cli/eval/test_ban_import_rule.py:88: in test_clean_tree_passes_ruff_check
+    assert result.returncode == 0, (
+E   AssertionError: Clean tree should pass ruff check but returned 2.
+E     stdout:
+E     
+E     stderr:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['uv', 'run', 'ruff', 'check', '--no-cache', '/home/coder/workspaces/worktrees/IronClaude/OrcaCL...eturncode=2, stdout='', stderr='error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n').returncode
+______________ test_synthetic_import_anthropic_is_flagged_by_ruff ______________
+tests/cli/eval/test_ban_import_rule.py:125: in test_synthetic_import_anthropic_is_flagged_by_ruff
+    assert "TID251" in combined, f"expected TID251 in ruff output; got:\n{combined}"
+E   AssertionError: expected TID251 in ruff output; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'TID251' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+______________________ test_ban_message_references_fr_g1 _______________________
+tests/cli/eval/test_ban_import_rule.py:159: in test_ban_message_references_fr_g1
+    assert "FR-G1" in combined, (
+E   AssertionError: expected 'FR-G1' in ruff output to confirm the banned-api msg survived; got:
+E     error: Failed to spawn: `ruff`
+E       Caused by: No such file or directory (os error 2)
+E     
+E   assert 'FR-G1' in 'error: Failed to spawn: `ruff`\n  Caused by: No such file or directory (os error 2)\n'
+__________ test_ruff_flags_synthetic_anthropic_import_under_cli_eval ___________
+tests/cli/eval/test_claude_process_adapter.py:457: in test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+    assert "TID251" in result.stdout, (
+E   AssertionError: Expected TID251 ban-api violation in ruff output; got: ''
+E   assert 'TID251' in ''
+E    +  where '' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python', '-...rr='/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n').stdout
+___________________ test_ruff_passes_on_real_adapter_module ____________________
+tests/cli/eval/test_claude_process_adapter.py:481: in test_ruff_passes_on_real_adapter_module
+    assert result.returncode == 0, (
+E   AssertionError: adapter module trips its own ban rule: '' '/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n'
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python', '-...rr='/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.venv/bin/python: No module named ruff\n').returncode
+________________________ test_V1_clean_tree_exits_zero _________________________
+tests/cli/test_verify_sync_hooks.py:141: in test_V1_clean_tree_exits_zero
+    assert result.returncode == 0, result.stdout + result.stderr
+E   AssertionError: 🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+E     
+E     === Skills ===
+E       ❌ MISSING in .claude/skills/: ccsession-tag
+E       ❌ MISSING in .claude/skills/: confidence-check
+E       ❌ MISSING in .claude/skills/: operational-guide
+E       ❌ MISSING in .claude/skills/: prd
+E       ❌ MISSING in .claude/skills/: readme
+E       ❌ MISSING in .claude/skills/: roadmap
+E       ❌ MISSING in .claude/skills/: sc-adversarial-protocol
+E       ❌ MISSING in .claude/skills/: sc-auggie-review-protocol
+E       ❌ MISSING in .claude/skills/: sc-bare-review
+E       ❌ MISSING in .claude/skills/: sc-brainstorm-protocol
+E       ❌ MISSING in .claude/skills/: sc-cleanup-audit-protocol
+E       ❌ MISSING in .claude/skills/: sc-cli-eval-protocol
+E       ❌ MISSING in .claude/skills/: sc-cli-portify-protocol
+E       ❌ MISSING in .claude/skills/: sc-crash-recovery
+E       ❌ MISSING in .claude/skills/: sc-graph-protocol
+E       ❌ MISSING in .claude/skills/: sc-impact-protocol
+E       ❌ MISSING in .claude/skills/: sc-implement-protocol
+E       ❌ MISSING in .claude/skills/: sc-init-lite-protocol
+E       ❌ MISSING in .claude/skills/: sc-pm-protocol
+E       ❌ MISSING in .claude/skills/: sc-post-release-protocol
+E       ❌ MISSING in .claude/skills/: sc-pr-submit-protocol
+E       ❌ MISSING in .claude/skills/: sc-recommend
+E       ❌ MISSING in .claude/skills/: sc-reflect-protocol
+E       ❌ MISSING in .claude/skills/: sc-release-split-protocol
+E       ❌ MISSING in .claude/skills/: sc-review-translation-protocol
+E       ❌ MISSING in .claude/skills/: sc-roadmap-protocol
+E       ❌ MISSING in .claude/skills/: sc-swarm-wizard-protocol
+E       ❌ MISSING in .claude/skills/: sc-task-protocol
+E       ❌ MISSING in .claude/skills/: sc-tasklist-protocol
+E       ❌ MISSING in .claude/skills/: sc-troubleshoot-protocol
+E       ❌ MISSING in .claude/skills/: sc-validate-roadmap-protocol
+E       ❌ MISSING in .claude/skills/: sc-validate-tests-protocol
+E       ❌ MISSING in .claude/skills/: sc-workflow-protocol
+E       ❌ MISSING in .claude/skills/: task-builder
+E       ❌ MISSING in .claude/skills/: task
+E       ❌ MISSING in .claude/skills/: tdd
+E       ❌ MISSING in .claude/skills/: tech-reference
+E       ❌ MISSING in .claude/skills/: tech-research
+E     
+E     === Agents ===
+E       ❌ MISSING in .claude/agents/: audit-analyzer.md
+E       ❌ MISSING in .claude/agents/: audit-comparator.md
+E       ❌ MISSING in .claude/agents/: audit-consolidator.md
+E       ❌ MISSING in .claude/agents/: audit-scanner.md
+E       ❌ MISSING in .claude/agents/: audit-validator.md
+E       ❌ MISSING in .claude/agents/: auggie-reviewer.md
+E       ❌ MISSING in .claude/agents/: backend-architect.md
+E       ❌ MISSING in .claude/agents/: business-panel-experts.md
+E       ❌ MISSING in .claude/agents/: confidence-calibrator.md
+E       ❌ MISSING in .claude/agents/: debate-orchestrator.md
+E       ❌ MISSING in .claude/agents/: deep-research-agent.md
+E       ❌ MISSING in .claude/agents/: deep-research.md
+E       ❌ MISSING in .claude/agents/: devops-architect.md
+E       ❌ MISSING in .claude/agents/: eval-docs-loader.md
+E       ❌ MISSING in .claude/agents/: eval-run-reporter.md
+E       ❌ MISSING in .claude/agents/: eval-suite-author.md
+E       ❌ MISSING in .claude/agents/: evidence-validator.md
+E       ❌ MISSING in .claude/agents/: frontend-architect.md
+E       ❌ MISSING in .claude/agents/: implement-retry-adviser.md
+E       ❌ MISSING in .claude/agents/: learning-guide.md
+E       ❌ MISSING in .claude/agents/: merge-executor.md
+E       ❌ MISSING in .claude/agents/: performance-engineer.md
+E       ❌ MISSING in .claude/agents/: pm-agent.md
+E       ❌ MISSING in .claude/agents/: python-expert.md
+E       ❌ MISSING in .claude/agents/: quality-engineer.md
+E       ❌ MISSING in .claude/agents/: refactoring-expert.md
+E       ❌ MISSING in .claude/agents/: reflect-reviewer.md
+E       ❌ MISSING in .claude/agents/: repo-index.md
+E       ❌ MISSING in .claude/agents/: requirements-analyst.md
+E       ❌ MISSING in .claude/agents/: reuse-auditor.md
+E       ❌ MISSING in .claude/agents/: rf-analyst.md
+E       ❌ MISSING in .claude/agents/: rf-assembler.md
+E       ❌ MISSING in .claude/agents/: rf-qa-qualitative.md
+E       ❌ MISSING in .claude/agents/: rf-qa.md
+E       ❌ MISSING in .claude/agents/: rf-task-builder.md
+E       ❌ MISSING in .claude/agents/: rf-task-executor.md
+E       ❌ MISSING in .claude/agents/: rf-task-researcher.md
+E       ❌ MISSING in .claude/agents/: rf-team-lead.md
+E       ❌ MISSING in .claude/agents/: root-cause-analyst.md
+E       ❌ MISSING in .claude/agents/: security-engineer.md
+E       ❌ MISSING in .claude/agents/: self-review.md
+E       ❌ MISSING in .claude/agents/: socratic-mentor.md
+E       ❌ MISSING in .claude/agents/: system-architect.md
+E       ❌ MISSING in .claude/agents/: technical-writer.md
+E       ❌ MISSING in .claude/agents/: troubleshoot-analyst.md
+E     
+E     === Commands ===
+E       ❌ MISSING in .claude/commands/sc/: adversarial.md
+E       ❌ MISSING in .claude/commands/sc/: agent.md
+E       ❌ MISSING in .claude/commands/sc/: analyze.md
+E       ❌ MISSING in .claude/commands/sc/: auggie-review.md
+E       ❌ MISSING in .claude/commands/sc/: brainstorm.md
+E       ❌ MISSING in .claude/commands/sc/: build.md
+E       ❌ MISSING in .claude/commands/sc/: business-panel.md
+E       ❌ MISSING in .claude/commands/sc/: cleanup-audit.md
+E       ❌ MISSING in .claude/commands/sc/: cleanup.md
+E       ❌ MISSING in .claude/commands/sc/: cli-eval.md
+E       ❌ MISSING in .claude/commands/sc/: cli-portify.md
+E       ❌ MISSING in .claude/commands/sc/: design.md
+E       ❌ MISSING in .claude/commands/sc/: document.md
+E       ❌ MISSING in .claude/commands/sc/: explain.md
+E       ❌ MISSING in .claude/commands/sc/: git.md
+E       ❌ MISSING in .claude/commands/sc/: graph.md
+E       ❌ MISSING in .claude/commands/sc/: help.md
+E       ❌ MISSING in .claude/commands/sc/: impact.md
+E       ❌ MISSING in .claude/commands/sc/: implement.md
+E       ❌ MISSING in .claude/commands/sc/: improve.md
+E       ❌ MISSING in .claude/commands/sc/: index-repo.md
+E       ❌ MISSING in .claude/commands/sc/: index.md
+E       ❌ MISSING in .claude/commands/sc/: init-lite.md
+E       ❌ MISSING in .claude/commands/sc/: load.md
+E       ❌ MISSING in .claude/commands/sc/: pm.md
+E       ❌ MISSING in .claude/commands/sc/: post-release.md
+E       ❌ MISSING in .claude/commands/sc/: pr-submit.md
+E       ❌ MISSING in .claude/commands/sc/: recommend.md
+E       ❌ MISSING in .claude/commands/sc/: reflect.md
+E       ❌ MISSING in .claude/commands/sc/: release-split.md
+E       ❌ MISSING in .claude/commands/sc/: research.md
+E       ❌ MISSING in .claude/commands/sc/: review-translation.md
+E       ❌ MISSING in .claude/commands/sc/: roadmap.md
+E       ❌ MISSING in .claude/commands/sc/: save.md
+E       ❌ MISSING in .claude/commands/sc/: spawn.md
+E       ❌ MISSING in .claude/commands/sc/: spec-panel.md
+E       ❌ MISSING in .claude/commands/sc/: swarm-wizard.md
+E       ❌ MISSING in .claude/commands/sc/: task.md
+E       ❌ MISSING in .claude/commands/sc/: tasklist.md
+E       ❌ MISSING in .claude/commands/sc/: tdd.md
+E       ❌ MISSING in .claude/commands/sc/: test.md
+E       ❌ MISSING in .claude/commands/sc/: troubleshoot.md
+E       ❌ MISSING in .claude/commands/sc/: validate-roadmap.md
+E       ❌ MISSING in .claude/commands/sc/: validate-tests.md
+E       ❌ MISSING in .claude/commands/sc/: workflow.md
+E     
+E     === Hooks ===
+E       ❌ MISSING in .claude/hooks/: auggie-flag-clear.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: codegraph-session-start.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-file-changed.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-post-read.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-pre-edit.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-session-start.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-subagent-start.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-subagent-stop.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: freshness-user-prompt.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: reject-workspace-writes.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: sc-recommend-phase0.sh (run 'make sync-dev')
+E       ❌ MISSING in .claude/hooks/: pragmatic-subagent.js (run 'make sync-dev')
+E     
+E     === Templates ===
+E       ❌ MISSING in .claude/templates/: workflow/05_prd_template.md
+E       ❌ MISSING in .claude/templates/: workflow/03_project_plan_template.md
+E       ❌ MISSING in .claude/templates/: workflow/03_component_authoring_template.md
+E       ❌ MISSING in .claude/templates/: workflow/00_mdtm_template_simple_task.md
+E       ❌ MISSING in .claude/templates/: workflow/01_mdtm_template_generic_task__gfdoc.md
+E       ❌ MISSING in .claude/templates/: workflow/06_architecture_proposal_template.md
+E       ❌ MISSING in .claude/templates/: workflow/02_mdtm_template_complex_task.md
+E       ❌ MISSING in .claude/templates/: workflow/04_feature_brief_template.md
+E       ❌ MISSING in .claude/templates/: workflow/changelog_template.md
+E       ❌ MISSING in .claude/templates/: workflow/01_mdtm_template_generic_task.md
+E       ❌ MISSING in .claude/templates/: workflow/99_mdtm_template_generic_task_old.md
+E       ❌ MISSING in .claude/templates/: documents/prd_template.md
+E       ❌ MISSING in .claude/templates/: documents/operational_guide_template.md
+E       ❌ MISSING in .claude/templates/: documents/GFxAI_Master_Documentation_Template.md
+E       ❌ MISSING in .claude/templates/: documents/tdd_template.md
+E       ❌ MISSING in .claude/templates/: documents/agent_template_analysis.md
+E       ❌ MISSING in .claude/templates/: documents/supplemental-doc-creation-checklist.md
+E       ❌ MISSING in .claude/templates/: documents/agent_template_qa.md
+E       ❌ MISSING in .claude/templates/: documents/skill_template.md
+E       ❌ MISSING in .claude/templates/: documents/roadmap_template.md
+E       ❌ MISSING in .claude/templates/: documents/agent_template_worker.md
+E       ❌ MISSING in .claude/templates/: documents/release-spec-template.md
+E       ❌ MISSING in .claude/templates/: documents/supplemental_doc_template.md
+E       ❌ MISSING in .claude/templates/: documents/technical_reference_template.md
+E       ❌ MISSING in .claude/templates/: documents/readme_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-fix-summary_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-research-alignment_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/analyst-synthesis-review_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/research-notes_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/synthetic-dnsp-finding.contract
+E       ❌ MISSING in .claude/templates/: modularization-template-review/INDEX.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-validation-structure_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-cross-source-contradictions_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/track-scope-map_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/claim-evidence-matrix_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-inventory_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/analyst-coverage-matrix_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/codebase-research_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/analyst-completeness_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/analyst-gap-analysis_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-lens_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-consolidated-findings_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-validation-b2_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-gap_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-evidence_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-qualitative-operational_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-qualitative-sufficiency_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/analyst-cross-validation_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-acceptance-methodology-audit_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/pipeline-complete_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-source-fidelity_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-depth_report_template.md
+E       ❌ MISSING in .claude/templates/: modularization-template-review/web-research_template.md
+E     
+E     === Installer Registration ===
+E       ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+E     
+E     === Hooks Cross-Consistency ===
+E       ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+E     
+E     ❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+E     make: *** [Makefile:168: verify-sync] Error 1
+E     
+E   assert 2 == 0
+E    +  where 2 = CompletedProcess(args=['make', 'verify-sync'], returncode=2, stdout="🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n...'make sync-dev' to fix, or copy .claude/ changes to src/.\n", stderr='make: *** [Makefile:168: verify-sync] Error 1\n').returncode
+_____________________ test_V2_missing_claude_hook_detected _____________________
+tests/cli/test_verify_sync_hooks.py:149: in test_V2_missing_claude_hook_detected
+    with _temporarily_remove_file(claude_hook):
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/cli/test_verify_sync_hooks.py:84: in _temporarily_remove_file
+    path.rename(backup)
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1175: in rename
+    os.rename(self, target)
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.claude/hooks/auggie-flag-clear.sh' -> '/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.claude/hooks/auggie-flag-clear.sh.pytestbak'
+_________________________ test_V7_regression_to_master _________________________
+tests/cli/test_verify_sync_hooks.py:221: in test_V7_regression_to_master
+    assert "DRIFT" in result.stdout or "DIFFERS" in result.stdout
+E   assert ('DRIFT' in "🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n\n=== Skills ===\n  ❌ MISSING in .claude/skills/: ccsession-tag\n  ❌...ase body agree on auggie prefixes\n\n❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n" or 'DIFFERS' in "🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n\n=== Skills ===\n  ❌ MISSING in .claude/skills/: ccsession-tag\n  ❌...ase body agree on auggie prefixes\n\n❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n")
+E    +  where "🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n\n=== Skills ===\n  ❌ MISSING in .claude/skills/: ccsession-tag\n  ❌...ase body agree on auggie prefixes\n\n❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n" = CompletedProcess(args=['make', 'verify-sync'], returncode=2, stdout="🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n...'make sync-dev' to fix, or copy .claude/ changes to src/.\n", stderr='make: *** [Makefile:168: verify-sync] Error 1\n').stdout
+E    +  and   "🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n\n=== Skills ===\n  ❌ MISSING in .claude/skills/: ccsession-tag\n  ❌...ase body agree on auggie prefixes\n\n❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.\n" = CompletedProcess(args=['make', 'verify-sync'], returncode=2, stdout="🔍 Verifying src/superclaude/ ↔ .claude/ sync...\n...'make sync-dev' to fix, or copy .claude/ changes to src/.\n", stderr='make: *** [Makefile:168: verify-sync] Error 1\n').stdout
+=============================== warnings summary ===============================
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_runs_without_tasklist
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:90: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_does_not_launch_reflect_audit_machinery
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:109: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_does_not_write_lock_by_default
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:133: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_ban_import_rule.py::test_clean_tree_passes_ruff_check
+FAILED tests/cli/eval/test_ban_import_rule.py::test_synthetic_import_anthropic_is_flagged_by_ruff
+FAILED tests/cli/eval/test_ban_import_rule.py::test_ban_message_references_fr_g1
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+FAILED tests/cli/test_verify_sync_hooks.py::test_V1_clean_tree_exits_zero - A...
+FAILED tests/cli/test_verify_sync_hooks.py::test_V2_missing_claude_hook_detected
+FAILED tests/cli/test_verify_sync_hooks.py::test_V7_regression_to_master - as...
+====== 8 failed, 3008 passed, 5 skipped, 1 xpassed, 5 warnings in 56.92s =======
+rc=1

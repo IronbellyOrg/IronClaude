@@ -1,0 +1,5 @@
+$ make verify-sync
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0

@@ -1,0 +1,7 @@
+# AC-C6 (./source.md section 7.1), run 2026-11-03
+# ORCA_RUNTIME_SOURCE_PROFILE_PATH=/home/coder/.config/orca
+# profiles: local-default 
+$ grep -ho '"nestedWorkerMaxDepth":[0-9]*' "${ORCA_RUNTIME_SOURCE_PROFILE_PATH:-$HOME/.config/orca}"/profiles/*/orca-data.json
+"nestedWorkerMaxDepth":1
+# rc=0
+# Result: one profile (local-default), one line, value 1. No profile printed nothing, so no profile relies on the presumed default.

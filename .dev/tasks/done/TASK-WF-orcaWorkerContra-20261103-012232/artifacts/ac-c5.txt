@@ -1,0 +1,7 @@
+# AC-C5 (./source.md section 7.1): run for every command file the phase edits without a named defect fix.
+# P0 edits no command file, so the edit set is empty. Evidence that the set is empty:
+$ git diff --numstat "$(git merge-base master HEAD)" -- src/superclaude/commands/   # merge base c118b5a59d365b894c5f2caa2270ec9986812934
+rc=0 (no output = no tracked command file changed)
+$ git status --short --untracked-files=all -- src/superclaude/commands/
+rc=0 (no output = no new or changed command file)
+# Edit set: empty. The per-file AC-C5 check therefore runs zero times and prints nothing: pass.

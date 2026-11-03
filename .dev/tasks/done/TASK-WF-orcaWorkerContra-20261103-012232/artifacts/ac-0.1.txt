@@ -1,0 +1,7 @@
+$ uv run python -c "from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES"
+rc=0
+$ AC-0.1 install check (./source.md section 7.3 block)
+rc=0
+$ uv run pytest tests/skills/test_worker_contract.py -q -p no:cacheprovider
+============================= 196 passed in 0.83s ==============================
+rc=0
