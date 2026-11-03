@@ -3,7 +3,8 @@
 # Two throwaway HOMEs under /tmp; real ~/.claude, ~/.claude.json, pipx and ~/.codegraph are never used.
 set -u -o pipefail
 umask 077
-ROOT=$(mktemp -d /tmp/ic-e2e.XXXXXXXX)
+ROOT=$(mktemp -d /tmp/ic-e2e.XXXXXXXX) || { echo "FATAL: mktemp -d /tmp/ic-e2e.XXXXXXXX failed" >&2; exit 1; }
+[ -n "$ROOT" ] && [ -d "$ROOT" ] || { echo "FATAL: ROOT=[$ROOT] is not a directory" >&2; exit 1; }
 cleanup() { rm -rf "$ROOT" && echo "CLEANUP_OK $ROOT" || echo "CLEANUP_FAIL path=$ROOT"; }
 trap cleanup EXIT INT TERM
 
