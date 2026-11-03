@@ -1,7 +1,8 @@
 # Lens contribution policy
 
 **Scope:** governance for new entries in `cli/swarm/lenses/__init__.py::LENSES`
-(the 8-entry built-in registry described in §3 of the merged requirements).
+(8 bundled lenses plus the `custom` escape hatch, 9 registry entries; see
+§3 of the merged requirements).
 Lens entries are not application code — they are vetted shortcuts that
 expand into full job specs at preflight time and are dispatched against
 real workers. A misconfigured entry can leak prompt-injection vectors,
@@ -35,7 +36,10 @@ this list is the single sign-off surface.
 - [ ] **C1 -- Real caller.** A real caller wires this lens in
       production (or a checked-in test fixture demonstrates the
       caller). Speculative "we might want this someday" entries
-      belong in `--custom-prompt-dir` until a caller exists. See §2.
+      belong in a `custom` lens job spec that sets the JobSpec
+      `custom_prompt_dir` field (set in the spec file; no
+      `swarm run` option sets it in 5.0.0) until a caller exists.
+      See §2.
 - [ ] **C2 -- §11.5 injection-guard substring.** `system_prompt_fragment`
       contains the canonical §11.5 sentence verbatim. The validator's
       `lens.injection_substring_missing` assertion blocks PRs that
@@ -184,7 +188,9 @@ A lens entry MUST have a real caller before it can be promoted past
   alongside their first caller in the same PR).
 
 Speculative entries -- "we might want a `code-review` lens" -- belong
-in caller-side `--custom-prompt-dir` until a caller materialises.
+in a caller-side `custom` job spec that sets the JobSpec
+`custom_prompt_dir` field (set in the spec file; no `swarm run` option
+sets it in 5.0.0) until a caller materialises.
 The `custom` escape hatch exists precisely to host these prototypes
 without inflating the bundled registry.
 
@@ -212,12 +218,11 @@ registry small and self-policing.
 
 | Tier | Meaning | PR-review bar |
 |---|---|---|
-| `experimental` | Default for entries beyond `bare-review`. Caller exists but the lens is freshly landed. | Owner sign-off; `validate-lenses` green. |
+| `experimental` | Default for new entries. Caller exists but the lens is freshly landed. | Owner sign-off; `validate-lenses` green. |
 | `stable` | Promoted entry. Real caller has used it in production. | Architect sign-off; ≥2 weeks production usage cited. |
 
-`bare-review` is the only entry shipping `stable` at M3 exit (it is
-the founding caller). All other 6 non-custom entries ship
-`experimental` per §3.3.
+`bare-review` (the founding caller) and `reflect-review` ship `stable`.
+The other 6 non-custom entries ship `experimental` per §3.3.
 
 ## §3 §11.5 prompt-injection substring (C2)
 
@@ -231,8 +236,8 @@ canonical §11.5 injection-guard substring verbatim. The COMP-023
 validator's `lens.injection_substring_missing` assertion enforces this
 at `swarm validate-lenses` time. The same substring rule is also
 enforced on `prompt.system` by the JSON-Schema validator (FR-019,
-T02.03) and on `<custom-prompt-dir>/system.txt` (FR-021 / INV-003,
-T02.05). All three paths share `preflight.py::enforce_injection_guard`
+T02.03) and on `system.txt` in the directory named by the JobSpec
+`custom_prompt_dir` field (FR-021 / INV-003, T02.05). All three paths share `preflight.py::enforce_injection_guard`
 (T02.07) -- the validator's lens-side assertion is the registry-time
 mirror of the runtime guard.
 
@@ -465,7 +470,7 @@ person from each of the two ownership groups below:
   C5 (`suspect:true` justification).
 - **`security`** -- owner for the §11.5 injection-guard binding
   across all three prompt-input paths (lens / JSON-Schema /
-  custom-prompt-dir). Reviews C2 (§11.5 substring) plus any change
+  JobSpec `custom_prompt_dir`). Reviews C2 (§11.5 substring) plus any change
   that touches `cli/swarm/lenses/_validate.py` (since validator
   changes affect security-critical assertions).
 

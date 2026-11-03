@@ -1,0 +1,3 @@
+docs/dev/sync-discipline.md
+docs/dev/lens-contribution-policy.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md

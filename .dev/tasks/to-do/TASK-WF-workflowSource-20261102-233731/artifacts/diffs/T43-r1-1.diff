@@ -1,0 +1,130 @@
+--- a/docs/developer-guide/codegraph-integration.md
++++ b/docs/developer-guide/codegraph-integration.md
+@@ -0,0 +1,127 @@
++# codegraph Integration (Design Note)
++
++This note explains how IronClaude 5.0.0 installs, registers and uses codegraph, and how the same install run retires the old Serena and codebase-memory-mcp registrations. It is for maintainers who change the installer, the hook or the codegraph rules for commands, skills and agents. Every claim cites the code at tag v5.0.0; line numbers are from that tag.
++
++For the user-facing view, see [codegraph user guide](../user-guide/codegraph.md) and [MCP installation: default setup](../user-guide/mcp-installation.md#default-setup-codegraph).
++
++## Contents
++
++1. [Parts and files](#parts-and-files)
++2. [Acquisition: getting the pinned binary](#acquisition-getting-the-pinned-binary)
++3. [Registration: the user-scope MCP entry](#registration-the-user-scope-mcp-entry)
++4. [Sequencing inside `superclaude install`](#sequencing-inside-superclaude-install)
++5. [SessionStart auto-index hook](#sessionstart-auto-index-hook)
++6. [Primitive contract and the primitives switch](#primitive-contract-and-the-primitives-switch)
++7. [Observability: `install --list` and `doctor`](#observability-install---list-and-doctor)
++8. [Retire step: Serena and codebase-memory-mcp](#retire-step-serena-and-codebase-memory-mcp)
++9. [Updating the pin](#updating-the-pin)
++
++## Parts and files
++
++| Part | File |
++|---|---|
++| Binary discovery, download, checksum, extraction, receipt, links, pruning | `src/superclaude/cli/install_codegraph.py` |
++| User-scope registration, readiness check, `install --list` block | `src/superclaude/cli/install_mcp.py` (`install_codegraph_mcp`, `codegraph_ready`, `codegraph_list_lines`) |
++| Install sequencing (step 8 and step 9) | `src/superclaude/cli/main.py` |
++| Retire step | `src/superclaude/cli/install_retired_mcp.py` |
++| `doctor` checks | `src/superclaude/cli/doctor.py` (`_check_codegraph`, `_check_retired_mcp`) |
++| SessionStart hook | `src/superclaude/hooks/hooks.json`, `src/superclaude/hooks/scripts/codegraph-session-start.sh` |
++| Rules for commands, skills and agents | `src/superclaude/core/CODEGRAPH.md` (installed as `~/.claude/CODEGRAPH.md`), `src/superclaude/core/CLAUDE.md` block |
++| Commands | `src/superclaude/commands/graph.md`, `src/superclaude/commands/impact.md` |
++
++## Acquisition: getting the pinned binary
++
++`install_codegraph.acquire()` returns `(ok, message, launcher path)` and is written not to raise for expected faults (`install_codegraph.py:271-365`). It uses only the standard library.
++
++1. **Pin.** `VERSION = "1.6.2"`, `TAG = "v1.6.2"`, and a SHA-256 table with one digest per asset (`install_codegraph.py:26-33`).
++2. **Discover first, no network.** `inspect_binary()` looks at `codegraph` on `PATH`, then `~/.local/bin/codegraph`, runs `--version` on each (10 s timeout) and accepts the first copy that prints exactly `1.6.2` (`install_codegraph.py:37-38,97-128`). A found copy is used as is; the pointer file is written and a warning is added when the `PATH` copy is not the one being registered (`install_codegraph.py:155-163,273-278`).
++3. **Platform table.** Only `linux` and `darwin` on `x64` or `arm64` get an automatic install (`install_codegraph.py:46-52`). Any other platform fails with a message telling the user to install a copy that prints `1.6.2` themselves (`install_codegraph.py:280-289`).
++4. **Pre-existing directory rule.** If `~/.codegraph/versions/v1.6.2` exists but the receipt does not list it (for example, upstream's own installer created it), it is used only when its binary prints the pin; otherwise the install fails and asks the user to remove it (`install_codegraph.py:291-306`).
++5. **Download.** One call to `https://github.com/colbymchenry/codegraph/releases/download/v1.6.2/codegraph-<asset>.tar.gz` with a 60 s timeout, into a temporary `~/.codegraph/.dl-*` directory that is always deleted (`install_codegraph.py:37,186-190,308-327,356-357`). A download error names the URL and the expected SHA-256 so the user can do it by hand.
++6. **Checksum.** The archive's SHA-256 must equal the pinned digest; a mismatch fails with both values (`install_codegraph.py:328-330`).
++7. **Strict extraction.** At most 20,000 members and 2 GiB in total; every member must be a regular file or directory under the single `codegraph-<asset>/` prefix, with no absolute path and no `..` (`install_codegraph.py:39-40,193-207`). Files are created with `O_EXCL` and `O_NOFOLLOW`, mode 0755 or 0644 only (`install_codegraph.py:210-224`). The extracted binary must print the pin before anything is moved into place (`install_codegraph.py:338-340`).
++8. **Receipt written first.** The receipt `~/.codegraph/.superclaude-receipt.json` (mode 0600, atomic write) records each version directory and link before it is created, so removal never guesses what IronClaude owns (`install_codegraph.py:59-60,79-86,342-353`).
++9. **Links never replace a foreign link.** Two convenience links, `~/.local/bin/codegraph` and `~/.codegraph/current`, are pointed at the new version only when they are missing or are links the receipt says IronClaude created; anything else is left alone with a note (`install_codegraph.py:67-72,236-264`).
++10. **Pointer file.** `~/.codegraph/.superclaude-bin` holds the absolute path of the binary in use; the hook and the main session read it (`install_codegraph.py:63-64,141-152`).
++11. **Prune one run later.** After a verified registration, older receipt-listed version directories that nothing resolves into are deleted, but a directory installed in this run keeps its predecessor for one more run (the `fresh` flag) (`install_codegraph.py:368-404`; called from `install_mcp.py:1102-1107`).
++
++## Registration: the user-scope MCP entry
++
++`install_mcp.install_codegraph_mcp()` (`install_mcp.py:922-1020`) is the only writer of the codegraph entry. `superclaude mcp --servers codegraph` reaches the same function (`install_mcp.py:1125-1128`).
++
++- **User scope only.** Any other scope is refused (`install_mcp.py:926-927`).
++- **Prerequisite.** `claude --version` must succeed before discovery or download starts (`install_mcp.py:937-947`).
++- **Read path.** The current entry is read from the top-level `mcpServers.codegraph` of `$CLAUDE_CONFIG_DIR/.claude.json`, or `~/.claude.json` when the variable is unset; an empty variable, a parse error or a duplicate JSON key means "unknown" and no change is attempted (`install_mcp.py:709-757,954-960`).
++- **Write path.** Writes go only through `claude mcp add-json codegraph <json> --scope user` and `claude mcp remove codegraph --scope user`, each bounded to 60 s with output discarded (`install_mcp.py:893-902`).
++- **Exact entry.** `type: stdio`, the absolute launcher path, `args: ["serve", "--mcp"]`, `alwaysLoad: true`, and env `CODEGRAPH_TELEMETRY=0`, `CODEGRAPH_NO_UPDATE_CHECK=1`, `CODEGRAPH_MCP_TOOLS=node,search,callers,callees,impact,files,status` (`install_codegraph.py:35`; `install_mcp.py:862-874`).
++- **Owned versus user-managed.** An entry that holds only fields IronClaude writes is "owned" and is replaced when it differs; anything else is "user" and is kept if its command runs, or reported as a failure if it does not, with the removal command to run (`install_mcp.py:877-890,967-999`). A failed add or verification restores the previous entry when possible (`install_mcp.py:905-919,1000-1020`).
++- **No live check.** Success means the entry was read back equal to the expected one; no indexing or MCP handshake is performed, and the message asks the user to restart Claude sessions (`install_mcp.py:962-966`).
++
++**Why `codegraph_explore` is hidden.** `CODEGRAPH_MCP_TOOLS` lists seven narrow tools and leaves out `codegraph_explore`, which added about 1,861 tokens per session in four headless runs (`CHANGELOG.md:92`). A test fails if `explore` is ever added to the list (`tests/cli/test_install_codegraph.py:141`), and the rules file forbids calling it (`core/CODEGRAPH.md:89`).
++
++## Sequencing inside `superclaude install`
++
++- codegraph is step 8 of `superclaude install`, after the framework steps 1 to 7 (`main.py:239-253`). The `--help` text states it is a required user-level phase and that `--force` is not forwarded to it (`main.py:50-52`).
++- A failure, or any exception in the phase, keeps the framework work already done, still runs the retire step, and makes the command exit 1 (`main.py:247-253,269-280`).
++- Step 9 is the retire step; it counts codegraph as ready only when step 8 passed in this run and `codegraph_ready()` agrees (`main.py:255-267`).
++- `superclaude update` does not run the codegraph phase or change any MCP registration; it only prints the retire notice when something is removable (`main.py:334-429`, notice at `main.py:407-415`).
++
++## SessionStart auto-index hook
++
++- **Registration.** `hooks.json` registers `~/.claude/hooks/codegraph-session-start.sh` on `SessionStart` with matcher `startup` and timeout 5 (`hooks.json:24-29`). The installer ships the script (`install_hooks.py:79-81`).
++- **Skip rules.** The script exits 0 and does nothing when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, `HOME` is unset, no executable codegraph is found (pointer file first, then `command -v codegraph`), the directory is not in a git checkout, the checkout top is `$HOME` or `/`, or `<top>/.codegraph/codegraph.db` exists in any state (`codegraph-session-start.sh:11-25`).
++- **Detached init.** It starts one `nohup <codegraph> init --yes <top>` in the background with every descriptor redirected, so Claude Code does not wait, and logs to `${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/codegraph-init.log` (`codegraph-session-start.sh:27-32`).
++- **What it never runs.** `status`, `index` or `sync`, because each can destroy a concurrent init; two racing inits are harmless (`codegraph-session-start.sh:6-9`).
++- **Cost model.** About 70 KB per indexed file and up to about 1 GB of memory during the first init; the opt-out is recommended for CI and headless pipelines (`CHANGELOG.md:93`).
++
++## Primitive contract and the primitives switch
++
++`~/.claude/CODEGRAPH.md` is the one place that holds the rules every command, skill and agent follows; primitives point to it and never copy it (`core/CODEGRAPH.md:3`).
++
++- **Readiness check**, once per run: switch, worktree root, MCP tool detection, version against the pin, index state, access mode, and a timestamp (`core/CODEGRAPH.md:9-24`).
++- **Closed `graph:*` token list.** Fourteen tokens; no token stops a run (`core/CODEGRAPH.md:28-32`). `tests/core/test_codegraph_guide.py` checks that no other token appears.
++- **Read before cite.** A graph answer locates code but is never a citation; a `file:line` range is re-Read before it is quoted or edited (`core/CODEGRAPH.md:7,68`).
++- **Grep/Read floor.** codegraph steps go above the existing Grep/Read step, which stays; any unusable state falls back to it (`core/CODEGRAPH.md:69,76`).
++- **Primitives switch.** `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` turns off codegraph use in commands, skills and agents only (token `graph:disabled`); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the hook (`core/CODEGRAPH.md:11,26`; `CHANGELOG.md:87`).
++- **Main-session guidance.** The installed `~/.claude/CLAUDE.md` carries a codegraph block between `SUPERCLAUDE_CODEGRAPH_BEGIN` and `SUPERCLAUDE_CODEGRAPH_END` (`core/CLAUDE.md:28-30`).
++- **`/sc:graph`** reports readiness and is the only manual init path; init runs only when the user's own message starts with `/sc:graph init`, never from a skill or agent (`commands/graph.md:14,44-53,62-66`).
++- **`/sc:impact`** lists definitions and dependents, writes `impact.md` and `return-contract.yaml`, falls back to Grep, and never stops its caller or changes its gate or verdict (`commands/impact.md:13,47-50,60-64`).
++
++## Observability: `install --list` and `doctor`
++
++- **`superclaude install --list`** prints a codegraph block (executable, owner, user registration, `Ready for Serena retirement`) and then one line per retired name (`main.py:155-171`). The block downloads nothing and makes no `claude mcp` call; it reads the config file and runs `codegraph --version` (`install_mcp.py:1059-1099`).
++- **Readiness predicate.** `codegraph_ready()` is shared by `install`, `install --list` and `doctor`: a matching or owned entry is ready when its binary prints the pin; a user-managed entry is ready when its command runs, at any version (`install_mcp.py:1023-1056`).
++- **`superclaude doctor`**, check "codegraph MCP registration", fails only when a registered command is not an executable file. A missing entry, an unreadable config, a version other than the pin, upstream's `codegraph prompt-hook` or `CODEGRAPH_START` block, and the readiness line are details only (`doctor.py:146-214`).
++
++## Retire step: Serena and codebase-memory-mcp
++
++The retire step removes old MCP registrations IronClaude can prove it wrote (`install_retired_mcp.py:1-10`).
++
++- **Scope and bounds.** Only top-level user-scope entries are read and removed, with `claude mcp remove <name> --scope user`; 10 s per `claude` call and 15 s for the whole step (`install_retired_mcp.py:34-35,393-395`; `install_mcp.py:809-851`). Each entry is re-read and re-matched right before removal and checked again after; nothing is retried (`install_mcp.py:816-823`).
++- **Exit code.** No outcome changes the install exit code; the caller wraps the step in `try/except` (`main.py:255-267`; `install_retired_mcp.py:391`).
++- **Tier R (provable shapes).** Three Serena argv rows that only IronClaude or its pre-fork ancestor wrote are always removed (`install_retired_mcp.py:54-89,190-192`). A codebase-memory-mcp entry counts when its command is an absolute path named `codebase-memory-mcp`, with stdio, no args and no `env` or `headers` (`install_retired_mcp.py:151-175`).
++- **Tier K (kept).** Any other plain Serena launcher, including the current-pin `serena-agent==1.7.0` registration, is kept with the removal command printed, until codegraph is ready (`install_retired_mcp.py:91-95,193-195`; `CHANGELOG.md:113`). Entries with non-empty `env` or `headers` are kept as customised (`install_retired_mcp.py:147-148,188-189`).
++- **When codegraph is ready.** Removal widens to any plain Serena launcher, every renamed launcher except `serena-local`, and the kind-B codebase-memory registration whose binary still exists; the binary and its companions stay (`install_retired_mcp.py:27-30,163-171,259-290`).
++- **Receipt and marker files.** `~/.local/bin/.superclaude-codebase-memory.json` and `~/.local/bin/.superclaude-codebase-memory.pending` are deleted only once the codebase-memory-mcp binary is gone, and only when each is a private regular file the user owns in a directory that is not a symlink and not group- or world-writable (`install_retired_mcp.py:31-32,206-248,343-382`).
++- **Never touched.** Binaries, uv tools, indexes, caches and memories; the step prints manual cleanup commands instead (`install_retired_mcp.py:7-9,486-493`).
++- **No `claude` CLI.** Each removal is skipped and the manual command is printed (`install_retired_mcp.py:426-431`).
++- **Reporting.** `install --list` prints one verdict line per retired name (`install_retired_mcp.py:293-313`); `doctor` warns but never fails (`install_retired_mcp.py:327-340`; `doctor.py:217-239`); `update` prints only "legacy registration present: run `superclaude install`" (`install_retired_mcp.py:320-324`; `main.py:407-415`).
++
++## Updating the pin
++
++The code shows where the pin lives and what checks it. This is not a documented procedure; it lists the places a pin change must touch.
++
++| Place | What it holds |
++|---|---|
++| `src/superclaude/cli/install_codegraph.py:26-33` | `VERSION`, `TAG` and the four SHA-256 digests |
++| `src/superclaude/cli/install_codegraph.py:34-35` | `MCP_TOOLS`, chosen by the schema-cost check in `.dev/codegraph-migration/evidence/P2-mcp-tools-schema.md` |
++| `src/superclaude/core/CODEGRAPH.md:34` (and the byte-identical `plugins/superclaude/core/CODEGRAPH.md`) | `Pinned codegraph version: 1.6.2` |
++| `src/superclaude/commands/graph.md:51`, `src/superclaude/skills/sc-graph-protocol/SKILL.md:48-49,126-127`, `src/superclaude/skills/sc-impact-protocol/SKILL.md:120-121` | Text and examples that name 1.6.2 behaviour |
++
++Tests that pin it:
++
++- `tests/cli/test_install_codegraph.py:126-141` checks that the digest table equals the release checksums saved in `.dev/codegraph-migration/evidence/P2-release-SHA256SUMS.txt`, that `TAG` is `v` plus `VERSION`, and that `MCP_TOOLS` matches the evidence file and leaves out `explore`.
++- `tests/core/test_codegraph_guide.py:76-85` checks that the guide's pin line equals `VERSION`; `tests/core/test_codegraph_guide.py:132` checks that the plugin copy is byte-identical.
++- Test fixtures hard-code `1.6.2` (`tests/cli/test_install_codegraph.py:38,45,96`; `tests/unit/test_cli_doctor.py:241,287`; `tests/cli/test_update_command.py:355`).
++
++UNVERIFIED: how to fetch and save a new release's checksum file, how to rerun the schema-cost check, and whether the `1.6.2` behaviour notes in `/sc:graph` and its skill still hold for a newer codegraph. No script or document in the repository describes these steps.

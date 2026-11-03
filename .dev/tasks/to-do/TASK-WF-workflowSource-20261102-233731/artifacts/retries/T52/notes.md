@@ -1,0 +1,5 @@
+e5978887292bc7009b10b8c5e9917dcd8b0ffd42
+A1 r1-1 F1.2 minor docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md:86 ac=T52.AC1 n,n,n,n (origin=new) Step 4 cites transcript line 382 for `commands/sc: 45`; the line is 383 (deviations.md Task 52 carries the same :382 cite). Claim true.
+A1 r1-1 F1.3 note docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md:250 ac=scope n,n,n,n (origin=new) Sandbox gh commands use --repo "$SANDBOX" per the task's throwaway-repo instruction; recorded in deviations.md; nothing targets SuperClaude-Org.
+A2 r2-1 F2.1 note docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md:327 ac=scope n,n,n,n (origin=late) Cleanup names only session history as what Tier C leaves; the hook state/log files under ~/.claude/state and ~/.claude/logs (disclosed at :12) are not mentioned there.
+A2 r2-1 F2.2 minor docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md:12 ac=scope n,n,n,n (origin=fix-induced) auggie-flag-clear.sh is a PostToolUse hook (hooks.json:104) that writes after tool calls, not "at session start and on each prompt"; disclosure correct, timing imprecise.

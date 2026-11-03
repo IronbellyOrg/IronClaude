@@ -1,0 +1,358 @@
+--- a/docs/user-guide/commands.md
++++ b/docs/user-guide/commands.md
+@@ -2,11 +2,11 @@
+ 
+ <!-- markdownlint-disable MD040 MD051 -->
+ 
+-**Complete SuperClaude Framework Command Reference**
++**IronClaude command reference**
+ 
+ > This file serves two purposes: quick navigation for Claude Code and learning resource for humans.
+ 
+-**Last Updated**: 2026-10-14
++**Last Updated**: 2026-11-03
+ 
+ ---
+ 
+@@ -38,7 +38,7 @@
+ | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
+ | [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
+ | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
+-| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Short checked plan for a few files (level 3) | `workflow.md` | Only with `--handoff implement` |
++| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
+ | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
+ | `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
+ | `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
+@@ -65,7 +65,8 @@
+ | Command | Purpose | File | Changes files? |
+ |---------|---------|------|----------------|
+ | [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
+-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a task file you run with `/task`) |
++| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
++| [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
+ | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
+ | [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
+ | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
+@@ -110,6 +111,7 @@
+ | `/sc:load` | Load project memory from `.superclaude/memory/` (not a resume method) | `load.md` | No |
+ | `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
+ | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
++| [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
+ | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
+ | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
+ | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
+@@ -182,7 +184,7 @@
+ /sc:auggie-review [<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]
+ ```
+ 
+-**MCP servers:** none
++**MCP servers:** codegraph
+ 
+ ---
+ 
+@@ -196,7 +198,7 @@
+ /sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
+ ```
+ 
+-**MCP servers:** context7
++**MCP servers:** codegraph, context7
+ 
+ ---
+ 
+@@ -225,10 +227,44 @@
+ /sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
+ ```
+ 
++**Review loop:** its spec review runs 1 convergence iteration (a focus pass and a critique pass). MINOR findings go to the spec's Open Items and never start another pass; if CRITICAL findings are still unaddressed after that iteration it stops with `status: partial` and escalates them to you.
++
+ **MCP servers:** context7
+ 
+ ---
+ 
++### `/sc:graph` - Code-Graph Index Status
++
++**When to use:** Check whether this worktree's code-graph index is ready (codegraph version, pin match, index state, worktree relation, counts, pending files, telemetry and one next action). The session-start hook already starts indexing in every new checkout; type `/sc:graph init` only when it did not cover this worktree: a nested worktree that answers from its parent's index, the hook switched off with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, or an init that failed or was interrupted.
++
++**Syntax:**
++
++```
++/sc:graph [status|init] [--worktree-local] [--output-dir <dir>]
++```
++
++**Options:**
++
++| Flag | Default | What it does |
++|------|---------|--------------|
++| `status` \| `init` | `status` | `status` prints the readiness report. `init` builds the index for this worktree and runs only when you type it; no skill, agent or automatic flow runs it |
++| `--worktree-local` | off | Only with `init`: give a nested worktree its own index instead of its parent's |
++| `--output-dir <dir>` | screen only | Also write `return-contract.yaml` there |
++
++**Examples:**
++
++```bash
++/sc:graph                        # readiness report
++/sc:graph init                   # index this worktree
++/sc:graph init --worktree-local  # nested worktree: build its own index
++```
++
++It never rebuilds an existing index, never runs `init` while another init or index is running, and never changes MCP registration or installs codegraph.
++
++**MCP servers:** codegraph
++
++---
++
+ ### `/sc:help` - Installed Commands and Process Levels
+ 
+ **When to use:** List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide. It is read-only and does not recommend a workflow; for that, see [How We Work](how-we-work.md).
+@@ -243,6 +279,42 @@
+ 
+ ---
+ 
++### `/sc:impact` - Change Impact Report
++
++**When to use:** Before you change a symbol, see what depends on it: for named symbols, or for the symbols a diff touches, it lists their definitions and their production and test dependents (direct callers plus transitive impact), and with `--tests` adds an advisory list of test files. It never edits code, runs tests or builds an index (use `/sc:graph` for index status).
++
++**Syntax:**
++
++```
++/sc:impact <symbol>... | --diff [<base>] [--depth 1-3] [--limit N] [--tests] [--test-depth N] [--output-dir <dir>] [--caller <name>]
++```
++
++**Options:**
++
++| Flag | Default | What it does |
++|------|---------|--------------|
++| `<symbol>...` | none | 1-30 bare names (no `Class.method` or path); use either symbols or `--diff`, never both |
++| `--diff [<base>]` | `HEAD` when given without a value | Map the changed hunks of the diff to the symbols they touch |
++| `--depth 1-3` | `2` | Transitive depth for impact |
++| `--limit N` | `20` | Caller rows per symbol (1-100) |
++| `--tests` | off | Add an advisory test list; it can add tests to a selection, never remove any |
++| `--test-depth N` | codegraph's own | 1-5, only with `--tests` |
++| `--output-dir <dir>` | `<worktree>/.dev/impact/<slug>-<timestamp>/` | Where `impact.md` and `return-contract.yaml` are written |
++| `--caller <name>` | unset | Name of the calling skill; shortens the chat output to three lines |
++
++**Examples:**
++
++```bash
++/sc:impact parse_config                      # dependents of one symbol
++/sc:impact --diff origin/master --tests      # symbols a branch changed, plus advisory tests
++```
++
++When codegraph, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`.
++
++**MCP servers:** codegraph
++
++---
++
+ ### `/sc:index` - Project Documentation
+ 
+ **When to use:** Generate project documentation and a knowledge base with intelligent organization and cross-referencing. It does not override existing manual documentation without explicit permission.
+@@ -275,6 +347,9 @@
+ 
+ **When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
+ 
++- For 5.0.0 only, when `<project>/.superclaude/memory/<key>.md` is absent it reads the old `<project>/.serena/memories/<key>.md` instead, read-only: it never writes there and tells you that folder is read-only history.
++- It ends its summary by pointing you to `/sc:graph status` to see whether this worktree's code-graph index is ready; it never runs `/sc:graph` itself.
++
+ **Syntax:**
+ 
+ ```
+@@ -289,12 +364,12 @@
+ 
+ **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
+ 
+-**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/task-builder` then `/task`, and a new product or major feature to `/prd`, `/tdd`, `/roadmap`.
++**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to `/prd`, `/tdd`, then `/sc:workflow`.
+ 
+ **What it does:**
+ 
+ - Loads project memory from `.superclaude/memory/` (not a way to resume work)
+-- Delegates tasks to personas (backend, frontend, security...)
++- Delegates to specialist agents (backend, frontend, security...)
+ - Runs PDCA cycle: Plan → Do → Check → Act
+ - Saves notes to project memory in `.superclaude/memory/` (not a way to resume work)
+ 
+@@ -366,6 +441,8 @@
+ /sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--output-dir <dir>] [--resume <run-log.jsonl>]
+ ```
+ 
++`--yes` was removed in 5.0.0 (it was accepted but never read); drop it from your scripts.
++
+ **MCP servers:** auggie
+ 
+ ---
+@@ -451,7 +528,7 @@
+ 
+ ### `/sc:roadmap` - Roadmap Generator
+ 
+-**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`); for the default planning route use `/roadmap`, which writes a task file for every phase (see [How We Work](how-we-work.md), section 5).
++**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). For ordinary planning use `/sc:workflow`; `/roadmap` is the MDTM composer for when you explicitly select it (see [How We Work](how-we-work.md), section 5).
+ 
+ **Syntax:**
+ 
+@@ -501,7 +578,7 @@
+ 
+ ### `/sc:spawn` - Meta-System Task Orchestration
+ 
+-**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/task-builder` then `/task` instead (level 4 in [How We Work](how-we-work.md)).
++**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)).
+ 
+ **What it does:**
+ 
+@@ -546,7 +623,7 @@
+ 
+ ### `/sc:task` - Enhanced Task Management
+ 
+-**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow --depth quick` or `/task-builder`).
++**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow`, level 3; `/task-builder` only when you explicitly select MDTM).
+ 
+ **What it does:**
+ 
+@@ -582,6 +659,8 @@
+ /sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
+ ```
+ 
++**Review loop:** only High and Medium validation findings are blocking and get patched; Low findings are listed as notes and are never patched or re-checked. The patch loop runs at most one re-patch pass, then stops and escalates any open blocking findings to you instead of shipping them.
++
+ **MCP servers:** context7
+ 
+ ---
+@@ -650,7 +729,7 @@
+ /sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
+ ```
+ 
+-**MCP servers:** auggie
++**MCP servers:** auggie, codegraph
+ 
+ ---
+ 
+@@ -690,7 +769,7 @@
+ 
+ ### `/sc:workflow` - Implementation Plan Generator
+ 
+-**When to use:** A few files with clear scope that fit in one or two sessions (level 3 in [How We Work](how-we-work.md)); always pass `--depth quick`. It writes a phased plan (`<id>.md`, named like its package directory). For a PRD or TDD use `/roadmap`; for many files or multi-session work use `/task-builder`.
++**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory). Use `/task-builder` only when you explicitly select MDTM or have an exceptional need for its machinery (level 4).
+ 
+ **What it does:**
+ 
+@@ -711,7 +790,7 @@
+ **Examples:**
+ 
+ ```bash
+-/sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth quick
++/sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth standard --handoff none
+ ```
+ 
+ **Difference from `/sc:implement` / `/sc:task`:**
+@@ -764,7 +843,7 @@
+ /sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
+ ```
+ 
+-**MCP servers:** auggie-mcp, tavily  
++**MCP servers:** auggie-mcp, codegraph, tavily  
+ **Personas:** architect, analyzer, scribe (auto-selected per detected domain)
+ 
+ → Full guide: [brainstorm.md](brainstorm.md)
+@@ -810,6 +889,7 @@
+ - `--resume` continues from the first task that is not complete
+ - On a `/sc:workflow` plan, once every task passes it runs a final independent review and archives the plan folder to `.dev/tasks/done/`; on macOS (any system other than Linux) the archive is refused on purpose and the folder stays in `.dev/tasks/to-do/`. `--skip-final-review` skips the final review and, on such a plan, also blocks the archive
+ - Never commits, opens PRs, or releases
++- Review loops: it keeps its own severity model instead of the general 2-fix-cycle rule. Minor and note findings never change a task's verdict; only blocking findings fail it, and each attempt gets at most one in-place repair before the next attempt or a halt that asks you to decide
+ 
+ **Syntax:**
+ 
+@@ -903,6 +983,7 @@
+ - Stack trace examination
+ - Log analysis
+ - Suggests fixes
++- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`. Code changes never apply automatically
+ 
+ **Syntax:**
+ 
+@@ -918,11 +999,13 @@
+ /sc:troubleshoot "API response times degraded" --type performance
+ ```
+ 
++**MCP servers:** auggie, codegraph, context7, tavily
++
+ ---
+ 
+ ### `/sc:improve` - Code Improvement
+ 
+-**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and use `/task-builder` (see [How We Work](how-we-work.md), section 3.7).
++**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec, run `/sc:workflow`, then `/sc:implement` (see [How We Work](how-we-work.md), section 3.7).
+ 
+ **What it does:**
+ 
+@@ -942,7 +1025,6 @@
+ ```bash
+ /sc:improve src/ --type quality --safe
+ /sc:improve api-endpoints --type performance --interactive
+-/sc:improve auth-service --type security --validate
+ ```
+ 
+ **MCP servers:** context7
+@@ -970,7 +1052,6 @@
+ 
+ ```bash
+ /sc:cleanup src/ --type code --safe
+-/sc:cleanup --type imports --preview
+ /sc:cleanup --type all --interactive
+ ```
+ 
+@@ -1045,6 +1126,7 @@
+ 
+ - Explains code at different levels (basic/advanced)
+ - Framework-specific explanations via Context7
++- For code targets, a one-hop view of the symbol's direct callers and callees from codegraph (Read and Grep alone when codegraph is not usable)
+ - Interactive examples
+ 
+ **Syntax:**
+@@ -1061,7 +1143,7 @@
+ /sc:explain microservices-system --level advanced --format interactive
+ ```
+ 
+-**MCP servers:** context7
++**MCP servers:** context7, codegraph
+ 
+ ---
+ 
+@@ -1322,7 +1404,7 @@
+ 
+ > The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
+ 
+-**MCP servers:** auggie, context7, tavily
++**MCP servers:** auggie, codegraph, context7, tavily
+ 
+ #### `superclaude reflect run` (CLI auto-fix wrapper)
+ 
+@@ -1340,12 +1422,12 @@
+ 
+ | Flag | Default | Purpose |
+ |------|---------|---------|
+-| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. When enabled, the wrapper consumes the skill's `remediation_task_path` and auto-runs the corrective `/task`. |
++| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`; only with `--depth deep` it reads `remediation_task_path` and runs `/task <remediation_task_path>`. |
+ | `--max-fix-iterations N` | `2` | Max apply → verify cycles before a terminal HALT. |
+ | `--base <ref>` | (none) | Explicit audit base ref (single ref vs. working tree). Highest precedence — overrides frontmatter `start_commit` + merge-base. |
+ | `--promote` / `--no-promote` | `--promote` | Allow reflect's gated Wave-7 promotion. The default is now **on**; pass `--no-promote` to suppress it. |
+ 
+-**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective MDTM without the interactive yes/no prompt — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, emit `remediation_task_path: null`, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never executes `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. This handoff rides on return-contract `contract_version` **≥1.4.0** (1.4.0 added the `remediation_task_path` field the loop reads; the 1.5.0 D13 bump is additive and leaves this field unchanged) — it never guesses a "newest `TASK-RF-*`" directory.
++**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`; with `--depth deep`, an MDTM task file, emitted as `remediation_task_path`) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` or `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only these contract fields (`remediation_plan_path` was added in contract 1.8.0) — it never guesses a "newest `TASK-RF-*`" directory.
+ 
+ **Examples:**
+ 
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -19,3 +19,12 @@
+ - **A-W1 correction 4 (extended).** Planned text: "bare `superclaude mcp` opens an install menu". Code: the menu shows only on a terminal; without one it returns "Explicit server selection is required; use --servers." (`install_mcp.py:1385-1389`). Written both cases.
+ - **A-W1 correction 5 (merged).** Task 3 had already added a short "Upgrade an existing installation" subsection; it was retitled "Upgrading to 5.0.0" and extended in place instead of adding a second upgrade section. Wording keeps the Task 1 finding that a plain install still runs the codegraph phase and cleanup (`main.py:239-263`): it says only that a plain install keeps existing framework files.
+ - **A-W1 correction 6 (forward link).** `docs/user-guide/codegraph.md` is linked as the item asks but does not exist yet; Task 17 (A-W22) creates it in this run.
++
++## Task 7 (item A-W4) — docs/user-guide/commands.md
++
++- **A-W4 correction 2 (date).** Planned "Last Updated: 2026-11-02". The edit was made on 2026-11-03 (session date), so the line says 2026-11-03.
++- **A-W4 correction 10, `/sc:task` (skipped).** Planned: add the review-loop note ("minor findings are notes ... at most 2 fix cycles") under `/sc:task`. Code: `src/superclaude/skills/sc-task-protocol/` has no review loop or fix-cycle rule (grep for "fix cycle", "review loop", "re-review", "blocking" finds nothing); the 5.0.0 rule covers the MDTM `task` skill (`/task`), not `/sc:task` (`docs/releases/v5.0.0.md:96`). No note added under `/sc:task`.
++- **A-W4 correction 10, `/sc:implement` (replaced).** Planned: the same 2-fix-cycle note. Code: `/sc:implement` keeps its own severity model (`src/superclaude/output-styles/pragmatic.md:228`; `CHANGELOG.md:30,33`; `docs/releases/v5.0.0.md:96`): minor and note findings never change the verdict (`skills/sc-implement-protocol/refs/qa.md:129`), one in-place repair per attempt, attempts up to A5, then a halt that needs a ruling (`qa.md:178,222`). Written that instead of the 2-fix-cycle cap.
++- **A-W4 correction 10, `/sc:tasklist` and `/sc:cli-portify` (refined).** Written in each skill's own terms: `/sc:tasklist` patches only High/Medium findings, lists Low as notes, runs at most one re-patch pass, then escalates (`skills/sc-tasklist-protocol/SKILL.md:1439,1537,1598`; `CHANGELOG.md:31`); `/sc:cli-portify` runs 1 convergence iteration (focus + critique pass), MINOR findings go to Open Items, unaddressed CRITICALs end in `status: partial` and escalation (`skills/sc-cli-portify-protocol/SKILL.md:293,367,374`).
++- **A-W4 correction 9 (extended).** Besides the `--fix` table row, the "Headless auto-authoring" paragraph under `superclaude reflect run` also said the skill authors only MDTM and named contract 1.4.0 `remediation_task_path` as the field the loop reads; corrected to the plan route (`remediation_plan_path`, contract 1.8.0) by default and MDTM only with `--depth deep` (`cli/reflect/runner.py:474-477,597,770-772`; `skills/sc-reflect-protocol/SKILL.md:322,341`).
++- **A-W4 correction 1 (placement).** `/sc:impact` was added to the QUALITY table (its command category is `analysis`) and `/sc:graph` to the UTILITIES table (category `utility`); detail sections were placed alphabetically (`/sc:graph` before `/sc:help`, `/sc:impact` after it). The `/sc:workflow` example was changed from `--depth quick` to `--depth standard --handoff none` to match the level-3 default (`HOW-WE-WORK.md:17`).

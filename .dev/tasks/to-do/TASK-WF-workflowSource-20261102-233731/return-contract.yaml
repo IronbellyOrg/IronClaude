@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-workflowSource-20261102-233731
+plan_path: ./TASK-WF-workflowSource-20261102-233731.md
+source_path: ./source.md
+source_origin: .dev/releases/current/v5.0.0/post-release/WORKFLOW-SOURCE.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/REPORT.md
+unresolved:
+  - "reflect verdict FAIL (advisory): spec closing verification (smoke pytest + make test) is carried by no task; the post-release orchestrator runs it after execution against the recorded baseline"

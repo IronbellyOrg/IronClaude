@@ -1,6 +1,6 @@
 # MCP Server Troubleshooting Guide
 
-**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like documentation lookup (Context7), and browser automation (Playwright). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
+**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like code graph queries (codegraph), documentation lookup (Context7), web search (Tavily) and browser automation (Playwright). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
 
 **Server-Specific Solutions**: Each MCP server has unique requirements and common failure patterns. This guide provides targeted solutions for each server type and general MCP troubleshooting strategies.
 
@@ -11,9 +11,15 @@
 **Available integrations (runtime use remains optional):**
 
 - **codegraph**: Code graph (symbols, callers, impact, file outlines); installed by default by `superclaude install`
-- **Context7**: Official documentation lookup and framework patterns
-- **Playwright**: Browser automation and E2E testing
-- **Morphllm**: Pattern-based code editing with token optimization
+- **context7**: Official library documentation (`npx -y @upstash/context7-mcp`)
+- **playwright**: Browser automation and E2E testing (`npx -y @playwright/mcp@latest`)
+- **morphllm-fast-apply**: Fast Apply code edits (`npx -y @morphllm/morphmcp`, needs `MORPH_API_KEY`)
+- **tavily**: Web search for research (`npx -y tavily-mcp@0.2.22`, needs `TAVILY_API_KEY`)
+- **auggie**: Augment Code codebase search (global `@augmentcode/auggie@0.36.0` binary plus a one-time `auggie login`)
+- **litellm**: LiteLLM MCP gateway over HTTP (opt-in only: never part of the "0 for all" menu choice; select it explicitly)
+- **airis-mcp-gateway**: AIRIS MCP Gateway, a Docker-based gateway (the default choice of the interactive `superclaude mcp` menu)
+
+Install any of them with `superclaude mcp --servers <name>` (repeat `--servers` for several). `superclaude mcp --list` shows the list without changing anything. Registrations use user scope unless you pass `--scope local` or `--scope project`.
 
 **Selection-specific requirements:**
 
@@ -21,6 +27,7 @@
 - npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); AIRIS Gateway uses Docker and curl
 
 **Other considerations:**
+
 - Stable network connection for some servers
 - Sufficient system memory (2GB+ recommended)
 
@@ -49,7 +56,7 @@ The tools in a session are limited by `CODEGRAPH_MCP_TOOLS` in the registered en
 
 #### Issue: Node.js Version Incompatibility
 
-**Error Message**: `ERROR: MCP servers require Node.js 16+ but found Node.js 14.x`
+**Error Message**: `Node.js 18+ required for selected npm servers` (`Node.js 20+` when Auggie is selected)
 
 **Diagnosis**:
 
@@ -82,11 +89,13 @@ nvm use node
 **Verification**:
 
 ```bash
-node --version  # Should be 16.0.0+
-npm --version   # Should be 8.0.0+
+node --version  # Should be 18.0.0+ (20.0.0+ for Auggie)
+npx --version   # npx must be on PATH for the npx-based servers
 ```
 
 **Issue: npm Permission Problems**
+
+Only global installs hit this; of the shipped servers only Auggie is installed globally (`npm install -g @augmentcode/auggie@0.36.0`). The other npm-based servers run through `npx -y` and need no global install.
 
 ```bash
 # Error message
@@ -101,9 +110,6 @@ source ~/.profile
 # Solution 2: Fix npm permissions
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 
-# Solution 3: Use npx for package execution
-npx @context7/mcp-server --version
-
 # Verification
 npm list -g --depth=0
 npm config get prefix
@@ -111,30 +117,25 @@ npm config get prefix
 
 ### MCP Server Installation Failures
 
-**Issue: Context7 MCP Server Installation Failed**
+**Issue: Context7 MCP Server Registration Failed**
+
+Context7 is registered as `npx -y @upstash/context7-mcp`; npx downloads the package when Claude Code starts the server, so nothing is installed globally.
 
 ```bash
-# Error message
-ERROR: Failed to install @context7/mcp-server
-
 # Diagnosis
-npm list -g @context7/mcp-server
-node --version
+node --version          # 18+
+npx --version
+claude mcp get context7 # shows the registered command, if any
 
-# Solution 1: Clean npm cache and reinstall
+# Solution 1: Re-register the server
+claude mcp remove context7 --scope user
+superclaude mcp --servers context7
+
+# Solution 2: Clear a broken npx download cache
 npm cache clean --force
-npm install -g @context7/mcp-server
-
-# Solution 2: Use alternative registry
-npm install -g @context7/mcp-server --registry https://registry.npmjs.org/
-
-# Solution 3: Manual installation verification
-npm info @context7/mcp-server
-npm install -g @context7/mcp-server@latest
 
 # Verification
-npm list -g @context7/mcp-server
-node -e "console.log('Context7 installation test')"
+claude mcp get context7
 ```
 
 ## Connection and Communication Issues
@@ -149,25 +150,16 @@ ERROR: MCP server 'context7' failed to connect
 
 # Diagnosis
 # Check Node.js installation
-node --version  # Should be 16.0.0 or higher
-npm list -g @context7/mcp-server
+node --version  # Should be 18.0.0 or higher
 
-# Check server configuration
-cat ~/.claude/CLAUDE.md | grep -i context7
+# Check server registration
+claude mcp get context7
 
 # Solution 1: Restart Claude Code session
 # MCP servers restart with Claude Code session restart
 
-# Solution 2: Reconfigure MCP servers
-python3 -m SuperClaude install --components mcp --force
-
-# Solution 3: Manual server testing
-node -e "console.log('Node.js working')"
-npm test @context7/mcp-server
-
-# Solution 4: Check network connectivity
-ping context7-server.example.com  # If server requires network
-curl -I https://context7-api.example.com/health  # Health check
+# Solution 2: Reconfigure the MCP server
+superclaude mcp --servers context7
 
 # Verification
 # Try Context7 functionality in Claude Code
@@ -181,9 +173,8 @@ curl -I https://context7-api.example.com/health  # Health check
 ERROR: MCP server request timeout after 30 seconds
 
 # Diagnosis
-# Check network connectivity and server health
+# Check network connectivity
 ping 8.8.8.8  # Basic connectivity
-curl -I https://api.example.com/health  # API health
 
 # Check system resources
 top
@@ -195,11 +186,9 @@ free -h
 # Solution 2: Restart Claude Code session
 # MCP servers restart with Claude Code session restart
 
-# Solution 3: Disable problematic server temporarily
-# Use --no-mcp flag for operations
-
-# Solution 4: Increase timeout (if configurable)
-# Check MCP server configuration files
+# Solution 3: Disable a problematic server temporarily
+claude mcp remove <name> --scope user   # re-add later with superclaude mcp --servers <name>
+# /sc:troubleshoot and /sc:reflect also accept --no-mcp (native tools only)
 
 # Verification
 # Test with simple operations first
@@ -208,26 +197,23 @@ free -h
 
 **Issue: Multiple MCP Servers Conflicting**
 
-```bash
-# Error message
-ERROR: MCP server port conflicts detected
+The npx-based servers use stdio transport and open no network ports, so they cannot clash on a port.
 
+```bash
 # Diagnosis
-netstat -tlnp | grep :8000  # Check port usage
+claude mcp list   # every registered server and its connection status
 ps aux | grep -E "context7|playwright"
 
 # Solution 1: Sequential server restart
 # Restart Claude Code to reset all MCP servers
 
-# Solution 2: Configure different ports
-# Edit MCP server configuration files
-# Usually in ~/.claude/ or server-specific directories
-
-# Solution 3: Use selective server activation
-# Use specific server flags instead of --all-mcp
+# Solution 2: Remove a duplicate registration
+# The same server registered at two scopes (user and project) can both start
+claude mcp get <name>
+claude mcp remove <name> --scope project
 
 # Verification
-netstat -tlnp | grep -E "8000|8001|8002"  # Check port assignments
+claude mcp list
 ```
 
 ## Server-Specific Troubleshooting
@@ -240,20 +226,15 @@ netstat -tlnp | grep -E "8000|8001|8002"  # Check port assignments
 # Symptoms: Context7 activated but returns no documentation
 
 # Diagnosis
-# Test Context7 connection
-node -e "const c7 = require('@context7/mcp-server'); console.log('Context7 loaded');"
+claude mcp get context7   # command should be npx -y @upstash/context7-mcp
 
-# Solution 1: Update Context7 server
-npm update -g @context7/mcp-server
+# Solution 1: Restart Claude Code (npx fetches the package again when needed)
 
-# Solution 2: Clear Context7 cache
-rm -rf ~/.context7/cache/  # If cache directory exists
-
-# Solution 3: Use explicit library keywords
+# Solution 2: Use explicit library keywords
 # Use specific framework names in requests
 
-# Solution 4: Verify internet connection
-curl -I https://docs.react.dev/  # Example API test
+# Solution 3: Verify internet connection
+curl -I https://docs.react.dev/  # Example connectivity test
 
 # Verification
 # Try specific documentation requests
@@ -265,14 +246,10 @@ curl -I https://docs.react.dev/  # Example API test
 ```bash
 # Symptoms: Context7 returns old documentation versions
 
-# Solution 1: Update Context7 server
-npm uninstall -g @context7/mcp-server
-npm install -g @context7/mcp-server@latest
+# Solution 1: Refresh the cached npx package
+npm cache clean --force
 
-# Solution 2: Clear documentation cache
-rm -rf ~/.context7/  # Clear cache if exists
-
-# Solution 3: Force documentation refresh
+# Solution 2: Force documentation refresh
 # Restart Claude Code session completely
 
 # Verification
@@ -289,7 +266,7 @@ rm -rf ~/.context7/  # Clear cache if exists
 ERROR: Playwright browser automation failed - browser not installed
 
 # Diagnosis
-npm list -g playwright
+claude mcp get playwright   # command should be npx -y @playwright/mcp@latest
 npx playwright --version
 
 # Solution 1: Install Playwright browsers
@@ -327,14 +304,11 @@ sudo apt-get install xvfb
 export DISPLAY=:99
 Xvfb :99 -screen 0 1024x768x24 &
 
-# Solution 3: Use Docker for browser testing
-docker run -it --rm playwright:latest
-
 # Verification
 # Should successfully launch browsers in headless mode
 ```
 
-### Morphllm Pattern Editor
+### Morphllm Fast Apply
 
 **Issue: Morphllm Pattern Application Failures**
 
@@ -342,10 +316,13 @@ docker run -it --rm playwright:latest
 # Symptoms: Pattern-based edits not applying correctly
 
 # Diagnosis
-npm list -g @morphllm/mcp-server
+claude mcp get morphllm-fast-apply   # command should be npx -y @morphllm/morphmcp
+echo ${MORPH_API_KEY:+set}           # prints "set" when the key is in the environment
 
-# Solution 1: Update Morphllm server
-npm update -g @morphllm/mcp-server
+# Solution 1: Re-register with the API key
+export MORPH_API_KEY=<your-key>
+claude mcp remove morphllm-fast-apply --scope user
+superclaude mcp --servers morphllm-fast-apply
 
 # Solution 2: Use more specific patterns
 # Provide explicit pattern descriptions
@@ -367,8 +344,8 @@ ls -la target-files/  # Ensure write permissions
 # Symptoms: MCP server operations causing delays
 
 # Diagnosis
-# Check MCP server installation and health
-npm list -g | grep -E "context7|playwright"
+# Check MCP server registration and health
+claude mcp list
 top | grep node
 
 # Solution 1: Selective MCP server usage
@@ -378,10 +355,7 @@ top | grep node
 # This restarts all MCP servers fresh
 
 # Solution 3: Local fallback mode
-# Use --no-mcp flag for pure native operations
-
-# Solution 4: Update all MCP servers
-npm update -g
+# /sc:troubleshoot and /sc:reflect accept --no-mcp for native-tools-only runs
 
 # Verification
 time node -e "console.log('Node.js speed test')"
@@ -422,16 +396,13 @@ top | grep -E "node|mcp"
 iostat 1 3  # Check I/O usage
 
 # Solution 1: Use targeted server activation
-# Activate only needed servers per task
+# Register only the servers you use
 
 # Solution 2: Increase system resources
 # Add more RAM or CPU cores if possible
 
 # Solution 3: Queue MCP operations
 # Avoid simultaneous heavy operations
-
-# Solution 4: Use MCP server priorities
-# Configure resource allocation in MCP settings
 
 # Verification
 top  # Monitor resource usage during operations
@@ -443,23 +414,19 @@ top  # Monitor resource usage during operations
 
 **Issue: Default MCP Configuration Not Optimal**
 
+MCP registrations belong to Claude Code: user-scope entries are stored in `~/.claude.json`, project-scope entries in the project's `.mcp.json`. Inspect and change them with the `claude mcp` commands rather than by editing files.
+
 ```bash
-# Symptoms: MCP servers not performing optimally for specific use cases
+# Solution 1: Inspect the registered command, arguments and environment
+claude mcp list
+claude mcp get <name>
 
-# Solution 1: Locate configuration files
-find ~/.claude/ -name "*mcp*" -type f
-find ~/.config/ -name "*mcp*" -type f
-
-# Solution 2: Customize server settings
-# Edit server-specific configuration files
-# Common locations: ~/.claude/mcp-config.json
-
-# Solution 3: Environment variable configuration
-export MCP_CONTEXT7_TIMEOUT=60
+# Solution 2: Change a setting by re-registering
+claude mcp remove <name> --scope user
+superclaude mcp --servers <name>
 
 # Verification
-# Test with custom configuration
-# Should show improved performance for specific use cases
+claude mcp get <name>
 ```
 
 **Issue: MCP Server Load Balancing**
@@ -494,9 +461,9 @@ echo "=== MCP Server Health Check ==="
 echo "Node.js version: $(node --version)"
 echo "npm version: $(npm --version)"
 
-# Server installations
-echo "=== Installed MCP Servers ==="
-npm list -g | grep -E "context7|playwright|morphllm"
+# Server registrations
+echo "=== Registered MCP Servers ==="
+claude mcp list
 
 # Process monitoring
 echo "=== Running MCP Processes ==="
@@ -519,8 +486,8 @@ ping -c 1 8.8.8.8 > /dev/null && echo "✅ Network OK" || echo "❌ Network Issu
 echo "=== MCP Server Functionality Test ==="
 
 # Context7 test
-if npm list -g @context7/mcp-server > /dev/null 2>&1; then
-    echo "✅ Context7 installed"
+if claude mcp get context7 > /dev/null 2>&1; then
+    echo "✅ Context7 registered"
 else
     echo "❌ Context7 missing"
 fi
@@ -567,20 +534,23 @@ echo "=== Emergency MCP Server Reset ==="
 # Step 1: Stop all Claude Code sessions
 echo "Stop all Claude Code sessions and wait 30 seconds"
 
-# Step 2: Backup current state
+# Step 2: Backup current state (user-scope registrations live in ~/.claude.json)
+cp ~/.claude.json ~/.claude.json.mcp.backup.$(date +%Y%m%d)
 cp -r ~/.claude ~/.claude.mcp.backup.$(date +%Y%m%d)
 
-# Step 3: Remove all MCP servers
-npm list -g | grep -E "context7|playwright|morphllm" | awk '{print $2}' | xargs npm uninstall -g
+# Step 3: Remove the npm-based MCP registrations
+claude mcp remove context7 --scope user
+claude mcp remove playwright --scope user
+claude mcp remove morphllm-fast-apply --scope user
 
 # Step 4: Clear npm cache
 npm cache clean --force
 
-# Step 5: Reinstall MCP servers
-python3 -m SuperClaude install --components mcp --force
+# Step 5: Re-register MCP servers
+superclaude mcp --servers context7 --servers playwright --servers morphllm-fast-apply
 
 # Step 6: Verification
-npm list -g | grep -E "context7|playwright|morphllm"
+claude mcp list
 
 # Step 7: Test functionality
 echo "Test MCP servers in Claude Code after restart"
@@ -602,15 +572,14 @@ echo "Test MCP servers in Claude Code after restart"
 
 ### Support Channels
 
-- **GitHub Issues**: [MCP-specific problems](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
-- **GitHub Discussions**: [MCP server community support](https://github.com/SuperClaude-Org/SuperClaude_Framework/discussions)
+- **GitHub Issues**: [MCP-specific problems](https://github.com/IronbellyOrg/IronClaude/issues)
 
 ---
 
-**npm-based Server Priority**: For npm-based servers, check Node.js → npm → individual server → Claude Code integration.
+**npm-based Server Priority**: For npm-based servers, check Node.js → npx → server registration → Claude Code integration.
 
 **npm-based Verification Pattern**: For those servers, verify with:
 
-- ✅ `node --version` - Should be 16.0.0+
-- ✅ `npm list -g | grep mcp` - Should show installed servers
+- ✅ `node --version` - Should be 18.0.0+ (20.0.0+ for Auggie)
+- ✅ `claude mcp list` - Should show the registered servers
 - ✅ Test server functionality in Claude Code - Should respond without errors

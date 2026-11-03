@@ -1,0 +1,284 @@
+diff --git a/docs/getting-started/installation.md b/docs/getting-started/installation.md
+index c8f7bc7d..d8124d98 100644
+--- a/docs/getting-started/installation.md
++++ b/docs/getting-started/installation.md
+@@ -31,11 +31,17 @@
+ | Method | Command | Platform | Best For |
+ |:------:|---------|:--------:|----------|
+ | **🐍 pipx** | `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | Linux/macOS | **✅ Recommended** - Isolated environment |
+-| **📦 pip** | `pip install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | All | Traditional Python setups |
+-| **🔧 Dev** | `git clone ... && uv venv && make install && uv run superclaude install` | All | Contributors & developers |
++| **📦 pip** | `pip install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | Linux/macOS | Traditional Python setups |
++| **🔧 Dev** | `git clone ... && uv venv && make install && uv run superclaude install` | Linux/macOS | Contributors & developers |
+ 
+ </div>
+ 
++**Platforms.** `superclaude install` always installs codegraph (see
++[codegraph](#codegraph)). Its automatic install supports Linux and macOS on x64
++or arm64 only. On any other platform, including Windows, `superclaude install`
++exits 1 unless a `codegraph` that prints `1.6.2` for `codegraph --version` is
++already on `PATH` or in `~/.local/bin`. Most installed hooks are bash scripts.
++
+ > **IronClaude vs. the PyPI package.** IronClaude is a fork that still ships under the
+ > Python package name `superclaude`. The `superclaude` package on PyPI
+ > (`pipx install superclaude`) is the upstream SuperClaude Framework, not IronClaude: it
+@@ -50,16 +56,21 @@ batching policy, skills, agents, and hooks under `~/.claude/`. The policy is
+ therefore active in every project that loads normal user configuration—not only
+ inside the IronClaude repository.
+ 
+-Existing installations receive refreshed core files and hook registrations with:
++Existing installations upgrade with:
+ 
+ ```bash
+-superclaude update
++pipx install --force git+https://github.com/IronbellyOrg/IronClaude
++superclaude install --force
+ ```
+ 
+-The update preserves unrelated user hook registrations, refreshes
++See [Upgrading](upgrading.md) for the full steps. Do not use `superclaude update`
++for this: it refreshes the files but never installs codegraph or retires old MCP
++registrations.
++
++The refresh preserves unrelated user hook registrations, refreshes
+ framework-owned hooks by command identity, and makes SubagentStart policy
+ injection synchronous. Start a new Claude Code session after installing or
+-updating; an already-running session does not reload its initial instructions.
++upgrading; an already-running session does not reload its initial instructions.
+ No hard Bash counter is installed—the policy is advisory and keeps mutations or
+ adaptive diagnostics as separate calls.
+ 
+@@ -78,10 +89,15 @@ adaptive diagnostics as separate calls.
+ | Component | Version | Check Command |
+ |-----------|---------|---------------|
+ | **Python** | 3.10+ | `python3 --version` |
+-| **pip** | Latest | `pip --version` |
+-| **Claude Code** | Latest | `claude --version` |
++| **Git** | Any | `git --version` |
++| **pipx** (recommended) or **pip** | Latest | `pipx --version` |
++| **Claude Code CLI** (`claude` on `PATH`) | Latest | `claude --version` |
++| **Network access to GitHub** | - | Needed to install from the repository and to download codegraph |
+ | **Disk Space** | 50MB | `df -h` |
+ 
++`superclaude install` exits 1 when `claude --version` fails: the codegraph
++phase does not start without it.
++
+ </td>
+ <td align="center" width="50%">
+ 
+@@ -90,8 +106,6 @@ adaptive diagnostics as separate calls.
+ | Component | Purpose | Check Command |
+ |-----------|---------|---------------|
+ | **Node.js** | MCP Servers | `node --version` |
+-| **Git** | Version Control | `git --version` |
+-| **pipx** | Isolated Install | `pipx --version` |
+ | **RAM** | Performance | 1GB recommended |
+ 
+ </td>
+@@ -106,9 +120,10 @@ adaptive diagnostics as separate calls.
+ ```bash
+ # Run this to check all requirements at once
+ python3 --version && echo "✅ Python OK" || echo "❌ Python missing"
++git --version && echo "✅ Git OK" || echo "❌ Git missing"
++pipx --version && echo "✅ pipx OK" || echo "⚠️ pipx missing (pip works too)"
+ claude --version && echo "✅ Claude Code OK" || echo "❌ Claude Code missing"
+ node --version 2>/dev/null && echo "✅ Node.js OK (optional)" || echo "⚠️ Node.js missing (optional)"
+-git --version 2>/dev/null && echo "✅ Git OK (optional)" || echo "⚠️ Git missing (optional)"
+ ```
+ 
+ </details>
+@@ -130,9 +145,11 @@ git --version 2>/dev/null && echo "✅ Git OK (optional)" || echo "⚠️ Git mi
+ <td width="60%">
+ 
+ ```bash
+-# Install pipx if not present
+-python3 -m pip install --user pipx
+-python3 -m pipx ensurepath
++# Install pipx if not present. On systems that block pip installs
++# (PEP 668 "externally-managed-environment"), use uv or the distro package
++# instead of `python3 -m pip install --user pipx`:
++uv tool install pipx          # or: sudo apt install pipx / brew install pipx
++pipx ensurepath
+ 
+ # Install IronClaude from the fork (the PyPI "superclaude" package is upstream)
+ pipx install git+https://github.com/IronbellyOrg/IronClaude
+@@ -168,7 +185,10 @@ superclaude install
+ <td width="60%">
+ 
+ ```bash
+-# Standard installation (from the fork, not PyPI)
++# Standard installation (from the fork, not PyPI).
++# On PEP 668 systems ("externally-managed-environment") these pip commands
++# fail outside a virtual environment: use Method 1 (pipx) instead, installing
++# pipx with `uv tool install pipx` or the distro pipx package.
+ pip install git+https://github.com/IronbellyOrg/IronClaude
+ 
+ # Or user installation
+@@ -183,16 +203,16 @@ superclaude install
+ 
+ **✅ Advantages:**
+ 
+-- Works everywhere
+ - Familiar to Python users
+ - Direct installation
+ 
+ **📍 Best for:**
+ 
+-- Windows users
+ - Virtual environments
+ - Quick setup
+ 
++**⚠️ Platforms:** Linux and macOS (x64 or arm64); see the platform note under Quick Installation.
++
+ </td>
+ </tr>
+ </table>
+@@ -278,13 +298,27 @@ From a source checkout, `superclaude` lives in `.venv`. Prefix it with `uv run`
+ ### **Step 1: Check Installation**
+ 
+ ```bash
+-# Verify the installed version
++# Verify the installed version (prints: SuperClaude, version 5.0.0)
+ superclaude --version
+ 
+-# Run the health check
+-superclaude doctor
++# List what is installed (read-only)
++superclaude install --list
++
++# Run the health check with details
++superclaude doctor --verbose
+ ```
+ 
++Check that:
++
++- `superclaude install --list` shows a `codegraph MCP` block whose
++  `User registration:` line reads `matches` and whose last line reads
++  `Ready for Serena retirement: yes`.
++- `superclaude doctor --verbose` ends with `✅ SuperClaude is healthy` and prints
++  no `no codegraph registration` line.
++
++Use `--verbose`: plain `superclaude doctor` passes even when codegraph is not
++registered, and only the verbose output shows that line.
++
+ ### **Step 2: Test in Claude Code**
+ 
+ ```bash
+@@ -305,9 +339,55 @@ superclaude doctor
+ | Agents | `~/.claude/agents/` |
+ | Skills | `~/.claude/skills/` |
+ | Hooks | `~/.claude/hooks/` |
++| Document and workflow templates | `~/.claude/templates/` |
++| Rules (read on demand, excluded from auto-loading) | `~/.claude/rules/` |
++| Output styles | `~/.claude/output-styles/` |
++| Hook registrations and settings defaults (only keys you have not set), merged into your settings; a backup `settings.json.bak.<timestamp>` is written first | `~/.claude/settings.json` |
++| ccsession launchers (links into the `ccsession-tag` skill) | `~/.local/bin/ccsession`, `~/.local/bin/ccsession-orca` |
++| ccsession settings file (created from the example only when missing) | `~/.claude/ccsession.env` |
++| codegraph 1.6.2 (downloaded, SHA-256 verified) | `~/.codegraph/`, link `~/.local/bin/codegraph` |
++| codegraph user-scope MCP registration | the `codegraph` entry under `mcpServers` in `~/.claude.json` |
+ 
+ </div>
+ 
++`superclaude install` also installs the default Claude Code plugins listed in
++its settings defaults (six plugins, including `playwright` and `frontend-design`)
++with `claude plugin install <plugin> --scope user`, skipping any you disabled in
++`enabledPlugins`. This step downloads over the network within a shared 30-second
++budget (with the Orca skills step); a plugin that fails or runs out of time is
++reported, and the step never makes `superclaude install` fail. Rerun
++`superclaude install` to retry. When the Orca CLI is installed, the same step
++asks it to install its own skills (`computer-use`, `orca-cli`, `orchestration`).
++
++> **`CLAUDE_CONFIG_DIR`.** The installer always writes its files under
++> `$HOME/.claude/`. If you set `CLAUDE_CONFIG_DIR`, it is used only to find
++> `.claude.json` when reading MCP registrations. An empty
++> `CLAUDE_CONFIG_DIR` makes that lookup fail, so the codegraph phase stops and
++> `superclaude install` exits 1.
++
++---
++
++## codegraph
++
++codegraph is a code-graph MCP server (symbols, callers, impact, file outlines).
++Installing it is a required phase of every `superclaude install`, with or
++without `--force`:
++
++- It reuses a `codegraph` that prints `1.6.2` (on `PATH` or in `~/.local/bin`);
++  otherwise it downloads the pinned v1.6.2 release for your platform from
++  GitHub, checks its SHA-256 and extracts it under `~/.codegraph/`.
++- It registers codegraph as a user-scope MCP server in `~/.claude.json`.
++- It needs the `claude` CLI and, for the download, network access. If the
++  phase fails, everything else is still installed, the failed stage is
++  printed and `superclaude install` exits 1. Fix the cause and run it again.
++- A cleanup step then runs. Once codegraph is ready, it removes old `serena`
++  and `codebase-memory-mcp` user registrations that IronClaude can prove it
++  wrote, and prints the reason (and a removal command) for any entry it keeps.
++
++Restart Claude Code afterwards: MCP servers load at session start. For the
++failure table, indexing, removal and the Serena cleanup, see the
++[MCP Installation Guide](../user-guide/mcp-installation.md).
++
+ ---
+ 
+ ## 🛠️ **Management**
+@@ -326,11 +406,11 @@ superclaude doctor
+ # Update to latest (pipx). --force reinstalls from the repository:
+ # `pipx upgrade` skips the reinstall while the version number is unchanged
+ pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+-superclaude update
++superclaude install --force
+ 
+ # Update to latest (pip). --force-reinstall for the same reason
+ pip install --force-reinstall git+https://github.com/IronbellyOrg/IronClaude
+-superclaude update
++superclaude install --force
+ ```
+ 
+ </td>
+@@ -355,14 +435,21 @@ There is no `superclaude uninstall` command. Uninstalling the package removes on
+ - core files such as `~/.claude/CLAUDE.md`, `~/.claude/RULES.md` and `~/.claude/HOW-WE-WORK.md`
+ - `~/.claude/commands/sc/`, `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/hooks/` and `~/.claude/templates/`
+ - `~/.claude/rules/` and `~/.claude/output-styles/`
+-- the `~/.local/bin/ccsession` link and `~/.claude/ccsession.env`
++- the `~/.local/bin/ccsession` and `~/.local/bin/ccsession-orca` links and `~/.claude/ccsession.env`
+ - the hook entries and settings defaults merged into `~/.claude/settings.json` (a backup named `settings.json.bak.<timestamp>` is written before the hook merge)
++- codegraph: its user-scope registration and the files `superclaude install --list` prints as owned (under `~/.codegraph/`, plus the `~/.local/bin/codegraph` link)
++
++Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed, and which codegraph paths are owned. To remove codegraph, run:
++
++```bash
++claude mcp remove codegraph --scope user
++```
+ 
+-Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed.
++then delete the owned paths `superclaude install --list` printed; see [Removing codegraph](../user-guide/mcp-installation.md#removing-codegraph).
+ 
+-A plain `superclaude install` never replaces files you already have; run `superclaude update` to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`.
++A plain `superclaude install` keeps framework files you already have (it still runs the codegraph phase and the cleanup step); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
+ 
+-> **Warning:** `superclaude update` overwrites every file it ships, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. `superclaude install --force` does the same. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the update.
++> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup step; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
+ 
+ ---
+ 
+diff --git a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+new file mode 100644
+index 00000000..6cb9d4c2
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -0,0 +1,7 @@
++# Deviations
++
++## Task 1 (item C-W1) — docs/getting-started/installation.md
++
++- **C-W1 correction 3 (refined).** Planned text: "A plain `superclaude install` keeps existing framework files; run `superclaude install --force` to refresh them (it also installs codegraph and retires old MCP registrations)." The parenthesis reads as if a plain install skips codegraph. Code: `src/superclaude/cli/main.py:239-263` runs the codegraph phase and the retire step on every `install`, with or without `--force`; `--force` only reaches the framework-file steps (`main.py:178-236`). Written instead: a plain install keeps existing files but still runs the codegraph phase and the cleanup step; `install --force` refreshes the files; unlike `superclaude update` (`main.py:334-429`, no codegraph, no retire) it also installs codegraph and retires old registrations.
++- **C-W1 correction 6 (extended).** Planned text says "elsewhere `superclaude install` exits 1 unless a `codegraph` printing `1.6.2` is on PATH; hooks are bash". Code: discovery also accepts `~/.local/bin/codegraph` (`install_mcp.py` dry-run message "found on PATH or in ~/.local/bin"; `docs/user-guide/mcp-installation.md` default-setup section), and one shipped hook is JavaScript (`src/superclaude/hooks/scripts/pragmatic-subagent.js`). Written: "on `PATH` or in `~/.local/bin`" and "Most installed hooks are bash scripts". The same platform limit was also applied to the Dev row of the Quick Installation table, which runs the same `superclaude install`.
++- **Pre-existing markdownlint violations (not fixed, untouched lines).** `npx --yes markdownlint-cli@0.38.0 -c .markdownlint.json docs/getting-started/installation.md` reports MD041 at line 1 (`<div align="center">`) and MD001 at line 5 (`###` subtitle under the `#` title). Both are present unchanged at d953b983; every line edited for C-W1 is clean.
+diff --git a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/writer/T1-files.txt b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/writer/T1-files.txt
+new file mode 100644
+index 00000000..8848a431
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/writer/T1-files.txt
+@@ -0,0 +1,3 @@
++docs/getting-started/installation.md
++.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/writer/T1-files.txt

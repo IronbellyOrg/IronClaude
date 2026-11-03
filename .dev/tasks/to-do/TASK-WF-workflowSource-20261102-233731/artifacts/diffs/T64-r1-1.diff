@@ -1,0 +1,410 @@
+--- a/docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md
++++ b/docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md
+@@ -0,0 +1,395 @@
++# Sysop E2E Test Guide — `ccsession tier policy` (`5.0.0`)
++
++- **Capability:** the per-user tier policy of ccsession in Coder workspaces. `CCSESSION_TIER_RULES` (or the older `CCSESSION_ACCESS`) in the workspace env file sets, per Coder username, Coder role or everyone else, the tier a person starts on, the tiers they are offered and whether `/model` lists each model; letter tiers (`tier1a`, `T1a_WINDOW`, `claude-gw-tier1a`) are part of the layout.
++- **Audience:** system operator / administrator
++- **Gate:** the policy is read from the workspace env file `/etc/aidev02/aienv.d/defaults.sh` (`src/superclaude/skills/ccsession-tag/models.py:104,320-328`), a file pushed from the Coder template and changed only through review (`src/superclaude/skills/ccsession-tag/README.md:276,352-354`). ccsession applies it to the workspace owner named by `CODER_WORKSPACE_OWNER_NAME` and `CODER_WORKSPACE_OWNER_ROLES` (`models.py:499-519`), set by the Coder agent and template. `user_access` picks the owner's entry and stops the launch on a broken one (`models.py:522-620`). The limit is advisory: only a gateway key limited to those models enforces it (`README.md:348-352`).
++- **Source of truth:** `src/superclaude/skills/ccsession-tag/models.py:53-104,320-328,376-479,499-637,814-828,843-974,993-1028`; `src/superclaude/skills/ccsession-tag/ccsession:57-70,683-686,801-813,936-971,1015,1402-1435,1483-1489`; `src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:72,123-133,172-203,705-714`; `src/superclaude/skills/ccsession-tag/README.md:272-379`; `src/superclaude/skills/ccsession-tag/ccsession-models.json:2-3,70-121`; `CHANGELOG.md:151-168,182-186`
++- **Est. time:** `Tier A: 3 minutes. Tier B: 15-20 minutes. Tier C: 15-25 minutes.`
++
++## Preconditions
++
++- IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`, and `~/.claude/skills/ccsession-tag/` holds the 5.0.0 ccsession (`models.py`, `ccsession`, `ccsession-models.json` version `2026-10-28.1`).
++- A Coder workspace whose env file `/etc/aidev02/aienv.d/defaults.sh` defines tier windows (`T<N>_WINDOW`), so ccsession runs in tier mode (`models.py:469-479`). Tier A and Tier C need it; Tier B does not.
++- Linux with `bash`, `python3`, `curl`, `grep` and `sed` in `/usr/bin` or `/bin`. Tier B runs every command with `PATH=/tmp/e01/bin:/usr/bin:/bin` and nothing else from your environment.
++- `/tmp/e01` does not exist (`[ ! -e /tmp/e01 ] && echo OK` prints `OK`).
++- **Privilege/gate satisfied.** Changing the real policy needs write access to `/etc/aidev02/aienv.d/defaults.sh`, which a workspace user does not have, and a reviewed change to the Coder template that pushes it. Coder role assignment (the roles that reach `CODER_WORKSPACE_OWNER_ROLES`) is a Coder admin action outside this repo. This guide needs neither: it tests the policy from repo code by pointing `AIDEV_AI_DEFAULTS_PATH` at a test env file (`models.py:320-328`) and setting `CODER_WORKSPACE_OWNER_NAME` / `CODER_WORKSPACE_OWNER_ROLES` per command in a throwaway shell environment.
++- **Safety.**
++  - Never edit the real `/etc/aidev02/aienv.d/defaults.sh` for this test. A broken rules line there stops ccsession for every Coder user until it is fixed (`README.md:332-336`). Every rule in this guide lives in a file under `/tmp/e01`.
++  - Tier A only reads. Tier B writes only under `/tmp/e01`, with a throwaway `HOME` and cache (`/tmp/e01/home`, `/tmp/e01/cache`), `CLAUDE_BIN=/bin/false` and `CCSESSION_MODELS_REFRESH=0`: it never starts Claude Code, never starts a gateway shim and never fetches the model data. Every Tier B launch is one the policy refuses, which ends before the shim and the session folder (`ccsession:1483-1489`; the launch stops at `ccsession:948,954,956`).
++  - Tier C copies your real env file into `/tmp/e01/live.sh` (it may hold gateway settings; `/tmp/e01` is made readable only by you, and Cleanup removes it), and runs one Claude Code session with a second throwaway `HOME` (`/tmp/e01/c-home`). That `HOME` has no `settings.json`, so no SuperClaude hooks run: the hooks that write `~/.claude/state/` and `~/.claude/logs/` (`src/superclaude/hooks/hooks.json:18,49,104`) never touch your real `~/.claude`.
++  - Never run `pkill -f local-gateway-alias-proxy.py`: one shim serves every ccsession session of yours with the same settings, so that command cuts all of them (`ccsession:766-768`). Cleanup stops only this guide's shim, by its `/tmp/e01/` path.
++  - `ccsession` starts Claude Code with `--dangerously-skip-permissions --allowedTools=Grep` unless `CC_CLAUDE_FLAGS` is set (`ccsession:78-83,93`). In Tier C, type only the prompts this guide gives.
++
++## What you're verifying
++
++- The rules grammar `<who>=<start tier>[:<tier>,...][+models]`, where `<who>` is a Coder username, `role:<coder role>` or `*` (`models.py:72-79`).
++- Precedence: the owner's username entry, then the first `role:` entry (in file order) matching one of their roles, then `*`; with no match, `CCSESSION_DEFAULT_TIER` and every tier (`models.py:522-541,582-584`).
++- `CCSESSION_ACCESS` is read only when the file has no `CCSESSION_TIER_RULES` line (`models.py:81-85,545-546`).
++- A broken or repeated entry that applies to the owner stops the launch with the reason instead of opening every tier; a malformed piece of the value, or a second line naming the setting, stops every launch (`models.py:384-398,416-433,557-581`).
++- A limited user's `--help`, `--models-status`, `--tier`, `--model` and the shim's `/model` list and routing cover only the allowed tiers (`models.py:630-637,843-935`; `local-gateway-alias-proxy.py:172-203,705-714`).
++- Letter tiers: `tier1a` / `1A` / `T1a_WINDOW` / `claude-gw-tier1a` (`models.py:63-65,489-496,855`; `CHANGELOG.md:156`).
++- The limit is advisory: the owner can undo it from their own environment. That is expected behaviour, not a FAIL (`README.md:348-354`; `CHANGELOG.md:186`).
++
++---
++
++## Steps
++
++### Tier A — free smoke on your workspace (read-only)
++
++#### Step 1 — The gate: the real env file and its policy lines `[FREE]`
++
++**Do:**
++
++```bash
++F=/etc/aidev02/aienv.d/defaults.sh
++ls -l "$F"
++[ -w "$F" ] && echo "WRITABLE by $(id -un)" || echo "not writable by $(id -un)"
++grep -n -E 'CCSESSION_.*(TIER_RULES|ACCESS)|CCSESSION_DEFAULT_TIER|CCSESSION_MODEL_ORDER' "$F"
++grep -c -E '^[[:space:]]*export[[:space:]]+T[0-9]{1,2}[a-z]?_WINDOW=' "$F"
++```
++
++**Expected result:**
++
++- `ls` lists the file; `not writable by <you>`. The file is pushed from the Coder template and changed only through review (`README.md:276,352-354`). UNVERIFIED: its owner and mode are set by the Coder template, outside this repo; on the workspace where this guide was written they were `-rw-r--r-- root root`. `WRITABLE` is a finding for the Coder admin: any workspace user could then change everyone's policy.
++- Each of `CCSESSION_TIER_RULES` and `CCSESSION_ACCESS` appears on at most one line, as one `export NAME="..."` (or the guarded `[ -z "${NAME:-}" ] && export NAME=...` form), and nowhere else, comments included (`models.py:95-103,416-433`; `README.md:332-336`). A second line naming either one is a FAIL of the real file: it stops ccsession for every Coder user.
++- A count of 1 or more: tier mode is on (`models.py:469-479`). `0`: tier mode is off in this workspace; Tier A Step 2 and Tier C do not apply (mark them N/A).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 2 — Your own access as ccsession sees it `[FREE]`
++
++**Do:**
++
++```bash
++echo "owner=${CODER_WORKSPACE_OWNER_NAME:-<unset>} roles=${CODER_WORKSPACE_OWNER_ROLES:-<unset>}"
++ccsession --models-status | tail -n 2
++ccsession --help | sed -n '/^Tiers in this workspace/,$p'
++```
++
++**Expected result:**
++
++- Your Coder username and comma-separated roles. A plain member holds `member` (Coder also sends `organization-member`); site-wide roles such as `owner`, `user-admin`, `template-admin`, `auditor` appear when you hold them (`models.py:509-519`; `README.md:318-320`).
++- `Tier mode:          on (settings from /etc/aidev02/aienv.d/defaults.sh); tiers: <every defined tier>`, then an `Access:` line (`models.py:1004-1025`; `ccsession:1432-1435`), one of:
++  - `Access:             <you> starts on <tier>; tiers: <your tiers>[; models listed] (CCSESSION_TIER_RULES[, <role:... or *>])` when an entry applies to you; the part after the comma names the role or `*` entry that matched, and is absent for a username entry (`models.py:611-618,1014-1020`).
++  - `Access:             <you>: not listed; default tier, every tier` when none does (`models.py:1021-1025`).
++  - `Tier mode:          on (...); tiers: invalid (<reason>)` when the file is broken for you: a FAIL of the real file (`models.py:1008-1013`).
++- The help ends with `Tiers in this workspace (* = default):` and one `ccsession --tier <tier>` entry per tier on your `Access:` line, with `*` on your start tier (`ccsession:1402-1413`; `models.py:923-935`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL ☐ N/A — notes: `______`
++
++### Tier B — the policy from repo code, with throwaway files under /tmp/e01
++
++#### Step 3 — Build the throwaway env, the helpers and a test env file `[LOCAL-WRITE]`
++
++**Do:**
++
++```bash
++[ ! -e /tmp/e01 ] || { echo "/tmp/e01 exists: run Cleanup first"; false; }
++mkdir -p /tmp/e01/home /tmp/e01/cache /tmp/e01/bin && chmod 700 /tmp/e01
++ln -s "$HOME/.claude/skills/ccsession-tag/ccsession" /tmp/e01/bin/ccsession
++printf 'E1_MODELS=%q\n' "$HOME/.claude/skills/ccsession-tag/models.py" > /tmp/e01/e1.sh
++cat >> /tmp/e01/e1.sh <<'EOF'
++e1() {  # clean environment: throwaway HOME and cache, the test env file, no Claude, no network
++  env -i PATH=/tmp/e01/bin:/usr/bin:/bin HOME=/tmp/e01/home XDG_CACHE_HOME=/tmp/e01/cache \
++    AIDEV_AI_DEFAULTS_PATH=/tmp/e01/defaults.sh CCSESSION_MODELS_REFRESH=0 \
++    CLAUDE_BIN=/bin/false PYTHONDONTWRITEBYTECODE=1 "$@"
++}
++rule() {  # rule <name> <line>...: /tmp/e01/<name>.sh = the tier settings plus the given lines
++  local f="/tmp/e01/$1.sh"; shift
++  cp /tmp/e01/tiers.sh "$f" && printf '%s\n' "$@" >> "$f"
++}
++EOF
++source /tmp/e01/e1.sh
++{
++  echo 'export CCSESSION_DEFAULT_TIER=tier2'
++  for t in 0:2 1a:2 1b:3 2:6 3:6 4:1; do
++    n=${t%:*}; echo "export T${n}_WINDOW=400000"
++    for i in $(seq 1 "${t#*:}"); do
++      printf 'export T%sModel%02d=e01-t%s-m%d\nexport T%sModel%02d_WINDOW=400000\n' "$n" "$i" "$n" "$i" "$n" "$i"
++    done
++  done
++} > /tmp/e01/tiers.sh
++rule defaults 'export CCSESSION_TIER_RULES="alice=tier1b:tier1b,tier2 role:auditor=tier1a+models *=tier2:tier2,tier3,tier4"'
++e1 python3 "$E1_MODELS" tier-mode; echo "exit=$?"
++e1 ccsession --models-status
++```
++
++**Expected result:**
++
++- `exit=0`: the test file defines tier windows, so tier mode is on (`models.py:469-479,841-842`). The slot names follow the 5.0.0 layout: tier0 2 models, tier1a 2, tier1b 3, tier2 6, tier3 6, tier4 1 (`ccsession-models.json:70-121`); a missing slot would stop the launch with `T<N>Model0M is not set (needed by tier<N>)` (`models.py:661-664`).
++- The status block (`models.py:993-1025`):
++
++```text
++Model data version: 2026-10-28.1 (bundled)
++Source URL:         https://raw.githubusercontent.com/IronbellyOrg/IronClaude/master/src/superclaude/skills/ccsession-tag/ccsession-models.json
++Cache:              /tmp/e01/cache/ccsession/models.json
++Last check:         never
++Profiles:           claude, gpt, grok, muse, wonderfull, wonder, qwen, glm
++Tier mode:          on (settings from /tmp/e01/defaults.sh); tiers: tier0, tier1a, tier1b, tier2, tier3, tier4
++Access:             owner unknown starts on tier2; tiers: tier2, tier3, tier4 (CCSESSION_TIER_RULES, *)
++```
++
++- `bundled` and `never`: the empty throwaway cache leaves the copy shipped with the skill in use (`models.py:129-131,228-239`; `ccsession-models.json:2-3`). With no owner name, only the `*` entry of `CCSESSION_TIER_RULES` applies, because it was meant to limit exactly such a terminal (`models.py:530,557-562`; `README.md:320-321`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 4 — Precedence: username, then the first matching role, then `*` `[LOCAL-WRITE]`
++
++**Do:**
++
++```bash
++s() { e1 "$@" python3 "$E1_MODELS" status | tail -n 1; }
++s CODER_WORKSPACE_OWNER_NAME=alice CODER_WORKSPACE_OWNER_ROLES=member,auditor
++s CODER_WORKSPACE_OWNER_NAME=Alice
++s CODER_WORKSPACE_OWNER_NAME=bob CODER_WORKSPACE_OWNER_ROLES=member,auditor
++s CODER_WORKSPACE_OWNER_NAME=carol CODER_WORKSPACE_OWNER_ROLES=member
++rule order 'export CCSESSION_TIER_RULES="role:auditor=tier1a role:user-admin=tier3:tier3"'
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/order.sh CODER_WORKSPACE_OWNER_NAME=dan CODER_WORKSPACE_OWNER_ROLES=user-admin,auditor
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/order.sh CODER_WORKSPACE_OWNER_NAME=dan CODER_WORKSPACE_OWNER_ROLES=user-admin
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/order.sh CODER_WORKSPACE_OWNER_NAME=erin CODER_WORKSPACE_OWNER_ROLES=member
++e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/order.sh CODER_WORKSPACE_OWNER_NAME=erin python3 "$E1_MODELS" default-tier
++```
++
++**Expected result:** in this order (`models.py:582-584,611-618,1014-1025`):
++
++```text
++Access:             alice starts on tier1b; tiers: tier1b, tier2 (CCSESSION_TIER_RULES)
++Access:             Alice starts on tier1b; tiers: tier1b, tier2 (CCSESSION_TIER_RULES)
++Access:             bob starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4; models listed (CCSESSION_TIER_RULES, role:auditor)
++Access:             carol starts on tier2; tiers: tier2, tier3, tier4 (CCSESSION_TIER_RULES, *)
++Access:             dan starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4 (CCSESSION_TIER_RULES, role:auditor)
++Access:             dan starts on tier3; tiers: tier3 (CCSESSION_TIER_RULES, role:user-admin)
++Access:             erin: not listed; default tier, every tier
++tier2
++```
++
++- `alice` holds `auditor` but her username entry wins; usernames match without regard to case (`models.py:570,576`).
++- `bob` matches `role:auditor`; with no tier list he gets every tier, and `+models` shows as `models listed` (`models.py:585-598`; `README.md:322-325`).
++- `dan` holds both roles: the `role:auditor` entry comes first in the file, so it wins whatever the order of his roles (`models.py:582-584`).
++- `erin` matches nothing in a file without `*`: `CCSESSION_DEFAULT_TIER` (`tier2`) with every tier (`models.py:535-536,620,945-973`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 5 — A limited user sees and may use only the allowed tiers; letter tiers `[LOCAL-WRITE]`
++
++**Do:**
++
++```bash
++cd /tmp/e01
++C="CODER_WORKSPACE_OWNER_NAME=carol CODER_WORKSPACE_OWNER_ROLES=member"
++e1 $C ccsession --help | sed -n '/^Tiers in this workspace/,$p'
++e1 $C ccsession e01-check --tier tier1a; echo "exit=$?"
++e1 $C ccsession e01-check --model e01-t1a-m1; echo "exit=$?"
++e1 $C python3 "$E1_MODELS" tier-resolve tier3; echo "exit=$?"
++e1 CODER_WORKSPACE_OWNER_NAME=alice python3 "$E1_MODELS" tier-resolve 1B; echo "exit=$?"
++find /tmp/e01/home /tmp/e01/cache -mindepth 1 | wc -l
++```
++
++**Expected result:**
++
++- The help lists three entries, `* ccsession --tier tier2`, `ccsession --tier tier3`, `ccsession --tier tier4`, each followed by `Tier <n>, 400000 token window: <its e01-... models>` (`ccsession:1402-1413`; `models.py:923-935`; `CHANGELOG.md:186`).
++- `ccsession: tier1a is not available to carol (available: tier2, tier3, tier4)`, `exit=2` (`models.py:630-637,850-853`; `ccsession:956`).
++- `ccsession: e01-t1a-m1 is not in a tier available to carol (available: tier2, tier3, tier4)`, `exit=2` (`models.py:894-902`; `ccsession:948`).
++- `tier-resolve tier3` is what a launch with `--tier tier3` runs first (`ccsession:956`): `PROFILE_MODEL=claude-gw-tier3[1m]`, `PROFILE_CONTEXT=400000`, `PROFILE_COMPACT_WINDOW=400000`, `PROFILE_REQUIRES_SHIM=1`, `PROFILE_LABEL=Tier 3: e01-t3-m1, ..., e01-t3-m6`, `exit=0` (`models.py:843-863`).
++- `1B` is the letter tier `tier1b`: `PROFILE_MODEL=claude-gw-tier1b[1m]`, `PROFILE_LABEL=Tier 1b: e01-t1b-m1, e01-t1b-m2, e01-t1b-m3`, `exit=0` (`models.py:63-65,489-496`; `CHANGELOG.md:156`).
++- `0`: the refused launches wrote nothing into the throwaway `HOME` or cache.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 6 — `CCSESSION_ACCESS` is read only when there is no `CCSESSION_TIER_RULES` line `[LOCAL-WRITE]`
++
++**Do:**
++
++```bash
++rule access 'export CCSESSION_ACCESS="alice=tier3:tier3,tier4"'
++rule both 'export CCSESSION_ACCESS="alice=tier3:tier3,tier4"' 'export CCSESSION_TIER_RULES="alice=tier1a"'
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/access.sh CODER_WORKSPACE_OWNER_NAME=alice
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/both.sh CODER_WORKSPACE_OWNER_NAME=alice
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/access.sh
++e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/access.sh python3 "$E1_MODELS" tier-resolve tier0 2>&1 | head -n 2
++```
++
++**Expected result:**
++
++```text
++Access:             alice starts on tier3; tiers: tier3, tier4 (CCSESSION_ACCESS)
++Access:             alice starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4 (CCSESSION_TIER_RULES)
++Access:             owner unknown (no CODER_WORKSPACE_OWNER_NAME): not listed; default tier, every tier
++[ccsession] NOTE: workspace owner unknown (no CODER_WORKSPACE_OWNER_NAME); CCSESSION_ACCESS not applied
++PROFILE_MODEL=claude-gw-tier0[1m]
++```
++
++- With a `CCSESSION_TIER_RULES` line, `CCSESSION_ACCESS` is ignored (`models.py:81-85,545-546`; `CHANGELOG.md:161`; `README.md:341-346`).
++- `CCSESSION_ACCESS` has no `*` meaning for a terminal that does not know its owner: it is not applied, and the launch says so (`models.py:561-562,814-828,854`).
++- Keep `CCSESSION_ACCESS` in the real file only for workspaces still on an older ccsession, and put `role:` and `*` entries only in `CCSESSION_TIER_RULES`: older copies understand only username entries in `CCSESSION_ACCESS` and stop on any other (`README.md:341-346`; `CHANGELOG.md:168`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 7 — A broken or duplicate entry stops the launch with the reason `[LOCAL-WRITE]`
++
++**Do:** each `ccsession e01-check` line is a launch the policy must refuse; each `default-tier` line is what a launch runs for another user (`ccsession:954`):
++
++```bash
++rule dup 'export CCSESSION_TIER_RULES="alice=tier2 alice=tier3 *=tier2"'
++rule undef 'export CCSESSION_TIER_RULES="alice=tier9 *=tier2"'
++rule startout 'export CCSESSION_TIER_RULES="alice=tier1a:tier2,tier3"'
++rule emptylist 'export CCSESSION_TIER_RULES="alice=tier2:"'
++rule stray 'export CCSESSION_TIER_RULES="alice=tier2 :tier3 *=tier2"'
++rule twostar 'export CCSESSION_TIER_RULES="*=tier2:tier2 *=tier3"'
++rule comment 'export CCSESSION_TIER_RULES="alice=tier2"' '# CCSESSION_TIER_RULES was tier3 before'
++for f in dup undef startout emptylist stray comment; do
++  e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/$f.sh CODER_WORKSPACE_OWNER_NAME=alice ccsession e01-check; echo "$f alice exit=$?"
++done
++for f in dup undef stray comment; do
++  e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/$f.sh CODER_WORKSPACE_OWNER_NAME=bob python3 "$E1_MODELS" default-tier; echo "$f bob exit=$?"
++done
++e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/twostar.sh ccsession e01-check; echo "twostar no-owner exit=$?"
++```
++
++**Expected result:** for alice, each launch prints one line and exits 2 (`ccsession:948,954,956`):
++
++| File | Message (after the `ccsession:` prefix and a space) | Source |
++|---|---|---|
++| `dup` | `CCSESSION_TIER_RULES has 2 entries for alice` | `models.py:578-579` |
++| `undef` | `CCSESSION_TIER_RULES entry 'alice=tier9': tier9 is not a defined tier (defined: tier0, tier1a, tier1b, tier2, tier3, tier4)` | `models.py:601-606` |
++| `startout` | `CCSESSION_TIER_RULES entry 'alice=tier1a:tier2,tier3': start tier tier1a is not in its tier list` | `models.py:607-610` |
++| `emptylist` | `CCSESSION_TIER_RULES entry 'alice=tier2:': empty tier list after ':'` | `models.py:591-592,599-600` |
++| `stray` | `CCSESSION_TIER_RULES: ':tier3' is not <username>=<start tier>[:<tier>,...], role:<coder role>=... or *=...` | `models.py:564-569` |
++| `comment` | `CCSESSION_TIER_RULES must be set by one line, export CCSESSION_TIER_RULES="...", and named nowhere else, comments included (found: [...both lines...])` | `models.py:416-433,557-560` |
++
++For bob, who has no entry of his own:
++
++- `dup bob` and `undef bob` print `tier2`, `exit=0`: an entry for another user is checked only when it is the one that applies, so alice's broken entry does not stop bob (`models.py:72-75,576-584`).
++- `stray bob` and `comment bob` print the same message as for alice, `exit=3` (the launch would exit 2): a malformed piece of the value, or a second line naming the setting, could be anyone's, so it stops every launch (`models.py:557-569`; `README.md:332-336`).
++- `twostar`: `ccsession: CCSESSION_TIER_RULES has 2 entries for *`, `exit=2`, even with no owner name (`models.py:557-559,580-581`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 8 — The advisory-limit bypass is expected `[LOCAL-WRITE]`
++
++**Do:**
++
++```bash
++s CODER_WORKSPACE_OWNER_NAME=carol CODER_WORKSPACE_OWNER_ROLES=member,auditor
++s CODER_WORKSPACE_OWNER_NAME=alice2
++rule own 'export CCSESSION_DEFAULT_TIER=tier0'
++s AIDEV_AI_DEFAULTS_PATH=/tmp/e01/own.sh CODER_WORKSPACE_OWNER_NAME=carol
++e1 CODER_WORKSPACE_OWNER_NAME=carol CCSESSION_TIERS=0 python3 "$E1_MODELS" tier-mode; echo "exit=$?"
++e1 CODER_WORKSPACE_OWNER_NAME=carol CCSESSION_TIERS=0 python3 "$E1_MODELS" status | tail -n 1
++s
++```
++
++**Expected result:** each line shows a way the workspace owner can widen their own access. This is designed behaviour: record it as PASS when it behaves as below (`README.md:348-354`; `CHANGELOG.md:186`).
++
++- `carol` claiming `auditor` in her own environment: `Access:             carol starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4; models listed (CCSESSION_TIER_RULES, role:auditor)`. The roles come from the environment (`models.py:509-519`).
++- Any other name: `Access:             alice2 starts on tier2; tiers: tier2, tier3, tier4 (CCSESSION_TIER_RULES, *)`; a name that has an entry would get that entry instead (`models.py:499-506`).
++- Her own env file without a rules line: `Access:             carol: not listed; default tier, every tier` (`models.py:320-328,454-466`).
++- `CCSESSION_TIERS=0`: `exit=1` (tier mode off) and `Tier mode:          off (no T<N>_WINDOW in the workspace env)`. The status text names the missing-window case even though the file has windows: that is how the code words it (`models.py:476-477,1026-1027`); ccsession then uses its profiles, outside the policy (`ccsession:683-686`).
++- No owner name: `Access:             owner unknown starts on tier2; tiers: tier2, tier3, tier4 (CCSESSION_TIER_RULES, *)`. Under `CCSESSION_TIER_RULES` with a `*` entry, dropping the owner name does not widen access; under `CCSESSION_ACCESS` alone it does (Step 6, `models.py:561-562`).
++- Not testable here: calling a model directly with the gateway key. Only a gateway key limited to the allowed models enforces the policy (`README.md:351-352`); that key scoping is LiteLLM configuration outside this repo.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++### Tier C — one Claude Code session under a test policy, in a throwaway HOME
++
++Skip Tier C (mark N/A) when Step 1 counted `0` tier windows. Run it in a new terminal tab, after Tier B and before Cleanup. Every command starts with `c1`, which sets `HOME=/tmp/e01/c-home`; a command without it would use your real `HOME`.
++
++#### Step 9 — Build the Tier C throwaway HOME and a limited copy of your env file `[LOCAL-WRITE]`
++
++**Do:** set `T` to a tier from your Step 2 `Access:` line and `U` to another defined tier from the `Tier mode:` line, for example `T=tier2 U=tier3`:
++
++```bash
++T=tier2 U=tier3
++ME="$CODER_WORKSPACE_OWNER_NAME"; [ -n "$ME" ] || { echo "no CODER_WORKSPACE_OWNER_NAME: mark Tier C N/A"; false; }
++[ -d /tmp/e01 ] && [ ! -e /tmp/e01/c-home ] || { echo "run Step 3 first; /tmp/e01/c-home must not exist"; false; }
++grep -s -c '^[^#]*CC_SHIM_PORT=' ~/.claude/ccsession.env
++curl -s -o /dev/null -w '5197:%{http_code}\n' http://127.0.0.1:5197/
++mkdir -p /tmp/e01/c-home/.claude/skills /tmp/e01/c-home/.local/bin /tmp/e01/c-repo
++cp -r ~/.claude/skills/ccsession-tag /tmp/e01/c-home/.claude/skills/
++rm -rf /tmp/e01/c-home/.claude/skills/ccsession-tag/__pycache__
++ln -s /tmp/e01/c-home/.claude/skills/ccsession-tag/ccsession /tmp/e01/c-home/.local/bin/ccsession
++printf 'C1_ENV_FILE=%q\nME=%q\nT=%q\nU=%q\n' "$HOME/.claude/ccsession.env" "$ME" "$T" "$U" > /tmp/e01/c1.sh
++cat >> /tmp/e01/c1.sh <<'EOF'
++c1() {  # Tier C: throwaway HOME, the limited env copy, a test shim port and log; ccsession.env is only read
++  env -u CLAUDE_CONFIG_DIR -u XDG_CACHE_HOME -u XDG_CONFIG_HOME -u XDG_DATA_HOME -u XDG_STATE_HOME \
++    HOME=/tmp/e01/c-home PATH="/tmp/e01/c-home/.local/bin:$PATH" CC_SHIM_PORT=5197 \
++    AIDEV_AI_DEFAULTS_PATH=/tmp/e01/live.sh GW_PROXY_LOGFILE=/tmp/e01/shim.log \
++    CCSESSION_ENV_FILE="$C1_ENV_FILE" CCSESSION_MODELS_REFRESH=0 DISABLE_AUTOUPDATER=1 "$@"
++}
++live() {  # live <tier list>: your real env file without its policy lines, plus a rule for you
++  { grep -v -E 'CCSESSION_.*(TIER_RULES|ACCESS)' /etc/aidev02/aienv.d/defaults.sh
++    echo "export CCSESSION_TIER_RULES=\"$ME=$T:$1\""; } > /tmp/e01/live.sh
++}
++EOF
++source /tmp/e01/c1.sh
++live "$T"
++cd /tmp/e01/c-repo
++c1 ccsession --models-status | tail -n 2
++c1 ccsession --help | sed -n '/^Tiers in this workspace/,$p'
++```
++
++**Expected result:**
++
++- `0`, or no output when you have no `~/.claude/ccsession.env`: that file does not set the shim port. ccsession sources it after reading `CC_SHIM_PORT`, so a port set there would replace `5197` (`ccsession:98-99,669-679`). Any other number: mark Tier C N/A.
++- `5197:000`: nothing listens on the test shim port. Any other code: pick another day.
++- `Tier mode:          on (settings from /tmp/e01/live.sh); tiers: <every defined tier>` and `Access:             <you> starts on <T>; tiers: <T> (CCSESSION_TIER_RULES)` (`models.py:1004-1020`). A line like `CCSESSION_TIER_RULES must be set by one line ...` means your real file names the setting in a form the `grep` did not remove; mark Tier C N/A and note it for the Coder admin.
++- The help lists one entry, `* ccsession --tier <T>` (`ccsession:1402-1413`; `models.py:923-935`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL ☐ N/A — notes: `______`
++
++#### Step 10 — The shim offers and routes only the allowed tiers, and a pushed change applies at once `[CLAUDE-SESSION]`
++
++**Do:**
++
++1. `c1 ccsession e01-limited --tier "$U"; echo "exit=$?"`
++2. `c1 ccsession e01-limited` and, in the session, type `/model`, note the list, press Esc.
++3. Type `Reply with the single word OK. Do not use any tools.` and wait for the reply.
++4. Type `/model claude-gw-<U>` (your `U`, for example `/model claude-gw-tier3`), then `Reply with OK. Do not use any tools.`
++5. In a second terminal: `source /tmp/e01/c1.sh && live "$T,$U"` (the rule becomes `<you>=<T>:<T>,<U>`). Back in the session, type `Reply with OK. Do not use any tools.` again, then `/exit`.
++6. `grep -E "TIER $U" /tmp/e01/shim.log`
++
++**Expected result:**
++
++- 1: `ccsession: <U> is not available to <you> (available: <T>)`, `exit=2` (`models.py:630-637,850-853`; `ccsession:956`).
++- 2: `[ccsession] <T> (<label>: <models>): model claude-gw-<T>[1m], context <window>, auto-compact window <window>`, then `[ccsession] Starting model-alias shim on 127.0.0.1:5197` (or `5298` when a shim with other settings holds `5197`), then `[ccsession] Starting new session labeled 'e01-limited'` (`ccsession:770-802,1015,1611`). `/model` offers only `<T>` among the tiers (`local-gateway-alias-proxy.py:172-203`; `README.md:328-330`). UNVERIFIED: the exact labels Claude Code shows, and any first-run screens Claude Code shows in a fresh `HOME` (answer them; they write only under `/tmp/e01/c-home`).
++- 3: a reply arrives through the shim.
++- 4: no reply from a model: the shim answers HTTP 400 with `ccsession <U>: <U> is not available to <you> (available: <T>)` (`local-gateway-alias-proxy.py:705-714`). UNVERIFIED: how Claude Code displays that error.
++- 5: a reply arrives on `<U>` without restarting the session or the shim: the shim re-reads the env file on every request (`local-gateway-alias-proxy.py:172-177`; `README.md:336-338`).
++- 6: a line `<time> TIER <U>: cannot route (<U> is not available to <you> (available: <T>))` from step 4 (`local-gateway-alias-proxy.py:72,123-133,711`), and after step 5 a line `<time> TIER <U>: T<n>Model01 -> <model>` (a later slot when the first one is cooling down) (`local-gateway-alias-proxy.py:720-755`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL ☐ N/A — notes: `______`
++
++---
++
++## Negative / gate check (recommended)
++
++Verify the policy is **not** widened without the privilege. A row that behaves otherwise is a finding.
++
++| Try this (without privilege) | Expected behavior | Source | Pass/Fail |
++|---|---|---|---|
++| `[FREE]` Write to the real env file: `[ -w /etc/aidev02/aienv.d/defaults.sh ] && echo WRITABLE \|\| echo denied` | `denied`: a workspace user cannot change the central policy | `models.py:104`; `README.md:352-354` (owner and mode: UNVERIFIED, set by the Coder template) | ☐ |
++| `[LOCAL-WRITE]` A limited user asks for another tier: `e1 CODER_WORKSPACE_OWNER_NAME=carol ccsession x --tier 0; echo "exit=$?"` | `ccsession: tier0 is not available to carol (available: tier2, tier3, tier4)`, `exit=2` | `models.py:630-637,850-853`; `ccsession:956` | ☐ |
++| `[LOCAL-WRITE]` A limited user names a model of another tier: `e1 CODER_WORKSPACE_OWNER_NAME=carol ccsession x --model e01-t0-m1; echo "exit=$?"` | `ccsession: e01-t0-m1 is not in a tier available to carol (available: tier2, tier3, tier4)`, `exit=2` | `models.py:894-902`; `ccsession:948` | ☐ |
++| `[LOCAL-WRITE]` A terminal with no owner name under `CCSESSION_TIER_RULES`: `e1 ccsession x --tier 0; echo "exit=$?"` | `ccsession: tier0 is not available to  (available: tier2, tier3, tier4)` (empty name), `exit=2`: the `*` entry still limits it | `models.py:557-562,630-637` | ☐ |
++| `[LOCAL-WRITE]` A broken rules line with no owner name: `e1 AIDEV_AI_DEFAULTS_PATH=/tmp/e01/stray.sh ccsession x; echo "exit=$?"` | The `':tier3' is not <username>=...` message, `exit=2`: a broken line never opens every tier | `models.py:557-569` | ☐ |
++| `[CLAUDE-SESSION]` `/model claude-gw-<U>` in a session limited to `<T>` (Step 10) | HTTP 400 from the shim, no model reply | `local-gateway-alias-proxy.py:705-714` | ☐ |
++| `[LOCAL-WRITE]` Owner widens their own access (Step 8: claimed role, other name, own file, `CCSESSION_TIERS=0`) | Access widens: **expected**, the limit is advisory; record PASS, not a finding | `README.md:348-354`; `CHANGELOG.md:186` | ☐ |
++
++## Cleanup
++
++Nothing in the real env file or your real `~/.claude` was changed. Stop only this guide's shim, by its `/tmp/e01/` path, and remove the test files:
++
++```bash
++pkill -f '^python3 /tmp/e01/'; sleep 1
++pgrep -af '^python3 /tmp/e01/' || echo "no test shim left"
++cd /tmp && rm -rf /tmp/e01
++```
++
++The second command must print `no test shim left`: the Tier C shim runs as `python3 /tmp/e01/c-home/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py` (`ccsession:97,812`). The last command removes the throwaway `HOME`s, the test env files, the copy of your env file (`live.sh`), the shim log and the Tier C session. Your own shims and sessions were not touched. A real policy rollout is a reviewed change to the Coder template's env file by a Coder admin, outside this guide.
++
++## Overall result
++
++☐ **PASS** — admin capability works and is correctly gated for `5.0.0`
++☐ **FAIL** — see failing step(s) above
++
++**Tester:** `______`  **Date:** `______`  **Build:** `5.0.0 (d953b983)`
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -215,3 +215,9 @@
+ - **Stand-in `claude` (extended).** Planned Tier B: `ic --no-yolo -- --version` only. Written: Steps 12-15 also exercise the default `--dangerously-skip-permissions` flag, `--no-yolo`, aliases, presets, slot overrides, argument forwarding and the exit-2 preset and slot errors against a stub `claude` first on `PATH`, so no session starts.
+ - **Minor new observations (code out of scope).** `ic -p` with no value stops with bash's `$2: unbound variable`, exit 1 (`scripts/ic:23,74`); `ic` sources `$AIENV` under `set -euo pipefail` before reading arguments, so a failing line there stops even `ic --help` (`scripts/ic:23-31`); the unknown-preset message names `~/.aienv` regardless of `AIENV` (`scripts/ic:52`); `init-lite --dry-run --output CLAUDE.md` exits 0 because the dry run returns before the protected-path check (`src/superclaude/cli/init_lite.py:346-352`); `superclaude recommend --help` names `uv run python -m superclaude.cli.recommend`, which exits 1 (no `__main__.py`), while the skill calls `uv run superclaude recommend` (`src/superclaude/cli/recommend/commands.py:39-41`; `src/superclaude/skills/sc-recommend/SKILL.md:77`). Written as observed-as-coded notes and edge rows.
+ - **Rehearsal.** All Tier A and Tier B steps and the edge-case rows were run under `/tmp/d16` with the installed 5.0.0 `superclaude` and `ic` (`init_lite.py`, `ic.py`, `scripts/ic` and the `cli/recommend` modules used are byte-identical to the tag); the `ic` steps ran under `script` (pseudo-TTY). Outputs in the guide are verbatim except the `claude` version, hashes and timestamps. Tier C (Steps 20-21) was not run (API cost; Step 21 bypasses permissions).
++
++## Task 64 (guide E01) — docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md
++
++- **E01 plan row, advisory bypass (refined).** Planned: "Record the advisory-limit bypass (owner can unset env, `CCSESSION_TIERS=0`) as expected." Code: under `CCSESSION_TIER_RULES` with a `*` entry, unsetting `CODER_WORKSPACE_OWNER_NAME` does not widen access, because the `*` entry applies to a terminal that does not know its owner (`src/superclaude/skills/ccsession-tag/models.py:557-562,584`; run: `Access: owner unknown starts on tier2; tiers: tier2, tier3, tier4 (CCSESSION_TIER_RULES, *)`). Dropping the owner name widens access only under `CCSESSION_ACCESS` alone (`models.py:561-562`). Written: the bypasses that do work (a claimed role in `CODER_WORKSPACE_OWNER_ROLES`, another name, an own `AIDEV_AI_DEFAULTS_PATH` file, `CCSESSION_TIERS=0`), each with its observed output, and the `*` case stated as not widening.
++- **E01 plan row, broken or duplicate entry (refined).** Planned: "a broken or duplicate entry for the owner stops the launch with the reason (`models.py:557-581`)". Code adds two cases the guide states: a broken or duplicate entry for another user does not stop this owner (tier names are checked only for the entry that applies, `models.py:72-75,576-584`), while a malformed piece of the value, a second line naming the setting, or two `*` entries stop every launch, ownerless ones included under `CCSESSION_TIER_RULES` (`models.py:557-569,580-581`). All outputs in Steps 3-8 and the gate table were run against the 5.0.0 `models.py`/`ccsession` with throwaway files under `/tmp/e01`.
++- **Observed as coded.** With `CCSESSION_TIERS=0`, `status` prints `Tier mode: off (no T<N>_WINDOW in the workspace env)` even when the file has tier windows (`models.py:476-477,1026-1027`); the guide records the wording as expected, not as a FAIL. Code finding, out of scope (no code changes in this run).

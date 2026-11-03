@@ -1,4 +1,4 @@
-# SuperClaude Flags Guide 🏁
+# IronClaude Flags Guide 🏁
 
 **Flags do not activate automatically.** No keyword or pattern matching runs in code, and mode files under `src/superclaude/modes/` are not installed or loaded automatically. A mode flag such as `--brainstorm` is a hint Claude may honour. Where this page says a flag "auto-activates" or lists "Auto-Triggers", it describes when Claude is guided to apply it from your request, not code that switches it on.
 
@@ -6,13 +6,15 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 
 ## Essential Auto-Activation Flags (90% of Use Cases)
 
+Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left in `~/.claude/` are not loaded. The only hint flags an installed file still names are `--c7`, `--tavily` and `--play`, listed as advisory flags in the MCP table of the shipped `~/.claude/CLAUDE.md`. No installed file defines the other hint flags in this section or in Advanced Control Flags; Claude knows them only if you explain them in your request.
+
 ### Core Analysis Flags
 
 | Flag | When Activated | What It Does |
 |------|---------------|--------------|
-| `--think` | 5+ files OR complex analysis | Standard structured analysis (~4K tokens) |
-| `--think-hard` | Architectural analysis, system dependencies | Deep analysis (~10K tokens) with enhanced tools |
-| `--ultrathink` | Critical system redesign, legacy modernization | Maximum depth analysis (~32K tokens) with all tools |
+| `--think` | 5+ files OR complex analysis | Standard structured analysis |
+| `--think-hard` | Architectural analysis, system dependencies | Deep analysis with enhanced tools |
+| `--ultrathink` | Critical system redesign, legacy modernization | Maximum depth analysis with all tools |
 
 ### MCP Server Flags
 
@@ -22,6 +24,9 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--play` / `--playwright` | Playwright | Browser testing, E2E validation | Testing requests, visual validation |
 | `--tavily` | Tavily | Web search, real-time info | Web search requests, research queries |
 | `--morph` / `--morphllm` | Morphllm | Bulk transformations, pattern edits | Bulk operations, style enforcement |
+| (no flag) | codegraph | Symbols, callers, impact and file outlines of the indexed worktree | Used automatically for symbol, caller and impact questions; `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` switches it off in commands, skills and agents |
+
+`--morph` is not in the MCP table of the shipped `~/.claude/CLAUDE.md`; Morphllm is an optional server you install with `superclaude mcp --servers morphllm-fast-apply` (needs `MORPH_API_KEY`).
 
 ### Behavioral Mode Flags
 
@@ -31,7 +36,7 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--introspect` | Self-analysis, error recovery | Expose reasoning process with transparency |
 | `--task-manage` | >3 steps, complex scope | Orchestrate through delegation |
 | `--orchestrate` | Multi-tool operations, performance needs | Optimize tool selection and parallel execution |
-| `--token-efficient` / `--uc` / `--ultracompressed` | Context >75%, efficiency needs | Symbol-enhanced communication, 30-50% reduction |
+| `--token-efficient` / `--uc` / `--ultracompressed` | Context >75%, efficiency needs | Symbol-enhanced communication (token savings not measured) |
 
 ### Execution Control Flags
 
@@ -80,10 +85,9 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 
 | Flag | Purpose | Values |
 |------|---------|--------|
-| `--type` | Improvement focus | `quality`, `performance`, `maintainability`, `style`, `security` |
+| `--type` | Improvement focus | `quality`, `performance`, `maintainability`, `style` |
 | `--safe` | Conservative approach | Boolean |
 | `--interactive` | User guidance | Boolean |
-| `--preview` | Show without executing | Boolean |
 
 ### Task Command Flags (`/sc:task`)
 
@@ -108,7 +112,7 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--type` | Issue category | `bug`, `build`, `performance`, `deployment`, `security`, `test` |
-| `--fix` | Apply fixes | Boolean |
+| `--fix` | After a diagnosis, offers a remediation plan (`/sc:workflow` → you run `/sc:implement`; an MDTM task file for `/task` with `--depth deep`); never applies fixes itself | Boolean |
 
 ### Cleanup Command Flags (`/sc:cleanup`)
 
@@ -117,7 +121,6 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--type` | Cleanup target | `code`, `imports`, `files`, `all` |
 | `--safe` / `--aggressive` | Cleanup intensity | Boolean |
 | `--interactive` | User guidance | Boolean |
-| `--preview` | Show without executing | Boolean |
 
 ### Index Command Flags (`/sc:index`)
 
@@ -176,9 +179,42 @@ Most flags on this page are hints Claude may honour; the System Flags section li
 | `--type` | Test type | `unit`, `integration`, `e2e` |
 | `--watch` | Watch mode | Boolean |
 
+### Impact Command Flags (`/sc:impact`)
+
+| Flag | Purpose | Values |
+|------|---------|--------|
+| `<symbol>...` | Symbols to report on | 1-30 bare names; either symbols or `--diff`, never both |
+| `--diff [<base>]` | Report on the symbols a diff touches | Git ref; `HEAD` when given without a value |
+| `--depth` | Transitive impact depth | `1`-`3` (default `2`) |
+| `--limit` | Caller rows per symbol | `1`-`100` (default `20`) |
+| `--tests` | Add an advisory test list | Boolean |
+| `--test-depth` | Test search depth (only with `--tests`) | `1`-`5` |
+| `--output-dir` | Where `impact.md` and `return-contract.yaml` go | Path (default `.dev/impact/<slug>-<timestamp>/`) |
+| `--caller` | Name of the calling skill; shortens chat output | Name |
+
+### Graph Command Flags (`/sc:graph`)
+
+| Flag | Purpose | Values |
+|------|---------|--------|
+| `status` \| `init` | What to do | `status` (default) reports readiness; `init` indexes this worktree, only when you type it |
+| `--worktree-local` | Build a nested worktree's own index | Boolean, only with `init` |
+| `--output-dir` | Also write `return-contract.yaml` there | Path |
+
+### PR Submit Command Flags (`/sc:pr-submit`)
+
+| Flag | Purpose | Values |
+|------|---------|--------|
+| `--monitor` | Autonomy ceiling | `0` (open the PR only), `1`, `2`, `3` (default `3`) |
+| `--pr` | Attach to an existing PR instead of opening one | PR number |
+| `--resume` | Rebuild state from a run log | Path to `monitor-run-<N>.jsonl` |
+| `--max-rounds` | Remediation cycles | Number (default `2`, hard cap `5`) |
+| `--head` / `--base` / `--title` / `--body` | PR details | Branch names, text |
+
+`--yes` was removed from `/sc:pr-submit` in 5.0.0 (it was accepted but never read).
+
 ## Advanced Control Flags
 
-Like the flags at the top of this page, the flags under Scope and Focus and Execution Control are hints Claude may honour, not options every command accepts. Check a command's own entry in the [Commands Reference](commands.md) before passing one. The System Flags further down are different: System Flags are options of the `superclaude` command (run in a terminal), not slash-command flags; the table names the command or subcommand for each.
+Like the flags at the top of this page, the flags under Scope and Focus and Execution Control are hints Claude may honour, not options every command accepts. No installed file defines them since 5.0.0 (`FLAGS.md` is no longer shipped and an old copy in `~/.claude/` is not loaded), so Claude knows them only if you explain them. Check a command's own entry in the [Commands Reference](commands.md) before passing one. The System Flags further down are different: System Flags are options of the `superclaude` command (run in a terminal), not slash-command flags; the table names the command or subcommand for each.
 
 ### Scope and Focus
 
@@ -205,8 +241,12 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 | `--help` | `superclaude --help`, or `superclaude <subcommand> --help` | Show the options of the command or subcommand |
 | `--verbose` | `superclaude doctor --verbose` | Show detailed diagnostic information |
 | `--dry-run` | `superclaude mcp --dry-run`, `superclaude sprint run ... --dry-run` | Show what would happen without doing it |
-| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist |
-| `--yes` / `-y` | `superclaude sprint run ... --yes`, `superclaude sprint rerun-tasks ... --yes` | Answer yes to the sprint confirmation prompts |
+| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist. `install --force` is required for the 5.0.0 upgrade, because a plain `install` skips existing files; it overwrites edited core files, commands and agents in `~/.claude/` without a backup and re-copies skill folders |
+| `--list` | `superclaude install --list` | List the framework components without installing |
+| `--resume <task_id>` | `superclaude sprint run ... --resume <task_id>` | Resume from a task id, skipping tasks that already passed |
+| `--task-parallelism K` | `superclaude sprint run ... --task-parallelism K` | Run K tasks of a phase at once (default `1`, sequential) |
+| `--handoff` / `--no-handoff` | `superclaude sprint run ...` | Turn per-task handoff records on (default) or off |
+| `--yes` / `-y` | `superclaude sprint run ... --yes`, `superclaude sprint rerun-tasks ... --yes` | Answer yes to the sprint confirmation prompts; on `sprint run` it allows non-interactive auto-resume (also `CI=1` or `SUPERCLAUDE_SPRINT_ASSUME_YES=1`) |
 
 ## Flag Interactions
 
@@ -235,7 +275,7 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 - **Too many tools**: Use `--no-mcp` to test with native tools only
 - **Operation too slow**: Add `--uc` to compress output
 - **Validation blocking**: Use `--validate` instead of `--safe-mode` in development
-- **Context pressure**: Auto-activates `--token-efficient` at >75% usage
+- **Context pressure**: Ask for `--token-efficient` output (nothing switches it on automatically)
 
 ### Debug Flags
 
@@ -249,7 +289,6 @@ Like the flags at the top of this page, the flags under Scope and Focus and Exec
 ```bash
 # Options for one command: read ~/.claude/commands/sc/<name>.md (slash commands have no --help flag)
 /sc:analyze . --no-mcp                       # Native execution only
-/sc:cleanup . --preview                      # Shows what would be cleaned
 ```
 
 ## Flag Priority Rules

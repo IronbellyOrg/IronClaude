@@ -1,0 +1,101 @@
+input_tree_sha256: 77d3be8e759a0dea788affdb8747d27da09020785dac9a429d280555b364018f
+file_count: 49
+file_list:
+  - path: ./update.sh
+    sha256: 955858e661c347db88285b8cb930cd8f73ac8eb1f6ebcb60ecb415207a359860
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/releases/current/v5.0.0/DECISIONS.md
+    sha256: bc63e009c1d7dfde30bcdbc5e955427e99bc9b8d95dc9cda9ec127fdaae7ba32
+  - path: .dev/releases/current/v5.0.0/RELEASE-READINESS.md
+    sha256: 29512750e19b9e297b4efa34c6f0c22ff283d7a573ae481408076f550393e8f0
+  - path: .dev/releases/current/v5.0.0/post-release/CONSOLIDATED-PLAN.md
+    sha256: 2ef75e86e8a13cef7af654f05a63e6b47669613ba2ac432529beb6da7c76cba3
+  - path: .dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/TASK-WF-workflowSource-20261102-233731.md
+    sha256: b21a115bff55fa86d0be255a9ffa679e3bf68306d57cdd91017853635ebd417e
+  - path: .dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/source.md
+    sha256: cfd8a06da63dcf05ff2b3d831b7d94388700070dc364ea9157c237611805fde5
+  - path: /etc/aidev02/aienv.d/defaults.sh
+    sha256: 7c0a22fd7f968164d8fa487cb193adce3f284e9f8090c4595ac07628d0b8abe2
+  - path: /home/coder/.claude/HOW-WE-WORK.md
+    sha256: e312feda8cc1b4212c04e985eb80001f2819359611cfedab5b17eb24be81079f
+  - path: /home/coder/.claude/skills/sc-post-release-protocol/templates/sysop-test-guide.md
+    sha256: bcdb3c543effa4f7b65bea3f55f26f8ab02d746c7864c9638b87df77e08b2f00
+  - path: /home/coder/.claude/skills/sc-post-release-protocol/templates/user-test-guide.md
+    sha256: 7349decd8e41e73e9af1903b69d16954e0f6f5893a3b603aa31c38982c994f70
+  - path: CHANGELOG.md
+    sha256: 187c243402e8a92c4f7abe5f7b2c8ac5e02c46971ff643bca6d6015962e811e3
+  - path: CONTRIBUTING.md
+    sha256: 40952d203759b9d189fe756e55dc82e85cc0ba9e0bf0c9a956738e0d09c0b935
+  - path: README.md
+    sha256: f1bf31bc58c66d1b1d6381a6254239acb81e84321496b315aeed1a9c72833773
+  - path: docs/getting-started/installation.md
+    sha256: 60a027cef5a1a26a867ab90f47ff1b9067adf4ca1bcaac35127684b02f6ccfaf
+  - path: docs/getting-started/quick-start.md
+    sha256: 933b9fd1c434109a7677ae9ba674f1342c69d44f3434b8fdd57352a86164ad79
+  - path: docs/releases/v5.0.0.md
+    sha256: 5105fb10f85c3422a5f0eb538044ce063128a2da6951265b5ec7c0580a62f811
+  - path: docs/swarm/README.md
+    sha256: fe55503c61b78ad24248f0704c01d18161685467c185dc5f4c4576c1c86bb9e1
+  - path: docs/swarm/command-reference.md
+    sha256: f616c098d134296f9481d491f52e3e8750b462e5d31107f10c70c7c275689f30
+  - path: docs/swarm/lens-catalog.md
+    sha256: 30935d8cd27166ba1042ad514aff6a263aaa3be23adc6993fd54663a4d9927a5
+  - path: docs/swarm/monitoring-patterns.md
+    sha256: 24b8de6d947e45270cddf5c50b3be447ed0f21dcb2e87d55d365f562fdd7cc07
+  - path: docs/swarm/operator-runbook.md
+    sha256: bf96a5a19033e4f27b24740ea778baec64949cf89954076862ad050d0498421e
+  - path: docs/swarm/rollback-procedure.md
+    sha256: 534eb85600eda89fa8fc5cb65e28f8b9a77bab1fbdd7ec4366d486a24943fe57
+  - path: docs/swarm/user-guide.md
+    sha256: 2b4e91a521b24ff8a7e3cebcb7bc0cbfab91a32c5fc41667c6d905fc4cd0b63d
+  - path: docs/swarm/wizard-guide.md
+    sha256: cd88038d077ec72830aa8c3d449845dc639ce53d49d2f29a513ef3212837942b
+  - path: docs/testing/v5.0.0/c-e2e-run.sh
+    sha256: 22e8e66a2eace22dfbc2b6fecd560c02201a36b55b408e242acd46e973452ea7
+  - path: docs/testing/v5.0.0/c-e2e-transcript.txt
+    sha256: 58d9e3628e39a5cd994de60000405eccb5023027974dc2a19c35d1740537e3b1
+  - path: docs/user-guide/agents.md
+    sha256: 4f605a7af061ffe681711b16a7aee67086443fa75adcc7659619d43a0cac6e94
+  - path: docs/user-guide/brainstorm.md
+    sha256: e8f609cc215c9092c88eee2b22606f1f74f4b3c086186bf7f10cf8643786dcfc
+  - path: docs/user-guide/commands.md
+    sha256: 3849897e97fdea980cc35ba3ad1c02985e1edaba9bd2e65e923bcc28cfed886d
+  - path: docs/user-guide/eval-pipeline.md
+    sha256: 251d7f3b0148ea4aa0be058a66048d0d4656ee21e4788805d0032e441a6ebdb9
+  - path: docs/user-guide/flags.md
+    sha256: a89268e69159c9e9d3d6565f3bf90630c6b161f07008835d9e1ef89d6c44f9bd
+  - path: docs/user-guide/how-we-work.md
+    sha256: 5e8d4bd8f599ad86cf8d6aedc5dfc9be9cc41944d304f2269cede4bb1a901684
+  - path: docs/user-guide/mcp-installation.md
+    sha256: 0a47da4cf7e8484ef5f94f52ba6e6e139bedce9af781c4224573cea85db284c1
+  - path: docs/user-guide/mcp-servers.md
+    sha256: ffb890af23237e8a78a73973ae439f96661e32fcf690b3db9dc5c22072ad825b
+  - path: docs/user-guide/memory-system.md
+    sha256: 6305a4ae81b7eb17dd52f78000a2f4c025c2f21a8cf8e892ef8c7bd176b7ba4a
+  - path: docs/user-guide/modes.md
+    sha256: 8e4e354e7f02d48efbc28baa95b153921a1aabfaf2abc7d89c203393fb2a30a7
+  - path: docs/user-guide/session-management.md
+    sha256: 41fba796d626f017dda63c1f345631b1bd0b514aa76e6db57ed24dfdc90122ca
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: e312feda8cc1b4212c04e985eb80001f2819359611cfedab5b17eb24be81079f
+  - path: return-contract.yaml
+    sha256: 7d78e9147ae0f53423c7c85e0f2e84f7c82ca77a81437530492246e541c1d708
+  - path: src/superclaude/cli/install_codegraph.py
+    sha256: 63a9dc4607ad4b0e29f324a5c947daff3edd6e9fdb1cf58f543286bc0483d7fa
+  - path: src/superclaude/cli/install_mcp.py
+    sha256: f0fea2567bd84725b823182b1564c26f1a9d93c9277a1923e06a72e7c8278990
+  - path: src/superclaude/cli/main.py
+    sha256: 4dd5b9bd858e80758bd2e1ed007b89fe52aed36482fe23cad74cf93becb7b005
+  - path: src/superclaude/commands/brainstorm.md
+    sha256: d413f091f3a8b628a4ea098a8681c09438c952130f6e7956904bfc51b29bb6b5
+  - path: src/superclaude/commands/help.md
+    sha256: 4e519d7a274adb8e5304fa29ed035db9f6dee01c1a1ae5cd655d29e81fecb846
+  - path: src/superclaude/commands/impact.md
+    sha256: 9a219314946a42ba57d62c3f42527dda01398c28af3011f864cb96d2126c9e24
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: e312feda8cc1b4212c04e985eb80001f2819359611cfedab5b17eb24be81079f
+  - path: src/superclaude/rules/core/changelog_maintenance.md
+    sha256: 2133c934ee658e3a8ad0c7370ced9dca0fa4d63f960c820a6300e5c26c5aa16c
+  - path: update.sh
+    sha256: 955858e661c347db88285b8cb930cd8f73ac8eb1f6ebcb60ecb415207a359860

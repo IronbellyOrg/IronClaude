@@ -1,0 +1,203 @@
+--- a/docs/user-guide/modes.md
++++ b/docs/user-guide/modes.md
+@@ -19,7 +19,7 @@
+ 
+ ## Getting Started (2-Minute Overview)
+ 
+-**Modes activate through behavioral instructions** - Claude Code reads context files to determine which mode behaviors to adopt based on your task patterns and complexity.
++**Modes are a style you ask for, not a loaded file** - no installed context file defines modes in 5.0.0 (the `MODES.md` core file is no longer shipped, and the files under `src/superclaude/modes/` are not installed). Claude may adopt a mode's behaviors when your request fits it or when you pass a mode flag as a hint.
+ 
+ **Quick Examples:**
+ 
+@@ -61,7 +61,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: "I'll build a user authentication system with JWT tokens..."
+ Brainstorming Approach: 
+ "🤔 Let's explore this together:
+@@ -115,7 +115,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: "I'll analyze this code structure and suggest improvements..."
+ Introspective Approach:
+ "🧠 Meta-Analysis: Why did I choose structural analysis over functional flow?
+@@ -164,7 +164,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Mode: "Here are some search results about quantum computing..."
+ Deep Research Mode: 
+ "📊 Research Plan: Quantum computing breakthroughs
+@@ -216,7 +216,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: "I'll implement user authentication..." → Direct implementation
+ Task Management Approach:
+ "📋 Multi-Phase Implementation Plan:
+@@ -257,15 +257,14 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: Sequential file-by-file analysis and editing
+ Orchestration Approach:
+ "🎯 Multi-Tool Coordination Strategy:
+  🔍 Phase 1: Auggie (codebase retrieval)
+- ⚡ Phase 2: Morphllm (pattern edits) + Magic (UI components) 
++ ⚡ Phase 2: Morphllm (pattern edits)
+  🧪 Phase 3: Playwright (testing) + Context7 (documentation patterns)
+- 🔄 Parallel execution: 3 tools working simultaneously
+-\"
++ 🔄 Parallel execution: 3 tools working simultaneously"
+ ```
+ 
+ **Works Best With:**
+@@ -297,7 +296,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: "The authentication system implementation shows a security vulnerability in the user validation function that needs immediate attention..."
+ Token Efficient Approach:
+ "🛡️ Security Alert:
+@@ -336,7 +335,7 @@
+ 
+ **Example Experience:**
+ 
+-```
++```text
+ Standard Approach: Consistent, professional baseline for all tasks
+ "I'll implement the login function with proper error handling:
+  
+@@ -485,7 +484,7 @@
+ ```bash
+ # Problem: Simple tasks getting complex coordination
+ # Quick Fix: Reduce scope or use simpler commands
+-/sc:implement "function" --no-task-manage     # Disable coordination
++/sc:implement "function"                      # Leave out --task-manage
+ /sc:troubleshoot bug.js                       # Use basic commands
+ # Check if task really is complex (>3 files, >2 directories)
+ ```
+@@ -494,9 +493,7 @@
+ 
+ ```bash
+ # Problem: Output too compressed or unclear
+-# Quick Fix: Disable compression for clarity
+-/sc:command --no-uc                           # Disable compression
+-/sc:command --verbose                         # Force detailed output
++# Quick Fix: Leave out --uc and ask for plain, full-sentence output
+ # Use when clarity is more important than efficiency
+ ```
+ 
+@@ -504,8 +501,7 @@
+ 
+ ```bash
+ # Problem: Too much meta-commentary, not enough action
+-# Quick Fix: Disable introspection for direct work
+-/sc:command --no-introspect                   # Direct execution
++# Quick Fix: Leave out --introspect and ask Claude to skip the commentary
+ # Use introspection only for learning and debugging
+ ```
+ 
+@@ -514,24 +510,10 @@
+ ```bash
+ # Problem: Tool coordination causing confusion
+ # Quick Fix: Simplify tool usage
+-/sc:command --no-mcp                          # Native tools only
+-/sc:command --simple                          # Basic execution
++/sc:troubleshoot "issue" --no-mcp            # Native tools only (declared by /sc:troubleshoot and /sc:reflect)
+ # Check if task complexity justifies orchestration
+ ```
+ 
+-### Error Code Reference
+-
+-| Mode Error | Meaning | Quick Fix |
+-|------------|---------|-----------|
+-| **B001** | Brainstorming failed to activate | Use explicit `--brainstorm` flag |
+-| **T001** | Task management overhead | Use `--no-task-manage` for simple tasks |
+-| **U001** | Token efficiency too aggressive | Use `--verbose` or `--no-uc` |
+-| **I001** | Introspection mode stuck | Use `--no-introspect` for direct action |
+-| **O001** | Orchestration coordination failed | Use `--no-mcp` or `--simple` |
+-| **M001** | Mode conflict detected | Check flag priority rules |
+-| **M002** | Mode switching loop | Restart session to reset state |
+-| **M003** | Mode not recognized | Update SuperClaude or check spelling |
+-
+ ### Progressive Support Levels
+ 
+ **Level 1: Quick Fix (< 2 min)**
+@@ -542,12 +524,9 @@
+ 
+ **Level 2: Detailed Help (5-15 min)**
+ 
+-```bash
+-# Mode-specific diagnostics
+-/sc:help modes                            # List all available modes
+-/sc:reflect --type mode-status            # Check current mode state
+-# Review request complexity and triggers
+-```
++- No command reports or diagnoses modes; modes are not installed or tracked
++- Review your request's complexity and wording against the triggers on this page
++- Restate the request with the mode flag or the style you want
+ 
+ - See [Common Issues Guide](../reference/common-issues.md) for mode installation problems
+ 
+@@ -565,7 +544,7 @@
+ 
+ **Level 4: Community Support**
+ 
+-- Report mode issues at [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
++- Report mode issues at [GitHub Issues](https://github.com/IronbellyOrg/IronClaude/issues)
+ - Include examples of unexpected mode behavior
+ - Describe desired vs actual mode activation
+ 
+@@ -611,7 +590,7 @@
+ **Q: Do modes affect execution?**
+ A: Modes optimize tool usage through coordination:
+ 
+-- **Token Efficiency**: 30-50% context reduction
++- **Token Efficiency**: Shorter, symbol-based output (token savings not measured)
+ - **Orchestration**: Parallel processing
+ - **Task Management**: Prevents rework through systematic planning
+ 
+@@ -626,7 +605,7 @@
+ 
+ ## Summary
+ 
+-SuperClaude's 5 behavioral modes create an **intelligent adaptation system** that matches your needs automatically:
++SuperClaude's 6 behavioral modes create an **intelligent adaptation system** that matches your needs automatically:
+ 
+ - **🧠 Brainstorming**: Transforms vague ideas into clear requirements
+ - **🔍 Introspection**: Provides transparent reasoning for learning and debugging
+@@ -671,4 +650,4 @@
+ - **Brainstorming**: [Brainstorm Guide](brainstorm.md)
+ - **Task Management**: [Session Management Guide](session-management.md)
+ - **Orchestration**: [MCP Servers Guide](mcp-servers.md)
+-- **Token Efficiency**: [Command Fundamentals](commands.md#token-efficiency)
++- **Token Efficiency**: [Behavioral Mode Flags](flags.md#behavioral-mode-flags)
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -35,3 +35,11 @@
+ - **A-W5 correction 5, `--yes` (extended).** `superclaude sprint run --help` lists `SUPERCLAUDE_SPRINT_ASSUME_YES=1` alongside `CI=1` as the non-interactive assent; both are written.
+ - **A-W5 correction 2 (extended).** Besides the token figures, the Troubleshooting line "Context pressure: Auto-activates `--token-efficient` at >75% usage" presented a hint flag as switching on by itself; reworded to "ask for `--token-efficient` output (nothing switches it on automatically)". The `30-50% reduction` figure was marked "token savings not measured"; the ~4K/~10K/~32K figures were removed.
+ - **A-W5 correction 6 (scope).** Only the undeclared values were removed: `security` from the `/sc:improve --type` row (`commands/improve.md:22` declares `quality|performance|maintainability|style`) and the `--preview` rows and example (`improve.md:22`, `cleanup.md:22` declare no `--preview`). `security` stays in `/sc:troubleshoot --type` (declared, `commands/troubleshoot.md:8`) and in `--focus` (an `/sc:analyze` value). The removed `/sc:cleanup . --preview` Quick Fixes example was not replaced.
++
++## Task 9 (item A-W6) — docs/user-guide/modes.md
++
++- **A-W6 correction 5 (refined).** Planned: remove `--no-task-manage`, `--no-uc`, `--no-introspect`, `--simple` and the B001-M003 error-code table. Done; the same troubleshooting blocks also used `/sc:command --verbose` as a general "force detailed output" flag, which only `/sc:build` declares (see `flags.md` Build Command Flags), so it was removed with `--no-uc`. `--no-mcp` was kept but moved onto `/sc:troubleshoot`, which declares it (`src/superclaude/commands/troubleshoot.md:8,58`; also `commands/reflect.md:103`), instead of the generic `/sc:command`.
++- **A-W6 correction 4 (replacement text).** With `/sc:help modes` and `/sc:reflect --type mode-status` removed, the "Level 2" block was left empty, so it now says no command reports or diagnoses modes and gives the manual review steps.
++- **A-W6 correction 6, anchor (target).** Planned "link `flags.md`"; linked `flags.md#behavioral-mode-flags` (heading "### Behavioral Mode Flags" exists in `docs/user-guide/flags.md`).
++- **A-W6 correction 6, token figure (scope).** Only the FAQ line the item names ("30-50% context reduction") was changed, to "token savings not measured". The table row and the Token Efficiency "Purpose" line still say "estimated 30-50% token reduction"; they are labelled as estimates and the item does not list them, so they were left for a later pass.
++- **Pre-existing markdownlint violations (fixed).** Seven MD040 violations (example-output fences with no language) were present at d953b983; each fence was tagged `text`. A stray `\"` closing the Orchestration example was corrected to `"` while removing Magic on the line above.

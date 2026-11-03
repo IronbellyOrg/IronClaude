@@ -1,0 +1,42 @@
+--- a/docs/user-guide/freshness-hooks.md
++++ b/docs/user-guide/freshness-hooks.md
+@@ -22,9 +22,21 @@
+ | `~/.claude/BASH_INSPECTION_POLICY.md` | Global behavioral policy: five or more known, independent serial Bash inspections become one bounded `/tmp` batch call. Imported by `~/.claude/CLAUDE.md`; no hard Bash counter is installed. |
+ | `~/.claude/hooks/freshness-file-changed.sh` | **NOT registered in v1.** Script is copied to disk but the design's `FileChanged` registration was removed after live probing revealed Claude Code's matcher only accepts literal filenames, not regex. See "Known limitations" below. |
+ 
++The same `hooks.json` also registers hooks that are not part of the freshness
++set. Leave them in place when you remove freshness entries:
++
++- `~/.claude/hooks/codegraph-session-start.sh` (SessionStart, matcher
++  `startup`, new in 5.0.0): starts one background `codegraph init` for a
++  checkout that has no code-graph index yet. Set
++  `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` to turn off this hook only.
++- `~/.claude/hooks/auggie-flag-clear.sh` (PostToolUse on Auggie tool calls).
++- `node "$HOME/.claude/hooks/pragmatic-subagent.js"` (SubagentStart).
++- `~/.claude/skills/ccsession-tag/hooks/session-start.sh` and
++  `session-name.sh` (SessionStart, UserPromptSubmit and SessionEnd).
++
+ State files appear under `~/.claude/state/`:
+ 
+-```
++```text
+ ~/.claude/state/
+ ├── reads.jsonl           # every successful Read
+ ├── changes.jsonl         # FileChanged events for files we Read
+@@ -114,14 +126,13 @@
+    `session-init.sh` or unrelated user hooks intact).
+ 3. Optionally delete the scripts: `rm ~/.claude/hooks/freshness-*.sh`.
+ 
+-To re-enable later: `superclaude install -f`.
++To re-enable later: `superclaude install --force`.
+ 
+ ## FAQ
+ 
+ **Q: Why am I seeing `bash: jq: command not found` errors after install?**
+ 
+-The hooks require `jq` (already a SuperClaude build dependency). On systems
+-that don't have it: `sudo apt install jq` / `brew install jq`. Without `jq`,
++The hooks require `jq` on PATH. On systems that don't have it: `sudo apt install jq` / `brew install jq`. Without `jq`,
+ hooks fail-open per NFR-3 — your session keeps working but freshness
+ enforcement is disabled.
+ 

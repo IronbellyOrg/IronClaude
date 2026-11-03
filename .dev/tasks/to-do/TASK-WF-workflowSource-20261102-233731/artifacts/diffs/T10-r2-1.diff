@@ -1,0 +1,99 @@
+--- a/docs/user-guide/agents.md
++++ b/docs/user-guide/agents.md
+@@ -17,7 +17,7 @@
+ 
+ # Test frontend agent auto-activation
+ /sc:implement "responsive navigation component"  
+-# Example behavior: Frontend architect + Magic MCP should activate
++# Example behavior: Claude may choose frontend-architect
+ 
+ # Test systematic analysis
+ /sc:troubleshoot "slow API performance"
+@@ -39,6 +39,8 @@
+ 
+ **Important**: Agents are NOT separate AI models or software - they are context configurations that Claude Code reads to adopt specialized behaviors.
+ 
++IronClaude 5.0.0 ships 45 agent files. This guide covers the domain specialists you invoke or that Claude may choose; the workflow agents (for example `rf-*`, `audit-*`, `eval-*`, `reflect-reviewer` and `troubleshoot-analyst`) are spawned by skills as part of their own steps.
++
+ ### Two Ways to Use Agents
+ 
+ #### 1. Manual Invocation with @agent- Prefix
+@@ -68,7 +70,7 @@
+ /sc:implement "JWT authentication"  # Claude may delegate to security-engineer
+ ```
+ 
+-**MCP Servers** provide enhanced capabilities through specialized tools like Context7 (documentation), Magic (UI), Playwright (testing), and Morphllm (code transformation).
++**MCP Servers** provide enhanced capabilities through specialized tools like codegraph (symbols, callers and impact), Context7 (documentation), Playwright (testing), and Morphllm (code transformation).
+ 
+ **Domain Specialists** focus on narrow expertise areas to provide deeper, more accurate solutions than generalist approaches.
+ 
+@@ -92,7 +94,7 @@
+ 
+ **Selection Decision Tree:**
+ 
+-```
++```text
+ Task Analysis →
+ ├─ Manual @agent-? → Use specified agent
+ ├─ Single Domain? → Activate primary agent
+@@ -199,7 +201,7 @@
+ **Integration with Task Execution**:
+ PM Agent operates as a **meta-layer** above specialist agents:
+ 
+-```
++```text
+ Task Flow:
+ 1. User Request → Claude, a command, or a skill picks a specialist agent (or you name one)
+ 2. Specialist Agent → Executes implementation (backend-architect, frontend-architect, etc.)
+@@ -679,8 +681,8 @@
+ 
+ **Enhanced Capabilities through MCP Servers**:
+ 
++- **codegraph**: Symbol and caller lookups for `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst` (`reflect-reviewer` and `troubleshoot-analyst` can also run impact lookups). They use the codegraph tools when the index is fresh and fall back to Grep and Read when it is not
+ - **Context7**: Official documentation patterns for all architects and specialists
+-- **Magic**: UI generation for frontend-architect, learning-guide interactive content
+ - **Playwright**: Browser testing for quality-engineer, accessibility validation for frontend-architect
+ - **Morphllm**: Code transformation for refactoring-expert, bulk changes for python-expert
+ 
+@@ -695,9 +697,11 @@
+ 
+ ### Common Issues
+ 
++> **Note**: The keywords in this section and in the "Agent Trigger Lookup" table below are hints for you. No installed file matches keywords (see "Delegation by Claude, Commands and Skills" above), and the `ORCHESTRATOR.md` and `PERSONAS.md` files these hints came from are no longer shipped. Claude may choose the listed agent for such a request; to be sure, name it with `@agent-<full-name>`.
++
+ - **No agent activation**: Use domain keywords: "security", "performance", "frontend"
+ - **Wrong agents selected**: Check trigger keywords in agent documentation
+-- **Too many agents**: Focus keywords on primary domain or use `/sc:focus [domain]`
++- **Too many agents**: Focus keywords on primary domain, or name the one agent you want with `@agent-<full-name>`
+ - **Agents not coordinating**: Increase task complexity or use multi-domain keywords
+ - **Agent expertise mismatch**: Use more specific technical terminology
+ 
+@@ -800,7 +804,7 @@
+ **Too Many Agents?**
+ 
+ - Focus keywords on primary domain needs
+-- Use `/sc:focus [domain]` to limit scope
++- Name the one agent you want with `@agent-<full-name>`
+ - Start with specific agents, expand as needed
+ 
+ **Wrong Agents?**
+@@ -813,7 +817,9 @@
+ 
+ ### Agent Trigger Lookup
+ 
+-| Trigger Type | Keywords/Patterns | Activated Agents |
++These keywords are hints for you; no installed file matches keywords (see "Delegation by Claude, Commands and Skills" above), and the `ORCHESTRATOR.md` and `PERSONAS.md` files they came from are no longer shipped. The right-hand column is the agent Claude may choose for such a request.
++
++| Trigger Type | Keywords/Patterns | Agent Claude may choose |
+ |-------------|-------------------|------------------|
+ | **Security** | "auth", "security", "vulnerability", "encryption" | security-engineer |
+ | **Performance** | "slow", "optimization", "bottleneck", "latency" | performance-engineer |
+@@ -952,7 +958,7 @@
+ **Problem: Too many agents**
+ 
+ - Solution: Focus on primary domain with specific technical terms
+-- Example: Use "/sc:focus backend" to limit scope
++- Example: Name the agent directly, such as `@agent-backend-architect`, to limit scope
+ 
+ ### Quality-Driven Development
+ 

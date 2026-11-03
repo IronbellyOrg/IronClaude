@@ -14,13 +14,17 @@ This guide summarizes the sprint CLI tooling completed in this release, includin
 
 ### Core command surface
 
-The `superclaude sprint` command group provides 5 subcommands:
+The `superclaude sprint` command group provides 7 subcommands:
 
 1. `run`
 2. `attach`
 3. `status`
 4. `logs`
 5. `kill`
+6. `rerun-tasks`
+7. `verify-checkpoints`
+
+`status` and `logs` are placeholders: they print "not yet connected to active sprint" and read no sprint state (`src/superclaude/cli/sprint/logging_.py`).
 
 Implemented contract and options are defined in `src/superclaude/cli/sprint/commands.py`.
 
@@ -53,7 +57,7 @@ Pre-flight behavior: execution fails fast if the `claude` binary is not in `PATH
 
 - You have a phase-based tasklist release package ready.
 - You want deterministic, resumable execution over multiple phase files.
-- You want strict task execution posture (`/sc:task-unified ... --compliance strict --strategy systematic`).
+- You want strict task execution posture (`/sc:task ... --compliance strict --strategy systematic`).
 
 ### Syntax
 
@@ -74,10 +78,15 @@ superclaude sprint run <index_path> [options]
 - `--dry-run` discovery/validation only; with default auto-resume it also prints `ResumePlan`, `DriftAssessment`, and `BoundaryReport` without executing
 - `--no-tmux` run in foreground even if tmux is available
 - `--permission-flag` permission mode passed to Claude CLI
-- `--force-fidelity-fail 'reason'` Bypass spec fidelity check
   - supported values: `--dangerously-skip-permissions` (default) and `--allow-hierarchical-permissions`
+- `--force-fidelity-fail 'reason'` Bypass spec fidelity check
+- `--handoff` / `--no-handoff` per-task handoff records (default: on). With handoff on, each finished task writes `<results_dir>/handoff/phase-{N}-task-{task_id}.json` and a `task_complete` event to the JSONL execution log; `--no-handoff` writes neither
+- `--resume <task_id>` resume from a task id, skipping tasks whose handoff record shows a validated success (task and gate both passed); composes with `--start`/`--end`
+- `--task-parallelism K` number of tasks run at once per phase (default: `1`, sequential)
 - `--ignore-run-lock` reclaim the release-level run-lock even if a live holder exists (loud warning; does NOT kill the other process). Unsafe — use only when a prior `sprint run` crashed and left a stale lock; concurrent runs on the same release dir can corrupt state
-  
+
+Under tmux (the default when tmux is installed), `--resume`, `--task-parallelism` and `--no-handoff` do not reach the sprint worker (see [§4.4](#44-tmux-mode-what-is-launched)). Add `--no-tmux` when you use them.
+
 ### Examples
 
 ```bash
@@ -93,8 +102,15 @@ superclaude sprint run .dev/releases/current/tasklist-index.md --start 4 --end 8
 # Validate discovered phases only; with auto-resume state, also print the resume plan, drift assessment, and boundary report
 superclaude sprint run .dev/releases/current/tasklist-index.md --dry-run
 
-# Foreground execution for CI/local debugging
+# Foreground execution for local debugging
 superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux
+
+# Foreground, non-interactive execution for CI (--yes, or any non-empty CI variable)
+superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux --yes
+
+# Per-task resume with two tasks in parallel (foreground, so the flags reach the worker)
+superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux \
+  --resume T03.04 --task-parallelism 2
 
 # Use Claude hierarchical permissions instead of the default skip-permissions mode
 superclaude sprint run .dev/releases/current/tasklist-index.md \
@@ -290,26 +306,29 @@ the CLI flow is:
 
 ### 4.2 What command is run for each phase
 
-For each phase, the runtime spawns a fresh Claude CLI process from `process.py::build_command()`.
+For each phase, the runtime spawns a fresh Claude CLI process from `build_command()` in `src/superclaude/cli/pipeline/process.py`.
 
 Effective command shape:
 
 ```bash
 claude \
   --print \
+  --verbose \
   <permission-flag> \
   --no-session-persistence \
+  --tools default \
   --max-turns <N> \
-  --output-format text \
-  -p "<generated /sc:task-unified prompt>" \
+  --output-format stream-json \
   [--model <model-if-provided>]
 ```
+
+The generated `/sc:task` prompt is written to the child's stdin, not passed as a `-p` argument, so long prompts do not hit the per-argument length limit.
 
 Important details:
 
 - `--no-session-persistence` ensures phase isolation.
 - The runtime forwards the configured permission flag verbatim; supported choices are `--dangerously-skip-permissions` and `--allow-hierarchical-permissions`.
-- `CLAUDECODE=""` is injected into child env to avoid nested session detection behavior.
+- `CLAUDECODE` and `CLAUDE_CODE_ENTRYPOINT` are removed from the child environment to avoid nested session detection.
 - stdout/stderr are redirected to per-phase files in `results/`.
 
 ### 4.3 What prompt is sent to Claude
@@ -317,7 +336,7 @@ Important details:
 The sprint runtime generates a structured prompt (from `process.py::build_prompt()`) that begins with:
 
 ```text
-/sc:task-unified Execute all tasks in @<phase-file> --compliance strict --strategy systematic
+/sc:task Execute all tasks in @<phase-file> --compliance strict --strategy systematic
 ```
 
 It then includes execution rules and completion protocol (including writing phase result file and explicit `EXIT_RECOMMENDATION`).
@@ -335,7 +354,7 @@ Inputs used by the builder:
 Prompt structure emitted by the builder:
 
 1. **Command header**
-   - `/sc:task-unified ... --compliance strict --strategy systematic`
+   - `/sc:task ... --compliance strict --strategy systematic`
 2. **Execution Rules** block
    - task ordering expectations
    - tier-specific verification expectations
@@ -367,8 +386,14 @@ If tmux mode is selected, runtime creates a deterministic session name (`sc-spri
 Foreground command built by runtime:
 
 ```bash
-superclaude sprint run <index> --no-tmux --start <N> --max-turns <N> --permission-flag <flag> [--end <N>] [--model <M>] [--tmux-session-name <name>]
+superclaude sprint run <index> --no-tmux --start <N> --max-turns <N> --permission-flag <flag> \
+  [--end <N>] [--model <M>] [--tmux-session-name <name>] --state-dir <dir> \
+  [--debug] [--stall-timeout <S>] [--stall-action kill] [--ignore-run-lock]
 ```
+
+`--stall-timeout` is added only when it is above 0, and `--stall-action` only when it is not `warn` (`src/superclaude/cli/sprint/tmux.py`).
+
+The inner worker is rebuilt from this argument list alone, so any other `sprint run` flag does not reach it. In particular `--resume`, `--task-parallelism` and `--handoff`/`--no-handoff` are not forwarded: the worker runs with handoff on, no task resume and sequential tasks. Use `--no-tmux` when you need those flags. `--yes` is not forwarded either, but it is not needed there: the auto-resume confirmation runs in the outer process before tmux starts, and the inner command carries an explicit `--start`, which turns auto-resume off.
 
 Then it:
 
@@ -461,10 +486,10 @@ Bare `sprint run` auto-resumes from the interrupted phase indicated by on-disk s
 ## Use case 4: CI/ephemeral shell environment
 
 ```bash
-superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux
+superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux --yes
 ```
 
-Avoids tmux dependency in constrained runners.
+Avoids tmux dependency in constrained runners. `--yes` answers the auto-resume confirmation; without it (or `SUPERCLAUDE_SPRINT_ASSUME_YES` / `CI` set to any non-empty value) a non-interactive run that finds resumable state stops with guidance instead of running.
 
 ## Use case 5: Recover a few failed tasks without rerunning the whole phase
 

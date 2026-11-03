@@ -1,0 +1,350 @@
+--- a/docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md
++++ b/docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md
+@@ -0,0 +1,334 @@
++# E2E Test Guide — `Routing guide, core files and issue templates` (`5.0.0`)
++
++- **Capability:** `/sc:help` lists what is installed and prints the six-level table from the routing guide `~/.claude/HOW-WE-WORK.md`, or an exact fallback line when the guide is missing or broken; `/sc:recommend` reads that guide first and returns the matching routing row's steps; 5.0.0 ships 11 core files (including `ISSUE-HANDOFF.md` and `ISSUE-BACKLOG.md`) and no longer ships `/sc:README`, the `/ccsession-tag` command or six old core files; the shipped `CLAUDE.md` tells Claude to file GitHub issues from a filled copy of an issue template, never from the template itself.
++- **Audience:** end user
++- **Source of truth:** `src/superclaude/commands/help.md:21-93,132`; `src/superclaude/commands/recommend.md:32-60`; `src/superclaude/skills/sc-recommend/SKILL.md:290`; `src/superclaude/core/HOW-WE-WORK.md:11-28,350-354`; `src/superclaude/cli/install_core.py:13-27`; `src/superclaude/cli/install_commands.py:11,39-40,142-144`; `src/superclaude/core/ISSUE-HANDOFF.md`, `src/superclaude/core/ISSUE-BACKLOG.md`; `src/superclaude/core/CLAUDE.md:43`; `src/superclaude/skills/ccsession-tag/SKILL.md:1-5`; `CHANGELOG.md:43-44,70,244,248,252`; `docs/testing/v5.0.0/c-e2e-transcript.txt:380-389`
++- **Est. time:** `Tier A: 2 minutes. Tier B: 1 minute. Tier C: 25-35 minutes in interactive Claude Code sessions, plus 5 minutes for the optional [EXTERNAL] issue steps.`
++
++## Preconditions
++
++- IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`.
++- `git` and the `claude` CLI on your `PATH`, and a Claude Code login for Tier C (each Tier C step uses API tokens). Steps 13-15 also need `gh` logged in to a GitHub account where you may create a throwaway private repository.
++- `/tmp/d05` does not exist (`[ ! -e /tmp/d05 ] && echo OK` prints `OK`). Every file this guide creates is under `/tmp/d05`. No step moves, edits or deletes anything under your real `~/.claude`; Step 5 records checksums of the files this guide reads and Step 16 checks they are unchanged. The only thing Tier C adds to your real config is what every Claude Code session writes (its own session history).
++- Run every `/sc:help` and `/sc:recommend` step outside an IronClaude checkout (the steps use `/tmp/d05/...`). Inside a checkout, both commands read the checkout's `src/superclaude/core/HOW-WE-WORK.md` before the installed copy (`src/superclaude/commands/help.md:67`; `src/superclaude/commands/recommend.md:44`), which is a different file from the one under test.
++- `/sc:help` and `/sc:recommend` are carried out by Claude following the command files; there is no script behind them. Expected results give the exact lines the command file fixes and judge the rest on content, not wording.
++
++## What you're verifying
++
++- `/sc:help` lists the installed commands and skills read from disk (a command with no `description:` line shows `(no description line)`, `-protocol` skills come last), prints the guide's level table and hard limit verbatim, names the two Claude Code built-ins, points to the guide and to `/sc:recommend`, and writes nothing.
++- With no guide it prints the exact "Routing guide not found" line; with a guide that lacks the markers it prints the exact "has no level table" line.
++- `/sc:recommend` routes a one-file rename to level 2 and a multi-file feature to level 3 (`/sc:workflow`, then `/sc:implement` only when execution is requested), changes no file, and warns and ignores `--minstar` without `--plugin`.
++- The removed surface is absent: no `/sc:README` in a new install, no user-invocable `/ccsession-tag`, none of `ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`, `MCP.md` among the shipped core files.
++- `~/.claude/ISSUE-HANDOFF.md` and `~/.claude/ISSUE-BACKLOG.md` exist with four `##` headings each, and asking Claude to file a backlog issue uses a filled copy and leaves the template byte-for-byte unchanged.
++
++---
++
++## Steps
++
++### Tier A — free smoke on your machine (read-only)
++
++#### Step 1 — Shipped core files and commands `[FREE]`
++
++**Do:**
++
++```bash
++superclaude --version
++superclaude install --list | sed -n '1,14p'
++superclaude install --list | grep -E '^Commands:'
++superclaude install --list | grep -c -E '/README|ORCHESTRATOR|COMMANDS\.md|PERSONAS|MODES\.md|FLAGS\.md|MCP\.md'
++```
++
++**Expected result:** `SuperClaude, version 5.0.0`. The core block lists exactly 11 files, alphabetically: `BASH_INSPECTION_POLICY.md`, `BUSINESS_PANEL_EXAMPLES.md`, `BUSINESS_SYMBOLS.md`, `CLAUDE.md`, `CODEGRAPH.md`, `HOW-WE-WORK.md`, `ISSUE-BACKLOG.md`, `ISSUE-HANDOFF.md`, `PRINCIPLES.md`, `RESEARCH_CONFIG.md`, `RULES.md`, each followed by its install status, then `Core: 11 available, <n> installed`. The commands line starts `Commands: 45 available`. The last command prints `0`: no `/README` command and none of the six retired core files are shipped. (source: `--list` output format `src/superclaude/cli/main.py:87-112`; shipped core set `src/superclaude/cli/install_core.py:13-27`; `README.md` excluded from commands `src/superclaude/cli/install_commands.py:11,142-144`; retired files `CHANGELOG.md:252`; `/sc:README` `CHANGELOG.md:248`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 2 — Your installed guide, issue templates and leftovers `[FREE]`
++
++**Do:**
++
++```bash
++grep -n 'level-table' ~/.claude/HOW-WE-WORK.md
++grep -n '^## ' ~/.claude/ISSUE-HANDOFF.md ~/.claude/ISSUE-BACKLOG.md
++grep -c 'ISSUE-BACKLOG.md' ~/.claude/CLAUDE.md
++find ~/.claude/commands/sc -maxdepth 1 -name '*.md' ! -name README.md | wc -l
++for f in ~/.claude/commands/sc/*.md; do grep -q '^description:' "$f" || echo "no description: $f"; done
++ls ~/.claude/commands/sc/README.md ~/.claude/ORCHESTRATOR.md ~/.claude/COMMANDS.md ~/.claude/PERSONAS.md ~/.claude/MODES.md ~/.claude/FLAGS.md ~/.claude/MCP.md 2>&1
++```
++
++**Expected result:**
++
++- `~/.claude/HOW-WE-WORK.md:11:<!-- level-table:v1 -->` and `~/.claude/HOW-WE-WORK.md:28:<!-- /level-table -->` (source: `src/superclaude/core/HOW-WE-WORK.md:11,28`).
++- Eight headings at lines 1, 4, 7 and 10 of each file: `ISSUE-HANDOFF.md` has `## What was tried`, `## Relevant files and links`, `## Done when`, `## Who it is for`; `ISSUE-BACKLOG.md` has the same first three, then `## Pick-up note` (source: `src/superclaude/core/ISSUE-HANDOFF.md:1,4,7,10`; `src/superclaude/core/ISSUE-BACKLOG.md:1,4,7,10`; `CHANGELOG.md:43`).
++- `1` or more for `CLAUDE.md`: your `~/.claude/CLAUDE.md` carries Core Rule 10 (source: `src/superclaude/core/CLAUDE.md:43`). If it prints `0`, your `CLAUDE.md` predates 5.0.0 or was edited: a plain `superclaude install` leaves an existing `CLAUDE.md` alone (`CHANGELOG.md:44`). Steps 13-15 need the rule; skip them, or note that `superclaude install --force` replaces the file (it overwrites your edits without a backup).
++- `45` command files.
++- Exactly one `no description:` line, for `business-panel.md` (plus `README.md` if a leftover from an older install exists). (source: `src/superclaude/commands/business-panel.md` has no `description:` line; every other shipped command file has one)
++- The `ls` line: on a home that only ever had 5.0.0, all seven paths report `No such file or directory`. On a home upgraded from an older version, some of them may exist: install leaves old copies in place and nothing loads them (`CHANGELOG.md:248,252`). Either outcome is a PASS; note which leftovers you have, because Claude Code's `/` menu shows `/sc:README` while `~/.claude/commands/sc/README.md` exists.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 3 — `/ccsession-tag` is retired `[FREE]`
++
++**Do:**
++
++```bash
++sed -n '1,5p' ~/.claude/skills/ccsession-tag/SKILL.md
++ls ~/.claude/commands/sc | grep -i ccsession
++```
++
++**Expected result:** the frontmatter shows `name: ccsession-tag`, a `description:` that starts `"Retired: name a Claude Code session with the built-in /rename <name>`, `user-invocable: false` and `disable-model-invocation: true`. The second command prints nothing: there is no `/sc:` command for it. The folder stays only because it carries the `ccsession` command, hooks and shim, and install copies a skill folder only when it has a `SKILL.md`. (source: `src/superclaude/skills/ccsession-tag/SKILL.md:1-5`; `CHANGELOG.md:70`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 4 — A new install has no retired core files and no `/sc:README` `[FREE]`
++
++**Do:** read the recorded new-user run (a throwaway `HOME`, fresh 5.0.0 install) in `docs/testing/v5.0.0/c-e2e-transcript.txt`, lines 380-389. To reproduce it yourself instead, run guide D01 Steps 6-10 (those steps are `[LOCAL-WRITE]` in a throwaway `HOME` and need network), then in the same terminal: `ls "$E/new-user/.claude"/*.md; ls "$E/new-user/.claude/commands/sc" | wc -l; ls "$E/new-user/.claude/commands/sc/README.md"`.
++
++**Expected result:** the fresh home holds exactly the 11 core files `BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md CODEGRAPH.md HOW-WE-WORK.md ISSUE-BACKLOG.md ISSUE-HANDOFF.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md` (transcript line 389), so none of `ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`, `MCP.md`, and `commands/sc: 45` (transcript line 382), which is the 46 files of `src/superclaude/commands/` minus the excluded `README.md`; the `ls` of `README.md` reports `No such file or directory`. (source: `src/superclaude/cli/install_core.py:56,65-73` copies only the shipped `core/*.md`; `src/superclaude/cli/install_commands.py:11,39-40`; `CHANGELOG.md:248,252`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++### Tier B — local writes under /tmp/d05
++
++#### Step 5 — Create the fixtures and record checksums `[LOCAL-WRITE]`
++
++**Do:** (bash; keep this terminal open, Tier C uses a second one)
++
++```bash
++[ ! -e /tmp/d05 ] || { echo "remove /tmp/d05 first"; false; }
++mkdir -p /tmp/d05/proj/src/utils /tmp/d05/proj/src/report /tmp/d05/plain /tmp/d05/home/.claude/commands/sc
++cd /tmp/d05/proj && git init -q .
++cat > src/utils/timefmt.py <<'EOF'
++def fmt(ts, tz_offest=0):
++    shifted = ts + tz_offest
++    return f"{shifted} (offset {tz_offest})"
++EOF
++for m in cli model format; do printf '# report %s module\n' "$m" > "src/report/$m.py"; done
++git add -A && git -c user.name=d05 -c user.email=d05@example.invalid commit -qm fixture
++cp ~/.claude/commands/sc/help.md /tmp/d05/home/.claude/commands/sc/help.md
++cksum ~/.claude/HOW-WE-WORK.md ~/.claude/ISSUE-HANDOFF.md ~/.claude/ISSUE-BACKLOG.md ~/.claude/commands/sc/help.md ~/.claude/commands/sc/recommend.md > /tmp/d05/real.cksum
++cksum src/utils/timefmt.py src/report/*.py > /tmp/d05/proj.cksum
++cat /tmp/d05/real.cksum; ls -A /tmp/d05/home/.claude /tmp/d05/home/.claude/commands/sc /tmp/d05/plain
++```
++
++**Expected result:** `/tmp/d05/real.cksum` has 5 lines, one per real file read by this guide. `/tmp/d05/home/.claude` holds only `commands`, which holds only `sc/help.md`; `/tmp/d05/plain` is empty and is not a git repository. `/tmp/d05/proj` is a git repository with `src/utils/timefmt.py` (three uses of `tz_offest`) and three report modules. The throwaway home `/tmp/d05/home` gives `/sc:help` a home with no routing guide, without touching your real `~/.claude` (the guide is looked up at `$HOME/.claude/HOW-WE-WORK.md`, `src/superclaude/commands/help.md:69`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++### Tier C — interactive Claude Code sessions and the external issue test
++
++Run these in a second terminal. Start sessions in `/tmp/d05/proj` with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` so the codegraph session-start hook does not add a `.codegraph/` folder to the fixture (that switch turns off the hook only, `src/superclaude/hooks/scripts/codegraph-session-start.sh:11`). Type each `/sc:` line at the Claude Code prompt exactly as shown.
++
++#### Step 6 — `/sc:help` lists what is installed `[CLAUDE-SESSION]`
++
++**Do:**
++
++```bash
++cd /tmp/d05/proj && SUPERCLAUDE_CODEGRAPH_AUTOINIT=0 claude
++```
++
++```text
++/sc:help
++```
++
++Keep the session open for Step 7.
++
++**Expected result:** Claude runs four separate Bash listings (`find` commands) and nothing that writes. The output has these groups:
++
++- **Commands (`/sc:`)**: one line per installed command, `/sc:<name> | <description>`, alphabetical, 45 entries; `/sc:business-panel | (no description line)` is among them; there is no `/sc:README` line even if a leftover `README.md` exists.
++- **Skills**: one line per folder in `~/.claude/skills/`, including the 38 IronClaude folders (transcript `docs/testing/v5.0.0/c-e2e-transcript.txt:350` lists them); the `-protocol` skills are listed last under the label "loaded by commands, not run directly".
++- **Project-local**: `Nothing installed at .claude/commands/ and .claude/skills/ in this project.`
++- **Plugin**: nothing (skipped because `CLAUDE_PLUGIN_ROOT` is unset).
++
++(source: four listings, one Bash call each, `src/superclaude/commands/help.md:21-52`; skip `README.md` `help.md:25,33`; `(no description line)` and sorting `help.md:58`; `-protocol` label `help.md:59`; skipped Plugin group `help.md:48,60`; empty-group line `help.md:61`; read-only `help.md:21,132`). UNVERIFIED: how Claude lays out the groups (headings, tables or lists); judge on the entries and the fixed strings.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 7 — `/sc:help` prints the level table verbatim, the built-ins and the pointers `[CLAUDE-SESSION]`
++
++**Do:** read the rest of the Step 6 output. In the first terminal, print the guide's block to compare:
++
++```bash
++sed -n '12,27p' ~/.claude/HOW-WE-WORK.md
++```
++
++**Expected result:**
++
++- After the listings, the text between the markers appears unchanged: the table header `| Level | Use this when | What you run | What you end up with |`, six rows **1. Ask a question** to **6. Write a full specification**, the paragraph starting `**Hard limit:** if the work needs more than 5 edits or touches more than one source file`, and the two paragraphs starting `File count, multiple sessions,` and `When an adequate approved plan already exists,`. Compare the first row, the hard-limit paragraph and the last paragraph word for word with the `sed` output; nothing is shortened or reworded. (source: verbatim print `src/superclaude/commands/help.md:73`; block `src/superclaude/core/HOW-WE-WORK.md:11-28`)
++- Then the sentence: "The guide also uses two Claude Code built-in commands: `/code-review` (bug review of your changes) and `/security-review` (security review). They come with Claude Code and are not files in your install." (source: `help.md:85`)
++- Then three pointers: read the guide at the path found (here `~/.claude/HOW-WE-WORK.md` or its expanded form), `/sc:recommend "<what you want to do, and why>"`, and where command files live (`$HOME/.claude/commands/sc/<name>.md`, project `.claude/commands/`, plugin path). (source: `help.md:89-93`)
++- Type `/exit` in the session, then run `cd /tmp/d05/proj && git status --porcelain --untracked-files=all` in the shell: it prints nothing (`/sc:help` wrote no file, `help.md:132`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 8 — "Routing guide not found" with no guide `[CLAUDE-SESSION]`
++
++**Do:** start Claude Code with the throwaway home from Step 5, in a folder that is not a git repository:
++
++```bash
++cd /tmp/d05/plain && env -u CLAUDE_CONFIG_DIR HOME=/tmp/d05/home claude
++```
++
++Claude Code sees `/tmp/d05/home` as a new user: it may show its first-run screens and ask you to log in. Anything it stores goes into `/tmp/d05/home` and is deleted in Cleanup. Whether you need to log in again depends on how your Claude Code is authenticated (UNVERIFIED; an `ANTHROPIC_API_KEY` or gateway variables in your environment usually carry over).
++
++```text
++/sc:help
++/exit
++```
++
++**Expected result:** the Commands group shows only `/sc:help | List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide`; Skills shows `Nothing installed at ~/.claude/skills/.`; Project-local shows `Nothing installed at .claude/commands/ and .claude/skills/ in this project.` In place of the table, exactly this line:
++
++`Routing guide not found. pipx/pip install: run superclaude update. Plugin install: update the SuperClaude plugin. Until then, recommendations do not use the routing guide.`
++
++Then the built-ins sentence, and pointers that say how to install the guide instead of naming a path. Location 2 is skipped because `CLAUDE_PLUGIN_ROOT` is unset and location 3 because `/tmp/d05/plain` is not an IronClaude checkout. (source: lookup order `src/superclaude/commands/help.md:67-71`; exact line `help.md:79-81`; empty-group lines `help.md:61`; description `help.md:3`; pointer when no guide `help.md:91`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 9 — `/sc:recommend` level 2: a one-file rename `[CLAUDE-SESSION]`
++
++**Do:**
++
++```bash
++cd /tmp/d05/proj && SUPERCLAUDE_CODEGRAPH_AUTOINIT=0 claude
++```
++
++```text
++/sc:recommend "Rename the parameter tz_offest to tz_offset in src/utils/timefmt.py (3 uses)"
++```
++
++Keep the session open for Steps 10 and 11.
++
++**Expected result:** Claude loads the `sc-recommend` skill, reads `~/.claude/HOW-WE-WORK.md` first and matches the routing row `small-change`: level 2, steps "`/sc:task "<change>"` or a plain edit", then run the related test if it has not run; it says files will change. It only recommends: it does not edit `timefmt.py`. (source: skill load `src/superclaude/commands/recommend.md:54-56`; guide first, row match, steps in order `recommend.md:44`; row `src/superclaude/core/HOW-WE-WORK.md:353`; example output `recommend.md:79-87`; never executes `recommend.md:130`). UNVERIFIED: the layout of the hand-off envelope; FAIL if it routes to `/sc:workflow` or `/task-builder`, or if any fixture file changes (checked in Step 11).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 10 — `/sc:recommend` level 3: a multi-file feature `[CLAUDE-SESSION]`
++
++**Do:**
++
++```text
++/sc:recommend "Add a CSV export option to the report tool. It changes src/report/cli.py, src/report/model.py and src/report/format.py, adds src/report/csv_writer.py, and needs tests for each."
++```
++
++**Expected result:** a level-3 route, row `simple-plan` (or `feature-existing`, also level 3): step 1 `/sc:workflow "<what to change, why, which files>"` (it may add `--depth standard --handoff none`, the level table's form; the routing row makes no flag mandatory and standard depth with no executing handoff is the default), step 2 read the printed plan `.dev/tasks/to-do/<id>/<id>.md` and its check result, step 3 `/sc:implement <printed plan path>` only when execution is requested. No `/task-builder` and no execution of the plan. (source: hard limit and level 3 `src/superclaude/core/HOW-WE-WORK.md:17,22`; rows `HOW-WE-WORK.md:354,356`; level rule `src/superclaude/commands/recommend.md:47`; stops at the requested deliverable `recommend.md:44`). If Claude asks one clarifying question instead, answer "plan it, do not execute" and judge the route it then gives (`recommend.md:44`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 11 — `--minstar` without `--plugin` is warned and ignored `[CLAUDE-SESSION]`
++
++**Do:**
++
++```text
++/sc:recommend "Rename the parameter tz_offest to tz_offset in src/utils/timefmt.py (3 uses)" --minstar 10
++/exit
++```
++
++Then, in the shell:
++
++```bash
++cd /tmp/d05/proj && cksum src/utils/timefmt.py src/report/*.py | diff /tmp/d05/proj.cksum - && echo fixture-unchanged
++git status --porcelain --untracked-files=all
++```
++
++**Expected result:** exactly one notice, `--minstar has no effect without --plugin (the local surface has no stars); ignoring it.`, then the same level-2 recommendation as Step 9 (not a stop). In the shell, `fixture-unchanged` is printed and `git status` prints nothing: none of Steps 9-11 changed a project file. (source: notice text `src/superclaude/skills/sc-recommend/SKILL.md:290`; flag table `src/superclaude/commands/recommend.md:36`; warn-and-ignore `recommend.md:121`; never executes `recommend.md:130`; no cache outside an IronClaude checkout `recommend.md:45`, `CHANGELOG.md:244`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 12 — Removed commands are not offered `[CLAUDE-SESSION]`
++
++**Do:** start a session in `/tmp/d05/proj` (as in Step 9). At the empty prompt type `/ccsession` and look at the command menu Claude Code shows; clear the prompt, type `/sc:READ` and look again. Then `/exit`.
++
++**Expected result:** no `/ccsession-tag` entry (the skill is `user-invocable: false`, `src/superclaude/skills/ccsession-tag/SKILL.md:4`; `CHANGELOG.md:70`) and no `/sc:README` entry, unless Step 2 found a leftover `~/.claude/commands/sc/README.md` (then `/sc:README` is expected from that file, `CHANGELOG.md:248`; mark PASS with a note). UNVERIFIED: the menu itself is Claude Code's, not IronClaude code; this step checks that Claude Code honours the frontmatter.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 13 — Create a throwaway repository for the issue test `[EXTERNAL]`
++
++This and the next two steps create a real GitHub repository and issue. Use only a throwaway private repository under your own account, never `IronbellyOrg/IronClaude` or any shared repository. Skip Steps 13-15 if Step 2 printed `0` for `CLAUDE.md`.
++
++**Do:** (first terminal)
++
++```bash
++SANDBOX="$(gh api user -q .login)/d05-issue-sandbox"; echo "$SANDBOX" > /tmp/d05/sandbox.name
++gh repo create "$SANDBOX" --private --add-readme
++gh repo clone "$SANDBOX" /tmp/d05/sandbox
++```
++
++**Expected result:** `gh` reports the new private repository and the clone lands in `/tmp/d05/sandbox` with a `README.md`. Its `origin` is the sandbox, so the plain `gh issue create` that Core Rule 10 prescribes (no `--repo`) files there (source: `gh repo create --help`; rule text `src/superclaude/core/CLAUDE.md:43`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 14 — Claude files a backlog issue from a filled copy `[EXTERNAL]`
++
++This step is a Claude Code session (API tokens) that creates a real issue in the sandbox.
++
++**Do:**
++
++```bash
++cd /tmp/d05/sandbox && SUPERCLAUDE_CODEGRAPH_AUTOINIT=0 claude
++```
++
++```text
++File a backlog issue in this repository: the CSV export ignores the --delimiter flag. We tried passing ';' and still got commas. Done when the export honours the flag and has a test.
++/exit
++```
++
++Allow the `gh issue create` call when Claude Code asks.
++
++**Expected result:** in the session's tool calls, Claude first copies `~/.claude/ISSUE-BACKLOG.md` to a temporary file (a `cp` or a Write to a path outside `~/.claude`), fills every section in that copy, then runs `gh issue create --title "<title>" --body-file <that copy>` against this repository and prints the new issue URL under your account's `d05-issue-sandbox`. It never edits `~/.claude/ISSUE-BACKLOG.md`. (source: Core Rule 10 `src/superclaude/core/CLAUDE.md:43`; template `src/superclaude/core/ISSUE-BACKLOG.md`; `CHANGELOG.md:44`). UNVERIFIED: the title and section wording are Claude's; FAIL if it writes the body inline without a copy, edits the template, or files against any repository other than the sandbox.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 15 — Check the issue body and the unchanged template `[FREE]`
++
++**Do:**
++
++```bash
++SANDBOX=$(cat /tmp/d05/sandbox.name)
++gh issue view 1 --repo "$SANDBOX" --json body -q .body | grep '^## '
++cksum ~/.claude/ISSUE-HANDOFF.md ~/.claude/ISSUE-BACKLOG.md | diff <(grep ISSUE- /tmp/d05/real.cksum) - && echo templates-unchanged
++```
++
++**Expected result:** four headings, in order: `## What was tried`, `## Relevant files and links`, `## Done when`, `## Pick-up note`, each with filled text under it in the issue (no `<...>` placeholder left). Then `templates-unchanged`. (source: `src/superclaude/core/ISSUE-BACKLOG.md:1,4,7,10`; "fill every section in the copy" and "never edit the installed template" `src/superclaude/core/CLAUDE.md:43`)
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 16 — Your real setup is unchanged `[FREE]`
++
++**Do:**
++
++```bash
++cksum ~/.claude/HOW-WE-WORK.md ~/.claude/ISSUE-HANDOFF.md ~/.claude/ISSUE-BACKLOG.md ~/.claude/commands/sc/help.md ~/.claude/commands/sc/recommend.md | diff /tmp/d05/real.cksum - && echo real-unchanged
++```
++
++**Expected result:** `real-unchanged`. Neither `/sc:help` (`src/superclaude/commands/help.md:132`) nor `/sc:recommend` (`src/superclaude/commands/recommend.md:130`) nor the issue step changed a file the guide recorded.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++---
++
++## Edge cases (optional but recommended)
++
++| Try this | Expected behavior | Source | Pass/Fail |
++|---|---|---|---|
++| `[CLAUDE-SESSION]` `printf '# guide without markers\n' > /tmp/d05/home/.claude/HOW-WE-WORK.md`, then repeat Step 8 | Exactly `Routing guide at <path> has no level table (markers missing). pipx/pip install: run superclaude update. Plugin install: update the SuperClaude plugin.` with `<path>` the guide's path (`/tmp/d05/home/.claude/HOW-WE-WORK.md` or its `$HOME` form); no table | `src/superclaude/commands/help.md:75-77` | ☐ |
++| `[CLAUDE-SESSION]` `/sc:help` from the root of an IronClaude git clone | The table comes from that clone's `src/superclaude/core/HOW-WE-WORK.md` (checked first inside a checkout), and the third pointer names `src/superclaude/commands/<name>.md` under the clone | `src/superclaude/commands/help.md:67,71,93` | ☐ |
++| `[CLAUDE-SESSION]` `/sc:recommend "Rename tz_offest" --minstar -5` in `/tmp/d05/proj` | A stop with `--minstar requires a non-negative integer (e.g. --minstar 500). Use --minstar 0 to disable the floor.` | `src/superclaude/skills/sc-recommend/SKILL.md:288` | ☐ |
++| `[CLAUDE-SESSION]` `/sc:recommend "Explain what src/utils/timefmt.py does"` in `/tmp/d05/proj` | Row `ask`, level 1: answer directly or `/sc:explain <target>`; says no files change | `src/superclaude/core/HOW-WE-WORK.md:352` | ☐ |
++| `[EXTERNAL]` In `/tmp/d05/sandbox`, ask Claude to "file a handoff issue for the delimiter bug, for whoever picks up the CSV work" | Copies `~/.claude/ISSUE-HANDOFF.md`; the issue body ends with `## Who it is for` instead of `## Pick-up note`; the template checksum is unchanged | `src/superclaude/core/CLAUDE.md:43`; `src/superclaude/core/ISSUE-HANDOFF.md:10` | ☐ |
++
++## Cleanup
++
++```bash
++SANDBOX=$(cat /tmp/d05/sandbox.name 2>/dev/null)
++[ -n "$SANDBOX" ] && gh repo delete "$SANDBOX" --yes
++cd /tmp && rm -rf /tmp/d05
++```
++
++Deleting the repository is `[EXTERNAL]` and needs the `delete_repo` scope; if `gh` refuses, run `gh auth refresh -s delete_repo` and repeat, or delete it in the GitHub web page (source: `gh repo delete --help`). `rm -rf /tmp/d05` removes the fixtures, the throwaway home (including anything Claude Code stored there in Step 8) and the checksum files. No step changed your `~/.claude` setup; Step 16 confirms it. The Claude Code sessions of Tier C stay in Claude Code's own session history, like any session.
++
++## Overall result
++
++☐ **PASS** — capability works as documented for `5.0.0`
++☐ **FAIL** — see failing step(s) above
++
++**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -134,3 +134,10 @@
+ - **B-W22 correction 3, G1 (changed to meet the AC).** Planned G1 from `RELEASE-READINESS.md:192`: `git remote -v`; `gh repo view --json nameWithOwner -q .nameWithOwner`. The `gh repo view` call has no `--repo` (it checks gh's default repository), which the Task 46 AC forbids ("every `gh` command in it has `--repo IronbellyOrg/IronClaude`"). Written: G1 runs `git remote -v` only and states that every `gh` command in the procedure passes `--repo IronbellyOrg/IronClaude`, so gh's default repository cannot redirect it.
+ - **B-W22 correction 4 (extended).** Planned `git tag vX.Y.Z`. Written `git tag -a vX.Y.Z <merge-sha> -m "..."`: Task 46 asks for an annotated tag, `changelog_maintenance.md:129` uses `-a`, and the shipped `v5.0.0` is annotated (`git cat-file -t v5.0.0` prints `tag`).
+ - **B-W22 correction 6 (partly elsewhere).** Links: `docs/developer-guide/README.md:58` already links `release-procedure.md` (Task 37, B-W12.6); the `documentation-index.md` entry belongs to Task 47 (B-W13.4), so it was not edited here. The one-line pointer replaced the "[To Do ...]" placeholder in section 6 of `docs/developer-guide/git-standards-protocols.md`.
++
++## Task 52 (guide D05) — docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md
++
++- **Moved guide (method changed).** Planned (D05 row, scan/DE2 §7): "temporarily move `~/.claude/HOW-WE-WORK.md`" to get the "Routing guide not found" line. That writes to the tester's real `~/.claude`, which the Constraints forbid. Written: `/sc:help` runs in a throwaway `HOME=/tmp/d05/home` holding only a copy of `help.md`, from a non-git folder, so all three lookup locations miss (`src/superclaude/commands/help.md:67-71`, location 1 is `$HOME/.claude/HOW-WE-WORK.md`). Claude Code's first-run/login behaviour in a throwaway `HOME` is marked UNVERIFIED in the guide.
++- **`gh` commands without `--repo IronbellyOrg/IronClaude` (Constraint conflict).** The Constraints say every `gh` command in a doc uses `--repo IronbellyOrg/IronClaude`; the D05 row says issue filing uses a throwaway repository. Filing test issues on the fork would create outside state on the real project, so Steps 13-15 and Cleanup use `gh repo create/clone/delete "$SANDBOX"` and `gh issue view --repo "$SANDBOX"`, where `$SANDBOX` is `<your login>/d05-issue-sandbox`. No step targets SuperClaude-Org.
++- **Level-3 `/sc:recommend` flags (expected result softened).** Planned (scan/DE2 §7): the level-3 prompt returns `/sc:workflow ... --depth standard --handoff none` then `/sc:implement`. Code: the routing row `simple-plan` has `mandatory_flags` `-` and says standard depth with no executing handoff is the default (`src/superclaude/core/HOW-WE-WORK.md:354`); `/sc:recommend` returns "verified flags" of the matched row (`src/superclaude/commands/recommend.md:44`). Written: the flags may appear (the level table's form, `HOW-WE-WORK.md:17`) but are not required for PASS; `feature-existing` (`:356`, also level 3) is accepted too.
++- **Fresh-HOME absence check (reused evidence).** The six retired core files and `/sc:README` on a fresh `HOME` are checked against the recorded new-user run (`docs/testing/v5.0.0/c-e2e-transcript.txt:382,389`) and, for a live re-run, guide D01 Steps 6-10, instead of a second network install inside D05; `superclaude install --list` (Step 1) checks the shipped set for free.

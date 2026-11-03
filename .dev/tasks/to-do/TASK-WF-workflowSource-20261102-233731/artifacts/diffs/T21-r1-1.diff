@@ -1,0 +1,196 @@
+--- a/docs/guides/cli-portify-and-pipeline-runner-guide.md
++++ b/docs/guides/cli-portify-and-pipeline-runner-guide.md
+@@ -28,7 +28,7 @@
+ 
+ ## 2. Architecture Overview
+ 
+-```
++```text
+ ┌─────────────────────────────────────────────────────────┐
+ │                  SLASH COMMAND LAYER                      │
+ │  /sc:cli-portify  — triggers the portification process   │
+@@ -47,7 +47,7 @@
+                             │ produces release spec, which guides
+ ┌───────────────────────────▼─────────────────────────────┐
+ │                  CLI RUNNER LAYER                         │
+-│  src/superclaude/cli/roadmap/    — 9-step pipeline       │
++│  src/superclaude/cli/roadmap/    — multi-step pipeline   │
+ │  src/superclaude/cli/tasklist/   — 1-step validator       │
+ │  src/superclaude/cli/sprint/     — phase-based executor   │
+ │  src/superclaude/cli/cli_portify/— meta-pipeline itself   │
+@@ -77,7 +77,7 @@
+ | 1 | Workflow Analysis | `portify-analysis.md` — component inventory, step decomposition, programmatic spectrum |
+ | 2 | Pipeline Specification | `portify-spec.md` — step graph, models, prompts, gates, executor design |
+ | 3 | Release Spec Synthesis | `portify-release-spec.md` — full release spec with zero placeholders |
+-| 4 | Spec Panel Review | Reviewed spec + `panel-report.md` — convergence loop until score >= 7.0 |
++| 4 | Spec Panel Review | Reviewed spec + `panel-report.md` — one convergence iteration (2 review passes, within the 2-fix-cycle cap). It converges when no CRITICAL finding is left unaddressed; otherwise it escalates the open CRITICALs to you. An overall score >= 7.0 only sets `downstream_ready: true` |
+ 
+ Key reference files:
+ 
+@@ -88,7 +88,7 @@
+ 
+ The actual Python implementation that orchestrates the above phases as a CLI pipeline:
+ 
+-```
++```text
+ superclaude cli-portify run sc:roadmap
+ superclaude cli-portify run sc:roadmap --dry-run
+ superclaude cli-portify run sc:roadmap --output ./out --max-turns 100
+@@ -149,7 +149,7 @@
+ 
+ ### Gate Enforcement Tiers (`pipeline/gates.py`)
+ 
+-```
++```text
+ EXEMPT   → always passes (no checks)
+ LIGHT    → file exists + non-empty
+ STANDARD → + min lines + YAML frontmatter field validation
+@@ -190,15 +190,22 @@
+ 
+ ```python
+ class ClaudeProcess:
+-    def __init__(self, *, prompt, output_file, error_file, max_turns,
+-                 model, permission_flag, timeout_seconds, output_format,
+-                 extra_args, env_vars):
++    def __init__(self, *, prompt, output_file, error_file, max_turns=100,
++                 model="", permission_flag="--dangerously-skip-permissions",
++                 timeout_seconds=6300, output_format="stream-json",
++                 extra_args=None, on_spawn=None, on_signal=None, on_exit=None,
++                 env_vars=None, tool_write_mode=False, reviewer_profile=False,
++                 cwd=None):
+         ...
+ 
+     def build_command(self) -> list[str]:
+         # Returns: claude --print --verbose --dangerously-skip-permissions
+         #          --no-session-persistence --tools default
+-        #          --max-turns N --output-format text -p "prompt"
++        #          --max-turns N --output-format <output_format>
++        #          [--model M] [extra_args...]
++        # The prompt is NOT on the command line: start() writes it to stdin.
++        # reviewer_profile=True drops --dangerously-skip-permissions and
++        # --tools default (restricted reflect review children).
+         ...
+ 
+     def start(self) -> subprocess.Popen:  # Launch subprocess
+@@ -208,8 +215,9 @@
+ 
+ Key design decisions:
+ 
+-- `--no-session-persistence` — each step is isolated
+-- `--output-format text` — plain text for gate-compatible output
++- `--no-session-persistence` — each step is isolated (kept in every profile)
++- Prompt on stdin — avoids the Linux 128 KB per-argument limit on long prompts
++- `--output-format` — set by each caller; the default is `stream-json`, and a caller that needs gate-compatible plain text passes `output_format="text"`
+ - `stdout` → output file, `stderr` → error file
+ - Process groups via `os.setpgrp` for clean tree kills
+ - Strips `CLAUDECODE` env var to prevent nested session detection
+@@ -220,7 +228,7 @@
+ 
+ Every portified CLI runner follows this 7-module pattern:
+ 
+-```
++```text
+ src/superclaude/cli/<runner>/
+ ├── __init__.py          # Package init, exports command group
+ ├── commands.py          # Click command definitions (CLI surface)
+@@ -399,24 +407,19 @@
+ 
+ ### Roadmap Runner (`superclaude roadmap run`)
+ 
+-The most complete example. 9-step pipeline with parallel groups:
+-
+-```
+-extract → [generate-A, generate-B] → diff → debate → score → merge
+-→ test-strategy → spec-fidelity → (certify)
+-```
++The most complete example: a multi-step pipeline with parallel groups. For the current step list, see the [Roadmap CLI Tools — Release Guide](roadmap-cli-tools-release-guide.md).
+ 
++- **Input**: `superclaude roadmap run [OPTIONS] INPUT_FILES...` takes 1-3 markdown files (spec, TDD, PRD) in any order; the content type is auto-detected (`--input-type` overrides it for a single file)
+ - **Parallel generation**: Two agents generate roadmaps concurrently
+ - **Adversarial pipeline**: diff → debate → score → merge
+-- **Validation**: test-strategy and spec-fidelity gates
+ - **Resume**: `.roadmap-state.json` tracks step completion; `--resume` skips passing steps
+-- **10 gate definitions** in `gates.py`
+-- **8 prompt builders** in `prompts.py`
++- **Gates** in `gates.py`, **prompt builders** in `prompts.py`
+ 
+ CLI surface:
+ 
+ ```bash
+ superclaude roadmap run spec.md
++superclaude roadmap run spec.md tdd.md prd.md
+ superclaude roadmap run spec.md --agents opus:architect,haiku:security
+ superclaude roadmap run spec.md --depth deep --resume
+ superclaude roadmap run spec.md --dry-run
+@@ -428,7 +431,7 @@
+ 
+ The simplest example. Single-step validation pipeline:
+ 
+-```
++```text
+ tasklist-fidelity (STRICT gate)
+ ```
+ 
+@@ -457,13 +460,13 @@
+ 
+ Meta-pipeline — portifies other workflows:
+ 
+-```
++```text
+ validate-config → discover-components → analyze-workflow → design-pipeline
+ → synthesize-spec → brainstorm-gaps → panel-review
+ ```
+ 
+ - **7 concrete steps** mapping to the 4-phase protocol
+-- **Convergence engine** for panel review loops
++- **Convergence engine** for panel review: 1 iteration by default (2 review passes); open CRITICAL findings after that are escalated to you
+ - **Resume support** via step IDs
+ 
+ ---
+@@ -496,14 +499,23 @@
+ 
+ | Option | Default | Description |
+ |--------|---------|-------------|
+-| `WORKFLOW` | (required) | Skill name, `sc:name`, or path to skill directory |
+-| `--name` | auto-derived | Override CLI name for the portified pipeline |
++| `TARGET` | (required) | The workflow: skill name, `sc:name`, or path to skill directory |
++| `--cli-name`, `--name` | auto-derived | Override CLI name for the portified pipeline |
+ | `--output` | alongside workflow | Output directory for generated artifacts |
++| `--commands-dir` | none | Override directory to search for command `.md` files |
++| `--skills-dir` | none | Override directory to search for skill directories |
++| `--agents-dir` | none | Override directory to search for agent `.md` files |
++| `--include-agent NAME` | none | Include a specific agent by name (repeatable) |
++| `--save-manifest PATH` | none | Write the component manifest Markdown to this path |
+ | `--max-turns` | 200 | Maximum Claude agent turns per step |
+-| `--model` | env default | Claude model override |
+-| `--dry-run` | false | Execute only prereq/analysis/review/spec steps |
+-| `--resume STEP_ID` | none | Resume from a specific pipeline step |
++| `--model` | env `CLAUDE_MODEL` or claude default | Claude model override |
++| `--dry-run` | false | Execute only prerequisites/analysis/user-review/specification steps |
++| `--resume`, `--start STEP_ID` | none | Resume from a specific pipeline step |
++| `--max-convergence N` | 1 | Maximum panel-review convergence iterations (see Known Issue below) |
+ | `--debug` | false | Enable debug logging |
++| `--gate-mode [shadow\|soft\|full]` | `shadow` | Gate enforcement: `shadow` logs only, `soft` warns, `full` blocks |
++
++**Known Issue (5.0.0):** `--max-convergence` currently has no effect. The value is stored in the run config, but nothing reads it: the panel review always runs 1 iteration, and a failure message may still suggest raising the flag (`docs/releases/v5.0.0.md`, Known Issues).
+ 
+ ### What It Produces
+ 
+@@ -570,7 +582,7 @@
+ 
+ Create `src/superclaude/cli/tasklist_generate/` with:
+ 
+-```
++```text
+ src/superclaude/cli/tasklist_generate/
+ ├── __init__.py
+ ├── commands.py         # superclaude tasklist generate <roadmap> [options]
+@@ -614,7 +626,7 @@
+ 
+ ### Quick Reference: The Pattern
+ 
+-```
++```text
+ 1. superclaude cli-portify run sc:tasklist --output ./portify-out
+ 2. Review portify-out/portify-release-spec.md
+ 3. Create src/superclaude/cli/tasklist_generate/ (7 modules)

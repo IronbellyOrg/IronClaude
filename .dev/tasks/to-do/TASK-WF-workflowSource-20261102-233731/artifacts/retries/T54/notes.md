@@ -1,0 +1,2 @@
+3b4ac00ee9271d44df80c287eab9e37a16b68ba3
+A1 r1-1 F1.1 minor docs/testing/v5.0.0/user/D07-pr-submit.md:64 ac=scope n,n,n,n (origin=new) Line pointers off by one: MAX_ROUNDS_ERROR is fsm.py:39 (cited :38, lines 64 and 226), POLL_INTERVAL_ERROR is fsm.py:38 (cited :37, line 337); step 13 models.py:68-71,82 starts at push_completed, not push_decision/push_initiated (line 324). Strings and recipes correct.

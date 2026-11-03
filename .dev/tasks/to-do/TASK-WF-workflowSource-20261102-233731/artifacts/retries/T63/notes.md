@@ -1,0 +1,2 @@
+491053c27de67d597887ca6d3a5393e384b27f75
+A1 r1-1 F1.1 minor docs/testing/v5.0.0/user/D16-init-lite-recommend-ic.md:335 ac=scope n,n,n,n (origin=new; reviewer false-claim answer set aside: the anchor is the guide's own line 351-352, not a live-source line, so the Read-back fails) Step 9 find | sort expected order (SKILL.md before refs) holds only in a C locale; under en_US.UTF-8 refs sorts first. Use LC_ALL=C sort.
