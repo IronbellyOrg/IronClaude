@@ -9,7 +9,7 @@ Issue: IronbellyOrg/Coder#433 (a relaunched Orca tab starts a new session instea
 ## D2. What identifies the tab, and where the record lives
 
 - The tab is identified by `ORCA_PANE_KEY` (tab id and pane id, both saved by Orca). A new tab or split pane has a new key, so it has no record and still gets the question.
-- One small file per pane: `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key, ":" written as "_">`, holding three lines: the session id, the folder ccsession was launched in (`pwd -P`), and the `ORCA_TERMINAL_HANDLE` of the terminal it ran in. State, not cache: it must survive a restart; losing it only means the question comes back.
+- One small file per pane: `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key, ":" written as "+">` (for example `tab-1+leaf-1`; `+` never occurs in a pane key, so two keys never share a file), holding three lines: the session id, the folder ccsession was launched in (`pwd -P`), and the `ORCA_TERMINAL_HANDLE` of the terminal it ran in. State, not cache: it must survive a restart; losing it only means the question comes back.
 - Written by the ccsession hooks (SessionStart and each prompt, so `/clear` and an in-Claude `/resume` update it) through `ccsession --orca-tab-session <id>`, only for the Claude Code that ccsession launched (the existing launch-owner check), never for a Claude nested inside it.
 - Each session id is held by one pane at most: writing a pane's record removes the same id from every other pane's record, under the existing name-list lock. Records whose conversation no longer exists are removed at the same time.
 

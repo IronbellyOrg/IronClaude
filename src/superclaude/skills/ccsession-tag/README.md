@@ -255,7 +255,8 @@ ran. So the tab reopens its own session instead of asking:
   across restarts), the session the Claude Code that ccsession launched there
   runs, with the folder and the terminal it ran in. They update it at every
   session start and message, so `/clear` and `/resume` move it along. The
-  record is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key>`.
+  record is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key>`,
+  with each `:` of the pane key written as `+` (for example `tab-1+leaf-1`).
 - When `ccsession-orca` would ask the question, Orca passed only options, and
   the tab's recorded session is still saved, was started in this same folder
   and ran in another terminal (Orca relaunched the tab), it resumes that
