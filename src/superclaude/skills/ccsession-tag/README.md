@@ -230,6 +230,8 @@ Orca accepts one executable there, with no arguments. Each Orca launch then:
   name that is not a valid label (too long, or holding a control character)
   is asked again. Any other name works, one starting with `-` too
   (it is passed on as `--name`).
+- Reopens the tab's own session without asking when Orca relaunches the tab
+  after a workspace restart (see below).
 - Skips the question when Orca resumes or continues a session
   (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
   when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
@@ -241,6 +243,31 @@ Orca also uses this command for supervised workers (`orca orchestration
 worker-start`), and fails a worker whose Claude is not ready within 60 seconds.
 The 30-second limit keeps those workers starting. Change it with
 `CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever).
+
+### Reopening a tab after a restart
+
+After a workspace restart Orca relaunches each Claude tab by running this
+command again, with only its own options (for example
+`--dangerously-skip-permissions`) and nothing that says which session the tab
+ran. So the tab reopens its own session instead of asking:
+
+- The hooks remember, for each Orca tab (its `ORCA_PANE_KEY`, which Orca keeps
+  across restarts), the session the Claude Code that ccsession launched there
+  runs, with the folder and the terminal it ran in. They update it at every
+  session start and message, so `/clear` and `/resume` move it along. The
+  record is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key>`.
+- When `ccsession-orca` would ask the question, Orca passed only options, and
+  the tab's recorded session is still saved, was started in this same folder
+  and ran in another terminal (Orca relaunched the tab), it resumes that
+  session: by its name when it has one in this repo's list, else by its id.
+- Everything else is unchanged. A new tab or split pane has no record and is
+  asked. A launch with a prompt, `--prefill`, a name or a session choice
+  (`--resume`, `--continue`, `--session-id`, `--fork-session`) behaves as
+  before. Running `ccsession-orca` again by hand in the same terminal is
+  asked. A session whose conversation was deleted, or that was started in
+  another folder, falls back to the question.
+- A session belongs to one tab: when another tab opens it, the first tab
+  forgets it, so two tabs never reopen the same session.
 
 The question itself is `ccsession --ask [<hint>]`: it prints the list and the
 question on the terminal and only the chosen name on standard output (empty

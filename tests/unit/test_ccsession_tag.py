@@ -56,6 +56,10 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         "CLAUDECODE",  # set when the tests run inside Claude Code
         "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
         "CCSESSION_LAUNCH_ID",
+        "CCSESSION_LAUNCH_CWD",
+        "CLAUDE_ENV_FILE",
+        # Orca tab records go under each test's own HOME.
+        "XDG_STATE_HOME",
         "CLAUDE_TOPIC",
         "CCSESSION_TOPIC_CWD",
     ):
@@ -1697,6 +1701,252 @@ def test_orca_keys_already_typed_skip_the_question(tmp_path: Path) -> None:
     output, record = _orca_tty(tmp_path, keys=None, typed_ahead="x")
     assert "Session name" not in output
     assert record["topic"] is None
+
+
+# Reopening an Orca tab's own session when Orca relaunches the tab after a
+# workspace restart (Coder #433). Orca then runs ccsession-orca again with only
+# its default options, the same ORCA_PANE_KEY and a new ORCA_TERMINAL_HANDLE.
+PANE = "tab-1:leaf-1"
+OTHER_SESSION = "def67890-0000-0000-0000-000000000000"
+ORCA_DEFAULT = "--dangerously-skip-permissions"
+
+
+def _tab_env(
+    tmp_path: Path, pane: str = PANE, handle: str = "term_after", **extra: str
+) -> dict[str, str]:
+    """ccsession-orca's environment in an Orca tab (a relaunch by default)."""
+    return _orca_env(tmp_path, ORCA_PANE_KEY=pane, ORCA_TERMINAL_HANDLE=handle, **extra)
+
+
+def _tab_runs(
+    tmp_path: Path,
+    session: str,
+    pane: str = PANE,
+    event: str = "SessionStart",
+    handle: str = "term_before",
+    launched: bool = True,
+    nested: bool = False,
+    **extra: str,
+) -> None:
+    """The hooks of the Claude Code ccsession launched in an Orca tab, reporting
+    a session; the transcript is saved as Claude Code saves it."""
+    env = _orca_env(tmp_path, ORCA_PANE_KEY=pane, ORCA_TERMINAL_HANDLE=handle, **extra)
+    if launched:
+        env["CCSESSION_LAUNCH_ID"] = f"{os.getpid()}.1"
+    work = (tmp_path / "work").resolve()
+    saved = tmp_path / "home" / ".claude" / "projects" / str(work).replace("/", "-")
+    saved.mkdir(parents=True, exist_ok=True)
+    (saved / f"{session}.jsonl").write_text("{}\n")
+    _hook(env, work, session, event, nested=nested)
+
+
+def _tab_records(tmp_path: Path) -> dict[str, list[str]]:
+    tabs = tmp_path / "home" / ".local" / "state" / "ccsession" / "orca-tabs"
+    if not tabs.is_dir():
+        return {}
+    # The lock and half-written files start with ".".
+    return {
+        f.name: f.read_text().splitlines()
+        for f in tabs.iterdir()
+        if f.is_file() and not f.name.startswith(".")
+    }
+
+
+def test_orca_relaunch_reopens_the_tabs_named_session(tmp_path: Path) -> None:
+    _seed_label(tmp_path, "demo")
+    _tab_runs(tmp_path, SESSION_ID)
+    work = str((tmp_path / "work").resolve())
+    assert _tab_records(tmp_path) == {"tab-1+leaf-1": [SESSION_ID, work, "term_before"]}
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path)
+    )
+    assert "Session name" not in output
+    assert "Reopening this tab's session 'demo'" in output
+    assert record["topic"] == "demo"
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        "demo",
+        "--resume",
+        SESSION_ID,
+        ORCA_DEFAULT,
+    ]
+    _assert_through_shim(record)
+    # The launch tells the hooks its folder, for the next record.
+    assert "CCSESSION_LAUNCH_CWD" in record["env_names"]
+
+
+def test_orca_relaunch_reopens_an_untagged_session_by_id(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path)
+    )
+    assert "Session name" not in output
+    assert f"Reopening this tab's session {SESSION_ID[:8]}" in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT, "--resume", SESSION_ID]
+
+
+@pytest.mark.parametrize(
+    ("pane", "handle"),
+    [("tab-2:leaf-1", "term_after"), (PANE, "term_before")],
+    ids=["new tab", "same terminal, run again by hand"],
+)
+def test_orca_a_new_tab_or_a_rerun_is_still_asked(
+    tmp_path: Path, pane: str, handle: str
+) -> None:
+    _seed_label(tmp_path, "demo")
+    _tab_runs(tmp_path, SESSION_ID)
+    env = _tab_env(tmp_path, pane=pane, handle=handle)
+    output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys="\r", env=env)
+    assert "Reopening" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("fix it",),
+        ("--prefill", "draft"),
+        ("--name", "other"),
+        (ORCA_DEFAULT, "-p"),
+        ("--session-id", OTHER_SESSION),
+    ],
+    ids=["prompt", "prefill", "name", "print", "session-id"],
+)
+def test_orca_a_launch_with_more_than_options_is_asked_as_before(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(tmp_path, *args, keys="\r", env=_tab_env(tmp_path))
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [("--resume", OTHER_SESSION), ("--continue",)],
+    ids=["resume", "continue"],
+)
+def test_orca_a_session_choice_wins_over_the_tabs_record(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(tmp_path, *args, keys=None, env=_tab_env(tmp_path))
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+def test_orca_relaunch_without_a_terminal_or_autostart_changes_nothing(
+    tmp_path: Path,
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    extra = {"ORCA_PANE_KEY": PANE, "ORCA_TERMINAL_HANDLE": "term_after"}
+    output, record = _orca_no_tty(tmp_path, ORCA_DEFAULT, **extra)
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    env = _tab_env(tmp_path, CCSESSION_AUTOSTART="0")
+    output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+def test_orca_relaunch_whose_conversation_is_gone_is_asked(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    for transcript in (tmp_path / "home" / ".claude" / "projects").glob("*/*.jsonl"):
+        transcript.unlink()
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
+    )
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+def test_orca_two_tabs_never_reopen_the_same_session(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    _tab_runs(tmp_path, OTHER_SESSION, pane="tab-3:leaf-1")
+    # The first tab's session is opened in a second tab: it is that tab's now.
+    _tab_runs(tmp_path, SESSION_ID, pane="tab-2:leaf-1", handle="term_two")
+    records = _tab_records(tmp_path)
+    assert sorted(records) == ["tab-2+leaf-1", "tab-3+leaf-1"]
+    assert records["tab-2+leaf-1"][0] == SESSION_ID
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
+    )
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    env = _tab_env(tmp_path, pane="tab-2:leaf-1")
+    _, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
+    assert record["argv"][-2:] == ["--resume", SESSION_ID]
+    # A tab whose conversation is gone is forgotten at the next record.
+    for transcript in (tmp_path / "home" / ".claude" / "projects").glob(
+        f"*/{OTHER_SESSION}.jsonl"
+    ):
+        transcript.unlink()
+    _tab_runs(tmp_path, SESSION_ID, pane="tab-2:leaf-1", handle="term_three")
+    assert sorted(_tab_records(tmp_path)) == ["tab-2+leaf-1"]
+
+
+def test_orca_clear_in_the_tab_moves_its_record_to_the_new_session(
+    tmp_path: Path,
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    # /clear starts another session in the same Claude Code; its first prompt
+    # reports it (SessionStart is registered for startup and resume only).
+    _tab_runs(tmp_path, OTHER_SESSION, event="UserPromptSubmit")
+    assert _tab_records(tmp_path)["tab-1+leaf-1"][0] == OTHER_SESSION
+    _, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path))
+    assert record["argv"][-2:] == ["--resume", OTHER_SESSION]
+
+
+@pytest.mark.parametrize(
+    ("launched", "nested"),
+    [(False, False), (True, True)],
+    ids=["claude not launched by ccsession", "claude inside the session"],
+)
+def test_orca_only_the_launched_claude_records_the_tab(
+    tmp_path: Path, launched: bool, nested: bool
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID, launched=launched, nested=nested)
+    assert _tab_records(tmp_path) == {}
+
+
+def test_orca_tab_record_follows_the_launch_folder_and_worktree(
+    tmp_path: Path,
+) -> None:
+    # A tab reopens only a session it ran in its own worktree (the session list
+    # is per worktree), and in the folder ccsession launched it in even when
+    # Claude Code has moved since.
+    main, worktree, projects, env = _named_repo(tmp_path)
+    env.update({"ORCA_PANE_KEY": PANE, "ORCA_TERMINAL_HANDLE": "term_before"})
+    _transcript(projects, main, SESSION_ID)
+    hook_env = {
+        **env,
+        "CCSESSION_LAUNCH_ID": f"{os.getpid()}.1",
+        "CCSESSION_LAUNCH_CWD": str(main.resolve()),
+    }
+    (main / "sub").mkdir()
+    _hook(hook_env, main / "sub", SESSION_ID, "UserPromptSubmit", session_title="notes")
+    relaunch = {**env, "ORCA_TERMINAL_HANDLE": "term_after"}
+    assert _ccs(main, relaunch, "--orca-tab-reopen").stdout == f"{SESSION_ID}\tnotes\n"
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--orca-tab-reopen"],
+        cwd=worktree,
+        env=relaunch,
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode, result.stdout) == (1, "")
+    # Inside Claude Code (its Bash tool) the tab is never its own.
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--orca-tab-reopen"],
+        cwd=main,
+        env={**relaunch, "CLAUDECODE": "1"},
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode, result.stdout) == (1, "")
 
 
 def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
