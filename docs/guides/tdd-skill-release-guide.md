@@ -2,7 +2,7 @@
 component: "tdd-skill"
 component_version: "skill-v2 (refactored decomposition)"
 covers_release: "refactor/prd-skill-decompose branch"
-last_updated: "2026-04-03"
+last_updated: "2026-11-02"
 author: "Claude Opus 4.6"
 ---
 
@@ -53,7 +53,7 @@ The pipeline uses **parallel multi-agent investigation** to achieve deep coverag
 
 ### Skill file structure
 
-```
+```text
 src/superclaude/skills/tdd/
 ├── SKILL.md                          # Full skill definition and behavioral protocol
 └── refs/
@@ -105,7 +105,7 @@ Performs scope discovery on a component, service, or system; creates an MDTM tas
 
 #### Syntax
 
-```
+```text
 /tdd [description of what to design]
 ```
 
@@ -122,7 +122,7 @@ The skill needs four pieces of information. The first is mandatory; the rest imp
 
 #### Examples
 
-```
+```text
 # Strong — all four inputs
 /tdd Create a TDD for the agent orchestration system. The PRD is at
 docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md. Focus on
@@ -153,7 +153,7 @@ The TDD pipeline generates a comprehensive technical design document through par
 
 ### Pipeline overview
 
-```
+```text
 Stage A: Scope Discovery (orchestrator)
   A.1: Check for existing task file
   A.2: Parse & triage TDD request (Scenario A vs B)
@@ -262,13 +262,13 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
 4. Documentation cross-validation — all doc-sourced claims tagged, spot-check 2-3 CODE-VERIFIED
 5. Contradiction resolution — no unresolved conflicting findings
-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor still must be fixed
+6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are notes and do not fail the gate
 7. Depth appropriateness — matches the tier expectation
 8. Integration point coverage — connection points documented
 9. Pattern documentation — code patterns and conventions captured
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
-**Verdict**: PASS proceeds to Phase 4. FAIL triggers targeted gap-filling agents (max 3 fix cycles). After 3 failed cycles, execution halts and issues are presented to the user.
+**Verdict**: PASS proceeds to Phase 4. FAIL triggers targeted gap-filling agents for the blocking findings (max 2 fix cycles); after 2 fix cycles (3 reviews) execution halts and escalates the open blocking findings to the user.
 
 **Parallel partitioning**: When >6 research files, multiple analyst/QA instances run with assigned subsets.
 
@@ -342,7 +342,7 @@ Verifies the TDD makes sense from product and engineering perspectives:
 - Data models match across diagrams, contracts, and migrations
 - No requirements invented that aren't traceable to the PRD or codebase evidence
 
-**Zero leniency**: All severity levels (CRITICAL, IMPORTANT, MINOR) must be resolved before proceeding.
+**Blocking findings only**: Only blocking findings (CRITICAL, IMPORTANT) must be resolved before proceeding. MINOR findings are recorded as notes; they never fail the gate and are not rechecked.
 
 ---
 
@@ -352,7 +352,7 @@ All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-TDD-Y
 
 ### Directory structure
 
-```
+```text
 .dev/tasks/to-do/TASK-TDD-YYYYMMDD-HHMMSS/
 ├── TASK-TDD-YYYYMMDD-HHMMSS.md          # MDTM task file (execution contract)
 ├── research-notes.md                     # Scope discovery results (8 categories)
@@ -474,7 +474,7 @@ The MDTM task file provides automatic resume:
 
 ### 8.5 Error handling
 
-- **QA gate failure**: Triggers targeted fix cycles (max 3 for research gate, max 2 for synthesis gate). After max cycles, execution HALTS: issues logged to Task Log, presented to user, requires user approval to continue.
+- **QA gate failure**: Triggers targeted fix cycles for the blocking findings (max 2 fix cycles, that is 3 reviews, for both the research gate and the synthesis gate). After 2 fix cycles, execution HALTS: issues logged to Task Log, presented to user, requires user approval to continue.
 - **Agent failure**: Individual agent failures are logged. Remaining agents continue. Failed investigations are noted in the gaps log.
 - **Session interruption**: Resume from task file. Partial research files persist on disk.
 
@@ -486,7 +486,7 @@ The TDD skill sits at the second stage of the full product development pipeline,
 
 ### Stage A: PRD (product requirements)
 
-```
+```text
 /prd Create a PRD for [product area]
 ```
 
@@ -494,7 +494,7 @@ Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].
 
 ### Stage A2: Critique the PRD
 
-```
+```text
 /sc:spec-panel @<PRD path> --mode critique --focus requirements
 ```
 
@@ -502,7 +502,7 @@ It only reports. Decide which findings to accept, ask Claude to apply them to th
 
 ### Stage B: TDD (technical design) <- **This skill**
 
-```
+```text
 /tdd Create a TDD based on the PRD at docs/docs-product/tech/[feature]/PRD_[FEATURE].md
 ```
 
@@ -510,7 +510,7 @@ The PRD skill offers to invoke `/tdd` automatically after completion. Research f
 
 ### Stage B2: Critique the TDD
 
-```
+```text
 /sc:spec-panel @<TDD path> --mode critique --focus architecture,testing
 ```
 
@@ -518,7 +518,7 @@ Apply accepted findings the same way as Stage A2.
 
 ### Stage B3 (optional): Check whether to split the release
 
-```
+```text
 /sc:release-split <TDD path>
 ```
 
@@ -526,7 +526,7 @@ Apply accepted findings the same way as Stage A2.
 
 ### Stage C: Roadmap and phase task files
 
-```
+```text
 /roadmap "Create a full roadmap from <PRD path> and <TDD path>. Dry run first so I can review the phase plan."
 ```
 
@@ -534,7 +534,7 @@ The dry run is requested by those words in the request: it shows the proposed ph
 
 ### Stage D: Run each phase
 
-```
+```text
 /task <phase task file>
 ```
 
@@ -542,7 +542,7 @@ Run the phase task files one at a time, in the order the roadmap run printed. Be
 
 Then re-confirm before starting the next phase. The audit inside `/task` compares a commit range and `/task` does not commit, so it misses the phase's uncommitted work:
 
-```
+```text
 /sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote
 ```
 
@@ -550,7 +550,7 @@ Give that one commit, not a `..HEAD` range: a single commit is compared with you
 
 ### Stage E: Review and open a PR
 
-```
+```text
 /code-review
 /security-review
 /sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr
@@ -649,7 +649,7 @@ When a PRD is provided, the TDD pipeline adds:
 | Scope discovery takes unusually long | Large codebase with many matching files (Scenario B broad search) | Provide WHERE input to constrain the search space |
 | Task builder produces malformed task file | Research notes are incomplete (failed sufficiency gate) | Check `research-notes.md` — ensure all 8 categories are populated |
 | Research agents produce empty output files | Agent spawning failed or agent hit context limit immediately | Check agent error output; restart session to get fresh context |
-| QA gate fails repeatedly (3+ fix cycles for research, 2+ for synthesis) | Fundamental gap in research coverage | Review the QA report, manually investigate flagged areas, then restart |
+| QA gate halts after 2 fix cycles (research or synthesis) | Fundamental gap in research coverage | Review the QA report, manually investigate flagged areas, then restart |
 | Synthesis agents produce placeholder content | Research files don't cover the template sections assigned to that synth file | Check synthesis mapping — the research directory may be missing a topic |
 | Assembly produces a TDD missing sections | Synthesis files incomplete or missing | Check `synthesis/` directory — ensure all `synth-*.md` files are present and populated |
 | Final TDD line count exceeds tier budget | Synthesis agents over-produced; assembler didn't trim | The rf-qa report-validation agent should catch this. If it persists, manually trim. |
@@ -663,7 +663,7 @@ When a PRD is provided, the TDD pipeline adds:
 
 ### Use case 1: Standard TDD from PRD
 
-```
+```text
 /tdd Create a TDD for the agent orchestration system. The PRD is at
 docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md. Focus on backend/app/agents/
 and backend/app/services/.
@@ -673,7 +673,7 @@ Standard tier, 4-6 codebase agents + 1-2 web agents. Full PRD-to-TDD traceabilit
 
 ### Use case 2: Heavyweight new system design
 
-```
+```text
 /tdd Design the technical architecture for a shared GPU pool to replace per-session
 VMs. Scope: ue_manager/, infrastructure/, backend/app/services/streaming_service.py.
 This is a Heavyweight TDD — new system, cross-team impact.
@@ -683,7 +683,7 @@ Heavyweight tier, 6-10+ agents. Web research targets GPU pooling patterns, infra
 
 ### Use case 3: Lightweight config change
 
-```
+```text
 /tdd Create a TDD for the notification preference system. Focus on
 backend/api/preferences/notification_prefs.py — it's a small feature.
 ```
@@ -692,7 +692,7 @@ Lightweight tier, 2-3 agents, 300-600 lines. Quick turnaround for a narrow desig
 
 ### Use case 4: PRD translation (downstream from /prd)
 
-```
+```text
 /tdd Turn the canvas roadmap PRD into a TDD. The PRD is at
 docs/docs-product/tech/canvas/PRD_ROADMAP_CANVAS.md. Standard-tier covering
 the React canvas system and node type architecture. Focus on frontend/app/roadmap/.
@@ -702,7 +702,7 @@ PRD extraction produces `00-prd-extraction.md`. FRs trace to PRD epics. Engineer
 
 ### Use case 5: Resume interrupted TDD
 
-```
+```text
 /tdd Create a TDD for the wizard state management system.
 ```
 
@@ -710,7 +710,7 @@ If a `TASK-TDD-*` folder exists for "wizard state management", the skill reads t
 
 ### Use case 6: TDD feeding into roadmap
 
-```
+```text
 /tdd Create a TDD for the payment processing pipeline. After completion, we'll
 generate a roadmap from the design specifications.
 ```
@@ -719,7 +719,7 @@ After TDD completion, Phase 7 offers to create implementation tasks. The TDD and
 
 ### Use case 7: TDD from existing documentation consolidation
 
-```
+```text
 /tdd Create a TDD for pixel streaming infrastructure by consolidating the existing
 architecture docs at docs/streaming/. Need a single source of truth for the design.
 ```
@@ -728,7 +728,7 @@ Consolidation mode — Doc Analyst agents cross-validate existing docs against c
 
 ### Use case 8: Explicit output location with existing stub
 
-```
+```text
 /tdd Populate the TDD stub at docs/agents/TDD_AGENT_ORCHESTRATION.md. The PRD is at
 docs/docs-product/tech/agents/PRD_AGENT_SYSTEM.md. Heavyweight — cross-team system.
 ```
@@ -741,7 +741,7 @@ Writes to the specified stub location rather than the default path. Preserves an
 
 ### Invocation
 
-```
+```text
 /tdd [description]
 ```
 

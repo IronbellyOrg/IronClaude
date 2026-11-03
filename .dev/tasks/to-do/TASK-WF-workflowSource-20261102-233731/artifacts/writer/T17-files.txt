@@ -1,0 +1,3 @@
+docs/user-guide/codegraph.md
+docs/user-guide/mcp-installation.md
+docs/user-guide/commands.md

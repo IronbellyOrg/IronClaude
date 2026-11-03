@@ -1,0 +1,756 @@
+# E2E Test Guide — `superclaude init-lite`, the `superclaude recommend` helpers and `ic` (`5.0.0`)
+
+- **Capability:** `superclaude init-lite --context-optimized` audits a project's own SuperClaude context files (`CLAUDE.md`, `.mcp.json`, `.claude/settings.json`, `.claude/commands`, `.claude/skills`, `.claude/agents`), estimates their token weight and writes a report under `.dev/superclaude/` without ever changing those files; `superclaude recommend` is a set of helper commands the `/sc:recommend` skill calls for its lookup cache; `ic` launches `claude` with model-slot overrides read from `~/.aienv`, and by default skips Claude Code's permission prompts.
+- **Audience:** end user / power user (`ic` needs your own `~/.aienv`; `recommend` is plumbing, tested here as an appendix)
+- **Source of truth:** `src/superclaude/cli/init_lite.py:25-34,46-62,81-112,129-174,200-264,267-280,283-358`; `src/superclaude/cli/recommend/commands.py:26-27,31,57-75,78-142,151-193,202-266,403-461`; `src/superclaude/cli/recommend/cache.py:33-35,45-46,63-94,118-140`; `src/superclaude/cli/recommend/dispatch.py:91-137`; `src/superclaude/cli/recommend/telemetry.py:17-26,47-62`; `src/superclaude/cli/ic.py:12-15`; `src/superclaude/scripts/ic:23-111`; `pyproject.toml:72` (`ic` console script); `src/superclaude/skills/sc-recommend/SKILL.md:69,77,100,324`; `superclaude init-lite --help`, `superclaude recommend --help` and `ic --help`
+- **Est. time:** `Tier A: 5 minutes. Tier B: 15 minutes (no API call). Tier C (optional): 10 minutes (two short interactive Claude Code sessions).`
+
+## Preconditions
+
+- IronClaude 5.0.0 installed for your user: `superclaude --version` prints `SuperClaude, version 5.0.0`, and `command -v ic` prints a path (for a pipx install, `~/.local/bin/ic`; the console script is registered in `pyproject.toml:72`).
+- A bash shell. `ic` runs its script with the first `bash` on your `PATH` (`ic.py:12-15`). It was checked with bash 5.2. With bash 3.2 (the macOS default) a launch with no forwarded arguments may stop with `unbound variable`, because the script uses `set -u` with a possibly empty array (`scripts/ic:23,108-110`): UNVERIFIED, not run.
+- `claude` on your `PATH` for Step 16 and Tier C. `claude --version` prints `<version> (Claude Code)`.
+- None of these exist: `/tmp/d16`, `/tmp/d16-no-aienv`, and in `/tmp` itself no `CLAUDE.md`, `.mcp.json` or `.claude` (Step 3 checks).
+- Every file Tier B creates is under `/tmp/d16`. No step installs, registers or edits anything under `~/.claude`. Every `ic` step sets `AIENV` to a path under `/tmp`, so your own `~/.aienv` is never sourced. `recommend` reads the command, skill and agent paths under `~/.claude` to fingerprint its cache and writes nothing there (`cache.py:45-46,63-94`).
+- Tier C only: the `claude` CLI logged in. Each session uses your real `~/.claude`: Claude Code keeps it in your normal history, and the hooks installed in `~/.claude/settings.json` also write `~/.claude/state/` and `~/.claude/logs/`: the freshness hooks at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`; `freshness-user-prompt.sh:8-10`) and `auggie-flag-clear.sh` after auggie tool calls (`hooks.json:104`; `auggie-flag-clear.sh:10-12`).
+
+## What you're verifying
+
+- `init-lite` refuses to run without `--context-optimized` (exit 2). `--dry-run` prints the report and the line `[dry-run] No files written; .dev/superclaude/ not created.` and writes nothing (`init_lite.py:346-350`).
+- The report counts only these files: `CLAUDE.md`, `.mcp.json`, `.claude/settings.json`, every `*.md` under `.claude/commands/` (any depth), every `SKILL.md` under `.claude/skills/`, and `*.md` directly in `.claude/agents/` (`init_lite.py:81-112`). Tokens are `ceil(bytes / 4)`; weight is `low` below 1000, `medium` from 1000 to 4000, `high` above 4000 (`init_lite.py:33-34,46-62`).
+- Without `--dry-run` it writes `<project-root>/.dev/superclaude/context-audit.md`, whose first line is the marker `<!-- generated-by: superclaude init-lite context-audit v1 -->`, and prints two lines (`init_lite.py:25,28,352-354`). `--scaffold` adds `.dev/superclaude/project-guidance/SKILL.md` and `refs/README.md`, and leaves existing ones alone unless `--force` (`init_lite.py:267-280,356-358`).
+- `--output` pointing at `CLAUDE.md`, `.mcp.json` or anything under `.claude/` is refused with exit 1 under every flag, `--force` included; an existing file without the marker is refused with exit 1, and `--force` overrides that only under `.dev/superclaude/` (`init_lite.py:115-126,200-218,243-264`). Your context files are byte-for-byte unchanged afterwards.
+- `superclaude recommend cache get spec-generation` on an empty cache prints `[recommend cache get] No row for key 'spec-generation'` and exits 1, writing nothing (`commands.py:57-75`; `cache.py:118-140`).
+- `ic --help` prints the usage. `ic` passes `--dangerously-skip-permissions` to `claude` unless you give `--no-yolo`; it resolves model values through `$AIENV` variables, applies presets `IC_PRESET_<name>`, exits 2 on an unknown preset or slot, forwards unknown flags and everything after `--` to `claude`, and prints a slot summary on stderr when stderr is a terminal (`scripts/ic:25-31,37-67,70-111`).
+- **Observed-as-coded in 5.0.0** (record, do not mark FAIL):
+  - `ic --help` says each model value "is looked up in `$IC_ALIASES`". The code reads no `IC_ALIASES` variable: it looks for a shell variable named like the value (`kimi` → `$kimi`), else passes the value through (`scripts/ic:37-46`; Step 14).
+  - The script comment says this lookup avoids `PATH`, `HOME` and similar names, but any set variable with an identifier-shaped name resolves: `ic -H HOME` sets the haiku slot to your home folder path (`scripts/ic:35-46`; edge-case table).
+  - The unknown-preset message names `~/.aienv` even when `AIENV` points elsewhere (`scripts/ic:52`; Step 15).
+  - `ic -p` with no value stops with bash's own `$2: unbound variable` and exit 1, not a usage message (`scripts/ic:23,74`; edge-case table).
+  - `ic` sources `$AIENV` before it reads any argument, `--help` included, under `set -euo pipefail`: a line in that file that fails stops `ic` (`scripts/ic:23-31`; edge-case table).
+  - `init-lite --dry-run --output CLAUDE.md` exits 0: the dry run returns before the protected-path check (`init_lite.py:346-352`; edge-case table).
+  - `superclaude recommend --help` says the skill calls the helpers through `uv run python -m superclaude.cli.recommend`; that module cannot be run with `-m` (no `__main__.py`), and the skill actually calls `uv run superclaude recommend ...` (`commands.py:39-41`; `SKILL.md:77`).
+
+Not exercised here: the `/sc:init-lite` command (a separate Claude Code command with its own protocol), `superclaude recommend eval run` with a real mode (it grades deliverables a `/sc:recommend --eval` session must first produce, `commands.py:250-305`), `recommend eval plugin` (needs aggregate JSON files from a plugin eval, `commands.py:311-400`), and `ic` with your real `~/.aienv` model aliases.
+
+---
+
+## Steps
+
+### Tier A — free smoke (read-only)
+
+These commands write nothing.
+
+#### Step 1 — Version and help `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+superclaude --version
+command -v ic
+superclaude init-lite --help | sed -n '/^Options:/,$p'
+superclaude recommend --help | sed -n '/^Commands:/,$p'
+```
+
+**Expected result:**
+
+```text
+SuperClaude, version 5.0.0
+<your bin folder>/ic
+Options:
+  --context-optimized       Audit project-local SuperClaude context surfaces
+                            and estimate their weight.  [required]
+  --project-root DIRECTORY  Project directory to audit (must be an existing
+                            directory; default: current directory).
+  --output FILE             Report output path. Relative values resolve
+                            against --project-root (default: <project-
+                            root>/.dev/superclaude/context-audit.md).
+  --dry-run                 Render the report to stdout and write nothing
+                            (does not create .dev/superclaude/).
+  --scaffold                Also create advisory project-guidance files under
+                            .dev/superclaude/project-guidance/.
+  --force                   Overwrite init-lite-owned generated artifacts
+                            under .dev/superclaude/ (never context inputs).
+  --help                    Show this message and exit.
+Commands:
+  cache      Deterministic lookup-cache file operations (read/write rows).
+  dispatch   Option-P deterministic hot-path dispatch...
+  eval       Per-row / plugin ``--eval`` pipeline (opt-in; default mode...
+  telemetry  Append-only telemetry JSONL operations.
+```
+
+(source: `pyproject.toml:7,72`; options `init_lite.py:283-321`; group `commands.py:34-54,145-148,196-199,403`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — `init-lite` requires `--context-optimized` `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+superclaude init-lite; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+Usage: superclaude init-lite [OPTIONS]
+Try 'superclaude init-lite --help' for help.
+
+Error: Missing option '--context-optimized'.
+exit=2
+```
+
+(source: `init_lite.py:284-290`, `required=True`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 3 — `init-lite --context-optimized --dry-run` on an empty folder `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+ls -d /tmp/CLAUDE.md /tmp/.mcp.json /tmp/.claude 2>/dev/null || echo "no context files in /tmp"
+superclaude init-lite --context-optimized --dry-run; echo "exit=$?"
+ls -d /tmp/.dev/superclaude 2>/dev/null || echo "not created"
+```
+
+**Expected result:**
+
+```text
+no context files in /tmp
+<!-- generated-by: superclaude init-lite context-audit v1 -->
+
+# SuperClaude Context Audit
+
+- **Project root:** `/tmp`
+- **Surfaces discovered:** 0
+- **Estimated total tokens:** 0 (from 0 bytes, ceil(bytes/4))
+
+## Surfaces
+
+_No project-local SuperClaude context surfaces found._
+
+## Recommendations (manual — no automatic migration)
+
+No surfaces to optimize.
+
+
+[dry-run] No files written; .dev/superclaude/ not created.
+exit=0
+not created
+```
+
+If the first line lists a file instead, stop: `/tmp` holds context files and the counts differ. `--project-root` defaults to the current folder. (source: report `init_lite.py:129-174`; dry run `init_lite.py:346-350`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 4 — `recommend cache get` on an empty cache `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+superclaude recommend cache get spec-generation; echo "exit=$?"
+ls -d /tmp/.claude 2>/dev/null || echo "not created"
+```
+
+**Expected result:**
+
+```text
+[recommend cache get] No row for key 'spec-generation'
+exit=1
+not created
+```
+
+The message goes to stderr. The default cache is `.claude/cache/sc-recommend-lookup.yaml` under the current folder; `cache get` only reads it and never creates it. Run it from `/tmp`: inside an IronClaude checkout with a filled cache it can return a row. (source: `commands.py:26,57-75`; `cache.py:118-140`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — `ic --help` `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+AIENV=/tmp/d16-no-aienv ic --help; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+ic: warning: /tmp/d16-no-aienv not found; proceeding without defaults
+ic — launch claude with --dangerously-skip-permissions and configurable model aliases
+
+Usage:
+  ic                          # source ~/.aienv defaults, launch claude
+  ic <alias-or-model>         # override haiku slot (positional shortcut)
+  ic -p <preset>              # apply a named preset (all 3 slots)
+  ic -H <m> -S <m> -O <m>     # per-slot overrides (haiku/sonnet/opus)
+  ic --haiku <m> --sonnet <m> --opus <m>
+  ic --no-yolo                # launch claude WITHOUT --dangerously-skip-permissions
+  ic <alias> -- <claude-args> # forward args after -- to claude
+
+Resolution: each model value is looked up in $IC_ALIASES (declared in ~/.aienv);
+if no alias matches, the literal value is passed through to claude.
+
+exit=0
+```
+
+The warning line goes to stderr. A plain `ic --help` sources your own `~/.aienv` first (no warning if it exists); this step points `AIENV` at a missing file so nothing of yours runs. The help is lines 2-15 of the script with the `#` removed. **Warning:** the first help line is literal: `ic` with no `--no-yolo` starts Claude Code with every permission check bypassed. (source: `ic.py:12-15`; `scripts/ic:2-15,25-31,80-82`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local writes under `/tmp/d16` (no API call)
+
+Run Tier B in order, in one terminal.
+
+#### Step 6 — Create the sandbox project `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+[ ! -e /tmp/d16 ] || echo "STOP: /tmp/d16 exists"
+mkdir -p /tmp/d16/proj && cd /tmp/d16/proj
+mkdir -p .claude/commands/sub .claude/skills/demo/refs .claude/agents/nested
+printf '{"mcpServers":{}}\n' > .mcp.json
+printf '{}\n' > .claude/settings.json
+head -c 20000 /dev/zero | tr '\0' a > CLAUDE.md
+head -c 4001 /dev/zero | tr '\0' a > .claude/commands/hello.md
+head -c 10 /dev/zero | tr '\0' a > .claude/commands/sub/deep.md
+head -c 999 /dev/zero | tr '\0' a > .claude/commands/notes.txt
+head -c 400 /dev/zero | tr '\0' a > .claude/skills/demo/SKILL.md
+head -c 999 /dev/zero | tr '\0' a > .claude/skills/demo/refs/other.md
+head -c 16001 /dev/zero | tr '\0' a > .claude/agents/helper.md
+head -c 999 /dev/zero | tr '\0' a > .claude/agents/nested/x.md
+find . -type f | sort | xargs sha256sum > /tmp/d16/before.sha
+wc -l < /tmp/d16/before.sha
+```
+
+**Expected result:** no `STOP` line, then `10`: ten seeded files. Three of them must NOT be counted by `init-lite`: `notes.txt` (not markdown), `refs/other.md` (not `SKILL.md`) and `agents/nested/x.md` (agents are not searched in sub-folders). (source: `init_lite.py:94-110`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — Dry run on the sandbox project `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16
+superclaude init-lite --context-optimized --project-root proj --dry-run; echo "exit=$?"
+ls -A proj
+```
+
+**Expected result:**
+
+```text
+<!-- generated-by: superclaude init-lite context-audit v1 -->
+
+# SuperClaude Context Audit
+
+- **Project root:** `/tmp/d16/proj`
+- **Surfaces discovered:** 7
+- **Estimated total tokens:** 10111 (from 40433 bytes, ceil(bytes/4))
+
+## Surfaces
+
+| Surface | Bytes | Est. tokens | Weight |
+|---------|-------|-------------|--------|
+| `.claude/agents/helper.md` | 16001 | 4001 | high |
+| `.claude/commands/hello.md` | 4001 | 1001 | medium |
+| `.claude/commands/sub/deep.md` | 10 | 3 | low |
+| `.claude/settings.json` | 3 | 1 | low |
+| `.claude/skills/demo/SKILL.md` | 400 | 100 | low |
+| `.mcp.json` | 18 | 5 | low |
+| `CLAUDE.md` | 20000 | 5000 | high |
+
+## Recommendations (manual — no automatic migration)
+
+Biggest context contributors:
+
+- `CLAUDE.md` (~5000 tokens, high)
+- `.claude/agents/helper.md` (~4001 tokens, high)
+- `.claude/commands/hello.md` (~1001 tokens, medium)
+- `.claude/skills/demo/SKILL.md` (~100 tokens, low)
+- `.mcp.json` (~5 tokens, low)
+
+Consider moving large advisory sections of `CLAUDE.md` into project-guidance
+refs under `.dev/superclaude/project-guidance/refs/` and referencing them on
+demand, rather than loading them at session start. Apply changes by hand; this
+report performs no automatic section migration.
+
+
+[dry-run] No files written; .dev/superclaude/ not created.
+exit=0
+.claude
+.mcp.json
+CLAUDE.md
+```
+
+The relative `--project-root` is shown resolved. Rows are sorted by path; the five biggest are listed under Recommendations. No `.dev` folder appears. (source: discovery `init_lite.py:81-112`; tokens and weight `init_lite.py:33-34,46-62`; report `init_lite.py:129-174`; root `init_lite.py:336`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — Write the report, then re-run `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16
+superclaude init-lite --context-optimized --project-root proj; echo "exit=$?"
+head -1 proj/.dev/superclaude/context-audit.md
+find proj/.dev | sort
+superclaude init-lite --context-optimized --project-root proj; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+Context audit written to /tmp/d16/proj/.dev/superclaude/context-audit.md
+Surfaces: 7; estimated tokens: 10111
+exit=0
+<!-- generated-by: superclaude init-lite context-audit v1 -->
+proj/.dev
+proj/.dev/superclaude
+proj/.dev/superclaude/context-audit.md
+Context audit written to /tmp/d16/proj/.dev/superclaude/context-audit.md
+Surfaces: 7; estimated tokens: 10111
+exit=0
+```
+
+The second run overwrites the report because it carries the marker. The file holds the same report text as Step 7, from the marker line to the `report performs no automatic section migration.` line. (source: `init_lite.py:25,28,243-264,352-354`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — `--scaffold`, then `--scaffold --force` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16
+superclaude init-lite --context-optimized --project-root proj --scaffold; echo "exit=$?"
+find proj/.dev/superclaude/project-guidance | sort
+superclaude init-lite --context-optimized --project-root proj --scaffold | grep -c '^Scaffold:'
+echo "edited by tester" >> proj/.dev/superclaude/project-guidance/SKILL.md
+superclaude init-lite --context-optimized --project-root proj --scaffold --force | grep '^Scaffold:'
+grep -c 'edited by tester' proj/.dev/superclaude/project-guidance/SKILL.md
+```
+
+**Expected result:**
+
+```text
+Context audit written to /tmp/d16/proj/.dev/superclaude/context-audit.md
+Surfaces: 7; estimated tokens: 10111
+Scaffold: /tmp/d16/proj/.dev/superclaude/project-guidance/SKILL.md
+Scaffold: /tmp/d16/proj/.dev/superclaude/project-guidance/refs/README.md
+exit=0
+proj/.dev/superclaude/project-guidance
+proj/.dev/superclaude/project-guidance/SKILL.md
+proj/.dev/superclaude/project-guidance/refs
+proj/.dev/superclaude/project-guidance/refs/README.md
+0
+Scaffold: /tmp/d16/proj/.dev/superclaude/project-guidance/SKILL.md
+Scaffold: /tmp/d16/proj/.dev/superclaude/project-guidance/refs/README.md
+0
+```
+
+A second `--scaffold` keeps existing scaffold files (no `Scaffold:` line); `--force` rewrites both, so your added line is gone. `SKILL.md` starts with `# Project Guidance (advisory scaffold)` and says it is never synced into `.claude/`. (source: `init_lite.py:178-197,267-280,356-358`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 10 — Context files are refused as output `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16
+superclaude init-lite --context-optimized --project-root proj --output CLAUDE.md; echo "exit=$?"
+superclaude init-lite --context-optimized --project-root proj --output .mcp.json --force; echo "exit=$?"
+superclaude init-lite --context-optimized --project-root proj --output .claude/audit.md; echo "exit=$?"
+ls proj/.claude
+cd /tmp/d16/proj && find . -path ./.dev -prune -o -type f -print | sort | xargs sha256sum | diff - /tmp/d16/before.sha && echo "context files unchanged"
+```
+
+**Expected result:**
+
+```text
+Error: Refusing to write /tmp/d16/proj/CLAUDE.md: target-project context inputs (CLAUDE.md, .mcp.json, .claude/**) are read-only.
+exit=1
+Error: Refusing to write /tmp/d16/proj/.mcp.json: target-project context inputs (CLAUDE.md, .mcp.json, .claude/**) are read-only.
+exit=1
+Error: Refusing to write /tmp/d16/proj/.claude/audit.md: target-project context inputs (CLAUDE.md, .mcp.json, .claude/**) are read-only.
+exit=1
+agents
+commands
+settings.json
+skills
+context files unchanged
+```
+
+A relative `--output` resolves against `--project-root`, not the current folder. `--force` does not lift this rule. No `audit.md` appears under `.claude`. (source: `init_lite.py:200-218,247-251,340-343`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 11 — Files without the marker `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16
+mkdir -p proj/notes && echo "my notes" > proj/notes/audit.md
+superclaude init-lite --context-optimized --project-root proj --output notes/audit.md; echo "exit=$?"
+superclaude init-lite --context-optimized --project-root proj --output notes/audit.md --force; echo "exit=$?"
+cat proj/notes/audit.md
+echo "hand edited" > proj/.dev/superclaude/context-audit.md
+superclaude init-lite --context-optimized --project-root proj; echo "exit=$?"
+superclaude init-lite --context-optimized --project-root proj --force; echo "exit=$?"
+head -1 proj/.dev/superclaude/context-audit.md
+```
+
+**Expected result:**
+
+```text
+Error: Refusing to overwrite /tmp/d16/proj/notes/audit.md: it lacks the init-lite generated marker. Re-runs overwrite only marked reports; --force overwrites a marker-less file only when it is init-lite-owned under .dev/superclaude/.
+exit=1
+Error: Refusing to overwrite /tmp/d16/proj/notes/audit.md: it lacks the init-lite generated marker. Re-runs overwrite only marked reports; --force overwrites a marker-less file only when it is init-lite-owned under .dev/superclaude/.
+exit=1
+my notes
+Error: Refusing to overwrite /tmp/d16/proj/.dev/superclaude/context-audit.md: it lacks the init-lite generated marker. Re-runs overwrite only marked reports; --force overwrites a marker-less file only when it is init-lite-owned under .dev/superclaude/.
+exit=1
+Context audit written to /tmp/d16/proj/.dev/superclaude/context-audit.md
+Surfaces: 7; estimated tokens: 10111
+exit=0
+<!-- generated-by: superclaude init-lite context-audit v1 -->
+```
+
+Outside `.dev/superclaude/` a file without the marker is never overwritten, even with `--force`; inside it, `--force` overwrites. (source: `init_lite.py:115-126,253-262`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 12 — Prepare a stub `claude` and a test `AIENV` for `ic` `[LOCAL-WRITE]`
+
+Steps 12-15 never start the real Claude Code: a stub `claude` prints the arguments and model slots it receives.
+
+**Do:** start a child shell, so the `PATH` change ends with it, then:
+
+```bash
+bash
+unset ANTHROPIC_DEFAULT_OPUS_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL
+mkdir -p /tmp/d16/bin && cd /tmp/d16
+cat > /tmp/d16/bin/claude <<'EOF'
+#!/usr/bin/env bash
+echo "stub claude args: [$*]"
+echo "stub env: OPUS=${ANTHROPIC_DEFAULT_OPUS_MODEL:-<unset>} SONNET=${ANTHROPIC_DEFAULT_SONNET_MODEL:-<unset>} HAIKU=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-<unset>}"
+EOF
+chmod +x /tmp/d16/bin/claude
+cat > /tmp/d16/aienv <<'EOF'
+export kimi=kimi-k2.6
+export IC_PRESET_coding="opus=claude-opus-4-7 sonnet=gpt-codex haiku=kimi"
+export IC_PRESET_bad="opus=x turbo=y"
+EOF
+export PATH=/tmp/d16/bin:$PATH AIENV=/tmp/d16/aienv
+command -v claude
+```
+
+**Expected result:** `/tmp/d16/bin/claude`. `ic` reads `AIENV` instead of `~/.aienv` when it is set, and `exec`s whichever `claude` comes first on `PATH`. (source: `scripts/ic:25,107-110`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 13 — Default launch versus `--no-yolo` `[FREE]`
+
+**Do:** in the child shell of Step 12, in a terminal (not piped):
+
+```bash
+ic; echo "exit=$?"
+ic --no-yolo; echo "exit=$?"
+ic --no-yolo 2>/dev/null; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+ic: opus=<unset>  sonnet=<unset>  haiku=<unset>
+stub claude args: [--dangerously-skip-permissions]
+stub env: OPUS=<unset> SONNET=<unset> HAIKU=<unset>
+exit=0
+ic: opus=<unset>  sonnet=<unset>  haiku=<unset>
+stub claude args: []
+stub env: OPUS=<unset> SONNET=<unset> HAIKU=<unset>
+exit=0
+stub claude args: []
+stub env: OPUS=<unset> SONNET=<unset> HAIKU=<unset>
+exit=0
+```
+
+Without `--no-yolo`, `ic` always adds `--dangerously-skip-permissions`, which `claude --help` describes as "Bypass all permission checks". The `ic: opus=...` summary is printed on stderr only when stderr is a terminal, so it is gone in the third command. (source: `scripts/ic:71,78,100-111`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 14 — Aliases, presets, slot overrides and forwarded arguments `[FREE]`
+
+**Do:** in the same child shell:
+
+```bash
+ic kimi; echo "exit=$?"
+ic -p coding --no-yolo; echo "exit=$?"
+ic -p coding -S qwen3.6-plus; echo "exit=$?"
+ic --no-yolo kimi --resume extra -- -p hi; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+ic: opus=<unset>  sonnet=<unset>  haiku=kimi-k2.6
+stub claude args: [--dangerously-skip-permissions]
+stub env: OPUS=<unset> SONNET=<unset> HAIKU=kimi-k2.6
+exit=0
+ic: opus=claude-opus-4-7  sonnet=gpt-codex  haiku=kimi-k2.6
+stub claude args: []
+stub env: OPUS=claude-opus-4-7 SONNET=gpt-codex HAIKU=kimi-k2.6
+exit=0
+ic: opus=claude-opus-4-7  sonnet=qwen3.6-plus  haiku=kimi-k2.6
+stub claude args: [--dangerously-skip-permissions]
+stub env: OPUS=claude-opus-4-7 SONNET=qwen3.6-plus HAIKU=kimi-k2.6
+exit=0
+ic: opus=<unset>  sonnet=<unset>  haiku=kimi-k2.6
+stub claude args: [--resume extra -p hi]
+stub env: OPUS=<unset> SONNET=<unset> HAIKU=kimi-k2.6
+exit=0
+```
+
+The first bare word sets the haiku slot; `kimi` resolves to the `$kimi` variable of the `AIENV` file, and a value with no such variable (`qwen3.6-plus`, `gpt-codex`) passes through as is. Options apply left to right, so `-S` after `-p` wins. An unknown flag (`--resume`), a second bare word (`extra`) and everything after `--` go to `claude`. Observed-as-coded: the help names `$IC_ALIASES`, which the code never reads. (source: `scripts/ic:37-46,57-66,72-96,98`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 15 — Unknown preset and unknown slot `[FREE]`
+
+**Do:** in the same child shell:
+
+```bash
+ic -p nope; echo "exit=$?"
+ic -p bad; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+ic: unknown preset 'nope' (expected $IC_PRESET_nope in ~/.aienv)
+exit=2
+ic: unknown slot 'turbo' in $IC_PRESET_bad
+exit=2
+```
+
+Both messages go to stderr; `claude` is not started and no slot summary is printed. Observed-as-coded: the message names `~/.aienv` although `AIENV` points at `/tmp/d16/aienv`. (source: `scripts/ic:48-67`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 16 — `ic --no-yolo -- --version` with the real `claude` `[FREE]`
+
+**Do:** in the same child shell, remove the stub from `PATH`, run, then leave the child shell:
+
+```bash
+export PATH=${PATH#/tmp/d16/bin:}
+command -v claude
+claude --version
+ic --no-yolo -- --version; echo "exit=$?"
+exit
+```
+
+**Expected result:**
+
+```text
+<path of your real claude>
+<version> (Claude Code)
+ic: opus=<unset>  sonnet=<unset>  haiku=<unset>
+<version> (Claude Code)
+exit=0
+```
+
+The two version lines are identical. No session starts and nothing is written. (source: `scripts/ic:79,100-110`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B appendix — `recommend` helpers (plumbing for `/sc:recommend`)
+
+These subcommands are the file and hashing steps the `/sc:recommend` skill runs between its agent calls, only inside an IronClaude checkout (`SKILL.md:69`). They are not user features. All paths default to `.claude/cache/` under the current folder (`commands.py:26-27`), so run them only in `/tmp/d16/rec`. Back in your original shell after Step 16's `exit`:
+
+#### Step 17 — `cache put` and `cache get` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+mkdir -p /tmp/d16/rec && cd /tmp/d16/rec
+printf '# demo\n' > src.md
+superclaude recommend cache put --row-json '{"key":"spec-generation"}'; echo "exit=$?"
+superclaude recommend cache put --row-json '{"key":"spec-generation","source_path":"/tmp/d16/rec/nope.md"}'; echo "exit=$?"
+superclaude recommend cache put --row-json '{"key":"spec-generation","source_path":"/tmp/d16/rec/src.md","candidate":"/sc:workflow","prompt_envelope_template":"/sc:workflow <goal>"}'; echo "exit=$?"
+superclaude recommend cache get spec-generation; echo "exit=$?"
+find /tmp/d16/rec -type f | sort
+```
+
+**Expected result:**
+
+```text
+[recommend cache put] non-native rows must include 'source_path' so the CLI can compute source_hash (Option P: hashing is the CLI's job)
+exit=1
+[recommend cache put] source_path '/tmp/d16/rec/nope.md' does not exist; cannot compute source_hash
+exit=1
+[recommend cache put] Committed row 'spec-generation' to .claude/cache/sc-recommend-lookup.yaml
+exit=0
+{"key": "spec-generation", "source_path": "/tmp/d16/rec/src.md", "candidate": "/sc:workflow", "prompt_envelope_template": "/sc:workflow <goal>", "source_hash": "<64 hex>", "last_validated_at": "<UTC ISO time>"}
+exit=0
+/tmp/d16/rec/.claude/cache/sc-recommend-lookup.yaml
+/tmp/d16/rec/src.md
+```
+
+`cache put` computes `source_hash` (the SHA-256 of `src.md`) and stamps `last_validated_at` itself. The YAML holds `schema_version: 2`, `generator: sc-recommend-cache/v0.2` and a `surface_hash`. That fingerprint covers `src/superclaude/` under the current folder and the command, skill and agent paths under `~/.claude` and `./.claude`: if those change between two calls (for example a `superclaude install` in between), the rows are dropped and `cache get` exits 1 again. (source: `commands.py:78-142`; `cache.py:29-35,45-46,63-94,118-140`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 18 — `dispatch` outcomes `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16/rec
+superclaude recommend dispatch --key spec-generation
+superclaude recommend dispatch --native-likely
+superclaude recommend dispatch
+superclaude recommend dispatch --key spec-generation --delta 0.05
+superclaude recommend dispatch --key spec-generation --budget-used 20000
+echo "# changed" >> src.md
+superclaude recommend dispatch --key spec-generation; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+{"outcome": "hit", "cache_result": "hit", "miss_reason": null, "recommendation": "/sc:workflow <goal>", "best_model_hint": null, "candidate": "/sc:workflow", "needs_cold_path": false}
+{"outcome": "native", "cache_result": null, "miss_reason": null, "recommendation": null, "best_model_hint": null, "candidate": null, "needs_cold_path": false}
+{"outcome": "miss", "cache_result": "miss_no_key", "miss_reason": "miss_no_key", "recommendation": null, "best_model_hint": null, "candidate": null, "needs_cold_path": true}
+{"outcome": "miss", "cache_result": "miss_low_confidence", "miss_reason": "miss_low_confidence", "recommendation": null, "best_model_hint": null, "candidate": null, "needs_cold_path": true}
+{"outcome": "miss", "cache_result": "miss_budget_exceeded", "miss_reason": "miss_budget_exceeded", "recommendation": null, "best_model_hint": null, "candidate": null, "needs_cold_path": true}
+{"outcome": "miss", "cache_result": "miss_validation_stale", "miss_reason": "miss_validation_stale", "recommendation": null, "best_model_hint": null, "candidate": null, "needs_cold_path": true}
+exit=0
+```
+
+`dispatch` always exits 0 and writes nothing (no cache write, no telemetry). A changed `src.md` no longer matches the stored hash, so the row is stale. (source: `commands.py:403-461`; `dispatch.py:91-137`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 19 — `telemetry append` and `eval run` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d16/rec
+superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key spec-generation --duration-ms 4200; echo "exit=$?"
+cat .claude/cache/sc-recommend-events.jsonl
+superclaude recommend telemetry append --mode delegate --cache-result bogus --classification-key x --duration-ms 1; echo "exit=$?"
+superclaude recommend eval run; echo "exit=$?"
+superclaude recommend eval run --mode quick; echo "exit=$?"
+superclaude recommend eval run --mode turbo 2>&1 | tail -1; echo "exit=${PIPESTATUS[0]}"
+```
+
+**Expected result:**
+
+```text
+[recommend telemetry append] event appended to .claude/cache/sc-recommend-events.jsonl
+exit=0
+{"ts": "<UTC ISO time>", "mode": "delegate", "cache_result": "hit", "classification_key": "spec-generation", "duration_ms": 4200}
+[recommend telemetry append] Invalid cache_result 'bogus'; must be one of ['cold_inserted', 'hit', 'miss_budget_exceeded', 'miss_low_confidence', 'miss_no_key', 'miss_validation_stale']
+exit=1
+[recommend eval run] mode=none -> no evaluation performed (opt-in default).
+exit=0
+[recommend eval run] --key is required when mode != none
+exit=1
+Error: Invalid value for '--mode': 'turbo' is not one of 'none', 'quick', 'normal', 'deep'.
+exit=2
+```
+
+Each event line has exactly five fields; an invalid `cache_result` writes nothing. `eval run` defaults to mode `none`, which does nothing. (source: `commands.py:31,151-193,202-266`; `telemetry.py:17-29,47-62`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — Claude Code sessions (optional)
+
+Both steps start a real Claude Code session, which uses API tokens and your real `~/.claude` (see Preconditions). `AIENV` points at a missing file so your model settings stay as they are. Accept Claude Code's folder-trust question if it appears.
+
+#### Step 20 — `ic --no-yolo` keeps the permission prompts `[CLAUDE-SESSION]`
+
+**Do:**
+
+```bash
+mkdir -p /tmp/d16/c && cd /tmp/d16/c && AIENV=/tmp/d16-no-aienv ic --no-yolo
+```
+
+Send this prompt, approve the command when asked, then type `/exit`:
+
+```text
+Run the shell command: touch /tmp/d16/c/no-yolo.txt
+```
+
+Then, in a shell: `ls /tmp/d16/c`
+
+**Expected result:** before the session starts, the `ic: warning: /tmp/d16-no-aienv not found; proceeding without defaults` line and the `ic: opus=...` summary. In the session, Claude Code asks for permission before running the `touch` command, unless your own `~/.claude/settings.json` already allows it (a `permissions.allow` rule for it or a `defaultMode` that skips prompts). After approval, `ls` prints `no-yolo.txt`. (source: `scripts/ic:30,100-105,110`; prompt behaviour is Claude Code's, `claude --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 21 — Default `ic` skips the permission prompts `[CLAUDE-SESSION]`
+
+**Warning:** this session runs with every permission check bypassed: Claude can run any command or edit any file without asking. Send only the prompt below and exit at once.
+
+**Do:**
+
+```bash
+cd /tmp/d16/c && AIENV=/tmp/d16-no-aienv ic
+```
+
+Send this prompt, then type `/exit`:
+
+```text
+Run the shell command: touch /tmp/d16/c/yolo.txt
+```
+
+Then, in a shell: `ls /tmp/d16/c`
+
+**Expected result:** the same two `ic:` lines on start. The `touch` command runs without any permission question, and `ls` prints `no-yolo.txt` and `yolo.txt`. Whether Claude Code shows a one-time notice or confirmation about bypass mode at start is Claude Code's behaviour: UNVERIFIED here. (source: `scripts/ic:71,107-108`; `claude --help`: `--dangerously-skip-permissions  Bypass all permission checks`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+---
+
+## Edge cases (optional but recommended)
+
+Run these after Step 19, from your original shell.
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[FREE]` `superclaude init-lite --context-optimized --project-root /tmp/d16/missing --dry-run; echo "exit=$?"` | Click usage error ending `Error: Invalid value for '--project-root': Directory '/tmp/d16/missing' does not exist.`, `exit=2` | `init_lite.py:291-297` | ☐ |
+| `[FREE]` `superclaude init-lite --context-optimized --project-root /tmp/d16/proj --output /tmp/d16/proj/CLAUDE.md --dry-run \| tail -1; echo "exit=${PIPESTATUS[0]}"` | `[dry-run] No files written; .dev/superclaude/ not created.`, `exit=0`: nothing is written, but the refusal of Step 10 is not shown (observed-as-coded) | `init_lite.py:346-352` | ☐ |
+| `[LOCAL-WRITE]` `cd /tmp/d16 && superclaude init-lite --context-optimized --project-root proj --output reports/a.md; echo "exit=$?"` | `Context audit written to /tmp/d16/proj/reports/a.md`, `Surfaces: 7; estimated tokens: 10111`, `exit=0`: missing parent folders are created; any path outside the protected ones is allowed | `init_lite.py:221-241,340-343` | ☐ |
+| `[LOCAL-WRITE]` `mkdir -p /tmp/d16/edge && cd /tmp/d16/edge && for n in 3996 3997 16000 16001; do head -c $n /dev/zero \| tr '\0' a > CLAUDE.md; superclaude init-lite --context-optimized --dry-run \| grep '^\| .CLAUDE'; done` | Four rows: `3996 \| 999 \| low`, `3997 \| 1000 \| medium`, `16000 \| 4000 \| medium`, `16001 \| 4001 \| high` | `init_lite.py:33-34,46-62` | ☐ |
+| `[FREE]` `AIENV=/tmp/d16/aienv PATH=/tmp/d16/bin:$PATH ic -p; echo "exit=$?"` | `<install path>/superclaude/scripts/ic: line 74: $2: unbound variable`, `exit=1` (observed-as-coded) | `scripts/ic:23,74` | ☐ |
+| `[FREE]` `env -u ANTHROPIC_DEFAULT_HAIKU_MODEL AIENV=/tmp/d16/aienv PATH=/tmp/d16/bin:$PATH ic --no-yolo -H HOME 2>/dev/null` | `stub env: ... HAIKU=<your home folder path>`: the value `HOME` resolved to `$HOME` (observed-as-coded; the script comment says this is avoided) | `scripts/ic:35-46,75` | ☐ |
+| `[LOCAL-WRITE]` `printf 'echo "$UNDEFINED_D16_VAR"\n' > /tmp/d16/aienv-bad; AIENV=/tmp/d16/aienv-bad PATH=/tmp/d16/bin:$PATH ic --help; echo "exit=$?"` | `/tmp/d16/aienv-bad: line 1: UNDEFINED_D16_VAR: unbound variable`, `exit=1`, no help printed: the `AIENV` file runs under `set -euo pipefail` before any argument is read | `scripts/ic:23-31` | ☐ |
+| `[FREE]` `env PATH=/usr/bin:/bin AIENV=/tmp/d16-no-aienv "$(command -v ic)" --no-yolo -- --version; echo "exit=$?"` (with no `claude` in `/usr/bin` or `/bin`) | The `AIENV` warning, then `<install path>/superclaude/scripts/ic: line 110: exec: claude: not found`, `exit=127` | `scripts/ic:110` | ☐ |
+| `[FREE]` `cd /tmp && superclaude recommend eval run --mode quick --key x --assertions-file /tmp/d16/missing.json; echo "exit=$?"` | Click usage error ending `Error: Invalid value for '--assertions-file': Path '/tmp/d16/missing.json' does not exist.`, `exit=2`; nothing is graded | `commands.py:232-237` | ☐ |
+
+## Cleanup
+
+```bash
+cd /tmp
+rm -rf /tmp/d16
+```
+
+Tiers A and B wrote nothing outside `/tmp/d16`. What stays under your real `~/.claude` after Tier C is the two sessions in your Claude Code history and what the installed hooks write for any session: rows in `~/.claude/state/` and `~/.claude/logs/`.
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

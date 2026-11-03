@@ -1,0 +1,4 @@
+docs/swarm/operator-runbook.md
+docs/swarm/monitoring-patterns.md
+docs/swarm/rollback-procedure.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md

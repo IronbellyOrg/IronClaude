@@ -1,0 +1,95 @@
+--- a/docs/testing/v5.0.0/README.md
++++ b/docs/testing/v5.0.0/README.md
+@@ -0,0 +1,67 @@
++# IronClaude 5.0.0 human test guides
++
++These guides let a person check the 5.0.0 release by hand. Each guide covers one area, gives every step a Do / Expected result / Pass-Fail block, and cites the code line, `--help` output or recorded run that each expected result comes from.
++
++- `user/` holds the 16 guides for end users, operators and maintainers (D01-D16).
++- `sysop/` holds the 2 guides for system operators who control the Coder workspace env file or push to the fork's master branch (E01-E02).
++
++## How the guides are laid out
++
++Every guide groups its steps under three tiers, so you can stop after any tier:
++
++- **Tier A**: free, read-only checks that take seconds.
++- **Tier B**: steps that write files, always in a throwaway `HOME` or under `/tmp`.
++- **Tier C**: steps that use the Claude API, proxy credentials, real PRs or long runs.
++
++Each step heading carries one cost tag from the legend below.
++
++## Cost-tag legend
++
++The tags are listed from lowest to highest cost. "Highest cost tag" in the guide table is the highest tag on any step of that guide.
++
++| Tag | What the step needs or does |
++|---|---|
++| `[FREE]` | Read-only check that takes seconds. No API call. |
++| `[LOCAL-WRITE]` | Writes files, only in a throwaway `HOME` or a `/tmp` path. Some steps also download from the network (for example D01's codegraph tarball and pipx clone). |
++| `[CLAUDE-SESSION]` | Needs an interactive Claude Code session. Uses API tokens. |
++| `[API-LONG]` | Starts headless `claude` subprocesses. Runs take minutes to hours and use API tokens. |
++| `[PROXY]` | Needs operator-issued proxy credentials: `T2ProxyUrl`, `T2ProxyKey` and `T2Model0N` (`src/superclaude/cli/swarm/config.py:53-59`). |
++| `[EXTERNAL]` | Creates or uses state outside your machine: a pull request, an issue, a push or an operator-run service. Run one only on purpose, against a sandbox branch or a throwaway repo, and check that any PR URL points at `IronbellyOrg`. |
++
++## Guides
++
++| Guide | What it checks | Highest cost tag | Tags used |
++|---|---|---|---|
++| [D01 install, upgrade and doctor](user/D01-install-upgrade-doctor.md) | `superclaude --version`, `install`, `install --list`, `install --force` upgrade from 4.3.5, `update`, `update.sh`, `install-skill`, `doctor --verbose`, the codegraph install and the retirement of old Serena / codebase-memory MCP registrations | `[LOCAL-WRITE]` | FREE, LOCAL-WRITE |
++| [D02 MCP servers](user/D02-mcp-servers.md) | `superclaude mcp` dry runs, removed servers and flags rejected, the opt-in litellm gateway, a project-scope install in a temp project | `[EXTERNAL]` | FREE, LOCAL-WRITE, CLAUDE-SESSION, EXTERNAL |
++| [D03 codegraph, /sc:graph and /sc:impact](user/D03-codegraph-graph-impact.md) | The auto-index session-start hook, `/sc:graph` status and `init`, `/sc:impact` by symbol, `--diff` and `--tests`, the two kill switches | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [D04 session memory](user/D04-session-memory.md) | Memory files under `.superclaude/memory/`, `.superclaude/.gitignore`, `/sc:load` with the `.serena/memories/` fallback, one store per worktree, `/sc:pm` sharing the store | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [D05 routing guide, core files and issue templates](user/D05-routing-core-files-issue-templates.md) | `/sc:help` and its level table, the "Routing guide not found" fallback, `/sc:recommend`, the removed commands and core files, the `ISSUE-*.md` templates | `[EXTERNAL]` | FREE, LOCAL-WRITE, CLAUDE-SESSION, EXTERNAL |
++| [D06 planning chain, remediation routing and review cap](user/D06-plan-implement-review-cap.md) | `/sc:workflow` then `/sc:implement` (plan package, `progress.md`, archive), `/sc:troubleshoot --fix` routing, the Pragmatic subagent injection and review cap | `[API-LONG]` | FREE, LOCAL-WRITE, CLAUDE-SESSION, API-LONG |
++| [D07 /sc:pr-submit](user/D07-pr-submit.md) | `--monitor 0` to `3`, `--pr <N>`, the `pr_head_mismatch` refusal, `--max-rounds` above 5 rejected, the removed `--yes` | `[EXTERNAL]` | FREE, LOCAL-WRITE, EXTERNAL |
++| [D08 ccsession](user/D08-ccsession.md) | Session names and `/rename` sync, `--here`, `--list`, `--rm`, `--ask`, `ccsession-orca`, `--tier`, `--model`, `--models-status`, `--refresh-models`, the shim surviving its terminal | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [D09 freshness hooks and Pragmatic injection](user/D09-hooks-freshness-pragmatic.md) | Edit of an unread file blocked, Read then Edit allowed, new-file Write allowed, external change blocked, the `<session-context>` block, the telemetry log, `AUGGIE_FIRST_DISABLE=1` | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [D10 sprint](user/D10-sprint.md) | `sprint run` dry run and real runs, auto-resume, `--resume`, `--task-parallelism`, `--no-handoff`, `verify-checkpoints`, `attach`, `kill`, `status`, `logs` | `[API-LONG]` | FREE, LOCAL-WRITE, API-LONG |
++| [D11 roadmap and tasklist](user/D11-roadmap-tasklist.md) | `roadmap run --dry-run`, the input limit, a quick-depth run, `roadmap validate`, `tasklist validate` | `[API-LONG]` | FREE, LOCAL-WRITE, API-LONG |
++| [D12 reflect](user/D12-reflect.md) | `reflect contract-status`, `reflect run` with `--print-command`, `--dry-run`, stub and `openai_compat` transports, `--fix`, exit codes, `/sc:reflect` | `[PROXY]` | FREE, LOCAL-WRITE, CLAUDE-SESSION, API-LONG, PROXY |
++| [D13 prd, cli-portify and cleanup-audit](user/D13-prd-portify-cleanup-audit.md) | The three pipelines' `--dry-run`, one lightweight run each, `--max-convergence`, Ctrl-C on `cli-portify` | `[API-LONG]` | FREE, LOCAL-WRITE, API-LONG |
++| [D14 swarm](user/D14-swarm.md) | `validate-lenses`, `scaffold` and `validate`, a stub-transport run, `status`, `logs`, `--detached` with `attach` and `kill`, `--tui`, `openai_compat`, `/sc:swarm-wizard`, rejected custom lenses | `[PROXY]` | FREE, LOCAL-WRITE, CLAUDE-SESSION, PROXY |
++| [D15 eval harness](user/D15-eval-harness.md) | `eval list`, `describe`, `doctor`, `run` into a `/tmp/eval-runs/<name>` folder, `/sc:cli-eval` (maintainer audience, Linux only) | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [D16 init-lite, recommend helpers and ic](user/D16-init-lite-recommend-ic.md) | `init-lite --context-optimized` dry run and scaffold, `recommend cache get`, `ic --help`, `ic --no-yolo` with a temp `AIENV` | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [E01 ccsession tier policy](sysop/E01-ccsession-tier-policy.md) | Tier-rule grammar and precedence, the `CCSESSION_ACCESS` fallback, a broken owner entry stopping the launch, limited users, letter tiers; tested with a temp env file only | `[CLAUDE-SESSION]` | FREE, LOCAL-WRITE, CLAUDE-SESSION |
++| [E02 ccsession model data publishing](sysop/E02-ccsession-model-data-publishing.md) | Checking a candidate `ccsession-models.json` (schema 2, 256 KiB cap, field patterns, refresh status) with `CCSESSION_MODELS_URL` and a temp cache before publishing it to master | `[EXTERNAL]` | FREE, LOCAL-WRITE, EXTERNAL |
++
++## Safety rule: throwaway HOME
++
++- Any step that writes files does so in a throwaway `HOME` or a `/tmp` path, never in your real `~/.claude`, `~/.claude.json`, `~/.codegraph` or pipx environment. The install and upgrade steps (D01) run every command through `env -i HOME=<throwaway> PATH=<throwaway>` with stub `codegraph`, `orca` and `orca-ide` commands, as the recorded run does (`c-e2e-run.sh` functions `mkenv` and `run`).
++- The sysop guides never edit the real `/etc/aidev02/aienv.d/defaults.sh` (E01 points `AIDEV_AI_DEFAULTS_PATH` at a temp file) and never publish to master while testing (E02 points `CCSESSION_MODELS_URL` at a candidate file and `XDG_CACHE_HOME` at a temp folder).
++- `[CLAUDE-SESSION]` and `[API-LONG]` steps run Claude Code with your real install, in a scratch project under `/tmp`. Such a session does not write only its own history. The installed hooks also write under your real `~/.claude`:
++  - the freshness hooks write `~/.claude/state/` and `~/.claude/logs/` at session start and on every prompt (registered at `src/superclaude/hooks/hooks.json:18,49`; paths set at `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9` and `freshness-user-prompt.sh:8-9`);
++  - `auggie-flag-clear.sh` writes the same two folders after each auggie tool call (PostToolUse, `hooks.json:104`; `auggie-flag-clear.sh:10-11`);
++  - the codegraph session-start hook builds a `.codegraph/` index in the scratch git repo and appends to `${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/codegraph-init.log` (`hooks.json:28`; `codegraph-session-start.sh:27-31`).
++- Skip `[EXTERNAL]` steps unless you mean to create that outside state. Their `gh` commands name the target repository explicitly: `IronbellyOrg/IronClaude` or a throwaway repo the guide has you create. None targets SuperClaude-Org.
++
++## Recorded install run
++
++- [c-e2e-run.sh](c-e2e-run.sh): the script that ran a brand-new-user install of tag `v5.0.0` and an upgrade from 4.3.5 (`539e2414`), each in its own throwaway `HOME` under `/tmp`.
++- [c-e2e-transcript.txt](c-e2e-transcript.txt): its full output. D01 cites line ranges of this file as the expected results.
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t66-links.txt
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t66-links.txt
+@@ -0,0 +1,22 @@
++# Task 66 link check: test -e on every link target in docs/testing/v5.0.0/README.md (cwd docs/testing/v5.0.0)
++OK user/D01-install-upgrade-doctor.md
++OK user/D02-mcp-servers.md
++OK user/D03-codegraph-graph-impact.md
++OK user/D04-session-memory.md
++OK user/D05-routing-core-files-issue-templates.md
++OK user/D06-plan-implement-review-cap.md
++OK user/D07-pr-submit.md
++OK user/D08-ccsession.md
++OK user/D09-hooks-freshness-pragmatic.md
++OK user/D10-sprint.md
++OK user/D11-roadmap-tasklist.md
++OK user/D12-reflect.md
++OK user/D13-prd-portify-cleanup-audit.md
++OK user/D14-swarm.md
++OK user/D15-eval-harness.md
++OK user/D16-init-lite-recommend-ic.md
++OK sysop/E01-ccsession-tier-policy.md
++OK sysop/E02-ccsession-model-data-publishing.md
++OK c-e2e-run.sh
++OK c-e2e-transcript.txt
++TOTAL=20 MISSING=0

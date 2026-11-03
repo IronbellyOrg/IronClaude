@@ -35,125 +35,89 @@ This Developer Guide provides documentation for understanding SuperClaude's cont
 ### For New Contributors
 
 1. Start with [Contributing Code Guide](contributing-code.md#development-setup) for environment setup
-2. Review [Technical Architecture Guide](technical-architecture.md#architecture-overview) for system understanding  
-3. Use [Testing & Debugging Guide](testing-debugging.md#quick-start-testing-tutorial) for testing basics
+2. Review [Technical Architecture Guide](technical-architecture.md#context-file-architecture) for system understanding
+3. Use [Testing & Debugging Guide](testing-debugging.md#installation-verification) for testing basics
 
 ### For System Architects
 
 1. Begin with [Technical Architecture Guide](technical-architecture.md) for complete system design
 2. Reference [Contributing Code Guide](contributing-code.md#architecture-overview) for component patterns
-3. Review [Testing & Debugging Guide](testing-debugging.md#integration-testing) for validation frameworks
+3. Review [Testing & Debugging Guide](testing-debugging.md#running-the-test-suite) for the test suite
 
 ### For Testing Engineers
 
 1. Start with [Testing & Debugging Guide](testing-debugging.md) for comprehensive testing procedures
 2. Reference [Contributing Code Guide](contributing-code.md#development-workflow) for development integration
-3. Use [Technical Architecture Guide](technical-architecture.md#quality-framework) for architecture context
+3. Use [Technical Architecture Guide](technical-architecture.md#important-clarifications) for what runs code and what is only context
+
+### Technical Notes
+
+- [Codegraph Integration](codegraph-integration.md): pinned codegraph download, MCP registration, the auto-index hook and the MCP retire step
+- [Session Memory](session-memory.md): the file-based `.superclaude/memory/` store behind `/sc:save` and `/sc:load`
+- [Review Severity Rule](review-severity-rule.md): blocking vs minor findings and the two-fix-cycle limit
+- [Release Procedure](release-procedure.md): go/no-go checks, release notes, tag and GitHub release
 
 ## Key Framework Concepts
 
-### Context-Oriented Configuration
+### Context Files and the CLI
 
-SuperClaude is a collection of `.md` instruction files that Claude Code reads to modify its behavior. It is NOT executing software.
+SuperClaude has two parts. Most of it is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to change its behavior. The Python package also ships the `superclaude` CLI: `install`, `update`, `doctor` and `mcp` set up and check the installation, and commands such as `sprint`, `roadmap` and `eval` run multi-step pipelines. Run `superclaude --help` for the full list.
 
-**IMPORTANT**: SuperClaude is NOT a CLI tool or executable software. When you see `/sc:` commands in documentation, these are **context trigger patterns** you type in Claude Code conversations, not terminal commands.
+`/sc:` commands are typed in a Claude Code conversation, not in a terminal. `superclaude <command>` is typed in a terminal.
 
 ### Agent Context Files
 
-Specialized instruction sets that provide domain expertise when activated by `@agent-[name]` or automatically by keywords.
+Specialized instruction sets that provide domain expertise when invoked with `@agent-[name]` or chosen by Claude Code from the agent's `description`.
 
 ### Command Context Files
 
-Workflow patterns triggered by `/sc:[command]` **context patterns** (not CLI commands) that guide Claude Code through structured development tasks when you type them in Claude Code conversations.
+Workflow instructions triggered by typing `/sc:[command]` in a Claude Code conversation. They guide Claude Code through structured development tasks; some of them call the `superclaude` CLI.
 
 ### MCP Integration
 
 External tools (actual software) that can be configured to provide additional capabilities like documentation lookup or code analysis.
 
-## What SuperClaude Is NOT
+### Session Memory
 
-- ❌ **Not Software**: No code executes, no processes run
-- ❌ **Not Testable**: Context files are instructions, not functions  
-- ❌ **Not Optimizable**: No performance to measure or improve
-- ❌ **Not Persistent**: Each Claude conversation is independent
+`/sc:save` and `/sc:load` keep session context in plain markdown files under `<project>/.superclaude/memory/`, so a later conversation can pick up where an earlier one stopped.
 
-## Documentation Features
+## What SuperClaude Contains
 
-### Cross-Referenced Integration
-
-All three documents are strategically cross-referenced, enabling seamless navigation between development workflows, architectural understanding, and testing procedures.
-
-### Accessibility & Inclusivity
-
-- **Screen Reader Support**: Full navigation guidance and diagram descriptions
-- **Skill Level Pathways**: Clear progression from beginner to advanced
-- **Comprehensive Glossaries**: 240+ technical terms with detailed definitions
-- **Learning Resources**: Time estimates and prerequisite guidance
-
-### Consistent Terminology
-
-Unified technical vocabulary ensures clear communication across all documentation, with key terms defined consistently throughout comprehensive glossaries.
-
-### Comprehensive Code Examples
-
-All code examples include proper documentation, error handling, and follow consistent formatting standards suitable for production use.
-
-### Security-First Approach
-
-Security considerations are embedded throughout all documentation, from development practices to testing procedures to architectural design.
-
-### Professional Quality Standards
-
-- **WCAG 2.1 Compliant**: Full accessibility standards compliance
-- **Technical Accuracy**: All examples tested and verified
-- **Framework Integration**: Documentation quality matches framework sophistication
-- **Community Focus**: Inclusive design for developers of all abilities
-
-## Document Status
-
-✅ **Phase 1 Complete**: Critical issues resolved, basic structure established  
-✅ **Phase 2 Complete**: Cross-document consistency, navigation improvements, security integration  
-✅ **Phase 3 Complete**: Advanced examples, visual diagrams, enhanced architecture documentation  
-✅ **Phase 4 Complete**: Accessibility improvements, comprehensive glossaries, skill level guidance, professional polish
-
-### Accessibility & Quality Enhancements (Phase 4)
-
-- **240+ Glossary Terms**: Comprehensive technical definitions across all documents
-- **Screen Reader Support**: Full accessibility with navigation guidance and diagram descriptions  
-- **Skill Level Pathways**: Clear learning progressions from beginner to advanced
-- **Professional Polish**: Documentation quality aligned with framework sophistication
+- **Instructions**: Core files, commands, agents and skills are `.md` files Claude Code reads; nothing enforces them in code unless a workflow calls a CLI pipeline or a hook applies
+- **Code**: The `superclaude` CLI, its pipelines and the hook scripts are Python and shell code
+- **Tests**: The repository has a pytest suite (`make test`)
+- **Persistent memory**: Session memory is stored in files, not in the conversation
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.8+ (for installation tool)
+- Python 3.10+
 - Claude Code installed
-- Optional: Node.js 16+ for MCP servers
+- Optional: Node.js 18+ for npm-based MCP servers
 
 ### Understanding the Framework
 
 ```bash
 # Check installation
 ls ~/.claude/
-# You'll see context files, not executable code
+# You'll see core files and the commands/, agents/, skills/ and hooks/ folders
 
 # View a command context
-cat ~/.claude/commands/implement.md
-# You'll see instructions for Claude, not code
+cat ~/.claude/commands/sc/implement.md
+# You'll see instructions for Claude
 
-# View an agent context  
+# View an agent context
 cat ~/.claude/agents/python-expert.md
-# You'll see expertise definitions, not programs
+# You'll see expertise definitions
 ```
 
 ### Extending SuperClaude
 
-1. **Add Commands**: Create new `.md` files in `~/.claude/commands/`
+1. **Add Commands**: Create new `.md` files in `~/.claude/commands/sc/` (they appear as `/sc:<name>`)
 2. **Add Agents**: Create new `.md` files in `~/.claude/agents/`
-3. **Add Modes**: Create new `.md` files in `~/.claude/modes/`
 
-No compilation, no testing, no deployment - just add context files and Claude Code will read them automatically.
+To ship a command or agent with the package, add it under `src/superclaude/` instead and follow the [Contributing Code Guide](contributing-code.md).
 
 ## Support and Resources
 
@@ -171,7 +135,7 @@ No compilation, no testing, no deployment - just add context files and Claude Co
 
 ### Community Resources
 
-- **[GitHub Repository](https://github.com/SuperClaude-Org/SuperClaude_Framework)**: Main development and collaboration hub
+- **[GitHub Repository](https://github.com/IronbellyOrg/IronClaude)**: Main development and collaboration hub
 
 ## Contributing to Documentation
 
@@ -195,4 +159,4 @@ We welcome contributions to improve documentation quality, accuracy, and complet
 
 **SuperClaude Framework**: Building the future of AI-assisted development through intelligent orchestration and behavioral programming.
 
-For the latest updates and community discussions, visit our [GitHub repository](https://github.com/SuperClaude-Org/SuperClaude_Framework).
+For the latest updates and community discussions, visit our [GitHub repository](https://github.com/IronbellyOrg/IronClaude).

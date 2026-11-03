@@ -1,0 +1,4 @@
+docs/getting-started/upgrading.md
+README.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+docs/getting-started/installation.md

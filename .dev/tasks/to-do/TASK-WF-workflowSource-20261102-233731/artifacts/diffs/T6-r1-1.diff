@@ -1,0 +1,72 @@
+--- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -1,6 +1,6 @@
+ # IronClaude: How We Work
+ 
+-This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; run `superclaude update` after upgrading IronClaude to refresh that copy. `superclaude update` overwrites every file it ships, including an edited `~/.claude/CLAUDE.md`, and keeps no backup. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run it. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
++This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; after upgrading IronClaude run `superclaude install --force` to refresh that copy (it also installs codegraph and retires old MCP registrations; `superclaude update` refreshes files only). `superclaude install --force` and `superclaude update` both overwrite every file they ship, including an edited `~/.claude/CLAUDE.md`, and keep no backup. They also delete and re-copy each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run either one. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
+ 
+ ---
+ 
+--- a/docs/user-guide/how-we-work.md
++++ b/docs/user-guide/how-we-work.md
+@@ -1,3 +1,3 @@
+ # How We Work
+ 
+-Which IronClaude command or skill to use for each kind of work, in what order, and with which required flags, is written down in one place: the IronClaude guide [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md). It sorts every job into six levels, from "ask a question" to "write a full specification", sets the hard limit on how much change may skip a written plan, gives step-by-step workflows for building, fixing, investigating, reviewing, and resuming work, and ends with the routing table that `/sc:recommend` reads. `/sc:help` prints its level table and hard limit. `superclaude install` copies the guide to `~/.claude/HOW-WE-WORK.md`, so you can open it from any project; run `superclaude update` after upgrading to refresh that copy. `superclaude update` overwrites every file it ships, including an edited `~/.claude/CLAUDE.md`, and keeps no backup. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run it. If you are still unsure which tool fits your job, run `/sc:recommend "<what you want to do, and why>"`.
++Which IronClaude command or skill to use for each kind of work, in what order, and with which required flags, is written down in one place: the IronClaude guide [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md). It sorts every job into six levels, from "ask a question" to "write a full specification", sets the hard limit on how much change may skip a written plan, gives step-by-step workflows for building, fixing, investigating, reviewing, and resuming work, and ends with the routing table that `/sc:recommend` reads. `/sc:help` prints its level table and hard limit. `superclaude install` copies the guide to `~/.claude/HOW-WE-WORK.md`, so you can open it from any project; after upgrading run `superclaude install --force` to refresh that copy (it also installs codegraph and retires old MCP registrations; `superclaude update` refreshes files only). `superclaude install --force` and `superclaude update` both overwrite every file they ship, including an edited `~/.claude/CLAUDE.md`, and keep no backup. They also delete and re-copy each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run either one. If you are still unsure which tool fits your job, run `/sc:recommend "<what you want to do, and why>"`.
+--- a/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+@@ -1,6 +1,6 @@
+ # IronClaude: How We Work
+ 
+-This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; run `superclaude update` after upgrading IronClaude to refresh that copy. `superclaude update` overwrites every file it ships, including an edited `~/.claude/CLAUDE.md`, and keeps no backup. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run it. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
++This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; after upgrading IronClaude run `superclaude install --force` to refresh that copy (it also installs codegraph and retires old MCP registrations; `superclaude update` refreshes files only). `superclaude install --force` and `superclaude update` both overwrite every file they ship, including an edited `~/.claude/CLAUDE.md`, and keep no backup. They also delete and re-copy each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run either one. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
+ 
+ ---
+ 
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t6-tests.log
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t6-tests.log
+@@ -0,0 +1,42 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
++SuperClaude: 5.0.0
++benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
++rootdir: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
++collected 14747 items / 14239 deselected / 1 skipped / 508 selected
++
++tests/cli/eval/test_workflow_vs_task_builder_companion.py .              [  0%]
++tests/cli/test_how_we_work_install.py .......                            [  1%]
++tests/cli/test_tdd_extract_prompt.py ..........                          [  3%]
++tests/commands/test_help_command.py .                                    [  3%]
++tests/commands/test_routing_plugin_parity.py .....                       [  4%]
++tests/core/test_claude_md_routing_block.py ......                        [  5%]
++tests/core/test_how_we_work_routing_table.py ........................... [ 11%]
++....................................................                     [ 21%]
++tests/recommend/test_routing_refresh.py ................................ [ 27%]
++........................................................................ [ 41%]
++........................................................................ [ 56%]
++........................................................................ [ 70%]
++                                                                         [ 70%]
++tests/roadmap/test_cli_contract.py ......                                [ 71%]
++tests/roadmap/test_compression_integration.py ....                       [ 72%]
++tests/roadmap/test_eval_finding_lifecycle.py ...                         [ 72%]
++tests/roadmap/test_eval_gate_ordering.py ..                              [ 73%]
++tests/roadmap/test_eval_gate_rejection.py ..                             [ 73%]
++tests/roadmap/test_gates_data.py .................                       [ 76%]
++tests/roadmap/test_integration_v5_pipeline.py .........                  [ 78%]
++tests/roadmap/test_remediate.py ............                             [ 81%]
++tests/roadmap/test_structural_checkers.py ..s.                           [ 81%]
++tests/roadmap/test_validate_unit.py .                                    [ 82%]
++tests/sc-roadmap/integration/test_return_contract_routing.py ........... [ 84%]
++.................................                                        [ 90%]
++tests/skills/test_codegraph_adoption.py .                                [ 90%]
++tests/skills/test_sc_recommend_routing_contract.py ..................... [ 95%]
++......                                                                   [ 96%]
++tests/swarm/test_no_anthropic_routing.py .........                       [ 98%]
++tests/swarm/test_parallel_executor_routing.py .........                  [ 99%]
++tests/unit/test_ccsession_tag.py .                                       [100%]
++
++=============== 507 passed, 2 skipped, 14239 deselected in 7.53s ===============

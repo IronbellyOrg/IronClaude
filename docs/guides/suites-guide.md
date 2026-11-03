@@ -37,44 +37,29 @@ each suite below; see also §"Troubleshooting".
 
 ## Inventory at a glance
 
-| # | Suite | Evals | Cadence | On disk? | Purpose |
-|---|---|---|---|---|---|
-| 1 | `model_capability_matrix` | 8 | Recurring nightly | ✓ | Compare model capability across 8 task categories |
-| 2 | `frontier_vs_cheap_combo` | 4 | One-off / on-demand | ✓ | Frontier-vs-combo cost-quality A/B |
-| 3 | `adversarial_merge_consistency` | 3 | Recurring weekly | ✓ | Inter-judge determinism of `/sc:adversarial` |
-| 4 | `freshness_blocks_unread_edit` | 3 | One-off baseline | stash@{0} | Pre-edit freshness gate end-to-end |
-| 5 | `task_classification_contract` | 2 | One-off baseline | stash@{0} | `/sc:task` first-output HTML marker |
-| 6 | `audit_wiring_guard` | 2 | One-off baseline | stash@{0} | Audit pipeline never deletes wired files |
-| 7 | `tasklist_deterministic_shape` | 1 | One-off baseline | stash@{0} | `/sc:tasklist` shape contract + renumbering |
-| 8 | `eval_smoke` | 3 | One-off / smoke | stash@{0} | Meta-canary for the eval CLI itself |
-| 9 | `installer_sync_drift` | 1 | Recurring CI/nightly | stash@{0} | `make verify-sync` doesn't regress |
-| 10 | `hook_latency_drift` | 3 | Recurring nightly | stash@{0} | Hook telemetry schema + latency budgets |
-| 11 | `agent_grounding_drift` | 2 | Recurring nightly | stash@{0} | Grounding agents drop bad citations |
-| 12 | `eval_cli_doc_parity` | 3 | On-PR + nightly | ✓ | Documented `eval run` flags stay in sync with `--help` |
-| 13 | `cli_eval_skill_contract` | 2 | On-PR + nightly | ✓ | `/sc:cli-eval` command + skill + agents stay wired |
-| 14 | `suite_schema_guard` | 2 | On-PR + nightly | ✓ | Every `suites/*.yaml` still loads + schema-validates |
+| # | Suite | Evals | Cadence | Purpose |
+|---|---|---|---|---|
+| 1 | `model_capability_matrix` | 8 | Recurring nightly | Compare model capability across 8 task categories |
+| 2 | `frontier_vs_cheap_combo` | 4 | One-off / on-demand | Frontier-vs-combo cost-quality A/B |
+| 3 | `adversarial_merge_consistency` | 3 | Recurring weekly | Inter-judge determinism of `/sc:adversarial` |
+| 4 | `freshness_blocks_unread_edit` | 3 | One-off baseline | Pre-edit freshness gate end-to-end |
+| 5 | `task_classification_contract` | 2 | One-off baseline | `/sc:task` first-output HTML marker |
+| 6 | `audit_wiring_guard` | 2 | One-off baseline | Audit pipeline never deletes wired files |
+| 7 | `tasklist_deterministic_shape` | 1 | One-off baseline | `/sc:tasklist` shape contract + renumbering |
+| 8 | `eval_smoke` | 3 | One-off / smoke | Meta-canary for the eval CLI itself |
+| 9 | `installer_sync_drift` | 1 | Recurring CI/nightly | `make verify-sync` doesn't regress |
+| 10 | `hook_latency_drift` | 3 | Recurring nightly | Hook telemetry schema + latency budgets |
+| 11 | `agent_grounding_drift` | 2 | Recurring nightly | Grounding agents drop bad citations |
+| 12 | `eval_cli_doc_parity` | 3 | On-PR + nightly | Documented `eval run` flags stay in sync with `--help` |
+| 13 | `cli_eval_skill_contract` | 2 | On-PR + nightly | `/sc:cli-eval` command + skill + agents stay wired |
+| 14 | `suite_schema_guard` | 2 | On-PR + nightly | Every `suites/*.yaml` still loads + schema-validates |
+| 15 | `workflow_vs_task_builder` | 27 | Manual / on-demand | Retrospective planning-quality comparison; companion execution required |
 
-| 15 | `workflow_vs_task_builder` | 27 | Manual / on-demand | Yes | Retrospective planning-quality comparison; companion execution required |
-
-**Current discovery: 88 expanded evals across 17 suites**, including
-`real` (18) and `post_release_command_contract` (4), which are not listed
-in this historical table. Verified with `uv run superclaude eval list --json`.
+**Current discovery: 87 expanded evals across 17 suites**, including
+`real` (17) and `post_release_command_contract` (4), which are not listed
+in this historical table. All 17 suites ship as YAML files in
+`src/superclaude/cli/eval/suites/`. Verified with `uv run superclaude eval list`.
 (Suites #12–#14 ship with the `/sc:cli-eval` skill.)
-
-### Restoring stashed suites
-
-Eight suites (#4–#11) were generated on branch `chore/task-graduation` and
-are preserved in `stash@{0}` (commit message
-`pre-PR75-review WIP`). To bring them into the current working tree:
-
-```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/
-# OR (less surgical, brings everything in the stash):
-git stash apply stash@{0}
-```
-
-`git stash apply` is non-destructive (the stash entry is preserved). Use
-`git stash pop stash@{0}` only when you're done with the stash entry.
 
 ---
 
@@ -211,7 +196,6 @@ by `freshness-pre-edit.sh:108-119`.
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/freshness_blocks_unread_edit.yaml
 uv run superclaude eval run --suite freshness_blocks_unread_edit --no-mcp
 ```
 
@@ -240,7 +224,6 @@ tier line.
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/task_classification_contract.yaml
 uv run superclaude eval run --suite task_classification_contract --no-mcp
 ```
 
@@ -268,7 +251,6 @@ Fixture seeded into HOME: a provider dir + `*_REGISTRY` dict + `Optional[Callabl
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/audit_wiring_guard.yaml
 uv run superclaude eval run --suite audit_wiring_guard --no-mcp
 ```
 
@@ -290,7 +272,6 @@ on 8 file-shape predicates plus exit 0.
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/tasklist_deterministic_shape.yaml
 uv run superclaude eval run --suite tasklist_deterministic_shape --no-mcp
 ```
 
@@ -320,8 +301,6 @@ the harness itself is broken before paying for a full run.
 **Sample invocation (the E2E test from this session):**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/eval_smoke.yaml
-
 # This is the actual E2E test that passed earlier — exit 0, 3 SKIPPED
 TMPHOME=$(mktemp -d) && HOME=$TMPHOME uv run superclaude eval run \
   --suite eval_smoke --no-pty --no-mcp --json; \
@@ -351,7 +330,6 @@ tree — ephemeral HOME would have no `src/` to compare against.
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/installer_sync_drift.yaml
 uv run superclaude eval run --suite installer_sync_drift --no-mcp
 ```
 
@@ -382,7 +360,6 @@ proxy: file presence + non-empty body).
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/hook_latency_drift.yaml
 uv run superclaude eval run --suite hook_latency_drift --no-mcp
 ```
 
@@ -406,7 +383,6 @@ get dropped and the suggested status drops to `partial`.
 **Sample invocation:**
 
 ```bash
-git stash apply stash@{0} -- src/superclaude/cli/eval/suites/agent_grounding_drift.yaml
 uv run superclaude eval run --suite agent_grounding_drift --no-mcp
 ```
 

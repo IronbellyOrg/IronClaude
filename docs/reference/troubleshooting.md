@@ -7,8 +7,8 @@ Quick fixes to advanced diagnostics for SuperClaude Framework issues.
 **Installation Verification:**
 
 ```bash
-python3 -m SuperClaude --version    # Should show 4.1.5
-SuperClaude install --list-components
+superclaude --version          # Should print: SuperClaude, version 5.0.0
+superclaude install --list     # List the framework components
 ```
 
 **Command Issues:**
@@ -22,9 +22,9 @@ SuperClaude install --list-components
 
 **Resolution Checklist:**
 
-- [ ] Version commands work and show 4.1.5
-- [ ] `/sc:` commands respond in Claude Code  
-- [ ] MCP servers listed: `SuperClaude install --list-components | grep mcp`
+- [ ] `superclaude --version` prints `SuperClaude, version 5.0.0`
+- [ ] `/sc:` commands respond in Claude Code
+- [ ] MCP servers show their install status: `superclaude mcp --list`
 
 ## Common Issues
 
@@ -33,36 +33,28 @@ SuperClaude install --list-components
 **Package Installation Fails:**
 
 ```bash
-# For pipx users
-pipx uninstall SuperClaude
-pipx install SuperClaude
-
-# For pip users
-pip uninstall SuperClaude
-pip install --upgrade pip
-pip install SuperClaude
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+superclaude install --force
 ```
+
+Install from the IronClaude repository, not from PyPI: the PyPI `superclaude`
+package is the upstream project, not this fork. To move an existing install to
+5.0.0, follow [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md).
 
 **Permission Denied / PEP 668 Error:**
 
 ```bash
 # Option 1: Use pipx (recommended)
-pipx install SuperClaude
+pipx install git+https://github.com/IronbellyOrg/IronClaude
 
-# Option 2: Use pip with --user flag
-pip install --user SuperClaude
-
-# Option 3: Fix permissions
+# Option 2: Fix permissions on the Claude config folder
 sudo chown -R $USER ~/.claude
-
-# Option 4: Force installation (use with caution)
-pip install --break-system-packages SuperClaude
 ```
 
 **Component Missing:**
 
 ```bash
-python3 -m SuperClaude install --components core commands agents modes --force
+superclaude install --force    # Reinstall the framework files, overwriting existing ones
 ```
 
 ### Command Issues
@@ -70,7 +62,7 @@ python3 -m SuperClaude install --components core commands agents modes --force
 **Commands Not Recognized:**
 
 1. Restart Claude Code completely
-2. Verify: `python3 -m SuperClaude --version`
+2. Verify: `superclaude --version` prints `SuperClaude, version 5.0.0`
 3. Test: `/sc:brainstorm "test"`
 
 **Agents Not Activating:**
@@ -81,29 +73,33 @@ python3 -m SuperClaude install --components core commands agents modes --force
 **Slow Performance:**
 
 ```bash
-/sc:analyze . --no-mcp               # Test without MCP servers
-/sc:analyze src/ --scope file        # Limit scope
+/sc:analyze src/auth --depth quick   # Analyze a smaller target with a quick pass
 ```
+
+To check whether MCP servers cause the slowdown, `/sc:troubleshoot` and
+`/sc:reflect` accept `--no-mcp`, which runs them with native tools only.
 
 ### MCP Server Issues
 
 **Server Connection Fails:**
 
 ```bash
-ls ~/.claude/.claude.json            # Check config exists
-node --version                       # Verify Node.js 16+
-SuperClaude install --components mcp --force
+claude mcp list                      # Registered servers and their connection state
+superclaude mcp --list               # Servers the installer knows, with install status
+node --version                       # Node.js 18+ for npm-based servers, 20+ for Auggie
+superclaude mcp --servers <name>     # Install or re-register one server
 ```
 
-**API Key Required (Magic/Morphllm):**
+User-scope registrations live in `~/.claude.json`.
+
+**API Key Required (Morphllm/Tavily):**
 
 ```bash
-export TWENTYFIRST_API_KEY="your_key"
-export MORPH_API_KEY="your_key"
-# Or use: /sc:command --no-mcp
+export MORPH_API_KEY="your_key"      # morphllm-fast-apply
+export TAVILY_API_KEY="your_key"     # tavily
 ```
 
-### Freshness Hook Issues (v4.3+)
+### Freshness Hook Issues
 
 The freshness hooks block `Edit`/`Write` against files Claude hasn't Read in
 the last 30 minutes. See [Context Freshness Hooks](../user-guide/freshness-hooks.md)
@@ -144,8 +140,7 @@ ls -t ~/.claude/settings.json.bak.* | head -1 | xargs -I{} cp {} ~/.claude/setti
 **System Analysis:**
 
 ```bash
-SuperClaude install --diagnose
-cat ~/.claude/logs/superclaude.log | tail -50
+superclaude doctor --verbose         # Plugin, command-to-skill and configuration checks
 ```
 
 **Component Analysis:**
@@ -158,10 +153,12 @@ grep -r "@" ~/.claude/CLAUDE.md      # Verify imports
 **Reset Installation:**
 
 ```bash
-SuperClaude backup --create          # Backup first
-SuperClaude uninstall
-SuperClaude install --fresh
+superclaude install --force          # Overwrite the installed framework files
 ```
+
+`superclaude install --force` overwrites edited core files, commands and agents
+in `~/.claude/` without a backup, so copy any file you changed first. There is
+no backup or uninstall command.
 
 ## Get Help
 
@@ -172,5 +169,5 @@ SuperClaude install --fresh
 
 **Community:**
 
-- [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
+- [GitHub Issues](https://github.com/IronbellyOrg/IronClaude/issues)
 - Include: OS, Python version, error message, steps to reproduce

@@ -32,7 +32,7 @@ This guide describes what the code does today. Where something is not implemente
 
 Given a memory directory `M`, it uses:
 
-```
+```text
 M/solutions_learned.jsonl      # one JSON object per line, append-only
 M/../mistakes/                 # sibling directory, default docs/mistakes/
 ```
@@ -79,7 +79,7 @@ What this means in practice:
 
 **Worked examples** (all computed from the rules above; the fourth pair is `error_message` only, with no `error_type` or `test_name`):
 
-```
+```text
 Stored:   ValueError | invalid port value N in config | test_load_config
 Current:  ValueError | invalid port value N in config file | test_load_config
 Shared 9 words / 10 distinct words = 0.90  -> match
@@ -202,4 +202,4 @@ Check the directory order above: the `memory_dir` argument, then `REFLEXION_OUTP
 
 ---
 
-**Questions?** Open an issue on GitHub (the former FAQ page, `docs/FAQ.md`, no longer exists).
+**Questions?** Open an issue on [`IronbellyOrg/IronClaude`](https://github.com/IronbellyOrg/IronClaude/issues) (`gh issue create --repo IronbellyOrg/IronClaude`). The former FAQ page, `docs/FAQ.md`, no longer exists.

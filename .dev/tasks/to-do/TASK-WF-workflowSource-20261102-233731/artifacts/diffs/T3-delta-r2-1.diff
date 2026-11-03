@@ -1,0 +1,35 @@
+--- a/docs/getting-started/upgrading.md
++++ b/docs/getting-started/upgrading.md
+@@ -88,12 +88,15 @@
+ 2. Installs codegraph 1.6.2: downloads the release for your platform, checks its
+    SHA-256, extracts it under `~/.codegraph/`, links `~/.local/bin/codegraph`
+    and registers it as a user-scope MCP server.
+-3. Retires old MCP registrations. It looks only at user-scope entries named
+-   `codebase-memory-mcp` and `serena`. It removes the ones IronClaude can prove
+-   it wrote and, once codegraph is ready, the remaining `serena` launcher entry
+-   and the `codebase-memory-mcp` entry that points at
+-   `~/.local/bin/codebase-memory-mcp`. Anything else is kept, and the reason
+-   (with a removal command) is printed. Each `claude` call has 10 seconds and the
++3. Retires old MCP registrations at user scope. It removes the
++   `codebase-memory-mcp` and `serena` entries IronClaude can prove it wrote.
++   Once codegraph is ready it also removes the `codebase-memory-mcp` entry that
++   points at `~/.local/bin/codebase-memory-mcp` and any uncustomised Serena
++   launcher (a stdio entry that runs `start-mcp-server` with no `env` or
++   `headers`), whatever user-scope name it is registered under, except
++   `serena-local`. Entries with their own `env` or `headers`, and anything that
++   is not one of these shapes, are kept, and the reason (with a removal command)
++   is printed. Each `claude` call has 10 seconds and the
+    whole step 15 seconds, and nothing in this step changes the exit code.
+ 
+ The retire step never touches:
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -8,7 +8,7 @@
+ 
+ ## Task 3 (item C-W3) — docs/getting-started/upgrading.md
+ 
+-- **C-W3 step 5 (refined).** Planned text: "old `codebase-memory-mcp`/`serena` user registrations that IronClaude wrote are removed; anything else is kept". Code: `src/superclaude/cli/install_retired_mcp.py:151-195` also removes, once codegraph is ready, the kind-B `codebase-memory-mcp` entry at `~/.local/bin/codebase-memory-mcp` and any remaining uncustomised `serena` launcher entry (not only proven IronClaude shapes); entries with their own `env`/`headers` are kept; only the names `codebase-memory-mcp` and `serena` are examined (`:200-203`), so `serena-local` is never touched. Written: the code-true removal and keep rules.
++- **C-W3 step 5 (refined).** Planned text: "old `codebase-memory-mcp`/`serena` user registrations that IronClaude wrote are removed; anything else is kept". Code: `src/superclaude/cli/install_retired_mcp.py:151-195` also removes, once codegraph is ready, the kind-B `codebase-memory-mcp` entry at `~/.local/bin/codebase-memory-mcp` and any remaining uncustomised `serena` launcher entry (not only proven IronClaude shapes); entries with their own `env`/`headers` are kept; once codegraph is ready, `classify_retired_entries` (`:274-282`) also examines every other user-scope name except `serena-local` and removes an uncustomised Serena launcher registered under it, so `serena-local` is the only name never touched. Written: the code-true removal and keep rules (corrected after review F1.1 of Task 3).
+ - **C-W3 step 4 (refined).** Planned `git fetch origin && git checkout v5.0.0`. Written `git fetch origin --tags` then `git checkout v5.0.0`, so the tag is present in a clone that fetched before the tag existed; same effect otherwise.
+ - **C-W3 step 12 (partly out of this task's scope).** The item also asks for links from `quick-start.md` and `common-issues.md`. Task 3 names only `installation.md` (already linked by Task 1) and `README.md` (added here as a short "Upgrade an existing installation" subsection); the `quick-start.md` and `common-issues.md` links are in the ACs of Task 5 (A-W2) and Task 27 (B-W2), so they were not edited here.
+ - **Dropped claim.** `installation.md` (Task 1) says `pipx upgrade` skips the reinstall while the version number is unchanged; that is pipx behaviour not verified against code or the transcript, so `upgrading.md` does not repeat it.

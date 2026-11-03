@@ -10,7 +10,7 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 2. [Architecture Overview](#architecture-overview) - System components and design
 3. [Context File Guidelines](#context-file-guidelines) - Standards and practices
 4. [Development Workflow](#development-workflow) - Git workflow and submissions
-5. [Contributing to Components](#contributing-to-components) - Agents, commands, modes
+5. [Contributing to Components](#contributing-to-components) - Agents and commands
 6. [File Validation](#file-validation) - Quality assurance
 7. [Getting Help](#getting-help) - Support and resources
 
@@ -23,7 +23,7 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 - Python 3.10+ and uv
 - Git for version control
 - Claude Code installed and working
-- Node.js 16+ (for MCP server configuration)
+- Node.js 18+ (for npm-based MCP servers; Auggie needs 20+)
 
 **Environment Setup:**
 
@@ -51,7 +51,7 @@ uv run superclaude install
 python3 --version  # Should be 3.10+
 
 # Check Node.js for MCP configuration
-node --version     # Should be 16+
+node --version     # Should be 18+ (20+ if you install Auggie)
 
 # Test Claude Code integration
 ls ~/.claude/      # Should show Claude Code directory
@@ -63,14 +63,14 @@ ls ~/.claude/      # Should show Claude Code directory
 
 SuperClaude is a **Context-Oriented Configuration Framework** - not executing software, but instruction files that Claude Code reads to modify its behavior.
 
-```
+```text
 IronClaude/
 ├── src/superclaude/       # Framework components (the source of truth)
 │   ├── core/             # CLAUDE.md, HOW-WE-WORK.md, RULES.md, PRINCIPLES.md
 │   ├── agents/           # Specialist agent definitions
 │   ├── commands/         # /sc: command files (behavioral instructions)
 │   ├── skills/           # Skill packages (SKILL.md + refs, rules, templates, scripts)
-│   ├── modes/            # Behavioral mode files (MODE_*.md)
+│   ├── modes/            # Mode files (MODE_*.md); not installed by superclaude install
 │   ├── mcp/              # MCP server docs (MCP_*.md) and configs/
 │   └── cli/              # superclaude CLI, including the install_*.py installers
 ├── docs/                 # Documentation (what you're reading)
@@ -82,12 +82,11 @@ IronClaude/
 - **Context Files**: .md instruction files that guide Claude Code behavior
 - **Agents**: Domain specialists (e.g., security-engineer.md, python-expert.md)
 - **Commands**: Workflow patterns (e.g., implement.md, analyze.md)
-- **Modes**: Interaction modifiers (e.g., brainstorming, introspection)
 - **MCP Integration**: Configuration for Model Context Protocol servers
 
 ### How It Works
 
-```
+```text
 User Input → Claude Code → Reads SuperClaude Context → Modified Behavior → Enhanced Output
 ```
 
@@ -175,10 +174,17 @@ Core philosophy and approach
 
    ```bash
    git checkout -b feature/your-feature-name
-   # Work on your changes
-   git add .
-   git commit -m "Add: descriptive commit message"
+   # Edit the source of truth under src/superclaude/ (never the .claude/ dev copies)
+   # Copy skills, agents, commands, hooks and templates into .claude/ for local testing
+   make sync-dev
+   # Confirm src/superclaude/ and .claude/ match (exits 1 on drift)
+   make verify-sync
+   # Stage the paths you changed by name
+   git add src/superclaude/agents/your-agent.md tests/your-area/
+   git commit -m "feat: descriptive commit message"
    ```
+
+   Stage only the paths you changed. Never stage `.claude/` contents: they are gitignored copies made by `make sync-dev`, and only `.claude/settings.json` is tracked. If `git add` asks for `-f` on a `.claude/` path, stop and make the change under `src/superclaude/` instead.
 
 3. **Submit Pull Request:**
 
@@ -202,7 +208,7 @@ Brief description of context file changes
 
 ## Type of Change
 - [ ] Bug fix in context files
-- [ ] New feature (agent, command, mode)
+- [ ] New feature (agent, command, skill)
 - [ ] Documentation improvement
 - [ ] Installation system enhancement
 
@@ -278,7 +284,7 @@ tools: Read, Write, Edit, Bash
 
 **Command Structure:**
 
-```markdown
+````markdown
 ---
 name: command-name
 description: Command purpose
@@ -296,11 +302,11 @@ personas: [architect, engineer]
 
 ## Usage
 Type in Claude Code conversation:
-```
 
+```text
 /sc:command-name [target] [--options]
-
 ```
+
 **Note**: This is a context trigger pattern, not a terminal command.
 
 ## Workflow Pattern
@@ -310,16 +316,7 @@ Type in Claude Code conversation:
 
 ## Examples
 Practical usage examples
-```
-
-### Adding New Modes
-
-**Mode Development:**
-
-- Define activation triggers
-- Specify behavioral modifications
-- Create interaction patterns
-- Test across different Claude Code scenarios
+````
 
 ## File Validation
 
@@ -351,8 +348,8 @@ find ~/.claude -name "*.md" | head -10
 # Verify context file format
 head ~/.claude/agents/python-expert.md
 
-# Test import system
-grep "@import" ~/.claude/CLAUDE.md
+# List the @ imports in the installed CLAUDE.md (expect @BASH_INSPECTION_POLICY.md)
+grep '^@' ~/.claude/CLAUDE.md
 ```
 
 ## Getting Help

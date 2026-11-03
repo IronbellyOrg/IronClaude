@@ -1,0 +1,185 @@
+--- a/docs/mcp/mcp-optional-design.md
++++ b/docs/mcp/mcp-optional-design.md
+@@ -6,7 +6,7 @@
+ 
+ ### Installation vs Optional Runtime Use
+ 
+-`superclaude install` installs framework files and does not install any MCP server. MCP servers are added separately with `superclaude mcp`, and every one of them is optional. If an MCP server is unavailable, the native-tool fallbacks below apply. See the [MCP installation guide](../user-guide/mcp-installation.md) for the commands.
++`superclaude install` installs the framework files and then installs and registers codegraph at user scope (`claude mcp add-json codegraph ... --scope user`). codegraph is a required install phase: if it fails, the framework files stay installed and `superclaude install` exits 1. Every other MCP server is optional and is added separately with `superclaude mcp`. If an MCP server is unavailable at runtime, the native-tool fallbacks below apply. See the [MCP installation guide](../user-guide/mcp-installation.md) for the commands.
+ 
+ The examples below describe **runtime fallback behavior**, not permission to suppress installation errors.
+ 
+@@ -28,8 +28,10 @@
+ 
+ ```yaml
+ Code Understanding:
+-  With MCP: Auggie (セマンティック検索、高速)
+-  Without MCP: Grep + Read (テキスト検索、確実)
++  With MCP:
++    - codegraph (構造: シンボル、呼び出し元、影響範囲; installed by default)
++    - Auggie (セマンティック検索)
++  Without MCP: Grep + Glob + Read (常に利用可能な下限)
+   Degradation: 機能維持、速度低下のみ
+ 
+ Complex Analysis:
+@@ -47,9 +49,9 @@
+   Degradation: 検索効率が若干低下
+ 
+ Memory:
+-  With MCP: Mindbase (自動管理、永続化)
+-  Without MCP: Session context only (セッション内のみ)
+-  Degradation: クロスセッション記憶なし
++  Store: plain markdown files under <project>/.superclaude/memory/ (no MCP needed)
++  Cross-session: PM Agent reads them at session start and writes them during work
++  Degradation: なし (MCPに依存しない)
+ ```
+ 
+ ## PM Agent Without MCPs
+@@ -62,15 +64,15 @@
+     - Git status ✅
+     - Read CLAUDE.md ✅
+     - Read docs/patterns/ ✅
+-    - Mindbase auto-load ⚡ (optional)
++    - Read .superclaude/memory/ ✅
+ 
+   Without MCPs:
+     - Git status ✅
+     - Read CLAUDE.md ✅
+     - Read docs/patterns/ ✅
+-    - Session context only ✅
++    - Read .superclaude/memory/ ✅
+ 
+-Result: 完全動作（クロスセッション記憶以外）
++Result: 完全動作（記憶はファイルなのでMCP不要）
+ 
+ Pre-Implementation:
+   With MCPs:
+@@ -90,6 +92,7 @@
+ During Implementation:
+   With MCPs:
+     - TodoWrite ✅
++    - codegraph structure lookups ⚡ (installed by default)
+     - Auggie code understanding ⚡ (optional)
+ 
+   Without MCPs:
+@@ -104,15 +107,15 @@
+     - Self-evaluation ✅
+     - docs/patterns/ update ✅
+     - docs/mistakes/ update ✅
+-    - Mindbase auto-save ⚡ (optional)
++    - Write .superclaude/memory/ ✅
+ 
+   Without MCPs:
+     - Self-evaluation ✅
+     - docs/patterns/ update ✅
+     - docs/mistakes/ update ✅
+-    - Session summary only ✅
++    - Write .superclaude/memory/ ✅
+ 
+-Result: 完全動作（クロスセッション学習以外）
++Result: 完全動作（クロスセッション学習もファイルで継続）
+ ```
+ 
+ ## Detection & Auto-Fallback
+@@ -135,7 +138,7 @@
+ Startup Check:
+   Method: List available MCP servers
+ 
+-  Available MCPs: [mindbase, auggie]
++  Available MCPs: [codegraph, auggie]
+   Missing MCPs: [context7, tavily]
+ 
+   → Auto-configure fallbacks
+@@ -176,19 +179,22 @@
+ 
+   Output: Same info, less curated
+ 
+-Mindbase MCP Unavailable:
+-  Impact: No cross-session memory
++codegraph MCP Unavailable:
++  Task: "Who calls authenticate()?"
+ 
+-  Fallback:
+-    - Use session context only
+-    - docs/patterns/ for knowledge
+-    - docs/mistakes/ for learnings
+-
+-  Limitation:
+-    - Can't recall previous sessions automatically
+-    - User can manually reference past work
+-
+-  Workaround: "Recall our conversation about X"
++  Attempt:
++    1. Try codegraph callers lookup
++    2. MCPNotAvailable error (or index not ready)
++    3. Fallback to Grep + Glob + Read
++
++  Output: Same answer, slower; graph answers are leads, not citations
++
++Cross-Session Memory:
++  Impact: None from MCP availability
++
++  Store:
++    - Plain markdown files under <project>/.superclaude/memory/
++    - Read at session start, written during work (PM Agent)
+ ```
+ 
+ ## Configuration
+@@ -196,12 +202,15 @@
+ ### MCP Enable/Disable
+ 
+ ```yaml
++# Illustrative design sketch only: no SuperClaude code reads this file
++# or these keys. Register or remove servers with `superclaude mcp` and
++# `claude mcp`.
+ User Configuration:
+-  Location: ~/.claude/mcp-config.json (optional)
++  Location: ~/.claude/mcp-config.json (illustrative)
+ 
+   {
+     "mcps": {
+-      "mindbase": "auto",      // enabled if available
++      "codegraph": "auto",     // enabled if available
+       "auggie": "auto",        // enabled if available
+       "context7": "disabled",  // explicitly disabled
+       "tavily": "enabled"      // explicitly enabled
+@@ -268,15 +277,16 @@
+   Expected: All core functionality works
+ 
+ Scenario 2: Partial MCPs Available
+-  Setup: Only Mindbase installed
++  Setup: Only codegraph installed (the install default)
+ 
+   Test Cases:
+-    - [ ] Session memory works (Mindbase)
+-    - [ ] Code search fallback (Grep)
++    - [ ] Code structure lookups work (codegraph)
++    - [ ] Semantic code search fallback (Grep)
+     - [ ] Analysis fallback (Native)
+     - [ ] Docs fallback (WebSearch)
++    - [ ] Session memory works (.superclaude/memory/ files)
+ 
+-  Expected: Memory works, others fallback
++  Expected: codegraph and memory work, others fallback
+ 
+ Scenario 3: MCP Becomes Unavailable
+   Setup: Start with MCP, MCP crashes mid-session
+@@ -309,16 +319,15 @@
+ Getting Started:
+   "Core runtime functionality has native fallbacks when MCPs are unavailable"
+   "MCP runtime usage is optional"
+-  "Normal installation provisions no MCP server; MCP installs are optional"
++  "superclaude install installs and registers codegraph (required phase); every other MCP server is optional via superclaude mcp"
+ 
+ Installation Guide:
+   Default Setup:
+     - Clone repo
+-    - Run installer
++    - Run installer (installs and registers codegraph)
+     - Start using; choose MCP tools or native runtime fallbacks
+ 
+   Enhanced Setup (Optional):
+-    - Install Mindbase (cross-session memory)
+     - Install Auggie (faster code understanding)
+     - Install Context7 (curated docs)
+     - Install Tavily (better search)

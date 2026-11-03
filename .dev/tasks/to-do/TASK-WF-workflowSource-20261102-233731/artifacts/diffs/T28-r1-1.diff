@@ -1,0 +1,173 @@
+--- a/docs/reference/troubleshooting.md
++++ b/docs/reference/troubleshooting.md
+@@ -7,8 +7,8 @@
+ **Installation Verification:**
+ 
+ ```bash
+-python3 -m SuperClaude --version    # Should show 4.1.5
+-SuperClaude install --list-components
++superclaude --version          # Should print: SuperClaude, version 5.0.0
++superclaude install --list     # List the framework components
+ ```
+ 
+ **Command Issues:**
+@@ -22,9 +22,9 @@
+ 
+ **Resolution Checklist:**
+ 
+-- [ ] Version commands work and show 4.1.5
+-- [ ] `/sc:` commands respond in Claude Code  
+-- [ ] MCP servers listed: `SuperClaude install --list-components | grep mcp`
++- [ ] `superclaude --version` prints `SuperClaude, version 5.0.0`
++- [ ] `/sc:` commands respond in Claude Code
++- [ ] MCP servers show their install status: `superclaude mcp --list`
+ 
+ ## Common Issues
+ 
+@@ -33,36 +33,28 @@
+ **Package Installation Fails:**
+ 
+ ```bash
+-# For pipx users
+-pipx uninstall SuperClaude
+-pipx install SuperClaude
+-
+-# For pip users
+-pip uninstall SuperClaude
+-pip install --upgrade pip
+-pip install SuperClaude
++pipx install --force git+https://github.com/IronbellyOrg/IronClaude
++superclaude install --force
+ ```
+ 
++Install from the IronClaude repository, not from PyPI: the PyPI `superclaude`
++package is the upstream project, not this fork. To move an existing install to
++5.0.0, follow [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md).
++
+ **Permission Denied / PEP 668 Error:**
+ 
+ ```bash
+ # Option 1: Use pipx (recommended)
+-pipx install SuperClaude
+-
+-# Option 2: Use pip with --user flag
+-pip install --user SuperClaude
++pipx install git+https://github.com/IronbellyOrg/IronClaude
+ 
+-# Option 3: Fix permissions
++# Option 2: Fix permissions on the Claude config folder
+ sudo chown -R $USER ~/.claude
+-
+-# Option 4: Force installation (use with caution)
+-pip install --break-system-packages SuperClaude
+ ```
+ 
+ **Component Missing:**
+ 
+ ```bash
+-python3 -m SuperClaude install --components core commands agents modes --force
++superclaude install --force    # Reinstall the framework files, overwriting existing ones
+ ```
+ 
+ ### Command Issues
+@@ -70,7 +62,7 @@
+ **Commands Not Recognized:**
+ 
+ 1. Restart Claude Code completely
+-2. Verify: `python3 -m SuperClaude --version`
++2. Verify: `superclaude --version` prints `SuperClaude, version 5.0.0`
+ 3. Test: `/sc:brainstorm "test"`
+ 
+ **Agents Not Activating:**
+@@ -81,29 +73,33 @@
+ **Slow Performance:**
+ 
+ ```bash
+-/sc:analyze . --no-mcp               # Test without MCP servers
+-/sc:analyze src/ --scope file        # Limit scope
++/sc:analyze src/auth --depth quick   # Analyze a smaller target with a quick pass
+ ```
+ 
++To check whether MCP servers cause the slowdown, `/sc:troubleshoot` and
++`/sc:reflect` accept `--no-mcp`, which runs them with native tools only.
++
+ ### MCP Server Issues
+ 
+ **Server Connection Fails:**
+ 
+ ```bash
+-ls ~/.claude/.claude.json            # Check config exists
+-node --version                       # Verify Node.js 16+
+-SuperClaude install --components mcp --force
++claude mcp list                      # Registered servers and their connection state
++superclaude mcp --list               # Servers the installer knows, with install status
++node --version                       # Node.js 18+ for npm-based servers, 20+ for Auggie
++superclaude mcp --servers <name>     # Install or re-register one server
+ ```
+ 
+-**API Key Required (Magic/Morphllm):**
++User-scope registrations live in `~/.claude.json`.
++
++**API Key Required (Morphllm/Tavily):**
+ 
+ ```bash
+-export TWENTYFIRST_API_KEY="your_key"
+-export MORPH_API_KEY="your_key"
+-# Or use: /sc:command --no-mcp
++export MORPH_API_KEY="your_key"      # morphllm-fast-apply
++export TAVILY_API_KEY="your_key"     # tavily
+ ```
+ 
+-### Freshness Hook Issues (v4.3+)
++### Freshness Hook Issues
+ 
+ The freshness hooks block `Edit`/`Write` against files Claude hasn't Read in
+ the last 30 minutes. See [Context Freshness Hooks](../user-guide/freshness-hooks.md)
+@@ -144,8 +140,7 @@
+ **System Analysis:**
+ 
+ ```bash
+-SuperClaude install --diagnose
+-cat ~/.claude/logs/superclaude.log | tail -50
++superclaude doctor --verbose         # Plugin, command-to-skill and configuration checks
+ ```
+ 
+ **Component Analysis:**
+@@ -158,11 +153,13 @@
+ **Reset Installation:**
+ 
+ ```bash
+-SuperClaude backup --create          # Backup first
+-SuperClaude uninstall
+-SuperClaude install --fresh
++superclaude install --force          # Overwrite the installed framework files
+ ```
+ 
++`superclaude install --force` overwrites edited core files, commands and agents
++in `~/.claude/` without a backup, so copy any file you changed first. There is
++no backup or uninstall command.
++
+ ## Get Help
+ 
+ **Documentation:**
+@@ -172,5 +169,5 @@
+ 
+ **Community:**
+ 
+-- [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
++- [GitHub Issues](https://github.com/IronbellyOrg/IronClaude/issues)
+ - Include: OS, Python version, error message, steps to reproduce
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -73,3 +73,11 @@
+ - **B-W1 "Related Documentation" footer (removed).** Correction 4 drops the `:184` `.claude/changelogs/README.md` reference; that line was the whole footer, so the footer and its preceding `---` were removed.
+ - **Pre-existing markdownlint violations (fixed).** MD032 (2), MD031 (4) fixed with blank lines. MD025 (frontmatter `title` plus the `# Changelog Maintenance Rules` H1) fixed with `<!-- markdownlint-disable-next-line MD025 -->` above the H1, keeping the heading the agent reads.
+ - **`make sync-dev` scope (note).** `sync-dev` does not copy `src/superclaude/rules/`; the rule reaches `~/.claude/rules/core/` through `superclaude install` (`install_user_setup.py` `install_rules`). `make sync-dev` and `make verify-sync` both exited 0 (`t26-verify-sync.log`).
++
++## Task 28 (item B-W3) — docs/reference/troubleshooting.md
++
++- **B-W3 correction 5 (extended).** Planned: drop Magic / `TWENTYFIRST_API_KEY`, keep `MORPH_API_KEY`. Code: `tavily` also declares `api_key_env: TAVILY_API_KEY` (`src/superclaude/cli/install_mcp.py:66-74`), next to `MORPH_API_KEY` for `morphllm-fast-apply` (`:57-65`). Written both keys; the heading is now "API Key Required (Morphllm/Tavily)". The old "Or use: /sc:command --no-mcp" line was removed (`--no-mcp` exists only on `/sc:troubleshoot` and `/sc:reflect`, `commands/troubleshoot.md:8,58`, `commands/reflect.md:103`), and that pointer was placed under "Slow Performance" instead.
++- **B-W3 correction 3 (replacement example).** Planned: remove `--no-mcp` / `--scope file` on `/sc:analyze`. Removing both left the "Slow Performance" block empty, so it now shows `/sc:analyze src/auth --depth quick`, which uses only declared flags (`commands/analyze.md:21`: `--focus --depth quick|deep --format`).
++- **B-W3 correction 6, Advanced Diagnostics (extended).** Planned: `:147-148` → `superclaude doctor --verbose`. Besides `--diagnose`, the block also ran `cat ~/.claude/logs/superclaude.log`; no code writes that file (grep for `superclaude.log` in `src/superclaude` finds nothing), so the line was removed rather than kept beside `doctor --verbose`.
++- **B-W3 correction 6, Reset Installation (extended).** Besides replacing `backup`/`uninstall`/`install --fresh` with `superclaude install --force` (as the item says, stating there is no backup or uninstall command), a note was added that `--force` overwrites edited core files, commands and agents without a backup (`install_core.py:68`, `install_commands.py:55`, `install_agents.py:51`; same finding as Task 8).
++- **B-W3 correction 4 (extended).** Kept `superclaude mcp --list` next to `claude mcp list`: its listing shows "installed / not installed" per server (`install_mcp.py:1319-1345`), which is the MCP-state check correction 1 names.

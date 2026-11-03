@@ -1,0 +1,56 @@
+--- a/KNOWLEDGE.md
++++ b/KNOWLEDGE.md
+@@ -254,7 +254,7 @@
+ 
+ ### Operational hazard for future devs
+ 
+-`superclaude` is installed via pipx, which performs a real-file copy of the package into a venv at `/config/.local/share/pipx/venvs/superclaude/lib/python3.12/site-packages/` (NOT an editable install). `pipx reinstall superclaude` is REQUIRED to propagate any IronClaude validator-source edit to the system binary. `make install` only refreshes the project's local `.venv/`; it does NOT touch the system-wide `superclaude` binary. The pipx install metadata at `/config/.local/share/pipx/venvs/superclaude/pipx_metadata.json` records `package_or_url: /config/workspace/IronClaude` — verify this before running `pipx reinstall` to ensure the cached source is correct.
++`superclaude` is installed via pipx, which copies the package into its own pipx venv (NOT an editable install), so a source edit in the checkout does not reach the system-wide `superclaude` binary on its own. To pick up local source edits, run `./update.sh` from the checkout: it runs `pipx install --force ./`, then `superclaude install --force`, `make sync-dev` and `superclaude doctor`. `pipx install --force ./` from the checkout root alone refreshes only the binary. Do not rely on `pipx reinstall`: it reinstalls from the spec pipx recorded at the original install, which is the remote git URL for a standard install, not your checkout. `make install` only refreshes the project's local `.venv/` (`uv pip install -e ".[dev]"`); it does NOT touch the system-wide `superclaude` binary.
+ 
+ Secondary hazard: the roadmap pipeline's `remediate` step may attempt cosmetic edits to roadmap.md when phantom_id findings persist — if those edits land on a file whose byte-identity is invariant (as in this case, where roadmap.md L657-L665 is the canonical anchor), they violate downstream contracts. The patched validator no longer emits the false positives that would trigger this cosmetic remediation.
+ 
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -23,7 +23,16 @@
+ 2. If the same test ID or lint rule + file:line is failing on `master`, it is **inherited** (acceptable for your PR).
+ 3. If the failure appears on your branch but NOT on the `master` baseline, it is **new** (must be fixed before merge).
+ 
+-When in doubt, run the same check locally on master (`git stash && git checkout master && <run check>`) and compare.
++When in doubt, run the same check locally on master in a separate worktree and compare. Do not use `git stash` for this: the stash stack is shared by every worktree and session of the repository, so another session can pop your changes.
++
++```bash
++# --detach: master is usually checked out in another worktree, and git refuses a second checkout of the same branch
++git worktree add --detach .dev/worktrees/master-check master
++cd .dev/worktrees/master-check
++<run check>
++cd -
++git worktree remove .dev/worktrees/master-check
++```
+ 
+ ### Pre-PR local checks
+ 
+@@ -41,6 +50,24 @@
+ - `uv run pytest tests/<changed-area>/ -v` — Pytest for the specific subtree your PR modifies (e.g. `tests/audit/` if you touched audit code). Faster than the full suite; catches functional regressions in the area you changed.
+ - `make verify-sync` — Drift check between `src/superclaude/` (source of truth for skills/agents/commands) and `.claude/` (the synced dev copies). If you edit `src/superclaude/skills/`, `src/superclaude/agents/`, or `src/superclaude/commands/`, run `make sync-dev` before this check.
+ 
++### Opening a PR
++
++This repository is a fork. PRs go to `IronbellyOrg/IronClaude`, never to the upstream parent `SuperClaude-Org/SuperClaude_Framework`. A bare `gh pr create` in a fork targets the parent repository by default.
++
++Open PRs from Claude Code with the `/sc:pr-submit` slash command, which opens the PR on the fork and monitors its reviews:
++
++```text
++/sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."
++```
++
++When `/sc:pr-submit` cannot run, pass the fork explicitly:
++
++```bash
++gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "..." --body "..."
++```
++
++Check that the returned URL starts with `https://github.com/IronbellyOrg/IronClaude/pull/`.
++
+ ### Disclaimer: social convention, not a CI-enforced gate
+ 
+ This rot-budget rule is a **social convention** agreed by maintainers, **NOT** a CI-enforced gate. CI will still pass PRs that violate the rot-budget if the underlying job is green (or if the underlying job has been failing on master and continues to fail at the same level). Enforcement relies on PR reviewers checking the rule during code review.

@@ -4,7 +4,7 @@
 
 **Last verified:** 2026-05-22 against `src/superclaude/cli/eval/` post-remediation (TASK-RF-20260522-153212).
 
-> This is the **task-oriented user guide**. For deep technical reference (manifest schema, hook telemetry, retry policy, retention policy), see the docs under [`docs/eval/`](../eval/). For the canonical design specification, see [`.dev/releases/current/cliEval/design-spec.md`](../../.dev/releases/current/cliEval/design-spec.md).
+> This is the **task-oriented user guide**. For deep technical reference (manifest schema, hook telemetry, retry policy, retention policy), see the docs under [`docs/eval/`](../eval/). To author or run suites from inside Claude Code, see [Authoring or running suites from Claude Code](#authoring-or-running-suites-from-claude-code).
 
 ---
 
@@ -23,6 +23,7 @@
 - [Coverage gate (FR-G5)](#coverage-gate-fr-g5)
 - [Reading the verbose summary line](#reading-the-verbose-summary-line)
 - [Common workflows](#common-workflows)
+- [Authoring or running suites from Claude Code](#authoring-or-running-suites-from-claude-code)
 - [Troubleshooting](#troubleshooting)
 - [Reference](#reference)
 
@@ -74,20 +75,22 @@ Verifies the host satisfies every HARD capability before you ever launch a run. 
 uv run superclaude eval doctor                          # green checklist, human-readable
 uv run superclaude eval doctor --json                   # deterministic machine-readable payload
 uv run superclaude eval doctor --no-mcp                 # skip MCP-server gates
-uv run superclaude eval doctor --check-coverage --suite real   # also run the FR-G5 matcher coverage gate
+uv run superclaude eval doctor --check-coverage --suite real   # wire the FR-G5 coverage gate marker into the payload
 uv run superclaude eval doctor --output-dir /tmp/eval-runs     # validate a candidate --output-dir against AC12
 uv run superclaude eval doctor --parallel 15            # also runs NFR-PERF2 free-RAM precheck
 ```
 
 **What it checks:**
+
 - `claude>=0.5.0`, `jq`, `make`, `git`, `~/.claude/` extant (HARD capabilities)
 - MCP-server availability (SOFT capabilities, unless `--no-mcp`)
 - `ptytest` vendoring marker
-- Optionally the FR-G5 hook-matcher coverage gate (`--check-coverage`)
+- Optionally, with `--check-coverage`, it wires the FR-G5 coverage gate marker into the payload (`eval doctor --help`: "full gate lands in M4 T04.14")
 - Optionally an `--output-dir` candidate against the AC12 scratch-root allowlist
 - Optionally a free-RAM precheck (NFR-PERF2) when `--parallel >= 15`
 
 **Exit codes:**
+
 - `0` — every HARD capability satisfied
 - `2` — at least one HARD capability failed, OR `--output-dir` escaped the allowlist, OR the host is not Linux
 
@@ -106,6 +109,7 @@ uv run superclaude eval list --suites-dir /path/to/manifests    # alternate suit
 ```
 
 **Exit codes:**
+
 - `0` — every discovered manifest loaded green (or no manifests found)
 - `2` — at least one manifest failed schema validation, eval-id regex, or capability resolution
 
@@ -126,6 +130,7 @@ uv run superclaude eval describe --suite real --eval E2.1       # single eval
 **`--suite` resolution order:** filesystem path → filename stem → `name:` field.
 
 **Exit codes:**
+
 - `0` — manifest validated and printed
 - `2` — schema rejection, id-regex rejection, capability rejection, missing suite (`SuiteNotFound`), or missing eval id (`EvalNotFound`)
 
@@ -189,6 +194,7 @@ cliEval pins exactly four canonical exit codes, declared in [`src/superclaude/cl
 Code `2` is the catch-all "harness refused to run / aborted before completing the run." The stderr line always identifies the specific cause via a typed exception class name (`ScratchRootViolation`, `SuiteNotFound`, `SchemaError`, `InvalidEvalId`, `UnresolvedCapability`, `CoverageGateFailed`, `DiskBudgetExceeded`, etc.).
 
 Cross-references:
+
 - Process-boundary contract: [`tests/cli/eval/test_exit_codes.py`](../../tests/cli/eval/test_exit_codes.py)
 - Canonical definitions: `src/superclaude/cli/eval/exit_codes.py`
 
@@ -200,7 +206,7 @@ Cross-references:
 
 `eval run` writes artifacts under the FR-G4 reproducible layout (anchored via `compose_run_dir`):
 
-```
+```text
 <output-dir>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/
 ├── summary.md          # human-readable run report (design-spec §9)
 ├── summary.json        # machine-readable, matches summary.schema.json
@@ -223,7 +229,7 @@ The `<run-id>` is a deterministic `<HHMMSSZ>-<8-hex>` string derived from the st
 
 Every filesystem write — per-eval `HOME`, per-eval working tree, the `--output-dir` target — must resolve under one of these allowed roots:
 
-```
+```text
 1. /tmp/eval-runs/             — canonical scratch root
 2. <repo>/.dev/eval-runs/      — repo-relative scratch root
 3. --output-dir <path>         — extends the allowlist for the current invocation only
@@ -248,15 +254,18 @@ For the full policy text and detailed allowlist semantics, see [`docs/eval/scrat
 The FR-G5 hook-matcher coverage gate enforces that **every** PostToolUse hook matcher pattern in `~/.claude/settings.json` is exercised by at least one eval in the suite under test. The bug PR #49 fixed was exactly this class of silent regression: a matcher pattern broke and no eval noticed because no eval issued a matching tool call.
 
 **When the gate runs:**
-- `eval doctor --check-coverage [--suite <name>]` — explicit preflight check
+
+- `eval doctor --check-coverage [--suite <name>]` — wires the FR-G5 coverage gate marker into the doctor payload (`eval doctor --help`: "full gate lands in M4 T04.14")
 - `eval run` — implicit at the top of every run, AFTER suite parse and BEFORE any worker is dispatched (so a coverage breach short-circuits without touching any per-eval HOME)
 
 **v1 coverage scope:** the three auggie-prefix matcher families:
+
 - `mcp__auggie__*`
 - `mcp__auggie-mcp__*`
 - `mcp__airis-mcp-gateway__*`
 
 **Failure modes:**
+
 - Missing matcher → `coverage_gate failed (missing matchers: <list>)` on stderr, exit `2`, plus a `coverage_missing:<pattern>` artifact under the run-dir
 - **Corrupt `settings.json` (post-H2 fix):** the gate now **fails closed** — parse errors return `CoverageResult(passed=False, parse_error=...)` instead of the previous silent-green path. A misconfigured host can no longer run as if all matchers were covered.
 
@@ -266,7 +275,7 @@ The FR-G5 hook-matcher coverage gate enforces that **every** PostToolUse hook ma
 
 When you pass `--verbose`, `eval run` prints a single human-readable line to stdout when the run finishes. The format (post-H3) renders the full DM-012 status taxonomy:
 
-```
+```text
 run <run-id>: <P>P/<F>F/<S>S/<E>E/<I>I/<T>T in <duration>s -> <output_dir>
 ```
 
@@ -332,6 +341,17 @@ uv run superclaude eval run --suite real --no-pty --verbose
 
 ---
 
+## Authoring or running suites from Claude Code
+
+The `/sc:cli-eval` slash command wraps this CLI inside a Claude Code session. Its first argument picks the pipeline:
+
+- `/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents opus,sonnet,haiku]` — author a new suite (propose, critique, debate, author, validate, document). The new manifest is checked with `superclaude eval describe --suite <stem>`.
+- `/sc:cli-eval run [--suite <name>] [--eval <id>]` — pick an existing suite from a menu, confirm the exact `superclaude eval run` invocation and its safety flags, then watch the live run and get a report.
+
+The command adds no flags to `superclaude eval`; every run it starts uses the options documented above. See `~/.claude/commands/sc/cli-eval.md` for the full option table.
+
+---
+
 ## Troubleshooting
 
 ### `exit 2` with no clear stderr line
@@ -371,6 +391,7 @@ Expected on the current code path — the production lifecycle executor hasn't s
 ## Reference
 
 **Source modules:**
+
 - [`src/superclaude/cli/eval/commands.py`](../../src/superclaude/cli/eval/commands.py) — Click subcommand definitions, `eval_group`, `eval_run`, `eval doctor`, `eval list`, `eval describe`
 - [`src/superclaude/cli/eval/exit_codes.py`](../../src/superclaude/cli/eval/exit_codes.py) — canonical exit-code values
 - [`src/superclaude/cli/eval/config.py`](../../src/superclaude/cli/eval/config.py) — `EvalConfig`, `SCRATCH_ROOT_POLICY`, `resolve_scratch_root`
@@ -380,17 +401,15 @@ Expected on the current code path — the production lifecycle executor hasn't s
 - [`src/superclaude/cli/eval/reporter.py`](../../src/superclaude/cli/eval/reporter.py), [`run_report.py`](../../src/superclaude/cli/eval/run_report.py) — artifact writers
 
 **Deep technical reference:**
+
 - [`docs/eval/scratch-roots.md`](../eval/scratch-roots.md) — authoritative AC12 / OPS-002 policy text
 - [`docs/eval/runtime.md`](../eval/runtime.md) — runtime architecture
 - [`docs/eval/retention.md`](../eval/retention.md) — retention policy
 - [`docs/eval/retry.md`](../eval/retry.md) — retry policy
 - [`docs/eval/validation-commands.md`](../eval/validation-commands.md) — validation commands
-- [`docs/eval/release-checklist.md`](../eval/release-checklist.md) — release process
-
-**Specifications:**
-- [`.dev/releases/current/cliEval/design-spec.md`](../../.dev/releases/current/cliEval/design-spec.md) — canonical design spec (FR-G1 … FR-G6, FR-CLI1 … FR-CLI4, FR-SCH1, FR-SCH2, etc.)
 
 **Tests pinning these contracts:**
+
 - `tests/cli/eval/test_exit_codes.py` — process-boundary exit-code contract
 - `tests/cli/eval/test_scratch_root_allowlist.py` — AC12 enforcement
 - `tests/cli/eval/test_eval_id_regex.py` — FR-SCH2 schema regex
