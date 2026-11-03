@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-orcaWorkerContra-20261103-012232
+plan_path: ./TASK-WF-orcaWorkerContra-20261103-012232.md
+source_path: ./source.md
+source_origin: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md
+unresolved:
+  - "Advisory reflect pre-review verdict FAIL with 2 blocking findings: the Constraint at TL:21 conflicts with Task 4's copy into the sc-recommend skill folder, and Task 1's wider baseline log already holds 8 failing tests, so citing it can block the final archive. Per the Wave 4 rule the workflow did not edit the plan; the fixes must be made before the first /sc:implement start."
+  - "2026-11-03, owner-approved hand edit (plan version 2): applied the 2 blocking fixes and the 10 should-fix fixes from the reflect report, plus the recheck's N-01 to N-06. An independent recheck passed after one fix pass: .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/plan-fix-recheck.md. The 7 minor findings (D-009 to D-015) and 3 recheck notes remain open."

@@ -1,0 +1,21 @@
+input_tree_sha256: 37429a7fd98446f68f3ccbfa0fa50709fba4dc4fec5e4f34ac17ff7aa4e68875
+file_count: 9
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+    sha256: dfc38d1bd3841d34c0585e9d35dfc85f6c6dc7a54ca6aaa4a9d0eab1e12c5732
+  - path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+    sha256: 7d70f1df967901f63704641b0a035c5196979a8611010620ce0a08d1b3a6d975
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: CLAUDE.md
+    sha256: 469305ccd434b946f87a5f063286efc050ac7f06fafe360ba0c364a734be4c9a
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: 56710865289278974d9a440a3b9d10dbc51b607af44c2d38c23ae6c4e472021e
+  - path: scripts/build_superclaude_plugin.py
+    sha256: eb15218457daf0201e53b60cfc91dc4edc2452f12c024e8b909e5f51a8cd6967
+  - path: src/superclaude/cli/install_core.py
+    sha256: 6c90ef3d2742d348c46b92626dab91d8b90ec6604a958224a1ca57bc2feb38b7
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: 82d53b38ab0d7e1aa47ac6cf194279545f66302f6bf478358ea03bdda8ed8c18
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 56710865289278974d9a440a3b9d10dbc51b607af44c2d38c23ae6c4e472021e

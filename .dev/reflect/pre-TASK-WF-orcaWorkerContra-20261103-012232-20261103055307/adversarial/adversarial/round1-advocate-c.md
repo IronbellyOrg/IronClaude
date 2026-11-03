@@ -1,0 +1,84 @@
+# Round 1 Advocate: Variant C (reviewer 3, refactorer, FAIL)
+
+Citation key as in `diff-analysis.md`: `A:N`, `B:N`, `C:N` are variant-card lines; `TL:N` is the plan; `SRC:N` is `source.md`; `qa.md:N` is `~/.claude/skills/sc-implement-protocol/refs/qa.md`. Every line cited below was opened in this round.
+
+## Position summary
+
+The merged verdict should be FAIL with one blocking finding, R3-F1: the plan's own Constraint (TL:21, "P0 edits no command, skill or agent file") contradicts a mandatory write in Task 4 (TL:90, checked by `cmp` at TL:93), no repair can satisfy both, and the executor has two gates that can turn one literal reading into a halt. The fix is one sentence and puts back the spec's own wording (SRC:220, "no command edits"). C also brings the most should-fix coverage, but it missed U-001 (installed-path rule) and R2-1 (AC-0.8), and both belong in the merged list.
+
+## Steelman
+
+**Variant A (analyzer, PASS).** A is the most environment-grounded card. It is the only card that checked Task 7's inputs, `/opt/Orca` and the profile file (A:110-112). It verified the installer manifest and the `KNOWN_CORE_FILES` set-equality test (A:107-109, A:134). It found the one repo-rule defect no other card saw: the installed-path rule (R1-F4, A:67-85). It also gives the concrete off-spec phrase "at most 10" (R1-F1; verified: TL:56 and TL:112 say "at most 10", SRC:122 says "maximum of 10 inputs" and "never exceeds 10"). The best case for its PASS on R3-F1 runs like this. TL:21 cites its own authority, "no command edits" (SRC:220), so its intent is command files. TL:24 says that HOW-WE-WORK.md "and their plugin copies" may describe the coordinator side, so the plan expects the plugin copy to receive Orca text. Task 4 is the more specific instruction and should govern the general one. A reviewer who reads the whole plan would see an expected, spec-mandated copy (SRC:212, SRC:299), not a breach.
+
+**Variant B (qa, PASS).** B is the only card that states the Constraints-versus-tasks check outright and walks the closed interrupt list (B:80-85, matching qa.md:276-288). It found a false statement in the Constraints: AC-0.8 does not exist (R2-1; verified: TL:19 names AC-0.8, and SRC:298-305 run AC-0.1 to AC-0.7 then AC-0.9, with P1 starting at AC-1.1 on SRC:306). It also found the cross-plan handoff gap to the live plan's phase report (R2-2; SRC:238, SRC:303-304). The strongest form of B's "no breach" claim for R3-F1: in this repo, a "skill file" usually means a skill's `SKILL.md`, and the file Task 4 writes is a byte copy of a core document that only happens to sit in a `refs/` folder. On that reading no Constraint is breached, and B's halt-path analysis holds.
+
+**Strongest case that R3-F1 is not blocking (combined).** (1) TL:24 names "their plugin copies". (2) TL:21's parenthetical limits its source to "no command edits". (3) B4 needs a reviewer to judge that "the diff violates" the Constraint (qa.md:52), and a reviewer applying the task's own instruction is unlikely to call the mandated output a breach. (4) My card's self-confidence was 0.6 for exactly this reason (C:209-212), and my calibrator called blocking "conditional on a reviewer reading the constraint literally" (C:223).
+
+## Strengths claimed
+
+1. **R3-F1 is a literal, unrepairable contradiction in the plan itself.** TL:21: "P0 edits no command, skill or agent file". TL:90: "copy the file byte for byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`". TL:93 makes the `cmp` an acceptance check. Dropping the copy fails TL:93, and keeping it keeps the breach. No repair satisfies both, so a confirmed finding ends in `ladder-end` or a `dispute` halt (qa.md:280-281).
+2. **The target is part of a skill package by the repo's own words.** `tests/commands/test_routing_plugin_parity.py:3-4`: "the guide ships inside the plugin's sc-recommend skill as refs/HOW-WE-WORK.md". The same folder holds `plugins/superclaude/skills/sc-recommend/SKILL.md` (Glob). This undercuts the "skill file means only SKILL.md" reading.
+3. **Severity is derived mechanically, not by intent.** The parent's Read-back for B4 checks only that "the quoted text is byte-present in the plan Constraints or a task instruction" (qa.md:61). The reviewer's label is never read (qa.md:79). Any confirmed `yes` is `blocking` (qa.md:81). The inherited cap does not save it: Task 4's new section in the plugin copy is text absent from `$start`, so its origin is `new`, not `inherited` (qa.md:154, qa.md:166).
+4. **A second gate exists that does not depend on the Task 4 reviewer.** The diff analysis added this and I adopt it: the managed FINAL reads "the plan's `## Constraints`" and returns `issues` when "a plan `## Constraints` item is violated" (qa.md:310), which ends as `E-ARCHIVE-BLOCKED` (qa.md:286). Two independent model readings each get a chance to read TL:21 literally.
+5. **The plan made the conflict; the spec did not.** SRC:220 says only "(no command edits)" and requires "its two mirrored copies". SA-5 (SRC:212) says the guide's "two mirrored copies are updated as the repo requires". The plan widened the wording to "skill or agent". This is drift by the plan from its source, which is why I classed it as drift (C:9).
+6. **C's should-fix set covers the plan's other self-contradictions.** R3-F2 (TL:22 vs TL:58), R3-F3 (TL:104 vs TL:45/TL:61, with the FINAL "a later change contradicts it" route, qa.md:310), and R3-F9 (TL:15 "every copy" vs TL:90 leaving the CLAUDE.md copy unchanged) are all internal-consistency defects of the same kind. Neither A nor B checked Constraint-by-task consistency systematically (A:105-118; B's check at B:81-82 missed TL:21 vs TL:90).
+7. **C names maintainability risks that later phases inherit.** R3-F4: `make verify-sync` covers skills, agents, commands, hooks and templates, not core (Makefile sections cited at C:81-85), so an added plugin core copy would go stale; `tests/commands/test_impact_command.py:308-309` shows the repo already pins a plugin core copy (CODEGRAPH.md) by test, which is the pattern to follow. R3-F7 and R3-F8 make the P0 test extendable by data, not by rewriting, which AC-1.1 needs (SRC:306: "Each later phase extends the list").
+8. **R3-F6's ASCII risk is real.** `tests/core/test_how_we_work_routing_table.py:341` is `test_guide_is_ascii_except_the_ruling_example`, and the spec text that Task 4 will paraphrase uses non-ASCII characters (for example the `→` mapping arrows at SRC:72). A section copied from the spec fails that test.
+
+## Weaknesses identified in others
+
+1. **B's central claim is false on the text.** B:81-82: "no task instruction breaches the plan's own Constraints". TL:21 against TL:90 and TL:93 is a direct counterexample. B lists "quoted-constraint-breach" as a halt path (B:83) but does not test TL:21 against Task 4.
+2. **A never states the Constraints-versus-tasks check.** A:112 says "I found no blocking defect", but A's self-audit (A:105-118) lists no check of the Constraints block against task bodies. A's PASS on R3-F1 is by silence, not by argument.
+3. **Both PASS cards rely on a lenient reading they never state.** Neither cites TL:24 or the "no command edits" parenthetical. The diff analysis says the same (diff-analysis.md:141). An unstated lenient reading is not evidence that two independent reviewers will share it.
+4. **B's coverage is thin.** Three findings (B:7-57). B missed the Task 6 phase problem (R1-F3 / R3-F5, verified at TL:125 vs SRC:305), the "at most 10" off-spec phrase (TL:112 vs SRC:122), and the installed-path rule (U-001). B's R2-3 is largely redundant, because TL:69 already tells the executor to read the build script, as B's own calibrator notes (B:96).
+5. **A's R1-F5 under-weights the precedent.** A says core is not distributed (A:91-93), which is true for the build script (`scripts/build_superclaude_plugin.py:75`). But `plugins/superclaude/core/` already holds six `.md` core files (Glob: RESEARCH_CONFIG, BUSINESS_PANEL_EXAMPLES, RULES, PRINCIPLES, BUSINESS_SYMBOLS, CODEGRAPH), one is pinned by a test (`test_impact_command.py:309`), and the spec's own AC-C1 already excludes `plugins/superclaude/core/WORKER-CONTRACT.md` by name (SRC:252). The spec expects the copy may exist. So the copy is a live option, and R3-F4's sync risk applies.
+6. **A's R1-F3 and C's R3-F5 overlap, but A's fix leaves the keying problem open.** A's closed reason format (A:65-66) fixes the phase slot. It does not say how entries are keyed, and line-number keys break on the roughly 121 hit sites at any later edit (C:100-101).
+
+## Concessions
+
+1. **R3-F1's halt is conditional.** It needs one model reading TL:21 literally. TL:24 and the "no command edits" parenthetical give a lenient reader a clear hook. My 0.6 self-confidence (C:5) was honest about that. I hold "blocking" because the contradiction cannot be repaired inside the plan, two gates can confirm it, and the fix is one sentence. A merged list that grades it "must fix before execution" with a stated probability would capture the same thing.
+2. **My card did not cite the managed FINAL route** (qa.md:310, qa.md:286). The diff analysis found it. It strengthens R3-F1, but the omission is mine.
+3. **I missed U-001.** A's installed-path finding is real. The repo rule covers core files (`CLAUDE.md:74`, `CLAUDE.md:76`) and says package code "is NOT installed" and "Do not add new references to them from a primitive" (`CLAUDE.md:87`). SRC:59 carries `src/superclaude/cli/install_core.py:36,56,65-70`, and TL:22 tells the executor to restate SRC 2.1-2.3. My self-audit never checked this.
+4. **I missed R2-1 (AC-0.8 phantom) and R1-F2 (Task 8 evidence files).** Both are verified: TL:19 versus SRC:298-306, and TL:157 versus TL:47, TL:72 and TL:93, which name no evidence artifacts.
+5. **R3-F3 is the general mechanism; A's R1-F1 is the concrete instance.** A found the actual off-spec phrase and I did not. Merge them, with A's instance as the lead evidence. My calibrator was right that R3-F3 is an intra-plan inconsistency (C:226). The concrete part (TL:112 claims "as written in section 2.3" for wording SRC:122 lacks) is drift. The general part is class `none`.
+6. **R3-F6 cites the wrong line for the heading slice.** `test_how_we_work_routing_table.py:290` is not the `"### 3.14 "` to `"## 4. "` slice; that slice is at line 1091 (Grep). The ASCII part (line 341) stands.
+7. **R3-F1 and R3-F2 share one mechanism, and my split grading is not sharp** (C:224). R3-F2 is weaker because SRC:84 brings the section 3 flags into section 2.3 by reference and SRC:59 says "including its brief template". I keep R3-F2 at should-fix and would accept minor.
+8. **R3-F10 is partly covered.** TL:19 already gives AC-C4 to the coordinator at commit time. Keep it minor; it could be folded into R2-2's handoff fix.
+9. **R3-F5 duplicates R1-F3.** A's grounding on D3 (a) (SRC:61, SRC:174, SRC:201, SRC:224) is stronger on the phase slot. Merge them as one should-fix with A's reason slots and my keying rule.
+
+## Positions on diff points
+
+| Point | Preferred variant or merged position | Reason with citation |
+|---|---|---|
+| S-001 (verdict) | C: FAIL, 1 blocking (R3-F1) | TL:21 vs TL:90/TL:93 cannot both hold; B4 Read-back is byte-presence only (qa.md:61); any confirmed yes is blocking (qa.md:81). |
+| S-002 / S-003 (counts, severity spread) | Merged list, deduplicated | Union after merging R1-F3+R3-F5 and R1-F1+R3-F3; A and C each add unique items, B adds R2-1 and R2-2. |
+| S-006 (executor rules as evidence) | C | Severity in this executor is derived from qa.md:41-81, so a finding that claims or denies a halt should cite it. |
+| S-007 (where a Constraints defect is filed) | Merged: file under the colliding task, cross-reference Constraints | The halt fires in the task's review (qa.md:52); B's `tasks: [0]` is fine for R2-1, which collides with no task. |
+| S-008 (coverage) | Merged | No card files on Task 7; A's self-audit (A:110-112) is the only check that its inputs exist. |
+| C-001 (Task 6 phase slot) | Merged R1-F3 + R3-F5, should-fix, drift | TL:125 adds "the phase that converts its command"; SRC:305 asks only for "an explicit allowlist with a reason". Use A's reason slots (A:65-66) and C's path/verb/line-text keys (C:108-110). |
+| C-002 (Task 3 evidence) | A's evidence, plus SRC:252 and the existing plugin core files | Build script line 75 copies no core; the parity test says plugin installs get no core (`test_routing_plugin_parity.py:3`); but six plugin core files exist and SRC:252 anticipates the copy. Minor. |
+| C-003 (Task 5 phrases) | Merged, A's instance leads, should-fix | TL:112 claims "as written in section 2.3" for "at most 10"; SRC:122 says otherwise. General risk per C:52-59. |
+| C-004 (verify-sync baseline) | C, minor | TL:33-35 records no verify-sync baseline; TL:96 makes AC-C2 an acceptance check. |
+| C-005 (routing-guide tests) | C, should-fix, with the corrected line 1091 | ASCII test at line 341; heading slice at line 1091. Each failure costs a repair round on Task 4. |
+| X-001 | C | See Strengths 1-5. A and B rely on an unstated lenient reading. |
+| X-002 | C: blocking, conditional, must fix before execution | Two gates (Task 4 QA via qa.md:52/61; managed FINAL via qa.md:310/286); one-line fix restores SRC:220's wording. |
+| X-003 | C: should-fix (accept minor) | TL:22 limits the file to 2.1-2.3; TL:58 adds 3.1 flags and a section 6 marker; SRC:59 and SRC:84 weaken but do not remove the conflict, because nothing in 2.3 covers the "from P1" marker. |
+| X-004 | Merged: copy is a live option; R3-F4 stays conditional should-fix | A's build-script evidence and C's precedent (`plugins/superclaude/core/` holds six core files; `test_impact_command.py:309`; SRC:252) are both true. Task 3 should cite both; if a copy is added, Task 5 pins it with a byte-identity test. |
+| U-001 (installed paths) | Accept A, should-fix, High value | `CLAUDE.md:74,76,87` cover core files and forbid new references to package code; SRC:59 carries `src/superclaude/cli/install_core.py:36,...`; TL:22 says "restates"; the Constraints (TL:17-27) do not carry the rule, so neither per-task QA nor FINAL will catch it. Not blocking: nothing halts, and the defect is in shipped text, not run flow. |
+| U-002 (Task 8 evidence files) | Accept A, should-fix | TL:157 needs an evidence file per check; TL:47, TL:72 and TL:93 name none for AC-0.1 to AC-0.3; an absent evidence artifact is `ac-outcome-missing=yes` (qa.md:85). |
+| U-003 (AC-0.8 phantom) | Accept B, should-fix, drift | TL:19 names AC-0.8; SRC:298-306 has none. |
+| U-004 (live-plan handoff) | Accept B, minor | SRC:238 and SRC:303-304 put results in the phase report; TL:154 does not hand them over. Fold R3-F10's re-staging step into the same fix. |
+| U-005 (matrix omissions) | Accept B as note | Bookkeeping only; B says it is harmless here (B:61). |
+| U-006 (R3-F1) | C, blocking | As X-002. Fix: "P0 edits no command file, no SKILL.md and no agent file; the only file written under a skills directory is the byte-for-byte copy of HOW-WE-WORK.md that Task 4 makes" (C:26-28). |
+| U-007 (R3-F2) | C, should-fix | As X-003. |
+| U-008 (R3-F4) | C, should-fix, conditional on Task 3 adding the copy | verify-sync does not cover core; the repo already pins a plugin core copy by test. |
+| U-009 (R3-F7) | C, minor | SRC:306 requires each later phase to extend a positive list. |
+| U-010 (R3-F8) | C, minor | Template flags drift when P1 changes command flags; the routing guide already has this kind of check (`test_how_we_work_routing_table.py:258`, per C:152). |
+| U-011 (R3-F9) | C, minor | TL:15 "every copy" vs TL:90 leaving the CLAUDE.md copy unchanged. |
+| U-012 (R3-F10) | C, minor, merge with U-004 | Partly covered by TL:19. |
+
+## Shared-assumption responses
+
+- **A-009: ACCEPT.** `src/superclaude/cli/install_core.py:30-32` reads `def install_core_files(target_path: Path = None, force: bool = False) -> Tuple[bool, str]`, so TL:72's keyword call and `ok, msg` unpacking match. The installer copies every `*.md` in `core/` (SRC:59), so the new file is picked up without another change.
+- **A-010: ACCEPT.** I ran `git diff --numstat "$(git merge-base master HEAD)" -- src/superclaude/core/HOW-WE-WORK.md | awk '$2 != 0'` and it printed nothing; the merge base is `c118b5a5`. The check compares against the merge base, so a later master move without a rebase does not change it, and a rebase moves the base with it. The branch's working-tree changes (git status at session start) do not touch HOW-WE-WORK.md.
+- **A-011: ACCEPT.** I ran the SRC:246-253 pipeline read-only on the current tree and it printed nothing. Every file this plan writes with Orca text is excluded by name (SRC:250-253), and Task 4 leaves `src/superclaude/core/CLAUDE.md` unchanged (TL:90), so only an unplanned edit could make AC-C1 fail in Task 4 or Task 8.

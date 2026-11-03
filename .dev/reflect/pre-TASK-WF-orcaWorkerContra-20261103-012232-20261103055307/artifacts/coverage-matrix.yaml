@@ -1,0 +1,1642 @@
+schema: sc-reflect/coverage-matrix (Wave 1B, UC-1)
+algorithm_ref: ~/.claude/skills/sc-reflect-protocol/refs/coverage-mapping.md
+spec: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md
+spec_line_count: 451
+tasklist: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md
+tasklist_task_ids:
+- T1
+- T2
+- T3
+- T4
+- T5
+- T6
+- T7
+- T8
+pass1_count: 0
+pass1_note: 'ID_REGEX \b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b over source.md: zero hits (spec labels WC-, SA-, AC-, D are outside ID_REGEX).'
+pass2_note: Pass 2 reuses the 101 quote-pinned rows enumerated from the same spec on 2026-11-02 (spec line count unchanged; only lines 59, 73, 84, 238, 285, 286, 301, 306 changed). Quotes on changed lines
+  were re-extracted (INF-007, INF-025, INF-072, INF-077) and four rows were added for new requirement text (INF-102..105). Every quote was re-validated against the current source.md.
+parsed_count: 0
+inferred_count: 105
+matcher:
+  rule: 'containment: case-fold, tokenize [a-z0-9]+([-_.''][a-z0-9]+)*, strip stopwords, unique content words; ratio = |quote_words & task_words| / |quote_words|; match when ratio >= 0.6 against one task
+    item; best ratio wins, first task in tasklist order on ties'
+  stopwords:
+  - a
+  - about
+  - above
+  - after
+  - am
+  - an
+  - and
+  - are
+  - as
+  - at
+  - be
+  - because
+  - been
+  - before
+  - being
+  - below
+  - between
+  - but
+  - by
+  - can
+  - could
+  - did
+  - do
+  - does
+  - during
+  - either
+  - for
+  - from
+  - had
+  - has
+  - have
+  - if
+  - in
+  - inside
+  - into
+  - is
+  - may
+  - might
+  - must
+  - neither
+  - nor
+  - of
+  - 'off'
+  - 'on'
+  - onto
+  - or
+  - out
+  - outside
+  - over
+  - per
+  - shall
+  - should
+  - so
+  - than
+  - that
+  - the
+  - then
+  - through
+  - to
+  - under
+  - until
+  - up
+  - via
+  - was
+  - were
+  - when
+  - whether
+  - while
+  - will
+  - with
+  - within
+  - without
+  - would
+  - yet
+  deferral_policy: deferred_by_tasklist is recorded for transparency only (tasklist Constraints line 19 defers P1-P4); it is never counted as a match
+rows:
+- id: INF-001
+  label: 2.1 Worker run
+  quote: '**Worker run**: a session that received an Orca preamble carrying a Task ID and a Dispatch ID. Only such a session may send lifecycle messages; a session the user started, inside or outside Orca,
+    is an ordinary session'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:54
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3889
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-002
+  label: 2.1 Unattended mode
+  quote: 'The mode is selected only by the flag (decision D1, section 9: option (c) as amended). No command detects Orca, its preamble or its environment.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:55
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7222
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-003
+  label: 2.1 Flag parse rule
+  quote: '**Flag parse rule**: `--unattended` counts only as a standalone argument token outside any quoted argument.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:56
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5455
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-004
+  label: 2.1 Person-mode refusal
+  quote: '**Person-mode flags are refused**: under `--unattended`, every command refuses the flags that exist to involve a person: `--interactive`, `--format interactive` (explain), `--mode socratic` (business-panel),
+    `--watch` (test), `--monitor 1` (pr-submit).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:57
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.381
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-005
+  label: 2.1 Report directory
+  quote: '**Report directory**: the directory that holds the worker contract (WC-4). Under `--unattended` the brief passes exactly one: either the command''s own existing directory-valued output flag (`--output
+    <dir>` or `--output-dir <dir>`), or the new flag `--report-dir <dir>` (for a command without such a flag, or a brief that does not pass it).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:58
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.6923
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-006
+  label: 2.1 Contract file (location)
+  quote: '**Contract file**: one shared document, proposed as `src/superclaude/core/WORKER-CONTRACT.md`, installed to `~/.claude/WORKER-CONTRACT.md`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:59
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5833
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-007
+  label: 2.1 Contract file (preamble is authority)
+  quote: For the worker-session duties (WC-3, WC-5, WC-7, WC-12, WC-13 and heartbeats) it states only the IronClaude-specific rule (outcome mapping from `worker_status`, including WC-5's P0 brief override,
+    top-level only, ask only when the brief allows it) and points to the dispatch preamble as the authority for Orca verb syntax and heartbeat cadence; it never copies them
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:59
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.8056
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-008
+  label: 2.1 Contract file (per-command Unattended mode section)
+  quote: Each changed command adds a short `## Unattended mode` section that lists only its own gate resolutions and report file and points to the installed contract path, so the shared rules are written
+    once.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:59
+  phase: P1-P4
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.625
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-009
+  label: 2.1 Brief guard
+  quote: '**Brief guard** (worker session, from P1): it applies only in a session whose current prompt carries a live Orca preamble with Task and Dispatch IDs (see "Worker run"). Before invoking anything,
+    the worker checks every `Command:` line of its brief (section 2.3, "Brief layout"), and only those lines.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:60
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5312
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-010
+  label: 2.1 Never-as-worker list
+  quote: '**Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard` (section 4), plus `/sc:pr-submit` while the answer to D3 keeps it off workers.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:61
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7222
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-011
+  label: 2.1 Nested propagation rule
+  quote: '**Nested propagation rule**: under `--unattended`, a command that invokes another `/sc:` command or protocol skill, through the Skill tool or the Agent tool, passes `--unattended` when the invoked
+    command accepts it at this phase, together with its own report directory `<caller report-dir>/nested/<command>-<n>/` (WC-4, WC-11).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:62
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.6786
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-012
+  label: WC-1
+  quote: WC-1 | **No prompt before the agent is ready.** Nothing in the launch path (wrapper, hook, startup command) may wait on a person before Claude's input box is ready.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:69
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3529
+  best_ratio_task: T7
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: P0 live plan
+- id: INF-013
+  label: WC-2
+  quote: WC-2 | **No person-blocking step in unattended mode.** Under `--unattended` the command never calls `AskUserQuestion`, never ends its turn on a chat question or `[yes / no]` offer, and never says
+    STOP AND WAIT.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:70
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-014
+  label: WC-3
+  quote: WC-3 | **Questions go to the coordinator, not to a local prompt.** The brief fixes the policy for a blocked gate; under `ask the coordinator` the worker applies the eligibility test below and makes
+    no other choice.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:71
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2857
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-015
+  label: WC-4
+  quote: 'WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<report-dir>/return-contract.yaml`, where `<report-dir>` is the one report directory
+    the brief passes (section 2.1): either the command''s own directory-valued `--output` / `--output-dir`, or `--report-dir`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:72
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7308
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-016
+  label: WC-5
+  quote: WC-5 | **Outcome mapping.** The worker sends `worker_done` exactly once from its own top-level session.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:73
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5833
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-017
+  label: WC-6
+  quote: WC-6 | **Every retry is a new Task.** A Task's brief cannot change after creation (`task-update` changes only `--status` and `--result`, `task-update --help` line 3), and a re-run into the first
+    attempt's directories could mix its files with the retry's.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:74
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4231
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-018
+  label: WC-7
+  quote: WC-7 | **Run at the top level, never inside a subagent.** The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:75
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4375
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-019
+  label: WC-8
+  quote: WC-8 | **No Orca fan-out from inside a command.** A command never calls `worker-start`, `dispatch` or `task-create`.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:76
+  phase: P0
+  matched_task_ids:
+  - T7
+  match_method: containment
+  ratio: 0.6
+  best_ratio_task: T7
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-020
+  label: WC-9
+  quote: WC-9 | **No outward action from a worker; local commits only by grant.** Under `--unattended` every outward default (push, merge into a shared branch, PR, GitHub post, install on a shared or real
+    target, VM, paid external run) is off, and no brief can turn it on (D4); the coordinator performs those actions (section 2.3).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:77
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3889
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-021
+  label: WC-10
+  quote: WC-10 | **Liveness during long waits.** The worker sends heartbeats at the cadence its preamble sets (5 minutes in current preambles).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:78
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-022
+  label: WC-11
+  quote: WC-11 | **Parallel-safe writes.** Two workers in one worktree must never write the same file.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:79
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5455
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-023
+  label: WC-12
+  quote: WC-12 | **Coordinator follow-ups are pulled, not pushed.** The worker runs `check` at natural checkpoints and once before `worker_done`; if `check` returns `consumer_fenced` it stops without sending
+    `worker_done`.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:80
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2222
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-024
+  label: WC-13
+  quote: WC-13 | **No Orca fan-out from the worker session.** The worker's top-level session never calls `worker-start`, `dispatch` or `task-create`, Orca's low-level dispatch, or `orca-cli` `worktree create
+    --agent` or `agent launch`, at any depth setting.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:81
+  phase: P0
+  matched_task_ids:
+  - T7
+  match_method: containment
+  ratio: 0.7391
+  best_ratio_task: T7
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-025
+  label: 2.3 Brief contents
+  quote: 'For each Task the coordinator''s brief states: the exact command line, including `--unattended` where the command accepts it at this phase, and every flag section 3 lists as required, written
+    as a `Command:` line in the layout below; the report directory, unique to this Task, so the contract path is known before dispatch (WC-4, WC-11); the blocked-gate policy line, `On a blocked gate: report
+    blocked` or `On a blocked gate: ask the coordinator` (WC-3); whether the end-of-Task local commit is authorized, quoting the user''s instruction word for word (D4); at P0 only, the command''s report
+    file and the outcome rule AC-0.4 gives for it (WC-5)'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:84
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5439
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-026
+  label: 2.3 Brief layout
+  quote: '**Brief layout.** The brief puts the preamble-facing instructions and the guard line before the commands, and gives each command its own labelled `Command:` line in run order (for example `Command:
+    /sc:load ...`, then the converted command), so the Task text never starts with `/sc:`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:86
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5417
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-027
+  label: 2.3 Guard line
+  quote: 'Guard line: `Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed
+    with a body starting "guard refused:".`'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:86
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-028
+  label: 2.3 Feature and child worktrees
+  quote: '**Feature worktree and child worktrees.** Every worktree is created by Orca at Orca''s default location, never with raw `git worktree add` and never under `.dev/worktrees/`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:88
+  phase: P0
+  matched_task_ids:
+  - T2
+  match_method: containment
+  ratio: 0.7333
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-029
+  label: 2.3 Git and GitHub ownership
+  quote: '**Git and GitHub ownership.** The coordinator performs every git and GitHub outward action, and every install, VM or paid run, in its own conversation, only when the user''s instruction names
+    that action, and confirms with the person at the moment of action unless that instruction is in its live conversation (`sk/sc-post-release-protocol/SKILL.md:351`).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:90
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2857
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-030
+  label: 2.3 Fork-only target
+  quote: 'Every such action targets `IronbellyOrg/IronClaude`: never the SuperClaude upstream, and never through Orca''s issue or PR linking while Orca records the project as the upstream.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:90
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3125
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-031
+  label: 2.3 Review before push
+  quote: Before any push that would publish worker commits the person has not seen, the coordinator shows them to the person and pushes only on the person's go; no earlier pre-authorization waives this.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:90
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.35
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-032
+  label: 2.3 Reading a result
+  quote: '**Reading a result before anything depends on it.** Orca settles a Task on any valid `worker_done` (`CAPS:77`) and does not start ready Tasks itself (`CAPS:92`), so the coordinator decides what
+    runs next:'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:92
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4583
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-033
+  label: 2.3 partial result
+  quote: '`partial`: dependents do not start until the coordinator has read the contract''s `report_path` and recorded, in its own run notes, whether the partial deliverable is usable; an unusable one is
+    handled like `failed`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:94
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.35
+  best_ratio_task: T5
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-034
+  label: 2.3 failed or blocked result
+  quote: '`failed` or `blocked`: dependents do not start; the coordinator retries per WC-6, answers per the example below, or reports the failure to the person.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:95
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2308
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-035
+  label: 2.3 Guard-refusal result
+  quote: 'No contract, and a `worker_done --outcome failed` body that starts `guard refused:`: a brief-guard refusal; nothing ran. The coordinator fixes the brief in a new Task (WC-6), never re-creates
+    it unchanged, and allows at most 2 brief fixes for the same work (3 attempts); a third refusal escalates to the person.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:96
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3939
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-036
+  label: 2.3 Dependent creation
+  quote: Every dependent Task is created only after all its inputs have settled and been admitted under the bullets above, with `--deps` naming the Tasks that actually succeeded (an original Task or its
+    replacement).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:97
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3889
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-037
+  label: 2.3 Only own Tasks
+  quote: The coordinator starts only Tasks it created itself. A ready Task it did not create is not started; it is reported to the person with its spec text.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:98
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5294
+  best_ratio_task: T5
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-038
+  label: 2.3 Implement freeze
+  quote: '*Freeze.* A plan is frozen when its latest implement contract is `blocked`, or `failed` with any STOP code other than `E-RESUME-NEEDED`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:101
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2857
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-039
+  label: 2.3 Lifting the freeze
+  quote: '*Lifting the freeze.* The freeze lifts only when the person''s explicit hand-back is recorded in the coordinator''s run notes **and** the ledger shows the matching state:'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:107
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  best_ratio_task: T6
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-040
+  label: 2.3 Check before resume
+  quote: '*Check before a resume Task under (c).* The coordinator reads the ledger and the worktree, never edits either, and dispatches only if all of the following hold.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:112
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-041
+  label: 2.3 Resume placement
+  quote: '*Placement.* The resume Task starts in the halted worktree by selector (`worker-start --worktree path:<absolute worktree path>`), never in a new or child worktree.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:120
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4615
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-042
+  label: 2.3 Fan-in rule
+  quote: The coordinator plans N no larger than the merge command's maximum of 10 inputs (`cmd/adversarial.md:15`); a re-run replaces its input rather than adding one, so the admitted count never exceeds
+    10. Create the merge Task only when at least 2 inputs are admitted, and list every dropped input and its reason in its brief.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:122
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4118
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-043
+  label: '3.1 ready commands: brief constraints (brief template content)'
+  quote: These run as workers now only if the brief uses the stated flags and avoids the inputs that trigger a gate; the worker reports the named file until Phase 1 adds the contract.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:137
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4286
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  member_lines:
+  - 141
+  - 142
+  - 143
+  - 144
+  - 145
+  - 146
+  - 147
+  - 148
+  - 149
+  - 150
+  - 151
+  - 152
+  deferral_target: null
+- id: INF-044
+  label: Section 3 changes, P1 group
+  quote: Fix its own contract filename to `<output>/adversarial/return-contract.yaml` (P1); the worker contract is `<output>/return-contract.yaml` and lists that file in `artifacts` (WC-4)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:141
+  phase: P1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.6429
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  member_lines:
+  - 141
+  - 142
+  - 143
+  - 146
+  - 147
+  - 152
+  - 159
+  - 161
+  - 162
+  - 166
+  - 167
+  - 168
+  - 171
+  - 172
+  - 183
+  deferral_target: later phase plan
+- id: INF-045
+  label: Section 3 changes, P2 group
+  quote: Under `--unattended`, make `--remediate` follow the existing headless auto-accept rule instead of the `[yes / no]` prompt (P2)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:148
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3846
+  best_ratio_task: T4
+  deferred_by_tasklist: true
+  source: inferred
+  member_lines:
+  - 142
+  - 148
+  - 149
+  - 150
+  - 151
+  - 152
+  - 160
+  - 163
+  - 164
+  - 165
+  - 170
+  - 175
+  - 176
+  - 177
+  - 180
+  - 181
+  - 182
+  deferral_target: later phase plan
+- id: INF-046
+  label: Section 3 changes, P4 group
+  quote: on `E-HALT-QA` or `E-NO-RULING`, stop with the halt recorded in the ledger and the contract as blocked, carrying the Ruling question, the STOP code in `reason`
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:169
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2308
+  best_ratio_task: T5
+  deferred_by_tasklist: true
+  source: inferred
+  member_lines:
+  - 169
+  - 173
+  - 174
+  deferral_target: later phase plan
+- id: INF-047
+  label: Section 3 changes, P3 group
+  quote: the "Resume? [Y/n]" prompt is replaced by the explicit resume flag (resume only when passed); `--interactive` refused
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:178
+  phase: P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3636
+  best_ratio_task: T6
+  deferred_by_tasklist: true
+  source: inferred
+  member_lines:
+  - 178
+  - 179
+  - 184
+  - 185
+  deferral_target: later phase plan
+- id: INF-048
+  label: SA-1
+  quote: Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today, including the auggie-review PR posting default and every `AskUserQuestion`.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:208
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2632
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-049
+  label: SA-2
+  quote: No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:209
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4167
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-050
+  label: SA-3
+  quote: The new contract file and report files are written only in unattended mode or when the caller passes the new output flag.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:210
+  phase: P1-P4
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.8462
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-051
+  label: SA-4
+  quote: 'Command-file edits in Phases 1-3 are additive: a new `## Unattended mode` section and new flags.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:211
+  phase: P1-P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  best_ratio_task: T4
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-052
+  label: SA-5
+  quote: '`src/superclaude/` stays the source of truth; `.claude/` copies come from `make sync-dev` and are never staged. The routing guide gains an Orca section without changing any existing routing row,
+    and its two mirrored copies are updated as the repo requires.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:212
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5926
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-053
+  label: SA-6
+  quote: The existing headless rule of `/sc:reflect` under `claude --print` keeps working exactly as today; `--unattended` reuses it and does not replace it.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:213
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.375
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-054
+  label: 6 Phase gating
+  quote: Each phase is independently useful and leaves standalone behaviour unchanged (section 5). Later phases do not start until the earlier phase's checks in section 7 pass.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:216
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3684
+  best_ratio_task: T6
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-055
+  label: 6 Phase P0
+  quote: Write `src/superclaude/core/WORKER-CONTRACT.md` (the contents section 2.1 assigns to it, plus a coordinator brief template listing the section 3.1 flags), add it to `KNOWN_CORE_FILES`, add an Orca
+    section to `HOW-WE-WORK.md` and its two mirrored copies, and add the static test file `tests/skills/test_worker_contract.py` (proposed name). Then run three ready commands as real Orca workers, invoked
+    directly, to close evidence gap 1.4 (1), and confirm the two Orca behaviours later checks rely on (AC-0.5, AC-0.6).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:220
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.434
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-056
+  label: 6 Phase P1
+  quote: The WC-4 contract, the report-directory rule, the flag parse rule and the person-mode refusal (section 2.1) for the P1 commands only; `--unattended` is added to a command only in the phase that
+    converts its gates, so no command accepts the flag while it can still prompt; output flags for commands that lack one; the small fixes to ready commands.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:221
+  phase: P1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.625
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-057
+  label: 6 Phase P2
+  quote: Each default-on gate resolves per its section 3 row; WC-10 wait splitting for cli-eval.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:222
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4167
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-058
+  label: 6 Phase P3
+  quote: Reconcile command and skill where they disagree; make memory writes parallel-safe.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:223
+  phase: P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3
+  best_ratio_task: T6
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-059
+  label: 6 Phase P4
+  quote: 'Apply the approved D2-D4 outcomes: the implement halt path, post-release with every outward step off (D4), pr-submit as a worker only if D3 (b) is chosen.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:224
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2778
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-060
+  label: '6 After P0: no command accepts --unattended'
+  quote: none (smoke runs use each command's existing flags)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:230
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.375
+  best_ratio_task: T2
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-061
+  label: 6 One written plan per phase
+  quote: Each phase is one written plan executed under the repo's level-3 route (`/sc:workflow`, then `/sc:implement` when execution is requested), because each touches more than one source file (hard limit
+    at `src/superclaude/core/CLAUDE.md:66` and `src/superclaude/core/HOW-WE-WORK.md:22`).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:238
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4074
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-062
+  label: AC-C1
+  quote: '**AC-C1** (SA-2, WC-8). Pass: prints nothing.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:244
+  phase: all
+  matched_task_ids:
+  - T8
+  match_method: containment
+  ratio: 0.6667
+  best_ratio_task: T8
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-063
+  label: AC-C2
+  quote: '**AC-C2** (SA-5). Pass: exits 0.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:256
+  phase: all
+  matched_task_ids:
+  - T4
+  match_method: containment
+  ratio: 0.8
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-064
+  label: AC-C3
+  quote: '**AC-C3**. Before the phase starts, save the output below as the baseline; after the phase, run it again.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:261
+  phase: all
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7778
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-065
+  label: AC-C4
+  quote: '**AC-C4** (`CLAUDE.md:16`). Pass: prints nothing.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:266
+  phase: all
+  matched_task_ids:
+  - T8
+  match_method: containment
+  ratio: 0.6667
+  best_ratio_task: T8
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-066
+  label: AC-C5
+  quote: '**AC-C5** (SA-4: edits are additive). Run for every command file the phase edits without a named defect fix.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:271
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  best_ratio_task: T8
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-067
+  label: AC-C6
+  quote: '**AC-C6** (D5, non-goal 2). Pass: prints exactly one line per Orca profile and every line is `"nestedWorkerMaxDepth":1`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:276
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5714
+  best_ratio_task: T7
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-068
+  label: 7.2 Live worker check (steps 1-7)
+  quote: For each command under test, the coordinator runs the steps below with one worker in a fresh disposable worktree that holds the phase's edits, so step 6 can attribute every change to the worker
+    under test (WC-11 allows sharing a worktree in normal use; the check does not).
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:282
+  phase: all
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3846
+  best_ratio_task: T8
+  deferred_by_tasklist: true
+  source: inferred
+  member_lines:
+  - 282
+  - 283
+  - 284
+  - 285
+  - 286
+  - 287
+  - 288
+  - 289
+  - 290
+  - 291
+  - 292
+  - 293
+  deferral_target: P0 live plan
+- id: INF-069
+  label: AC-0.1
+  quote: AC-0.1 | `uv run python -c "from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES"`, then the install check in the block below the table, then
+    `uv run pytest tests/skills/test_worker_contract.py -q`, which asserts the file states each rule section 2.1 assigns to it and the section 2.3 dependent-creation and fan-in rules
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:298
+  phase: P0
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7273
+  best_ratio_task: T1
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-070
+  label: AC-0.2
+  quote: AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; tests
+    pass
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:299
+  phase: P0
+  matched_task_ids:
+  - T4
+  match_method: containment
+  ratio: 0.7
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-071
+  label: AC-0.3
+  quote: 'AC-0.3 | The deletions check in the block below the table, on `src/superclaude/core/HOW-WE-WORK.md` | prints nothing: no existing routing line removed (SA-5)'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:300
+  phase: P0
+  matched_task_ids:
+  - T4
+  match_method: containment
+  ratio: 0.7647
+  best_ratio_task: T4
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-072
+  label: AC-0.4
+  quote: 7.2 live check on `/sc:troubleshoot "<real symptom>" --output-dir <dir>` (no `--fix`, no `--depth deep`), `/sc:workflow "<small change>" --handoff none`, `/sc:adversarial --compare <two files>
+    --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-7 pass.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:301
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2778
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: P0 live plan
+- id: INF-073
+  label: AC-0.5
+  quote: 'AC-0.5 | WC-1: `worker-start` with the user''s normal launch setup (the same shell wrapper, hooks and startup command a person''s sessions use), timed | exit 0, `state: ready`, and the start returns
+    in under 45 s.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:302
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.16
+  best_ratio_task: T6
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: P0 live plan
+- id: INF-074
+  label: AC-0.6
+  quote: AC-0.6 | Read one AC-0.4 transcript with `worker-read --source transcript --json` and record whether tool calls appear by name (for example `Bash`, `Agent`, `AskUserQuestion`)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:303
+  phase: P0
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2941
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: P0 live plan
+- id: INF-075
+  label: AC-0.7
+  quote: 'AC-0.7 | Read-only trace in Orca''s installed code, starting from the AC-0.7 block below the table, of (1) which calls check nesting depth: `worker-start`, `dispatch`, `task-create`, low-level
+    dispatch, `worktree create --agent`, `agent launch`; and (2) what depth Orca gives a session the person opens (expected 0, `CAPS:97`).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:304
+  phase: P0
+  matched_task_ids:
+  - T7
+  match_method: containment
+  ratio: 0.9118
+  best_ratio_task: T7
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-076
+  label: AC-0.9
+  quote: 'AC-0.9 | Write-verb audit: `test_worker_contract.py` scans the skills, commands and agents under `src/superclaude/` (the installed primitives'' source) for git and gh write verbs (`add`, `commit`,
+    `push`, `merge`, `worktree add/remove`, `stash`, `update-ref`, `gh pr`, `gh api` posts)'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:305
+  phase: P0
+  matched_task_ids:
+  - T6
+  match_method: containment
+  ratio: 0.8929
+  best_ratio_task: T6
+  deferred_by_tasklist: false
+  source: inferred
+  deferral_target: null
+- id: INF-077
+  label: AC-1.1
+  quote: The test also asserts that `WORKER-CONTRACT.md` states the brief guard (its four refusal conditions, the three exact reason texts, and the `guard refused:` prefix for case 3), the never-as-worker
+    list and the nested propagation rule
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:306
+  phase: P1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.9167
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-078
+  label: AC-1.2
+  quote: AC-1.2 | 7.2 live check on each P1 command with `--unattended` and its report directory (`--output <dir>` or `--report-dir <dir>`)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:307
+  phase: P1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.6429
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-079
+  label: AC-1.3
+  quote: AC-1.3 | For two P1 commands, run once with no `--unattended` and no new output flag, then `git status --short`.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:308
+  phase: P1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.7143
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-080
+  label: AC-1.4
+  quote: AC-1.4 | `grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:309
+  phase: P1
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3333
+  best_ratio_task: T8
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-081
+  label: AC-1.5
+  quote: 'AC-1.5 | WC-4 missing report directory: `/sc:analyze src/ --unattended` with neither `--output` nor `--report-dir`, as a 7.2 live check whose steps 3-4 are replaced by this row''s conditions'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:310
+  phase: P1
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4762
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-082
+  label: AC-1.6
+  quote: 'AC-1.6 | Person-mode refusal (section 2.1): `/sc:test --watch --unattended --report-dir <dir>` as a 7.2 live check'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:311
+  phase: P1
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-083
+  label: AC-1.7
+  quote: AC-1.7 | Brief-guard refusals (section 2.1), one 7.2 live check per case, with steps 3-4 replaced by this row's conditions.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:312
+  phase: P1
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4375
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-084
+  label: AC-1.8
+  quote: 'AC-1.8 | WC-9 commit grant: a commit-authorized worker started with `--worktree new-child --base-branch <feature branch>`, with the four records of AC-4.2 taken before dispatch and after the run'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:313
+  phase: P1
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2778
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-085
+  label: AC-2.1
+  quote: AC-2.1 | `test_worker_contract.py` gains one assertion per gate listed in the section 3 row, for example the auggie-review section names both `--no-post-pr` and `--no-remediation-offer`; for cli-eval,
+    the eval wait step names a single-wait limit of at most 240 s (WC-10)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:314
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2692
+  best_ratio_task: T5
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-086
+  label: AC-2.2
+  quote: 'AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check whose brief carries `On a blocked gate: report blocked` and input that hits the gate (for example `/sc:tdd "auth" --unattended --output
+    <file> --report-dir <dir>` with a bare topic; `/sc:cli-eval run --unattended --report-dir <dir>` with no `--suite`).'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:315
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3667
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-087
+  label: AC-2.3
+  quote: AC-2.3 | Happy-path run per P2 command with every required flag in the brief | 7.2 passes with `--outcome succeeded`
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:316
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4615
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-088
+  label: AC-2.4
+  quote: AC-2.4 | `/sc:auggie-review <PR> --unattended --output-dir <dir>` on a fork PR; before and after, `gh api repos/IronbellyOrg/IronClaude/pulls/<PR>/reviews --jq length` and `.../pulls/<PR>/comments
+    --jq length`
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:317
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2778
+  best_ratio_task: T6
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-089
+  label: AC-2.5
+  quote: AC-2.5 | A person runs `/sc:cli-eval run` and `/sc:cleanup <dir> --interactive` in a plain session (manual check)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:318
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3077
+  best_ratio_task: T4
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-090
+  label: AC-2.6
+  quote: 'AC-2.6 | WC-3 and WC-6, the section 2.3 worked example run live: T1 hits the tdd gate and reports blocked; the coordinator creates T2 with the answer and new directories; then a third Task T3
+    with the same bare-topic input and `On a blocked gate: ask the coordinator`, where the coordinator answers the `ask`.'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:319
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2667
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-091
+  label: AC-2.9
+  quote: 'AC-2.9 | Brief guard, discriminating run: `/sc:tdd "auth" --output <file> --report-dir <dir>` (bare topic, no `--unattended`) as a 7.2 live check, with steps 3-4 replaced by this row''s conditions'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:320
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.44
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-092
+  label: AC-2.8
+  quote: 'AC-2.8 | `--unattended` parse rule (section 2.1): `/sc:troubleshoot "the worker ignores --unattended"` run by a person in a plain session (manual check)'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:321
+  phase: P2
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-093
+  label: AC-3.1
+  quote: AC-3.1 | `test_worker_contract.py` asserts that `cmd/validate-roadmap.md` and `sk/sc-validate-roadmap-protocol/SKILL.md` name the same report filename
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:322
+  phase: P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.25
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-094
+  label: AC-3.2
+  quote: AC-3.2 | `/sc:roadmap <spec> --unattended --output <dir>` with an existing `<dir>/.session-memory.md` and no resume flag | starts fresh, no `[Y/n]` in the transcript, contract written
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:323
+  phase: P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3684
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-095
+  label: AC-3.3
+  quote: AC-3.3 | `test -d` on the default target in `cmd/validate-tests.md`; `/sc:validate-tests --report <path> --unattended --report-dir <dir>`
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:324
+  phase: P3
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2857
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-096
+  label: AC-3.4
+  quote: AC-3.4 | Two workers in one worktree each run `/sc:save --unattended --report-dir <own dir>`
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:325
+  phase: P3
+  matched_task_ids:
+  - T1
+  match_method: containment
+  ratio: 0.6923
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-097
+  label: AC-4.1
+  quote: 'AC-4.1 | `/sc:implement <plan> --unattended --report-dir <dir>` with the brief line `On a blocked gate: ask the coordinator` (the policy most likely to relay a Ruling), on a plan with one acceptance
+    criterion that cannot be met'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:326
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.3478
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-098
+  label: AC-4.2
+  quote: AC-4.2 | `/sc:post-release <version> --unattended --output <dir>` with no authorization flags
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:327
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-099
+  label: AC-4.3
+  quote: 'AC-4.3 | If D3 allows pr-submit as a worker: one 7.2 run on a scratch fork PR; `worker-read` transcript inspected for Bash waits'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:328
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.25
+  best_ratio_task: T1
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-100
+  label: AC-4.4
+  quote: 'AC-4.4 | (1) Before the coordinator ever launches a pr-submit session: on each Chat UI setting the user uses (chat, terminal)'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:329
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.2857
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-101
+  label: AC-4.5
+  quote: 'AC-4.5 | Two workers in one feature: one `/sc:implement` task whose rollback is forced, in a child worktree, and one report-only worker in the parent'
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:330
+  phase: P4
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.375
+  best_ratio_task: T2
+  deferred_by_tasklist: true
+  source: inferred
+  deferral_target: later phase plan
+- id: INF-102
+  label: WC-5 P0 brief override
+  quote: Before P1, when no command writes a contract, a brief that states the AC-0.4 report file and outcome rule replaces this mapping for that Task.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:73
+  phase: P0
+  source: inferred
+  ratio: 0.9375
+  best_ratio_task: T1
+  matched_task_ids:
+  - T1
+  match_method: containment
+  deferred_by_tasklist: false
+  deferral_target: null
+- id: INF-103
+  label: 2.3 P0-only brief item
+  quote: at P0 only, the command's report file and the outcome rule AC-0.4 gives for it (WC-5)
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:84
+  phase: P0
+  source: inferred
+  ratio: 1.0
+  best_ratio_task: T2
+  matched_task_ids:
+  - T2
+  match_method: containment
+  deferred_by_tasklist: false
+  deferral_target: null
+- id: INF-104
+  label: 6 Two-part plan per phase
+  quote: The static plan holds the edits and the checks that need no live Orca run. The live plan holds the 7.2 live checks and the phase report.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:238
+  phase: all
+  source: inferred
+  ratio: 0.7692
+  best_ratio_task: T8
+  matched_task_ids:
+  - T8
+  match_method: containment
+  deferred_by_tasklist: false
+  deferral_target: null
+- id: INF-105
+  label: AC-0.4 P0 report files and outcome rule
+  quote: The `--outcome` is `failed` when the file is missing or empty, or its status is `failed` or `blocked`; otherwise it is `succeeded`.
+  citation: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md:301
+  phase: P0
+  source: inferred
+  ratio: 0.4545
+  best_ratio_task: T1
+  matched_task_ids: []
+  match_method: none
+  deferred_by_tasklist: true
+  deferral_target: P0 live plan
+quote_validation_failures: []
+matched_count: 29
+total_count: 105
+coverage_pct: null
+coverage_pct_union: 0.2762
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-001
+- INF-003
+- INF-004
+- INF-006
+- INF-009
+- INF-012
+- INF-013
+- INF-014
+- INF-016
+- INF-017
+- INF-018
+- INF-020
+- INF-021
+- INF-022
+- INF-023
+- INF-025
+- INF-026
+- INF-027
+- INF-029
+- INF-030
+- INF-031
+- INF-032
+- INF-033
+- INF-034
+- INF-035
+- INF-036
+- INF-037
+- INF-038
+- INF-039
+- INF-040
+- INF-041
+- INF-042
+- INF-043
+- INF-045
+- INF-046
+- INF-047
+- INF-048
+- INF-049
+- INF-051
+- INF-052
+- INF-053
+- INF-054
+- INF-055
+- INF-057
+- INF-058
+- INF-059
+- INF-060
+- INF-061
+- INF-066
+- INF-067
+- INF-068
+- INF-072
+- INF-073
+- INF-074
+- INF-080
+- INF-081
+- INF-082
+- INF-083
+- INF-084
+- INF-085
+- INF-086
+- INF-087
+- INF-088
+- INF-089
+- INF-090
+- INF-091
+- INF-092
+- INF-093
+- INF-094
+- INF-095
+- INF-097
+- INF-098
+- INF-099
+- INF-100
+- INF-101
+- INF-105
+missing_implementations_count: 0
+S_dev_density: 0.7238
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+transparency:
+  in_scope_rows (static P0 or all, not deferred): 62
+  in_scope_matched_by_containment: 21
+  in_scope_coverage_by_containment: 0.3387
+  deferred_rows: 43
+  deferred_to_p0_live_plan:
+  - INF-012
+  - INF-068
+  - INF-072
+  - INF-073
+  - INF-074
+  - INF-105
+  in_scope_unmatched:
+  - INF-001
+  - INF-003
+  - INF-004
+  - INF-006
+  - INF-009
+  - INF-013
+  - INF-014
+  - INF-016
+  - INF-017
+  - INF-018
+  - INF-020
+  - INF-021
+  - INF-022
+  - INF-023
+  - INF-025
+  - INF-026
+  - INF-027
+  - INF-029
+  - INF-030
+  - INF-031
+  - INF-032
+  - INF-033
+  - INF-034
+  - INF-035
+  - INF-036
+  - INF-037
+  - INF-038
+  - INF-039
+  - INF-040
+  - INF-041
+  - INF-042
+  - INF-043
+  - INF-048
+  - INF-049
+  - INF-052
+  - INF-054
+  - INF-055
+  - INF-060
+  - INF-061
+  - INF-066
+  - INF-067
