@@ -68,7 +68,13 @@ Helpers: `.dev/issues/433/live/lib.sh` (boots and restarts through `orca-port-to
 
 ## 7. Pull request
 
-<!-- TODO -->
+https://github.com/IronbellyOrg/IronClaude/pull/355 (base `master`, opened with `/sc:pr-submit --monitor 3`, refs IronbellyOrg/Coder#433; not merged).
+
+- Review round 1 on `ffa58aa5`: Augment raised one Low finding (this folder's DECISIONS.md said a pane key's `:` is written as `_`, the code writes `+`); Codex found no issues. Low findings are report-only in the monitor, but the handoff asks for every comment to be addressed, so it was fixed in `04222c3e` (DECISIONS.md corrected, skill README names the file form), replied to and resolved.
+- Re-review on `04222c3e`: Augment clean, Codex "Didn't find any major issues", Codex security review clean.
+- CI on `04222c3e`: all checks passed (lint/plugin/sync, doctor, swarm lanes, tests on Python 3.10, test summary).
+- This section was added afterwards in one more docs-only commit, reviewed the same way.
+- Monitor run log (local, gitignored): `.dev/pr-monitor/pr-355-20261103T165553Z/monitor-run-355.jsonl`.
 
 ## 8. Open questions
 
