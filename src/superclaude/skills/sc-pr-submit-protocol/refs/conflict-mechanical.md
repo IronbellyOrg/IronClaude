@@ -111,7 +111,7 @@ git add -- uv.lock
 scripts/finish-merge.sh --base-sha <base_sha> --merge-tree-oid <merge_tree_oid> --manifest <manifest_file> --message-file <message_file>
 ```
 
-Success prints `{"merge_sha": "<40hex>", "parents": ["<old HEAD>", "<base-sha>"]}`; set `target_sha := merge_sha`. It commits only through one commit from the message file, with hooks on. Token to halt reason:
+Success prints `{"merge_sha": "<40hex>", "parents": ["<old HEAD>", "<base-sha>"]}`; set `target_sha := merge_sha`. It commits only through one commit from the message file, with hooks on. After the commit it also checks that the commit records exactly the index tree it validated, so a commit hook that changes and stages content fails `tree_dirty` (step 8). Token to halt reason:
 
 | `FINISH_FAIL` token | Halt reason | State left |
 |---|---|---|
@@ -121,7 +121,7 @@ Success prints `{"merge_sha": "<40hex>", "parents": ["<old HEAD>", "<base-sha>"]
 | `staged_unexpected` | `sync_staged_unexpected` | merge in progress, nothing committed |
 | `hook_rejected`, `usage` | `sync_commit_failed` | hook output verbatim (J-61); merge in progress with the resolution intact; no amend (J-63) |
 | `tree_dirty` (commit-mode step 3, before the commit) | `merge_preflight_dirty` | merge in progress, nothing committed |
-| `tree_dirty` (commit-mode step 8, after the commit) | `merge_preflight_dirty` | the local merge commit is named; nothing pushed |
+| `tree_dirty` (commit-mode step 8, after the commit: the checkout is not clean, or the commit records a tree other than the validated index, for example a commit hook changed and staged a file) | `merge_preflight_dirty` | the local merge commit is named; nothing pushed |
 | `parents_mismatch` | `sync_range_mismatch` | the local merge commit is named; nothing pushed |
 
 Steps 10 to 12 are section 7 (Publish); step 13 is section 8 (After the push).
@@ -291,7 +291,7 @@ The `merge_preflight_dirty` message: "Your checkout has uncommitted changes to t
 | `github_disagrees` | Wave 8a | GitHub reads conflicting, a local merge of `origin/<base>`@<base_sha> is clean; CI was not waited for. Re-run in a few minutes. |
 | `probe_failed`, `merge_tree_unsupported` | Wave 8a (tier unclassified) | Conflict detection could not run (reason); the PR reads conflicting, so CI was not waited for. |
 | `sync_cap` | Wave 8a; `sync_fail_state` (s4) | A conflict cycle already ran in this run (at most one). Nothing more was pushed. |
-| `merge_preflight_dirty` | step 2; precheck `tree_dirty`; commit-mode `tree_dirty` (step 3 before the commit, step 8 after it) | The message above. Raised after the commit, the local merge commit is named; raised before it, the merge stays in progress with nothing committed. |
+| `merge_preflight_dirty` | step 2; precheck `tree_dirty`; commit-mode `tree_dirty` (step 3 before the commit, step 8 after it) | The message above. Raised after the commit, the local merge commit is named; raised before it, the merge stays in progress with nothing committed. When finish-merge.sh's stderr says `not the validated index tree` (the commit's tree differs from the validated index), the message instead says: "A commit hook changed the local merge commit `<local HEAD>` after the finish gate checked it (finish-merge.sh output above). Nothing was pushed. Inspect it, then reset the branch to `<pre_push_sha>` yourself or publish it yourself." |
 | `sync_foreign_operation` | step 2 `foreign_op`; `FINISH_FAIL no_merge_head` / `foreign_merge`; resume row 6 | Another operation owns the checkout. It was not touched. |
 | `sync_merge_failed` | step 4 (git refused, or the probe and the merge disagree); step 5 `uv` failure | git's own file list, or the failing command's output; the merge was aborted. |
 | `sync_marker_left`, `sync_unmerged_left`, `sync_staged_unexpected` | step 9 finish gate | The guard that failed and the paths; the merge stays in progress with nothing committed. |

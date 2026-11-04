@@ -530,6 +530,206 @@ def _check_all_classified() -> None:
 # (repo-relative path, verb(s), stripped line) -> (category, one-line reason)
 WRITE_VERB_CLASSIFICATION = {
     (
+        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+        "gh pr",
+        '- **Wave 0 (all ordinals):** resolve the target repo once from the origin remote (`REPO="$(git remote get-url origin | sed -E \'s#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\\.git$##\')"`; only if origin has no URL, fall back to `gh repo view --json nameWithOwner -q .nameWithOwner` — never prefer it, because gh picks an `upstream` remote over `origin`) and the base branch (`gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`). BEFORE creating anything: confirm `git remote -v` shows origin = `$REPO` and rebase if behind `origin/<base>` only at L0 (at L1+ the create path does not rebase and does not halt: the branch is already published when `gh pr create` runs, so report how many commits it is behind, a Tier 0 result; with `--pr <N>`, at any level, do not rebase: the PR head is already published, so report how many commits it is behind instead). At L1+, also before creating or attaching, run `scripts/probe-merge.sh --ops-only --repo "$REPO"`: a non-null `foreign_op` (a merge, rebase, cherry-pick, revert or sequencer operation in progress) → HALT before Wave 1 with status `terminal_halted`, reason `foreign_op_in_progress`, nothing created (on `--resume`, `conflict_resume_plan` in `refs/conflict-mechanical.md` decides first). Then open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."` and verify the returned URL\'s `owner/repo` equals `$REPO` (a misroute → HALT). With `--pr <N>`, skip `gh pr create` and attach to that PR instead, checking the URL from `gh pr view <N> --repo "$REPO" --json url`. Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1).',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+        "gh pr",
+        '- **Wave 0 conflict check (L1+ only; L0 skips it):** after the head binding, read `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus` (re-read an `UNKNOWN` up to 3 times, 10 s apart) and normalise it with `superclaude.pr_submit.conflicts.mergeability_hint`. Only `conflicting` or a persistent `unknown` loads `refs/conflict-mechanical.md` and runs `scripts/probe-merge.sh`; follow that ref to classify, print the plan before any edit, and route with `conflict_action(hook="wave0")` (Tier 3 at L3 halts here: `terminal_halted`, reason `conflict_tier3`, nothing touched). Any other hint is Tier 0: report "<N> commits behind, no conflicts" (or the `BLOCKED` reason) and continue; no ref is loaded.',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+        "gh pr",
+        "- **Wave 0 head binding (L1+ only; L0 skips it):** after `gh pr create`, or on `--pr <N>` attach, read the PR head with `gh pr view <N> --repo \"$REPO\" --json headRefName,headRefOid,isCrossRepository` (a failed or unparsable read → HALT) and the checkout with `git branch --show-current` and `git rev-parse HEAD`. Require `superclaude.pr_submit.fsm.pr_head_ok(local_branch, local_sha, headRefName, headRefOid, isCrossRepository, allow_cross_repo=(ordinal < 3))`; a head on a fork is allowed only below L3, where nothing is pushed. False → HALT before Wave 1 with status `terminal_halted`, reason `pr_head_mismatch` (appended to the run-log when one exists), and tell the operator: \"PR #<N>'s head `<headRefName>`@<headRefOid> does not match your checkout `<local_branch>`@<local_sha>. Do not close the PR. Check out `<headRefName>` and make it equal the PR head (push if you are ahead; `git pull --ff-only` if you are behind; this skill never rewrites a published branch), then re-run with `--pr <N>`.\" True → bind `HEAD_BRANCH := headRefName` and `pre_push_sha := headRefOid` for the whole run; every push targets `HEAD_BRANCH`, never the checkout's branch name. `--resume` repeats this binding against the live PR: when crash recovery finds a dangling `push_initiated`, check only the branch (`pr_branch_ok(local_branch, headRefName, isCrossRepository, allow_cross_repo=(ordinal < 3))` and `pr_branch_ok(<the record's target_branch>, headRefName, False)`), leave the SHA to `resolve_crash_window` (local HEAD may already be the fix commit), and set `pre_push_sha` from that record: its `target_sha` when the push landed (Branch A), its `pre_push_sha` when the push is re-driven (Branch B: skip the Wave 6 fix commit, set `target_sha` from the record, and the re-driven push first runs the Wave 6 pre-push head guard with the record's `pre_push_sha`; after Branch A, the guard's parent check stops the next push if local commits were made since the landed push); otherwise require the full `pr_head_ok` and set `pre_push_sha := headRefOid`.",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+        "gh pr",
+        '- **Wave 8a (L1+, conflict act before the CI wait; same entry outcomes as Wave 8):** read `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus,headRefName,headRefOid,isCrossRepository` (same `UNKNOWN` re-reads). Only `conflicting` or a persistent `unknown` loads `refs/conflict-mechanical.md`, re-probes and acts on `conflict_action(hook="wave8a", entering=<review outcome>)`: at L3 a Tier 1 conflict becomes one sync merge commit pushed fast-forward (no round, no re-trigger, no reply, no resolve; the one push a wait-only path allows), then the CI wait runs on the new head with `expect_checks`; L2 leaves it resolved and validated but uncommitted (`halt_before_push`, only after `clean` / `REPORT_ONLY`); L1 proposes (also only after `clean` / `REPORT_ONLY`). A PR still conflicting with nothing pushed skips the CI wait with reason `pr_conflicting` (GitHub runs no `pull_request` checks on it) and ends with the status `conflict_action` returns. When any hook this run read `conflicting`, re-read `mergeable` before sending `transition(clean)`; `CONFLICTING` → `terminal_halted`, reason `late_conflict` (late re-sync: #361).',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+        "git add+git commit+gh pr+git push+gh api",
+        '- **Wave 6 (L3 only):** load `refs/thread-reply.md`. **Fix commit:** when the cycle applied edits (`applied_edits > 0`) and VAL is green, commit all of them as exactly one commit (one per cycle, never one per finding; VAL has already passed, so a validation retry never adds a second commit), staging only the files those edits changed (`git add -- <paths>`, never `git add -A` or `git add .`, which would sweep in run artifacts and other untracked files) and committing with `git commit --only -- <paths>` so nothing else already in the index is committed, and set `target_sha := git rev-parse HEAD`; every thread replied to in this cycle cites that one SHA. Before staging anything (before the `git add` above), if a path to commit is in `OPERATOR_PENDING`, append `terminal_halted` (reason `fix_commit_failed`), HALT with nothing committed or pushed, and tell the operator: "The fix touched files that had your own uncommitted changes: <paths>. Nothing was committed or pushed. Those files now hold both your changes and the fix: separate them by hand (do not discard the files), then re-run with `--pr <N>`." Otherwise, if the commit fails (for example a pre-commit hook rejects it) or HEAD did not advance, append `terminal_halted` (reason `fix_commit_failed`), HALT with nothing pushed, and tell the operator: "The fix commit failed (<error>). Nothing was pushed; the edits, and any changes a hook made, are in your working tree. Fix the cause, then either commit and push the fix yourself or discard it, and re-run with `--pr <N>`." A halted cycle replies to and resolves no thread. A crash re-drive (Branch B) skips this step and pushes the record\'s `target_sha`. **Pre-push head guard, before `push_decision`:** re-read `gh pr view <N> --repo "$REPO" --json headRefName,headRefOid,isCrossRepository` and require `pr_head_ok(<local branch>, pre_push_sha, headRefName, headRefOid, isCrossRepository)` and `headRefName == HEAD_BRANCH`. Compare the stored `pre_push_sha`, never local HEAD (local HEAD is the new fix commit). False → append `terminal_halted` (reason `pr_head_mismatch`), HALT with nothing pushed, write no push record, and tell the operator: "PR #<N>\'s head moved from <pre_push_sha> to <headRefOid> (or its branch is no longer `<HEAD_BRANCH>`) during the run. Nothing was pushed. Review the new PR commits, make your checkout equal the new PR head, then re-run with `--pr <N>`." When this cycle made a fix commit, the message adds: "This cycle\'s fixes are in local commit <target_sha>: drop it, or rebase it onto the new head and push it yourself." Next, when the cycle applied edits (a zero-edit cycle has no fix commit; INV-016 predicate 5 blocks its push and still records `push_decision`), read the parents of the commit to push (`git rev-list --parents -n 1 <target_sha>`, dropping the first id) and require `superclaude.pr_submit.fsm.push_parent_ok(<parents>, pre_push_sha)`: a fast-forward push publishes every commit between the PR head and `target_sha`, so the push may carry only this cycle\'s fix commit. False → append `terminal_halted` (reason `push_range_mismatch`), HALT with nothing pushed and no push record, and tell the operator: "Nothing was pushed. The fix commit <target_sha> sits on top of local commits that are not on PR #<N>: <`git log --oneline <pre_push_sha>..<target_sha>^`>. Publish those commits yourself if you want them on the PR, otherwise drop them; make your checkout equal the PR head, then re-run with `--pr <N>` (the open review threads are fixed again)." Then set `target_branch := HEAD_BRANCH`. The deterministic core DECIDES (evaluates the INV-016 conjunction, records the write-ahead push triad `push_decision` → `push_initiated` (fsynced BEFORE the push) → `push_completed`, keyed on the PRE-push idempotency key `push:<run_id>:<cycle_id>:<pre_push_sha>:<target_branch>`); the SKILL performs the actual `git push origin <target_sha>:<target_branch>` (never an upstream parent remote, never the repo\'s default/protected branch, never a force push) ONLY when the conjunction holds, then set `pre_push_sha := target_sha`, then reply (citing `applied_edits` status — `applied_edits==0` says "no code change applied", never "resolved") and resolve via `scripts/reply-resolve-thread.sh` (reply FIRST, then resolve; the script finds the thread by its root comment id, so an Augment or a Codex root works the same). In a dedup group, **every verified member\'s thread** is replied to and resolved, all citing the cycle\'s one fix SHA; an unverified or Low/Nit member gets no reply and no resolve, and the report lists the group once with "flagged by: augment, codex". **S5a re-trigger (FR-8):** load `refs/review-retrigger.md`; a push does NOT auto-trigger a re-review by either bot — AFTER resolve, and ONLY when this cycle applied edits (`applied_edits > 0`) or is a Tier 2 merge cycle (push kind `merge`; `superclaude.pr_submit.fsm.should_retrigger`), post **one re-trigger comment per present reviewer** BEFORE re-entering the S5 poll: for each reviewer in `pending_retriggers(<run-log events>, cycle_id, <present reviewers>)` (the present reviewers that have no `rereview_requested` for this `cycle_id` yet), run `scripts/retrigger-review.sh --pr <N> --repo "$REPO" --body "<retrigger_phrase(contract, reviewer)>"` (`auggie review` for Augment, `@codex review` for Codex). The core decides whether/when to re-trigger (`do_retrigger` seam, INV-R1: at most once per push cycle, `rereview_request_count <= max_rounds`, counted per cycle, not per comment); the script does the `gh api` issue-comment POST (NFR-6). Right after each reviewer\'s successful POST, take that reviewer\'s UTC watermark and append a **`rereview_requested{cycle_id, reviewer, timestamp}`** run-log event with that time (the INV-R1 producer — folded into `rereview_request_count` by distinct `cycle_id` in `rebuild_state`, and consumed by crash recovery\'s OQ-1 resume decision: a landed-push crash with NO `rereview_requested` for its cycle resumes at `S5a_RETRIGGER_REVIEW` to re-post; one WITH it resumes at `S5_AWAITING_REREVIEW`). **Resume of a re-triggered cycle:** reuse the `cycle_id` of the dangling push record (never a new one); on every resume at `S5a_RETRIGGER_REVIEW` or `S5_AWAITING_REREVIEW`, first call `pending_retriggers` and post the reviewers still missing (a crash between the Augment and the Codex post neither skips Codex nor re-posts Augment), then take each reviewer\'s watermark from the `timestamp` of its latest `rereview_requested` for the cycle before the S5 poll. The `round_counter` ticks only when the subsequent poll attributes the re-review to our pushed SHA (the relocated INV-001 increment) — a timed-out re-trigger does NOT advance the counter.',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
+        "gh api",
+        "gh api repos/<owner/repo>/commits/<sha>/check-runs --jq .total_count",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
+        "gh api",
+        "gh api repos/<owner/repo>/commits/<sha>/status --jq .total_count",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
+        "gh pr",
+        "No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malformed, or multiple-document stdout is **not** a parsed empty array. A valid nonempty required list takes precedence; otherwise a valid all-checks list is used. If the chosen list is empty and either query failed to parse, emit `state:polling`, `checks:[]`; only two parsed empty arrays, with `expect_checks` false, justify `clean`; with `expect_checks` true an empty chosen list is `polling` (see Expected checks after a push). Pending exit 8 may still contain valid JSON — keep it.",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md",
+        "git add",
+        "git add -- <path>",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh api",
+        'gh api "repos/${REPO}/commits/<base_sha>/check-runs" --jq \'.check_runs[] | "\\(.name) \\(.conclusion)"\'',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        'gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        'gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus,headRefName,headRefOid,isCrossRepository',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        'gh pr view <N> --repo "$REPO" --json headRefName,headRefOid,isCrossRepository',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        'gh pr view <N> --repo "$REPO" --json mergeStateStatus',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        'gh pr view <N> --repo "$REPO" --json mergeable',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "gh pr",
+        '| `resume_unrepresentable` (row 4b\') | `--resume` with an open conflict cycle whose dangling push no crash record matches | The merge commit `<target_sha>` of cycle `<cycle_id>` may or may not be on the PR. Nothing more was pushed. If the PR head (`gh pr view <N> --repo "$REPO" --json headRefOid`) equals it, re-run with `--pr <N>`; otherwise push or drop it yourself, then re-run. |',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "git add",
+        "- Tier 2: follow `refs/conflict-intent.md` (Tier 2 only), one file at a time (J-40), staging each finished path with `git add -- <path>` or `git rm -- <path>` (J-56); then any `regen:*` path by its rule above, after the precheck. A Tier 2 halt condition: abort, `sync_tier3`.",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "git add",
+        "git add -- uv.lock",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "git commit+git merge",
+        '**Step 8. L2 stops here** (`resolve_local`): append `sync_concluded{left_in_progress}`, status `halt_before_push`, and print: "The merge of `origin/<base>`@<base_sha> is resolved and validated but not committed. Review it, then run `git commit` yourself and push; or `git merge --abort`."',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "git merge",
+        "git merge --abort",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md",
+        "git push",
+        "git push origin <target_sha>:<HEAD_BRANCH>",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh",
+        "git commit",
+        'if ! git commit -F "$MESSAGE_FILE" >"$TMP/commit.out" 2>&1; then',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
+        "gh api",
+        'RUNS="$(gh api "repos/${REPO}/commits/${EVIDENCE_SHA}/check-runs?per_page=1" --jq .total_count 2>/dev/null)" || RUNS=""',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
+        "gh api",
+        'STATUSES="$(gh api "repos/${REPO}/commits/${EVIDENCE_SHA}/status" --jq .total_count 2>/dev/null)" || STATUSES=""',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
+        "gh pr",
+        "#           repo, or `gh pr checks --json` support, which evidence mode skips).",
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
         "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md",
         "gh pr",
         "| **PR** | `<PR-num>` or `<PR-URL>` | `gh pr view <id> --json number,headRefName,baseRefName,headRepository,headRepositoryOwner,title,body,files` |",
@@ -761,30 +961,6 @@ WRITE_VERB_CLASSIFICATION = {
     ),
     (
         "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
-        "gh pr",
-        '- **Wave 0 (all ordinals):** resolve the target repo once from the origin remote (`REPO="$(git remote get-url origin | sed -E \'s#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\\.git$##\')"`; only if origin has no URL, fall back to `gh repo view --json nameWithOwner -q .nameWithOwner` — never prefer it, because gh picks an `upstream` remote over `origin`) and the base branch (`gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`). BEFORE creating anything: confirm `git remote -v` shows origin = `$REPO` and rebase if behind `origin/<base>` (with `--pr <N>`, at any level, do not rebase: the PR head is already published, so report how many commits it is behind instead). Then open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."` and verify the returned URL\'s `owner/repo` equals `$REPO` (a misroute → HALT). With `--pr <N>`, skip `gh pr create` and attach to that PR instead, checking the URL from `gh pr view <N> --repo "$REPO" --json url`. Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1).',
-    ): (
-        "never-worker",
-        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
-    ),
-    (
-        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
-        "gh pr",
-        "- **Wave 0 head binding (L1+ only; L0 skips it):** after `gh pr create`, or on `--pr <N>` attach, read the PR head with `gh pr view <N> --repo \"$REPO\" --json headRefName,headRefOid,isCrossRepository` (a failed or unparsable read → HALT) and the checkout with `git branch --show-current` and `git rev-parse HEAD`. Require `superclaude.pr_submit.fsm.pr_head_ok(local_branch, local_sha, headRefName, headRefOid, isCrossRepository, allow_cross_repo=(ordinal < 3))`; a head on a fork is allowed only below L3, where nothing is pushed. False → HALT before Wave 1 with status `terminal_halted`, reason `pr_head_mismatch` (appended to the run-log when one exists), and tell the operator: \"PR #<N>'s head `<headRefName>`@<headRefOid> does not match your checkout `<local_branch>`@<local_sha>. Do not close the PR. Check out `<headRefName>` and make it equal the PR head (push if you are ahead; a branch Wave 0 rebased needs a force-push, which this skill never does for you; `git pull --ff-only` if you are behind), then re-run with `--pr <N>`.\" True → bind `HEAD_BRANCH := headRefName` and `pre_push_sha := headRefOid` for the whole run; every push targets `HEAD_BRANCH`, never the checkout's branch name. `--resume` repeats this binding against the live PR: when crash recovery finds a dangling `push_initiated`, check only the branch (`pr_branch_ok(local_branch, headRefName, isCrossRepository, allow_cross_repo=(ordinal < 3))` and `pr_branch_ok(<the record's target_branch>, headRefName, False)`), leave the SHA to `resolve_crash_window` (local HEAD may already be the fix commit), and set `pre_push_sha` from that record: its `target_sha` when the push landed (Branch A), its `pre_push_sha` when the push is re-driven (Branch B: skip the Wave 6 fix commit, set `target_sha` from the record, and the re-driven push first runs the Wave 6 pre-push head guard with the record's `pre_push_sha`; after Branch A, the guard's parent check stops the next push if local commits were made since the landed push); otherwise require the full `pr_head_ok` and set `pre_push_sha := headRefOid`.",
-    ): (
-        "never-worker",
-        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
-    ),
-    (
-        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
-        "git add+git commit+gh pr+git push+gh api",
-        '- **Wave 6 (L3 only):** load `refs/thread-reply.md`. **Fix commit:** when the cycle applied edits (`applied_edits > 0`) and VAL is green, commit all of them as exactly one commit (one per cycle, never one per finding; VAL has already passed, so a validation retry never adds a second commit), staging only the files those edits changed (`git add -- <paths>`, never `git add -A` or `git add .`, which would sweep in run artifacts and other untracked files) and committing with `git commit --only -- <paths>` so nothing else already in the index is committed, and set `target_sha := git rev-parse HEAD`; every thread replied to in this cycle cites that one SHA. Before staging anything (before the `git add` above), if a path to commit is in `OPERATOR_PENDING`, append `terminal_halted` (reason `fix_commit_failed`), HALT with nothing committed or pushed, and tell the operator: "The fix touched files that had your own uncommitted changes: <paths>. Nothing was committed or pushed. Those files now hold both your changes and the fix: separate them by hand (do not discard the files), then re-run with `--pr <N>`." Otherwise, if the commit fails (for example a pre-commit hook rejects it) or HEAD did not advance, append `terminal_halted` (reason `fix_commit_failed`), HALT with nothing pushed, and tell the operator: "The fix commit failed (<error>). Nothing was pushed; the edits, and any changes a hook made, are in your working tree. Fix the cause, then either commit and push the fix yourself or discard it, and re-run with `--pr <N>`." A halted cycle replies to and resolves no thread. A crash re-drive (Branch B) skips this step and pushes the record\'s `target_sha`. **Pre-push head guard, before `push_decision`:** re-read `gh pr view <N> --repo "$REPO" --json headRefName,headRefOid,isCrossRepository` and require `pr_head_ok(<local branch>, pre_push_sha, headRefName, headRefOid, isCrossRepository)` and `headRefName == HEAD_BRANCH`. Compare the stored `pre_push_sha`, never local HEAD (local HEAD is the new fix commit). False → append `terminal_halted` (reason `pr_head_mismatch`), HALT with nothing pushed, write no push record, and tell the operator: "PR #<N>\'s head moved from <pre_push_sha> to <headRefOid> (or its branch is no longer `<HEAD_BRANCH>`) during the run. Nothing was pushed. Review the new PR commits, make your checkout equal the new PR head, then re-run with `--pr <N>`." When this cycle made a fix commit, the message adds: "This cycle\'s fixes are in local commit <target_sha>: drop it, or rebase it onto the new head and push it yourself." Next, when the cycle applied edits (a zero-edit cycle has no fix commit; INV-016 predicate 5 blocks its push and still records `push_decision`), read the parents of the commit to push (`git rev-list --parents -n 1 <target_sha>`, dropping the first id) and require `superclaude.pr_submit.fsm.push_parent_ok(<parents>, pre_push_sha)`: a fast-forward push publishes every commit between the PR head and `target_sha`, so the push may carry only this cycle\'s fix commit. False → append `terminal_halted` (reason `push_range_mismatch`), HALT with nothing pushed and no push record, and tell the operator: "Nothing was pushed. The fix commit <target_sha> sits on top of local commits that are not on PR #<N>: <`git log --oneline <pre_push_sha>..<target_sha>^`>. Publish those commits yourself if you want them on the PR, otherwise drop them; make your checkout equal the PR head, then re-run with `--pr <N>` (the open review threads are fixed again)." Then set `target_branch := HEAD_BRANCH`. The deterministic core DECIDES (evaluates the INV-016 conjunction, records the write-ahead push triad `push_decision` → `push_initiated` (fsynced BEFORE the push) → `push_completed`, keyed on the PRE-push idempotency key `push:<run_id>:<cycle_id>:<pre_push_sha>:<target_branch>`); the SKILL performs the actual `git push origin <target_sha>:<target_branch>` (never an upstream parent remote, never the repo\'s default/protected branch, never a force push) ONLY when the conjunction holds, then set `pre_push_sha := target_sha`, then reply (citing `applied_edits` status — `applied_edits==0` says "no code change applied", never "resolved") and resolve via `scripts/reply-resolve-thread.sh` (reply FIRST, then resolve; the script finds the thread by its root comment id, so an Augment or a Codex root works the same). In a dedup group, **every verified member\'s thread** is replied to and resolved, all citing the cycle\'s one fix SHA; an unverified or Low/Nit member gets no reply and no resolve, and the report lists the group once with "flagged by: augment, codex". **S5a re-trigger (FR-8):** load `refs/review-retrigger.md`; a push does NOT auto-trigger a re-review by either bot — AFTER resolve, and ONLY when this cycle applied edits (`applied_edits > 0`), post **one re-trigger comment per present reviewer** BEFORE re-entering the S5 poll: for each reviewer in `pending_retriggers(<run-log events>, cycle_id, <present reviewers>)` (the present reviewers that have no `rereview_requested` for this `cycle_id` yet), run `scripts/retrigger-review.sh --pr <N> --repo "$REPO" --body "<retrigger_phrase(contract, reviewer)>"` (`auggie review` for Augment, `@codex review` for Codex). The core decides whether/when to re-trigger (`do_retrigger` seam, INV-R1: at most once per push cycle, `rereview_request_count <= max_rounds`, counted per cycle, not per comment); the script does the `gh api` issue-comment POST (NFR-6). Right after each reviewer\'s successful POST, take that reviewer\'s UTC watermark and append a **`rereview_requested{cycle_id, reviewer, timestamp}`** run-log event with that time (the INV-R1 producer — folded into `rereview_request_count` by distinct `cycle_id` in `rebuild_state`, and consumed by crash recovery\'s OQ-1 resume decision: a landed-push crash with NO `rereview_requested` for its cycle resumes at `S5a_RETRIGGER_REVIEW` to re-post; one WITH it resumes at `S5_AWAITING_REREVIEW`). **Resume of a re-triggered cycle:** reuse the `cycle_id` of the dangling push record (never a new one); on every resume at `S5a_RETRIGGER_REVIEW` or `S5_AWAITING_REREVIEW`, first call `pending_retriggers` and post the reviewers still missing (a crash between the Augment and the Codex post neither skips Codex nor re-posts Augment), then take each reviewer\'s watermark from the `timestamp` of its latest `rereview_requested` for the cycle before the S5 poll. The `round_counter` ticks only when the subsequent poll attributes the re-review to our pushed SHA (the relocated INV-001 increment) — a timed-out re-trigger does NOT advance the counter.',
-    ): (
-        "never-worker",
-        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
-    ),
-    (
-        "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
         "git add",
         "- `git add` any `.claude/` path except `.claude/settings.json`.",
     ): (
@@ -859,14 +1035,6 @@ WRITE_VERB_CLASSIFICATION = {
         "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
         "gh pr",
         "gh pr checks <N> --repo <owner/repo> --json name,state,bucket,link,workflow",
-    ): (
-        "never-worker",
-        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
-    ),
-    (
-        "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
-        "gh pr",
-        "No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malformed, or multiple-document stdout is **not** a parsed empty array. A valid nonempty required list takes precedence; otherwise a valid all-checks list is used. If the chosen list is empty and either query failed to parse, emit `state:polling`, `checks:[]`; only two parsed empty arrays justify `clean`. Pending exit 8 may still contain valid JSON — keep it.",
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
@@ -979,14 +1147,6 @@ WRITE_VERB_CLASSIFICATION = {
         "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh",
         "gh pr",
         'if ! gh pr view "$PR" --repo "$REPO" --json headRefOid > "$_tmp/head.json" 2>/dev/null \\',
-    ): (
-        "never-worker",
-        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
-    ),
-    (
-        "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
-        "gh pr",
-        "#           missing prerequisite (gh, jq, repo, or `gh pr checks --json` support).",
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",

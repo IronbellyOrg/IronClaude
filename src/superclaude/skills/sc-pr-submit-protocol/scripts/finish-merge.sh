@@ -7,7 +7,8 @@
 #           message file (hooks on).
 #           Precheck mode (run right before a regenerate) only checks and never
 #           commits. This is the only conflict script that changes the repository,
-#           and only through that one commit. It never publishes anything, never
+#           and only through that one commit (it also writes the validated index's
+#           tree object, to prove the commit records it). It never publishes anything, never
 #           sets work aside, never rewrites an existing commit, never skips hooks
 #           and never writes stored configuration.
 # Usage   : finish-merge.sh --base-sha <40hex> --precheck
@@ -202,11 +203,13 @@ case "$DIFF_EXIT" in
     *) cat -- "$TMP/err" >&2; fail tree_dirty "git diff --quiet exited $DIFF_EXIT" ;;
 esac
 
-# marker_width <path> : print the conflict-marker width git uses for <path>. git reads
-# the conflict-marker-size attribute as C atoi() does (leading blanks, an optional
-# sign, then the leading digits) and uses 7 when that is not positive; so does this.
-marker_width() {
-    local name attr value sign digits
+# marker_widths <path> : print the conflict-marker width(s) git may use for <path>.
+# Older git reads the conflict-marker-size attribute as C atoi() does (leading
+# blanks, an optional sign, then the leading digits) and uses 7 when that is not
+# positive; newer git rejects a value with text after the digits and uses 7. When
+# the value has such trailing text, both widths are printed ("<w> 7") and counted.
+marker_widths() {
+    local name attr value sign digits rest
     git check-attr -z conflict-marker-size -- "$1" >"$TMP/attr" 2>"$TMP/err" || return 1
     { IFS= read -r -d '' name && IFS= read -r -d '' attr && IFS= read -r -d '' value; } <"$TMP/attr" \
         || value=""
@@ -216,25 +219,34 @@ marker_width() {
         [+-]*) sign="${value%"${value#?}"}"; value="${value#?}" ;;
     esac
     digits="${value%%[!0-9]*}"
+    rest="${value#"$digits"}"
     digits="${digits#"${digits%%[!0]*}"}"
     if [ "$sign" = "-" ] || [ -z "$digits" ]; then
         digits=7
     fi
-    printf '%s' "$digits"
+    if [ -n "$rest" ] && [ "$digits" != 7 ]; then
+        printf '%s 7' "$digits"
+    else
+        printf '%s' "$digits"
+    fi
 }
 
-# count_markers <file> <width> : print the number of conflict-marker lines of exactly
-# <width> marker characters in <file>.
+# count_markers <file> <width>... : print the number of conflict-marker lines of
+# exactly one of the given widths in <file>.
 count_markers() {
-    local n rc w="$2"
-    n="$(grep -a -c -E "^(<{$w}|[|]{$w}|={$w}|>{$w})( |\$)" -- "$1")"
+    local n rc w file="$1" alts=""
+    shift
+    for w in "$@"; do
+        alts="${alts:+$alts|}<{$w}|[|]{$w}|={$w}|>{$w}"
+    done
+    n="$(grep -a -c -E "^($alts)( |\$)" -- "$file")"
     rc=$?
     [ "$rc" -le 1 ] || return 1
     printf '%s' "${n:-0}"
 }
 
 # Step 4: no resolved path holds more marker lines than its stage-1 blob did. Markers
-# are counted at the width git writes them for the path (its conflict-marker-size).
+# are counted at the width(s) git may write for the path (its conflict-marker-size).
 i=0
 while [ "$i" -lt "${#M_PATHS[@]}" ]; do
     path="${M_PATHS[$i]}"
@@ -242,16 +254,17 @@ while [ "$i" -lt "${#M_PATHS[@]}" ]; do
     i=$((i + 1))
     # A path resolved by deletion is not in the index and is skipped.
     git rev-parse -q --verify ":0:$path" >/dev/null 2>&1 || continue
-    width="$(marker_width "$path")" \
+    widths_text="$(marker_widths "$path")" \
         || { cat -- "$TMP/err" >&2; fail markers "cannot read the conflict-marker-size attribute of $path"; }
+    read -r -a widths <<<"$widths_text"
     git cat-file blob ":0:$path" >"$TMP/result" 2>"$TMP/err" \
         || { cat -- "$TMP/err" >&2; fail markers "cannot read the staged blob of $path"; }
-    have="$(count_markers "$TMP/result" "$width")" || fail markers "cannot count markers in $path"
+    have="$(count_markers "$TMP/result" "${widths[@]}")" || fail markers "cannot count markers in $path"
     base_count=0
     if [ "$oid" != "-" ]; then
         git cat-file blob "$oid" >"$TMP/base" 2>"$TMP/err" \
             || { cat -- "$TMP/err" >&2; fail usage "manifest stage-1 blob $oid of $path is not readable"; }
-        base_count="$(count_markers "$TMP/base" "$width")" || fail markers "cannot count markers in the stage-1 blob of $path"
+        base_count="$(count_markers "$TMP/base" "${widths[@]}")" || fail markers "cannot count markers in the stage-1 blob of $path"
     fi
     [ "$have" -le "$base_count" ] \
         || fail markers "$path holds $have conflict-marker line(s); its stage-1 blob had $base_count"
@@ -267,6 +280,11 @@ for path in ${LIST[@]+"${LIST[@]}"}; do
     in_list "$path" ${M_PATHS[@]+"${M_PATHS[@]}"} \
         || fail staged_unexpected "the index differs from the merge-tree result at $path"
 done
+
+# The tree of the index validated by steps 2 to 5 (written as an object; no ref and
+# no index-entry change). Step 8 proves the commit records exactly this tree.
+VALIDATED_TREE="$(git write-tree 2>"$TMP/err")" \
+    || { cat -- "$TMP/err" >&2; fail tree_dirty "cannot record the tree of the validated index"; }
 
 # Step 6: the one commit, with hooks on. git's output goes to stderr verbatim.
 if ! git commit -F "$MESSAGE_FILE" >"$TMP/commit.out" 2>&1; then
@@ -285,7 +303,11 @@ EOF_PARENTS
     && [ "$(lower "${P2:-}")" = "$(lower "$BASE_SHA")" ] \
     || fail parents_mismatch "new commit parents are '${PARENTS_LINE}', expected <new> $OLD_HEAD $BASE_SHA"
 
-# Step 8: clean after the commit.
+# Step 8: the commit records the validated tree (a commit hook that changed and staged
+# a file would make them differ), and the checkout is clean after the commit.
+COMMIT_TREE="$(git rev-parse -q --verify 'HEAD^{tree}' 2>/dev/null)" || COMMIT_TREE=""
+[ "$(lower "$COMMIT_TREE")" = "$(lower "$VALIDATED_TREE")" ] \
+    || fail tree_dirty "the new commit $NEW_SHA records tree '$COMMIT_TREE', not the validated index tree $VALIDATED_TREE (a commit hook changed staged content); nothing was pushed"
 git status --porcelain=v1 --untracked-files=no -z >"$TMP/status" 2>"$TMP/err" \
     || { cat -- "$TMP/err" >&2; fail tree_dirty "git status failed after the commit"; }
 [ ! -s "$TMP/status" ] || fail tree_dirty "tracked files differ from the new commit"

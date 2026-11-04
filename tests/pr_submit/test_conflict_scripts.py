@@ -828,14 +828,15 @@ def test_f5_auto_merged_path_reverted_to_head_is_staged_unexpected(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "value, width",
-    [("9", 9), ("010", 10), ("+9", 9), ("08", 8), ("9x", 9)],
+    "value, widths",
+    [("9", (9,)), ("010", (10,)), ("+9", (9,)), ("08", (8,)), ("9x", (9, 7))],
     ids=["9", "leading-zero-010", "plus-sign", "leading-zero-08", "trailing-text"],
 )
-def test_wider_conflict_marker_size_left_in_place_is_markers(tmp_path, value, width):
-    """git writes markers at the path's conflict-marker-size width, read as C atoi()
-    reads it; the gate counts markers at that same width, so staging the file as the
-    merge left it fails."""
+def test_wider_conflict_marker_size_left_in_place_is_markers(tmp_path, value, widths):
+    """git writes markers at the path's conflict-marker-size width; the gate counts
+    markers at that width, so staging the file as the merge left it fails. A value
+    with text after the digits ("9x") is read as 9 by older git (atoi) and rejected
+    (7) by newer git, so either width is accepted and the gate counts both."""
     repos = make_repos(
         tmp_path,
         {
@@ -847,8 +848,8 @@ def test_wider_conflict_marker_size_left_in_place_is_markers(tmp_path, value, wi
     _content_conflict(repos)
     setup = start_merge(repos)
     left = (repos.work / "f.txt").read_text(encoding="utf-8")
-    assert "<" * width + " " in left, f"git did not write {width}-wide markers"
-    assert "<" * (width + 1) not in left
+    written = [w for w in widths if "<" * w + " " in left and "<" * (w + 1) not in left]
+    assert written, f"git wrote none of the expected widths {widths}"
     repos.git(repos.work, "add", "--", "f.txt")
     res = finish_commit(repos, setup, ["f.txt"])
     assert_fail(res, "markers")
@@ -977,6 +978,51 @@ def test_f9_failing_pre_commit_hook_is_hook_rejected(tmp_path):
     assert_fail(res, "hook_rejected")
     assert hook_output in res.stderr
     assert_no_commit(repos, setup)
+
+
+def _pre_commit_hook(repos: Repos, body: str) -> None:
+    hook = repos.work / ".git" / "hooks" / "pre-commit"
+    hook.parent.mkdir(parents=True, exist_ok=True)
+    hook.write_text("#!/usr/bin/env bash\n" + body, encoding="utf-8")
+    hook.chmod(0o755)
+
+
+def test_hook_that_changes_staged_content_is_tree_dirty_after_the_commit(tmp_path):
+    """PR #378 review: a pre-commit hook that rewrites and stages an unrelated file
+    changes the commit after the gate validated the index; the gate compares the
+    commit's tree with the validated index tree and fails, naming the commit."""
+    repos = make_repos(
+        tmp_path,
+        {
+            "README.md": "readme\n",
+            "f.txt": "line1\nline2\nline3\n",
+            "other.txt": "orig\n",
+        },
+    )
+    _content_conflict(repos)
+    setup = start_merge(repos)
+    resolve(repos, {"f.txt": RESOLVED_F})
+    _pre_commit_hook(
+        repos, "printf 'changed by hook\\n' > other.txt\ngit add other.txt\n"
+    )
+    res = finish_commit(repos, setup, ["f.txt"])
+    assert_fail(res, "tree_dirty")
+    new_sha = _head(repos)
+    assert new_sha != setup.old_head  # the commit exists; it is named, not pushed
+    assert new_sha in res.stderr
+    assert "a commit hook changed staged content" in res.stderr
+
+
+def test_hook_that_changes_nothing_still_finishes(tmp_path):
+    repos = make_repos(tmp_path)
+    _content_conflict(repos)
+    setup = start_merge(repos)
+    resolve(repos, {"f.txt": RESOLVED_F})
+    _pre_commit_hook(repos, "printf 'pre-commit ran\\n'\n")
+    res = finish_commit(repos, setup, ["f.txt"])
+    assert res.returncode == 0, res.stderr
+    assert res.payload["merge_sha"] == _head(repos)
+    assert "pre-commit ran" in res.stderr
 
 
 def test_f10_clean_resolution_is_the_exact_merge_commit(tmp_path):
