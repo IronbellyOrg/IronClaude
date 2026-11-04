@@ -1,0 +1,11 @@
+# Blind calibration of reviewer-1-card.yaml (confidence-calibrator, opus). Persisted by the orchestrator.
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.75, recommendation_actionability: 0.90}
+calibrated_confidence: 0.76
+self_reported_confidence: 0.85
+findings:
+  R1-F1: {verdict: supported, reason: "mode-tracker.js:112-118: bare /ponytail reports when on, else getDefaultMode() (lite); plan:80 copied the off-era 'full' text."}
+  R1-F2: {verdict: supported, reason: "plan isolates only HOME; config.js:71-74 honours CLAUDE_CONFIG_DIR; install_mcp part overstated (reads .claude.json only); conditional on env."}
+  R1-F3: {verdict: supported, reason: "no counting rule; 4 insertions + 3 deletions."}
+  R1-F4: {verdict: supported, reason: "./artifacts base unnamed; :109 citation wrong."}
+extra_risk_noted: "Docs name ~/.claude/.ponytail-active, but Ponytail writes under CLAUDE_CONFIG_DIR when set (config.js:73)."

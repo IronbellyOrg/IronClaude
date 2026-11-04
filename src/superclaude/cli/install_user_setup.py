@@ -287,9 +287,10 @@ def install_plugins(
 
     failed = []
     for args in commands:
+        name = args[3] if args[1] == "marketplace" else args[2]
         remaining = deadline - time.monotonic()
         if remaining < 2:
-            failed.append(" ".join(args[1:3]) + f" {args[3]} (time limit)")
+            failed.append(f"{name} (time limit)")
             continue
         try:
             result = subprocess.run(
@@ -300,9 +301,9 @@ def install_plugins(
                 stdin=subprocess.DEVNULL,
             )
             if result.returncode != 0:
-                failed.append(args[3])
+                failed.append(name)
         except (OSError, subprocess.SubprocessError):
-            failed.append(args[3])
+            failed.append(name)
     if failed:
         return True, (
             f"⚠️  Plugins: not installed: {', '.join(failed)}; "

@@ -1,0 +1,11 @@
+$ unfixed install_user_setup.py (fix reverted temporarily), -k failures_and_time_limit
+E   AssertionError: ⚠️  Plugins: not installed: anthropics/claude-plugins-official, --scope; rerun `superclaude install` to retry
+1 failed, 17 deselected
+$ git diff --numstat -- src/superclaude/cli/install_user_setup.py
+4	3	src/superclaude/cli/install_user_setup.py
+$ uv run pytest tests/cli/test_install_user_setup.py tests/cli/test_update_command.py tests/cli/test_install_retired_mcp.py tests/unit/test_cli_install.py -v
+============================= 218 passed in 2.93s ==============================
+$ make lint
+All checks passed!
+$ uv run ruff format --check src/ tests/
+1184 files already formatted

@@ -98,6 +98,80 @@ def test_settings_defaults_fill_only_missing_values(tmp_path: Path) -> None:
     assert again == (True, "✅ Settings defaults: already present")
 
 
+def _defaults() -> dict:
+    return json.loads(
+        (Path(setup.__file__).parent / "user_settings_defaults.json").read_text()
+    )
+
+
+def test_defaults_ship_ponytail() -> None:
+    defaults = _defaults()
+    assert defaults["enabledPlugins"]["ponytail@ponytail"] is True
+    assert defaults["extraKnownMarketplaces"]["ponytail"]["source"] == {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail",
+    }
+    assert defaults["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
+    assert "pluginConfigs" not in defaults
+    # Every default plugin's marketplace must be installable by install_plugins.
+    for plugin in defaults["enabledPlugins"]:
+        market = plugin.split("@", 1)[1]
+        assert defaults["extraKnownMarketplaces"][market]["source"]["repo"], plugin
+
+
+def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> None:
+    claude = tmp_path / ".claude"
+    claude.mkdir()
+    defaults = _defaults()
+    old_plugins = {
+        p: True for p in defaults["enabledPlugins"] if p != "ponytail@ponytail"
+    }
+    old_markets = {
+        m: v for m, v in defaults["extraKnownMarketplaces"].items() if m != "ponytail"
+    }
+    (claude / "settings.json").write_text(
+        json.dumps(
+            {
+                "env": {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"},
+                "enabledPlugins": old_plugins,
+                "extraKnownMarketplaces": old_markets,
+            }
+        )
+    )
+    assert setup.apply_settings_defaults(home=tmp_path)[0]
+    settings = _settings(tmp_path)
+    assert settings["enabledPlugins"]["ponytail@ponytail"] is True
+    assert settings["extraKnownMarketplaces"]["ponytail"]["source"]["repo"] == (
+        "DietrichGebert/ponytail"
+    )
+    assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
+    for plugin, value in old_plugins.items():
+        assert settings["enabledPlugins"][plugin] is value
+    for market, value in old_markets.items():
+        assert settings["extraKnownMarketplaces"][market] == value
+    assert setup.apply_settings_defaults(home=tmp_path) == (
+        True,
+        "✅ Settings defaults: already present",
+    )
+
+
+def test_settings_defaults_keep_user_ponytail_choices(tmp_path: Path) -> None:
+    claude = tmp_path / ".claude"
+    claude.mkdir()
+    (claude / "settings.json").write_text(
+        json.dumps(
+            {
+                "env": {"PONYTAIL_DEFAULT_MODE": "full"},
+                "enabledPlugins": {"ponytail@ponytail": False},
+            }
+        )
+    )
+    assert setup.apply_settings_defaults(home=tmp_path)[0]
+    settings = _settings(tmp_path)
+    assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "full"
+    assert settings["enabledPlugins"]["ponytail@ponytail"] is False
+
+
 def test_settings_defaults_refuse_malformed_file(tmp_path: Path) -> None:
     claude = tmp_path / ".claude"
     claude.mkdir()
@@ -203,10 +277,12 @@ def test_plugins_install_missing_enabled_defaults(tmp_path: Path, monkeypatch) -
         "anthropics/claude-plugins-official",
     ] in calls
     assert ["plugin", "marketplace", "add", "Lum1104/Understand-Anything"] in calls
+    assert ["plugin", "marketplace", "add", "DietrichGebert/ponytail"] in calls
     installs = [c[2] for c in calls if c[:2] == ["plugin", "install"]]
     assert "notion@claude-plugins-official" not in installs
     assert "frontend-design@claude-plugins-official" in installs
     assert "understand-anything@understand-anything" in installs
+    assert "ponytail@ponytail" in installs
 
 
 def test_plugins_skip_already_installed(tmp_path: Path, monkeypatch) -> None:
@@ -236,10 +312,23 @@ def test_plugin_failures_and_time_limit_never_fail_install(
         "run",
         lambda command, **k: subprocess.CompletedProcess(command, 1, "", "boom"),
     )
+    names = ("anthropics/claude-plugins-official", "playwright@claude-plugins-official")
     ok, message = setup.install_plugins(home=home)
     assert ok and message.startswith("⚠️  Plugins")
+    assert all(name in message for name in names), message
+    assert "--scope" not in message
     ok, message = setup.install_plugins(home=home, deadline=0)
     assert ok and "time limit" in message
+    assert all(f"{name} (time limit)" in message for name in names), message
+    assert "--scope" not in message
+
+
+def test_plugins_skip_when_claude_cli_is_absent(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: None)
+    assert setup.install_plugins(home=tmp_path) == (
+        True,
+        "⏭️  Plugins: claude CLI not found; skipped",
+    )
 
 
 def test_shipped_setup_contains_no_personal_home_paths() -> None:

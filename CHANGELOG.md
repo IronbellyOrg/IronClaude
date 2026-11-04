@@ -4,6 +4,17 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Ponytail plugin installed by default (#330)
+
+#### Added (default plugins)
+
+- `superclaude install`, `superclaude update` and `update.sh` now install the Ponytail plugin (`ponytail@ponytail`, from `DietrichGebert/ponytail`; checked against upstream v5.3.3) and set `PONYTAIL_DEFAULT_MODE` to `lite` under `env` in `~/.claude/settings.json` when you have not set it. In `lite`, every session start injects Ponytail's rules at the lite level ("Build what was asked. Name the smaller option in one line and let the user pick.") plus a short codebase map, and every subagent gets the same rules. On a workspace whose user settings have no `statusLine`, the first session gets a one-time note asking Claude to offer to set up Ponytail's statusline badge; that session can be an unattended Orca worker, which then sees the note and may mention the offer. Ponytail's band module runs in every mode (a band above the prompt, a `git grep` at session start, a watch on every Edit and Write, and a local per-turn ledger row under `$XDG_CONFIG_HOME/ponytail/band/` or `~/.config/ponytail/band/`). The ledger is on; set Ponytail's `ledger` option to `false` to stop it. Change the mode for the rest of the session with `/ponytail off|lite|full|ultra` (the next session start in that project directory resets it to the default), or set `PONYTAIL_DEFAULT_MODE` to `off`, `lite`, `full` or `ultra` to change the default. To opt out, set `"ponytail@ponytail": false` in `enabledPlugins` in your user settings; do not delete the key, because the next install adds it back. Existing workspaces get Ponytail after you upgrade the IronClaude package, then run `superclaude update` or `superclaude install`. Needs `node` on the PATH. See [the installation guide](docs/getting-started/installation.md).
+- If you already use Ponytail with a `defaultMode` in `$XDG_CONFIG_HOME/ponytail/config.json` (or `~/.config/ponytail/config.json`), the new `PONYTAIL_DEFAULT_MODE=lite` wins over it, and `/ponytail default <mode>` has no effect while that variable is set. Set `PONYTAIL_DEFAULT_MODE` under `env` to your preferred mode instead.
+
+#### Fixed (plugin install report)
+
+- A plugin that fails to install is now listed by its name in the `Plugins: not installed` warning (it printed `--scope`).
+
 ## [5.0.0] - 2026-11-02
 
 Major release: codegraph replaces codebase-memory-mcp and Serena, and several commands, flags and core files are removed. Read the [5.0.0 release notes](docs/releases/v5.0.0.md) for the breaking changes and upgrade steps. This is the first versioned section of this changelog; it covers every change since the package version was set to 4.3.5 (2026-06-04), which was never tagged.

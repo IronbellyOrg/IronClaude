@@ -1,0 +1,12 @@
+$ grep -rn "six plugins" docs/   (expect no output)
+rc=1 (1 = no match)
+$ uv run pytest tests/docs -v
+============================== 8 passed in 0.41s ===============================
+$ npx markdownlint-cli@0.38.0 docs/getting-started/installation.md
+docs/getting-started/installation.md:1 MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<div align="center">"]
+docs/getting-started/installation.md:5 MD001/heading-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
+$ same lint on master version (git show HEAD:docs/getting-started/installation.md)
+installation-head.md:1 MD041 and :5 MD001 (identical: both errors pre-exist on master; no new error)
+$ grep -c "src/superclaude" (master vs now)
+0
+0

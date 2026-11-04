@@ -1,0 +1,13 @@
+# Blind calibration of reviewer-2-card.yaml (confidence-calibrator, sonnet). Persisted by the orchestrator.
+calibrator_model_class: sonnet
+dimensions: {citation_grounding: 0.90, coverage_completeness: 0.80, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.60, recommendation_actionability: 0.80}
+calibrated_confidence: 0.76
+self_reported_confidence: 0.86
+findings:
+  R2-F1: {verdict: supported, reason: "owners exist; card lists seven of eight rows (INF-001 omitted; plan:14,17 cover it)."}
+  R2-F2: {verdict: supported, reason: "goal span unquoted by any matrix row; plan covers it at :15, :39, :82."}
+  R2-F3: {verdict: supported, reason: "4 insertions + 3 deletions vs cap of 5."}
+  R2-F4: {verdict: supported, reason: "conformant; 'likely UNVERIFIED' is a prediction."}
+notes:
+  - "T5 fails on unfixed code: confirmed (install_user_setup.py:292,303,305)."
+  - "Card does not ask whether tests reading docs run after Tasks 3 and 4 (cf. reviewer-3 R3-4)."
