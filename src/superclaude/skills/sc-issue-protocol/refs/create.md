@@ -4,7 +4,7 @@ Loaded at the start of create mode. `<R>` is the origin repo (`owner/repo`), `<s
 
 Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter.
 
-Workers are `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md` (Claude Code reads the project `.claude/agents/` copy first when one exists). Load `refs/tiers.md` before the first spawn. A worker that needs a codebase pass runs `/sc:analyze` by following `~/.claude/commands/sc/analyze.md`. Every file under `<D>` starts as a copy of its template under `templates/`.
+Workers are `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md` (Claude Code reads the project `.claude/agents/` copy first when one exists). Load `refs/tiers.md` before the first spawn. A worker that needs a codebase pass runs `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout). Every file under `<D>` starts as a copy of its template under `templates/`.
 
 Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub. Create mode makes no ClickUp call and no self-assignment (B6).
 

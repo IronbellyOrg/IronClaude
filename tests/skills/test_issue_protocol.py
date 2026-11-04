@@ -110,7 +110,9 @@ def headings(text: str) -> list[str]:
 
 def chain_rows(text: str) -> list[str]:
     """The data rows of the chain table (one row per type and complexity)."""
-    return [line for line in text.splitlines() if re.match(r"^\| (Feature|Bug), ", line)]
+    return [
+        line for line in text.splitlines() if re.match(r"^\| (Feature|Bug), ", line)
+    ]
 
 
 # --- SKILL.md frontmatter, size and inventory ------------------------------------
@@ -139,9 +141,25 @@ def test_every_named_path_exists_and_every_file_is_named():
     assert sorted(on_disk - named) == []
 
 
-@pytest.mark.parametrize("path", [SKILL, *sorted(REFS.glob("*.md"))], ids=lambda p: p.name)
+@pytest.mark.parametrize(
+    "path", [SKILL, *sorted(REFS.glob("*.md"))], ids=lambda p: p.name
+)
 def test_spawn_rule_text_present(path):
     assert SPAWN_RULE in _text(path)
+
+
+ANALYZE_INSTALLED = "`~/.claude/commands/sc/analyze.md`"
+ANALYZE_PROJECT = "(project `.claude/commands/sc/analyze.md` in a checkout)"
+
+
+@pytest.mark.parametrize(
+    "path", [SKILL, *sorted(REFS.glob("*.md"))], ids=lambda p: p.name
+)
+def test_analyze_lookup_names_both_copies(path):
+    """CLAUDE.md dual-surface rule: a lookup of the installed analyze command
+    also names the project copy that `make sync-dev` creates (PR #373 review)."""
+    lines = [line for line in _text(path).splitlines() if ANALYZE_INSTALLED in line]
+    assert [line for line in lines if ANALYZE_PROJECT not in line] == []
 
 
 def test_all_five_refs_exist():
@@ -165,7 +183,9 @@ def test_posted_template_ends_with_marker(stem, marker):
 def test_marker_check_fails_when_marker_is_removed(tmp_path):
     copy = tmp_path / "claim-comment.md"
     lines = _text(TEMPLATES / "claim-comment.md").splitlines()
-    copy.write_text("\n".join(line for line in lines if "sc:issue:claim" not in line) + "\n")
+    copy.write_text(
+        "\n".join(line for line in lines if "sc:issue:claim" not in line) + "\n"
+    )
     assert last_nonempty_line(copy.read_text()) != POSTED_MARKERS["claim-comment"]
 
 
@@ -205,7 +225,12 @@ def test_every_chain_flag_exists_in_its_command():
 def test_brainstorm_steps_have_no_handoff_and_pin_models():
     rows = chain_rows(_text(REFS / "chains.md"))
     assert len(rows) == 6
-    steps = [s for row in rows for s in _COMMAND_SPAN.findall(row) if s.startswith("/sc:brainstorm")]
+    steps = [
+        s
+        for row in rows
+        for s in _COMMAND_SPAN.findall(row)
+        if s.startswith("/sc:brainstorm")
+    ]
     assert len(steps) == 3
     for step in steps:
         assert "--handoff tasklist" not in step and "--handoff design" not in step
@@ -227,7 +252,14 @@ def test_every_gh_issue_pr_label_mention_carries_repo(path):
 
 @pytest.mark.parametrize(
     "path",
-    [*sorted(p for p in SKILL_DIR.rglob("*") if p.is_file() and "__pycache__" not in p.parts), *AGENTS],
+    [
+        *sorted(
+            p
+            for p in SKILL_DIR.rglob("*")
+            if p.is_file() and "__pycache__" not in p.parts
+        ),
+        *AGENTS,
+    ],
     ids=lambda p: p.name,
 )
 def test_no_brace_placeholder(path):
@@ -240,7 +272,9 @@ def test_no_brace_placeholder(path):
 
 def test_fork_safety_scan_fails_on_a_ref_without_repo(tmp_path):
     ref = tmp_path / "claim.md"
-    ref.write_text(_text(REFS / "claim.md") + "\nRun `gh issue view 302 --json state`.\n")
+    ref.write_text(
+        _text(REFS / "claim.md") + "\nRun `gh issue view 302 --json state`.\n"
+    )
     assert gh_lines_missing_repo(ref.read_text()) == ["gh issue view 302 --json state"]
 
 

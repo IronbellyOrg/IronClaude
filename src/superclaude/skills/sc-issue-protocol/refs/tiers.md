@@ -4,7 +4,7 @@ Loaded before the first worker spawn of either mode.
 
 Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter.
 
-Workers are the agent files `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md`; Claude Code reads the project `.claude/agents/` copy first when one exists. Workers run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md`.
+Workers are the agent files `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md`; Claude Code reads the project `.claude/agents/` copy first when one exists. Workers run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout).
 
 ## Tier map (default D3)
 

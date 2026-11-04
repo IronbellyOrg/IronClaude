@@ -75,7 +75,9 @@ def test_frontmatter_fields():
 
 
 def test_options_table_lists_exactly_the_five_flags():
-    assert sorted(_options_rows()) == sorted(["--claim", "--create", "--depth", "--mode", "--type"])
+    assert sorted(_options_rows()) == sorted(
+        ["--claim", "--create", "--depth", "--mode", "--type"]
+    )
 
 
 @pytest.mark.parametrize("flag", sorted(ALLOWED))
@@ -89,7 +91,9 @@ def test_option_defaults():
     assert rows["--depth"][2] == "`quick`"
     assert rows["--mode"][2] == rows["--type"][2] == "chosen by a worker when omitted"
     assert rows["--claim"][1] == "claim"
-    assert all(rows[f][1] == "create" for f in ("--create", "--depth", "--mode", "--type"))
+    assert all(
+        rows[f][1] == "create" for f in ("--create", "--depth", "--mode", "--type")
+    )
 
 
 def test_no_repo_dry_run_or_preview_flag():

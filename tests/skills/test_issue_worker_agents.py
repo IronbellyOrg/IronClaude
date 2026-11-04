@@ -172,9 +172,15 @@ def test_skills_lookup_check_fails_on_old_rubric_line(name, tmp_path):
 @pytest.mark.parametrize(
     ("text", "missing"),
     [
-        ("Read `~/.claude/skills/x/refs/a.md`.", ["Read `~/.claude/skills/x/refs/a.md`."]),
+        (
+            "Read `~/.claude/skills/x/refs/a.md`.",
+            ["Read `~/.claude/skills/x/refs/a.md`."],
+        ),
         ("Read `~/.claude/skills/x/a.md` (project `.claude/skills/x/a.md`).", []),
-        ("Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/s/SKILL.md`).", []),
+        (
+            "Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/s/SKILL.md`).",
+            [],
+        ),
         ("Run `~/.claude/commands/sc/analyze.md`.", []),
     ],
 )

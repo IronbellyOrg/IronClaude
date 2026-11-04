@@ -146,11 +146,11 @@ def check_claim(arg: str, origin: str) -> int:
             return int(number.group("n"))
     if rest and rest[0] == "pull":
         raise ClaimError(
-            "E-NOT-AN-ISSUE", EXIT_NOT_AN_ISSUE, f"{arg} is a pull request, not an issue"
+            "E-NOT-AN-ISSUE",
+            EXIT_NOT_AN_ISSUE,
+            f"{arg} is a pull request, not an issue",
         )
-    raise ClaimError(
-        "E-NOT-AN-ISSUE", EXIT_NOT_AN_ISSUE, f"{arg} is not an issue URL"
-    )
+    raise ClaimError("E-NOT-AN-ISSUE", EXIT_NOT_AN_ISSUE, f"{arg} is not an issue URL")
 
 
 def read_origin() -> str:
@@ -163,7 +163,9 @@ def read_origin() -> str:
             check=False,
         )
     except OSError as exc:
-        raise ClaimError("E-NO-ORIGIN", EXIT_NO_ORIGIN, f"git could not run: {exc}") from exc
+        raise ClaimError(
+            "E-NO-ORIGIN", EXIT_NO_ORIGIN, f"git could not run: {exc}"
+        ) from exc
     if result.returncode != 0:
         raise ClaimError("E-NO-ORIGIN", EXIT_NO_ORIGIN, "no origin remote")
     parsed = parse_origin_url(result.stdout)

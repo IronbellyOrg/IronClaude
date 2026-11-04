@@ -83,7 +83,13 @@ def _run(repo: Path, *args: str) -> subprocess.CompletedProcess:
 
 def test_non_github_origin_exits_nonzero_with_e_no_origin(tmp_path):
     repo = _repo(tmp_path)
-    _git(repo, "remote", "add", "origin", "https://gitlab.com/IronbellyOrg/IronClaude.git")
+    _git(
+        repo,
+        "remote",
+        "add",
+        "origin",
+        "https://gitlab.com/IronbellyOrg/IronClaude.git",
+    )
     result = _run(repo)
     assert result.returncode == orr.EXIT_NO_ORIGIN != 0
     assert "E-NO-ORIGIN" in result.stderr
@@ -99,7 +105,9 @@ def test_missing_origin_exits_nonzero_with_e_no_origin(tmp_path):
 
 def test_missing_origin_with_other_remote_still_e_no_origin(tmp_path):
     repo = _repo(tmp_path)
-    _git(repo, "remote", "add", "upstream", "https://github.com/SomeParent/Framework.git")
+    _git(
+        repo, "remote", "add", "upstream", "https://github.com/SomeParent/Framework.git"
+    )
     result = _run(repo)
     assert result.returncode == orr.EXIT_NO_ORIGIN
     assert "E-NO-ORIGIN" in result.stderr
@@ -107,7 +115,9 @@ def test_missing_origin_with_other_remote_still_e_no_origin(tmp_path):
 
 def test_only_origin_is_read_when_another_remote_exists(tmp_path):
     repo = _repo(tmp_path)
-    _git(repo, "remote", "add", "upstream", "https://github.com/SomeParent/Framework.git")
+    _git(
+        repo, "remote", "add", "upstream", "https://github.com/SomeParent/Framework.git"
+    )
     _git(repo, "remote", "add", "origin", "git@github.com:IronbellyOrg/IronClaude.git")
     result = _run(repo)
     assert result.returncode == 0, result.stderr
@@ -118,7 +128,9 @@ def test_only_origin_is_read_when_another_remote_exists(tmp_path):
 def test_claim_mode_prints_repo_and_number(tmp_path):
     repo = _repo(tmp_path)
     _git(repo, "remote", "add", "origin", "https://github.com/IronbellyOrg/IronClaude")
-    result = _run(repo, "--claim", "https://github.com/IronbellyOrg/IronClaude/issues/302")
+    result = _run(
+        repo, "--claim", "https://github.com/IronbellyOrg/IronClaude/issues/302"
+    )
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout) == {"repo": ORIGIN, "number": 302}
 
@@ -155,9 +167,15 @@ def test_bad_arguments_exit_2(tmp_path):
         ("302", 302),
         ("#302", 302),
         ("https://github.com/IronbellyOrg/IronClaude/issues/302", 302),  # same repo
-        ("https://github.com/ironbellyorg/ironclaude/issues/302", 302),  # case-insensitive
+        (
+            "https://github.com/ironbellyorg/ironclaude/issues/302",
+            302,
+        ),  # case-insensitive
         ("https://github.com/IronbellyOrg/IronClaude/issues/302/", 302),  # trailing /
-        ("https://github.com/IronbellyOrg/IronClaude/issues/302#issuecomment-9", 302),  # fragment
+        (
+            "https://github.com/IronbellyOrg/IronClaude/issues/302#issuecomment-9",
+            302,
+        ),  # fragment
         ("https://github.com/IronbellyOrg/IronClaude/issues/302?x=1", 302),  # query
         ("http://github.com/IronbellyOrg/IronClaude/issues/302", 302),  # http scheme
         ("github.com/IronbellyOrg/IronClaude/issues/302", 302),  # no scheme
@@ -221,7 +239,10 @@ def test_pull_url_on_foreign_repo_is_e_foreign_repo():
         ("Org302/Repo456", "https://github.com/Org302/Repo456"),
         ("Org302/Repo456", "https://github.com/Org302/Repo456/"),
         ("Org302/Repo456", "https://github.com/Org302/Repo456/issues"),
-        ("IronbellyOrg/IronClaude302", "https://github.com/IronbellyOrg/IronClaude302/tree/main"),
+        (
+            "IronbellyOrg/IronClaude302",
+            "https://github.com/IronbellyOrg/IronClaude302/tree/main",
+        ),
     ],
 )
 def test_digits_in_owner_or_repo_never_become_n(origin, arg):
@@ -231,7 +252,10 @@ def test_digits_in_owner_or_repo_never_become_n(origin, arg):
 
 
 def test_digits_in_owner_and_repo_do_not_replace_the_issue_segment():
-    assert orr.check_claim("https://github.com/Org302/Repo456/issues/7", "Org302/Repo456") == 7
+    assert (
+        orr.check_claim("https://github.com/Org302/Repo456/issues/7", "Org302/Repo456")
+        == 7
+    )
 
 
 @pytest.mark.parametrize(

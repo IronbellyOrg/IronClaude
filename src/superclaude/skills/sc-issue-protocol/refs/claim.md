@@ -4,7 +4,7 @@ Loaded at the start of claim mode. `<R>` is the origin repo (`owner/repo`), `<N>
 
 Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter.
 
-Workers are `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md` (Claude Code reads the project `.claude/agents/` copy first when one exists). Load `refs/tiers.md` before the first spawn. A worker that needs a codebase pass runs `/sc:analyze` by following `~/.claude/commands/sc/analyze.md`. Every file under `<D>` starts as a copy of its template under `templates/`.
+Workers are `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md` (Claude Code reads the project `.claude/agents/` copy first when one exists). Load `refs/tiers.md` before the first spawn. A worker that needs a codebase pass runs `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout). Every file under `<D>` starts as a copy of its template under `templates/`.
 
 Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub or ClickUp.
 
@@ -47,7 +47,7 @@ Checked in this order; every STOP here makes no GitHub or ClickUp write (B9):
 1. `gh issue edit <N> --repo <R> --add-assignee @me`. Failure -> STOP `E-ASSIGN-FAILED`; ClickUp is not touched and no comment is posted.
 2. Run the ClickUp script and write its stdout to `<D>/clickup.json`:
    `uv run --no-project python "<skill base>/scripts/clickup_claim.py" --issue-url <url> --issue-number <N> --repo <R> > "<D>/clickup.json"`
-   Every outcome it prints (`assigned`, `already_assigned`, `skipped`, `not_found`, `ambiguous`, `error`) is non-fatal and is reported in the claim comment. Exit 2 means the skill passed bad arguments: STOP and print the script's usage message; the GitHub assignment stays. Never print, echo or inline `CLICKUP_API_TOKEN`.
+   Every outcome it prints (`assigned`, `already_assigned`, `skipped`, `not_found`, `ambiguous`, `error`) is non-fatal and is reported in the claim comment. `error` with reason `page_cap` means the search reached `CLICKUP_MAX_PAGES` before the last page, so nothing was assigned; the claim comment says so and names the remedy (raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS`). Exit 2 means the skill passed bad arguments: STOP and print the script's usage message; the GitHub assignment stays. Never print, echo or inline `CLICKUP_API_TOKEN`.
 
 ## Wave 4: accuracy check and summary
 

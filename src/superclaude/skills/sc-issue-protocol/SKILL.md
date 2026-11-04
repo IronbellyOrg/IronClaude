@@ -61,7 +61,7 @@ Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model`
 
 Claude Code reads the project `.claude/agents/` copy first when one exists. The Agent call's `model` parameter takes aliases only and overrides the frontmatter, so passing it would lose the pin (`refs/tiers.md`). A spawn that fails because the picker ID is not served is STOP `E-TIER-UNAVAILABLE`; there is no alias fallback.
 
-Workers make read-only GitHub and git calls, write only under `.dev/issues/`, run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` when their job needs a codebase pass, and return only the paths they wrote. Read each returned file from disk. A worker that returns no file or an empty one is retried once, then STOP `E-WORKER-NO-OUTPUT` with the expected path.
+Workers make read-only GitHub and git calls, write only under `.dev/issues/`, run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout) when their job needs a codebase pass, and return only the paths they wrote. Read each returned file from disk. A worker that returns no file or an empty one is retried once, then STOP `E-WORKER-NO-OUTPUT` with the expected path.
 
 Every spawn prompt names each exact path the job must write under `.dev/issues/` and states that these are input files for the orchestrator's next tool calls, not report files: the worker writes them with the Write tool, and returning their content as text counts as no output (`E-WORKER-NO-OUTPUT`).
 

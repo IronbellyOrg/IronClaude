@@ -31,6 +31,9 @@ ClickUp API v2 endpoints and the response fields this script relies on
         the script reads ``id``, ``name``, ``url``, ``markdown_description``
         (``description`` when it is absent), ``assignees[].id`` and
         ``custom_fields[].value``. An empty ``tasks`` list ends the search.
+        Reaching the page cap before an empty page means the search did not
+        see every task, so it ends with ``error``/``page_cap`` and nothing is
+        assigned: a match found on the fetched pages may not be the only one.
     PUT https://api.clickup.com/api/v2/task/{task_id}       (updatetask)
         body ``{"assignees": {"add": [<user id>]}}``; a 2xx status means the
         assignment was made (the 200 body carries the task ``id``).
@@ -50,7 +53,7 @@ Output: one JSON object on stdout, always exit 0 except for bad arguments:
     {"status": "ambiguous", "rule": ..., "candidates": [{"task_id", "task_url"}, ...]}
     {"status": "already_assigned", "task_id", "task_url", "rule"}
     {"status": "assigned", "task_id", "task_url", "rule": "github_link"|"title_number"}
-    {"status": "error", "reason": "auth"|"rate_limited"|"<short>"}
+    {"status": "error", "reason": "auth"|"rate_limited"|"page_cap"|"<short>"}
 HTTP 401/403 gives ``auth``. HTTP 429 waits the ``Retry-After`` seconds once,
 retries once, then gives ``rate_limited``. Bad arguments exit 2 (argparse).
 """
@@ -165,7 +168,9 @@ def claim(issue_url: str, number: int, env: dict) -> dict:
     if not workspace:
         return {"status": "skipped", "reason": "no_workspace"}
     max_pages = max_pages_from_env(env.get("CLICKUP_MAX_PAGES"))
-    list_ids = [s.strip() for s in (env.get("CLICKUP_LIST_IDS") or "").split(",") if s.strip()]
+    list_ids = [
+        s.strip() for s in (env.get("CLICKUP_LIST_IDS") or "").split(",") if s.strip()
+    ]
 
     try:
         user = request("GET", f"{API}/user", token)
@@ -175,6 +180,7 @@ def claim(issue_url: str, number: int, env: dict) -> dict:
 
         found: dict[str, list[dict]] = {"github_link": [], "title_number": []}
         seen: set[str] = set()
+        complete = False  # True only when an empty page ended the search
         for page in range(FIRST_PAGE, FIRST_PAGE + max_pages):
             query = [
                 ("page", str(page)),
@@ -184,6 +190,7 @@ def claim(issue_url: str, number: int, env: dict) -> dict:
             url = f"{API}/team/{urllib.parse.quote(workspace, safe='')}/task?{urllib.parse.urlencode(query)}"
             tasks = request("GET", url, token).get("tasks") or []
             if not tasks:
+                complete = True
                 break
             for task in tasks:
                 task_id = str(task.get("id") or "")
@@ -193,6 +200,10 @@ def claim(issue_url: str, number: int, env: dict) -> dict:
                 rule = match_rule(task, issue_url, number)
                 if rule:
                     found[rule].append(task)
+        if not complete:
+            # The cap stopped the search: a later page could hold another
+            # match, so "exactly one match" cannot be checked (design D2).
+            return {"status": "error", "reason": "page_cap"}
 
         rule = "github_link" if found["github_link"] else "title_number"
         matches = found[rule]
@@ -203,12 +214,19 @@ def claim(issue_url: str, number: int, env: dict) -> dict:
                 "status": "ambiguous",
                 "rule": rule,
                 "candidates": [
-                    {"task_id": str(t.get("id")), "task_url": t.get("url")} for t in matches
+                    {"task_id": str(t.get("id")), "task_url": t.get("url")}
+                    for t in matches
                 ],
             }
         task = matches[0]
-        result = {"task_id": str(task.get("id")), "task_url": task.get("url"), "rule": rule}
-        assignees = {str(a.get("id")) for a in task.get("assignees") or [] if isinstance(a, dict)}
+        result = {
+            "task_id": str(task.get("id")),
+            "task_url": task.get("url"),
+            "rule": rule,
+        }
+        assignees = {
+            str(a.get("id")) for a in task.get("assignees") or [] if isinstance(a, dict)
+        }
         if str(user_id) in assignees:
             return {"status": "already_assigned", **result}
         request(

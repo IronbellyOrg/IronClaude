@@ -83,9 +83,13 @@ def test_issue_command_and_skill_are_the_only_issue_primitives():
     src = _REPO / "src/superclaude"
     assert (src / "commands/issue.md").is_file()
     assert (src / "skills/sc-issue-protocol").is_dir()
-    assert sorted(p.name for p in (src / "skills").glob("sc-issue*")) == ["sc-issue-protocol"]
+    assert sorted(p.name for p in (src / "skills").glob("sc-issue*")) == [
+        "sc-issue-protocol"
+    ]
     commands = src / "commands"
-    assert [p.relative_to(commands) for p in commands.rglob("issue.md")] == [Path("issue.md")]
+    assert [p.relative_to(commands) for p in commands.rglob("issue.md")] == [
+        Path("issue.md")
+    ]
     plugins = _REPO / "plugins/superclaude"
     if (plugins / "skills").is_dir():
         assert not list((plugins / "skills").glob("sc-issue*"))
