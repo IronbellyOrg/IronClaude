@@ -13,10 +13,10 @@
 
 ## 2. Evidence, one file at a time (J-40)
 
-Take the `text:*` paths in plan order (`plan.text_paths`). Finish one path (evidence, checklist, edit, stage) before you open the next. For path number `<n>` (1-based), with `<merge_base>` taken from the step 2 probe JSON:
+Take the `text:*` paths in plan order (`plan.text_paths`). Finish one path (evidence, checklist, edit, stage) before you open the next. For path number `<n>` (1-based), with `<merge_base>` taken from the step 2 probe JSON and `<cycle_dir>` the attempt directory of `refs/conflict-mechanical.md` step 3 (`<output-dir>/sync/<cycle_id>/a<attempt>/`, new for every restart of the cycle):
 
 ```bash
-scripts/collect-conflict-evidence.sh --path <p> --out <output-dir>/sync/<cycle_id>/<n>/ --base-sha <base_sha> --merge-base <merge_base>
+scripts/collect-conflict-evidence.sh --path <p> --out <cycle_dir><n>/ --base-sha <base_sha> --merge-base <merge_base>
 ```
 
 - Success prints one JSON line `{"dir": "<out>", "files": [...], "missing": [...], "truncated": <bool>}`. The files are `stage1`, `stage2`, `stage3` (each stage the index lists for the path; an absent stage is named in `missing`, for example `stage1` for an add-add), `worktree` (the file with its zdiff3 conflict markers), `log.txt` (the left-right log of the merge) and `diff-ours.txt`, `diff-theirs.txt` (each side's diff from the merge base). A file cut at the byte limit ends with `[sc:pr-submit: truncated at <N> bytes]`.
@@ -68,7 +68,7 @@ Use `git rm -- <path>` only when the resolution is a deletion. Never stage every
 
 ## 6. The resolution record
 
-Write `<output-dir>/sync/<cycle_id>/resolution.md` after the last `text:*` path is staged. It holds one section per `text:*` path and nothing else: no title, no prose, no bullets, no other heading. Blank lines are allowed. Each section is these lines, in this order, each field on one line as `<field>: <value>`:
+Write `<cycle_dir>resolution.md` after the last `text:*` path is staged. It holds one section per `text:*` path and nothing else: no title, no prose, no bullets, no other heading. Blank lines are allowed. Each section is these lines, in this order, each field on one line as `<field>: <value>`:
 
 1. `## <path>`: the path exactly as it appears in `plan.text_paths`. Every `text:*` path appears exactly once; no other path (a `regen:*` path has no entry).
 2. `kind:` one of `trivial`, `additive`, `competing`, `structural`, `modify-delete`, `add-add` (`semantic` never appears: it is Tier 3).
@@ -92,11 +92,11 @@ Write `<output-dir>/sync/<cycle_id>/resolution.md` after the last `text:*` path 
 > dropped: none
 > evidence: stage1, stage2, stage3, diff-ours.txt, diff-theirs.txt, log.txt, commits 1a2b3c4 and 5d6e7f8
 
-The core checks it: `resolution_record_ok(parse_resolution_record(text), plan.text_paths)` must return `[]`. A parse error or any listed problem means no commit: abort, `sync_tier3`. The record and the evidence directories stay in the output dir after an abort.
+The core checks it: `resolution_record_ok(parse_resolution_record(text), plan.text_paths)` must return `[]`. A parse error or any listed problem means no commit: abort, `sync_tier3`. Every attempt's record and evidence directories stay in the output dir after an abort.
 
 ## 7. Grounding check
 
-Spawn `evidence-validator` (read-only: Read, Grep, Glob) once for the whole record, not once per file. Pass `resolution.md` as the draft (`report_draft_path`), `<output-dir>/sync/<cycle_id>/` as `output_dir`, and `allow_command_reexec: false`. Ask it to check, for each section, that both intents and `behavior_after` are grounded in that path's stage files and merge-base diffs, and to list each unsupported section.
+Spawn `evidence-validator` (read-only: Read, Grep, Glob) once for the whole record, not once per file. Pass `resolution.md` as the draft (`report_draft_path`), `<cycle_dir>` (this attempt only) as `output_dir`, and `allow_command_reexec: false`. Ask it to check, for each section, that both intents and `behavior_after` are grounded in that path's stage files and merge-base diffs, and to list each unsupported section.
 
 - Every section supported: continue to VAL (`refs/conflict-mechanical.md` section 6).
 - One revision pass: re-read the evidence for each flagged section, correct the file and the record where needed (re-stage the path, re-run `resolution_record_ok`), then ask the same validator (no new spawn) to re-check only the revised sections.

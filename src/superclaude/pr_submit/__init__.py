@@ -29,6 +29,7 @@ from .classifier import (
     poll_succeeded,
 )
 from .conflicts import (
+    LOCK_TRUST_UNREADABLE,
     MECHANICAL_RULES,
     SYNC_CAP,
     TIER2_MAX_FILES,
@@ -38,6 +39,7 @@ from .conflicts import (
     ResumePlan,
     SyncDecision,
     conflict_action,
+    conflict_attempt,
     conflict_cycle_id,
     conflict_plan,
     conflict_resume_plan,
@@ -46,6 +48,7 @@ from .conflicts import (
     evaluate_sync_decision,
     finish_manifest,
     is_conflict_cycle,
+    lock_trust_findings,
     merge_commit_message,
     merge_parent_ok,
     merge_preflight_ok,
@@ -115,6 +118,7 @@ __all__ = [
     "evaluate_push_decision",
     "RunConfig",
     # merge conflicts (issue #305)
+    "LOCK_TRUST_UNREADABLE",
     "MECHANICAL_RULES",
     "SYNC_CAP",
     "TIER2_MAX_FILES",
@@ -124,6 +128,7 @@ __all__ = [
     "ResumePlan",
     "SyncDecision",
     "conflict_action",
+    "conflict_attempt",
     "conflict_cycle_id",
     "conflict_plan",
     "conflict_resume_plan",
@@ -132,6 +137,7 @@ __all__ = [
     "evaluate_sync_decision",
     "finish_manifest",
     "is_conflict_cycle",
+    "lock_trust_findings",
     "merge_commit_message",
     "merge_parent_ok",
     "merge_preflight_ok",

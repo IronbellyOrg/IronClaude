@@ -33,6 +33,7 @@ import pytest
 from superclaude.pr_submit.ci import expect_checks_after_push
 from superclaude.pr_submit.conflicts import (
     conflict_action,
+    conflict_attempt,
     conflict_cycle_id,
     conflict_plan,
     conflict_validation_status,
@@ -606,8 +607,10 @@ def run_tier1_sync_cycle(repos: Repos) -> None:
     )
     assert validation_status == "validated"
 
-    # Step 9: finish gate and commit.
-    sync_dir = run_log.output_dir / "sync" / cycle_id
+    # Step 9: finish gate and commit, under the attempt directory of step 3.
+    attempt = conflict_attempt(run_log.read_events(), cycle_id)
+    assert attempt == 1
+    sync_dir = run_log.output_dir / "sync" / cycle_id / f"a{attempt}"
     message = (
         merge_commit_message(
             base_ref=BASE_REF,
@@ -841,8 +844,11 @@ def start_tier2_cycle(tmp_path: Path):
     # Step 4.
     assert merge_by_sha(repos, base_sha) == ["f.txt", "g.txt"]
 
-    # Step 5 (refs/conflict-intent.md): one file at a time, evidence first.
-    sync_dir = run_log.output_dir / "sync" / cycle_id
+    # Step 5 (refs/conflict-intent.md): one file at a time, evidence first, under the
+    # attempt directory of step 3.
+    attempt = conflict_attempt(run_log.read_events(), cycle_id)
+    assert attempt == 1
+    sync_dir = run_log.output_dir / "sync" / cycle_id / f"a{attempt}"
     for n, path in enumerate(plan.text_paths, start=1):
         out = sync_dir / str(n)
         res = run_script(
@@ -867,6 +873,7 @@ def start_tier2_cycle(tmp_path: Path):
         "repos": repos,
         "run_log": run_log,
         "plan": plan,
+        "probe": probe,
         "cycle_id": cycle_id,
         "base_sha": base_sha,
         "pr_head": pr_head,
@@ -1027,3 +1034,81 @@ def test_x3_semantic_kind_is_rejected_before_any_commit(tmp_path):
     assert rebuilt["open_conflict_cycle"] is None
     assert c["states"] == [MonitorState.S3_FIXING]
     assert_no_retrigger_call(repos)
+
+
+def test_x3_resume_restart_collects_into_a_new_attempt_directory(tmp_path):
+    """Resume row 5 (our own interrupted merge): abort, restart under the same cycle
+    id, and collect the evidence again. Attempt 2 writes into `a2/`, so the collector
+    does not meet attempt 1's files (`out_not_empty`), and attempt 1's evidence stays
+    (PR #378 review finding)."""
+    c = start_tier2_cycle(tmp_path)
+    repos, run_log, plan = c["repos"], c["run_log"], c["plan"]
+    cycle_id, base_sha = c["cycle_id"], c["base_sha"]
+    first_dir = c["sync_dir"]
+    assert first_dir.name == "a1"
+    kept = {p: p.read_bytes() for p in sorted(first_dir.rglob("*")) if p.is_file()}
+    assert kept
+
+    # Row 5: MERGE_HEAD is the open cycle's base tip: abort and restart.
+    merge_head = repos.git(repos.work, "rev-parse", "-q", "--verify", "MERGE_HEAD")
+    assert merge_head.strip() == base_sha
+    repos.git(repos.work, "merge", "--abort")
+    run_log.append(
+        {
+            "event_type": "sync_concluded",
+            "cycle_id": cycle_id,
+            "outcome": "aborted",
+            "merge_sha": None,
+            "record_path": None,
+            "dropped": [],
+            "reason": None,
+            "recovered": True,
+        }
+    )
+    started = next(
+        ev for ev in run_log.read_events() if ev["event_type"] == "sync_started"
+    )
+    restart = {
+        k: v
+        for k, v in started.items()
+        if k not in ("schema_version", "event_id", "timestamp")
+    }
+    run_log.write_ahead({**restart, "resumed": True})  # the restart's step 3
+
+    # Steps 4 and 5 again, under the new attempt directory.
+    assert merge_by_sha(repos, base_sha) == ["f.txt", "g.txt"]
+    attempt = conflict_attempt(run_log.read_events(), cycle_id)
+    assert attempt == 2
+    second_dir = run_log.output_dir / "sync" / cycle_id / f"a{attempt}"
+    res = run_script(
+        repos,
+        EVIDENCE,
+        "--path",
+        plan.text_paths[0],
+        "--out",
+        f"{second_dir / '1'}/",
+        "--base-sha",
+        base_sha,
+        "--merge-base",
+        c["probe"].merge_base,
+    )
+    assert res.returncode == 0, (res.stdout, res.stderr)
+    assert res.payload["files"] == EVIDENCE_FILES
+    # Collecting into attempt 1's directory again is what the fix avoids.
+    again = run_script(
+        repos,
+        EVIDENCE,
+        "--path",
+        plan.text_paths[0],
+        "--out",
+        f"{first_dir / '1'}/",
+        "--base-sha",
+        base_sha,
+        "--merge-base",
+        c["probe"].merge_base,
+    )
+    assert again.stdout == "EVIDENCE_FAIL out_not_empty\n"
+    assert {
+        p: p.read_bytes() for p in sorted(first_dir.rglob("*")) if p.is_file()
+    } == kept
+    assert run_log.rebuild_state()["conflict_cycles"] == [cycle_id]

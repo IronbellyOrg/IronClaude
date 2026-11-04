@@ -2442,7 +2442,7 @@ def test_triad_decision_of_neither_shape_raises_attribute_error():
 # Purity
 # ---------------------------------------------------------------------------
 
-_ALLOWED_STDLIB = {"base64", "re", "dataclasses", "typing"}
+_ALLOWED_STDLIB = {"base64", "re", "dataclasses", "typing", "tomllib"}
 _ALLOWED_INTERNAL = {"models": {"MonitorState"}, "fsm": {"run_validation_gates"}}
 
 
@@ -2477,3 +2477,234 @@ def test_conflicts_makes_no_io_or_dynamic_calls():
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
     }
     assert not (called & banned)
+
+
+def test_tomllib_import_is_guarded_for_python_3_10():
+    """``import tomllib`` sits in a ``try`` whose ``ImportError`` handler binds
+    ``tomllib = None``, so the module still imports on Python 3.10."""
+    tree = ast.parse(CONFLICTS_PY.read_text(encoding="utf-8"))
+    guarded = False
+    for node in tree.body:
+        if not isinstance(node, ast.Try):
+            continue
+        imports = [
+            a.name
+            for stmt in node.body
+            if isinstance(stmt, ast.Import)
+            for a in stmt.names
+        ]
+        handler_binds_none = any(
+            isinstance(h.type, ast.Name)
+            and h.type.id == "ImportError"
+            and any(
+                isinstance(s, ast.Assign)
+                and [t.id for t in s.targets if isinstance(t, ast.Name)] == ["tomllib"]
+                and isinstance(s.value, ast.Constant)
+                and s.value.value is None
+                for s in h.body
+            )
+            for h in node.handlers
+        )
+        guarded = guarded or (imports == ["tomllib"] and handler_binds_none)
+    assert guarded
+
+
+# ---------------------------------------------------------------------------
+# Attempt directories (PR #378 review: a restart under the same cycle id)
+# ---------------------------------------------------------------------------
+
+
+def test_conflict_attempt_counts_sync_started_of_that_cycle_only():
+    events = [
+        {"event_type": "sync_started", "cycle_id": "conflict-1"},
+        {"event_type": "sync_concluded", "cycle_id": "conflict-1"},
+        {"event_type": "sync_started", "cycle_id": "sync-1"},
+        {"event_type": "sync_started", "cycle_id": 7},
+        "not an event",
+        {"event_type": "sync_started", "cycle_id": "conflict-1", "resumed": True},
+    ]
+    assert c.conflict_attempt(events[:1], "conflict-1") == 1
+    assert c.conflict_attempt(events, "conflict-1") == 2
+    assert c.conflict_attempt(events, "sync-1") == 1
+
+
+@pytest.mark.parametrize(
+    "events, cycle_id",
+    [
+        ([], "sync-1"),
+        ([{"event_type": "sync_concluded", "cycle_id": "sync-1"}], "sync-1"),
+        ("not a list", "sync-1"),
+        ([{"event_type": "sync_started", "cycle_id": "sync-1"}], None),
+    ],
+    ids=["empty", "no-start", "not-a-list", "non-string-id"],
+)
+def test_conflict_attempt_without_a_matching_start_raises(events, cycle_id):
+    with pytest.raises(ValueError):
+        c.conflict_attempt(events, cycle_id)
+
+
+# ---------------------------------------------------------------------------
+# Lock trust gate (PR #378 review, owner decision: halt Tier 1 before `uv lock`)
+# ---------------------------------------------------------------------------
+
+_needs_tomllib = pytest.mark.skipif(
+    c.tomllib is None, reason="tomllib needs Python 3.11 or later"
+)
+_CLEAN_PYPROJECT = (
+    '[project]\nname = "app"\nversion = "1.0"\ndependencies = ["requests>=2"]\n\n'
+    '[build-system]\nrequires = ["hatchling"]\nbuild-backend = "hatchling.build"\n'
+)
+
+
+@_needs_tomllib
+@pytest.mark.parametrize("value", ['["."]', "[]"], ids=["dot", "empty-list"])
+def test_lock_trust_backend_path_is_a_finding(value):
+    text = _CLEAN_PYPROJECT + f"backend-path = {value}\n"
+    assert c.lock_trust_findings(text) == ["build-system.backend-path"]
+
+
+@_needs_tomllib
+def test_lock_trust_non_empty_dynamic_is_a_finding_and_empty_is_not():
+    dynamic = _CLEAN_PYPROJECT.replace('version = "1.0"\n', 'dynamic = ["version"]\n')
+    assert c.lock_trust_findings(dynamic) == ["project.dynamic"]
+    empty = _CLEAN_PYPROJECT.replace(
+        'version = "1.0"\n', 'version = "1"\ndynamic = []\n'
+    )
+    assert c.lock_trust_findings(empty) == []
+
+
+@_needs_tomllib
+@pytest.mark.parametrize(
+    "sources",
+    [
+        '[tool.uv.sources]\nlib = { path = "../lib" }\n',
+        '[tool.uv.sources.lib]\npath = "../lib"\n',
+    ],
+    ids=["inline-table", "table-header"],
+)
+def test_lock_trust_path_source_is_a_finding(sources):
+    assert c.lock_trust_findings(_CLEAN_PYPROJECT + sources) == [
+        "tool.uv.sources.lib (path)"
+    ]
+
+
+@_needs_tomllib
+@pytest.mark.parametrize(
+    "sources",
+    [
+        "[tool.uv.sources]\n"
+        'lib = [{ path = "./lib", editable = true, marker = "sys_platform == \'linux\'" },'
+        ' { index = "pypi", marker = "sys_platform != \'linux\'" }]\n',
+        '[[tool.uv.sources.lib]]\npath = "./lib"\neditable = true\n'
+        "marker = \"sys_platform == 'linux'\"\n"
+        '[[tool.uv.sources.lib]]\nindex = "pypi"\n',
+    ],
+    ids=["inline-list", "array-of-tables"],
+)
+def test_lock_trust_editable_source_in_a_list_of_tables_is_a_finding(sources):
+    assert c.lock_trust_findings(_CLEAN_PYPROJECT + sources) == [
+        "tool.uv.sources.lib (path)",
+        "tool.uv.sources.lib (editable)",
+    ]
+
+
+@_needs_tomllib
+@pytest.mark.parametrize(
+    "source",
+    [
+        '{ git = "https://example.com/lib.git", rev = "v1" }',
+        '{ index = "pytorch" }',
+        '{ url = "https://example.com/lib-1.0-py3-none-any.whl" }',
+    ],
+    ids=["git", "index", "url"],
+)
+def test_lock_trust_git_index_and_url_sources_are_not_findings(source):
+    text = _CLEAN_PYPROJECT + f"[tool.uv.sources]\nlib = {source}\n"
+    assert c.lock_trust_findings(text) == []
+
+
+@_needs_tomllib
+def test_lock_trust_clean_pyprojects_pass():
+    assert c.lock_trust_findings(_CLEAN_PYPROJECT) == []
+    assert c.lock_trust_findings("") == []
+    repo_pyproject = (CONFLICTS_PY.parents[3] / "pyproject.toml").read_text(
+        encoding="utf-8"
+    )
+    assert c.lock_trust_findings(repo_pyproject) == []
+
+
+@_needs_tomllib
+def test_lock_trust_reports_every_finding_in_a_fixed_order():
+    text = (
+        '[project]\nname = "app"\ndynamic = ["version"]\n\n'
+        '[build-system]\nrequires = []\nbuild-backend = "be"\nbackend-path = ["."]\n\n'
+        '[tool.uv.sources]\nb = { path = "b", editable = true }\na = { path = "a" }\n'
+    )
+    assert c.lock_trust_findings(text) == [
+        "build-system.backend-path",
+        "project.dynamic",
+        "tool.uv.sources.a (path)",
+        "tool.uv.sources.b (path)",
+        "tool.uv.sources.b (editable)",
+    ]
+
+
+@_needs_tomllib
+@pytest.mark.parametrize(
+    "text",
+    [
+        "<<<<<<< ours\n[project]\n=======\n[project]\n>>>>>>> theirs\n",
+        '[project]\nname = "a"\nname = "b"\n',
+        "[project\n",
+        "tool = 1\n",
+        "build-system = 1\n",
+        "project = 1\n",
+        '[project]\ndynamic = "version"\n',
+        "[tool]\nuv = 1\n",
+        '[tool.uv]\nsources = "x"\n',
+        '[tool.uv]\nsources = ["a"]\n',
+        "[tool.uv.sources]\nlib = 1\n",
+        '[tool.uv.sources]\nlib = ["x"]\n',
+        '[tool.uv.sources]\nlib = { path = "a", editable = "yes" }\n',
+    ],
+    ids=[
+        "conflict-markers",
+        "duplicate-key",
+        "unterminated-header",
+        "tool-not-table",
+        "build-system-not-table",
+        "project-not-table",
+        "dynamic-not-list",
+        "uv-not-table",
+        "sources-string",
+        "sources-list",
+        "source-int",
+        "source-list-of-strings",
+        "editable-not-bool",
+    ],
+)
+def test_lock_trust_malformed_or_unexpected_shape_is_unreadable(text):
+    assert c.lock_trust_findings(text) == [c.LOCK_TRUST_UNREADABLE]
+
+
+@_needs_tomllib
+def test_lock_trust_deeply_nested_input_is_unreadable_not_an_exception():
+    text = "x = " + "[" * 100_000 + "]" * 100_000 + "\n"
+    assert c.lock_trust_findings(text) == [c.LOCK_TRUST_UNREADABLE]
+
+
+@pytest.mark.parametrize("value", [None, b"[project]\n", 1])
+def test_lock_trust_non_string_input_is_unreadable(value):
+    assert c.lock_trust_findings(value) == [c.LOCK_TRUST_UNREADABLE]
+
+
+def test_lock_trust_without_a_toml_parser_is_unreadable(monkeypatch):
+    monkeypatch.setattr(c, "tomllib", None)
+    assert c.lock_trust_findings(_CLEAN_PYPROJECT) == [c.LOCK_TRUST_UNREADABLE]
+
+
+@pytest.mark.skipif(c.tomllib is not None, reason="only Python 3.10 has no tomllib")
+def test_lock_trust_on_python_3_10_fails_closed():
+    assert c.lock_trust_findings(_CLEAN_PYPROJECT) == [c.LOCK_TRUST_UNREADABLE]
+    trigger = _CLEAN_PYPROJECT + 'backend-path = ["."]\n'
+    assert c.lock_trust_findings(trigger) == [c.LOCK_TRUST_UNREADABLE]

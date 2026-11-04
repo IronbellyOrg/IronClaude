@@ -51,7 +51,7 @@ Explicit only — two activation paths:
 | `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view "$REPO" --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--pr <N>` | — | Attach to an existing PR instead of opening one. |
-| `--conflict-max-tier {0,1,2}` | 1 | Highest merge-conflict tier to act on: 0 detect and report only; 1 also regenerate a conflicted root `uv.lock` (Tier 1); 2 also resolve text conflicts by stated intent (Tier 2, off by default). Tier 3 always halts at L3. |
+| `--conflict-max-tier {0,1,2}` | 1 | Highest merge-conflict tier to act on: 0 detect and report only; 1 also regenerate a conflicted root `uv.lock` (Tier 1); 2 also resolve text conflicts by stated intent (Tier 2, off by default). Tier 3 always halts at L3. Tier 1 halts before `uv lock` when the merged `pyproject.toml` declares `build-system.backend-path`, a non-empty `project.dynamic`, or a path or editable `[tool.uv.sources]` entry. Conflict resolution and validation run the project's build and test code, so run pr-submit only on PRs from collaborators you trust with your credentials. |
 | `--title` / `--body` | — | PR title / body. |
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
 | `--resume <jsonl>` | — | Reconstruct state from a write-ahead run-log. |

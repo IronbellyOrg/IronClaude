@@ -111,6 +111,56 @@ def test_conflict_mechanical_order_pins():
     )
 
 
+def _section(text: str, start: str, end: str) -> str:
+    assert start in text and end in text, (start, end)
+    return text[text.index(start) : text.index(end, text.index(start))]
+
+
+def test_step5_lock_trust_gate_runs_between_the_precheck_and_uv_lock():
+    """PR #378 review (owner decision): Tier 1 evaluates `lock_trust_findings` on the
+    merged pyproject.toml after the precheck and before `uv lock`, and halts
+    `sync_tier3` on a finding; the call is named exactly, and plain `uv run` (which
+    syncs the merged project) is ruled out until the gate passes."""
+    step5 = _section(_read(MECHANICAL_REF), "**Step 5. Resolve.**", "**Step 6")
+    _assert_in_order(
+        step5,
+        (
+            "--precheck",
+            "lock_trust_findings",
+            "sync_tier3",
+            "git checkout --ours -- uv.lock",
+            "uv lock\n",
+            "uv lock --check",
+        ),
+    )
+    assert (
+        "<python> -I -c 'import json, sys; from superclaude.pr_submit.conflicts"
+        in step5
+    )
+    assert "`uv run --no-sync python`" in step5
+    assert "never use plain `uv run`" in step5
+
+
+def test_trust_limit_is_documented_in_the_refs_skill_and_command():
+    for path in (MECHANICAL_REF, SKILL_MD, COMMAND_MD):
+        assert "collaborators you trust with your credentials" in _prose(path), path
+
+
+def test_every_attempt_writes_under_its_own_attempt_directory():
+    """PR #378 review: a restart keeps its cycle id, so each attempt's files go under
+    `<output-dir>/sync/<cycle_id>/a<attempt>/` with the attempt from the core."""
+    mechanical = _read(MECHANICAL_REF)
+    step3 = _section(mechanical, "**Step 3. Write-ahead.**", "**Step 4.")
+    assert "conflict_attempt(<run-log events>, cycle_id)" in step3
+    assert "cycle_dir := <output-dir>/sync/<cycle_id>/a<attempt>/" in step3
+    assert "sync/<cycle_id>/resolution.md" not in mechanical
+    intent = _read(INTENT_REF)
+    assert "--out <cycle_dir><n>/" in intent
+    assert "<cycle_dir>resolution.md" in intent
+    assert "`<cycle_dir>` (this attempt only) as `output_dir`" in intent
+    assert "<output-dir>/sync/<cycle_id>/<n>/" not in intent
+
+
 INTENT_PINS = (
     "scripts/collect-conflict-evidence.sh",
     "evidence-validator",

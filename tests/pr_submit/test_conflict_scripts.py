@@ -827,6 +827,75 @@ def test_f5_auto_merged_path_reverted_to_head_is_staged_unexpected(tmp_path):
     assert_no_commit(repos, setup)
 
 
+@pytest.mark.parametrize(
+    "value, width",
+    [("9", 9), ("010", 10), ("+9", 9), ("08", 8), ("9x", 9)],
+    ids=["9", "leading-zero-010", "plus-sign", "leading-zero-08", "trailing-text"],
+)
+def test_wider_conflict_marker_size_left_in_place_is_markers(tmp_path, value, width):
+    """git writes markers at the path's conflict-marker-size width, read as C atoi()
+    reads it; the gate counts markers at that same width, so staging the file as the
+    merge left it fails."""
+    repos = make_repos(
+        tmp_path,
+        {
+            "README.md": "readme\n",
+            "f.txt": "line1\nline2\nline3\n",
+            ".gitattributes": f"f.txt conflict-marker-size={value}\n",
+        },
+    )
+    _content_conflict(repos)
+    setup = start_merge(repos)
+    left = (repos.work / "f.txt").read_text(encoding="utf-8")
+    assert "<" * width + " " in left, f"git did not write {width}-wide markers"
+    assert "<" * (width + 1) not in left
+    repos.git(repos.work, "add", "--", "f.txt")
+    res = finish_commit(repos, setup, ["f.txt"])
+    assert_fail(res, "markers")
+    assert_no_commit(repos, setup)
+
+
+def test_unrelated_mode_change_is_staged_unexpected(tmp_path):
+    """A staged mode change keeps the blob id; the gate compares the index with the
+    merge tree entry by entry (mode included), so it fails."""
+    repos = make_repos(
+        tmp_path,
+        {"README.md": "readme\n", "f.txt": "line1\nline2\nline3\n", "run.sh": "x\n"},
+    )
+    _content_conflict(repos)
+    setup = start_merge(repos)
+    resolve(repos, {"f.txt": RESOLVED_F})
+    (repos.work / "run.sh").chmod(0o755)
+    repos.git(repos.work, "add", "--", "run.sh")
+    assert repos.git(repos.work, "ls-files", "-s", "--", "run.sh").startswith("100755")
+    res = finish_commit(repos, setup, ["f.txt"])
+    assert_fail(res, "staged_unexpected")
+    assert "run.sh" in res.stderr
+    assert_no_commit(repos, setup)
+
+
+def test_file_swapped_for_symlink_with_same_bytes_is_staged_unexpected(tmp_path):
+    """A symlink whose target text equals the file content has the same blob id; the
+    entry type differs from the merge tree, so the gate fails."""
+    repos = make_repos(tmp_path)
+    _content_conflict(repos)
+    setup = start_merge(repos)
+    resolve(repos, {"f.txt": RESOLVED_F})
+    readme = repos.work / "README.md"
+    blob_before = repos.git(repos.work, "rev-parse", ":0:README.md").strip()
+    readme.unlink()
+    os.symlink("readme\n", readme)
+    repos.git(repos.work, "add", "--", "README.md")
+    assert repos.git(repos.work, "rev-parse", ":0:README.md").strip() == blob_before
+    assert repos.git(repos.work, "ls-files", "-s", "--", "README.md").startswith(
+        "120000"
+    )
+    res = finish_commit(repos, setup, ["f.txt"])
+    assert_fail(res, "staged_unexpected")
+    assert "README.md" in res.stderr
+    assert_no_commit(repos, setup)
+
+
 @pytest.mark.parametrize("mode", ["commit", "precheck"])
 def test_f6_foreign_merge_and_no_merge_head(tmp_path, mode):
     repos = make_repos(tmp_path)
@@ -1403,6 +1472,112 @@ def test_a_command_hitting_the_time_bound_is_timeout(tmp_path):
     res = run_evidence(repos, "f.txt", tmp_path / "evidence-timeout", merge)
     assert_evidence_fail(res, "timeout")
     assert "60-second budget" in res.stderr
+
+
+_NO_TIMEOUT_TOOLS = (
+    "bash", "jq", "tr", "cut", "wc", "head", "tail", "ls", "mkdir", "rmdir", "cat",
+    "rm", "printf", "sed", "grep", "mktemp", "env", "dirname", "basename", "sleep",
+)  # fmt: skip
+
+
+def _run_evidence_without_timeout(
+    repos: Repos, merge: EvidenceMerge, out: Path, *, hang_on_show: bool
+) -> tuple[ProbeRun, float]:
+    """Run the collector with a PATH that has no `timeout`; git is a wrapper that,
+    when asked, replaces itself with a 90-second sleep on `show`."""
+    import time
+
+    bin_dir = repos.root / "bin-no-timeout"
+    bin_dir.mkdir()
+    for tool in _NO_TIMEOUT_TOOLS:
+        found = shutil.which(tool)
+        if found is None:
+            pytest.skip(f"{tool} is not on PATH")
+        (bin_dir / tool).symlink_to(found)
+    hang = 'for a in "$@"; do [ "$a" = show ] && exec sleep 90; done\n'
+    wrapper = bin_dir / "git"
+    wrapper.write_text(
+        "#!/usr/bin/env bash\n"
+        + (hang if hang_on_show else "")
+        + f'exec "{GIT}" "$@"\n',
+        encoding="utf-8",
+    )
+    wrapper.chmod(0o755)
+    env = dict(repos.env, PATH=str(bin_dir))
+    started = time.monotonic()
+    res = subprocess.run(
+        [
+            str(EVIDENCE),
+            "--path",
+            "f.txt",
+            "--out",
+            str(out),
+            "--base-sha",
+            merge.base_sha,
+            "--merge-base",
+            merge.merge_base,
+        ],
+        cwd=repos.work,
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=150,
+    )
+    elapsed = time.monotonic() - started
+    assert not (repos.work / ".git" / "sc-pr-submit-tmp").exists()
+    assert len(res.stdout.splitlines()) == 1, res.stdout
+    return ProbeRun(res.returncode, res.stdout, res.stderr), elapsed
+
+
+@pytest.mark.slow
+def test_without_timeout_a_hung_read_is_stopped_at_the_budget(tmp_path):
+    """No `timeout` on PATH: a git read that would hang for 90 seconds is stopped at
+    the 60-second budget and reported as `timeout` (PR #378 review finding)."""
+    repos = make_repos(tmp_path)
+    _content_conflict(repos)
+    merge = start_zdiff3_merge(repos)
+    res, elapsed = _run_evidence_without_timeout(
+        repos, merge, tmp_path / "evidence-hang", hang_on_show=True
+    )
+    assert_evidence_fail(res, "timeout")
+    assert "60-second budget" in res.stderr
+    assert elapsed < 75, f"the run took {elapsed:.1f}s; the budget is 60s"
+
+
+def test_without_timeout_a_normal_run_still_succeeds(tmp_path):
+    repos = make_repos(tmp_path)
+    _content_conflict(repos)
+    merge = start_zdiff3_merge(repos)
+    out = tmp_path / "evidence-no-timeout"
+    res, elapsed = _run_evidence_without_timeout(repos, merge, out, hang_on_show=False)
+    assert res.returncode == 0, res.stderr
+    assert res.payload["files"] == ALL_EVIDENCE_FILES
+    assert elapsed < 30, f"the run took {elapsed:.1f}s"
+
+
+def test_restart_attempt_collects_into_a_fresh_attempt_directory(tmp_path):
+    """Illustrates the attempt-directory convention at the script level (the script
+    itself did not change for this finding; the guards are conflict_attempt, the
+    protocol pin and the e2e restart test): a resume restart keeps its cycle id, so
+    attempt 1's evidence is still in `sync/<cycle_id>/a1/`; attempt 2 collects into
+    `sync/<cycle_id>/a2/` and succeeds (refs/conflict-mechanical.md step 3)."""
+    repos = make_repos(tmp_path)
+    _content_conflict(repos)
+    merge = start_zdiff3_merge(repos)
+    cycle = tmp_path / "out" / "sync" / "sync-1"
+    first = run_evidence(repos, "f.txt", cycle / "a1" / "1", merge)
+    assert first.returncode == 0, first.stderr
+    kept = {
+        name: (cycle / "a1" / "1" / name).read_bytes() for name in ALL_EVIDENCE_FILES
+    }
+    again = run_evidence(repos, "f.txt", cycle / "a1" / "1", merge)
+    assert_evidence_fail(again, "out_not_empty")
+    second = run_evidence(repos, "f.txt", cycle / "a2" / "1", merge)
+    assert second.returncode == 0, second.stderr
+    assert _listing(cycle / "a2" / "1") == sorted(ALL_EVIDENCE_FILES)
+    assert {
+        name: (cycle / "a1" / "1" / name).read_bytes() for name in ALL_EVIDENCE_FILES
+    } == kept
 
 
 def test_evidence_script_static_rules():

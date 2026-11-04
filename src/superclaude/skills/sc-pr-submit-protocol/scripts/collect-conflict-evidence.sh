@@ -69,18 +69,37 @@ check_deadline() {
     [ "$SECONDS" -lt "$DEADLINE" ] || fail timeout "the evidence run exceeded ${LIMIT_SECONDS} seconds"
 }
 
-# bounded <command>... : run one command within the remaining budget (under
-# `timeout` when it is on PATH). Returns the command's exit status; a timeout fails.
+# bounded <command>... : run one command within the remaining budget, under `timeout`
+# when it is on PATH, else as a background job this shell polls and stops at the
+# deadline. Returns the command's exit status; running past the budget fails timeout.
 bounded() {
-    local remaining rc
-    check_deadline
+    local remaining rc pid
+    # Computed once: a budget that reaches 0 between a check and its use would make
+    # `timeout 0` run the command with no limit.
     remaining=$((DEADLINE - SECONDS))
+    [ "$remaining" -gt 0 ] || fail timeout "the evidence run exceeded ${LIMIT_SECONDS} seconds"
     if command -v timeout >/dev/null 2>&1; then
         timeout "$remaining" "$@"
         rc=$?
         [ "$rc" -ne 124 ] || fail timeout "'$*' did not finish within the ${LIMIT_SECONDS}-second budget"
     else
-        "$@"
+        # The job keeps the caller's redirections but not fds 3 and 4, so a child that
+        # outlives it cannot hold the caller's stdout or stderr open.
+        "$@" 3>&- 4>&- &
+        pid=$!
+        while kill -0 "$pid" 2>/dev/null; do
+            if [ "$SECONDS" -ge "$DEADLINE" ]; then
+                kill "$pid" 2>/dev/null
+                sleep 1
+                if kill -0 "$pid" 2>/dev/null; then
+                    kill -s KILL "$pid" 2>/dev/null
+                fi
+                wait "$pid" 2>/dev/null
+                fail timeout "'$*' did not finish within the ${LIMIT_SECONDS}-second budget"
+            fi
+            sleep 0.2 2>/dev/null || sleep 1
+        done
+        wait "$pid"
         rc=$?
     fi
     check_deadline

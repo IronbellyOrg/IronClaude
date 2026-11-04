@@ -68,7 +68,7 @@ Require `pr_head_ok(<local branch>, <local HEAD>, headRefName, headRefOid, isCro
 
 **Step 2. Fresh probe.** The section 2 probe of this hook (exactly one probe per cycle). Require `foreign_op` null (J-16, J-17) and `merge_preflight_ok(<decoded status_b64>)` returning `(True, [])` (tracked tree clean, untracked files tolerated; J-18). Rebuild `plan := conflict_plan(...)` and route again; only `resolve_push` and `resolve_local` continue. Failure: `sync_foreign_operation`; or `merge_preflight_dirty` naming the files (never stash, J-20); nothing merged.
 
-**Step 3. Write-ahead.** `cycle_id := conflict_cycle_id(plan.tier, len(conflict_cycles) + 1)`, or the reused open cycle id on a resume restart. Append `sync_started{run_id, cycle_id, tier, kind, hook, base_ref, base_sha, pre_push_sha, merge_tree_oid, conflict_max_tier, review_terminal, paths, resumed}` before the merge command.
+**Step 3. Write-ahead.** `cycle_id := conflict_cycle_id(plan.tier, len(conflict_cycles) + 1)`, or the reused open cycle id on a resume restart. Append `sync_started{run_id, cycle_id, tier, kind, hook, base_ref, base_sha, pre_push_sha, merge_tree_oid, conflict_max_tier, review_terminal, paths, resumed}` before the merge command. Then `attempt := conflict_attempt(<run-log events>, cycle_id)` (the number of `sync_started` records for this `cycle_id`, counting the one just appended: 1 for a first run, 2 after one restart) and `cycle_dir := <output-dir>/sync/<cycle_id>/a<attempt>/`. Every file of this attempt (evidence, `resolution.md`, message, manifest) goes under `cycle_dir`, so a restart under the same `cycle_id` never meets the files of an earlier attempt; those stay where they are.
 
 **Step 4. Merge by SHA.** Per-invocation config only (no stored config), rerere off (R-128), hooks on:
 
@@ -79,10 +79,15 @@ git diff --name-only --diff-filter=U
 
 The unmerged set must equal the plan's conflicted path set. Failure: exit 1 without `MERGE_HEAD` (git refused, for example local changes would be overwritten) is `sync_merge_failed` with git's file list and `sync_concluded{halted}`; exit 0, or an unmerged set that differs from the probe, is abort and `sync_merge_failed` (the probe and the merge disagree on the same `base_sha`).
 
-**Step 5. Resolve.** Tier 1, the `uv.lock` rule (R-58, R-189, S-46):
+**Step 5. Resolve.** Tier 1, the `uv.lock` rule (R-58, R-189, S-46). First the precheck:
 
 ```bash
 scripts/finish-merge.sh --base-sha <base_sha> --precheck
+```
+
+Then the lock trust gate (PR #378 review): `uv lock` runs build code that the merged `pyproject.toml` can name. Evaluate `lock_trust_findings` on `<toplevel>/pyproject.toml`, the file `uv lock` reads (after the precheck it equals the merge result), with the Python interpreter that passed the CI-wait preflight import, run with `-I` and the file path as its argument: `<python> -I -c 'import json, sys; from superclaude.pr_submit.conflicts import lock_trust_findings; print(json.dumps(lock_trust_findings(open(sys.argv[1], encoding="utf-8").read())))' <toplevel>/pyproject.toml`. `<python>` is the installed package's interpreter, or in a development checkout of this package `uv run --no-sync python`. Between step 4 and this gate's `[]` never use plain `uv run`: it locks and syncs the merged project, which runs the build code this gate keeps out. The call prints one JSON list. Any finding (`build-system.backend-path`, `project.dynamic`, a `[tool.uv.sources]` path or editable entry, or `pyproject.toml unreadable`), or a call that fails or prints anything else: abort (section 9) and halt `sync_tier3`, and `uv lock` never runs. The halt message is the section 4 template with `File 1/1: \`pyproject.toml\` (\`lock_trust\`)` and, in place of the intent sentences, "`uv lock` would run code from this tree: <findings joined by ", ">." `[]`: from the top of the work tree,
+
+```bash
 git checkout --ours -- uv.lock
 uv lock
 uv lock --check
@@ -94,13 +99,13 @@ git add -- uv.lock
 - A `uv` command fails: abort, `sync_merge_failed` (no retry loop).
 - Tier 2: follow `refs/conflict-intent.md` (Tier 2 only), one file at a time (J-40), staging each finished path with `git add -- <path>` or `git rm -- <path>` (J-56); then any `regen:*` path by its rule above, after the precheck. A Tier 2 halt condition: abort, `sync_tier3`.
 
-**Step 6 (Tier 2 only). Record and grounding check.** Write `<output-dir>/sync/<cycle_id>/resolution.md` as `refs/conflict-intent.md` (Tier 2) describes; `resolution_record_ok(parse_resolution_record(text), plan.text_paths)` must return `[]`. Then the Tier 2 grounding check: spawn `evidence-validator` once (Tier 2 only) over `resolution.md` and the evidence directory; one revision pass. Still unsupported after one revision, or any record problem: abort, `sync_tier3`.
+**Step 6 (Tier 2 only). Record and grounding check.** Write `<cycle_dir>resolution.md` as `refs/conflict-intent.md` (Tier 2) describes; `resolution_record_ok(parse_resolution_record(text), plan.text_paths)` must return `[]`. Then the Tier 2 grounding check: spawn `evidence-validator` once (Tier 2 only) over `resolution.md` and the evidence directory; one revision pass. Still unsupported after one revision, or any record problem: abort, `sync_tier3`.
 
 **Step 7. VAL.** Section 6. Red after the retry: abort, `sync_validation_failed`.
 
 **Step 8. L2 stops here** (`resolve_local`): append `sync_concluded{left_in_progress}`, status `halt_before_push`, and print: "The merge of `origin/<base>`@<base_sha> is resolved and validated but not committed. Review it, then run `git commit` yourself and push; or `git merge --abort`."
 
-**Step 9. Finish gate and commit.** Write the message file (`merge_commit_message(base_ref=..., head_branch=HEAD_BRANCH, tier=..., rule_patterns=..., record=<Tier 2 record or None>, lock_changes=...)` plus the session's attribution lines, OQ-13) and the manifest (`finish_manifest(plan.listing, resolved_paths)`: one `<stage-1 oid or ->` tab `<path>` line per resolved path), both under `<output-dir>/sync/<cycle_id>/`. Then:
+**Step 9. Finish gate and commit.** Write the message file (`merge_commit_message(base_ref=..., head_branch=HEAD_BRANCH, tier=..., rule_patterns=..., record=<Tier 2 record or None>, lock_changes=...)` plus the session's attribution lines, OQ-13) and the manifest (`finish_manifest(plan.listing, resolved_paths)`: one `<stage-1 oid or ->` tab `<path>` line per resolved path), both under `<cycle_dir>` (step 3). Then:
 
 ```bash
 scripts/finish-merge.sh --base-sha <base_sha> --merge-tree-oid <merge_tree_oid> --manifest <manifest_file> --message-file <message_file>
@@ -123,6 +128,7 @@ Steps 10 to 12 are section 7 (Publish); step 13 is section 8 (After the push).
 
 ## 6. VAL for a conflict cycle
 
+- **Trust limit:** conflict resolution and VAL run the project's build and test code on the merged tree (`uv lock`, `uv run pytest`, `make test`, the commit hooks); the step 5 lock trust gate covers only the `pyproject.toml` fields it names. Run sc:pr-submit only on PRs from collaborators you trust with your credentials.
 - **Tier 1:** `VG-1` is the rule's check command (`uv lock --check`; the changed area is the lock file, which has no tests), plus `VG-3`, `VG-4`, and `VG-5` only when a resolved path is under a synced component. The report adds the line "no tests ran for the regenerated lock file; CI on the merge head is the test signal".
 - **Tier 2:** `VG-1` is targeted tests over the resolved paths (plus the rule check when a `regen:*` path is in the cycle), `VG-2` `make test` is mandatory, plus `VG-3`, `VG-4`, `VG-5` when applicable.
 
@@ -220,7 +226,7 @@ git rev-parse -q --verify MERGE_HEAD
 git merge --abort
 ```
 
-- **Abort** when the resolution is incomplete: Tier 3 found mid-way, validator disagreement, VAL red after the retry, a `uv` failure. `resolution.md` and the evidence files are kept in the output dir.
+- **Abort** when the resolution is incomplete: Tier 3 found mid-way, validator disagreement, VAL red after the retry, a `uv` failure, a finding of the step 5 lock trust gate. `resolution.md` and the evidence files (Tier 2) are kept in the output dir.
 - **Leave the merge in progress** only when the resolution is complete and validated but the run must stop: L2 step 8, and `hook_rejected` at step 9 (OQ-19, J-53). The finish-gate failures `unmerged`, `markers` and `staged_unexpected` also leave it in progress with nothing committed, so the operator can inspect it.
 
 ## 10. Resume
@@ -244,7 +250,7 @@ git rev-list --parents -n 1 HEAD
 | 4 | the open cycle has a `push_completed` | `complete_after_push`: append `sync_concluded{pushed, recovered: true}`; `sync`: the Wave 8 CI wait at `wait_sha = target_sha` with the recorded `expect_checks` (missing reads as true); `merge`: resume at `S5A_RETRIGGER_REVIEW` (`pending_retriggers` posts only the reviewers still missing) |
 | 4b | a `push_initiated` without `push_completed`, and `dangling` is this cycle's record | `crash_window`: `resolve_crash_window_plan` settles it by the three-way remote check and closes the cycle |
 | 4b' | the same, but `dangling` is `None` or another cycle's | `halt`, `resume_unrepresentable`; no push is retried; append `sync_concluded{halted, reason: resume_unrepresentable, recovered: true}` once; the message names `cycle_id` and `target_sha` |
-| 5 | `MERGE_HEAD` in progress and equal to the open cycle's `base_sha` | `abort_and_restart`: our own interrupted merge; abort it, append `sync_concluded{aborted, recovered: true}`, restart under the same `cycle_id` (`sync_started{resumed: true}`) at the plan's `hook` with `entering := review_terminal` |
+| 5 | `MERGE_HEAD` in progress and equal to the open cycle's `base_sha` | `abort_and_restart`: our own interrupted merge; abort it, append `sync_concluded{aborted, recovered: true}`, restart under the same `cycle_id` (`sync_started{resumed: true}`) at the plan's `hook` with `entering := review_terminal`; the restart's step 3 gives it a new attempt directory `<output-dir>/sync/<cycle_id>/a<attempt>/` |
 | 6 | any other foreign operation | `halt`, `sync_foreign_operation` |
 | 7 | local HEAD equals the open cycle's `pre_push_sha` | `restart`: append `sync_concluded{aborted, recovered: true}` and restart as row 5 |
 | 8 | anything else (including a local two-parent merge commit no `push_initiated` covers) | `halt`, `resume_unrepresentable`; the commit is named; it is never published without its finish gate and VAL (OQ-22) |
@@ -293,7 +299,7 @@ The `merge_preflight_dirty` message: "Your checkout has uncommitted changes to t
 | `sync_head_mismatch` | step 1; step 10(a) | The PR head moved or the checkout is not the PR head; the local merge commit is named when one exists. |
 | `sync_range_mismatch` | step 10(b); `FINISH_FAIL parents_mismatch` | The commit's parents are not exactly the PR head and the recorded base tip. |
 | `sync_base_moved` | step 10(c) | The recorded base tip is no longer on `origin/<base>` (the base was rewritten). |
-| `sync_tier3` | steps 5 to 6 (Tier 2 escalation: semantic, intent not statable, validator disagreement, evidence failure, unreadable file) | The Tier 3 template plus the reason; the merge was aborted; `resolution.md` kept. |
+| `sync_tier3` | steps 5 to 6 (Tier 2 escalation: semantic, intent not statable, validator disagreement, evidence failure, unreadable file); step 5 lock trust gate (Tier 1 or Tier 2: the merged `pyproject.toml` names code `uv lock` would run) | The Tier 3 template plus the reason (for the lock trust gate, each finding); the merge was aborted; `resolution.md` kept (Tier 2). |
 | `sync_validation_failed` | step 7 | The red gate; a red base can cause this (the section 6 command shows the checks of `origin/<base>`); the merge was aborted. |
 | `push_rejected` | step 12; resume row 1 | git's rejection verbatim; never re-driven. |
 | `push_failed` | step 12 (first push or Branch B re-drive) | The push failed (stderr verbatim). After a first push, `--resume` checks whether it landed (three-way remote check, row 4b). After a failed re-drive, `--resume` does not retry: it halts `resume_unrepresentable` (row 4b'). |

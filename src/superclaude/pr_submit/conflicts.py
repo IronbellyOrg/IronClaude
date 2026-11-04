@@ -8,8 +8,9 @@ helpers, and the two pure resume planners.
 
 Module rules (design section 5.1):
 
-- Standard library only (``base64``, ``re``, ``dataclasses``, ``typing``); the only
-  internal imports are ``MonitorState`` from ``.models`` and, for the validation
+- Standard library only (``base64``, ``re``, ``dataclasses``, ``typing`` and, on
+  Python 3.11 and later, ``tomllib``; on 3.10 ``tomllib`` is ``None`` and the lock
+  trust gate fails closed); the only internal imports are ``MonitorState`` from ``.models`` and, for the validation
   status helper, ``run_validation_gates`` from ``.fsm``. This module never imports
   ``recovery`` (``recovery`` imports this module), so it defines its own branch
   literals.
@@ -24,6 +25,11 @@ Module rules (design section 5.1):
 import base64
 import re
 from dataclasses import dataclass
+
+try:
+    import tomllib
+except ImportError:  # Python 3.10: no TOML parser; lock_trust_findings fails closed
+    tomllib = None
 
 from .fsm import run_validation_gates
 from .models import MonitorState
@@ -208,6 +214,62 @@ MECHANICAL_RULES: tuple[MechanicalRule, ...] = (
         ("uv", "lock", "--check"),
     ),
 )
+
+# ---------------------------------------------------------------------------
+# Lock trust gate (PR #378 review, owner decision): `uv lock` runs build code that
+# the merged pyproject.toml can name. Tier 1 halts before `uv lock` when it does.
+# ---------------------------------------------------------------------------
+
+LOCK_TRUST_UNREADABLE: str = "pyproject.toml unreadable"
+
+
+def lock_trust_findings(pyproject_text: object) -> list[str]:
+    """The fields of the merged ``pyproject.toml`` text that would make ``uv lock``
+    run code from the tree; ``[]`` means the gate passes.
+
+    Findings, in this order: ``"build-system.backend-path"`` (the key is present),
+    ``"project.dynamic"`` (a non-empty list), then for each ``[tool.uv.sources]`` name
+    in sorted order ``"tool.uv.sources.<name> (path)"`` and
+    ``"tool.uv.sources.<name> (editable)"`` (a source value is a table or a list of
+    tables). Fails closed: no TOML parser (Python 3.10), a non-string input, a parse
+    error or an unexpected shape returns ``[LOCK_TRUST_UNREADABLE]``.
+    """
+    unreadable = [LOCK_TRUST_UNREADABLE]
+    if tomllib is None or not isinstance(pyproject_text, str):
+        return unreadable
+    try:
+        data = tomllib.loads(pyproject_text)
+    except (ValueError, RecursionError):  # deeply nested input can exhaust the stack
+        return unreadable
+    build_system = data.get("build-system", {})
+    project = data.get("project", {})
+    tool = data.get("tool", {})
+    if not all(isinstance(t, dict) for t in (build_system, project, tool)):
+        return unreadable
+    uv = tool.get("uv", {})
+    sources = uv.get("sources", {}) if isinstance(uv, dict) else None
+    dynamic = project.get("dynamic", [])
+    if not isinstance(sources, dict) or not isinstance(dynamic, list):
+        return unreadable
+    findings: list[str] = []
+    if "backend-path" in build_system:
+        findings.append("build-system.backend-path")
+    if dynamic:
+        findings.append("project.dynamic")
+    for name in sorted(sources):
+        value = sources[name]
+        entries = [value] if isinstance(value, dict) else value
+        if not isinstance(entries, list) or not all(
+            isinstance(e, dict) for e in entries
+        ):
+            return unreadable
+        if any(not isinstance(e.get("editable", False), bool) for e in entries):
+            return unreadable
+        if any("path" in e for e in entries):
+            findings.append(f"tool.uv.sources.{name} (path)")
+        if any(e.get("editable") is True for e in entries):
+            findings.append(f"tool.uv.sources.{name} (editable)")
+    return findings
 
 
 @dataclass(frozen=True)
@@ -1152,6 +1214,29 @@ def conflict_cycle_id(tier: int, n: int) -> str:
     if _is_int(tier) and tier == 2:
         return f"conflict-{n}"
     raise ValueError("conflict cycles exist only for tier 1 or 2")
+
+
+def conflict_attempt(events: object, cycle_id: object) -> int:
+    """The attempt number of ``cycle_id``: how many ``sync_started`` events in the
+    run-log ``events`` carry that id (1 for a first run, 2 after one restart).
+
+    Called right after step 3 appends the cycle's ``sync_started``, so a count of 0
+    (or a non-list, or a non-string id) is a contract breach: ``ValueError``.
+    """
+    if not isinstance(events, list) or not isinstance(cycle_id, str):
+        raise ValueError(
+            "conflict_attempt needs a list of events and a string cycle id"
+        )
+    count = sum(
+        1
+        for ev in events
+        if isinstance(ev, dict)
+        and ev.get("event_type") == "sync_started"
+        and ev.get("cycle_id") == cycle_id
+    )
+    if count == 0:
+        raise ValueError(f"no sync_started event for {cycle_id!r}")
+    return count
 
 
 def is_conflict_cycle(cycle_id: object) -> bool:

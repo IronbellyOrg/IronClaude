@@ -318,6 +318,7 @@ A validation retry does NOT increment `round_counter`.
 - Apply any edit at L1, or push/reply at L2.
 - `git add` any `.claude/` path except `.claude/settings.json`.
 - Rebase a published PR head (at L1+ the create path no longer rebases), stash, take one side for a whole tree, commit a merge without `scripts/finish-merge.sh`, or push a merge commit whose parents are not exactly the PR head and the recorded base tip (`merge_parent_ok`).
+- Run `uv lock` for any `uv.lock` regeneration when the merged `pyproject.toml` declares one of the fields `lock_trust_findings` checks (`refs/conflict-mechanical.md` step 5: it halts `sync_tier3` instead), or run plain `uv run` between a conflict cycle's merge (step 4) and that gate's pass: it syncs the merged project. Evaluate the core in that window with the installed package's interpreter or, in a development checkout, `uv run --no-sync python`. Trust limit: conflict resolution and VAL still run the project's build and test code, so use conflict resolution only on PRs from collaborators you trust with your credentials.
 
 ## Error Handling
 

@@ -202,16 +202,39 @@ case "$DIFF_EXIT" in
     *) cat -- "$TMP/err" >&2; fail tree_dirty "git diff --quiet exited $DIFF_EXIT" ;;
 esac
 
-# count_markers <file> : print the number of conflict-marker lines in <file>.
+# marker_width <path> : print the conflict-marker width git uses for <path>. git reads
+# the conflict-marker-size attribute as C atoi() does (leading blanks, an optional
+# sign, then the leading digits) and uses 7 when that is not positive; so does this.
+marker_width() {
+    local name attr value sign digits
+    git check-attr -z conflict-marker-size -- "$1" >"$TMP/attr" 2>"$TMP/err" || return 1
+    { IFS= read -r -d '' name && IFS= read -r -d '' attr && IFS= read -r -d '' value; } <"$TMP/attr" \
+        || value=""
+    value="${value#"${value%%[![:space:]]*}"}"
+    sign=""
+    case "$value" in
+        [+-]*) sign="${value%"${value#?}"}"; value="${value#?}" ;;
+    esac
+    digits="${value%%[!0-9]*}"
+    digits="${digits#"${digits%%[!0]*}"}"
+    if [ "$sign" = "-" ] || [ -z "$digits" ]; then
+        digits=7
+    fi
+    printf '%s' "$digits"
+}
+
+# count_markers <file> <width> : print the number of conflict-marker lines of exactly
+# <width> marker characters in <file>.
 count_markers() {
-    local n rc
-    n="$(grep -a -c -E '^(<{7}|[|]{7}|={7}|>{7})( |$)' -- "$1")"
+    local n rc w="$2"
+    n="$(grep -a -c -E "^(<{$w}|[|]{$w}|={$w}|>{$w})( |\$)" -- "$1")"
     rc=$?
     [ "$rc" -le 1 ] || return 1
     printf '%s' "${n:-0}"
 }
 
-# Step 4: no resolved path holds more marker lines than its stage-1 blob did.
+# Step 4: no resolved path holds more marker lines than its stage-1 blob did. Markers
+# are counted at the width git writes them for the path (its conflict-marker-size).
 i=0
 while [ "$i" -lt "${#M_PATHS[@]}" ]; do
     path="${M_PATHS[$i]}"
@@ -219,35 +242,30 @@ while [ "$i" -lt "${#M_PATHS[@]}" ]; do
     i=$((i + 1))
     # A path resolved by deletion is not in the index and is skipped.
     git rev-parse -q --verify ":0:$path" >/dev/null 2>&1 || continue
+    width="$(marker_width "$path")" \
+        || { cat -- "$TMP/err" >&2; fail markers "cannot read the conflict-marker-size attribute of $path"; }
     git cat-file blob ":0:$path" >"$TMP/result" 2>"$TMP/err" \
         || { cat -- "$TMP/err" >&2; fail markers "cannot read the staged blob of $path"; }
-    have="$(count_markers "$TMP/result")" || fail markers "cannot count markers in $path"
+    have="$(count_markers "$TMP/result" "$width")" || fail markers "cannot count markers in $path"
     base_count=0
     if [ "$oid" != "-" ]; then
         git cat-file blob "$oid" >"$TMP/base" 2>"$TMP/err" \
             || { cat -- "$TMP/err" >&2; fail usage "manifest stage-1 blob $oid of $path is not readable"; }
-        base_count="$(count_markers "$TMP/base")" || fail markers "cannot count markers in the stage-1 blob of $path"
+        base_count="$(count_markers "$TMP/base" "$width")" || fail markers "cannot count markers in the stage-1 blob of $path"
     fi
     [ "$have" -le "$base_count" ] \
         || fail markers "$path holds $have conflict-marker line(s); its stage-1 blob had $base_count"
 done
 
-# Step 5: outside the manifest, the index equals the merge-tree result path by path.
-git diff --cached --name-only --no-renames -z HEAD >"$TMP/staged" 2>"$TMP/err" \
-    || { cat -- "$TMP/err" >&2; fail staged_unexpected "git diff --cached HEAD failed"; }
-git diff --name-only --no-renames -z HEAD "$MT_OID" >"$TMP/merged" 2>"$TMP/err" \
-    || { cat -- "$TMP/err" >&2; fail staged_unexpected "git diff of HEAD against the merge tree failed"; }
-for list_file in "$TMP/staged" "$TMP/merged"; do
-    read_nul_list "$list_file"
-    for path in ${LIST[@]+"${LIST[@]}"}; do
-        if in_list "$path" ${M_PATHS[@]+"${M_PATHS[@]}"}; then
-            continue
-        fi
-        index_blob="$(git rev-parse -q --verify ":0:$path" 2>/dev/null)" || index_blob=""
-        merged_blob="$(git rev-parse -q --verify "${MT_OID}:$path" 2>/dev/null)" || merged_blob=""
-        [ "$index_blob" = "$merged_blob" ] \
-            || fail staged_unexpected "the index differs from the merge-tree result at $path"
-    done
+# Step 5: outside the manifest, the index equals the merge-tree result path by path:
+# content, file mode and entry type (a blob id alone does not cover the mode).
+git diff --cached --name-only --no-renames --ignore-submodules=none -z "$MT_OID" \
+    >"$TMP/differs" 2>"$TMP/err" \
+    || { cat -- "$TMP/err" >&2; fail staged_unexpected "git diff of the index against the merge tree failed"; }
+read_nul_list "$TMP/differs"
+for path in ${LIST[@]+"${LIST[@]}"}; do
+    in_list "$path" ${M_PATHS[@]+"${M_PATHS[@]}"} \
+        || fail staged_unexpected "the index differs from the merge-tree result at $path"
 done
 
 # Step 6: the one commit, with hooks on. git's output goes to stderr verbatim.
