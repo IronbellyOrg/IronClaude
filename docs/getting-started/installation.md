@@ -475,9 +475,12 @@ from your user settings, the installer adds it as `false`, not `true`, and leave
 `ponytail@ponytail` as it is. A value you already set for `ponytail@ironclaude`
 always wins.
 
-Ponytail keeps its files under `CLAUDE_CONFIG_DIR` when that variable is set,
-while the installer always writes to `$HOME/.claude` (see the note below). Its
-hooks need `node` on your PATH; IronClaude's own SubagentStart hook already
+The installer installs Ponytail only into `$HOME/.claude` (see the note below).
+A session started with `CLAUDE_CONFIG_DIR` set reads its plugins from that
+profile, so it does not load Ponytail unless you install it there yourself.
+When Ponytail does run, it writes its own state files (for example
+`.ponytail-active`) under `CLAUDE_CONFIG_DIR` if that variable is set, else under
+`~/.claude`. Its hooks need `node` on your PATH; IronClaude's own SubagentStart hook already
 needs it. Existing workspaces get Ponytail only after the IronClaude package
 itself is upgraded: upgrade the package the way you installed it (for a
 checkout, `git pull` before `./update.sh`, because `update.sh` reinstalls from
