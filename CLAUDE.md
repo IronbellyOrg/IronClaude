@@ -53,7 +53,7 @@ This repository is a **fork**. This clone has only one remote, `origin` = `Ironb
 
 **Orca:** Orca identified this project as `github:superclaude-org/superclaude_framework` in `orca worktree current --json` on 2026-11-02. The source of that id is unverified (possibly the upstream URLs in `pyproject.toml` or `package.json`). Until `orca worktree current --json` shows the fork's project id, `--issue`, `--pr` and other Orca link flags are never passed for this repo.
 
-**Scope:** static references to the upstream repository in documentation and test fixtures (for example the negative fixtures in `tests/pr_submit/test_pre_pr_checks.py`) are not interaction and are out of scope. The `#419` issue link in the Slash Commands note below stays unchanged as a static documentation reference.
+**Scope:** static references to the upstream repository in documentation and test fixtures (for example the negative fixtures in `tests/pr_submit/test_pre_pr_checks.py`) are not interaction and are out of scope.
 
 **The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo IronbellyOrg/IronClaude` (it resolves the repo from the `origin` remote, which must be `IronbellyOrg/IronClaude`), then waits for the Augment and Codex reviews (a reviewer that shows no activity on the PR is skipped), fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
 
