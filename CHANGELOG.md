@@ -4,6 +4,14 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Install: harden the pinned-plugin install (#360 follow-ups)
+
+#### Fixed (plugin install)
+
+- A registered `ironclaude` marketplace whose path cannot be resolved (a symlink loop, which raises on Python 3.10 to 3.12, or a path holding a NUL byte) no longer aborts `superclaude install`. The registration is refused like one from another source, and the other plugins still install.
+- The pinned-commit check now looks only at the user-scope copy of a plugin, the copy `superclaude install` installs and updates. A project-scope copy at the pin no longer hides a user-scope copy on another commit, and a plugin installed only at project scope, or listed with no user-scope record, is now installed at user scope.
+- Every `claude plugin` command the installer runs now acts on `$HOME/.claude`, the profile whose plugin records it checks and where it writes its own files (rules, settings, commands, skills, agents, hooks). Before, the commands inherited `CLAUDE_CONFIG_DIR`, so the marketplace check and the commands could use different profiles and a foreign `ironclaude` marketplace in the `CLAUDE_CONFIG_DIR` profile could be used. If you run Claude Code with `CLAUDE_CONFIG_DIR`, the default plugins are now installed into `$HOME/.claude`, not into that profile. The codegraph MCP registration is unchanged: it still follows `CLAUDE_CONFIG_DIR`.
+
 ### Hooks: block bare python, python3, pip and pip3 in Bash calls (#357)
 
 #### Added (UV-only Bash hook)

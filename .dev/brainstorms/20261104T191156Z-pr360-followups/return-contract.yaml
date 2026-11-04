@@ -1,0 +1,26 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261104T191156Z-pr360-followups/seed-brief.md
+merged_output_path: .dev/brainstorms/20261104T191156Z-pr360-followups/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: .dev/brainstorms/20261104T191156Z-pr360-followups/adversarial/
+domain: code
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1  # auggie tool not available; native Read/Grep
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "C-003/X-001: record without a scope key (decided: default to user scope)"
+
+telemetry:
+  agent_spec: "opus:architect,sonnet:refactorer"
+  decisions:
+    finding_1: "catch (OSError, RuntimeError, ValueError) around the resolve() comparison; unresolvable means not ours"
+    finding_2: "count user-scope records only; project-only means not installed at user scope"
+    finding_3: "option C: every claude subprocess runs without CLAUDE_CONFIG_DIR and with HOME=home"
+  wave_durations_ms: null  # not measured
+  token_usage: null  # not measured

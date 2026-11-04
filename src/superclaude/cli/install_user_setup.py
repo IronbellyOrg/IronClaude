@@ -289,7 +289,10 @@ def _is_our_catalog(entry: object, home: Path) -> bool:
     path = source.get("path")
     if not isinstance(path, str) or not Path(path).is_absolute():
         return False
-    return Path(path).resolve() == (home / _CATALOG_DIR).resolve()
+    try:
+        return Path(path).resolve() == (home / _CATALOG_DIR).resolve()
+    except (OSError, RuntimeError, ValueError):  # a symlink loop or a NUL byte
+        return False  # not provably ours, so refused like another source
 
 
 def install_plugins(
@@ -314,7 +317,16 @@ def install_plugins(
     wanted = [p for p in defaults.get("enabledPlugins", {}) if enabled.get(p) is True]
     plugins_dir = home / ".claude" / "plugins"
     known = _read_json(plugins_dir / "known_marketplaces.json")
-    installed = _read_json(plugins_dir / "installed_plugins.json").get("plugins", {})
+    records = _read_json(plugins_dir / "installed_plugins.json").get("plugins", {})
+    records = records if isinstance(records, dict) else {}
+    # Only user-scope copies count: every command below acts at user scope, and
+    # a project-scope copy (even one at the pin) covers a single project.
+    installed = {
+        p: [e for e in r if isinstance(e, dict) and e.get("scope", "user") == "user"]
+        for p, r in records.items()
+        if isinstance(r, list)
+    }
+    installed = {p: r for p, r in installed.items() if r}
     catalog = defaults.get(_CATALOG_KEY, {})
     pinned = {
         f"{entry['name']}@{catalog['name']}": entry["source"].get("sha")
@@ -389,7 +401,12 @@ def install_plugins(
         if market in broken:
             failed.append(f"{name} (marketplace {market} unavailable)")
             continue
-        env = {**os.environ, **_HTTPS_GITHUB} if args[1] == "update" else None
+        # Every command acts on the profile checked above (home/.claude), where
+        # this module writes its files, never one CLAUDE_CONFIG_DIR names.
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_CONFIG_DIR"}
+        env["HOME"] = str(home)
+        if args[1] == "update":
+            env.update(_HTTPS_GITHUB)
         try:
             result = subprocess.run(
                 [claude, *args],
