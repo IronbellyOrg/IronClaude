@@ -248,6 +248,8 @@ sc-post-release-protocol/templates/sysop-test-guide.md
 sc-post-release-protocol/templates/user-test-guide.md sc-pr-submit-protocol/SKILL.md
 sc-pr-submit-protocol/refs/auggie-fallback.md
 sc-pr-submit-protocol/refs/augment-poll.md sc-pr-submit-protocol/refs/ci-poll.md
+sc-pr-submit-protocol/refs/conflict-intent.md
+sc-pr-submit-protocol/refs/conflict-mechanical.md
 sc-pr-submit-protocol/refs/detection-contract.md
 sc-pr-submit-protocol/refs/finding-verify.md
 sc-pr-submit-protocol/refs/loop-guard.md
@@ -256,8 +258,11 @@ sc-pr-submit-protocol/refs/severity-routing.md
 sc-pr-submit-protocol/refs/state-machine.md
 sc-pr-submit-protocol/refs/thread-reply.md
 sc-pr-submit-protocol/refs/troubleshoot-dispatch.md
+sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh
+sc-pr-submit-protocol/scripts/finish-merge.sh
 sc-pr-submit-protocol/scripts/poll-augment-review.sh
 sc-pr-submit-protocol/scripts/poll-ci-checks.sh
+sc-pr-submit-protocol/scripts/probe-merge.sh
 sc-pr-submit-protocol/scripts/reply-resolve-thread.sh
 sc-pr-submit-protocol/scripts/retrigger-review.sh sc-recommend/SKILL.md
 sc-recommend/refs/delegation-vs-native-heuristics.md
