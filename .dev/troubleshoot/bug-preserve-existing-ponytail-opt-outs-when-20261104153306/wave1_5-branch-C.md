@@ -1,0 +1,13 @@
+```json
+[
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/src/superclaude/cli/install_user_setup.py", "file_line": 10, "quoted_text": "- Settings defaults only fill keys the user has not set, so a person's own choices are never overwritten.", "applies_to": "apply_settings_defaults merge semantics (module docstring)"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/src/superclaude/cli/install_user_setup.py", "file_line": 174, "quoted_text": "continue  # A user value of another shape is theirs; keep it.", "applies_to": "apply_settings_defaults nested-key shape guard"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/src/superclaude/cli/install_user_setup.py", "file_line": 281, "quoted_text": "Download the default plugins the user has not disabled; never fatal.", "applies_to": "install_plugins (wanted = value exactly True, line 297)"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/docs/getting-started/installation.md", "file_line": 356, "quoted_text": "skipping any you disabled in `enabledPlugins`.", "applies_to": "install_plugins user-facing contract"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/docs/getting-started/installation.md", "file_line": 398, "quoted_text": "The installer leaves `ponytail@ponytail` alone", "applies_to": "legacy ponytail@ponytail handling"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/docs/getting-started/installation.md", "file_line": 458, "quoted_text": "To opt out, set `\"ponytail@ironclaude\": false` under `enabledPlugins` ... Do not delete the key: the next install adds it back as `true`.", "applies_to": "opt-out contract"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/CHANGELOG.md", "file_line": 11, "quoted_text": "To opt out, set `\"ponytail@ironclaude\": false` in `enabledPlugins` in your user settings; do not delete the key, because the next install adds it back.", "applies_to": "[Unreleased] opt-out contract"},
+  {"source_file": "/home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/CHANGELOG.md", "file_line": 14, "quoted_text": "the next install adds the pinned `ponytail@ironclaude` beside it, so both are enabled; the installer leaves `ponytail@ponytail` alone", "applies_to": "[Unreleased] legacy handling"}
+]
+```
+degraded: true (Grep/Read). Full 11-row return condensed to the 8 rows that constrain the merge or the opt-out; the other three (install_user_setup.py:42 catalog not copied, installation.md:410, installation.md:432 statusLine) do not bear on this defect.

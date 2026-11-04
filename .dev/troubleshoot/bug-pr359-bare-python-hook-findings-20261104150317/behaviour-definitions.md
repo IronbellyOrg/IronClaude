@@ -1,0 +1,8 @@
+# Behaviour definitions
+| # | Primitive | Asserted behaviour | Defining artifact | Fetch query | Status |
+|---|---|---|---|---|---|
+| 1 | bash ANSI-C quoting $'...' | decodes \NNN octal (and \xHH, \uHHHH) escapes into characters, so $'\160ython3' is the word python3 | bash manual, QUOTING / ANSI-C Quoting | the code or clause that implements/specifies decoding of \nnn escapes in $'...' | observed:this run (tier1-observation.md "Bash behaviour observation": ansi-octal line ran the fake python3) |
+| 2 | GNU getopt_long in timeout/nice/env | a long option that takes an argument consumes the next word when no = is given | coreutils --help for timeout/nice/env (`-s, --signal=SIGNAL`, `-n, --adjustment=N`, `-u, --unset=NAME`) | the code or clause that specifies long options consuming a separate argument | observed:this run (timeout-long, nice-long, env-long lines ran the fake python3) |
+| 3 | bash [[ ... =~ ... ]] | treats the right side as a regex word; `|` and `(` inside it are not pipeline or subshell operators | bash manual, Conditional Constructs [[ ]] | the code or clause that specifies how [[ ]] parses words and operators | observed:this run (dbl-bracket line printed matched; no python ran) |
+| 4 | sudo long options | --user/--group/--close-from/--host/--prompt/--other-user/--role/--type/--chdir/--chroot/--command-timeout take an argument | installed `sudo --help` (getopt_long `=` forms) | the clause that specifies which sudo long options take an argument | fetched:sudo --help this run (tier1-observation.md "sudo/time options") |
+| 5 | awk sprintf("%c", n) under LC_ALL=C | emits the single byte with code n for 1-127 | installed mawk run | the code that implements %c for a numeric argument | observed:this run (`%c(112)=p`) |
