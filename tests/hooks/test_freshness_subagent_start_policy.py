@@ -99,7 +99,13 @@ def test_subagent_start_registration_is_synchronous_without_bash_counter():
         if hook["command"] == "~/.claude/hooks/freshness-subagent-start.sh"
     )
     assert "async" not in subagent_hook
-    assert not any(
-        registration.get("matcher") == "Bash"
+    # No Bash counter hook: the only command registered under a Bash matcher is
+    # the UV-only gate from issue #357. Any other Bash PreToolUse hook must be
+    # added here on purpose.
+    bash_commands = {
+        hook["command"]
         for registration in hooks.get("PreToolUse", [])
-    )
+        if registration.get("matcher") == "Bash"
+        for hook in registration["hooks"]
+    }
+    assert bash_commands == {"~/.claude/hooks/block-bare-python.sh"}

@@ -1,0 +1,6 @@
+$ git diff --numstat -- CHANGELOG.md   (added, deleted)
+11	0	CHANGELOG.md
+$ grep -n "^## \|(#357)" CHANGELOG.md | head -4
+5:## [Unreleased]
+7:### Hooks: block bare python, python3, pip and pip3 in Bash calls (#357)
+18:## [5.0.0] - 2026-11-02

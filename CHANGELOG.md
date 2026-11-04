@@ -4,6 +4,17 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Hooks: block bare python, python3, pip and pip3 in Bash calls (#357)
+
+#### Added (UV-only Bash hook)
+
+- New PreToolUse `Bash` hook `block-bare-python.sh`. A Bash tool call whose command runs bare `python`, `python3`, `pip` or `pip3` as a command word is blocked (exit 2), and the message tells the agent to use `uv run python` (or `uv pip`, `uvx`) instead, or `jq` to parse JSON. It also fires for subagent Bash calls. The "use UV for all Python" rule was text-only until now, and agents and helper subagents kept breaking it.
+- Allowed: `uv run python`, `uv pip`, `uvx`, and commands that only mention python in arguments, paths, patterns, quoted text, comments or heredoc text, such as `grep -rn python3 src/`, `echo "python3 -c 1"`, `command -v python3` or a multi-line `git commit -m "$(cat <<'EOF' ...)"` message. Commands chained with `&&`, `||`, `;`, `|` or `&`, wrapped in `sudo`, `env`, `timeout`, `nice`, `nohup`, `time`, `exec` or `command`, or nested in `$(...)`, backticks (also inside double quotes or `$(( ))` arithmetic), subshells or process substitution (also as a redirect target, `< <(...) python3`) are checked word by word. Wrapper options that take a value are skipped with their value, in short (`-u U`, `-Eu U`), long (`--user U`, `--signal TERM`) and abbreviated (`--sig TERM`) form. Quoted command words (`"python3" x.py`), `$'...'` escapes (`$'\160ython3'`) and paths (`.venv/bin/python`) count as bare. Words inside `[[ ... ]]` tests, such as `=~ ^(python|pip)$` patterns, are not commands; as in bash, a quoted or escaped `[[` (or other keyword) is an ordinary command word. A function definition named `python3` or `pip` (`python3() { uv run python "$@"; }`) is not a call, though its body is checked, and redirections with a named descriptor (`{fd}>/dev/null python3`) are skipped like `2>`.
+- It fails open (allows the command) when it cannot judge it: `jq` or `awk` missing, input that is not valid JSON, a tool other than Bash, or an empty command. The hook needs `jq`; on a host without `jq` it allows every command.
+- Known limits, commands it does not catch: string arguments to another interpreter (`bash -c "python3 x"`, `eval`, `env -S`), commands started by another program (`xargs python3`, `find -exec python3`), a heredoc piped into a shell (`cat <<'EOF' | bash`), `${...}` parameter expansions, nested backticks written with `\``, versioned names such as `python3.12`, wrapper options that take a value but are not in the hook's option tables, shell commands run by tools other than Bash, and `claude --bare` sessions, which skip settings hooks.
+- `superclaude install` copies the hook to `~/.claude/hooks/` and registers it in `~/.claude/settings.json`; the plugin mirror registers it too.
+- `sc:troubleshoot`'s read/parse probe pack (`refs/probe-packs/read-parse.md`) now runs its seek probe with `uv run --no-project python` instead of bare `python3`.
+
 ### Ponytail plugin installed by default (#330)
 
 #### Added (default plugins)

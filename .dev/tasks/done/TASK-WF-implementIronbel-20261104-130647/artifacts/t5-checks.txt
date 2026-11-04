@@ -1,0 +1,11 @@
+$ grep -n 'python3' src/superclaude/skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md   (expect no output)
+rc=1
+$ sed -n 8p src/superclaude/skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md
+seekable=$(uv run --no-project python -c "import os;f=os.open('$NODE',0);os.lseek(f,1,0);print(1)" 2>/dev/null||echo 0)
+$ hook run on line 8 as a Bash command
+rc=0
+$ make verify-sync
+rc=0
+$ git diff --stat
+ .../skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md      | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
