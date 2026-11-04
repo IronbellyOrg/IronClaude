@@ -134,5 +134,5 @@ Where it is registered (this repository's project `.claude/settings.json`), a Pr
 ## Output Constraints
 
 - Single-line bash for any install / invocation commands embedded in the output (project memory: terminals cannot paste heredocs or `\` continuations). The prompt block itself may be multi-line because it is an argument string passed to the next tool, not a shell command.
-- Paths are absolute or repo-relative and worktree-aware. When cwd is `.dev/worktrees/<name>/`, paths resolve against the worktree, not the main checkout.
+- Paths are absolute or repo-relative and worktree-aware. When cwd is inside a linked git worktree (for example one Orca created at its default location outside the main checkout), paths resolve against that worktree, not the main checkout.
 - No emojis in any output (project convention).

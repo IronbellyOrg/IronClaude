@@ -1,0 +1,23 @@
+$ uv run pytest tests/docs/test_tavily_doc_alignment.py -v -p no:cacheprovider
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.venv/bin/python
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collecting ... collected 5 items
+
+tests/docs/test_tavily_doc_alignment.py::test_iter_text_files_is_nonvacuous PASSED [ 20%]
+tests/docs/test_tavily_doc_alignment.py::test_tavily_version_single_pin PASSED [ 40%]
+tests/docs/test_tavily_doc_alignment.py::test_no_stale_mcp_tavily_token PASSED [ 60%]
+tests/docs/test_tavily_doc_alignment.py::test_no_tavily_json_references PASSED [ 80%]
+tests/docs/test_tavily_doc_alignment.py::test_docs_no_default_params_duplication PASSED [100%]
+
+============================== 5 passed in 0.36s ===============================
+rc=0
+$ uv run --with ruff==0.15.20 ruff check tests/docs/test_tavily_doc_alignment.py
+All checks passed!
+rc=0
+$ uv run --with ruff==0.15.20 ruff format --check tests/docs/test_tavily_doc_alignment.py
+1 file already formatted
+rc=0

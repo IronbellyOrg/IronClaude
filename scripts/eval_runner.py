@@ -3,18 +3,22 @@
 
 Usage:
     uv run python scripts/eval_runner.py --mode local    # 2 local runs
-    uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)
+    uv run python scripts/eval_runner.py --mode global   # 2 global runs (temporary master checkout)
     uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison
 """
 
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
+import os
 import subprocess
 import sys
+import tempfile
 import time
 import xml.etree.ElementTree as ET
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -133,21 +137,55 @@ def run_local(run_id: str) -> RunResult:
     return run_pytest(f"local-{run_id}", REPO_ROOT, xml)
 
 
-def run_global(run_id: str) -> RunResult:
-    """Run evals on master via git worktree."""
-    worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
+class MasterCheckoutError(RuntimeError):
+    """The temporary master checkout could not be created; carries git's stderr."""
 
-    # Create worktree if needed
-    if not worktree_path.exists():
-        subprocess.run(
-            ["git", "worktree", "add", str(worktree_path), "master"],
+
+@contextlib.contextmanager
+def master_checkout() -> Iterator[Path]:
+    """Create a temporary detached checkout of master and remove it on exit.
+
+    The checkout lives in a fresh temporary directory, so the runner works
+    without Orca and never leaves a checkout behind. ``--detach`` lets it work
+    while ``master`` is checked out in the main checkout.
+    """
+    checkout = Path(tempfile.mkdtemp(prefix="ironclaude-eval-master-"))
+    proc = subprocess.run(
+        ["git", "worktree", "add", "--detach", str(checkout), "master"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        # git did not register a worktree; remove the empty temp directory only.
+        with contextlib.suppress(OSError):
+            os.rmdir(checkout)
+        raise MasterCheckoutError(
+            proc.stderr.strip()
+            or f"git worktree add exited with code {proc.returncode}"
+        )
+    try:
+        yield checkout
+    finally:
+        removed = subprocess.run(
+            ["git", "worktree", "remove", "--force", str(checkout)],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
         )
+        if removed.returncode != 0:
+            # Report, but never hide an exception raised by the body.
+            print(
+                f"WARNING: could not remove temporary checkout {checkout}: "
+                f"{removed.stderr.strip()}",
+                file=sys.stderr,
+            )
 
+
+def run_global(run_id: str, checkout: Path) -> RunResult:
+    """Run evals on master inside the given temporary checkout."""
     # Check if eval files exist on master
-    missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]
+    missing = [f for f in EVAL_FILES if not (checkout / f).exists()]
     if missing:
         return RunResult(
             name=f"global-{run_id}",
@@ -157,7 +195,7 @@ def run_global(run_id: str) -> RunResult:
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     xml = RESULTS_DIR / f"global-{run_id}.xml"
-    result = run_pytest(f"global-{run_id}", worktree_path, xml)
+    result = run_pytest(f"global-{run_id}", checkout, xml)
 
     return result
 
@@ -285,19 +323,27 @@ def main():
                 e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))
 
     if args.mode in ("global", "full"):
-        print("Running global eval A...")
-        runs.append(run_global("A"))
-        print("Running global eval B...")
-        runs.append(run_global("B"))
+        try:
+            with master_checkout() as checkout:
+                print("Running global eval A...")
+                runs.append(run_global("A", checkout))
+                print("Running global eval B...")
+                runs.append(run_global("B", checkout))
 
-        # E2E pipeline evals (global branch)
-        worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
-        if worktree_path.exists():
-            for script in E2E_SCRIPTS:
-                script_path = worktree_path / script
-                if script_path.exists():
-                    print(f"Running E2E {script} (global)...")
-                    e2e_runs.append(run_e2e_script(script, "global", worktree_path))
+                # E2E pipeline evals (global branch)
+                for script in E2E_SCRIPTS:
+                    script_path = checkout / script
+                    if script_path.exists():
+                        print(f"Running E2E {script} (global)...")
+                        e2e_runs.append(run_e2e_script(script, "global", checkout))
+        except MasterCheckoutError as exc:
+            runs.append(
+                RunResult(
+                    name="global-setup",
+                    errors=1,
+                    failures=[f"Could not create the temporary master checkout: {exc}"],
+                )
+            )
 
     all_runs = runs + e2e_runs
     report = compare_runs(all_runs)

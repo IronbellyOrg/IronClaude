@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 2, spec_density: 2, ambiguity_signals: 0}
+escalation_reason: "coverage_degraded=parsed-sparse (41 inferred, 0 parsed) forbids every T1 stop; first-match rule 4 (S_domains=4: docs, config, tests, code); rule 6 (C=0.77) would also escalate."
+inputs: {confidence_calibrated: 0.77, S_scope: 8, S_domains: 4, S_dev_density: 0.122, coverage_pct: null, coverage_pct_union: 0.878}
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+reviewers: [sonnet/analyzer, haiku-slot(glm-5.3)/qa, opus/refactorer]
+executor_class_resolved: false

@@ -1,0 +1,112 @@
+contract_version: "1.8.0"
+status: partial
+status_reason: "Adversarial merge returned partial (CONVERGED 16/16, but the post-merge re-scan found one stale resolution note in the merged card, and 7 MEDIUM invariant warnings were carried as findings). No citation dropped, no input drift."
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/audit.log
+confidence_calibrated: 0.80
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.878
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-010, INF-011, INF-012, INF-016, INF-039]   # lexical only; all five content-level covered
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 1, necessary: 0, drift: 13, regression: 1}
+deviation_register_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/merged-findings.md
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_sha256:
+  tasklist: see artifacts/input-snapshot.yaml
+  spec: see artifacts/input-snapshot.yaml
+input_tree_sha256: 646b5c381649cb2ed50e6d0c7cec6bc87754521f37f4e6935fb688bf38f63b5f
+input_tree_file_count: 31
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 121
+citations_revalidated: 121
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_convergence_status: CONVERGED
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: true                # D-105: forced checkout removal deletes E2E outputs the old checkout kept
+unauthorized_deviation_present: true    # 13 drift findings
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true            # the plan needs another revision decision before /sc:implement
+needs_human_decision: false             # no grounding-gaps.yaml
+
+per_task_verdicts: []
+interaction_effects_scanned: true       # Round 2.5 invariant probe category 5
+interaction_effects_findings: 2         # INV-012, INV-013
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_gate_passed: null
+
+telemetry:
+  reviewer_models: [sonnet, haiku-slot (glm-5.3), opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  reviewer_vendors: [Anthropic, Zhipu, Anthropic]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  degraded_components: []
+  fallback_path: null
+  memory_hits: 2
+  memory_misses: 0
+  memory_retention_actions: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

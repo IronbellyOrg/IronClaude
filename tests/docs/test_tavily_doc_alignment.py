@@ -46,7 +46,8 @@ def _iter_text_files(roots: list[Path]):
             if not p.is_file():
                 continue
             # Exclude only dirs UNDER the root — never match ancestor components of an
-            # absolute path (the worktree itself lives under `.dev/worktrees/…`, so testing
+            # absolute path (the checkout itself may sit under a directory whose name is in
+            # `_EXCLUDE_DIRS`, for example an older checkout under `.dev/`, so testing
             # `p.parts` would exclude every file and make this guard vacuous).
             if any(part in _EXCLUDE_DIRS for part in p.relative_to(root).parts):
                 continue

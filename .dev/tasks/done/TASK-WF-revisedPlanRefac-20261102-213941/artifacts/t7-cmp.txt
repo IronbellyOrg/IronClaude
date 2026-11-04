@@ -1,0 +1,6 @@
+$ cmp src/superclaude/commands/recommend.md plugins/superclaude/commands/recommend.md
+rc=0
+$ cmp src/superclaude/skills/sc-recommend/SKILL.md plugins/superclaude/skills/sc-recommend/SKILL.md
+rc=0
+$ cmp src/superclaude/skills/sc-recommend/refs/surface-enumeration.md plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+rc=0

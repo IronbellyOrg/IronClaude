@@ -1,0 +1,6 @@
+$ git grep -n '\.dev/worktrees' -- src/superclaude/commands/recommend.md src/superclaude/skills/sc-recommend
+rc=1
+$ grep -n 'temporary directory' src/superclaude/skills/sc-post-release-protocol/SKILL.md
+91:**Anchor the scan to the tagged commit.** Once the tag is resolved, read the 
+$ grep -E '^\+' ./artifacts/t6-primitives.diff | grep -v '^+++' | grep -n -E '/home/|src/superclaude/'
+rc=1

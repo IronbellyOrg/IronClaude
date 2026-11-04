@@ -1,0 +1,12 @@
+Note: the project venv has no ruff binary; ruff runs as uv run --with ruff==0.15.20 (the version pinned in pyproject.toml dev extras).
+$ grep -n IronClaude-eval-master scripts/eval_runner.py
+rc=1
+$ grep -n 'worktree", "remove"' scripts/eval_runner.py
+171:            ["git", "worktree", "remove", "--force", str(checkout)],
+rc=0
+$ uv run --with ruff==0.15.20 ruff check scripts/eval_runner.py tests/unit/test_eval_runner_master_checkout.py
+All checks passed!
+rc=0
+$ uv run --with ruff==0.15.20 ruff format --check scripts/eval_runner.py tests/unit/test_eval_runner_master_checkout.py
+2 files already formatted
+rc=0

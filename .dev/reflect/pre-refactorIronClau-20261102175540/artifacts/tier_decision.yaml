@@ -1,0 +1,27 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 5.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 0
+escalation_reason: >-
+  coverage_degraded=parsed-sparse (11 inferred rows, 0 parsed IDs) is a table-wide
+  pre-filter that forbids every Tier 1 stop row. First-match rule: rules 1-2 blocked by
+  the pre-filter and C=0.71; rule 3/3a are UC-2 only; rule 4 fires (S_domains=3:
+  docs, config, tests). Rule 6 (C=0.71 < 0.85) would also escalate.
+inputs:
+  confidence_calibrated: 0.71
+  S_scope: 7
+  S_domains: 3
+  S_dev_density: 0.0909
+  coverage_pct: null
+  coverage_pct_union: 0.9091
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+reviewers: [sonnet/analyzer, haiku-slot(glm-5.3)/qa, opus/refactorer]
+executor_class_resolved: false

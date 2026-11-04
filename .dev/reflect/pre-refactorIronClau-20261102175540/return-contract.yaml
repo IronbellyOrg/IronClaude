@@ -1,0 +1,112 @@
+contract_version: "1.8.0"
+status: partial
+status_reason: "Adversarial merge returned partial (convergence BLOCKED_BY_INVARIANTS on INV-005; one post-merge wording contradiction in finding R1-2's headline). No citation dropped, no input drift."
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/audit.log
+confidence_calibrated: 0.80
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.9091
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-011]
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 1, necessary: 2, drift: 11, regression: 0}
+deviation_register_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/merged-findings.md
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_sha256:
+  tasklist: see artifacts/input-snapshot.yaml
+  spec: see artifacts/input-snapshot.yaml
+input_tree_sha256: 59de1cd8d42c5a2f823404577dd4fdd10b229f8d859d8b64dc999cfe14a3fb2a
+input_tree_file_count: 21
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 108
+citations_revalidated: 108
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_convergence_status: BLOCKED_BY_INVARIANTS
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true   # 11 drift findings (plan gaps against the spec)
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true            # convergence blocked by INV-005; the plan needs a revision decision
+needs_human_decision: false             # grounding-gaps.yaml is empty
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_gate_passed: null
+
+telemetry:
+  reviewer_models: [sonnet, haiku-slot (glm-5.3), opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  reviewer_vendors: [Anthropic, Zhipu, Anthropic]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  degraded_components: []
+  fallback_path: null
+  memory_hits: 0
+  memory_misses: 2
+  memory_retention_actions: 0
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false
