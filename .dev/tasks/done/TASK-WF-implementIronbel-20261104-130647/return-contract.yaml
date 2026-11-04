@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementIronbel-20261104-130647
+plan_path: ./TASK-WF-implementIronbel-20261104-130647.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md
+unresolved:
+  - "reflect (advisory) found 4 blocking findings to apply as implement-time amendments AMD-01..AMD-08: see .dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/adversarial/merged-verdict.yaml"

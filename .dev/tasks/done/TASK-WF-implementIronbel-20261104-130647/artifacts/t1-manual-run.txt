@@ -1,0 +1,17 @@
+# T1 manual run — 2026-11-04T14:32:22Z
+## cmp source vs plugin mirror
+cmp rc=0
+-rwxr-xr-x plugins/superclaude/hooks/scripts/block-bare-python.sh
+-rwxr-xr-x src/superclaude/hooks/scripts/block-bare-python.sh
+## blocked payload
+{"tool_name":"Bash","tool_input":{"command":"echo '{}' | python3 -c 'import sys,json; json.load(sys.stdin)'"}}
+rc=2
+stderr: UV-ONLY BLOCK: this command runs bare `python3`. Use `uv run python ...` (or `uv pip ...` / `uvx ...`) instead, or `jq` to parse JSON.
+## allowed payload
+{"tool_name":"Bash","tool_input":{"command":"echo '{}' | jq ."}}
+rc=0
+stderr bytes: 0
+## grep for python/pip call words in the script (expect comments and message text only)
+38:#   - string arguments to another interpreter: bash -c / sh -c "python3 x",
+39:#     eval "python3 x", env -S "python3 x";
+278:echo "UV-ONLY BLOCK: this command runs bare \`$WORD\`. Use \`uv run python ...\` (or \`uv pip ...\` / \`uvx ...\`) instead, or \`jq\` to parse JSON." >&2

@@ -1,0 +1,6 @@
+$ uv run ruff check tests/hooks/test_block_bare_python.py
+All checks passed!
+rc=0
+$ uv run ruff format --check tests/hooks/test_block_bare_python.py
+1 file already formatted
+rc=0

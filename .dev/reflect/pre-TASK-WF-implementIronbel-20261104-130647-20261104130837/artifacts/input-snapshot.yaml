@@ -1,0 +1,27 @@
+input_tree_sha256: 36b2778c738e70e23aecc45ac970bab4333d620891bf06e5b56e4df29746f635
+file_count: 12
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+    sha256: 5ba3dd1b87812b97fc608d17f1239f6174666865cc155021598afc760282dc1c
+  - path: .dev/tasks/to-do/TASK-WF-implementIronbel-20261104-130647/source.md
+    sha256: d7db85c6855804fa5374aef3de699e4e4f9ef030a03d9d1d49b5fe4d3f17f0b2
+  - path: CHANGELOG.md
+    sha256: 187c243402e8a92c4f7abe5f7b2c8ac5e02c46971ff643bca6d6015962e811e3
+  - path: plugins/superclaude/hooks/hooks.json
+    sha256: d9b15ffe36edf0c4c267f6f689e074d088773bfa72528929a8ce422cf16869c5
+  - path: src/superclaude/cli/install_hooks.py
+    sha256: 3c477eaf7ec47cf8688c009423fd73724c51473ff69be915a8f036dfcb55ad2a
+  - path: src/superclaude/hooks/hooks.json
+    sha256: 4963556cd9443f41e625d774e79ffc434de21204f7276c9357b6bdc1a46c8092
+  - path: src/superclaude/hooks/scripts/freshness-pre-edit.sh
+    sha256: 871d65d4fc7a8ac8fd3677524abd1b1561da4012a4f3f47fe4887bfb986e342b
+  - path: src/superclaude/skills/sc-crash-recovery/refs/pipelines.md
+    sha256: 9f155da3b0b4b18e7318a647e67edf975fe4a732d56e9e9c40dede62e6441cac
+  - path: src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md
+    sha256: 7e74f5a0386e97f2447aff2ecbf1bd7fc41cf11bf99a2b02def4e7250c2962ad
+  - path: src/superclaude/skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md
+    sha256: fb1083cdd3d3a5cbaf69345a8a25ce17b24f3ac00bdbe26d864977e6c674ea82
+  - path: tests/cli/test_install_hooks.py
+    sha256: a54a677673bbdedca66b05fb8004528fb9544816f09a06d5d3e9bf16bfcbae76
+  - path: tests/hooks/test_freshness_pre_edit_create_case.py
+    sha256: 23079bbe4f4eccf576ef143f0ea9071499bc71241c847384909d0922e4f150cf
