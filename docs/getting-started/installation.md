@@ -343,6 +343,7 @@ registered, and only the verbose output shows that line.
 | Rules (read on demand, excluded from auto-loading) | `~/.claude/rules/` |
 | Output styles | `~/.claude/output-styles/` |
 | Hook registrations and settings defaults (only keys you have not set), merged into your settings; a backup `settings.json.bak.<timestamp>` is written first | `~/.claude/settings.json` |
+| IronClaude plugin catalog (pinned third-party plugins such as Ponytail; rewritten on every run) | `~/.claude/ironclaude-marketplace/` |
 | ccsession launchers (links into the `ccsession-tag` skill) | `~/.local/bin/ccsession`, `~/.local/bin/ccsession-orca` |
 | ccsession settings file (created from the example only when missing) | `~/.claude/ccsession.env` |
 | codegraph 1.6.2 (downloaded, SHA-256 verified) | `~/.codegraph/`, link `~/.local/bin/codegraph` |
@@ -359,12 +360,37 @@ reported by name, and the step never makes `superclaude install` fail. Rerun
 `superclaude install` to retry. When the Orca CLI is installed, the same step
 asks it to install its own skills (`computer-use`, `orca-cli`, `orchestration`).
 
-**Ponytail.** `ponytail` (from `DietrichGebert/ponytail`) adds the `ponytail-*`
-skills and the `/ponytail` command, and runs in its always-on `lite` mode: the
-installer sets `PONYTAIL_DEFAULT_MODE` to `lite` under `env` in
-`~/.claude/settings.json` unless you already set it. The behaviour below was
-checked against Ponytail v5.3.3; the plugin is not pinned to a version, so a
-later release may differ.
+**Ponytail.** `ponytail@ironclaude` is Ponytail v5.3.3 from
+`DietrichGebert/ponytail`, pinned to commit
+`7801d061243d7b753bad0e0b3c057cd250b11755`. It adds the `ponytail-*` skills and
+the `/ponytail` command, and runs in its always-on `lite` mode: the installer
+sets `PONYTAIL_DEFAULT_MODE` to `lite` under `env` in `~/.claude/settings.json`
+unless you already set it. The behaviour below is that of v5.3.3.
+
+Ponytail's hooks run with your permissions, so IronClaude installs it only at
+the pinned commit, through its own marketplace named `ironclaude`. Every
+`superclaude install` and `superclaude update` writes the catalog
+`~/.claude/ironclaude-marketplace/.claude-plugin/marketplace.json` from the
+`ironclaudeMarketplace` entry of the package's settings defaults, adds it with
+`claude plugin marketplace add`, and installs the plugin, which Claude Code checks
+out at the catalog's `sha`. Do not edit the catalog: the next run rewrites it.
+An upstream change reaches you only when an IronClaude release moves the pin;
+the next run then rewrites the catalog, runs `claude plugin marketplace update
+ironclaude` and updates the installed plugin to the new commit.
+
+To move the pin (maintainers): review the upstream changes, then set `ref` to the
+new tag and `sha` to its full 40-character commit (`git ls-remote
+https://github.com/DietrichGebert/ponytail refs/tags/<tag>`) under
+`ironclaudeMarketplace` in `src/superclaude/cli/user_settings_defaults.json`,
+set `PONYTAIL_SHA` in `tests/cli/test_install_user_setup.py` to the same commit,
+and recheck the behaviour described below against the new version.
+
+To run a newer Ponytail than the pin, install it yourself: set
+`"ponytail@ironclaude": false` under `enabledPlugins`, then run `claude plugin
+marketplace add DietrichGebert/ponytail` and `claude plugin install
+ponytail@ponytail --scope user`. That copy is not pinned and follows upstream.
+If you already installed `ponytail@ponytail` yourself, keep only one of the two
+enabled.
 
 In `lite`, every session start:
 
@@ -411,12 +437,12 @@ default, set `PONYTAIL_DEFAULT_MODE` under `env` in `~/.claude/settings.json` to
 `/ponytail default <mode>`, which prints "PONYTAIL DEFAULT SET" but has no
 effect while the variable is set.
 
-To opt out, set `"ponytail@ponytail": false` under `enabledPlugins` in
+To opt out, set `"ponytail@ironclaude": false` under `enabledPlugins` in
 `~/.claude/settings.json`. Do not delete the key: the next install adds it back
 as `true`. Do not only run `claude plugin uninstall` either: the next
 `superclaude install` reinstalls Ponytail whenever `enabledPlugins` does not hold
 `false` for it. A project `.claude/settings.json` that enables it wins over your
-user value; to opt out of such a project, set `"ponytail@ponytail": false` in
+user value; to opt out of such a project, set `"ponytail@ironclaude": false` in
 that project's `.claude/settings.local.json`.
 
 Ponytail keeps its files under `CLAUDE_CONFIG_DIR` when that variable is set,
