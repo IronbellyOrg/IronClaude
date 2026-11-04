@@ -125,7 +125,7 @@ Separate **canonical research authority** from the **actual callable copy**. Ins
 
 Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
 
-The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
+The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is inside a linked worktree (for example an Orca-created worktree outside the main checkout), that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
 
 See `refs/surface-enumeration.md` for the full algorithm, the verification record schema, and worked examples.
 
@@ -195,7 +195,7 @@ Build the prompt as a **hand-off envelope**, not a specification. The prompt car
 - the target invocation (`/sc:<command>`, a skill's own slash name such as `/task-builder` or `/task` (`/<skill>`), `Skill <skill-name>`, `Agent <agent-name>`, or a native tool sequence)
 - the user's verified parameters / file paths / flags
 - the expected deliverable shape (what the user wants back)
-- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside `.dev/worktrees/<name>/`)
+- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside a linked worktree)
 
 The prompt MUST NOT restate the target's protocol logic — phase breakdown, scoring rules, agent roster, debate format, return contract internals. That belongs to the target skill. Trust the hand-off.
 

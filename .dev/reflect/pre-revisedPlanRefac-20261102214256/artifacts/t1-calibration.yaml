@@ -1,0 +1,18 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/t1-card.md
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.88, reason: "Every cited file:line verified (four pr-submit fallbacks, eval_runner.py:136-162, :287-300, :294, skip markers, git_replay.py:52-58, CLAUDE.md:251, plan lines). Deductions: S1/S2 command runs had no captured output; U-007/INV-010 not cited at file:line."}
+  coverage_completeness: {score: 0.80, reason: "coverage_pct null (parsed-sparse); union 0.878 below the 0.90 floor; explicit content-level registry for all 5 unmatched rows verifies against the plan."}
+  deviation_classification_clarity: {score: 0.65, reason: "Only F1 uses a taxonomy class; F2/F3 'necessary'; F4 and S1-S5 have no category."}
+  risk_surface_coverage: {score: 0.80, reason: "F1 names all four scripts; S3, S4, S2 CI path and F4 covered; secondary risks (fail-before only an AttributeError; Task 8 diff-stat scope vs the new test file) not examined."}
+  recommendation_actionability: {score: 0.72, reason: "F1 concrete; S3/S4 lack explicit next action; F4 none."}
+C: 0.77
+escalation_recommendation:
+  verdict: ESCALATE
+  reasons: ["C 0.77 < 0.85", "S_domains 4 >= 3 (rule 4)", "coverage_degraded parsed-sparse", "S_dev_density 0.122 > 0.10"]
+  self_reported_confidence: 0.85
+  delta: -0.08
+notes:
+  - "Calibrator could not see output of the S1/S2 shell checks; the orchestrator saved it to artifacts/t1-shell-evidence.txt after calibration."

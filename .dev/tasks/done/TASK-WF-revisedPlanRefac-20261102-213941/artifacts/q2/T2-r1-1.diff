@@ -1,0 +1,1012 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-checks.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-checks.txt
+new file mode 100644
+index 00000000..a8584440
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-checks.txt
+@@ -0,0 +1,12 @@
++Note: the project venv has no ruff binary; ruff runs as uv run --with ruff==0.15.20 (the version pinned in pyproject.toml dev extras).
++$ grep -n IronClaude-eval-master scripts/eval_runner.py
++rc=1
++$ grep -n 'worktree", "remove"' scripts/eval_runner.py
++171:            ["git", "worktree", "remove", "--force", str(checkout)],
++rc=0
++$ uv run --with ruff==0.15.20 ruff check scripts/eval_runner.py tests/unit/test_eval_runner_master_checkout.py
++All checks passed!
++rc=0
++$ uv run --with ruff==0.15.20 ruff format --check scripts/eval_runner.py tests/unit/test_eval_runner_master_checkout.py
++2 files already formatted
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-fail-before.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-fail-before.txt
+new file mode 100644
+index 00000000..fe0a3d02
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-fail-before.txt
+@@ -0,0 +1,683 @@
++$ uv run pytest tests/unit/test_eval_runner_master_checkout.py -v -p no:cacheprovider   (against the pre-change scripts/eval_runner.py)
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.venv/bin/python
++SuperClaude: 4.3.5
++rootdir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths
++configfile: pyproject.toml
++plugins: superclaude-4.3.5, anyio-4.16.0
++collecting ... collected 4 items
++
++tests/unit/test_eval_runner_master_checkout.py::test_checkout_exists_inside_and_is_removed_after FAILED [ 25%]
++tests/unit/test_eval_runner_master_checkout.py::test_checkout_is_removed_when_body_raises FAILED [ 50%]
++tests/unit/test_eval_runner_master_checkout.py::test_missing_master_raises_with_git_stderr FAILED [ 75%]
++tests/unit/test_eval_runner_master_checkout.py::test_script_has_no_fixed_sibling_checkout FAILED [100%]
++
++=================================== FAILURES ===================================
++_______________ test_checkout_exists_inside_and_is_removed_after _______________
++tests/unit/test_eval_runner_master_checkout.py:90: in test_checkout_exists_inside_and_is_removed_after
++    with eval_runner.master_checkout() as checkout:
++         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
++E   AttributeError: module 'eval_runner_under_test' has no attribute 'master_checkout'
++__________________ test_checkout_is_removed_when_body_raises ___________________
++tests/unit/test_eval_runner_master_checkout.py:107: in test_checkout_is_removed_when_body_raises
++    with eval_runner.master_checkout() as checkout:
++         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
++E   AttributeError: module 'eval_runner_under_test' has no attribute 'master_checkout'
++__________________ test_missing_master_raises_with_git_stderr __________________
++tests/unit/test_eval_runner_master_checkout.py:122: in test_missing_master_raises_with_git_stderr
++    with pytest.raises(eval_runner.MasterCheckoutError) as excinfo:
++                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++E   AttributeError: module 'eval_runner_under_test' has no attribute 'MasterCheckoutError'
++__________________ test_script_has_no_fixed_sibling_checkout ___________________
++tests/unit/test_eval_runner_master_checkout.py:134: in test_script_has_no_fixed_sibling_checkout
++    assert "IronClaude-eval-master" not in SCRIPT.read_text(encoding="utf-8")
++E   assert 'IronClaude-eval-master' not in '#!/usr/bin/env python3\n"""v3.0 Eval Runner — orchestrates parallel local + global eval runs.\n\nUsage:\n    uv run python scripts/eval_runner.py --mode local    # 2 local runs\n    uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)\n    uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison\n"""\n\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET\nfrom dataclasses import dataclass, field\nfrom pathlib import Path\n\nEVAL_FILES = [\n    "tests/roadmap/test_eval_gate_rejection.py",\n    "tests/roadmap/test_eval_finding_lifecycle.py",\n    "tests/roadmap/test_eval_convergence_multirun.py",\n    "tests/roadmap/test_eval_gate_ordering.py",\n    "tests/audit/test_eval_wiring_multifile.py",\n]\n\nE2E_SCRIPTS = [\n    "scripts/eval_1.py",\n    "scripts/eval_2.py",\n    "scripts/eval_3.py",\n]\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\nRESULTS_DIR = (\n    REPO_ROOT\n    / ".dev"\n    / "releases"\n    / "current"\n    / "v3.0_unified-audit-gating"\n    / "eval-results"\n)\n\n\n@dataclass\nclass RunResult:\n    name: str\n    passed: int = 0\n    failed: int = 0\n    skipped: int = 0\n    errors: int = 0\n    duration: float = 0.0\n    failures: list[str] = field(default_factory=list)\n    xml_path: str = ""\n\n\ndef run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:\n    """Run pytest and parse JUnit XML results."""\n    cmd = [\n        "uv",\n        "run",\n        "pytest",\n        *EVAL_FILES,\n        f"--junit-xml={xml_path}",\n        "--tb=short",\n        "-q",\n    ]\n    start = time.monotonic()\n    proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=120)\n    duration = time.monotonic() - start\n\n    result = RunResult(name=label, duration=round(duration, 3), xml_path=str(xml_path))\n\n    if xml_path.exists():\n        tree = ET.parse(xml_path)\n        root = tree.getroot()\n        for suite in root.iter("testsuite"):\n            result.passed += (\n                int(suite.get("tests", 0))\n                - int(suite.get("failures", 0))\n                - int(suite.get("errors", 0))\n                - int(suite.get("skipped", 0))\n            )\n            result.failed += int(suite.get("failures", 0))\n            result.errors += int(suite.get("errors", 0))\n            result.skipped += int(suite.get("skipped", 0))\n\n        for tc in root.iter("testcase"):\n            failure = tc.find("failure")\n            if failure is not None:\n                result.failures.append(f"{tc.get(\'classname\')}.{tc.get(\'name\')}")\n    else:\n        # XML not created — parse from stdout\n        result.errors = 1\n        result.failures.append(\n            f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}"\n        )\n\n    return result\n\n\ndef run_e2e_script(script: str, branch: str, cwd: Path) -> RunResult:\n    """Run an E2E eval script and capture its result."""\n    label = f"e2e-{Path(script).stem}-{branch}"\n    cmd = ["uv", "run", "python", script, "--branch", branch]\n    start = time.monotonic()\n    try:\n        proc = subprocess.run(\n            cmd, cwd=cwd, capture_output=True, text=True, timeout=1800\n        )\n        duration = time.monotonic() - start\n        result = RunResult(name=label, duration=round(duration, 3))\n        if proc.returncode == 0:\n            result.passed = 1\n        else:\n            result.failed = 1\n            result.failures.append(f"Exit code {proc.returncode}: {proc.stderr[-500:]}")\n        return result\n    except subprocess.TimeoutExpired:\n        return RunResult(\n            name=label,\n            errors=1,\n            duration=round(time.monotonic() - start, 3),\n            failures=["Timeout after 1800s"],\n        )\n\n\ndef run_local(run_id: str) -> RunResult:\n    """Run evals on current branch."""\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    xml = RESULTS_DIR / f"local-{run_id}.xml"\n    return run_pytest(f"local-{run_id}", REPO_ROOT, xml)\n\n\ndef run_global(run_id: str) -> RunResult:\n    """Run evals on master via git worktree."""\n    worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"\n\n    # Create worktree if needed\n    if not worktree_path.exists():\n        subprocess.run(\n            ["git", "worktree", "add", str(worktree_path), "master"],\n            cwd=REPO_ROOT,\n            capture_output=True,\n            text=True,\n        )\n\n    # Check if eval files exist on master\n    missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]\n    if missing:\n        return RunResult(\n            name=f"global-{run_id}",\n            failures=[f"Eval files not on master: {missing}"],\n            errors=len(missing),\n        )\n\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    xml = RESULTS_DIR / f"global-{run_id}.xml"\n    result = run_pytest(f"global-{run_id}", worktree_path, xml)\n\n    return result\n\n\ndef compare_runs(runs: list[RunResult]) -> dict:\n    """Compare multiple runs for consistency and A/B delta."""\n    report = {\n        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),\n        "runs": [],\n        "consistency": {},\n        "comparison": {},\n    }\n\n    local_runs = [r for r in runs if r.name.startswith("local")]\n    global_runs = [r for r in runs if r.name.startswith("global")]\n\n    for r in runs:\n        report["runs"].append(\n            {\n                "name": r.name,\n                "passed": r.passed,\n                "failed": r.failed,\n                "skipped": r.skipped,\n                "errors": r.errors,\n                "duration": r.duration,\n                "failures": r.failures,\n            }\n        )\n\n    # Consistency check: local runs should be identical\n    if len(local_runs) == 2:\n        a, b = local_runs\n        report["consistency"]["local_identical"] = (\n            a.passed == b.passed\n            and a.failed == b.failed\n            and a.skipped == b.skipped\n            and set(a.failures) == set(b.failures)\n        )\n        report["consistency"]["duration_variance_pct"] = round(\n            abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1\n        )\n\n    # A/B comparison: local vs global\n    if local_runs and global_runs:\n        local = local_runs[0]\n        glob = global_runs[0]\n        if glob.errors == 0:\n            local_failures = set(local.failures)\n            global_failures = set(glob.failures)\n            report["comparison"]["regressions"] = sorted(\n                local_failures - global_failures\n            )\n            report["comparison"]["improvements"] = sorted(\n                global_failures - local_failures\n            )\n            report["comparison"]["new_tests"] = (\n                local.passed + local.failed - glob.passed - glob.failed\n            )\n        else:\n            report["comparison"]["note"] = (\n                "Global run had errors; full comparison unavailable"\n            )\n            report["comparison"]["new_tests"] = local.passed + local.failed\n\n    return report\n\n\ndef print_report(report: dict) -> None:\n    """Print human-readable comparison report."""\n    print("\\n" + "=" * 60)\n    print("v3.0 Eval Results")\n    print("=" * 60)\n\n    for r in report["runs"]:\n        status = "PASS" if r["failed"] == 0 and r["errors"] == 0 else "FAIL"\n        print(\n            f"  {r[\'name\']:20s}  {r[\'passed\']} passed / {r[\'failed\']} failed / {r[\'skipped\']} skipped  [{r[\'duration\']:.3f}s]  {status}"\n        )\n        for f in r["failures"]:\n            print(f"    FAIL: {f}")\n\n    if "local_identical" in report.get("consistency", {}):\n        ident = report["consistency"]["local_identical"]\n        var = report["consistency"]["duration_variance_pct"]\n        print(\n            f"\\n  Consistency: {\'PASS\' if ident else \'FAIL\'} (duration variance: {var}%)"\n        )\n\n    comp = report.get("comparison", {})\n    if comp:\n        regs = comp.get("regressions", [])\n        imps = comp.get("improvements", [])\n        new = comp.get("new_tests", 0)\n        print(f"\\n  New tests (local only): {new}")\n        print(f"  Regressions (pass→fail): {len(regs)}")\n        for r in regs:\n            print(f"    REGRESSION: {r}")\n        print(f"  Improvements (fail→pass): {len(imps)}")\n        note = comp.get("note")\n        if note:\n            print(f"  Note: {note}")\n\n    print("=" * 60)\n\n\ndef main():\n    parser = argparse.ArgumentParser(description="v3.0 Eval Runner")\n    parser.add_argument("--mode", choices=["local", "global", "full"], default="full")\n    args = parser.parse_args()\n\n    runs: list[RunResult] = []\n    e2e_runs: list[RunResult] = []\n\n    if args.mode in ("local", "full"):\n        print("Running local eval A...")\n        runs.append(run_local("A"))\n        print("Running local eval B...")\n        runs.append(run_local("B"))\n\n        # E2E pipeline evals (local branch)\n        for script in E2E_SCRIPTS:\n            script_path = REPO_ROOT / script\n            if script_path.exists():\n                print(f"Running E2E {script} (local)...")\n                e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))\n\n    if args.mode in ("global", "full"):\n        print("Running global eval A...")\n        runs.append(run_global("A"))\n        print("Running global eval B...")\n        runs.append(run_global("B"))\n\n        # E2E pipeline evals (global branch)\n        worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"\n        if worktree_path.exists():\n            for script in E2E_SCRIPTS:\n                script_path = worktree_path / script\n                if script_path.exists():\n                    print(f"Running E2E {script} (global)...")\n                    e2e_runs.append(run_e2e_script(script, "global", worktree_path))\n\n    all_runs = runs + e2e_runs\n    report = compare_runs(all_runs)\n    print_report(report)\n\n    # Save JSON report\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    report_path = RESULTS_DIR / "eval-report.json"\n    report_path.write_text(json.dumps(report, indent=2))\n    print(f"\\nJSON report: {report_path}")\n\n    # Exit code: non-zero if any failures\n    if any(r.failed > 0 or r.errors > 0 for r in runs if r.name.startswith("local")):\n        sys.exit(1)\n\n\nif __name__ == "__main__":\n    main()\n'
++E     
++E     'IronClaude-eval-master' is contained here:
++E       #!/usr/bin/env python3
++E       """v3.0 Eval Runner — orchestrates parallel local + global eval runs.
++E       
++E       Usage:
++E           uv run python scripts/eval_runner.py --mode local    # 2 local runs
++E           uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)
++E           uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison
++E       """
++E       
++E       from __future__ import annotations
++E       
++E       import argparse
++E       import json
++E       import subprocess
++E       import sys
++E       import time
++E       import xml.etree.ElementTree as ET
++E       from dataclasses import dataclass, field
++E       from pathlib import Path
++E       
++E       EVAL_FILES = [
++E           "tests/roadmap/test_eval_gate_rejection.py",
++E           "tests/roadmap/test_eval_finding_lifecycle.py",
++E           "tests/roadmap/test_eval_convergence_multirun.py",
++E           "tests/roadmap/test_eval_gate_ordering.py",
++E           "tests/audit/test_eval_wiring_multifile.py",
++E       ]
++E       
++E       E2E_SCRIPTS = [
++E           "scripts/eval_1.py",
++E           "scripts/eval_2.py",
++E           "scripts/eval_3.py",
++E       ]
++E       
++E       REPO_ROOT = Path(__file__).resolve().parent.parent
++E       RESULTS_DIR = (
++E           REPO_ROOT
++E           / ".dev"
++E           / "releases"
++E           / "current"
++E           / "v3.0_unified-audit-gating"
++E           / "eval-results"
++E       )
++E       
++E       
++E       @dataclass
++E       class RunResult:
++E           name: str
++E           passed: int = 0
++E           failed: int = 0
++E           skipped: int = 0
++E           errors: int = 0
++E           duration: float = 0.0
++E           failures: list[str] = field(default_factory=list)
++E           xml_path: str = ""
++E       
++E       
++E       def run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:
++E           """Run pytest and parse JUnit XML results."""
++E           cmd = [
++E               "uv",
++E               "run",
++E               "pytest",
++E               *EVAL_FILES,
++E               f"--junit-xml={xml_path}",
++E               "--tb=short",
++E               "-q",
++E           ]
++E           start = time.monotonic()
++E           proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=120)
++E           duration = time.monotonic() - start
++E       
++E           result = RunResult(name=label, duration=round(duration, 3), xml_path=str(xml_path))
++E       
++E           if xml_path.exists():
++E               tree = ET.parse(xml_path)
++E               root = tree.getroot()
++E               for suite in root.iter("testsuite"):
++E                   result.passed += (
++E                       int(suite.get("tests", 0))
++E                       - int(suite.get("failures", 0))
++E                       - int(suite.get("errors", 0))
++E                       - int(suite.get("skipped", 0))
++E                   )
++E                   result.failed += int(suite.get("failures", 0))
++E                   result.errors += int(suite.get("errors", 0))
++E                   result.skipped += int(suite.get("skipped", 0))
++E       
++E               for tc in root.iter("testcase"):
++E                   failure = tc.find("failure")
++E                   if failure is not None:
++E                       result.failures.append(f"{tc.get('classname')}.{tc.get('name')}")
++E           else:
++E               # XML not created — parse from stdout
++E               result.errors = 1
++E               result.failures.append(
++E                   f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}"
++E               )
++E       
++E           return result
++E       
++E       
++E       def run_e2e_script(script: str, branch: str, cwd: Path) -> RunResult:
++E           """Run an E2E eval script and capture its result."""
++E           label = f"e2e-{Path(script).stem}-{branch}"
++E           cmd = ["uv", "run", "python", script, "--branch", branch]
++E           start = time.monotonic()
++E           try:
++E               proc = subprocess.run(
++E                   cmd, cwd=cwd, capture_output=True, text=True, timeout=1800
++E               )
++E               duration = time.monotonic() - start
++E               result = RunResult(name=label, duration=round(duration, 3))
++E               if proc.returncode == 0:
++E                   result.passed = 1
++E               else:
++E                   result.failed = 1
++E                   result.failures.append(f"Exit code {proc.returncode}: {proc.stderr[-500:]}")
++E               return result
++E           except subprocess.TimeoutExpired:
++E               return RunResult(
++E                   name=label,
++E                   errors=1,
++E                   duration=round(time.monotonic() - start, 3),
++E                   failures=["Timeout after 1800s"],
++E               )
++E       
++E       
++E       def run_local(run_id: str) -> RunResult:
++E           """Run evals on current branch."""
++E           RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++E           xml = RESULTS_DIR / f"local-{run_id}.xml"
++E           return run_pytest(f"local-{run_id}", REPO_ROOT, xml)
++E       
++E       
++E       def run_global(run_id: str) -> RunResult:
++E           """Run evals on master via git worktree."""
++E           worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
++E     ?                                         ++++++++++++++++++++++
++E       
++E           # Create worktree if needed
++E           if not worktree_path.exists():
++E               subprocess.run(
++E                   ["git", "worktree", "add", str(worktree_path), "master"],
++E                   cwd=REPO_ROOT,
++E                   capture_output=True,
++E                   text=True,
++E               )
++E       
++E           # Check if eval files exist on master
++E           missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]
++E           if missing:
++E               return RunResult(
++E                   name=f"global-{run_id}",
++E                   failures=[f"Eval files not on master: {missing}"],
++E                   errors=len(missing),
++E               )
++E       
++E           RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++E           xml = RESULTS_DIR / f"global-{run_id}.xml"
++E           result = run_pytest(f"global-{run_id}", worktree_path, xml)
++E       
++E           return result
++E       
++E       
++E       def compare_runs(runs: list[RunResult]) -> dict:
++E           """Compare multiple runs for consistency and A/B delta."""
++E           report = {
++E               "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
++E               "runs": [],
++E               "consistency": {},
++E               "comparison": {},
++E           }
++E       
++E           local_runs = [r for r in runs if r.name.startswith("local")]
++E           global_runs = [r for r in runs if r.name.startswith("global")]
++E       
++E           for r in runs:
++E               report["runs"].append(
++E                   {
++E                       "name": r.name,
++E                       "passed": r.passed,
++E                       "failed": r.failed,
++E                       "skipped": r.skipped,
++E                       "errors": r.errors,
++E                       "duration": r.duration,
++E                       "failures": r.failures,
++E                   }
++E               )
++E       
++E           # Consistency check: local runs should be identical
++E           if len(local_runs) == 2:
++E               a, b = local_runs
++E               report["consistency"]["local_identical"] = (
++E                   a.passed == b.passed
++E                   and a.failed == b.failed
++E                   and a.skipped == b.skipped
++E                   and set(a.failures) == set(b.failures)
++E               )
++E               report["consistency"]["duration_variance_pct"] = round(
++E                   abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1
++E               )
++E       
++E           # A/B comparison: local vs global
++E           if local_runs and global_runs:
++E               local = local_runs[0]
++E               glob = global_runs[0]
++E               if glob.errors == 0:
++E                   local_failures = set(local.failures)
++E                   global_failures = set(glob.failures)
++E                   report["comparison"]["regressions"] = sorted(
++E                       local_failures - global_failures
++E                   )
++E                   report["comparison"]["improvements"] = sorted(
++E                       global_failures - local_failures
++E                   )
++E                   report["comparison"]["new_tests"] = (
++E                       local.passed + local.failed - glob.passed - glob.failed
++E                   )
++E               else:
++E                   report["comparison"]["note"] = (
++E                       "Global run had errors; full comparison unavailable"
++E                   )
++E                   report["comparison"]["new_tests"] = local.passed + local.failed
++E       
++E           return report
++E       
++E       
++E       def print_report(report: dict) -> None:
++E           """Print human-readable comparison report."""
++E           print("\n" + "=" * 60)
++E           print("v3.0 Eval Results")
++E           print("=" * 60)
++E       
++E           for r in report["runs"]:
++E               status = "PASS" if r["failed"] == 0 and r["errors"] == 0 else "FAIL"
++E               print(
++E                   f"  {r['name']:20s}  {r['passed']} passed / {r['failed']} failed / {r['skipped']} skipped  [{r['duration']:.3f}s]  {status}"
++E               )
++E               for f in r["failures"]:
++E                   print(f"    FAIL: {f}")
++E       
++E           if "local_identical" in report.get("consistency", {}):
++E               ident = report["consistency"]["local_identical"]
++E               var = report["consistency"]["duration_variance_pct"]
++E               print(
++E                   f"\n  Consistency: {'PASS' if ident else 'FAIL'} (duration variance: {var}%)"
++E               )
++E       
++E           comp = report.get("comparison", {})
++E           if comp:
++E               regs = comp.get("regressions", [])
++E               imps = comp.get("improvements", [])
++E               new = comp.get("new_tests", 0)
++E               print(f"\n  New tests (local only): {new}")
++E               print(f"  Regressions (pass→fail): {len(regs)}")
++E               for r in regs:
++E                   print(f"    REGRESSION: {r}")
++E               print(f"  Improvements (fail→pass): {len(imps)}")
++E               note = comp.get("note")
++E               if note:
++E                   print(f"  Note: {note}")
++E       
++E           print("=" * 60)
++E       
++E       
++E       def main():
++E           parser = argparse.ArgumentParser(description="v3.0 Eval Runner")
++E           parser.add_argument("--mode", choices=["local", "global", "full"], default="full")
++E           args = parser.parse_args()
++E       
++E           runs: list[RunResult] = []
++E           e2e_runs: list[RunResult] = []
++E       
++E           if args.mode in ("local", "full"):
++E               print("Running local eval A...")
++E               runs.append(run_local("A"))
++E               print("Running local eval B...")
++E               runs.append(run_local("B"))
++E       
++E               # E2E pipeline evals (local branch)
++E               for script in E2E_SCRIPTS:
++E                   script_path = REPO_ROOT / script
++E                   if script_path.exists():
++E                       print(f"Running E2E {script} (local)...")
++E                       e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))
++E       
++E           if args.mode in ("global", "full"):
++E               print("Running global eval A...")
++E               runs.append(run_global("A"))
++E               print("Running global eval B...")
++E               runs.append(run_global("B"))
++E       
++E               # E2E pipeline evals (global branch)
++E               worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
++E               if worktree_path.exists():
++E                   for script in E2E_SCRIPTS:
++E                       script_path = worktree_path / script
++E                       if script_path.exists():
++E                           print(f"Running E2E {script} (global)...")
++E                           e2e_runs.append(run_e2e_script(script, "global", worktree_path))
++E       
++E           all_runs = runs + e2e_runs
++E           report = compare_runs(all_runs)
++E           print_report(report)
++E       
++E           # Save JSON report
++E           RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++E           report_path = RESULTS_DIR / "eval-report.json"
++E           report_path.write_text(json.dumps(report, indent=2))
++E           print(f"\nJSON report: {report_path}")
++E       
++E           # Exit code: non-zero if any failures
++E           if any(r.failed > 0 or r.errors > 0 for r in runs if r.name.startswith("local")):
++E               sys.exit(1)
++E       
++E       
++E       if __name__ == "__main__":
++E           main()
++=========================== short test summary info ============================
++FAILED tests/unit/test_eval_runner_master_checkout.py::test_checkout_exists_inside_and_is_removed_after - AttributeError: module 'eval_runner_under_test' has no attribute 'master_checkout'
++FAILED tests/unit/test_eval_runner_master_checkout.py::test_checkout_is_removed_when_body_raises - AttributeError: module 'eval_runner_under_test' has no attribute 'master_checkout'
++FAILED tests/unit/test_eval_runner_master_checkout.py::test_missing_master_raises_with_git_stderr - AttributeError: module 'eval_runner_under_test' has no attribute 'MasterCheckoutError'
++FAILED tests/unit/test_eval_runner_master_checkout.py::test_script_has_no_fixed_sibling_checkout - assert 'IronClaude-eval-master' not in '#!/usr/bin/env python3\n"""v3.0 Eval Runner — orchestrates parallel local + global eval runs.\n\nUsage:\n    uv run python scripts/eval_runner.py --mode local    # 2 local runs\n    uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)\n    uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison\n"""\n\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET\nfrom dataclasses import dataclass, field\nfrom pathlib import Path\n\nEVAL_FILES = [\n    "tests/roadmap/test_eval_gate_rejection.py",\n    "tests/roadmap/test_eval_finding_lifecycle.py",\n    "tests/roadmap/test_eval_convergence_multirun.py",\n    "tests/roadmap/test_eval_gate_ordering.py",\n    "tests/audit/test_eval_wiring_multifile.py",\n]\n\nE2E_SCRIPTS = [\n    "scripts/eval_1.py",\n    "scripts/eval_2.py",\n    "scripts/eval_3.py",\n]\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\nRESULTS_DIR = (\n    REPO_ROOT\n    / ".dev"\n    / "releases"\n    / "current"\n    / "v3.0_unified-audit-gating"\n    / "eval-results"\n)\n\n\n@dataclass\nclass RunResult:\n    name: str\n    passed: int = 0\n    failed: int = 0\n    skipped: int = 0\n    errors: int = 0\n    duration: float = 0.0\n    failures: list[str] = field(default_factory=list)\n    xml_path: str = ""\n\n\ndef run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:\n    """Run pytest and parse JUnit XML results."""\n    cmd = [\n        "uv",\n        "run",\n        "pytest",\n        *EVAL_FILES,\n        f"--junit-xml={xml_path}",\n        "--tb=short",\n        "-q",\n    ]\n    start = time.monotonic()\n    proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=120)\n    duration = time.monotonic() - start\n\n    result = RunResult(name=label, duration=round(duration, 3), xml_path=str(xml_path))\n\n    if xml_path.exists():\n        tree = ET.parse(xml_path)\n        root = tree.getroot()\n        for suite in root.iter("testsuite"):\n            result.passed += (\n                int(suite.get("tests", 0))\n                - int(suite.get("failures", 0))\n                - int(suite.get("errors", 0))\n                - int(suite.get("skipped", 0))\n            )\n            result.failed += int(suite.get("failures", 0))\n            result.errors += int(suite.get("errors", 0))\n            result.skipped += int(suite.get("skipped", 0))\n\n        for tc in root.iter("testcase"):\n            failure = tc.find("failure")\n            if failure is not None:\n                result.failures.append(f"{tc.get(\'classname\')}.{tc.get(\'name\')}")\n    else:\n        # XML not created — parse from stdout\n        result.errors = 1\n        result.failures.append(\n            f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}"\n        )\n\n    return result\n\n\ndef run_e2e_script(script: str, branch: str, cwd: Path) -> RunResult:\n    """Run an E2E eval script and capture its result."""\n    label = f"e2e-{Path(script).stem}-{branch}"\n    cmd = ["uv", "run", "python", script, "--branch", branch]\n    start = time.monotonic()\n    try:\n        proc = subprocess.run(\n            cmd, cwd=cwd, capture_output=True, text=True, timeout=1800\n        )\n        duration = time.monotonic() - start\n        result = RunResult(name=label, duration=round(duration, 3))\n        if proc.returncode == 0:\n            result.passed = 1\n        else:\n            result.failed = 1\n            result.failures.append(f"Exit code {proc.returncode}: {proc.stderr[-500:]}")\n        return result\n    except subprocess.TimeoutExpired:\n        return RunResult(\n            name=label,\n            errors=1,\n            duration=round(time.monotonic() - start, 3),\n            failures=["Timeout after 1800s"],\n        )\n\n\ndef run_local(run_id: str) -> RunResult:\n    """Run evals on current branch."""\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    xml = RESULTS_DIR / f"local-{run_id}.xml"\n    return run_pytest(f"local-{run_id}", REPO_ROOT, xml)\n\n\ndef run_global(run_id: str) -> RunResult:\n    """Run evals on master via git worktree."""\n    worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"\n\n    # Create worktree if needed\n    if not worktree_path.exists():\n        subprocess.run(\n            ["git", "worktree", "add", str(worktree_path), "master"],\n            cwd=REPO_ROOT,\n            capture_output=True,\n            text=True,\n        )\n\n    # Check if eval files exist on master\n    missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]\n    if missing:\n        return RunResult(\n            name=f"global-{run_id}",\n            failures=[f"Eval files not on master: {missing}"],\n            errors=len(missing),\n        )\n\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    xml = RESULTS_DIR / f"global-{run_id}.xml"\n    result = run_pytest(f"global-{run_id}", worktree_path, xml)\n\n    return result\n\n\ndef compare_runs(runs: list[RunResult]) -> dict:\n    """Compare multiple runs for consistency and A/B delta."""\n    report = {\n        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),\n        "runs": [],\n        "consistency": {},\n        "comparison": {},\n    }\n\n    local_runs = [r for r in runs if r.name.startswith("local")]\n    global_runs = [r for r in runs if r.name.startswith("global")]\n\n    for r in runs:\n        report["runs"].append(\n            {\n                "name": r.name,\n                "passed": r.passed,\n                "failed": r.failed,\n                "skipped": r.skipped,\n                "errors": r.errors,\n                "duration": r.duration,\n                "failures": r.failures,\n            }\n        )\n\n    # Consistency check: local runs should be identical\n    if len(local_runs) == 2:\n        a, b = local_runs\n        report["consistency"]["local_identical"] = (\n            a.passed == b.passed\n            and a.failed == b.failed\n            and a.skipped == b.skipped\n            and set(a.failures) == set(b.failures)\n        )\n        report["consistency"]["duration_variance_pct"] = round(\n            abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1\n        )\n\n    # A/B comparison: local vs global\n    if local_runs and global_runs:\n        local = local_runs[0]\n        glob = global_runs[0]\n        if glob.errors == 0:\n            local_failures = set(local.failures)\n            global_failures = set(glob.failures)\n            report["comparison"]["regressions"] = sorted(\n                local_failures - global_failures\n            )\n            report["comparison"]["improvements"] = sorted(\n                global_failures - local_failures\n            )\n            report["comparison"]["new_tests"] = (\n                local.passed + local.failed - glob.passed - glob.failed\n            )\n        else:\n            report["comparison"]["note"] = (\n                "Global run had errors; full comparison unavailable"\n            )\n            report["comparison"]["new_tests"] = local.passed + local.failed\n\n    return report\n\n\ndef print_report(report: dict) -> None:\n    """Print human-readable comparison report."""\n    print("\\n" + "=" * 60)\n    print("v3.0 Eval Results")\n    print("=" * 60)\n\n    for r in report["runs"]:\n        status = "PASS" if r["failed"] == 0 and r["errors"] == 0 else "FAIL"\n        print(\n            f"  {r[\'name\']:20s}  {r[\'passed\']} passed / {r[\'failed\']} failed / {r[\'skipped\']} skipped  [{r[\'duration\']:.3f}s]  {status}"\n        )\n        for f in r["failures"]:\n            print(f"    FAIL: {f}")\n\n    if "local_identical" in report.get("consistency", {}):\n        ident = report["consistency"]["local_identical"]\n        var = report["consistency"]["duration_variance_pct"]\n        print(\n            f"\\n  Consistency: {\'PASS\' if ident else \'FAIL\'} (duration variance: {var}%)"\n        )\n\n    comp = report.get("comparison", {})\n    if comp:\n        regs = comp.get("regressions", [])\n        imps = comp.get("improvements", [])\n        new = comp.get("new_tests", 0)\n        print(f"\\n  New tests (local only): {new}")\n        print(f"  Regressions (pass→fail): {len(regs)}")\n        for r in regs:\n            print(f"    REGRESSION: {r}")\n        print(f"  Improvements (fail→pass): {len(imps)}")\n        note = comp.get("note")\n        if note:\n            print(f"  Note: {note}")\n\n    print("=" * 60)\n\n\ndef main():\n    parser = argparse.ArgumentParser(description="v3.0 Eval Runner")\n    parser.add_argument("--mode", choices=["local", "global", "full"], default="full")\n    args = parser.parse_args()\n\n    runs: list[RunResult] = []\n    e2e_runs: list[RunResult] = []\n\n    if args.mode in ("local", "full"):\n        print("Running local eval A...")\n        runs.append(run_local("A"))\n        print("Running local eval B...")\n        runs.append(run_local("B"))\n\n        # E2E pipeline evals (local branch)\n        for script in E2E_SCRIPTS:\n            script_path = REPO_ROOT / script\n            if script_path.exists():\n                print(f"Running E2E {script} (local)...")\n                e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))\n\n    if args.mode in ("global", "full"):\n        print("Running global eval A...")\n        runs.append(run_global("A"))\n        print("Running global eval B...")\n        runs.append(run_global("B"))\n\n        # E2E pipeline evals (global branch)\n        worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"\n        if worktree_path.exists():\n            for script in E2E_SCRIPTS:\n                script_path = worktree_path / script\n                if script_path.exists():\n                    print(f"Running E2E {script} (global)...")\n                    e2e_runs.append(run_e2e_script(script, "global", worktree_path))\n\n    all_runs = runs + e2e_runs\n    report = compare_runs(all_runs)\n    print_report(report)\n\n    # Save JSON report\n    RESULTS_DIR.mkdir(parents=True, exist_ok=True)\n    report_path = RESULTS_DIR / "eval-report.json"\n    report_path.write_text(json.dumps(report, indent=2))\n    print(f"\\nJSON report: {report_path}")\n\n    # Exit code: non-zero if any failures\n    if any(r.failed > 0 or r.errors > 0 for r in runs if r.name.startswith("local")):\n        sys.exit(1)\n\n\nif __name__ == "__main__":\n    main()\n'
++  
++  'IronClaude-eval-master' is contained here:
++    #!/usr/bin/env python3
++    """v3.0 Eval Runner — orchestrates parallel local + global eval runs.
++    
++    Usage:
++        uv run python scripts/eval_runner.py --mode local    # 2 local runs
++        uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)
++        uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison
++    """
++    
++    from __future__ import annotations
++    
++    import argparse
++    import json
++    import subprocess
++    import sys
++    import time
++    import xml.etree.ElementTree as ET
++    from dataclasses import dataclass, field
++    from pathlib import Path
++    
++    EVAL_FILES = [
++        "tests/roadmap/test_eval_gate_rejection.py",
++        "tests/roadmap/test_eval_finding_lifecycle.py",
++        "tests/roadmap/test_eval_convergence_multirun.py",
++        "tests/roadmap/test_eval_gate_ordering.py",
++        "tests/audit/test_eval_wiring_multifile.py",
++    ]
++    
++    E2E_SCRIPTS = [
++        "scripts/eval_1.py",
++        "scripts/eval_2.py",
++        "scripts/eval_3.py",
++    ]
++    
++    REPO_ROOT = Path(__file__).resolve().parent.parent
++    RESULTS_DIR = (
++        REPO_ROOT
++        / ".dev"
++        / "releases"
++        / "current"
++        / "v3.0_unified-audit-gating"
++        / "eval-results"
++    )
++    
++    
++    @dataclass
++    class RunResult:
++        name: str
++        passed: int = 0
++        failed: int = 0
++        skipped: int = 0
++        errors: int = 0
++        duration: float = 0.0
++        failures: list[str] = field(default_factory=list)
++        xml_path: str = ""
++    
++    
++    def run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:
++        """Run pytest and parse JUnit XML results."""
++        cmd = [
++            "uv",
++            "run",
++            "pytest",
++            *EVAL_FILES,
++            f"--junit-xml={xml_path}",
++            "--tb=short",
++            "-q",
++        ]
++        start = time.monotonic()
++        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=120)
++        duration = time.monotonic() - start
++    
++        result = RunResult(name=label, duration=round(duration, 3), xml_path=str(xml_path))
++    
++        if xml_path.exists():
++            tree = ET.parse(xml_path)
++            root = tree.getroot()
++            for suite in root.iter("testsuite"):
++                result.passed += (
++                    int(suite.get("tests", 0))
++                    - int(suite.get("failures", 0))
++                    - int(suite.get("errors", 0))
++                    - int(suite.get("skipped", 0))
++                )
++                result.failed += int(suite.get("failures", 0))
++                result.errors += int(suite.get("errors", 0))
++                result.skipped += int(suite.get("skipped", 0))
++    
++            for tc in root.iter("testcase"):
++                failure = tc.find("failure")
++                if failure is not None:
++                    result.failures.append(f"{tc.get('classname')}.{tc.get('name')}")
++        else:
++            # XML not created — parse from stdout
++            result.errors = 1
++            result.failures.append(
++                f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}"
++            )
++    
++        return result
++    
++    
++    def run_e2e_script(script: str, branch: str, cwd: Path) -> RunResult:
++        """Run an E2E eval script and capture its result."""
++        label = f"e2e-{Path(script).stem}-{branch}"
++        cmd = ["uv", "run", "python", script, "--branch", branch]
++        start = time.monotonic()
++        try:
++            proc = subprocess.run(
++                cmd, cwd=cwd, capture_output=True, text=True, timeout=1800
++            )
++            duration = time.monotonic() - start
++            result = RunResult(name=label, duration=round(duration, 3))
++            if proc.returncode == 0:
++                result.passed = 1
++            else:
++                result.failed = 1
++                result.failures.append(f"Exit code {proc.returncode}: {proc.stderr[-500:]}")
++            return result
++        except subprocess.TimeoutExpired:
++            return RunResult(
++                name=label,
++                errors=1,
++                duration=round(time.monotonic() - start, 3),
++                failures=["Timeout after 1800s"],
++            )
++    
++    
++    def run_local(run_id: str) -> RunResult:
++        """Run evals on current branch."""
++        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++        xml = RESULTS_DIR / f"local-{run_id}.xml"
++        return run_pytest(f"local-{run_id}", REPO_ROOT, xml)
++    
++    
++    def run_global(run_id: str) -> RunResult:
++        """Run evals on master via git worktree."""
++        worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
++  ?                                         ++++++++++++++++++++++
++    
++        # Create worktree if needed
++        if not worktree_path.exists():
++            subprocess.run(
++                ["git", "worktree", "add", str(worktree_path), "master"],
++                cwd=REPO_ROOT,
++                capture_output=True,
++                text=True,
++            )
++    
++        # Check if eval files exist on master
++        missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]
++        if missing:
++            return RunResult(
++                name=f"global-{run_id}",
++                failures=[f"Eval files not on master: {missing}"],
++                errors=len(missing),
++            )
++    
++        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++        xml = RESULTS_DIR / f"global-{run_id}.xml"
++        result = run_pytest(f"global-{run_id}", worktree_path, xml)
++    
++        return result
++    
++    
++    def compare_runs(runs: list[RunResult]) -> dict:
++        """Compare multiple runs for consistency and A/B delta."""
++        report = {
++            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
++            "runs": [],
++            "consistency": {},
++            "comparison": {},
++        }
++    
++        local_runs = [r for r in runs if r.name.startswith("local")]
++        global_runs = [r for r in runs if r.name.startswith("global")]
++    
++        for r in runs:
++            report["runs"].append(
++                {
++                    "name": r.name,
++                    "passed": r.passed,
++                    "failed": r.failed,
++                    "skipped": r.skipped,
++                    "errors": r.errors,
++                    "duration": r.duration,
++                    "failures": r.failures,
++                }
++            )
++    
++        # Consistency check: local runs should be identical
++        if len(local_runs) == 2:
++            a, b = local_runs
++            report["consistency"]["local_identical"] = (
++                a.passed == b.passed
++                and a.failed == b.failed
++                and a.skipped == b.skipped
++                and set(a.failures) == set(b.failures)
++            )
++            report["consistency"]["duration_variance_pct"] = round(
++                abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1
++            )
++    
++        # A/B comparison: local vs global
++        if local_runs and global_runs:
++            local = local_runs[0]
++            glob = global_runs[0]
++            if glob.errors == 0:
++                local_failures = set(local.failures)
++                global_failures = set(glob.failures)
++                report["comparison"]["regressions"] = sorted(
++                    local_failures - global_failures
++                )
++                report["comparison"]["improvements"] = sorted(
++                    global_failures - local_failures
++                )
++                report["comparison"]["new_tests"] = (
++                    local.passed + local.failed - glob.passed - glob.failed
++                )
++            else:
++                report["comparison"]["note"] = (
++                    "Global run had errors; full comparison unavailable"
++                )
++                report["comparison"]["new_tests"] = local.passed + local.failed
++    
++        return report
++    
++    
++    def print_report(report: dict) -> None:
++        """Print human-readable comparison report."""
++        print("\n" + "=" * 60)
++        print("v3.0 Eval Results")
++        print("=" * 60)
++    
++        for r in report["runs"]:
++            status = "PASS" if r["failed"] == 0 and r["errors"] == 0 else "FAIL"
++            print(
++                f"  {r['name']:20s}  {r['passed']} passed / {r['failed']} failed / {r['skipped']} skipped  [{r['duration']:.3f}s]  {status}"
++            )
++            for f in r["failures"]:
++                print(f"    FAIL: {f}")
++    
++        if "local_identical" in report.get("consistency", {}):
++            ident = report["consistency"]["local_identical"]
++            var = report["consistency"]["duration_variance_pct"]
++            print(
++                f"\n  Consistency: {'PASS' if ident else 'FAIL'} (duration variance: {var}%)"
++            )
++    
++        comp = report.get("comparison", {})
++        if comp:
++            regs = comp.get("regressions", [])
++            imps = comp.get("improvements", [])
++            new = comp.get("new_tests", 0)
++            print(f"\n  New tests (local only): {new}")
++            print(f"  Regressions (pass→fail): {len(regs)}")
++            for r in regs:
++                print(f"    REGRESSION: {r}")
++            print(f"  Improvements (fail→pass): {len(imps)}")
++            note = comp.get("note")
++            if note:
++                print(f"  Note: {note}")
++    
++        print("=" * 60)
++    
++    
++    def main():
++        parser = argparse.ArgumentParser(description="v3.0 Eval Runner")
++        parser.add_argument("--mode", choices=["local", "global", "full"], default="full")
++        args = parser.parse_args()
++    
++        runs: list[RunResult] = []
++        e2e_runs: list[RunResult] = []
++    
++        if args.mode in ("local", "full"):
++            print("Running local eval A...")
++            runs.append(run_local("A"))
++            print("Running local eval B...")
++            runs.append(run_local("B"))
++    
++            # E2E pipeline evals (local branch)
++            for script in E2E_SCRIPTS:
++                script_path = REPO_ROOT / script
++                if script_path.exists():
++                    print(f"Running E2E {script} (local)...")
++                    e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))
++    
++        if args.mode in ("global", "full"):
++            print("Running global eval A...")
++            runs.append(run_global("A"))
++            print("Running global eval B...")
++            runs.append(run_global("B"))
++    
++            # E2E pipeline evals (global branch)
++            worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
++            if worktree_path.exists():
++                for script in E2E_SCRIPTS:
++                    script_path = worktree_path / script
++                    if script_path.exists():
++                        print(f"Running E2E {script} (global)...")
++                        e2e_runs.append(run_e2e_script(script, "global", worktree_path))
++    
++        all_runs = runs + e2e_runs
++        report = compare_runs(all_runs)
++        print_report(report)
++    
++        # Save JSON report
++        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++        report_path = RESULTS_DIR / "eval-report.json"
++        report_path.write_text(json.dumps(report, indent=2))
++        print(f"\nJSON report: {report_path}")
++    
++        # Exit code: non-zero if any failures
++        if any(r.failed > 0 or r.errors > 0 for r in runs if r.name.startswith("local")):
++            sys.exit(1)
++    
++    
++    if __name__ == "__main__":
++        main()
++============================== 4 failed in 0.14s ===============================
++rc=1
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-pass-after.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-pass-after.txt
+new file mode 100644
+index 00000000..6c1b56a4
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t2-pass-after.txt
+@@ -0,0 +1,16 @@
++$ uv run pytest tests/unit/test_eval_runner_master_checkout.py -v -p no:cacheprovider   (after the change)
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.venv/bin/python
++SuperClaude: 4.3.5
++rootdir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths
++configfile: pyproject.toml
++plugins: superclaude-4.3.5, anyio-4.16.0
++collecting ... collected 4 items
++
++tests/unit/test_eval_runner_master_checkout.py::test_checkout_exists_inside_and_is_removed_after PASSED [ 25%]
++tests/unit/test_eval_runner_master_checkout.py::test_checkout_is_removed_when_body_raises PASSED [ 50%]
++tests/unit/test_eval_runner_master_checkout.py::test_missing_master_raises_with_git_stderr PASSED [ 75%]
++tests/unit/test_eval_runner_master_checkout.py::test_script_has_no_fixed_sibling_checkout PASSED [100%]
++
++============================== 4 passed in 0.16s ===============================
++rc=0
+diff --git a/scripts/eval_runner.py b/scripts/eval_runner.py
+index 997de1d8..a4d1450f 100644
+--- a/scripts/eval_runner.py
++++ b/scripts/eval_runner.py
+@@ -3,18 +3,22 @@
+ 
+ Usage:
+     uv run python scripts/eval_runner.py --mode local    # 2 local runs
+-    uv run python scripts/eval_runner.py --mode global   # 2 global runs (master worktree)
++    uv run python scripts/eval_runner.py --mode global   # 2 global runs (temporary master checkout)
+     uv run python scripts/eval_runner.py --mode full     # 4 runs + comparison
+ """
+ 
+ from __future__ import annotations
+ 
+ import argparse
++import contextlib
+ import json
++import os
+ import subprocess
+ import sys
++import tempfile
+ import time
+ import xml.etree.ElementTree as ET
++from collections.abc import Iterator
+ from dataclasses import dataclass, field
+ from pathlib import Path
+ 
+@@ -133,21 +137,55 @@ def run_local(run_id: str) -> RunResult:
+     return run_pytest(f"local-{run_id}", REPO_ROOT, xml)
+ 
+ 
+-def run_global(run_id: str) -> RunResult:
+-    """Run evals on master via git worktree."""
+-    worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
+-
+-    # Create worktree if needed
+-    if not worktree_path.exists():
+-        subprocess.run(
+-            ["git", "worktree", "add", str(worktree_path), "master"],
++class MasterCheckoutError(RuntimeError):
++    """The temporary master checkout could not be created; carries git's stderr."""
++
++
++@contextlib.contextmanager
++def master_checkout() -> Iterator[Path]:
++    """Create a temporary detached checkout of master and remove it on exit.
++
++    The checkout lives in a fresh temporary directory, so the runner works
++    without Orca and never leaves a checkout behind. ``--detach`` lets it work
++    while ``master`` is checked out in the main checkout.
++    """
++    checkout = Path(tempfile.mkdtemp(prefix="ironclaude-eval-master-"))
++    proc = subprocess.run(
++        ["git", "worktree", "add", "--detach", str(checkout), "master"],
++        cwd=REPO_ROOT,
++        capture_output=True,
++        text=True,
++    )
++    if proc.returncode != 0:
++        # git did not register a worktree; remove the empty temp directory only.
++        with contextlib.suppress(OSError):
++            os.rmdir(checkout)
++        raise MasterCheckoutError(
++            proc.stderr.strip()
++            or f"git worktree add exited with code {proc.returncode}"
++        )
++    try:
++        yield checkout
++    finally:
++        removed = subprocess.run(
++            ["git", "worktree", "remove", "--force", str(checkout)],
+             cwd=REPO_ROOT,
+             capture_output=True,
+             text=True,
+         )
++        if removed.returncode != 0:
++            # Report, but never hide an exception raised by the body.
++            print(
++                f"WARNING: could not remove temporary checkout {checkout}: "
++                f"{removed.stderr.strip()}",
++                file=sys.stderr,
++            )
++
+ 
++def run_global(run_id: str, checkout: Path) -> RunResult:
++    """Run evals on master inside the given temporary checkout."""
+     # Check if eval files exist on master
+-    missing = [f for f in EVAL_FILES if not (worktree_path / f).exists()]
++    missing = [f for f in EVAL_FILES if not (checkout / f).exists()]
+     if missing:
+         return RunResult(
+             name=f"global-{run_id}",
+@@ -157,7 +195,7 @@ def run_global(run_id: str) -> RunResult:
+ 
+     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+     xml = RESULTS_DIR / f"global-{run_id}.xml"
+-    result = run_pytest(f"global-{run_id}", worktree_path, xml)
++    result = run_pytest(f"global-{run_id}", checkout, xml)
+ 
+     return result
+ 
+@@ -285,19 +323,27 @@ def main():
+                 e2e_runs.append(run_e2e_script(script, "local", REPO_ROOT))
+ 
+     if args.mode in ("global", "full"):
+-        print("Running global eval A...")
+-        runs.append(run_global("A"))
+-        print("Running global eval B...")
+-        runs.append(run_global("B"))
+-
+-        # E2E pipeline evals (global branch)
+-        worktree_path = REPO_ROOT.parent / "IronClaude-eval-master"
+-        if worktree_path.exists():
+-            for script in E2E_SCRIPTS:
+-                script_path = worktree_path / script
+-                if script_path.exists():
+-                    print(f"Running E2E {script} (global)...")
+-                    e2e_runs.append(run_e2e_script(script, "global", worktree_path))
++        try:
++            with master_checkout() as checkout:
++                print("Running global eval A...")
++                runs.append(run_global("A", checkout))
++                print("Running global eval B...")
++                runs.append(run_global("B", checkout))
++
++                # E2E pipeline evals (global branch)
++                for script in E2E_SCRIPTS:
++                    script_path = checkout / script
++                    if script_path.exists():
++                        print(f"Running E2E {script} (global)...")
++                        e2e_runs.append(run_e2e_script(script, "global", checkout))
++        except MasterCheckoutError as exc:
++            runs.append(
++                RunResult(
++                    name="global-setup",
++                    errors=1,
++                    failures=[f"Could not create the temporary master checkout: {exc}"],
++                )
++            )
+ 
+     all_runs = runs + e2e_runs
+     report = compare_runs(all_runs)
+diff --git a/tests/unit/test_eval_runner_master_checkout.py b/tests/unit/test_eval_runner_master_checkout.py
+new file mode 100644
+index 00000000..55c8c956
+--- /dev/null
++++ b/tests/unit/test_eval_runner_master_checkout.py
+@@ -0,0 +1,134 @@
++"""Regression tests for the temporary master checkout in scripts/eval_runner.py.
++
++The eval runner used to create a permanent sibling checkout next to the
++repository and never remove it. It now creates its master checkout in a
++temporary directory and removes it on exit, so it works without Orca.
++"""
++
++from __future__ import annotations
++
++import importlib.util
++import os
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++import pytest
++
++SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "eval_runner.py"
++
++
++def _git(cwd: Path, *args: str) -> str:
++    """Run git in a fixture repo, isolated from the caller's git config."""
++    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
++    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
++    env["GIT_CONFIG_NOSYSTEM"] = "1"
++    proc = subprocess.run(
++        ["git", *args], cwd=cwd, env=env, capture_output=True, text=True, check=True
++    )
++    return proc.stdout
++
++
++def _make_repo(path: Path, branch: str) -> Path:
++    path.mkdir()
++    _git(path, "init", "-q", "-b", branch)
++    _git(
++        path,
++        "-c",
++        "user.name=eval-test",
++        "-c",
++        "user.email=eval-test@example.com",
++        "commit",
++        "-q",
++        "--allow-empty",
++        "-m",
++        "init",
++    )
++    return path
++
++
++def _worktree_paths(repo: Path) -> set[str]:
++    out = _git(repo, "worktree", "list", "--porcelain")
++    return {
++        os.path.realpath(line.split(" ", 1)[1])
++        for line in out.splitlines()
++        if line.startswith("worktree ")
++    }
++
++
++@pytest.fixture
++def eval_runner(monkeypatch):
++    """Load scripts/eval_runner.py as a module (pattern of test_bare_review_golden_regen.py).
++
++    The module is registered in sys.modules before exec_module: its @dataclass
++    with string annotations looks the module up there.
++    """
++    spec = importlib.util.spec_from_file_location("eval_runner_under_test", SCRIPT)
++    assert spec is not None and spec.loader is not None
++    module = importlib.util.module_from_spec(spec)
++    monkeypatch.setitem(sys.modules, spec.name, module)
++    spec.loader.exec_module(module)
++    return module
++
++
++@pytest.fixture
++def temp_root(tmp_path, monkeypatch):
++    """Send tempfile.mkdtemp into a known folder so leftovers can be checked."""
++    root = tmp_path / "tmp"
++    root.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(root))
++    return root
++
++
++def test_checkout_exists_inside_and_is_removed_after(
++    eval_runner, tmp_path, temp_root, monkeypatch
++):
++    repo = _make_repo(tmp_path / "repo", "master")
++    monkeypatch.setattr(eval_runner, "REPO_ROOT", repo)
++
++    with eval_runner.master_checkout() as checkout:
++        assert checkout.is_dir()
++        assert os.path.realpath(checkout) in _worktree_paths(repo)
++
++    assert not checkout.exists()
++    assert os.path.realpath(checkout) not in _worktree_paths(repo)
++    assert list(temp_root.iterdir()) == []
++
++
++def test_checkout_is_removed_when_body_raises(
++    eval_runner, tmp_path, temp_root, monkeypatch
++):
++    repo = _make_repo(tmp_path / "repo", "master")
++    monkeypatch.setattr(eval_runner, "REPO_ROOT", repo)
++
++    seen: list[Path] = []
++    with pytest.raises(RuntimeError, match="boom"):
++        with eval_runner.master_checkout() as checkout:
++            seen.append(checkout)
++            raise RuntimeError("boom")
++
++    assert seen and not seen[0].exists()
++    assert os.path.realpath(seen[0]) not in _worktree_paths(repo)
++    assert list(temp_root.iterdir()) == []
++
++
++def test_missing_master_raises_with_git_stderr(
++    eval_runner, tmp_path, temp_root, monkeypatch
++):
++    repo = _make_repo(tmp_path / "repo", "trunk")
++    monkeypatch.setattr(eval_runner, "REPO_ROOT", repo)
++
++    with pytest.raises(eval_runner.MasterCheckoutError) as excinfo:
++        with eval_runner.master_checkout():
++            pytest.fail("the body must not run without a master branch")
++
++    message = str(excinfo.value)
++    assert "master" in message
++    assert "fatal" in message.lower()
++    assert list(temp_root.iterdir()) == []
++    assert _worktree_paths(repo) == {os.path.realpath(repo)}
++
++
++def test_script_has_no_fixed_sibling_checkout():
++    assert "IronClaude-eval-master" not in SCRIPT.read_text(encoding="utf-8")

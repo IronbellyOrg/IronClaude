@@ -1,0 +1,9 @@
+$ grep -n -i canonical .gitignore
+80:# Canonical evidence-pack fixtures asserted by tests/audit/*CanonicalFixtureParity*.
+rc=0
+$ grep -n -B2 "^\.dev/worktrees/$" .gitignore
+240-# Retired worktree location: Orca creates project worktrees at its default location, outside the repository.
+241-# The entry stays so existing or leftover checkouts here are never staged.
+242:.dev/worktrees/
+$ git check-ignore -q .dev/worktrees/example
+rc=0

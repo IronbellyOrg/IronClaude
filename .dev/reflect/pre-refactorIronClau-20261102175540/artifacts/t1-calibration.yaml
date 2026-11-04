@@ -1,0 +1,56 @@
+# Returned by the confidence-calibrator agent (read-only tools); persisted verbatim by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/t1-card.md
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding:
+    score: 0.90
+    reason: >-
+      All spot-checked citations matched: the plan lines cited for F1-F4 and S1-S5,
+      source.md:1, the parity test at tests/commands/test_routing_plugin_parity.py:29-47,
+      deviation-patterns-IronClaude.md:12, and every figure in coverage-matrix.json
+      (0.9091, 0.0909, INF-011 ratio 0.5 with Task 3 as best match). The 79/108 hits
+      (73%) figure matches the plan. Small gaps: F5 names the CLAUDE.md #419 link
+      without a line number and marks it [INFERRED]. S2 lists test files without line
+      numbers. "Step 1B.2b" points to no file.
+  coverage_completeness:
+    score: 0.88
+    reason: >-
+      coverage_pct_union is 0.9091, just above the 0.90 floor. The one unmatched row,
+      INF-011, gets a content-level COVERED verdict with plan citations (lines 20,
+      116-122, 134-137). Two matched rows (INF-005, INF-007) also get a content-level
+      check. All 7 tasks are discussed. The score is held below 1.0 because
+      coverage_pct is null (no parsed requirement IDs, parsed-sparse).
+  deviation_classification_clarity:
+    score: 0.55
+    reason: >-
+      Only F4 ("aligned") and F1 ("refinement beyond the source") use the rubric's
+      categories (Aligned, Refinement, Drift, Regression). F1 also leans toward Drift
+      ("the user did not authorize it"). F2 ("deviation, minor"), F3 ("interpretation,
+      low") and F5 ("gap, low") use labels outside the rubric's set, so 3 of 5 findings
+      have no defensible single category. Each finding does have a clear rationale.
+  risk_surface_coverage:
+    score: 0.75
+    reason: >-
+      Covers an untested invariant (S2), a rule conflict (F5), mirror parity (S1),
+      line-number drift (S3), unverified Orca syntax (S4) and same-file edit ordering
+      (S5). It misses three blast-radius points. (1) Whether any test or primitive pins
+      the current CLAUDE.md worktree or fork-rule wording. (2) Whether the 108-hit set
+      is still current at execution time. (3) Whether the 3-class choice in F1 changes
+      Task 7's residual-hit check if the user rejects the third class.
+  recommendation_actionability:
+    score: 0.45
+    reason: >-
+      The card has no recommendations section. F1 says "needs user decision" but does
+      not state the question or the options. S2 points to the missing test run but does
+      not prescribe a command. F5 proposes no wording. No recommendation has a
+      success criterion that can be checked.
+C: 0.71
+escalation_recommendation:
+  verdict: ESCALATE
+  reasons:
+    - "low_confidence: C 0.71 < 0.85 automatic ESCALATE"
+    - "multi_domain: S_domains 3 >= 3 (rule 4)"
+    - "coverage_degraded parsed-sparse forbids a Tier 1 stop"
+  self_reported_confidence_ignored: 0.86
+  delta: -0.15

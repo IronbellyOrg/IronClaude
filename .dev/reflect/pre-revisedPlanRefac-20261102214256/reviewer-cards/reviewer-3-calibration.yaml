@@ -1,0 +1,22 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-3-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.88, reason: "All file:line citations match; shell sections 5-6 back R3-F1/F3. Lowered: R3-F4 says plan:110 forbids the pr-submit fallback, but :110 only lists allowed forms for the CLAUDE.md rule; R3-F7/F8 premises hypothetical."}
+  coverage_completeness: {score: 0.65, reason: "Deep on Task 2; Tasks 4 and 8 covered; Tasks 1, 3, 5, 7 have no finding and no explicit clean statement; no coverage map."}
+  deviation_classification_clarity: {score: 0.75, reason: "R3-F1 uses 'necessary' (outside rubric set); R3-F9 is existing behaviour labelled drift; F5/F7/F8 are fragile acceptance checks labelled drift."}
+  risk_surface_coverage: {score: 0.85, reason: "Import crash, untested main() wiring, cleanup leak/masking, broad except, exit 0 on setup failure, vacuous staged diffs. The .venv deletion risk stayed an inferred claim."}
+  recommendation_actionability: {score: 0.88, reason: "Exact code/commands and success criteria for most; R3-F9 advisory; R3-F8 replacement grep looser."}
+C: 0.80
+per_finding:
+  - {id: R3-F1, verdict: grounded, reason: "Pattern at :153-158 lacks sys.modules registration; eval_runner.py:10 and :46-48; shell section 5 confirms."}
+  - {id: R3-F2, verdict: grounded, reason: "Tests at plan:68-71 target only master_checkout()/a grep; global-setup path, run_global signature and main() wiring untested. 'Vacuous' slightly overstated."}
+  - {id: R3-F3, verdict: grounded, reason: "plan:62 finally scope unspecified; shell section 6 exit 128 and dir remains; no exception type named at plan:64."}
+  - {id: R3-F4, verdict: grounded, reason: "CLAUDE.md:50 placeholder fails plan:117 while plan:113 keeps it. Second half weaker: script resolves origin first and plan:110 does not ban script internals."}
+  - {id: R3-F5, verdict: grounded, reason: "Plain git diff compares working tree to index; staged changes invisible at plan:119/148/178."}
+  - {id: R3-F6, verdict: weak, reason: "Memory note is untracked so git grep cannot see it; new test file matching a search is a guess."}
+  - {id: R3-F7, verdict: weak, reason: "plan:67 already requires a commit on master; identity hazard shown without host evidence."}
+  - {id: R3-F8, verdict: weak, reason: "Formatting failure is speculative; replacement grep looser."}
+  - {id: R3-F9, verdict: grounded, reason: "eval_runner.py:313 only checks local runs; global-setup failure exits 0; low fits."}
+escalation_recommendation: ESCALATE (C below 0.85)
