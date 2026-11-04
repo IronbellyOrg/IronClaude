@@ -1,0 +1,190 @@
+# sc:reflect UC-1 Wave 1C Tier-1 reflection card
+# Tasklist under review: .dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md  (cited as TL:<line>)
+# Driving spec:          .dev/tasks/to-do/TASK-WF-design-20261104-164423/source.md                         (cited as SRC:<line>)
+# Artifacts: artifacts/grounding.yaml (Wave 1A), artifacts/coverage-matrix.yaml (Wave 1B)
+schema: reflect-card/1
+mode: UC-1
+tier: 1
+status: complete
+target: "20-task, 6-phase /sc:workflow plan for sc:pr-submit merge-conflict resolution (issue #305)"
+
+coverage:
+  parsed_count: 574
+  inferred_count: 34
+  coverage_pct: 1.0
+  coverage_pct_union: 0.9655
+  unmapped_count_parsed: 0
+  unmapped_count_union: 21
+  coverage_degraded: null
+  partial_mappings: [6.5-site-1, 6.5-site-2, sec-8, sec-12, sec-12.5, 13-step-14]
+  out_of_scope_declared: 15   # P3/#361, FR-25, live gates, default flip, V1-V8, rejected R-19/R-20/R-161
+  match_note: "290 parsed rows map through judged reference resolution (match_method fuzzy: decision, research and hook rows the tasks implement without citing the label); 61.3% of parsed rows are literally referenced by task text. The 21 unmapped union rows are Pass-2 statements below the 0.6 containment threshold; most are implemented implicitly by the cited section, see gap G7."
+
+structural_signals:
+  S_scope: 20            # tasklist items
+  S_domains: 3           # code (src/superclaude/pr_submit), tests, docs (SKILL/refs/command/CHANGELOG)
+  S_dev_density: 0.0345  # union denominator
+
+grounding:
+  citations_total: 32
+  citations_failed: 0
+  citations_with_range_notes: 3   # models.py:23-33 (docstring ends :36), loop-guard.md:86-99 (list ends :103), test_ci_classify.py:20-70 (last test ends :72)
+
+best_practice_grade: 4   # 0-5
+best_practice_rationale:
+  - "Grounded: every task names exact files, source sections and an observable acceptance criterion with a saved log (for example TL:45, TL:60, TL:82, TL:122)."
+  - "Grounded: all 32 repo file:line citations in the tasklist resolve to the content the task describes (artifacts/grounding.yaml)."
+  - "Grounded: parsed coverage is complete (574/574) and the out-of-scope items are declared (TL:30)."
+  - "Grounded: the dependency graph has four missing edges (G2, G3, G4, G5) and one plan-level contradiction with the spec's run order (G1); these keep the grade at 4."
+  - "[INFERRED] Task 4 and Task 8 are large (15 functions plus property tests; 13+ new recovery tests) and would be easier to verify split."
+
+gaps:
+  - id: G1
+    severity: high
+    kind: contradiction-with-spec
+    claim: "The plan drops the spec's 'make test' gate. SRC:1408 ends the run order with 'then `make test` (VG-2 applies: `fsm.py` and `run_log.py` change)' and SRC:1429 makes step 14 'section 12.5 run order'. TL:28 overrides it ('do not run the full suite (`make test`) ... this overrides the `make test` step of source section 12.5'), while TL:19 says 'Where a task and the source disagree, the source wins'. The plan contradicts its own precedence rule, and Task 20 (TL:306) never records the override as a deviation."
+    blast_radius: "Grounded: src/superclaude/cli/reflect/commands.py:99 imports superclaude.pr_submit.contract_setup, which runs superclaude/pr_submit/__init__.py (changed by Task 9). Its test tests/cli/reflect/test_contract_status_cli.py is outside the Task 20 subset (TL:306), so an import-time break would go unseen. [INFERRED] the import-chain consequence follows standard Python package semantics."
+    tag: Grounded
+  - id: G2
+    severity: medium
+    kind: wrong-dependency
+    claim: "Task 13 has no 'Depends on' line (TL:215-217), yet it adds C1-C4 to tests/pr_submit/test_conflict_scripts.py with a gh stub (TL:217), a file and fixture helper that Task 10 creates (TL:186). The spec groups all four scripts into one step after step 3 (SRC:1424)."
+    tag: Grounded
+  - id: G3
+    severity: medium
+    kind: wrong-dependency
+    claim: "Task 15's acceptance check parses a sample resolution.md with parse_resolution_record / resolution_record_ok (TL:245), which Task 4 adds (TL:91). Task 15 depends only on Task 12 (TL:239), whose chain is 12 -> 10 -> 3 -> 2; Task 4 is not in it."
+    tag: Grounded
+  - id: G4
+    severity: low
+    kind: wrong-dependency
+    claim: "Task 16 depends only on Task 2 (TL:250), but its ci-poll.md item 4 (TL:255) writes the fenced command 'scripts/poll-ci-checks.sh --evidence-sha <sha> --repo <owner/repo>' (SRC:1075), which Task 13 implements. The spec makes all ref edits depend on the scripts step ('command lines must match the scripts', SRC:1425)."
+    tag: Grounded
+  - id: G5
+    severity: low
+    kind: wrong-dependency
+    claim: "Task 20 depends on Tasks 18 and 19 (TL:300). Their transitive closure is {1,2,3,4,5,7,8,10,11,12,13,14,15,16,17,18,19}; Task 6 (ci.py) and Task 9 (__init__ exports) are not in it, so the final gate can be scheduled before them by a dependency-driven executor. Spec step 14 depends on 'all' (SRC:1429)."
+    tag: Grounded
+  - id: G6
+    severity: low
+    kind: ordering-deviation
+    claim: "Task 4 implements and tests crash_resume_plan / conflict_resume_plan (TL:92-93) with hand-built state dicts before the run-log fold that defines those keys (Task 7, TL:143). The spec deliberately places the resume rows after the fold: step 3 covers 'all but the triad and resume rows' (SRC:1418) and step 7, depending on 3 and 6, adds 'the resume rows of test_conflicts_core.py' (SRC:1422). The drift risk is that the dict shape assumed in Task 4 differs from rebuild_state() output."
+    tag: Grounded
+  - id: G7
+    severity: low
+    kind: missing-detail
+    claim: "Spec details that no task text carries: (a) Task 19 omits the module-level capability skip that SRC:1316 requires of 'each real-git module' (Task 10 has it, TL:186; Task 19 does not, TL:291); (b) the Constraints omit 'a fixed author and committer' (SRC:1316 vs TL:29); (c) Task 2 says only '41 to 43' (TL:51) and omits the added clause 'plus the two conflict-cycle events `sync_started` and `sync_concluded`' (SRC:728-729); (d) Task 2 cites loop-guard.md:86-99 (TL:53) but the list where the two names are appended ends at loop-guard.md:103; (e) 21 Pass-2 statements (for example SRC:398 'sync and ci never resume into S4_PUSHING, S5a or S5' and SRC:1129 'Whether a reason halts is decided by the ConflictAction.status of the row') fall below the containment threshold. They are implied by the sections the tasks cite, but no acceptance criterion names them."
+    tag: Grounded
+  - id: G8
+    severity: low
+    kind: task-too-large
+    claim: "Task 4 bundles 13 gate/record functions, two resume planners and five test families including two exhaustive property tests (TL:90-100); Task 8 lists 13+ new recovery tests (TL:161). [INFERRED] A single QA verdict on tasks this size is harder to localise when one sub-part fails."
+    tag: "[INFERRED]"
+  - id: G9
+    severity: low
+    kind: missing-step
+    claim: "SRC:863 and SRC:1429 say to stage only src/, tests/, CHANGELOG.md and .dev/tasks/. Task 20 only forbids staging .claude/ (TL:307) and no task stages anything. This is acceptable under 'commit only when asked', but the plan never states that staging is deferred."
+    tag: Grounded
+  - id: G10
+    severity: none
+    kind: invented-requirements-check
+    claim: "No invented functional requirement found. Additions beyond the spec are verification-only: the import smoke check (TL:176), the scratch resolution.md parse (TL:245), the diff-stat artifact (TL:270) and the negative scan demonstration (TL:285)."
+    tag: Grounded
+
+risks:
+  - id: R1
+    severity: medium
+    claim: "An import-time failure in superclaude/pr_submit/__init__.py (Task 9 adds a conflicts import that itself imports fsm and models) would break the reflect contract-status CLI (src/superclaude/cli/reflect/commands.py:99) and go undetected by Task 20's subset run (TL:306)."
+    tag: "Grounded (import site); [INFERRED] (failure mode)"
+  - id: R2
+    severity: medium
+    claim: "A dependency-driven or parallel executor could run Task 13 before Task 10 (missing test file and make_repos), Task 15's record check before Task 4, and Task 20 before Tasks 6 and 9 (G2, G3, G5). /sc:implement walks tasks in file order, which hides these edges today."
+    tag: "Grounded (edges); [INFERRED] (executor ordering)"
+  - id: R3
+    severity: low
+    claim: "poll-ci-checks.sh:30 dies with 'missing required --pr <N>' before the gh/jq checks (:31-32). Task 13 says evidence mode needs no --pr (TL:217), but no acceptance criterion invokes C1-C4 without --pr (TL:220), so a half-done refactor that still passes --pr in the tests would not be caught."
+    tag: Grounded
+  - id: R4
+    severity: low
+    claim: "Resume-planner state dicts in Task 4 could drift from the Task 7 fold (G6). Task 8 partly mitigates this because its N1 and B2 tests feed a real RunLog into conflict_resume_plan (SRC:1340)."
+    tag: Grounded
+  - id: R5
+    severity: low
+    claim: "X1 depends on real offline 'uv lock' succeeding (SRC:129, verified by the design author for a zero-dependency pyproject). It skips only when uv is absent (TL:291), so a host whose uv cannot resolve offline would fail rather than skip; X2 (stub uv) still runs."
+    tag: "[INFERRED]"
+  - id: R6
+    severity: low
+    claim: "The force-push scan covers every .md and .sh in the skill folder (tests/pr_submit/test_static_grep.py:773-776). Every new ref and script (Tasks 10-16) is therefore in scope, and each of those tasks already runs test_static_grep.py (TL:192, TL:235, TL:246, TL:261). Residual risk is low."
+    tag: Grounded
+
+recommendations:
+  - id: REC1
+    for: G1, R1
+    file: .dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md
+    change: "Make the make-test override explicit. Either restore 'make test' in Task 20 per SRC:1408, or (a) amend TL:19 to read 'the source wins except where a Constraint names an authorized deviation', (b) add to Task 20 an acceptance line recording the deviation in ./artifacts/t20-checks.log, and (c) add 'tests/cli/reflect/test_contract_status_cli.py' plus 'uv run python -c \"import superclaude.pr_submit, superclaude.pr_submit.contract_setup\"' to Task 20's run."
+    verify: "./artifacts/t20-checks.log shows the extra test file passing and the import command exiting 0; grep TL for 'authorized deviation'."
+  - id: REC2
+    for: G2
+    file: same tasklist, Task 13 (TL:215)
+    change: "Insert 'Depends on: Task 10' under the Task 13 heading."
+    verify: "Every task that writes into tests/pr_submit/test_conflict_scripts.py (Tasks 11, 12, 13) depends, directly or transitively, on Task 10."
+  - id: REC3
+    for: G3
+    file: same tasklist, Task 15 (TL:239)
+    change: "Change to 'Depends on: Task 4, Task 12'."
+    verify: "Task 15's ./artifacts/t15-record-check.txt runs against a conflicts.py that defines parse_resolution_record and resolution_record_ok."
+  - id: REC4
+    for: G4
+    file: same tasklist, Task 16 (TL:250)
+    change: "Change to 'Depends on: Task 2, Task 13'."
+    verify: "The fenced 'scripts/poll-ci-checks.sh --evidence-sha <sha> --repo <owner/repo>' line in ci-poll.md matches the usage line in the poll-ci-checks.sh header that Task 13 writes (grep both files)."
+  - id: REC5
+    for: G5
+    file: same tasklist, Task 20 (TL:300)
+    change: "Change to 'Depends on: Task 6, Task 9, Task 18, Task 19' (or 'all tasks')."
+    verify: "The transitive closure of Task 20 contains Tasks 1-19."
+  - id: REC6
+    for: G6, R4
+    file: same tasklist, Task 4 (TL:86-93) and Task 8 (TL:161)
+    change: "Either add 'Task 7' to Task 4's Depends on, or move the 'Resume' test family from Task 4 to Task 8 as SRC:1418 and SRC:1422 order it. In both cases, add to Task 8 one test per conflict_resume_plan row that builds state with RunLog.rebuild_state() instead of a hand-written dict."
+    verify: "./artifacts/t8-tests.log lists a rebuild_state-fed test for each of rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8."
+  - id: REC7
+    for: G7a, G7b
+    file: same tasklist, Task 19 (TL:291) and Constraints (TL:29)
+    change: "Add to Task 19: 'module-level capability skip unless `git merge-tree --write-tree HEAD HEAD` works in a scratch repository'. Add 'a fixed author and committer (GIT_AUTHOR_*/GIT_COMMITTER_*)' to TL:29."
+    verify: "grep tests/pr_submit/test_conflict_e2e.py for 'merge-tree --write-tree HEAD HEAD' and 'GIT_COMMITTER_NAME'."
+  - id: REC8
+    for: G7c, G7d
+    file: same tasklist, Task 2 (TL:51, TL:53)
+    change: "Replace 'from 41 to 43 members' with 'from 41 to 43 members and add the clause \"plus the two conflict-cycle events `sync_started` and `sync_concluded`\" (source 6.5 rows 1-2)'. Change 'loop-guard.md:86-99' to 'loop-guard.md:86-103'."
+    verify: "grep -n 'sync_started' src/superclaude/pr_submit/models.py shows the docstring lines and the enum member; loop-guard.md's list ends with '`sync_started`, `sync_concluded`.'"
+  - id: REC9
+    for: R3
+    file: same tasklist, Task 13 acceptance (TL:220)
+    change: "Add: 'C1 to C4 invoke the script without --pr; the existing poll mode without --pr still exits 2 with the missing --pr message'."
+    verify: "./artifacts/t13-tests.log contains both cases passing."
+  - id: REC10
+    for: G8
+    file: same tasklist, Task 4 (TL:84-100)
+    change: "Split into Task 4a (conflict_action router, gates, cycle ids, monotonicity and disjointness properties) and Task 4b (records, commit message, resume planners), each with its own pytest log."
+    verify: "Two logs, ./artifacts/t4a-tests.log and ./artifacts/t4b-tests.log, each green."
+  - id: REC11
+    for: G9
+    file: same tasklist, Task 20 (TL:302)
+    change: "Add one sentence: 'Staging and commit are deferred to the operator; when staging, stage src/, tests/, CHANGELOG.md and .dev/tasks/ only (source section 13 step 14).'"
+    verify: "grep TL for 'CHANGELOG.md and .dev/tasks/'."
+
+self_reported_confidence: 0.86
+dimension_scores:
+  citation_grounding: 0.95                 # 32/32 tasklist citations verified; every gap cites TL/SRC/repo lines re-Read this run
+  coverage_completeness: 0.90              # parsed 1.0, union 0.9655; 290 rows map by judged resolution; 6 partial mappings
+  deviation_classification_clarity: 0.85   # UC-1: each gap typed (contradiction / dependency / ordering / missing detail / size)
+  risk_surface_coverage: 0.85              # includes blast radius outside the test subset (R1) and executor-order risk (R2)
+  recommendation_actionability: 0.90      # each recommendation names a file, an exact edit and a grep or log check
+dimension_mean: 0.89
+calibration_note: "Self-reported, not calibrated. The calibrator is stripped of formation context and must re-grade it. The 0.03 gap below the dimension mean reflects the judged (fuzzy) mapping of 290 parsed rows."
+tier_signals_for_wave2:
+  S_domains_ge_3: true   # §5.3 rule 4 escalate trigger (code + tests + docs)
+  S_scope_gt_10: true    # exits the strict T1 STOP path
+  S_dev_density_gt_0_20: false
+  coverage_degraded_parsed_sparse: false

@@ -1,0 +1,26 @@
+# t11 forbidden-item grep over src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh (no output under a heading = no hit)
+## grep -n -i -E -e 'git[[:space:]]+push'
+exit=1
+## grep -n -i -E -e 'stash'
+exit=1
+## grep -n -i -E -e 'force'
+exit=1
+## grep -n -i -E -e '--amend'
+exit=1
+## grep -n -i -E -e '--no-verify'
+exit=1
+## grep -n -i -E -e 'git[[:space:]]+config'
+exit=1
+## grep -n -i -E -e 'src/superclaude'
+exit=1
+## grep -n -i -E -e '\bgh\b'
+exit=1
+## grep -n -i -E -e 'git[[:space:]]+(checkout|switch|reset|add|worktree|rebase|merge)\b'
+exit=1
+## git commit occurrences (expect exactly one, the -F line)
+254:if ! git commit -F "$MESSAGE_FILE" >"$TMP/commit.out" 2>&1; then
+count=1
+## gh calls (each must carry --repo "$REPO"; none expected)
+exit=1
+## set line
+29:set -u -o pipefail

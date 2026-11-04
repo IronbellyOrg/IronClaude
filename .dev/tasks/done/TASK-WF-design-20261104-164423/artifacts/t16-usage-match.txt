@@ -1,0 +1,12 @@
+== script header usage (poll-ci-checks.sh:6-7) ==
+6:# Usage   : poll-ci-checks.sh --pr <N> [--repo <owner/repo>]
+7:#           poll-ci-checks.sh --evidence-sha <40hex> [--repo <owner/repo>]
+== ci-poll.md fenced usage line ==
+60:scripts/poll-ci-checks.sh --evidence-sha <sha> --repo <owner/repo>
+== function exists in ci.py ==
+63:def expect_checks_after_push(
+== function named in ci-poll.md ==
+56:`superclaude.pr_submit.ci.expect_checks_after_push` and records it on the push records, so
+== flag tokens: header vs ref ==
+--evidence-sha header=1 ref=1
+--repo header=3 ref=1

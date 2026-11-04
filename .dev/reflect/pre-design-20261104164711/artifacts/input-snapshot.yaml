@@ -1,0 +1,53 @@
+input_tree_sha256: 736679f516a0b5986ecd72099bae4cba1328f55f798ab7b1b02c54b29951bf21
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md
+    sha256: e12fa04a1b503581ad56bd1ba484666173e480e281ae8919bb2ed260035fc3bd
+  - path: .dev/tasks/to-do/TASK-WF-design-20261104-164423/source.md
+    sha256: 2bcac0b2a0be7cf1ef21b99fd74150a67e0751d01b689b8d3771d81628e4ff9a
+  - path: src/superclaude/commands/pr-submit.md
+    sha256: 0f7fd2ce6c734163be828bf83f309544c05b4ff793d9c231f313fda98f0ee386
+  - path: src/superclaude/pr_submit/__init__.py
+    sha256: 6336f6976abf2540cd2661c68920e1bb7a34df156cb205338f401289b5720fb0
+  - path: src/superclaude/pr_submit/ci.py
+    sha256: a89f538048e49c214acda9c0050b1f386314bce0106ed0931f78efdd07470d9d
+  - path: src/superclaude/pr_submit/fsm.py
+    sha256: b503336f0e4bbce39632cc978db520392d651054d5768126c87497e0d5581490
+  - path: src/superclaude/pr_submit/models.py
+    sha256: 90cf6c5436f4c15696ddf7ee561990ee754d4f5210c896a6b95775e1ecb87966
+  - path: src/superclaude/pr_submit/recovery.py
+    sha256: 46da3a6fd3fedeed6a608efcc62b66d27b515504e706f8d8c27675d5961b21ed
+  - path: src/superclaude/pr_submit/run_log.py
+    sha256: c9a8bf40a5db00ec1b1d2f044c45fe50c5de45be56576afa1ab8695c7b4bc412
+  - path: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+    sha256: 75a9df6231b1b166d73ea30f29d1e0ea0a43e2d9ee35422dc2a630cbd22097a5
+  - path: src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md
+    sha256: 7234943b1f6823851a8ba2eae88e585fe357215082c15d56d9e9b53a65cb1d41
+  - path: src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh
+    sha256: 6fc72c2a39d2db3409706ed1756aeb0f1d342add59938112d6752dac820b4bf9
+  - path: tests/pr_submit/test_autonomy_gates.py
+    sha256: ffe8c6fd3932d236612cb218de4a6a8bdfdad78e1b50e90d1376bddb3ad25c85
+  - path: tests/pr_submit/test_ci_classify.py
+    sha256: ebf39e0b8820d65022f7fc8e9b917ebaa65f1198b93fcc6c22b4419933cbfd24
+  - path: tests/pr_submit/test_codex_reviews.py
+    sha256: 5461acf5bb6bb60dcb082778f59260f640890bcf94b3e4b7f895bd48a05d7c08
+  - path: tests/pr_submit/test_cosmos_poll.py
+    sha256: 2b7085e2eb29d5e28dc1b71ac014eb6422923a60ab22cf90f084426c24d47492
+  - path: tests/pr_submit/test_cosmos_protocol.py
+    sha256: 53680a9ac2a4bcd67a72a6f7316045eb96fba4b32c590ac23a7a4dc2724477ce
+  - path: tests/pr_submit/test_crash_recovery.py
+    sha256: e0f71f7dc9dd74054a5929b2917ec8119a9faa6a2c75dc4cd4aa73b88d6d64e3
+  - path: tests/pr_submit/test_idempotency.py
+    sha256: e4063dc4651353b547fdfa878a8b37c9843a66d5ab8a565a94c903c1173566fe
+  - path: tests/pr_submit/test_loop_guard.py
+    sha256: f23129f4d0df906a2605ac62f138fd87018890591e2c78edf51d1ea4f3782073
+  - path: tests/pr_submit/test_pre_pr_checks.py
+    sha256: 2f12fae15b48c8ab24b0f18e9cce30a38a6f809748c8a5e5aa59f4bba24fddc7
+  - path: tests/pr_submit/test_run_log.py
+    sha256: eda63f1d8d1bd70881e45f4413fde2d963581ed06e6857e5009886d42983f51a
+  - path: tests/pr_submit/test_skill_parse.py
+    sha256: 0988202c4742a7a14169fecbc7362e340f59cbd85dfee8c5543eb81225244d03
+  - path: tests/pr_submit/test_static_grep.py
+    sha256: bba27d010e9d1cc2ab78b1cf984f6dc34c9094e2f69f2643695cd616b29fe3b5
+  - path: tests/unit/test_cli_install.py
+    sha256: 482ec7ec1734e774742ede37bb45e3ae9541f8338b663cb9da84b0cd8586b72e
+file_count: 25

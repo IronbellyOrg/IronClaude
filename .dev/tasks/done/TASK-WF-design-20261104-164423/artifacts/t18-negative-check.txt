@@ -1,0 +1,19 @@
+# T18 negative check: the FR-21 prohibited-operation scan fails on a scratch copy of refs/conflict-intent.md with one forbidden command appended
+$ mktemp -d /tmp/t18-negative.XXXXXXXX  -> /tmp/t18-negative.v4esz1rB
+$ cp src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md /tmp/t18-negative.v4esz1rB/conflict-intent.md
+$ printf '\n```bash\ngit stash push -m wip\n```\n' >> /tmp/t18-negative.v4esz1rB/conflict-intent.md
+$ tail -3 /tmp/t18-negative.v4esz1rB/conflict-intent.md
+```bash
+git stash push -m wip
+```
+$ PYTHONDONTWRITEBYTECODE=1 uv run python -c 'import sys; from pathlib import Path; from tests.pr_submit.test_conflict_sync_protocol import prohibited_operation_hits as h; real=h(Path("src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md")); bad=h(Path(sys.argv[1])); print("real ref hits:", real); print("scratch copy hits:", bad); sys.exit(1 if bad else 0)' /tmp/t18-negative.v4esz1rB/conflict-intent.md
+real ref hits: []
+scratch copy hits: ["conflict-intent.md:130: \\bgit\\s+stash\\b -> 'git stash'"]
+exit=1 (1 = the scan found the forbidden command)
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/pr_submit/test_conflict_sync_protocol.py -q -p no:cacheprovider -k fr21   # real refs unchanged, still clean
+======================= 5 passed, 62 deselected in 0.36s =======================
+$ rm -rf -- /tmp/t18-negative.v4esz1rB
+scratch dir removed
+$ git status --porcelain -- src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+?? src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+(`??` = the ref is a new, untracked file of this release; the scratch edit never touched it.)

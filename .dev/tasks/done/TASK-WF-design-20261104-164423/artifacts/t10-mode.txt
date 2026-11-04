@@ -1,0 +1,4 @@
+# git ls-files -s -- src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh
+100755 4db4a378d9cdb85316198a028881209132581a52 0	src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh
+# test -x src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh; echo $?
+0
