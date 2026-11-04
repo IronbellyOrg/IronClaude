@@ -1,0 +1,8 @@
+== $'\160ython3' -c 1
+cmdword=160ython3
+== timeout --signal TERM 30 python3 x
+cmdword=30
+== [[ "$tool" =~ ^(python|python3|pip|pip3)$ ]] && echo matched
+cmdword=[[
+cmdword=python
+python

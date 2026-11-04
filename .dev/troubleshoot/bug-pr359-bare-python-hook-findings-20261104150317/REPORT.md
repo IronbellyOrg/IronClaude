@@ -1,0 +1,97 @@
+# Troubleshoot Report
+
+**Target**: PR #359 review round 1: block-bare-python.sh misclassifies ANSI-C quoted words, wrapper long options and `[[ =~ ]]` alternation
+**Type**: bug
+**Tier reached**: 1
+**Confidence**: 0.92
+**Status**: success
+**Escalation reason**: none
+**Test is wrong**: false
+**Behavior is documented**: false
+**Doc context card**: .dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/doc-context.md
+**Duration**: 1180
+**Date**: 2026-11-04T15:22:27Z
+
+---
+
+## Summary
+
+The hook's awk scanner picks the wrong command word for three kinds of input, so two kinds of bare-python call slip through and one harmless test expression is blocked. Inside `$'...'` it does not decode escapes; it does not consume the argument of wrapper long options; and it treats `(` and `|` inside `[[ ]]` as shell operators. The fix is one change set in the scanner (plus the plugin mirror, docs and tests).
+
+## Documentation Context
+
+- **Relevant refs**: src/superclaude/hooks/scripts/block-bare-python.sh (header), CHANGELOG.md (#357 entry), .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+- **Documented behavior**: the scanner tracks `$'...'` quotes, skips wrappers "with their options", and never blocks commands that only mention python.
+- **Restrictions honored**: exit 0/2 contract and fail open; awk only, no Python; 100 KB under 1 s; byte-identical plugin mirror.
+- **Restrictions overridden**: None
+- **Card path**: .dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/doc-context.md
+
+## Diagnosability Context
+
+**Verdict**: partial
+**Complexity classification**: trivial
+**Captured-bytes (failing run)**: n/a
+
+The hook emits only the matched word, so a wrong allow leaves no trace in the hook itself. A read-only copy of the scanner that prints every chosen command word closed that gap this run. The verdict is capped at partial only because discovery used Grep instead of auggie; the three mechanisms were observed directly.
+
+(Full card: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/diagnosability-context.md)
+(Tasklist (informational): /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/diagnosability-tasklist.md)
+
+## Diagnosis
+
+**Root cause**: the awk scanner's model of shell grammar is incomplete in three places (ANSI-C escape decoding, wrapper long-option arguments, `[[ ]]` operators), so it chooses the wrong command word.
+
+**Cause class**: Other: tokenizer grammar coverage gap
+
+**Detailed explanation**: For `$'\160ython3'` the ansi branch of `qchar` copies the character after the backslash, giving the word `160ython3` (Evidence 1, 4). For `timeout --signal TERM 30 python3` the option `--signal` is not in the argument table, so `TERM` is taken as the duration and `30` as the command word (Evidence 2, 4). For `[[ "$tool" =~ ^(python|python3)$ ]]` the `(` opens a new command context, so `python` becomes a command word (Evidence 3, 4). In the first two cases the scanner prints nothing and the hook allows the command (Evidence 5); in the third it prints `python` and the hook blocks.
+
+## Evidence
+
+1. `src/superclaude/hooks/scripts/block-bare-python.sh:206` — `if (c == "\\") { i++; addc(o, substr(s, i, 1)); return }`
+2. `src/superclaude/hooks/scripts/block-bare-python.sh:98` — `if ((wrap[o], w) in argopt) parg[o] = 1`; `src/superclaude/hooks/scripts/block-bare-python.sh:101` — `if (wrap[o] == "timeout") { wrap[o] = "timeout-duration"; return }`
+3. `src/superclaude/hooks/scripts/block-bare-python.sh:191` — `pushc("par"); return`
+4. Command: `bash trace-probe.sh src/superclaude/hooks/scripts/block-bare-python.sh` → `cmdword=160ython3`, `cmdword=30`, `cmdword=[[` then `cmdword=python` (trace-probe.out)
+5. `src/superclaude/hooks/scripts/block-bare-python.sh:275` — `*) exit 0 ;;`; Command: `bash probe.sh src/superclaude/hooks/scripts/block-bare-python.sh` → `hook_exit=0 scanner_out=<none>` for the ANSI-C and long-option symptom rows, `hook_exit=2 scanner_out=python` for the `=~` row (probe-baseline.out)
+6. Command: bash with a fake python3 on PATH → `ansi-octal: FAKE-PYTHON3 ran: -c 1`, `timeout-long: FAKE-PYTHON3 ran: x`, `dbl-bracket: matched` (tier1-observation.md)
+
+## Proposed Fix
+
+**Files to change**:
+- `src/superclaude/hooks/scripts/block-bare-python.sh` — decode ANSI-C escapes in the `qchar` ansi branch; consume the argument of wrapper long options (and abbreviations, and clustered short options) in `endword`; treat `[[ ... ]]` as a test context with no command words until `]]` (substitutions inside it still scanned); update the header.
+- `plugins/superclaude/hooks/scripts/block-bare-python.sh` — byte-identical copy.
+- `CHANGELOG.md` — behaviour and limits text.
+
+**Test to verify**:
+- add new BLOCKED and ALLOWED cases to `tests/hooks/test_block_bare_python.py`; `test_100kb_command_blocked_under_one_second` and `tests/cli/test_install_hooks.py` stay green.
+
+**Apply with**: applied by the caller sc-pr-submit-protocol in its fixing state (troubleshoot is used for diagnosis only).
+
+## Risk + Rollback
+
+- **Likelihood of regression**: medium in the scanner's handling of `[[ ]]` and option words
+- **Test coverage of the changed code**: good after the new cases (behavioural tests run the real script)
+- **Rollback**: revert the fix commit
+
+## Follow-up tasks
+
+None.
+
+## Grounding Gaps
+
+- MCP auggie was unavailable; Wave 1.5 and 1.6 discovery used Grep/Glob/Read only (degraded), which caps the diagnosability verdict at partial.
+- GNU time is not installed; `time --format/--output` names are recalled, not fetched (not load-bearing).
+- The `\x70` and `p` forms are shown by hook exit codes only, not by the trace probe.
+
+## Next Steps
+
+- D1 (core): observed this run, consistent (`160ython3` / `30` / `[[`,`python`); no pending rows.
+- Tier 1, high confidence: the caller applies the fix, re-runs probe.sh (every finding-1/2 row must give `hook_exit=2`, the `=~` row `hook_exit=0`), then runs the test suite.
+
+## Audit
+
+- **Hypothesis cards**: .dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/tier1-hypothesis.md
+- **Audit log**: .dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/audit.log
+
+## Pipeline Hardening Closure
+
+Pipeline hardening not applicable: the defect is in the scanner's word recognition after intact delivery; the decision mapping, the mirror and the tests sit on the real boundary (boundary scan: .dev/troubleshoot/bug-pr359-bare-python-hook-findings-20261104150317/hc0-boundary-scan.md).
