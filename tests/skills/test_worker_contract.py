@@ -299,10 +299,16 @@ def _check_guard_before_command(text: str) -> None:
 # A line names a step that runs repository-defined code when it carries an Orca setup flag
 # that runs the repository's setup hooks (`--run-hooks` is the legacy alias of
 # `--setup run`; `--setup inherit` follows the repository's own setup policy) or a code
-# span that starts with a Makefile target or a script (`make <target>`, `bash ...`,
-# `sh ...`, `./...`).
+# span that runs a program or script: a launcher or interpreter followed by arguments
+# (`make <target>`, `bash ...`, `sh ...`, `uv ...`, `python ...`, `npm ...`, `node ...`
+# and similar), `./...`, or a script file (`scripts/setup.sh`, `setup.py`).
 _REPO_SETUP_FLAGS = ("--setup run", "--run-hooks", "--setup inherit")
-_REPO_CODE_SPAN_RE = re.compile(r"`(?:make|bash|sh) [^`]+`|`\./[^`]+`")
+_REPO_CODE_SPAN_RE = re.compile(
+    r"`(?:make|bash|sh|zsh|uv|uvx|python3?|pip3?|pipx|npm|npx|pnpm|yarn|node|deno|bun"
+    r"|cargo|ruby|perl|php|poetry|tox|nox)\s[^`]+`"
+    r"|`\./[^`]+`"
+    r"|`[^`\s]*\.(?:sh|py|js|ts|rb|pl)(?:\s[^`]*)?`"
+)
 _SETUP_SKIP_RE = re.compile(r"--setup <?skip\b")
 
 
@@ -397,6 +403,12 @@ def test_rule_check_fails_when_rule_removed(rule, tmp_path, monkeypatch):
         "- The coordinator runs `./setup.sh` in the child before dispatch.",
         "- The coordinator runs `bash scripts/bootstrap.sh` in the child before dispatch.",
         "- In an IronClaude checkout the coordinator runs `make sync-dev` in the child.",
+        "- The coordinator runs `uv run python scripts/setup.py` in the child before dispatch.",
+        "- The coordinator runs `python scripts/x.py` in the child before dispatch.",
+        "- The coordinator runs `npm run setup` in the child before dispatch.",
+        "- The coordinator runs `node scripts/setup.js` in the child before dispatch.",
+        "- The coordinator runs `scripts/setup.sh` in the child before dispatch.",
+        "- The coordinator runs `uv sync` in the child before dispatch.",
     ],
 )
 def test_repo_setup_gate_check_fails_on_ungated_line(ungated, tmp_path, monkeypatch):
