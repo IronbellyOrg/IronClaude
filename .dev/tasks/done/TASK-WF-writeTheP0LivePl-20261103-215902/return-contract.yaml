@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-writeTheP0LivePl-20261103-215902
+plan_path: ./TASK-WF-writeTheP0LivePl-20261103-215902.md
+source_path: ./source.md
+source_origin: inline-prompt
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/REPORT.md
+unresolved:
+  - "Advisory reflect pre-review verdict FAIL with 2 blocking findings: the executor's post-archive `git add .dev/tasks` re-stages the superseded package the plan keeps unstaged, and Task 1's AC counts four untracked folders where five exist. It also has 11 should-fix and 10 minor findings. Per the Wave 4 rule the workflow did not edit the plan; fixes must be made before the first /sc:implement start, because any edit after that halts the run (E-PLAN-CHANGED)."
+  - "2026-11-04, owner-approved hand edit (plan version 2): applied the 2 blocking and 11 should-fix fixes (reflect D-001 to D-013) after a read-only Orca --help and installed-code check (.dev/orca-command-refactor/review/p0-live-orca-flag-check.md); the base ref is now refs/heads/ironbelly/OrcaCLICommandRefactor-Specs (D-014 resolved by that check). The 9 minor findings D-015 to D-023 remain open. Independent recheck: .dev/orca-command-refactor/review/p0-live-plan-recheck.md: FAIL (3 blocking introduced by the edits), then FAIL after fix pass 1 (1 blocking introduced by that pass), then PASS with notes after fix pass 2. Open minor notes: reflect D-015 to D-023 and recheck N-04 to N-09."

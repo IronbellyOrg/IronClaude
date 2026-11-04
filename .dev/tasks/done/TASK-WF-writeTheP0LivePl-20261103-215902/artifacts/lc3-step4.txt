@@ -1,0 +1,1 @@
+test -s /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p0-live/adversarial/adversarial/merge-log.md exit=0

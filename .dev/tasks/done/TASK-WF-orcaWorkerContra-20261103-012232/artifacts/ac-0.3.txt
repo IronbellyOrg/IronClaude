@@ -1,0 +1,2 @@
+$ git diff --numstat "$(git merge-base master HEAD)" -- src/superclaude/core/HOW-WE-WORK.md | awk '$2 != 0'   # merge base c118b5a59d365b894c5f2caa2270ec9986812934
+rc=0 (output above this line is empty = pass; full numstat: 11 0 src/superclaude/core/HOW-WE-WORK.md)

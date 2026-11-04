@@ -1,0 +1,8 @@
+Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
+On a blocked gate: report blocked
+Local commit: not authorized
+Report directory: the one new TASK-WF-* package directory this run creates under .dev/tasks/to-do/ (workflow takes no report-directory flag at P0)
+Worktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.
+Outward actions: none; the coordinator performs every push, PR, comment, install and paid run.
+P0 only: Report file: the return-contract.yaml in the one new TASK-WF-* package directory this run creates under .dev/tasks/to-do/, with the status in its top-level status key; a package that existed before this run never counts. Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.
+Command: /sc:workflow "Add one sentence to the Installation section of README.md stating that superclaude install --force overwrites files that already exist in ~/.claude" --handoff none

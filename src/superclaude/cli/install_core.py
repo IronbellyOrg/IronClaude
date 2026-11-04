@@ -23,6 +23,7 @@ KNOWN_CORE_FILES = frozenset(
         "PRINCIPLES.md",
         "RESEARCH_CONFIG.md",
         "RULES.md",
+        "WORKER-CONTRACT.md",
     }
 )
 

@@ -1,0 +1,18 @@
+selected_tier: 2
+fired_rule_number: 5
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 2
+escalation_reason: "Pass 1 found 0 labelled requirement IDs and Pass 2 inferred 101 rows, so coverage_degraded=parsed-sparse forbids any Tier-1 stop (table-wide pre-filter); S_dev_density 0.7525 > 0.20 also fires rule 5. No user pin (--tier/--depth quick) overrides it."
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+reviewers: [{model: sonnet, alias: claude-sonnet-5-5, persona: analyzer}, {model: haiku, alias: glm-5.3, persona: qa}, {model: opus, alias: claude-opus-5-5, persona: refactorer}]
+executor_class_source: unknown
+executor_class_resolved: false
+calibrator_diversity: degraded

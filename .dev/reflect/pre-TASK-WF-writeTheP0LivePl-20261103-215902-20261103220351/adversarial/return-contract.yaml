@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/adversarial/merged-verdict.yaml"
+  convergence_score: 0.76
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/adversarial"
+  status: "partial"          # completed; warnings: manual debate (no advocate sub-agents), convergence below 0.80
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0     # 6 points did not converge (C-002, C-003, C-004, C-010, C-013, A-004); all were force-settled by calibrated weight and cited evidence
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "manual"
+  unaddressed_invariants: []

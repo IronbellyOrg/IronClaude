@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/orca-command-refactor/decisions/D1/debate/adversarial/merged-output.md"
+  convergence_score: 1.0          # 31 of 31 diff points agreed (debate-transcript.md:612-616); gate BLOCKED_BY_INVARIANTS
+  artifacts_dir: ".dev/orca-command-refactor/decisions/D1/debate/adversarial"
+  status: "partial"               # merge succeeded and post-merge validation passed, but 5 HIGH invariants were amended by plan, not debated
+  base_variant: "variant-3-original (option c, flag plus worker-session guard)"
+  unresolved_conflicts: 0
+  fallback_mode: true             # resumed after an environment restart; Steps 1-3 reused as written; depth standard allowed no extra round for the invariant gate
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - {id: INV-001, category: state_variables, assumption: "guard key checked in src/ equals the command copy the worker loads", severity: HIGH, disposition: "planned change 18 (all-copies rule) plus change 24 setup"}
+    - {id: INV-005, category: guard_conditions, assumption: "every never-as-worker command is caught", severity: HIGH, disposition: "planned change 19 (pr-submit on the list while D3 keeps it off workers)"}
+    - {id: INV-015, category: interaction_effects, assumption: "guard runs before the command's first step", severity: HIGH, disposition: "planned change 20 (guard runs on the brief before invoking); two points UNVERIFIED"}
+    - {id: INV-016, category: interaction_effects, assumption: "'each top-level command' is well defined under in-session Skill nesting", severity: HIGH, disposition: "planned change 21 (scope = brief Command: lines only)"}
+    - {id: INV-020, category: sufficiency_challenge, assumption: "the consensus alone ensures a worker never stalls", severity: HIGH, disposition: "planned change 22 (propagation rule with nested report directory); claim scoped to converted gates"}

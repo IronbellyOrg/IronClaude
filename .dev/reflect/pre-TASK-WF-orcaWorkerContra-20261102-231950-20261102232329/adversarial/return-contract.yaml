@@ -1,0 +1,22 @@
+# sc:adversarial return contract (Mode A), written by the merge-executor on 2026-11-03T00:48:06Z
+merged_output_path: .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/merged-verdict.yaml
+convergence_score: 0.9615            # 25 of 26 diff points agreed (debate-transcript.md "Convergence Assessment")
+artifacts_dir: .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial
+status: partial                      # convergence_status BLOCKED_BY_INVARIANTS; all 15 changes applied, all validation checks passed
+base_variant: "default:refactorer (Variant C)"
+unresolved_conflicts: 1              # S-005 (evidence path format), the one unresolved diff point
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants:
+  - id: INV-001
+    category: sufficiency_challenge
+    assumption: >-
+      The merged Task 7 order ("ask both approvals up front, then install, write the record, commit")
+      removes every instruction conflict in Task 7.
+    severity: HIGH
+  - id: INV-002
+    category: sufficiency_challenge
+    assumption: >-
+      Once Task 7 and the should-fixes are fixed, Task 8 can reach a passing AC-0.4, so P0 can pass (TL:15).
+    severity: HIGH

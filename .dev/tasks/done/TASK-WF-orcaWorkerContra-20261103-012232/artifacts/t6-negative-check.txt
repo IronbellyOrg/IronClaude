@@ -1,0 +1,14 @@
+$ uv run pytest tests/skills/test_worker_contract.py -q -p no:cacheprovider
+============================= 196 passed in 0.46s ==============================
+rc=0
+$ uv run pytest tests/skills/test_worker_contract.py -v -p no:cacheprovider -k "unclassified or whole_words or gh_api_post"
+tests/skills/test_worker_contract.py::test_read_only_entries_are_not_gh_api_posts PASSED [ 25%]
+tests/skills/test_worker_contract.py::test_write_verb_regex_matches_whole_words_only PASSED [ 50%]
+tests/skills/test_worker_contract.py::test_gh_api_post_detection PASSED  [ 75%]
+tests/skills/test_worker_contract.py::test_audit_fails_on_unclassified_write_verb PASSED [100%]
+====================== 4 passed, 192 deselected in 0.05s =======================
+rc=0
+$ git status --short src/superclaude
+ M src/superclaude/cli/install_core.py
+ M src/superclaude/core/HOW-WE-WORK.md
+?? src/superclaude/core/WORKER-CONTRACT.md

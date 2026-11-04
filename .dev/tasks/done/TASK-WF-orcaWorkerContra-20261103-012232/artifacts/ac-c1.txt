@@ -1,0 +1,2 @@
+$ AC-C1 scan (./source.md section 7.1)
+pipeline rc=1 (1 = the scan printed nothing = pass)

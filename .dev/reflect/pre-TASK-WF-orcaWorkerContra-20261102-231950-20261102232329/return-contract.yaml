@@ -1,0 +1,110 @@
+contract_version: "1.8.0"
+status: partial                      # adversarial merge partial: convergence BLOCKED_BY_INVARIANTS (INV-001, INV-002 HIGH unaddressed)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/audit.log
+confidence_calibrated: 0.86          # mean of the three blind-calibrated reviewer cards (0.83, 0.87, 0.87)
+escalation_rule_matched: 5
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null                   # parsed-only; 0 parsed requirement IDs
+coverage_pct_union: 0.2475
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union_count: 76   # full list in artifacts/coverage-matrix.yaml unmapped_requirements_union
+unmapped_requirements_union_ref: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/coverage-matrix.yaml
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class:            # plan findings from the merged verdict (13 drift, 2 none; INV-002 unclassified, not counted)
+  authorized: 0
+  necessary: 0
+  drift: 13
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_tree_sha256: 37429a7fd98446f68f3ccbfa0fa50709fba4dc4fec5e4f34ac17ff7aa4e68875
+input_tree_file_count: 9
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 180
+citations_revalidated: 81
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-20261102232329/adversarial/adversarial   # remapped from sc-adversarial artifacts_dir
+adversarial_convergence_score: 0.9615
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full           # Wave 3C calibrators used class fable, disjoint from reviewer classes sonnet/haiku/opus
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: true    # INV-002 needs an owner decision on the spec's AC-0.4 step 3 at P0
+regression_present: false
+unauthorized_deviation_present: true        # drift findings present
+blocked_by_low_confidence: false
+spec_is_wrong: false                        # UC-2 field; INV-002 suggests a spec gap but is not adjudicated
+user_decision_required: true
+needs_human_decision: false                 # no grounding-gaps.yaml
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Telemetry (non-stable)
+telemetry:
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  calibrator_model_class_wave_3c: fable
+  degraded_components: []
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  adversarial_status: partial
+  adversarial_unaddressed_invariants_high: [INV-001, INV-002]
+  merged_verdict: FAIL
+  merged_blocking_count: 1

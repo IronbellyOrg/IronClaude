@@ -1,0 +1,33 @@
+input_tree_sha256: 8e91b29e98b23b7183bdbc2356bb698c90fb84e9fd3f4e954f33ebbfd6061f4a
+file_count: 15
+file_list:
+  - path: .dev/orca-command-refactor/decisions/D1/option-a.md
+    sha256: 3b68e95e9c84378df2f9d061742e70a1df8b999abb193ebcad45bf1c49ad1109
+  - path: .dev/orca-command-refactor/decisions/D1/option-b.md
+    sha256: 97ba6e868329ff07e83ba139e5722334e6ada3cea52b5e66c5580b1050e88d08
+  - path: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+    sha256: 433cb186438051238c49e68b693be35b611eb3bf46874a01bd616bcaef779031
+  - path: .dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/ac-c6-depth-setting.txt
+    sha256: ad6167de0bd436245afaad052a7a0ef2c79424dc96f5ac98887ebe793de7d38b
+  - path: .dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/p0-static-report.md
+    sha256: 153f7c87b8afee15cc1aa589be8e643cb149e9230741db5a3e899d56760eb21e
+  - path: .dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t1-accepted-failures.md
+    sha256: 12841e955f75081e2dbfae8c7a17a2527e3825a0ecdf74bb4d185ce7c9d2b786
+  - path: .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md
+    sha256: 02623470a408a07dd0b5ab1ade7c0067ef98d29173d123234f6135d6db154bb1
+  - path: .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/source.md
+    sha256: de8e6608f67ae0ff23df53276e92604baddaf6c26293c4241d7bf9cf7b9f3ed6
+  - path: README.md
+    sha256: f1bf31bc58c66d1b1d6381a6254239acb81e84321496b315aeed1a9c72833773
+  - path: src/superclaude/commands/adversarial.md
+    sha256: 6a7c84f3db8246a726aa3d5cbfd88f26c7c8cac18ff97e2d0c217c8ab486f793
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: b7a77f7e32758dfc2ba116259b938e6f591a32d0278587b8cb1d0c821332e8a1
+  - path: src/superclaude/skills/sc-adversarial-protocol/refs/artifact-templates.md
+    sha256: 26167953a653ffc003d7fc75af9251dada0451e35dcab60623ac7df0ca939fbf
+  - path: src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md
+    sha256: faa943d063f4078e3c9c5a5b58145fd530ed79a03a2296d6a4f23f71c838d7ce
+  - path: src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md
+    sha256: b03674a6bf60b13ee36de473e4784a77ac732ff8c0a27485dbe7905a4ecca157
+  - path: tests/cli/eval/test_ban_import_rule.py
+    sha256: 3eb21f20f3fce40b572f5316c93c118d339f61623b2574fb5440e61acfc10738

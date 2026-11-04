@@ -1,0 +1,13 @@
+### worktree rm
+{
+  "id": "6a763f06-bdd7-4dde-8e6c-a26d73f4cda4",
+  "ok": true,
+  "result": {
+    "removed": true,
+    "removing": true
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+[exit=0]

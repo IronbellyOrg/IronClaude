@@ -1,0 +1,473 @@
+# Provenance: This document was produced by /sc:adversarial (Mode A, merge-executor)
+# Base: Variant C (default model:refactorer), adversarial/adversarial/variant-3-original.md
+# Merge date: 2026-11-03T00:48:06Z
+# Plan: adversarial/adversarial/refactor-plan.md (15 planned changes, applied in plan order)
+# Variant key: Variant 1 = A (analyzer, variant-1-original.md), Variant 2 = B (qa, variant-2-original.md),
+#              Variant 3 = C (refactorer, variant-3-original.md, base)
+# Cite keys as in debate-transcript.md: TL:N = plan line, SRC:N = source.md line, A:N/B:N/C:N = variant line,
+#   R1-X:N / R2-X:N = round statement line, INV:N = invariant-probe.md line, diff:N = diff-analysis.md line,
+#   SKILL.md / qa.md / retry.md = ~/.claude/skills/sc-implement-protocol/ files.
+
+# Source: Change #15 (debate-transcript.md "Convergence Assessment"; base-selection.md "Selected Base")
+merge_method: adversarial
+verdict: FAIL                             # FAIL because blocking_count >= 1 (R2-A:91, R2-B:89, R2-C:85)
+base_variant:
+  label: C
+  file: variant-3-original.md
+  reviewer: 3
+  persona: refactorer
+convergence_score: 0.9615                 # 25 agreed / 26 points (debate-transcript.md:690-693)
+convergence_status: BLOCKED_BY_INVARIANTS # INV-001, INV-002 HIGH and UNADDRESSED (debate-transcript.md:698, :706-707)
+blocking_count: 1                         # adjudicated findings with severity blocking only (M-01); INV-002 excluded
+
+findings:
+  # Source: Base (original, modified) — R3-F1 (C:7-26) restructured; basis moved to the TL:110 order clash, per Change #1
+  # Source: Base (original), R3-F4 path half (C:63-81) — merged per Change #1
+  # Source: Variant 1 (A, analyzer), F3 (A:54-74) — head-moved consequence and necessary class merged per Change #1
+  # Source: invariant-probe.md INV-001 (INV:8) — approval timing in the fix, NOT adjudicated, per Change #1
+  - id: M-01
+    title: "Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`"
+    severity: blocking
+    deviation_class: drift
+    class_note: "the commit itself is a necessary deviation (SRC:282)"
+    adjudicated: true
+    counted_in_blocking_count: true
+    topics: [C-009, X-005, U-002, U-006, U-008, A-005]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F1, calibrated_confidence: 0.87, original_severity: blocking, original_class: drift}
+      - {reviewer: 3, card_finding: R3-F4, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: F3, calibrated_confidence: 0.83, original_severity: minor, original_class: necessary}
+    debate_confidence: 0.85
+    citations: ["TL:25", "TL:110", "TL:113", "SRC:282", "retry.md:41", "retry.md:44", "qa.md:52", "qa.md:61", "qa.md:288"]
+    fix: >-
+      rewrite TL:110 as one order with each approval asked just before its own action (INV-001): install
+      approval, install, write `t7-approvals.md` without the ID, commit approval, stage the listed P0 paths
+      (C:77-81) plus `.dev/tasks` and commit with `git commit --only -- <paths> .dev/tasks` as the last
+      product action, then append the commit ID and stage it; a refusal or any QA failure after the commit
+      ends in a halt for the person's Ruling and is never retried; add a Constraint line that the run is
+      attended and never headless.
+    fix_source: "advocates' merged order (R2-A:69, R2-B:51, R2-C:53-62) with approval timing from INV-001 (not adjudicated)"
+    open_invariants: [INV-001, INV-003, INV-004, INV-005, INV-007]
+
+  # Source: Base (original, modified) — R3-F2 (C:27-43) severity blocking -> should-fix and recommendation replaced, per Change #2
+  # Source: Variant 1 (A, analyzer), F4 part (a) (A:79-83) — merged per Change #2
+  # Source: Variant 2 (B, qa), R2-1 (B:7-37), Goal tie to TL:15 (B:19-20) — merged per Change #2
+  - id: M-02
+    title: "Task 8 never requires a checked run longer than the heartbeat cadence"
+    severity: should-fix
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-002, X-002, X-003]
+    contributors:
+      - {reviewer: 1, card_finding: "F4 (part a)", calibrated_confidence: 0.83, original_severity: minor, original_class: drift}
+      - {reviewer: 2, card_finding: R2-1, calibrated_confidence: 0.87, original_severity: blocking, original_class: drift}
+      - {reviewer: 3, card_finding: R3-F2, calibrated_confidence: 0.87, original_severity: blocking, original_class: drift}
+    debate_confidence: 0.90
+    citations: ["SRC:291", "SRC:78", "TL:15", "TL:122", "TL:124-128"]
+    fix: >-
+      Task 8's AC requires `ac-0.4-smoke.md` to name one checked run whose top-level session, outside
+      Agent-tool calls, lasted longer than the preamble cadence, with start and end times; if none
+      qualifies, add or extend a run, and if none is achieved the report records the duty as unmet and P0
+      does not pass (R2-C:69).
+    open_invariants: [INV-006]
+
+  # Source: Base (original, modified) — R3-F3 (C:44-62) promoted minor -> should-fix, claim narrowed, fix replaced, per Change #3
+  # Source: debate (R2-A:22-44, R2-B:53-66, R2-C:21-43) — merged per Change #3
+  - id: M-03
+    title: "TL:21 widens the spec's no-copy rule to the whole file, against the guard line TL:52 requires verbatim"
+    severity: should-fix
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [U-007]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F3, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: 0.80                 # R2-B:100, R2-C:96
+    citations: ["TL:21", "TL:42", "TL:52", "TL:87", "SRC:59", "SRC:86"]
+    fix: >-
+      scope TL:21 to the worker-session duties as SRC:59 does, and add to TL:52 "copied verbatim from
+      `./source.md` section 2.3 'Brief layout', including its `worker_done` text" (R2-C:43).
+
+  # Source: Variant 1 (A, analyzer), F2 (A:33-53) — new finding inserted after R3-F3, merged per Change #4
+  - id: M-04
+    title: "Tasks 1 and 5 demand \"four\" exact `guard refused:` texts; the spec gives three plus a case-3 prefix"
+    severity: should-fix
+    deviation_class: drift
+    class_note: "inherits spec looseness; log SRC:306 as a spec erratum"
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [X-004, U-001]
+    contributors:
+      - {reviewer: 1, card_finding: F2, calibrated_confidence: 0.83, original_severity: minor, original_class: drift}
+    debate_confidence: 0.95
+    citations: ["SRC:60", "SRC:306", "SRC:312", "TL:21", "TL:36", "TL:41", "TL:87"]
+    fix: >-
+      in TL:41 and TL:87 require "the three exact `guard refused:` texts of section 2.1 plus, for case 3,
+      the `guard refused:` prefix and the never-as-worker condition", and log SRC:306's "four ... reason
+      texts" as a spec erratum.
+
+  # Source: Base (original), R3-F5 (C:82-99) — fix kept; contributors appended per Change #5
+  # Source: Base (original, modified) — R3-F4 dependency sentence (C:69-71) moved here from R3-F4, per Change #5
+  # Source: Variant 1 (A, analyzer), F1 (A:7-32) — merged per Change #5 (was blocking/regression)
+  # Source: Variant 2 (B, qa), R2-4 dependency half (B:83-92) — merged per Change #5
+  - id: M-05
+    title: "`tests/cli` is red between Task 1 and Task 3; Depends-on lines omit Task 3"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-001, X-001]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F5, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: F1, calibrated_confidence: 0.83, original_severity: blocking, original_class: regression}
+      - {reviewer: 2, card_finding: "R2-4 (dependency half)", calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 3, card_finding: "R3-F4 (dependency sentence)", calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: 0.95
+    citations: ["tests/cli/test_how_we_work_install.py:44", "TL:58", "TL:72", "TL:77", "TL:108", "SKILL.md:79", "SKILL.md:97"]
+    fix: >-
+      move the KNOWN_CORE_FILES edit into Task 1 (or state that `tests/cli` stays red until Task 3), and
+      add Task 3 to the Depends-on lines of Tasks 4 and 7 as documentation.
+
+  # Source: Base (original), R3-F14 (C:231-243) — contributors appended per Change #6
+  # Source: Variant 1 (A, analyzer), F4 part (b) (A:83-86) — merged per Change #6
+  # Source: Variant 2 (B, qa), R2-2 (B:38-62) — merged per Change #6
+  - id: M-06
+    title: "Task 8 does not carry the AC-0.6 `--source terminal` fallback into step 5"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-003]
+    contributors:
+      - {reviewer: 1, card_finding: "F4 (part b)", calibrated_confidence: 0.83, original_severity: minor, original_class: drift}
+      - {reviewer: 2, card_finding: R2-2, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 3, card_finding: R3-F14, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: 0.70
+    citations: ["SRC:291", "SRC:303", "TL:122", "TL:127"]
+    fix: >-
+      Task 8 reads `ac-0.6-transcript.md` first; if it says no, step 5 for all three runs uses `--source
+      terminal` output and the gap is recorded in `ac-0.4-smoke.md`.
+
+  # Source: Base (original), R3-F11 (C:185-203) — closing task and `artifacts/p0-phase-report.md` kept; extended per Change #7
+  # Source: Variant 1 (A, analyzer), F7 (A:134-153) — merged per Change #7
+  # Source: Variant 2 (B, qa), R2-3 (B:63-79), R2-4 phase-end half (B:93-96, B:107-110), L3 staging note (B:179-182) — merged per Change #7
+  - id: M-07
+    title: "No closing task: AC-C5 never recorded, common checks not re-run at phase end, no P0 report, no closing staging"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-004, A-008]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F11, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: F7, calibrated_confidence: 0.83, original_severity: minor, original_class: drift}
+      - {reviewer: 2, card_finding: R2-3, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 2, card_finding: "R2-4 (phase-end half)", calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: 0.80
+    citations: ["SRC:216", "SRC:241", "SRC:271", "SRC:396", "TL:15", "TL:22", "TL:79"]
+    fix: >-
+      add a final task that re-runs AC-C1, AC-C2, the AC-C3 comparison and AC-C4, records AC-C5 as run
+      with an empty edit set, writes `artifacts/p0-phase-report.md` with one PASS or FAIL line per P0
+      check, and ends with a recorded `git add .dev/tasks`.
+
+  # Source: Base (original), R3-F8 (C:133-152) — contributor appended per Change #8
+  # Source: Variant 1 (A, analyzer), F5 (A:96-113) — merged per Change #8
+  - id: M-08
+    title: "Negative checks in Tasks 5 and 6 have no safe target"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-005]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F8, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: F5, calibrated_confidence: 0.83, original_severity: minor, original_class: drift}
+    debate_confidence: 0.70
+    citations: ["TL:87", "TL:91", "TL:97", "TL:100", "Makefile:171", "Makefile:174"]
+    fix: >-
+      the test takes the contract path and scan roots from fixtures that the negative checks monkeypatch to
+      `tmp_path` copies, so no scratch file lands under `src/superclaude/`.
+
+  # Source: Base (original, modified) — R3-F13 (C:216-230) with the WC-9 claim restriction appended, per Change #9
+  # Source: Variant 1 (A, analyzer), F6 (A:114-133) — merged per Change #9, class none -> drift (R1-A:45, R2-A:14)
+  - id: M-09
+    title: "AC-0.9's \"refused under `--unattended`\" class is empty at P0; `gh api` posts undefined"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-006]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F13, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: F6, calibrated_confidence: 0.83, original_severity: minor, original_class: none}
+    debate_confidence: 0.90
+    citations: ["TL:97", "SRC:305"]
+    fix: >-
+      at P0 every hit must be allowed by WC-9 or allowlisted with the phase that converts it; define `gh
+      api` posts as `-X POST`, `--method POST`, `-f`, `-F`, `--input`; state that WC-9's no-git-state claim
+      covers only classified hits.
+
+  # Source: Base (original, modified) — R3-F9 (C:153-167) recommendation replaced; "four texts" wording dropped, per Change #10
+  # Source: Variant 2 (B, qa), R2-5 (B:111-138) phrase list — merged per Change #10
+  - id: M-10
+    title: "Task 5's test may assert rule labels, not rule substance"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-007]
+    contributors:
+      - {reviewer: 2, card_finding: R2-5, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 3, card_finding: R3-F9, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: 0.85
+    citations: ["SRC:59", "SRC:77", "TL:38", "TL:87", "TL:91"]
+    fix: >-
+      Task 5 lists one load-bearing phrase per rule (WC-5 outcome mapping, WC-7 top level only, WC-3 ask
+      only when the brief allows and the one-ask bound, WC-9's three grant conditions, the WC-4 error text,
+      "at most 10", "at least 2", the guard line).
+
+  # Source: Base (original, modified) — R3-F12 (C:204-215) class drift -> none, per Change #11
+  # Source: Variant 2 (B, qa), R2-6 (B:139-154) — merged per Change #11
+  # Source: Variant 1 (A, analyzer), F1 recommendation (A:31-32, "lines 13-25" -> 13-27) — contributor per plan section (a)
+  - id: M-11
+    title: "Stale cite \"lines 13-25\" for KNOWN_CORE_FILES"
+    severity: minor
+    deviation_class: none
+    class_note: "spec has the same stale range (SRC:59)"
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [C-008]
+    contributors:
+      - {reviewer: 2, card_finding: R2-6, calibrated_confidence: 0.87, original_severity: minor, original_class: none}
+      - {reviewer: 3, card_finding: R3-F12, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+      - {reviewer: 1, card_finding: "F1 (recommendation)", calibrated_confidence: 0.83, original_severity: blocking, original_class: regression}
+    debate_confidence: 0.90
+    citations: ["TL:60", "SRC:59", "src/superclaude/cli/install_core.py:13", "src/superclaude/cli/install_core.py:27"]
+    fix: >-
+      cite `KNOWN_CORE_FILES` by symbol name, or as lines 13-27.
+
+  # Source: Base (original, modified) — R3-F6 (C:100-116) class regression -> drift (R1-C:53), per Change #12
+  - id: M-12
+    title: "Task 4 edits HOW-WE-WORK.md but runs only three test files"
+    severity: minor
+    deviation_class: drift
+    class_note: "was regression, reclassed per R1-C:53; calibrator: count and test_help_command cite overstated (C:285)"
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [U-009]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F6, calibrated_confidence: 0.87, original_severity: minor, original_class: regression}
+    debate_confidence: null                 # not contested (R1-C:53)
+    citations: ["TL:77", "SRC:263"]
+    fix: >-
+      extend Task 4's AC to `uv run pytest tests/core tests/commands tests/recommend tests/cli -q`, compared
+      with a baseline taken in Task 1.
+
+  # Source: Base (original), R3-F7 (C:117-132) — no content change (plan: "R3-F7 -> M-13")
+  - id: M-13
+    title: "\"after P0, none\" in HOW-WE-WORK.md goes stale every phase"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [U-010]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F7, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: null                 # not contested (R2-C:73)
+    citations: ["TL:74", "SRC:212"]
+    fix: >-
+      say a command accepts `--unattended` only when its file has an `## Unattended mode` section, and
+      point to `~/.claude/WORKER-CONTRACT.md` for the never-as-worker list.
+
+  # Source: Base (original), R3-F10 (C:168-184) — no content change (plan: "R3-F10 -> M-14")
+  - id: M-14
+    title: "Brief template passes `--report-dir`, which no command accepts until P1"
+    severity: minor
+    deviation_class: drift
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [U-011]
+    contributors:
+      - {reviewer: 3, card_finding: R3-F10, calibrated_confidence: 0.87, original_severity: minor, original_class: drift}
+    debate_confidence: null                 # not contested (R2-C:73)
+    citations: ["TL:49", "SRC:143", "SRC:152", "SRC:221"]
+    fix: >-
+      the template marks `--report-dir` as "from P1".
+
+  # Source: Variant 1 (A, analyzer), F8 parts (b) and (c) (A:161-164, A:172-174) — new finding, merged per Change #13; part (a) dropped (R2-A:15)
+  - id: M-15
+    title: "Task 7's `ls-remote` check and Task 8's coordinator check name no evidence"
+    severity: minor
+    deviation_class: none
+    adjudicated: true
+    counted_in_blocking_count: false
+    topics: [U-003]
+    contributors:
+      - {reviewer: 1, card_finding: "F8 (parts b and c)", calibrated_confidence: 0.83, original_severity: minor, original_class: none}
+    debate_confidence: null                 # not contested (R2-A:15)
+    citations: ["TL:116", "TL:122", "TL:26"]
+    fix: >-
+      Task 7 saves the `git ls-remote origin` output to an artifact and checks that the Task 7 commit ID is
+      absent from it; Task 8 states that the coordinator is the person-opened implement session and records
+      that check.
+
+  # Source: invariant-probe.md INV-002 (INV:9) — probe-only candidate, NOT adjudicated, per Change #14
+  - id: INV-002
+    title: "Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)"
+    severity: blocking
+    deviation_class: unclassified
+    adjudicated: false
+    counted_in_blocking_count: false
+    status_note: "Candidate second blocking finding raised by the Round 2.5 invariant probe. Not adjudicated by the advocates. Not counted in blocking_count."
+    topics: []
+    contributors: []                        # no reviewer raised it (INV:9)
+    debate_confidence: null
+    citations: ["SRC:73", "SRC:241", "SRC:285", "SRC:301", "TL:122", "TL:125"]
+    fix: >-
+      (probe's repair, not adjudicated) Task 8 states a P0 version of step 3, with the outcome taken from the
+      command's own status through the WC-4 mapping (SRC:72) and the report path equal to the existing
+      report file, and puts it in each brief so the worker does not apply WC-5's no-contract rule; log
+      SRC:301 as a spec gap.
+
+# Source: invariant-probe.md rows INV:8-22 (UNADDRESSED only), assumption text verbatim — per Change #14
+unaddressed_invariants:
+  - id: INV-001
+    category: sufficiency_challenge
+    assumption: >-
+      The merged Task 7 order ("ask both approvals up front, then install, write the record, commit")
+      removes every instruction conflict in Task 7.
+    severity: HIGH
+  - id: INV-002
+    category: sufficiency_challenge
+    assumption: >-
+      Once Task 7 and the should-fixes are fixed, Task 8 can reach a passing AC-0.4, so P0 can pass (TL:15).
+    severity: HIGH
+  - id: INV-003
+    category: sufficiency_challenge
+    assumption: >-
+      The plan text added by the fix ("a QA failure after the commit is never retried") removes the
+      `head-moved` exposure.
+    severity: MEDIUM
+  - id: INV-004
+    category: guard_conditions
+    assumption: >-
+      An "attended, never headless" Constraint line makes Task 7's two approval questions legal under the
+      executor.
+    severity: MEDIUM
+  - id: INV-005
+    category: state_variables
+    assumption: >-
+      The `--force` effect statement the fix keeps (TL:25: "core files, rules, output styles and agents ...
+      including `~/.claude/CLAUDE.md`") gives the owner an informed approval, and the install has a single
+      outcome.
+    severity: MEDIUM
+  - id: INV-006
+    category: interaction_effects
+    assumption: >-
+      The merged cadence fix ("Task 8's AC requires at least one such run; if none is achieved, the report
+      records the duty as unmet and P0 does not pass") has one meaning under the executor.
+    severity: MEDIUM
+  - id: INV-007
+    category: guard_conditions
+    assumption: >-
+      Every Task 7 and Task 8 AC can be shown true to a FINAL subagent that sees only files and logs.
+    severity: MEDIUM
+  - id: INV-009
+    category: guard_conditions
+    assumption: >-
+      Tasks 8 and 9 use the right Orca executable and command timeouts for the session that runs them.
+    severity: LOW
+  - id: INV-013
+    category: collection_boundaries
+    assumption: >-
+      The AC-C3 baseline log has no failures, so the FINAL rule "a log cited on a task's latest complete
+      line shows a failure at its outcome line" (qa:310) cannot fire on Task 1's evidence.
+    severity: LOW
+  - id: INV-015
+    category: interaction_effects
+    assumption: >-
+      The commit step in the fixed Task 7 cannot be changed or aborted by repository hooks.
+    severity: LOW
+
+# Source: refactor-plan.md "Changes NOT Being Made" (15 rows, in plan order) — per Change #15
+rejected_changes:
+  - diff_point: "C-001, X-001"
+    proposal: "A's F1 as blocking, class regression"
+    source: "A:8-9"
+    reason: "`/sc:implement` ignores `depends-on` and runs unmarked tasks in source order (SKILL.md:79, :97), so Task 4's AC passes; A conceded (R1-A:43)."
+  - diff_point: "C-002, X-002"
+    proposal: "B's R2-1 and C's R3-F2 as blocking"
+    source: "B:8, C:28"
+    reason: "TL:122 brings step 5 in by reference and another run can be added; both conceded (R1-B:41, R1-C:48)."
+  - diff_point: "C-002"
+    proposal: "B's fallback \"record the heartbeat clause as vacuous for P0\""
+    source: "B:35-37"
+    reason: "SRC:291 exists to stop a vacuous pass; B withdrew it (R2-B:18)."
+  - diff_point: "C-002"
+    proposal: "B's suggested long troubleshoot Tier-2 run"
+    source: "B:33-34"
+    reason: "SRC:291 excludes time inside an Agent-tool call, and SRC:78 names Tier 2 as Agent-tool fan-out; B conceded (R2-B:17)."
+  - diff_point: "U-007"
+    proposal: "C's Round 1 call to raise R3-F3 to blocking"
+    source: "R1-C:23, :69"
+    reason: "A compliant reading exists and the plan points to it; C withdrew (R2-C:7)."
+  - diff_point: "S-006, A-003"
+    proposal: "B's Round 1 count of 0 blocking"
+    source: "R1-B:65"
+    reason: "B's test dropped the executor's B4 trigger (`qa.md:52`); B withdrew (R2-B:7)."
+  - diff_point: "C-007, X-004"
+    proposal: "C's \"the four `guard refused:` texts\""
+    source: "C:166"
+    reason: "SRC:60 gives three exact texts and AC-1.7 checks case 3 by prefix only (SRC:312); C conceded (R1-C:50)."
+  - diff_point: "U-003"
+    proposal: "A's F8 part (a), run AC-C6 before the live runs"
+    source: "A:158-161"
+    reason: "\"at any depth setting\" is WC-13 text (SRC:81), not Task 8 text, and D5 orders the trace before a depth raise (SRC:394); A conceded (R2-A:15)."
+  - diff_point: "U-005"
+    proposal: "B's R2-4 fix \"Task 6 depends on Task 4\""
+    source: "B:107"
+    reason: "Rests on the rejected A-002; Task 4 always runs before Task 6 (SKILL.md:97); B conceded (R1-B:43)."
+  - diff_point: "U-004"
+    proposal: "B's `matrix_omissions` as plan findings"
+    source: "B:155-185"
+    reason: "They concern the reflect coverage matrix, not the plan (diff:80). Route them to the reflect tool, not this card."
+  - diff_point: "A-008"
+    proposal: "A separate should-fix for post-commit staging"
+    source: "R1-C:81"
+    reason: "Downgraded to one closing line inside M-07; C moved (R2-C:19)."
+  - diff_point: "X-006"
+    proposal: "Class `regression` for R3-F6, `drift` for R3-F12, `none` for F6"
+    source: "C:102, C:206, A:116"
+    reason: "All conceded (R1-C:52-53, R1-A:45)."
+  - diff_point: "C-009"
+    proposal: "R3-F1's basis \"the acceptance criterion cannot pass\""
+    source: "C:15-16"
+    reason: "TL:113 can be met by writing the record after the commit; the blocking basis is the install-versus-commit order clash (R2-B:41, R2-C:49)."
+  - diff_point: "C-009"
+    proposal: "The advocates' wording \"ask both approvals up front\""
+    source: "R2-B:51, R2-C:54"
+    reason: "Replaced by per-action approval timing because of INV-001 (TL:25, INV:8). Not adjudicated; flagged in M-01's `fix_source`."
+  - diff_point: "C-001"
+    proposal: "Treat \"add Task 3 to the Depends-on lines\" as a required fix"
+    source: "B:107; C:80-81"
+    reason: "Documentation only under source-order execution (R1-C:51); kept as part of M-05's fix text, not as its own finding."
+
+# Source: refactor-plan.md section (d) provenance block — per Change #15
+provenance:
+  diff_analysis: adversarial/adversarial/diff-analysis.md
+  debate_transcript: adversarial/adversarial/debate-transcript.md
+  invariant_probe: adversarial/adversarial/invariant-probe.md
+  base_selection: adversarial/adversarial/base-selection.md
+  refactor_plan: adversarial/adversarial/refactor-plan.md
+  variants: {A: variant-1-original.md, B: variant-2-original.md, C: variant-3-original.md}
+  calibrated_confidences: {A: 0.83, B: 0.87, C: 0.87}   # A:209, B:241, C:284
+  rounds_completed: 2
+  round_2_5: ran
+  round_3: skipped (depth standard)
+  omissions: 0
+  base_scores: {A: 0.810, B: 0.845, C: 0.812, tiebreaker: "level 1, debate points C 13 vs B 6"}
+  addressed_invariants: [INV-008, INV-010, INV-011, INV-012, INV-014, INV-016]
+  blocking_count_note: "1 adjudicated (M-01). INV-002 is an unadjudicated candidate; if confirmed, 2. Verdict FAIL either way."
+  approved_by: auto
+  approval_timestamp: "2026-11-03T00:39:08Z"
