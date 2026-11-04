@@ -359,7 +359,10 @@ def _pinned_home(tmp_path: Path, installed_sha: str, catalog_sha: str) -> Path:
     home = _plugin_home(tmp_path, {"ponytail@ironclaude": True})
     plugins = home / ".claude" / "plugins"
     plugins.mkdir()
-    (plugins / "known_marketplaces.json").write_text(json.dumps({"ironclaude": {}}))
+    ours = {"source": "directory", "path": str(home / setup._CATALOG_DIR)}
+    (plugins / "known_marketplaces.json").write_text(
+        json.dumps({"ironclaude": {"source": ours}})
+    )
     record = {"scope": "user", "version": "x", "gitCommitSha": installed_sha}
     (plugins / "installed_plugins.json").write_text(
         json.dumps({"plugins": {"ponytail@ironclaude": [record]}})
@@ -402,6 +405,117 @@ def test_plugins_keep_ponytail_at_its_pin(tmp_path: Path, monkeypatch) -> None:
         setup.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError)
     )
     assert setup.install_plugins(home=home) == (True, "✅ Plugins: already installed")
+
+
+def _recording_run(calls: list, failing: tuple = ()):
+    """A fake `claude` that records commands; commands starting with `failing` exit 1."""
+
+    def fake_run(command, **_kwargs):
+        calls.append(command[1:])
+        rc = 1 if failing and tuple(command[1 : 1 + len(failing)]) == failing else 0
+        return subprocess.CompletedProcess(command, rc, "", "")
+
+    return fake_run
+
+
+def test_plugins_refuse_a_foreign_ironclaude_marketplace(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A marketplace that only shares the name `ironclaude` is never used."""
+    other = tmp_path / "elsewhere"
+    foreign_entries = [
+        {"source": {"source": "github", "repo": "someone/ironclaude"}},
+        {"source": {"source": "directory", "path": str(other)}},
+        {"source": {"source": "directory", "path": ".claude/ironclaude-marketplace"}},
+        {"source": "directory"},
+        {},
+        "not an object",
+    ]
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    for index, entry in enumerate(foreign_entries):
+        home = _pinned_home(tmp_path / str(index), "0" * 40, "0" * 40)
+        registry = home / ".claude" / "plugins" / "known_marketplaces.json"
+        registry.write_text(json.dumps({"ironclaude": entry}))
+        before = registry.read_bytes()
+        calls = []
+        monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls))
+        ok, message = setup.install_plugins(home=home)
+        assert ok and message.startswith("⚠️  Plugins"), (entry, message)
+        assert "ironclaude (registered from another source" in message, entry
+        assert not any("ironclaude" in " ".join(c) for c in calls), (entry, calls)
+        assert registry.read_bytes() == before
+
+
+def test_plugins_accept_ours_through_a_symlinked_home(
+    tmp_path: Path, monkeypatch
+) -> None:
+    real = _pinned_home(tmp_path / "real", PONYTAIL_SHA, PONYTAIL_SHA)
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    registry = real / ".claude" / "plugins" / "known_marketplaces.json"
+    ours = {"source": "directory", "path": str(link / setup._CATALOG_DIR)}
+    registry.write_text(json.dumps({"ironclaude": {"source": ours}}))
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError)
+    )
+    assert setup.install_plugins(home=real) == (True, "✅ Plugins: already installed")
+
+
+def test_plugins_skip_dependents_of_a_failed_marketplace(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    # The IronClaude catalog cannot be added: Ponytail is not installed, while
+    # plugins from other marketplaces still are.
+    home = _plugin_home(
+        tmp_path / "add",
+        {"ponytail@ironclaude": True, "playwright@claude-plugins-official": True},
+    )
+    calls = []
+    add_ours = ("plugin", "marketplace", "add", str(home / setup._CATALOG_DIR))
+    monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls, add_ours))
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert [
+        "plugin",
+        "install",
+        "ponytail@ironclaude",
+        "--scope",
+        "user",
+        "-y",
+    ] not in (calls)
+    assert [
+        "plugin",
+        "install",
+        "playwright@claude-plugins-official",
+        "--scope",
+        "user",
+        "-y",
+    ] in calls
+    # A pin move whose marketplace update fails does not update the plugin.
+    old = "16352ac229eb08a9598dcae48fe9f2b342567d86"
+    home = _pinned_home(tmp_path / "update", old, old)
+    calls = []
+    update = ("plugin", "marketplace", "update")
+    monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls, update))
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert calls == [["plugin", "marketplace", "update", "ironclaude"]]
+
+    # A marketplace command that raises counts as failed too.
+    def raising_run(command, **_kwargs):
+        calls.append(command[1:])
+        if command[1:3] == ["plugin", "marketplace"]:
+            raise subprocess.TimeoutExpired(command, 1)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    home = _plugin_home(tmp_path / "raise", {"ponytail@ironclaude": True})
+    calls = []
+    monkeypatch.setattr(setup.subprocess, "run", raising_run)
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert all(c[:2] != ["plugin", "install"] for c in calls)
 
 
 def test_plugins_catalog_write_failure_is_not_fatal(

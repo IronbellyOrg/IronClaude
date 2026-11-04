@@ -281,6 +281,17 @@ def _write_catalog(home: Path, catalog: dict) -> bool:
     return True
 
 
+def _is_our_catalog(entry: object, home: Path) -> bool:
+    """True only when a registered marketplace entry is IronClaude's catalog."""
+    source = entry.get("source") if isinstance(entry, dict) else None
+    if not isinstance(source, dict) or source.get("source") != "directory":
+        return False
+    path = source.get("path")
+    if not isinstance(path, str) or not Path(path).is_absolute():
+        return False
+    return Path(path).resolve() == (home / _CATALOG_DIR).resolve()
+
+
 def install_plugins(
     home: Path | None = None, deadline: float | None = None
 ) -> Tuple[bool, str]:
@@ -318,23 +329,36 @@ def install_plugins(
         not in {e.get("gitCommitSha") for e in installed[p] if isinstance(e, dict)}
     ]
 
-    commands: List[Tuple[str, List[str]]] = []  # (name in the report, arguments)
+    # (name in the report, marketplace it depends on, arguments)
+    commands: List[Tuple[str, str, List[str]]] = []
     failed: List[str] = []
     if any(p in pinned for p in wanted):
         name = catalog["name"]
+        refused = ""
         try:
             changed = _write_catalog(home, catalog)
         except OSError:
-            failed.append(f"{name} (catalog not written)")
-            wanted = [p for p in wanted if p not in pinned]
-            stale = []
+            refused = "catalog not written"
         else:
-            if name not in known:
+            if name in known and not _is_our_catalog(known[name], home):
+                # Never install a pinned plugin through a marketplace that only
+                # shares the name; the user's own registration is left alone.
+                refused = (
+                    "registered from another source, so its plugins were not "
+                    "installed or updated; run `claude plugin marketplace add "
+                    f"{home / _CATALOG_DIR}` to use IronClaude's pinned catalog"
+                )
+            elif name not in known:
                 add = ["plugin", "marketplace", "add", str(home / _CATALOG_DIR)]
-                commands.append((name, add))
+                commands.append((name, name, add))
                 known[name] = {}
             elif changed or stale:
-                commands.append((name, ["plugin", "marketplace", "update", name]))
+                update = ["plugin", "marketplace", "update", name]
+                commands.append((name, name, update))
+        if refused:
+            failed.append(f"{name} ({refused})")
+            wanted = [p for p in wanted if p not in pinned]
+            stale = []
     for plugin in wanted:
         market = plugin.split("@", 1)[1]
         source = (
@@ -342,21 +366,28 @@ def install_plugins(
         )
         if market not in known and source.get("repo"):
             add = ["plugin", "marketplace", "add", source["repo"]]
-            commands.append((source["repo"], add))
+            commands.append((source["repo"], market, add))
             known[market] = source
     commands += [
-        (p, ["plugin", "install", p, "--scope", "user", "-y"])
+        (p, p.split("@", 1)[1], ["plugin", "install", p, "--scope", "user", "-y"])
         for p in wanted
         if p not in installed
     ]
-    commands += [(p, ["plugin", "update", p, "--scope", "user"]) for p in stale]
+    commands += [
+        (p, p.split("@", 1)[1], ["plugin", "update", p, "--scope", "user"])
+        for p in stale
+    ]
     if not commands and not failed:
         return True, "✅ Plugins: already installed"
 
-    for name, args in commands:
+    broken = set()  # marketplaces whose add or update failed in this run
+    for name, market, args in commands:
         remaining = deadline - time.monotonic()
         if remaining < 2:
             failed.append(f"{name} (time limit)")
+            continue
+        if market in broken:
+            failed.append(f"{name} (marketplace {market} unavailable)")
             continue
         env = {**os.environ, **_HTTPS_GITHUB} if args[1] == "update" else None
         try:
@@ -368,10 +399,13 @@ def install_plugins(
                 stdin=subprocess.DEVNULL,
                 env=env,
             )
-            if result.returncode != 0:
-                failed.append(name)
+            ok = result.returncode == 0
         except (OSError, subprocess.SubprocessError):
+            ok = False
+        if not ok:
             failed.append(name)
+            if args[1] == "marketplace":
+                broken.add(market)
     if failed:
         return True, (
             f"⚠️  Plugins: not installed: {', '.join(failed)}; "

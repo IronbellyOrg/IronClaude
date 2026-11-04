@@ -42,3 +42,11 @@ Same throwaway-HOME conditions, removed afterwards.
 | 4. New installer again | `✅ Settings defaults: already present`, `✅ Plugins: already installed`; `ponytail@ponytail` not added back |
 
 Why the installer does not remove `ponytail@ponytail` itself: step 1 shows that `claude plugin marketplace add` writes the same `extraKnownMarketplaces.ponytail` value master's defaults wrote, and master kept no record of what it added, so the installer cannot prove it added the entry. The docs and CHANGELOG give the step 3 command instead.
+
+## Foreign `ironclaude` registrations and failed marketplace commands (Codex security finding on PR #360)
+
+Same throwaway-HOME conditions, real Claude Code 2.1.318, removed afterwards.
+
+- `claude plugin marketplace add <home>/.claude/ironclaude-marketplace` when the name `ironclaude` is already registered from another directory: exit 0, prints "Marketplace 'ironclaude' was already added from dir:<foreign> and now points at dir:<home>/.claude/ironclaude-marketplace. Plugins already installed from it now update from the new source." The registry entry is rebound to our directory.
+- `install_plugins` after the fix, fresh HOME with only `ponytail@ironclaude` enabled: `✅ Plugins: installed ponytail@ironclaude`; installed 5.3.3 at gitCommitSha 7801d061243d7b753bad0e0b3c057cd250b11755; registry entry `{"source": "directory", "path": "<home>/.claude/ironclaude-marketplace"}`.
+- `install_plugins` after the fix, HOME where a foreign directory marketplace already holds the name `ironclaude`: `⚠️  Plugins: not installed: ironclaude (registered from another source, so its plugins were not installed or updated; run claude plugin marketplace add <home>/.claude/ironclaude-marketplace to use IronClaude's pinned catalog)`; nothing installed; the foreign registration is unchanged.

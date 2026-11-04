@@ -376,7 +376,12 @@ the pinned commit, through its own marketplace named `ironclaude`. Every
 out at the catalog's `sha`. Do not edit the catalog: the next run rewrites it.
 An upstream change reaches you only when an IronClaude release moves the pin;
 the next run then rewrites the catalog, runs `claude plugin marketplace update
-ironclaude` and updates the installed plugin to the new commit.
+ironclaude` and updates the installed plugin to the new commit. If a marketplace
+named `ironclaude` is already registered from any other source, the installer
+uses none of its plugins and leaves it alone; the warning names the
+`claude plugin marketplace add ~/.claude/ironclaude-marketplace` command that
+points the name at IronClaude's catalog. When a marketplace add or update fails,
+the plugins from that marketplace are skipped in that run and reported by name.
 
 To move the pin (maintainers): review the upstream changes, then set `ref` to the
 new tag and `sha` to its full 40-character commit (`git ls-remote
