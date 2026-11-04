@@ -101,6 +101,31 @@ BLOCKED = {
     "function-body": "f() { python3 x.py; }",
     "case-body": "case $x in a) python3 x.py;; esac",
     "process-subst": "diff <(python3 a.py) b.txt",
+    # PR #359 review round 1: ANSI-C escapes are decoded.
+    "ansi-c-octal": "$'\\160ython3' -c 1",
+    "ansi-c-octal-wraps": "$'\\560ython3' -c 1",
+    "ansi-c-hex": "$'\\x70ython3' -c 1",
+    "ansi-c-unicode": "$'\\u0070ython3' -c 1",
+    "ansi-c-nul-ends-word": "$'python3\\0x' -c 1",
+    "ansi-c-joined-word": "py$'\\x74'hon3 -c 1",
+    "ansi-c-pip": "$'\\x70ip' install x",
+    # PR #359 review round 1: wrapper options whose value is written apart.
+    "timeout-long-signal": "timeout --signal TERM 30 python3 x",
+    "timeout-long-kill-after": "timeout --kill-after 5 30 python3 x",
+    "timeout-abbreviated-option": "timeout --sig TERM 30 python3 x",
+    "timeout-long-equals": "timeout --signal=TERM 30 python3 x",
+    "sudo-long-user": "sudo --user U python3 x",
+    "sudo-short-cluster": "sudo -Eu root python3 x",
+    "sudo-attached-value": "sudo -uroot python3 x",
+    "nice-long-adjustment": "nice --adjustment 5 python3 x",
+    "env-long-unset": "env --unset X python3 x",
+    "env-long-chdir": "env --chdir D python3 x",
+    # PR #359 review round 1: [[ ]] tests.
+    "after-double-bracket": "[[ -n x ]] && python3 x",
+    "subst-in-double-bracket": "[[ $(python3 -c 1) ]]",
+    "double-bracket-no-space": "[[ a ]]&&python3 x",
+    "double-bracket-then": "if [[ -f x ]]; then python3 x; fi",
+    "double-bracket-regex-then-line": "[[ $x =~ (a|b) ]]\npython3 x",
 }
 
 ALLOWED = {
@@ -145,6 +170,15 @@ ALLOWED = {
     "array-assignment": "arr=(python3 pip); echo ${#arr[@]}",
     "quoted-heredoc-text": "cat > notes.md <<'EOF'\nRun `python3 x.py` to reproduce (pip; too)\nEOF",
     "here-string-mention": 'jq . <<< \'{"cmd": "python3 x"}\'',
+    # PR #359 review round 1.
+    "double-bracket-regex-alternation": (
+        '[[ "$tool" =~ ^(python|python3|pip|pip3)$ ]] && echo matched'
+    ),
+    "double-bracket-compare": "[[ $x == python3 ]] && echo y",
+    "double-bracket-less-than": "[[ a < b ]] && echo ok",
+    "ansi-c-mention": "echo $'pytho\\n'",
+    "sudo-attached-value-other-command": "sudo -uroot ls python3",
+    "env-split-string-ceiling": "env -S 'a b' python3",
 }
 
 

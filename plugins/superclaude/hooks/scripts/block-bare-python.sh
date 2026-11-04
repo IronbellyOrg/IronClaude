@@ -16,16 +16,21 @@
 # How a command is read: jq extracts tool_input.command and pipes it, on
 # stdin, to one stateful awk scanner (never through awk -v or the
 # environment, which mangle backslashes and fail above 128 KB). The scanner
-# tracks single, double and $'...' quotes, `#` comments, backslash-newline
-# continuation, $( ) and backtick substitutions (also inside double quotes;
-# the closing `)` resumes the outer word), $(( )) and (( )) arithmetic,
-# subshells, process substitution, case patterns, array assignments,
-# redirections, heredocs and here-strings. In each simple command it skips
-# NAME=value assignments, the keywords if/then/elif/else/do/while/until/!/{
-# and the wrappers sudo, nice, nohup, time, exec, timeout, env, command and
-# coproc (with their options; `command -v`/`-V` is a lookup and is allowed).
-# The next word, with quotes and backslashes removed, is the command word;
-# its basename is checked.
+# tracks single, double and $'...' quotes (decoding $'...' escapes such as
+# \160, \x70, p and \0), `#` comments, backslash-newline continuation,
+# $( ) and backtick substitutions (also inside double quotes; the closing `)`
+# resumes the outer word), $(( )) and (( )) arithmetic, subshells, process
+# substitution, case patterns, array assignments, [[ ]] tests (their words,
+# including `(` and `|` in =~ patterns, are not commands, but $( ) inside
+# them is scanned), redirections, heredocs and here-strings. In each simple
+# command it skips NAME=value assignments, the keywords
+# if/then/elif/else/do/while/until/!/{ and the wrappers sudo, nice, nohup,
+# time, exec, timeout, env, command and coproc with their options: an option
+# that takes a value consumes the next word when written apart, as a short
+# option (-u U, also at the end of a cluster such as -Eu U), a long option
+# (--user U) or an unambiguous long-option prefix (--sig TERM); `command
+# -v`/`-V` is a lookup and is allowed. The next word, with quotes and
+# backslashes removed, is the command word; its basename is checked.
 #
 # Heredoc bodies: a quoted-delimiter body (<<'EOF', <<"EOF", <<\EOF) is
 # literal text and is not scanned, unless the heredoc's own command word is
@@ -43,6 +48,8 @@
 #   - ${...} parameter expansions are not parsed (${CMD:-python3} x);
 #   - nested backticks written with \` escapes;
 #   - versioned names such as python3.12 or pip3.11 (outside issue #357);
+#   - wrapper options that take a value but are not in the scanner's tables
+#     (the BEGIN block lists the ones it knows);
 #   - shell commands run by tools other than Bash (for example Monitor);
 #   - hosts without jq: the hook fails open for every command;
 #   - `claude --bare` sessions, which skip settings hooks.
@@ -75,13 +82,14 @@ function iswrap(b) {
 function base(w,   n, parts) { n = split(w, parts, "/"); return n ? parts[n] : "" }
 function pushc(t) {
     d++; ct[d] = t; inw[d] = 0; wd[d] = ""; noc[d] = (t == "arr"); need[d] = !noc[d]
-    wrap[d] = ""; parg[d] = 0; skn[d] = 0; cs[d] = 0; cmd[d] = ""
+    wrap[d] = ""; parg[d] = 0; skn[d] = 0; cs[d] = 0; cmd[d] = ""; tst[d] = 0
 }
-function pushq(t, o) { d++; ct[d] = t; own[d] = o; inw[o] = 1 }
+function pushq(t, o) { d++; ct[d] = t; own[d] = o; inw[o] = 1; anul[d] = 0 }
 function pusha() { d++; ct[d] = "arith"; ad[d] = 2 }
 function owner(l) { return iscmd(ct[l]) ? l : ((ct[l] == "dq" || ct[l] == "sq" || ct[l] == "ansi") ? own[l] : 0) }
 function addc(o, c) { if (o) { inw[o] = 1; wd[o] = wd[o] c } }
-function sep(o) { endword(o); need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; skn[o] = 0 }
+function sep(o) { endword(o); need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; skn[o] = 0; tst[o] = 0 }
+function dig(set, ch) { return ch == "" ? 0 : index(set, ch) }
 function endword(o,   w, b, k) {
     if (!inw[o]) return
     w = wd[o]; inw[o] = 0; wd[o] = ""
@@ -95,7 +103,12 @@ function endword(o,   w, b, k) {
     if (wrap[o] != "") {
         if (w ~ /^-/) {
             if (wrap[o] == "command" && w ~ /^-[A-Za-z]*[vV]/) { need[o] = 0; return }
-            if ((wrap[o], w) in argopt) parg[o] = 1
+            if (w ~ /^--[A-Za-z]/) {
+                if (w !~ /=/ && index(lopt[wrap[o]], " " w)) parg[o] = 1
+                return
+            }
+            for (k = 2; k <= length(w); k++)
+                if ((wrap[o], "-" substr(w, k, 1)) in argopt) { if (k == length(w)) parg[o] = 1; break }
             return
         }
         if (wrap[o] == "timeout") { wrap[o] = "timeout-duration"; return }
@@ -104,6 +117,7 @@ function endword(o,   w, b, k) {
     if (w == "esac") { cs[o] = 0; return }
     if (w == "case") { cs[o] = 1; need[o] = 0; return }
     if (w == "function") { parg[o] = 1; return }
+    if (w == "[[") { tst[o] = 1; need[o] = 0; cmd[o] = w; return }
     b = base(w)
     if (iswrap(b)) { wrap[o] = b; return }
     need[o] = 0; cmd[o] = b
@@ -154,6 +168,14 @@ function cmdchar(s, n, c,   o, nx, t, p) {
         if (nx == "\"") { i++; pushq("dq", o); return }
         addc(o, c); return
     }
+    if (tst[o]) {
+        if (c == " " || c == "\t" || c == "\r" || c == "\n") { endword(o); return }
+        nx = substr(s, i + 2, 1)
+        if (c == "]" && !inw[o] && substr(s, i + 1, 1) == "]" && (nx == "" || index(" \t\r;&|)<>", nx))) {
+            i++; tst[o] = 0; return
+        }
+        addc(o, c); return
+    }
     if (c == "#" && !inw[o]) { i = n; return }
     if (c == " " || c == "\t" || c == "\r") { endword(o); return }
     if (c == "\n") { sep(o); if (qh < qt) nexthdoc(); return }
@@ -199,12 +221,37 @@ function cmdchar(s, n, c,   o, nx, t, p) {
     }
     addc(o, c)
 }
+function achr(v) {
+    v = v % 256
+    if (v == 0) { anul[d] = 1; return "" }
+    return v < 128 ? sprintf("%c", v) : "?"
+}
+function ansiesc(s, o,   e, v, k, m, h) {
+    i++; e = substr(s, i, 1)
+    if (e == "") return
+    if (e == "x" || e == "u" || e == "U") {
+        m = (e == "x") ? 2 : ((e == "u") ? 4 : 8); v = 0
+        for (k = 0; k < m && (h = dig("0123456789abcdef", tolower(substr(s, i + 1, 1)))); k++) { v = v * 16 + h - 1; i++ }
+        if (k == 0) addc(o, "\\" e); else addc(o, achr(v))
+        return
+    }
+    if ((h = dig("01234567", e))) {
+        v = h - 1
+        for (k = 1; k < 3 && (h = dig("01234567", substr(s, i + 1, 1))); k++) { v = v * 8 + h - 1; i++ }
+        addc(o, achr(v)); return
+    }
+    if (e == "c") { i++; addc(o, substr(s, i, 1) == "@" ? achr(0) : "?"); return }
+    if (dig("abeEfnrtv", e)) { addc(o, "?"); return }
+    if (e == "\\" || e == "\047" || e == "\"" || e == "?") { addc(o, e); return }
+    addc(o, "\\" e)
+}
 function qchar(s, n, c,   o, t) {
     t = ct[d]; o = own[d]
     if (t == "sq") { if (c == "\047") d--; else addc(o, c); return }
     if (t == "ansi") {
-        if (c == "\\") { i++; addc(o, substr(s, i, 1)); return }
-        if (c == "\047") d--; else addc(o, c)
+        if (c == "\047") { d--; return }
+        if (c == "\\") { if (anul[d]) i++; else ansiesc(s, o); return }
+        if (!anul[d]) addc(o, c)
         return
     }
     if (c == "\"") { d--; return }
@@ -237,6 +284,10 @@ BEGIN {
     argopt["sudo", "-R"] = 1; argopt["nice", "-n"] = 1; argopt["env", "-u"] = 1
     argopt["env", "-C"] = 1; argopt["exec", "-a"] = 1; argopt["timeout", "-s"] = 1
     argopt["timeout", "-k"] = 1; argopt["time", "-f"] = 1; argopt["time", "-o"] = 1
+    argopt["sudo", "-T"] = 1; argopt["env", "-a"] = 1
+    lopt["sudo"] = " --user --group --close-from --host --prompt --other-user --role --type --chdir --chroot --command-timeout "
+    lopt["nice"] = " --adjustment "; lopt["env"] = " --unset --chdir --argv0 "
+    lopt["timeout"] = " --signal --kill-after "; lopt["time"] = " --format --output "
 }
 { L[NR] = $0 }
 END {
