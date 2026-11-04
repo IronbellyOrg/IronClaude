@@ -1,0 +1,73 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/audit.log
+confidence_calibrated: 0.77   # mean of calibrated reviewer cards 0.73, 0.81, 0.78
+escalation_rule_matched: 8    # Tier 2 forced by coverage_degraded pre-filter
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 4db972275acfb0beacb89c875202d30cac4ad31711015fe91da03be7d63b4468
+  spec: fbc456a11caa4f40b0b7ddca18dbda78c9680c4ff68e9d9b478e3246a5680da0
+input_tree_sha256: 636948688ab338d5a735cbccc6338b05c1f6b3d432c030ba2fa8b74f193ae713
+input_tree_file_count: 8
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+  - reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/adversarial/
+adversarial_convergence_score: 0.94
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true   # M-02 drift: SKILL.md edit outside the spec's file list
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+merged_verdict: FAIL
+blocking_findings: [M-13]
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null

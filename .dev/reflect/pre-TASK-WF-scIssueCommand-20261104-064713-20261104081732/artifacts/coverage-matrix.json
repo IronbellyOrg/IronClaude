@@ -1,0 +1,811 @@
+{
+ "parsed_count": 0,
+ "inferred_count": 67,
+ "inferred_dropped": [],
+ "coverage_pct": null,
+ "coverage_pct_union": 0.8955,
+ "unmapped_requirements": [],
+ "unmapped_requirements_union": [
+  "INF-013",
+  "INF-020",
+  "INF-054",
+  "INF-058",
+  "INF-059",
+  "INF-061",
+  "INF-062"
+ ],
+ "S_dev_density": 0.1045,
+ "task_count": 17,
+ "matrix": [
+  {
+   "requirement_id": "INF-001",
+   "citation": "source.md:74",
+   "quote": "Exactly one of `--claim` / `--create` is required; both or neither -> STOP with the usage block.",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 8",
+   "ratio": 0.8571,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-002",
+   "citation": "source.md:75",
+   "quote": "`--depth`, `--mode` or `--type` with `--claim` -> STOP (`E-CREATE-ONLY-FLAG`).",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 8",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-003",
+   "citation": "source.md:79",
+   "quote": "There is no `--repo` flag (B10), no dry-run flag and no preview flag (B1).",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 8",
+   "ratio": 0.75,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-004",
+   "citation": "source.md:131",
+   "quote": "Each worker agent file sets `model: claude-gw-tier<N>` (one agent file per tier, because frontmatter is the only place a picker ID can be pinned).",
+   "matched_task_ids": [
+    "Task 15"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 15",
+   "ratio": 0.6875,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-005",
+   "citation": "source.md:132",
+   "quote": "`SKILL.md` and every ref state: spawn workers with `subagent_type: issue-worker-t<N>` and **never pass the `model` parameter**.",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-006",
+   "citation": "source.md:134",
+   "quote": "the skill STOPs with `E-TIER-UNAVAILABLE`, naming the agent file and picker ID. It does not fall back to an alias (default D4).",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.7333,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-007",
+   "citation": "source.md:135",
+   "quote": "The T1/T2 tier for the next-step chains is written into `next-steps.md` as a `/model claude-gw-tier1a` or `/model claude-gw-tier2` line before the chain",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 4",
+   "ratio": 0.6471,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-008",
+   "citation": "source.md:162",
+   "quote": "`gh issue edit <N> --repo <R> --add-assignee @me`. Failure -> STOP `E-ASSIGN-FAILED` (ClickUp is not touched).",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 6",
+   "ratio": 0.6875,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-009",
+   "citation": "source.md:178",
+   "quote": "If an earlier one exists, edit it with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/accuracy-check.md`",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.8889,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-010",
+   "citation": "source.md:180",
+   "quote": "Print the `next-steps.md` path and STOP.",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 6",
+   "ratio": 0.8333,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-011",
+   "citation": "source.md:184",
+   "quote": "Files are written to `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/` until the issue exists, then the directory is renamed to `.dev/issues/<N>/` (default D10).",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.8824,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-012",
+   "citation": "source.md:212",
+   "quote": "If it lists nothing, the issue is posted without any prompt.",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.6667,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-013",
+   "citation": "source.md:215",
+   "quote": "Missing ones are listed in the final output, never created (B7).",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 2",
+   "ratio": 0.5,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-014",
+   "citation": "source.md:219",
+   "quote": "No ClickUp call (B6). No self-assignment.",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-015",
+   "citation": "source.md:270",
+   "quote": "Every posted template ends with its hidden marker line",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 4",
+   "ratio": 0.8333,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-016",
+   "citation": "source.md:282",
+   "quote": "holds the one-time `gh label create",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 0.6,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-017",
+   "citation": "source.md:289",
+   "quote": "--issue-url <url> --issue-number <N> --repo <owner/repo>",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-018",
+   "citation": "source.md:296",
+   "quote": "Never printed, logged or written to disk",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-019",
+   "citation": "source.md:310",
+   "quote": "Exit 0 for every outcome above; exit 2 only for bad arguments.",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-020",
+   "citation": "source.md:314",
+   "quote": "the unit tests pin them with recorded fixtures, and the implementation plan includes one manual smoke claim against a test task.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 2",
+   "ratio": 0.5333,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-021",
+   "citation": "source.md:318",
+   "quote": "Nothing else is consulted: not `gh repo set-default`, not `gh`'s fork-parent default, not a `--repo` flag (B10).",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.6667,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-022",
+   "citation": "source.md:319",
+   "quote": "Every `gh issue`, `gh pr` and `gh label` call passes `--repo <R>`",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-023",
+   "citation": "source.md:321",
+   "quote": "`git fetch origin` is the only fetch; no other remote is added or fetched.",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-024",
+   "citation": "source.md:352",
+   "quote": "`src/superclaude/commands/issue.md` | Thin command (~100-150 lines)",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 8",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-025",
+   "citation": "source.md:353",
+   "quote": "`name: sc:issue-protocol`; `allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion`",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 6",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-026",
+   "citation": "source.md:354",
+   "quote": "Claim waves in detail; effort and complexity rubric (default D5); marker handling",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-027",
+   "citation": "source.md:355",
+   "quote": "Create waves; flag-settling table; depth-to-worker table; contradiction prompt rule",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-028",
+   "citation": "source.md:356",
+   "quote": "The six default chains of section 9 and the `/sc:recommend` goal format",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-029",
+   "citation": "source.md:357",
+   "quote": "The fixed label set and the maintainer's one-time `gh label create` lines",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.8889,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-030",
+   "citation": "source.md:358",
+   "quote": "Tier map, the pinning rule and its verified reason, `E-TIER-UNAVAILABLE`",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.875,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-031",
+   "citation": "source.md:359",
+   "quote": "`issue-feature-simple.md`, `issue-feature-complex.md`, `issue-bug-simple.md`, `issue-bug-complex.md`, `summary.md`",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 4",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-032",
+   "citation": "source.md:360",
+   "quote": "Section 12; standard library only; no secrets in output",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 0.8333,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-033",
+   "citation": "source.md:361",
+   "quote": "runs `git remote get-url origin` and prints `owner/repo`; standard library only; exits non-zero with `E-NO-ORIGIN` otherwise.",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 1",
+   "ratio": 0.9375,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-034",
+   "citation": "source.md:362",
+   "quote": "`model: claude-gw-tier3`; `tools: Read, Grep, Glob, Write, Bash`; read-only on GitHub and code; writes only under `.dev/issues/`; returns its file path",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-035",
+   "citation": "source.md:363",
+   "quote": "`src/superclaude/agents/issue-worker-t2.md` | Same shape, `model: claude-gw-tier2`",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 0.9231,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-036",
+   "citation": "source.md:364",
+   "quote": "`src/superclaude/agents/issue-worker-t1.md` | Same shape, `model: claude-gw-tier1a`",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 0.9231,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-037",
+   "citation": "source.md:366",
+   "quote": "No `src/superclaude/...` path appears in them",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-038",
+   "citation": "source.md:372",
+   "quote": "One row in the \"Other commands\" table",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-039",
+   "citation": "source.md:373",
+   "quote": "Byte-for-byte copy of the edited guide (required by `tests/commands/test_routing_plugin_parity.py`)",
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 10",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-040",
+   "citation": "source.md:374",
+   "quote": "Section 4.1: the optional `model:` field also takes a full model ID or picker ID",
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 11",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-041",
+   "citation": "source.md:375",
+   "quote": "One row in \"8. UTILITIES\"",
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 12",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-042",
+   "citation": "source.md:376",
+   "quote": "Replace `test_no_issue_skill_or_command_added` (section 16)",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 9",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-043",
+   "citation": "source.md:377",
+   "quote": "Add `\"sc:issue\"` to `_OTHER_COMMANDS`",
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 10",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-044",
+   "citation": "source.md:378",
+   "quote": "Add `\"issue\"` to `_POST_REFRESH_ADDITIONS`",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 9",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-045",
+   "citation": "source.md:390",
+   "quote": "`tests/commands/test_issue_command.py` (new)",
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 8",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-046",
+   "citation": "source.md:391",
+   "quote": "`tests/skills/test_issue_protocol.py` (new)",
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 7",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-047",
+   "citation": "source.md:392",
+   "quote": "`tests/skills/test_issue_worker_agents.py` (new)",
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 3",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-048",
+   "citation": "source.md:393",
+   "quote": "`tests/skills/test_clickup_claim.py` (new)",
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 2",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-049",
+   "citation": "source.md:394",
+   "quote": "`tests/skills/test_issue_repo_resolution.py` (new)",
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 1",
+   "ratio": 0.8,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-050",
+   "citation": "source.md:395",
+   "quote": "`test_no_issue_skill_or_command_added` becomes `test_issue_command_and_skill_are_the_only_issue_primitives`",
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 9",
+   "ratio": 0.6667,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-051",
+   "citation": "source.md:400",
+   "quote": "Run before commit: `uv run pytest tests/commands tests/core tests/skills tests/recommend tests/cli/test_issue_body_templates.py`, then `make test`.",
+   "matched_task_ids": [
+    "Task 14"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 14",
+   "ratio": 0.8667,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-052",
+   "citation": "source.md:405",
+   "quote": "`make sync-dev`, then `make verify-sync`.",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 13",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-053",
+   "citation": "source.md:407",
+   "quote": "Run `grep -rn 'src/superclaude' src/superclaude/{commands,skills,agents,core,hooks}` and justify any new hit",
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 13",
+   "ratio": 0.7692,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-054",
+   "citation": "source.md:408",
+   "quote": "Open the PR only with `/sc:pr-submit --monitor 3",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 3",
+   "ratio": 0.5,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-055",
+   "citation": "source.md:434",
+   "quote": "The plan's smoke step confirms one spawn per worker",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 4",
+   "ratio": 0.625,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-056",
+   "citation": "source.md:441",
+   "quote": "The command file and `SKILL.md` each state in one line that",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-057",
+   "citation": "source.md:467",
+   "quote": "`/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.75,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-058",
+   "citation": "source.md:468",
+   "quote": "Running the same claim again edits both comments; the comment count on the issue does not grow.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 5",
+   "ratio": 0.5,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-059",
+   "citation": "source.md:469",
+   "quote": "A closed issue, or one assigned to someone else, stops with the stated message and makes no GitHub or ClickUp write.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 5",
+   "ratio": 0.5833,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-060",
+   "citation": "source.md:470",
+   "quote": "A claim URL for any repo other than origin stops with `E-FOREIGN-REPO`",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 0.875,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-061",
+   "citation": "source.md:471",
+   "quote": "With `CLICKUP_API_TOKEN` unset the claim completes and the comment says ClickUp was skipped",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 2",
+   "ratio": 0.5,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-062",
+   "citation": "source.md:472",
+   "quote": "at `standard`/`deep` a disagreement produces one marked pushback comment; no ClickUp call is made.",
+   "matched_task_ids": [],
+   "match_method": "none",
+   "best_task": "Task 5",
+   "ratio": 0.4,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-063",
+   "citation": "source.md:473",
+   "quote": "one manual smoke run per worker shows it was served by the pinned tier.",
+   "matched_task_ids": [
+    "Task 15"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 15",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-064",
+   "citation": "source.md:474",
+   "quote": "`next-steps.md` contains only commands and flags listed in section 19",
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 4",
+   "ratio": 0.8889,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-065",
+   "citation": "source.md:475",
+   "quote": "`make verify-sync` passes; the tests of section 16 pass",
+   "matched_task_ids": [
+    "Task 14"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 14",
+   "ratio": 0.875,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-066",
+   "citation": "source.md:237",
+   "quote": "Every brainstorm row passes `--models opus,sonnet`",
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 5",
+   "ratio": 1.0,
+   "source": "inferred"
+  },
+  {
+   "requirement_id": "INF-067",
+   "citation": "source.md:380",
+   "quote": "Not changed: `src/superclaude/core/CLAUDE.md` (rule 10 stays; no level-table change)",
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "best_task": "Task 6",
+   "ratio": 0.6667,
+   "source": "inferred"
+  }
+ ]
+}

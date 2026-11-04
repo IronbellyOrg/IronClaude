@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: 0   # no §5.3 row fired: the table-wide coverage_degraded pre-filter forced Tier 2 before row evaluation
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 2.5
+per_signal_breakdown:
+  scope_size: 1        # 4 tasks over ~14 files
+  task_count: 0        # 4 tasks
+  blast_radius: 0.5    # one skill package + its docs/tests
+  spec_density: 1      # single dense paragraph, no labeled IDs
+  ambiguity_signals: 0
+S_scope: 4
+S_domains: 3           # code (skill/agents/command), tests, docs
+S_dev_density: 0.0     # 0 unmapped of 9 union rows
+escalation_reason: "coverage_degraded=parsed-sparse pre-filter (Step 1B.2b) forbids a Tier-1 stop; S_domains=3 would also escalate via rule 4"

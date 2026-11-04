@@ -1,0 +1,10 @@
+card: reviewer-1-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+scores: {citation_grounding: 0.85, coverage_completeness: 0.65, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.65, recommendation_actionability: 0.80}
+C: 0.75
+finding_verdicts:
+  R1-F1: {real: true, severity: blocking, note: "pre-commit verify-sync hook also fails; Constraint line 20 must allow deleting the gitignored mirror"}
+  R1-F2: {real: true, severity: minor}
+  R1-F3: {real: true, severity: minor, note: "observation; no action"}
+  R1-F4: {real: false, note: "tests/__init__.py and tests/skills/__init__.py exist; module is importable"}

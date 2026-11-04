@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-scIssueCommand-20261104-064713
+plan_path: ./TASK-WF-scIssueCommand-20261104-064713.md
+source_path: ./source.md
+source_origin: docs/designs/sc-issue-command.md   # informational only; never used for lookup
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial   # check round 2 on plan version 2; partial only because the evidence validator dropped 2 report items; merged verdict PASS with notes, 0 blocking, 18 minor
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104081732/REPORT.md
+unresolved: []

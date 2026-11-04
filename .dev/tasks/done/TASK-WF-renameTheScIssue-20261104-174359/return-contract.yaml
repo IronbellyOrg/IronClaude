@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-renameTheScIssue-20261104-174359
+plan_path: ./TASK-WF-renameTheScIssue-20261104-174359.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-renameTheScIssue-20261104174640/REPORT.md
+unresolved: []

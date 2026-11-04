@@ -408,6 +408,8 @@ maxTurns: 10                   # Maximum conversation turns
 permissionMode: restricted     # Permission level
 ```
 
+The optional `model:` field takes an alias (`sonnet`, `opus`, `haiku`, `fable`), a full model ID or picker ID (for example `claude-gw-tier3`), or `inherit`. The Agent call's `model` parameter accepts aliases only and overrides the frontmatter. So a skill that needs a pinned tier spawns the agent by `subagent_type` and must not pass `model`.
+
 **Markdown Body** (standard sections):
 
 | Section | Purpose | Required |
@@ -467,6 +469,8 @@ Skills can dynamically create agents using the agent spec mini-language:
 ```text
 <model>[:persona[:"instruction"]]
 ```
+
+The `<model>` in an agent spec is an alias (for example `opus`, `sonnet` or `haiku`), not a full model ID or picker ID.
 
 **Examples**:
 

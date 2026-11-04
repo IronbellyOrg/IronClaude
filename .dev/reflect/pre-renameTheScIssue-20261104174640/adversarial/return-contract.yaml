@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-renameTheScIssue-20261104174640/adversarial/merged-verdict.yaml"
+  convergence_score: 0.95
+  artifacts_dir: ".dev/reflect/pre-renameTheScIssue-20261104174640/adversarial/"
+  status: "success"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # no HIGH-severity UNADDRESSED items; MEDIUM INV-001, INV-002 logged as warnings

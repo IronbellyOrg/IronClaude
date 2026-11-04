@@ -1,0 +1,6 @@
+card: reviewer-2-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions: {citation_grounding: 0.95, coverage_completeness: 0.80, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.75, recommendation_actionability: 0.80}
+C: 0.81
+notes: "R2-1/R2-2 fit necessary better than drift; R2-3 (Rules bullet missing E-WORKER-NO-OUTPUT) is the finding worth acting on."

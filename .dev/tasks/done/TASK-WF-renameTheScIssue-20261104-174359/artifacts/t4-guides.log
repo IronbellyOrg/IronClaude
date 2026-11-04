@@ -1,0 +1,47 @@
+$ grep -n -i 'summary' docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+156:2. Display a summary of available SuperClaude commands
+271:description: "<summary>"       # One-line user-facing description
+397:description: <summary>         # One-line description of the agent's role
+547:| `description` | User-facing summary | Loaded at session start (~50 tokens) |
+1176:A command that generates a project summary report.
+1178:**File**: `src/superclaude/commands/summary.md`
+1182:name: summary
+1183:description: "Generate a concise project summary with file counts and key metrics"
+1190:# /sc:summary - Project Summary Generator
+1193:- User invokes `/sc:summary`
+1199:/sc:summary [path]          # Summarize project at path (default: current directory)
+1200:/sc:summary --format brief  # One-paragraph summary
+1201:/sc:summary --format full   # Detailed summary with metrics
+1217:5. Generate summary report
+1222:/sc:summary                    # Brief summary of current project
+1223:/sc:summary --format full      # Detailed summary with metrics
+1224:/sc:summary --path ./backend   # Summarize backend subdirectory
+1230:- Read project files to generate summary statistics
+1239:**File**: `src/superclaude/agents/summary-reporter.md`
+1243:name: summary-reporter
+1244:description: Generates structured project summary reports from file analysis
+1248:# Summary Reporter
+1251:- Invoked by `/sc:summary` command
+1264:- Project summary report with:
+1450:## Summary
+1451:<1-3 sentence summary>
+1512:## Behavioral Summary
+rc=0
+$ grep -n -i 'sc:issue\|sc-issue\|issue-worker' docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+rc=1
+$ grep -n -i 'summary' docs/user-guide/commands.md
+115:| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
+349:**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then stops. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
+389:- It ends its summary by pointing you to `/sc:graph status` to see whether this worktree's code-graph index is ready; it never runs `/sc:graph` itself.
+760:| `--report <path>` | none | Also write a summary to this path |
+793:| `--summary` | Pass/fail counts only (the default) |
+rc=0
+$ grep -n -i 'sc:issue\|sc-issue\|issue-worker' docs/user-guide/commands.md
+115:| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
+347:### `/sc:issue` - GitHub Issue Claim and Create
+354:/sc:issue --claim <number|url>
+355:/sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+373:/sc:issue --claim 302
+374:/sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
+375:/sc:issue --create @notes/new-command.md --depth deep
+rc=0

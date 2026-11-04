@@ -1,0 +1,44 @@
+===== M0 baseline: unmodified copies (expect pass)
+35 passed in 0.05s
+EXIT_CODE=0
+1
+17:1. **Accu
+===== M1 t1 line 17 reverted to the pre-fix text (expect FAIL on t1)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M1/tests/skills/test_issue_worker_agents.py::test_every_skills_lookup_names_both_copies[issue-worker-t1]
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M1/tests/skills/test_issue_worker_agents.py::test_skills_lookup_check_fails_on_old_rubric_line[issue-worker-t1]
+2 failed, 33 passed in 0.06s
+EXIT_CODE=1
+===== M2 t2 line 17 reverted to the pre-fix text (expect FAIL on t2)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M2/tests/skills/test_issue_worker_agents.py::test_every_skills_lookup_names_both_copies[issue-worker-t2]
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M2/tests/skills/test_issue_worker_agents.py::test_skills_lookup_check_fails_on_old_rubric_line[issue-worker-t2]
+2 failed, 33 passed in 0.07s
+EXIT_CODE=1
+1
+===== M3 t3 templates line loses its project copy (expect FAIL on t3)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M3/tests/skills/test_issue_worker_agents.py::test_every_skills_lookup_names_both_copies[issue-worker-t3]
+1 failed, 34 passed in 0.06s
+EXIT_CODE=1
+===== M4 t1 project copy path misspelt .claude/skill/ (expect FAIL)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M4/tests/skills/test_issue_worker_agents.py::test_every_skills_lookup_names_both_copies[issue-worker-t1]
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M4/tests/skills/test_issue_worker_agents.py::test_skills_lookup_check_fails_on_old_rubric_line[issue-worker-t1]
+2 failed, 33 passed in 0.06s
+EXIT_CODE=1
+1
+===== M5 new installed-only lookup line added to t3 (expect FAIL)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M5/tests/skills/test_issue_worker_agents.py::test_every_skills_lookup_names_both_copies[issue-worker-t3]
+1 failed, 34 passed in 0.06s
+EXIT_CODE=1
+1
+===== M6 order reversed, project copy first (probe: does the test check order?)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M6/tests/skills/test_issue_worker_agents.py::test_skills_lookup_check_fails_on_old_rubric_line[issue-worker-t1]
+1 failed, 34 passed in 0.06s
+EXIT_CODE=1
+1
+===== M7 installed-only lookup appended to the exempt provenance line 11 (probe)
+35 passed in 0.04s
+EXIT_CODE=0
+1
+===== M8 project copy names a different file (probe: does the test check the same path?)
+FAILED ../../../../../../tmp/rereview2.YNMivIMc/M8/tests/skills/test_issue_worker_agents.py::test_skills_lookup_check_fails_on_old_rubric_line[issue-worker-t1]
+1 failed, 34 passed in 0.06s
+EXIT_CODE=1

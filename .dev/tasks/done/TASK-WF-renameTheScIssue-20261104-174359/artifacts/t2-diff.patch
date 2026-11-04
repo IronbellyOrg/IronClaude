@@ -1,0 +1,66 @@
+diff --git a/src/superclaude/agents/issue-worker-t1.md b/src/superclaude/agents/issue-worker-t1.md
+index fb63406d..1dbd561d 100644
+--- a/src/superclaude/agents/issue-worker-t1.md
++++ b/src/superclaude/agents/issue-worker-t1.md
+@@ -12,13 +12,13 @@ Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protoc
+ 
+ ## Your files are tool inputs, not reports
+ 
+-The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `summary.md`, the reports under `analysis/`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files, so a general instruction against writing report or summary `.md` files does not apply to them. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
++The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `analysis/` such as `analysis/analyze-<scope>.md`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files. Claude Code refuses a subagent's Write of any `.md` file whose name starts with REPORT, SUMMARY, FINDINGS or ANALYSIS (in any letter case), which is why none of these names starts with those words. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
+ 
+ ## Jobs for this tier
+ 
+ The orchestrator names one job, the repo `<R>` (`owner/repo`, resolved from `origin`), and the directory `<D>` under `.dev/issues/`.
+ 
+-1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `complex`).** Assume the issue text is out of date. Check each concrete claim in the issue body and comments (paths, symbols, behaviours, flags) against today's code, and check each merged pull request and changed file listed in `<D>/scout.md` for relevance. Write `<D>/accuracy-check.md` from the `accuracy-check-comment.md` template with the verdict `current` or `out_of_date` and the evidence for each changed claim. When the verdict is `out_of_date`, run `/sc:analyze --depth deep` on the paths the issue touches and save its report under `<D>/analysis/`. Always write `<D>/summary.md` from the `summary.md` template: what the issue asks for, the relevant files and systems, type, complexity, the effort estimate in hours using the rubric in `~/.claude/skills/sc-issue-protocol/refs/claim.md` (the in-checkout copy is the project `.claude/skills/sc-issue-protocol/refs/claim.md`; read the installed copy first), and links to anything under `<D>/analysis/`.
++1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `complex`).** Assume the issue text is out of date. Check each concrete claim in the issue body and comments (paths, symbols, behaviours, flags) against today's code, and check each merged pull request and changed file listed in `<D>/scout.md` for relevance. Write `<D>/accuracy-check.md` from the `accuracy-check-comment.md` template with the verdict `current` or `out_of_date` and the evidence for each changed claim. When the verdict is `out_of_date`, run `/sc:analyze --depth deep` on the paths the issue touches and save its report as `<D>/analysis/analyze-<scope>.md` (`<scope>` = the main path's last segment; never a name starting with analysis, report, summary or findings). Always write `<D>/issue-summary.md` from the `issue-summary.md` template: what the issue asks for, the relevant files and systems, type, complexity, the effort estimate in hours using the rubric in `~/.claude/skills/sc-issue-protocol/refs/claim.md` (the in-checkout copy is the project `.claude/skills/sc-issue-protocol/refs/claim.md`; read the installed copy first), and links to anything under `<D>/analysis/`.
+ 2. **Flag choice at standard or deep depth (create Wave 2, a flag missing).** Read `<D>/description.md` and `<D>/scout.md`; at deep depth first run `/sc:analyze` on the code the description touches. Choose the missing `--mode` or `--type` and write `<D>/flags.md` from the `flags-decision.md` template (mode, type, complexity, reasons).
+ 3. **Independent flag variant (create Wave 2, deep depth, all flags given).** Without reading `<D>/flags-user.md`, choose mode and type from the description, `scout.md` and the code, and write `<D>/flags-t1.md` from the `flags-decision.md` template. The orchestrator then compares it with the user's flags.
+ 4. **Deep body (create Wave 4, depth `deep`).** Run `/sc:analyze --depth deep` on the code the description touches, then fill the template the orchestrator chose into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where nothing is known. Write `<D>/draft-notes.md` from the `draft-notes.md` template, listing any new material and any contradiction.
+diff --git a/src/superclaude/agents/issue-worker-t2.md b/src/superclaude/agents/issue-worker-t2.md
+index 912415d9..dd39a981 100644
+--- a/src/superclaude/agents/issue-worker-t2.md
++++ b/src/superclaude/agents/issue-worker-t2.md
+@@ -12,13 +12,13 @@ Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protoc
+ 
+ ## Your files are tool inputs, not reports
+ 
+-The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `summary.md`, the reports under `analysis/`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files, so a general instruction against writing report or summary `.md` files does not apply to them. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
++The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `analysis/` such as `analysis/analyze-<scope>.md`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files. Claude Code refuses a subagent's Write of any `.md` file whose name starts with REPORT, SUMMARY, FINDINGS or ANALYSIS (in any letter case), which is why none of these names starts with those words. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
+ 
+ ## Jobs for this tier
+ 
+ The orchestrator names one job, the repo `<R>` (`owner/repo`, resolved from `origin`), and the directory `<D>` under `.dev/issues/`.
+ 
+-1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `simple` or `medium`).** Assume the issue text is out of date. Check each concrete claim in the issue body and comments (paths, symbols, behaviours, flags) against today's code, and check each merged pull request and changed file listed in `<D>/scout.md` for relevance. Write `<D>/accuracy-check.md` from the `accuracy-check-comment.md` template with the verdict `current` or `out_of_date` and the evidence for each changed claim. When the verdict is `out_of_date`, run `/sc:analyze` (no `--depth`) on the paths the issue touches and save its report under `<D>/analysis/`. Always write `<D>/summary.md` from the `summary.md` template: what the issue asks for, the relevant files and systems, type, complexity, the effort estimate in hours using the rubric in `~/.claude/skills/sc-issue-protocol/refs/claim.md` (the in-checkout copy is the project `.claude/skills/sc-issue-protocol/refs/claim.md`; read the installed copy first), and links to anything under `<D>/analysis/`.
++1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `simple` or `medium`).** Assume the issue text is out of date. Check each concrete claim in the issue body and comments (paths, symbols, behaviours, flags) against today's code, and check each merged pull request and changed file listed in `<D>/scout.md` for relevance. Write `<D>/accuracy-check.md` from the `accuracy-check-comment.md` template with the verdict `current` or `out_of_date` and the evidence for each changed claim. When the verdict is `out_of_date`, run `/sc:analyze` (no `--depth`) on the paths the issue touches and save its report as `<D>/analysis/analyze-<scope>.md` (`<scope>` = the main path's last segment; never a name starting with analysis, report, summary or findings). Always write `<D>/issue-summary.md` from the `issue-summary.md` template: what the issue asks for, the relevant files and systems, type, complexity, the effort estimate in hours using the rubric in `~/.claude/skills/sc-issue-protocol/refs/claim.md` (the in-checkout copy is the project `.claude/skills/sc-issue-protocol/refs/claim.md`; read the installed copy first), and links to anything under `<D>/analysis/`.
+ 2. **Flag choice at quick depth (create Wave 2, a flag missing).** Read `<D>/description.md` and `<D>/scout.md`, choose the missing `--mode` or `--type`, and write `<D>/flags.md` from the `flags-decision.md` template (mode, type, complexity, reasons).
+ 3. **Flag validation at standard depth (create Wave 2, all flags given).** Run a quick check of the user's flags against the description and `scout.md` and write `<D>/flags.md` from the `flags-decision.md` template, listing every difference with its reason.
+ 4. **Standard-depth body (create Wave 4, depth `standard`).** Run `/sc:analyze` (no `--depth`) on the code the description touches, then fill the template the orchestrator chose into `<D>/issue-body.md`, keeping every heading and writing "Not known yet" where nothing is known. Write `<D>/draft-notes.md` from the `draft-notes.md` template, listing any new material and any contradiction.
+diff --git a/src/superclaude/agents/issue-worker-t3.md b/src/superclaude/agents/issue-worker-t3.md
+index 50af4312..c547ba49 100644
+--- a/src/superclaude/agents/issue-worker-t3.md
++++ b/src/superclaude/agents/issue-worker-t3.md
+@@ -12,7 +12,7 @@ Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protoc
+ 
+ ## Your files are tool inputs, not reports
+ 
+-The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `summary.md`, the reports under `analysis/`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files, so a general instruction against writing report or summary `.md` files does not apply to them. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
++The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `analysis/` such as `analysis/analyze-<scope>.md`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files. Claude Code refuses a subagent's Write of any `.md` file whose name starts with REPORT, SUMMARY, FINDINGS or ANALYSIS (in any letter case), which is why none of these names starts with those words. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
+ 
+ ## Jobs for this tier
+ 
+diff --git a/src/superclaude/commands/issue.md b/src/superclaude/commands/issue.md
+index 44a1abbb..32bbd945 100644
+--- a/src/superclaude/commands/issue.md
++++ b/src/superclaude/commands/issue.md
+@@ -65,7 +65,7 @@ Every file starts from a template of the skill and stays under `.dev/issues/`:
+ 
+ | Mode | Directory | Files |
+ |---|---|---|
+-| claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `summary.md` (effort in hours), `analysis/` (only when the issue is out of date), `recommend.md`, `next-steps.md`, `claim-comment.md` (posted) |
++| claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `issue-summary.md` (effort in hours), `analysis/analyze-<scope>.md` (only when the issue is out of date), `recommend.md`, `next-steps.md`, `claim-comment.md` (posted) |
+ | create | `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/`, renamed to `.dev/issues/<N>/` once the issue exists | `description.md`, `scout.md`, `flags.md`, `issue-body.md` (posted), `draft-notes.md`, and `create-review.md` (posted only when a standard or deep check disagrees with your flags) |
+ 
+ After a claim, open `.dev/issues/<N>/next-steps.md` and run its commands in your own session, in order, after the `/model` line it starts with.

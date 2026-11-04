@@ -75,11 +75,23 @@ def test_claude_md_has_exactly_one_issue_rule_line():
     )
 
 
-def test_no_issue_skill_or_command_added():
-    for root in ("src/superclaude", "plugins/superclaude"):
-        skills = _REPO / root / "skills"
-        if skills.is_dir():
-            assert not list(skills.glob("sc-issue*")), root
-        commands = _REPO / root / "commands"
-        if commands.is_dir():
-            assert not list(commands.rglob("issue.md")), root
+def test_issue_command_and_skill_are_the_only_issue_primitives():
+    """Issue #302 adds /sc:issue and sc-issue-protocol, and nothing else.
+
+    No plugin mirror is added (design section 15, "Not changed").
+    """
+    src = _REPO / "src/superclaude"
+    assert (src / "commands/issue.md").is_file()
+    assert (src / "skills/sc-issue-protocol").is_dir()
+    assert sorted(p.name for p in (src / "skills").glob("sc-issue*")) == [
+        "sc-issue-protocol"
+    ]
+    commands = src / "commands"
+    assert [p.relative_to(commands) for p in commands.rglob("issue.md")] == [
+        Path("issue.md")
+    ]
+    plugins = _REPO / "plugins/superclaude"
+    if (plugins / "skills").is_dir():
+        assert not list((plugins / "skills").glob("sc-issue*"))
+    if (plugins / "commands").is_dir():
+        assert not list((plugins / "commands").rglob("issue.md"))

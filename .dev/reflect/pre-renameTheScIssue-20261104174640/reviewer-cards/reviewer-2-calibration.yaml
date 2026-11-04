@@ -1,0 +1,10 @@
+card: reviewer-2-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded   # disjoint set {qwen,kimi,deepseek} unavailable; opus also a reviewer
+scores: {citation_grounding: 0.90, coverage_completeness: 0.70, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.65, recommendation_actionability: 0.75}
+C: 0.76
+finding_verdicts:
+  R2-F1: {real: true, severity: minor, note: "fix needs the plan's .claude/ rule relaxed; local pre-commit verify-sync would flag it"}
+  R2-F2: {real: true, severity: minor}
+  R2-F3: {real: true, severity: minor}
+  R2-F4: {real: true, severity: minor}

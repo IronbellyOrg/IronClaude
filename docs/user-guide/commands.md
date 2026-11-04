@@ -112,6 +112,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
+| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -340,6 +341,43 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 ```
 
 **MCP servers:** none
+
+---
+
+### `/sc:issue` - GitHub Issue Claim and Create
+
+**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then stops. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
+
+**Syntax:**
+
+```
+/sc:issue --claim <number|url>
+/sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+```
+
+**Options:**
+
+| Flag | Mode | Default | What it does |
+|------|------|---------|--------------|
+| `--claim <number\|url>` | claim | - | The issue to claim: a number (`302`, `#302`) or an issue URL on the origin repo |
+| `--create "<description>"` | create | - | The feature or bug description, as text or `@path` to a file |
+| `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
+| `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template and the `enhancement` or `bug` label |
+| `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; maps to a `type: <value>` label |
+
+`--depth`, `--mode` and `--type` work with `--create` only. There is no repository option: the repository is always `origin`.
+
+**Examples:**
+
+```bash
+/sc:issue --claim 302
+/sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
+/sc:issue --create @notes/new-command.md --depth deep
+```
+
+It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. A claim stops after writing `.dev/issues/<N>/next-steps.md`; you run those commands yourself, in your own session.
+
+**MCP servers:** auggie, codegraph
 
 ---
 

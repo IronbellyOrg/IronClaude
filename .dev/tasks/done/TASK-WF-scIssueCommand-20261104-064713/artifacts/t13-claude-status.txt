@@ -1,0 +1,3 @@
+$ git status --porcelain .claude
+$ git diff --cached --name-only -- .claude
+(nothing above = no staged .claude/ path)

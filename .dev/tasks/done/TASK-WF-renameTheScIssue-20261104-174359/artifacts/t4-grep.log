@@ -1,0 +1,38 @@
+$ grep -n 'summary\.md' docs/designs/sc-issue-command.md
+169:- always writes `<D>/issue-summary.md` from `templates/issue-summary.md`: what the issue asks for, relevant files and systems (the cheatsheet), type, complexity, **effort estimate in hours** (B3) using the rubric in `refs/claim.md`, and links to anything under `<D>/analysis/`;
+173:1. Invoke `Skill sc-recommend` with a goal built from `issue-summary.md`: issue URL, type, complexity, the summary path, and the default chain row for that type and complexity from `refs/chains.md` (section 9) as the suggested route. `/sc:recommend` picks the starting chain and depth (B4). Save its output verbatim to `<D>/recommend.md`.
+174:2. Write `<D>/next-steps.md` from `templates/next-steps.md`: the `/model` line for the tier (B14, section 9), then the commands in order with their flags, the inputs each needs (`@.dev/issues/<N>/issue-summary.md`), the effort estimate, and, when `/sc:recommend` chose differently from the default row, one line naming the default row and why it was not used.
+179:2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, ClickUp result, the summary overview, effort estimate, complexity, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` (default D9). It carries `<!-- sc:issue:claim -->`. Post or edit it the same way as step 1.
+223:These are the default rows `refs/chains.md` carries and passes to `/sc:recommend` as the suggested route. `/sc:recommend` makes the final pick (B4). `<S>` = `.dev/issues/<N>/issue-summary.md`; `<symptom>` is the bug's one-line symptom from the summary (at least 10 words); `<scope>` is the main path from the summary. Every flag below is checked in section 19.
+250:| `issue-summary.md` | claim | worker t2/t1 | `issue-summary.md` |
+261:Note (2026-11-04): the claim summary was renamed from `summary.md` to `issue-summary.md` (its template too, `templates/summary.md` to `templates/issue-summary.md`), and the `/sc:analyze` report under `analysis/` is now named `analyze-<scope>.md`. Cause: Claude Code's Write tool refuses any subagent write whose file basename matches `^(REPORT|SUMMARY|FINDINGS|ANALYSIS).*\.md$` (case-insensitive), with the error "Subagents should return findings as text, not write report files." This was found in live acceptance testing of #302, when issue-worker-t2's Write of `.dev/issues/365/summary.md` was refused, so claim Wave 4 could never produce its summary. No worker file name may start with analysis, report, summary or findings; `tests/skills/test_issue_worker_agents.py` now pins every file name a worker is told to write against that pattern and checks that no reference to the old summary path remains.
+361:| `src/superclaude/skills/sc-issue-protocol/templates/` | `issue-feature-simple.md`, `issue-feature-complex.md`, `issue-bug-simple.md`, `issue-bug-complex.md`, `issue-summary.md`, `accuracy-check-comment.md`, `claim-comment.md`, `next-steps.md`, `scout-report.md`, `recommend-record.md`, `description.md`, `flags-decision.md`, `draft-notes.md`, `create-review-comment.md` |
+439:| D22 | `issue-summary.md` is written on every claim; `/sc:analyze` runs only when the issue is out of date | The issue sizes and summarizes every claim; the analysis is the expensive part |
+469:1. `/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first; the issue is assigned to the current user; `.dev/issues/<N>/` holds `scout.md`, `clickup.json`, `accuracy-check.md`, `issue-summary.md` (with an hours estimate), `recommend.md`, `next-steps.md`, `claim-comment.md`; two marked comments are posted; the command stops without running any next-step command.
+rc=0
+$ grep -on '[A-Za-z0-9_./<>`-]*summary\.md' docs/designs/sc-issue-command.md  (every token ending in summary.md)
+169:`<D>/issue-summary.md
+169:`templates/issue-summary.md
+173:`issue-summary.md
+174:.dev/issues/<N>/issue-summary.md
+179:`<D>/issue-summary.md
+223:`.dev/issues/<N>/issue-summary.md
+250:`issue-summary.md
+250:`issue-summary.md
+261:`summary.md
+261:`issue-summary.md
+261:`templates/summary.md
+261:`templates/issue-summary.md
+261:`.dev/issues/365/summary.md
+361:`issue-summary.md
+439:`issue-summary.md
+469:`issue-summary.md
+rc=0
+$ grep -n 'analyze-<scope>' docs/designs/sc-issue-command.md
+168:- when `out_of_date`: runs `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` on the paths the issue touches (`--depth deep` when complex, no `--depth` otherwise), saving the report as `<D>/analysis/analyze-<scope>.md` (`<scope>` in this file name is the last segment of the main path the issue touches; no file under `<D>/analysis/` has a name that starts with analysis, report, summary or findings, see the note in section 10);
+249:| `analysis/analyze-<scope>.md` | claim, when out of date | worker t2/t1 via `/sc:analyze` | the report format of `/sc:analyze` |
+261:Note (2026-11-04): the claim summary was renamed from `summary.md` to `issue-summary.md` (its template too, `templates/summary.md` to `templates/issue-summary.md`), and the `/sc:analyze` report under `analysis/` is now named `analyze-<scope>.md`. Cause: Claude Code's Write tool refuses any subagent write whose file basename matches `^(REPORT|SUMMARY|FINDINGS|ANALYSIS).*\.md$` (case-insensitive), with the error "Subagents should return findings as text, not write report files." This was found in live acceptance testing of #302, when issue-worker-t2's Write of `.dev/issues/365/summary.md` was refused, so claim Wave 4 could never produce its summary. No worker file name may start with analysis, report, summary or findings; `tests/skills/test_issue_worker_agents.py` now pins every file name a worker is told to write against that pattern and checks that no reference to the old summary path remains.
+rc=0
+$ grep -n 'Note (2026-11-04)' docs/designs/sc-issue-command.md
+261:Note (2026-11-04): the claim summary was renamed from `summary.md` to `issue-summary.md` (its template too, `templat
+rc=0
