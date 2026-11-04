@@ -1,0 +1,15 @@
+# Blind calibration of reviewer-3-card.yaml (confidence-calibrator, sonnet). Persisted by the orchestrator.
+calibrator_model_class: sonnet
+dimensions: {citation_grounding: 0.90, coverage_completeness: 0.80, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.75, recommendation_actionability: 0.88}
+calibrated_confidence: 0.79
+self_reported_confidence: 0.84
+findings:
+  R3-1: {verdict: supported, reason: "gap real; 'blocking' overstated: proof is non-blocking and both variables verified unset; cheap hardening."}
+  R3-2: {verdict: supported, reason: "4 insertions + 3 deletions vs 'at most 5 changed lines'."}
+  R3-3: {verdict: supported, reason: "dependency chain stricter than needed; harmless."}
+  R3-4: {verdict: supported, reason: "tests/docs/test_retired_docs_absent.py:39-44 and markdownlint --fix (.pre-commit-config.yaml:74-88) not in Task 3/4 criteria."}
+  R3-5: {verdict: supported, reason: "Task 3 requires claims beyond the lite-facts block; partial gap."}
+  R3-6: {verdict: supported, reason: "expanded JSON form vs 'three added lines'."}
+  R3-7: {verdict: supported, reason: "no heading to link; nearest anchor installation.md:331."}
+  R3-8: {verdict: supported, reason: "Orca 25 s of the 30 s budget runs first (install_user_setup.py:34-35,316-323)."}
+  R3-9: {verdict: supported, reason: "./artifacts base unnamed."}

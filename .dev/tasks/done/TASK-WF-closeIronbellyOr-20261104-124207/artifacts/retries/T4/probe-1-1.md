@@ -1,0 +1,13 @@
+68b48ccb40439194b11344ce2cb7c162dd96fc5e
+family=changelog-mode-scope
+form: mode-switch scope stated as 'for the current project' instead of the session (stored per project directory, reset by the next session start there)
+command: grep -n -F -e 'for the current project' -e 'per project directory' -- CHANGELOG.md docs/getting-started/installation.md
+before:
+  CHANGELOG.md:11:- `superclaude install`, `superclaude update` and `update.sh` now install the Ponytail plugin (`ponytail@ponytail`, from `DietrichGebert/ponytail`; checked against upstream v5.3.3) and set `PONYTAIL_DEFAULT_MODE` to `lite` under `env` in `~/.claude/settings.json` when you have not set it. In `lite`, every session start injects Ponytail's rules at the lite level ("Build what was asked. Name the smaller option in one line and let the user pick.") plus a short codebase map, and every subagent gets the same rules. On a workspace whose user settings have no `statusLine`, the first session gets a one-time note asking Claude to offer to set up Ponytail's statusline badge; that session can be an unattended Orca worker, which then sees the note and may mention the offer. Ponytail's band module runs in every mode (a band above the prompt, a `git grep` at session start, a watch on every Edit and Write, and a local per-turn ledger row under `$XDG_CONFIG_HOME/ponytail/band/` or `~/.config/ponytail/band/`). The ledger is on; set Ponytail's `ledger` option to `false` to stop it. Change the mode with `/ponytail off|lite|full|ultra` for the current project, or set `PONYTAIL_DEFAULT_MODE` to `off`, `lite`, `full` or `ultra` to change the default. To opt out, set `"ponytail@ponytail": false` in `enabledPlugins` in your user settings; do not delete the key, because the next install adds it back. Existing workspaces get Ponytail after you upgrade the IronClaude package, then run `superclaude update` or `superclaude install`. Needs `node` on the PATH. See [the installation guide](docs/getting-started/installation.md).
+  docs/getting-started/installation.md:402:To change the mode for the current project, type `/ponytail off`,
+  docs/getting-started/installation.md:405:per project directory, so each worktree has its own, and any new session,
+coupled: docs/getting-started/installation.md:401 (Task 3 text, same sentence)
+after:
+  CHANGELOG.md:11:- `superclaude install`, `superclaude update` and `update.sh` now install the Ponytail plugin (`ponytail@ponytail`, from `Di
+  docs/getting-started/installation.md:402:To change the mode for the rest of the session, type `/ponytail off`,
+  docs/getting-started/installation.md:405:per project directory, so each worktree has its own, and any new session,

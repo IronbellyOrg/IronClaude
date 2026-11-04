@@ -1,0 +1,194 @@
+{
+  "summary": {
+    "parsed_total": 0,
+    "inferred_total": 17,
+    "total_tasks": 4,
+    "coverage_pct": null,
+    "coverage_pct_union": 0.5294,
+    "unmapped_requirements": [],
+    "unmapped_requirements_union": [
+      "INF-001",
+      "INF-002",
+      "INF-003",
+      "INF-005",
+      "INF-007",
+      "INF-014",
+      "INF-015",
+      "INF-017"
+    ],
+    "S_dev_density": 0.4706
+  },
+  "rows": [
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "quote": "implementing .dev/brainstorms/20261104-063430-ponytail-plugin-install/merged-requirements.md",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.0
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "quote": "env.PONYTAIL_DEFAULT_MODE='lite' in src/superclaude/cli/user_settings_defaults.json, filled only when the user has not set it (a user value always wins)",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.5833
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "quote": "every place the brainstorm says 'off' as the shipped default (Decision Summary row 3, FR-003, NFR-006, the 'off footprint' text, the docs and CHANGELOG drafts, tests T1 and T3/T4 leg 1, AC-M1 M1b) is rewritten to lite",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.3704
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "quote": "no pluginConfigs entry; docs and CHANGELOG say the ledger is on and that Ponytail's `ledger` option set to false turns it off",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "best_ratio": 0.7143
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "quote": "SessionStart writes the mode flag (~/.claude/.ponytail-active plus a per-project copy under ~/.claude/ponytail-modes/) and injects the Ponytail ruleset filtered to lite",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.4667
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "quote": "appends a codebase map (3 s cap; PONYTAIL_MAP=0 disables); SubagentStart injects the ruleset into every subagent (PONYTAIL_SUBAGENT_MATCHER regex scopes it)",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "best_ratio": 0.6471
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "quote": "lite DOES emit a one-time 'STATUSLINE SETUP NEEDED ... Proactively offer to set this up for the user on first interaction.' nudge, copies ponytail-statusline.sh into ~/.claude and writes the nudged flag",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.5238
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "quote": "so /ponytail default <mode> has no effect while the env key is set",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "best_ratio": 1.0
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "quote": "Docs must say how to change the mode (off, lite, full, ultra) and how to opt out (enabledPlugins['ponytail@ponytail']=false; do not delete the key)",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "best_ratio": 0.8235
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "quote": "src/superclaude/cli/user_settings_defaults.json (three entries: enabledPlugins, extraKnownMarketplaces, env)",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "best_ratio": 1.0
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "quote": "src/superclaude/cli/install_user_setup.py (FR-005 failure-label fix only, at most 5 changed lines)",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "best_ratio": 0.7778
+    },
+    {
+      "requirement_id": "INF-012",
+      "source": "inferred",
+      "quote": "tests/cli/test_install_user_setup.py (T1, T2, T3/T4 legs, T5, T5c per the brainstorm, with lite)",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "best_ratio": 0.6
+    },
+    {
+      "requirement_id": "INF-013",
+      "source": "inferred",
+      "quote": "docs/getting-started/installation.md (count-free plugin sentence + Ponytail paragraph describing lite and the ledger-on sentence), CHANGELOG.md [Unreleased]",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "best_ratio": 0.6364
+    },
+    {
+      "requirement_id": "INF-014",
+      "source": "inferred",
+      "quote": "No change to main.py, update.sh, doctor.py, output styles, primitives or .claude/.",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.4444
+    },
+    {
+      "requirement_id": "INF-015",
+      "source": "inferred",
+      "quote": "Checks: uv run pytest tests/cli/test_install_user_setup.py tests/cli/test_update_command.py tests/unit/test_cli_install.py -v plus every test that reads the edited files, make lint, uv run ruff format --check src/ tests/, make verify-sync, grep -rn 'six plugins' docs/ returns nothing.",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.5862
+    },
+    {
+      "requirement_id": "INF-016",
+      "source": "inferred",
+      "quote": "Manual AC-M1 (M1a/M1b/M1c) in a throwaway HOME under /tmp is non-blocking and must never touch this workspace's ~/.claude.",
+      "citation": "source.md:1",
+      "match_method": "containment",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "best_ratio": 0.8462
+    },
+    {
+      "requirement_id": "INF-017",
+      "source": "inferred",
+      "quote": "The earlier plan package .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/ is superseded (it assumed off); leave it untouched.",
+      "citation": "source.md:1",
+      "match_method": "none",
+      "matched_task_ids": [],
+      "best_ratio": 0.3333
+    }
+  ]
+}

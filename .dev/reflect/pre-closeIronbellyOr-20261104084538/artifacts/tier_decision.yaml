@@ -1,0 +1,22 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse   # table-wide pre-filter: no STOP row may fire (Step 1B.2b; inferred 11 > parsed 0)
+surface_unreached: null
+signals:
+  S_scope: 6            # tasklist items
+  S_domains: 3          # code (src/superclaude/cli), tests (tests/cli), docs (docs/, CHANGELOG.md)
+  S_dev_density: 0.3636 # union denominator; also exceeds the rule-5 0.20 trigger
+  coverage_pct: null
+  coverage_pct_union: 0.6364
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "parsed-sparse pre-filter forbids a Tier-1 stop; first matching ESCALATE row is rule 4 (S_domains >= 3); rule 5 (S_dev_density > 0.20) would also fire"
+t2_model_class_diversity: full     # three distinct models resolve: claude-opus-5-5, claude-sonnet-5-5, glm-5.3
+t2_vendor_diversity: multi         # Anthropic + Zhipu (glm) by alias-name heuristic
+executor_class_source: unknown     # the plan was authored by this orchestrator session; class not passed via --executor-model
+executor_class_resolved: false
