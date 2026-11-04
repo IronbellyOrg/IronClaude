@@ -29,3 +29,16 @@ Run: 2026-11-04, Claude Code 2.1.318, worktree venv. Every step ran with `HOME=<
 | Pin change: third run | PASS: `✅ Plugins: already installed` |
 
 Note on `claude plugin update`: without the HTTPS rewrite it failed in the throwaway HOME with `git@github.com: Permission denied (publickey)` (it clones over SSH, while `plugin install` printed `SSH not configured, cloning via HTTPS`). `install_plugins` therefore runs only the update command with `GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf`, `GIT_CONFIG_VALUE_0=git@github.com:`; with that, the update succeeded and kept the plugin's `pluginConfigs` options (checked with `ledger=false`).
+
+## Migration from master's unpinned `ponytail@ponytail` (PR #358 merged as 9b9497e6 before the pin landed)
+
+Same throwaway-HOME conditions, removed afterwards.
+
+| Step | Ponytail entries afterwards |
+|---|---|
+| 1. Master's way: `claude plugin marketplace add DietrichGebert/ponytail`, `claude plugin install ponytail@ponytail --scope user -y` | enabled `ponytail@ponytail`; marketplace `ponytail` = `{"source":"github","repo":"DietrichGebert/ponytail"}` (the same shape master's defaults write); installed at gitCommitSha 96608e07, upstream HEAD, not v5.3.3 |
+| 2. New installer (`apply_settings_defaults` + `install_plugins`) | both enabled: `ponytail@ponytail` (96608e07) and `ponytail@ironclaude` (7801d061); `ponytail@ponytail` left untouched |
+| 3. `claude plugin marketplace remove ponytail` | only `ponytail@ironclaude` (7801d061) remains; the `ponytail@ponytail` enabledPlugins key and the `ponytail` marketplace are gone; Claude Code says it also deletes the removed plugins' saved options and data |
+| 4. New installer again | `✅ Settings defaults: already present`, `✅ Plugins: already installed`; `ponytail@ponytail` not added back |
+
+Why the installer does not remove `ponytail@ponytail` itself: step 1 shows that `claude plugin marketplace add` writes the same `extraKnownMarketplaces.ponytail` value master's defaults wrote, and master kept no record of what it added, so the installer cannot prove it added the entry. The docs and CHANGELOG give the step 3 command instead.

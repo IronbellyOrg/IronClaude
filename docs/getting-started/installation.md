@@ -389,8 +389,26 @@ To run a newer Ponytail than the pin, install it yourself: set
 `"ponytail@ironclaude": false` under `enabledPlugins`, then run `claude plugin
 marketplace add DietrichGebert/ponytail` and `claude plugin install
 ponytail@ponytail --scope user`. That copy is not pinned and follows upstream.
-If you already installed `ponytail@ponytail` yourself, keep only one of the two
-enabled.
+
+**Moving from the unpinned `ponytail@ponytail`.** IronClaude master from #358
+(commit `9b9497e6`) until this fix installed the unpinned `ponytail@ponytail`
+from the `DietrichGebert/ponytail` marketplace, at whatever commit upstream had
+then. On such a workspace, or one where you installed `ponytail@ponytail`
+yourself, the next `superclaude install` or `superclaude update` adds the pinned
+`ponytail@ironclaude` beside it, so both are enabled. The installer leaves
+`ponytail@ponytail` alone: the entries it wrote look exactly like the ones
+`claude plugin marketplace add DietrichGebert/ponytail` writes, so it cannot
+tell whether it or you added them. To keep only the pinned copy, run:
+
+```bash
+claude plugin marketplace remove ponytail
+```
+
+This removes the `ponytail` marketplace, uninstalls `ponytail@ponytail`, removes
+its `enabledPlugins` entry and deletes its saved options and data; set Ponytail's
+options (such as `ledger`) again on `ponytail@ironclaude` if you had changed
+them. Later installs do not add `ponytail@ponytail` back. To keep upstream
+Ponytail instead, set `"ponytail@ironclaude": false`.
 
 In `lite`, every session start:
 
