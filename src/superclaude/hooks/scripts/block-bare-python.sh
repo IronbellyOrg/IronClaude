@@ -17,14 +17,17 @@
 # stdin, to one stateful awk scanner (never through awk -v or the
 # environment, which mangle backslashes and fail above 128 KB). The scanner
 # tracks single, double and $'...' quotes (decoding $'...' escapes such as
-# \160, \x70, p and \0), `#` comments, backslash-newline continuation,
+# \160, \x70, \u0070 and \0), `#` comments, backslash-newline continuation,
 # $( ) and backtick substitutions (also inside double quotes; the closing `)`
-# resumes the outer word), $(( )) and (( )) arithmetic, subshells, process
-# substitution, case patterns, array assignments, [[ ]] tests (their words,
+# resumes the outer word), $(( )) and (( )) arithmetic (with the $( ) and
+# backtick substitutions inside it), subshells, process substitution (a word,
+# such as a redirect target, that keeps the command word after it), case
+# patterns, array assignments, [[ ]] tests (their words,
 # including `(` and `|` in =~ patterns, are not commands, but $( ) inside
 # them is scanned), redirections, heredocs and here-strings. In each simple
 # command it skips NAME=value assignments, the keywords
-# if/then/elif/else/do/while/until/!/{ and the wrappers sudo, nice, nohup,
+# if/then/elif/else/do/while/until/!/{ (like [[, case and function, a keyword
+# only when unquoted and unescaped, as in bash) and the wrappers sudo, nice, nohup,
 # time, exec, timeout, env, command and coproc with their options: an option
 # that takes a value consumes the next word when written apart, as a short
 # option (-u U, also at the end of a cluster such as -Eu U), a long option
@@ -68,7 +71,7 @@ if ! command -v awk >/dev/null 2>&1; then
 fi
 
 read -r -d '' SCANNER <<'AWK'
-function iscmd(t) { return t == "top" || t == "dol" || t == "bt" || t == "par" || t == "arr" }
+function iscmd(t) { return t == "top" || t == "dol" || t == "bt" || t == "par" || t == "arr" || t == "psub" }
 function isshell(b) { return b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh" }
 function iskw(w) {
     return w == "if" || w == "then" || w == "elif" || w == "else" || w == "do" || \
@@ -82,17 +85,17 @@ function iswrap(b) {
 function base(w,   n, parts) { n = split(w, parts, "/"); return n ? parts[n] : "" }
 function pushc(t) {
     d++; ct[d] = t; inw[d] = 0; wd[d] = ""; noc[d] = (t == "arr"); need[d] = !noc[d]
-    wrap[d] = ""; parg[d] = 0; skn[d] = 0; cs[d] = 0; cmd[d] = ""; tst[d] = 0
+    wrap[d] = ""; parg[d] = 0; skn[d] = 0; cs[d] = 0; cmd[d] = ""; tst[d] = 0; wq[d] = 0
 }
-function pushq(t, o) { d++; ct[d] = t; own[d] = o; inw[o] = 1; anul[d] = 0 }
+function pushq(t, o) { d++; ct[d] = t; own[d] = o; inw[o] = 1; wq[o] = 1; anul[d] = 0 }
 function pusha() { d++; ct[d] = "arith"; ad[d] = 2 }
 function owner(l) { return iscmd(ct[l]) ? l : ((ct[l] == "dq" || ct[l] == "sq" || ct[l] == "ansi") ? own[l] : 0) }
 function addc(o, c) { if (o) { inw[o] = 1; wd[o] = wd[o] c } }
 function sep(o) { endword(o); need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; skn[o] = 0; tst[o] = 0 }
 function dig(set, ch) { return ch == "" ? 0 : index(set, ch) }
-function endword(o,   w, b, k) {
+function endword(o,   w, b, k, q) {
     if (!inw[o]) return
-    w = wd[o]; inw[o] = 0; wd[o] = ""
+    w = wd[o]; inw[o] = 0; wd[o] = ""; q = wq[o]; wq[o] = 0
     if (skn[o]) { skn[o] = 0; return }
     if (cs[o] == 1) { cs[o] = 2; return }
     if (cs[o] == 2) { if (w == "in") cs[o] = 3; return }
@@ -113,11 +116,13 @@ function endword(o,   w, b, k) {
         }
         if (wrap[o] == "timeout") { wrap[o] = "timeout-duration"; return }
     }
-    if (iskw(w)) return
-    if (w == "esac") { cs[o] = 0; return }
-    if (w == "case") { cs[o] = 1; need[o] = 0; return }
-    if (w == "function") { parg[o] = 1; return }
-    if (w == "[[") { tst[o] = 1; need[o] = 0; cmd[o] = w; return }
+    if (!q) {
+        if (iskw(w)) return
+        if (w == "esac") { cs[o] = 0; return }
+        if (w == "case") { cs[o] = 1; need[o] = 0; return }
+        if (w == "function") { parg[o] = 1; return }
+        if (w == "[[") { tst[o] = 1; need[o] = 0; cmd[o] = w; return }
+    }
     b = base(w)
     if (iswrap(b)) { wrap[o] = b; return }
     need[o] = 0; cmd[o] = b
@@ -150,7 +155,7 @@ function heredoc(o, s, n, strip,   dl, q, ch) {
 }
 function cmdchar(s, n, c,   o, nx, t, p) {
     o = d
-    if (c == "\\") { if (i == n) { i = n + 1; return }; i++; addc(o, substr(s, i, 1)); return }
+    if (c == "\\") { if (i == n) { i = n + 1; return }; i++; wq[o] = 1; addc(o, substr(s, i, 1)); return }
     if (c == "\047") { pushq("sq", o); return }
     if (c == "\"") { pushq("dq", o); return }
     if (c == "`") {
@@ -193,8 +198,12 @@ function cmdchar(s, n, c,   o, nx, t, p) {
     if (c == "|") { sep(o); nx = substr(s, i + 1, 1); if (nx == "|" || nx == "&") i++; return }
     if (c == ">" || c == "<") {
         nx = substr(s, i + 1, 1)
-        if (nx == "(") { endword(o); i++; pushc("par"); return }
-        if (inw[o] && wd[o] ~ /^[0-9]+$/) { inw[o] = 0; wd[o] = "" } else endword(o)
+        if (nx == "(") {
+            endword(o); i++
+            if (skn[o]) skn[o] = 0; else addc(o, "<()")
+            pushc("psub"); return
+        }
+        if (inw[o] && wd[o] ~ /^[0-9]+$/) { inw[o] = 0; wd[o] = ""; wq[o] = 0 } else endword(o)
         if (c == "<" && nx == "<") {
             if (substr(s, i + 2, 1) == "<") { i += 2; skn[o] = 1; return }
             i++
@@ -216,7 +225,7 @@ function cmdchar(s, n, c,   o, nx, t, p) {
         if (cs[o] == 3) { endword(o); cs[o] = 4; need[o] = 1; wrap[o] = ""; parg[o] = 0; return }
         endword(o)
         t = ct[o]
-        if (t == "dol" || t == "par" || t == "arr") { d--; if (t == "par" && iscmd(ct[d])) need[d] = 0; return }
+        if (t == "dol" || t == "par" || t == "arr" || t == "psub") { d--; if (t == "par" && iscmd(ct[d])) need[d] = 0; return }
         sep(o); return
     }
     addc(o, c)
@@ -267,6 +276,7 @@ function qchar(s, n, c,   o, t) {
 function arithchar(s, n, c) {
     if (c == "(") { ad[d]++; return }
     if (c == ")") { ad[d]--; if (ad[d] <= 0) d--; return }
+    if (c == "`") { pushc("bt"); return }
     if (c == "$" && substr(s, i + 1, 1) == "(" && substr(s, i + 2, 1) != "(") { i++; pushc("dol") }
 }
 function hdocchar(s, n, c) {

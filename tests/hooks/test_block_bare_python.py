@@ -126,6 +126,16 @@ BLOCKED = {
     "double-bracket-no-space": "[[ a ]]&&python3 x",
     "double-bracket-then": "if [[ -f x ]]; then python3 x; fi",
     "double-bracket-regex-then-line": "[[ $x =~ (a|b) ]]\npython3 x",
+    # PR #359 review round 2: reserved words count only when unquoted.
+    "escaped-double-bracket": "\\[\\[ a \\]\\]; python3 x",
+    "quoted-double-bracket": '"[[" a; python3 x',
+    "quoted-case-word": '"case" x; python3 x',
+    # PR #359 review round 2: process substitution is a word.
+    "psub-redirect-target": '< <(printf "") python3 -c 1',
+    "psub-stderr-redirect": "2> >(tee log) python3 x",
+    # PR #359 review round 2: backticks inside arithmetic.
+    "arith-expansion-backtick": "echo $(( `python3 -c 1` + 1 ))",
+    "arith-command-backtick": "(( `python3 -c 1` ))",
 }
 
 ALLOWED = {
@@ -179,6 +189,10 @@ ALLOWED = {
     "ansi-c-mention": "echo $'pytho\\n'",
     "sudo-attached-value-other-command": "sudo -uroot ls python3",
     "env-split-string-ceiling": "env -S 'a b' python3",
+    # PR #359 review round 2.
+    "psub-argument": "diff <(echo a) <(echo b)",
+    "psub-redirect-other-command": "< <(printf '') cat",
+    "arith-plain": "echo $(( 1 + 2 ))",
 }
 
 
