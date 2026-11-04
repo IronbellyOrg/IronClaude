@@ -1,0 +1,34 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261104-063430-ponytail-plugin-install/seed-brief.md
+merged_output_path: .dev/brainstorms/20261104-063430-ponytail-plugin-install/merged-requirements.md
+convergence_score: 0.94
+adversarial_artifacts_dir: .dev/brainstorms/20261104-063430-ponytail-plugin-install/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1
+  - source: research-light
+    quality_tier: fallback_1
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "S-001 header provenance style (cosmetic, not debated)"
+  - "S-003 requirement numbering layout (cosmetic, not debated)"
+  - "S-012 out-of-scope list length (cosmetic, not debated)"
+  - "X-014 whether docs name an uninstall command"
+  - "Open decision 3.1a: ledger default, pending the coordinator"
+
+telemetry:
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+  wave_notes:
+    wave_0: "prereqs validated; sc-adversarial-protocol at ~/.claude/skills (no version field, legacy-compatible)"
+    wave_1: "domain code, strategy systematic, non-interactive"
+    wave_2a: "codebase and research enrichment done directly (auggie MCP not available; sc-research-protocol not invoked); extra evidence files env-propagation-evidence.md and assumption-evidence.md added during Wave 3"
+    wave_2b: "3 agents, ~50K tokens estimated"
+    wave_3: "convergence 0.94, PASS; diff agent resumed once after an API connection error; invariant gate resolved in refactor plan"
+    wave_4: "handoff none"
+  enrichment_artifact_sizes:
+    codebase-context.md: "see file"
+    research-light.md: "see file"

@@ -1,0 +1,78 @@
+# Persisted by the orchestrator from reviewer-3's returned card (reflect-reviewer, opus, persona refactorer). Claims condensed; IDs, evidence, classes, severities and recommendations kept.
+reviewer: reviewer-3
+persona: refactorer
+model: opus
+self_reported_confidence: 0.82
+findings:
+  - id: R3-1
+    claim: "'At most 5 changed lines' is uncounted; the design shape is +4/-3, so a literal git-diff reading fails a correct fix."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:52,59", "merged-requirements.md:96-111", "install_user_setup.py:292,303,305"]
+    grounding_gap: "'changed lines' undefined in plan, source and design"
+    severity: blocking
+    recommendation: "'git diff --numstat src/superclaude/cli/install_user_setup.py shows at most 5 inserted lines, all inside install_plugins'."
+  - id: R3-2
+    claim: "Task 5's never-touch proof misses content writes to installed_plugins.json / known_marketplaces.json and never checks /home/coder/.claude.json."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:22,106", "C-install-surface.md:153,157"]
+    deviation_class: drift
+    severity: blocking
+    recommendation: "Record sha256sum + stat for settings.json, plugins/installed_plugins.json, plugins/known_marketplaces.json and ~/.claude.json before/after, plus `find /home/coder/.claude/plugins -newer <marker>` empty; unchanged is a hard pass condition."
+  - id: R3-3
+    claim: "Task 5's uv-from-checkout variant leaves uv on PATH, uv cache location and a possible .venv sync unspecified."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:98", "C-install-surface.md:128-134,145"]
+    deviation_class: necessary
+    severity: minor
+    recommendation: "Shims include uv, claude, git, node; use `uv run --no-sync python -c ...`; UV_CACHE_DIR inside the throwaway; record the full command."
+  - id: R3-4
+    claim: "M1a 'second run returns exactly already installed' is likely to fail on budget starvation in a fresh HOME with seven plugins."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:99", "install_user_setup.py:259,290-293", "merged-requirements.md:163"]
+    grounding_gap: "M1a evidence procedure under the shared budget unspecified"
+    severity: minor
+    recommendation: "Either pass an explicit deadline for the mechanics run, or set the six non-Ponytail plugins false in the throwaway settings; record which."
+  - id: R3-5
+    claim: "Nothing forbids copying credentials from /home/coder/.claude into the throwaway to make M1c's session part work."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:22,100"]
+    grounding_gap: "credential handling unstated"
+    severity: minor
+    recommendation: "Add: do not copy any file from /home/coder/.claude; without credentials record M1b/M1c session part UNVERIFIED."
+  - id: R3-6
+    claim: "Task 5 names design AC-M3 but runs only its claude-absent leg; AC-M2 is silently missing."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:98,101", "merged-requirements.md:287-288", source.md:1]
+    deviation_class: drift
+    severity: minor
+    recommendation: "In ac-m1-evidence.md map AC-M2 to the automated T2/T3-T4 leg 2 and the AC-M3 network leg to T5 non-zero-exit (or not run, with reason)."
+  - id: R3-7
+    claim: "verify-sync, design AC-2 (five-file diff) and AC-3 (primitive-path grep) are run by no task; nothing checks the combined file set."
+    evidence: [source.md:1, "merged-requirements.md:281-282", "TASK-WF-closeIronbellyOr-20261104-084334.md:19,116-118"]
+    deviation_class: drift
+    severity: minor
+    recommendation: "Add to Task 6: git diff --stat (outside .dev/) lists exactly the five files; make verify-sync passes; AC-3 grep clean; outputs to ./artifacts/final-checks.log."
+  - id: R3-8
+    claim: "Task 6 summarises the docs change but does not depend on Task 3."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:68,83,112,114"]
+    deviation_class: drift
+    severity: minor
+    recommendation: "Task 6: 'Depends on: Task 3, Task 4, Task 5'."
+  - id: R3-9
+    claim: "The ledger-decision branch has no recorded input location and no path for a decision arriving after Task 1."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:24,72,85", "merged-requirements.md:83", source.md:1]
+    grounding_gap: "no recorded location for the 3.1a decision"
+    severity: minor
+    recommendation: "Task 1 writes ./artifacts/ledger-decision.md; Tasks 3, 4, 6 cite it; a late change reopens Task 1 before Tasks 3 and 4."
+  - id: R3-10
+    claim: "'Change only these delivery files' literally conflicts with ./artifacts writes and .dev/tasks staging."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:19,25,43"]
+    grounding_gap: "constraint wording omits the package's own artifacts"
+    severity: minor
+    recommendation: "Reword to include 'plus this package's own artifacts/ and progress.md'."
+  - id: R3-11
+    claim: "Tree-wide `ruff format --check src/ tests/` may fail on the base commit, forcing out-of-scope formatting."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:62", source.md:1]
+    grounding_gap: "base-commit ruff format state unverified"
+    severity: minor
+    recommendation: "Record the base result first; on pre-existing failures check changed files only and log the rest; never reformat other files."
+adherence_notes:
+  - "Task 1 JSON edits match FR-001..FR-003 and the file shape (user_settings_defaults.json:10-49)."
+  - "T1 defaults path matches tests/cli/test_install_user_setup.py:184; T5c string matches install_user_setup.py:258."
+  - "T5 fails pre-fix (install_user_setup.py:292,303)."
+  - "'six plugins' only at installation.md:354; CHANGELOG [Unreleased] at :5 above [5.0.0] at :7."
+  - "No task edits main.py, update.sh, doctor.py, output styles or .claude/."

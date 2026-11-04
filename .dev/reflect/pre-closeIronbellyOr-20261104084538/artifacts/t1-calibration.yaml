@@ -1,0 +1,19 @@
+# Wave 1D blind calibration (confidence-calibrator, opus; card-only input)
+self_reported_confidence: 0.80
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.65
+  deviation_classification_clarity: 0.35
+  risk_surface_coverage: 0.50
+  recommendation_actionability: 0.75
+C: 0.62
+delta_vs_self_report: -0.18
+escalation: ESCALATE   # C < 0.85 and S_dev_density 0.3636 > 0.20
+missed_items_named_by_calibrator:
+  - "design AC-2 (git diff --stat limited to the five files) not in any task's acceptance criteria"
+  - "design AC-3 (src/superclaude primitive-path grep) not in any task"
+  - "design AC-M2 (manual opt-out rerun) not in Task 5"
+  - "Tasks 3/4 write the Outcome 2 ledger sentence while the coordinator decision is pending (rework risk)"
+  - "Task 5 calls install_plugins directly; design M1a expects a second `superclaude install`"
+  - "F-1 is Drift (dropped source check) and should be labelled so"
+calibration: agent
