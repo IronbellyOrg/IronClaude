@@ -1,0 +1,15 @@
+$ PYTHONDONTWRITEBYTECODE=1 uv run python /tmp/sc-impl-review/t3_red.py <repo> .dev/tasks/to-do/TASK-WF-renameTheScIssue-20261104-174359/artifacts/pre  (script copied to ./artifacts/t3_red.py)
+SKILL.md: blocked_names=['summary.md'] old_summary_refs=['<D>/summary.md', 'templates/summary.md', '`summary.md`']
+issue-worker-t1.md: blocked_names=['summary.md'] old_summary_refs=['<D>/summary.md', '`summary.md`']
+issue-worker-t2.md: blocked_names=['summary.md'] old_summary_refs=['<D>/summary.md', '`summary.md`']
+issue-worker-t3.md: blocked_names=['summary.md'] old_summary_refs=['`summary.md`']
+issue.md: blocked_names=['summary.md'] old_summary_refs=['`summary.md`']
+ref-chains.md: blocked_names=['summary.md'] old_summary_refs=['.dev/issues/<N>/summary.md', '`summary.md`']
+ref-claim.md: blocked_names=['summary.md'] old_summary_refs=['<D>/summary.md', '.dev/issues/<N>/summary.md', 'templates/summary.md']
+template-claim-comment.md: blocked_names=['summary.md'] old_summary_refs=['.dev/issues/<N>/summary.md']
+template-next-steps.md: blocked_names=['summary.md'] old_summary_refs=['.dev/issues/<N>/summary.md']
+template-summary.md: blocked_names=[] old_summary_refs=[]
+old paragraph literal byte-present in pre issue-worker-t1.md: True
+old Wave 4 literal byte-present in pre SKILL.md: True
+pre-fix files flagged: 9
+rc=1

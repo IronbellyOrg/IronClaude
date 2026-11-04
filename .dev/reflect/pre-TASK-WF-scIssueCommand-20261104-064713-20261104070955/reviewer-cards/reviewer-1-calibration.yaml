@@ -1,0 +1,9 @@
+card: reviewer-1
+calibrated_dimensions: {citation_grounding: 0.85, coverage_completeness: 0.70, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.70, recommendation_actionability: 0.85}
+C: 0.76
+finding_severity_rulings:
+  - {id: A-1, card_severity: blocking, calibrated_severity: blocking, reason: "Real gap for section 20 items 1, 2, 6 (source.md:467-468, source.md:472): no check and no recorded not-run outcome; plan:25 limits live checks to Tasks 14/15. Overstated for items 3-5, covered statically at plan:91, plan:92, plan:49, plan:114."}
+  - {id: A-2, card_severity: blocking, calibrated_severity: minor, reason: "Tasks 14/15 block only on E-TIER-UNAVAILABLE or a missing token (plan:213, plan:223); a blocked task recovers via a user Ruling (ledger.md:62-68, ledger.md:154) after which Task 16 runs. Ordering inefficiency, not wrong behaviour."}
+  - {id: A-3, card_severity: minor, calibrated_severity: minor, reason: "Rule in Constraints (plan:22) and claim.md covers Waves 0-6 incl. source.md:149; only a pinning test is missing."}
+  - {id: A-4, card_severity: minor, calibrated_severity: minor, reason: "plan:49 has no env -u; plan:178 diff --stat catches other tasks; ASCII rule at tests/core/test_how_we_work_routing_table.py:341-346."}
+calibrator_model_class: opus

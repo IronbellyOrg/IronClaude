@@ -1,0 +1,2 @@
+$ grep -rn 'src/superclaude' src/superclaude/agents/issue-worker-t1.md src/superclaude/agents/issue-worker-t2.md src/superclaude/agents/issue-worker-t3.md
+rc=1 (1 = no match)

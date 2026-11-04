@@ -1,0 +1,5 @@
+$ anchor and flag checks for docs/user-guide/commands.md (uv run python)
+row anchor: scissue---github-issue-claim-and-create -> heading line 347
+flags in the new section: ['--claim', '--create', '--depth', '--mode', '--type']
+flags in issue.md Options table: ['--claim', '--create', '--depth', '--mode', '--type']
+section flags missing from the Options table: []

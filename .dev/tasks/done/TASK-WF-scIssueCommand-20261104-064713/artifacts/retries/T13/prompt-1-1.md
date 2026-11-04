@@ -1,0 +1,657 @@
+9ae76f6d13aa804c44c9d7975b29f67c6a97333c
+Review one task for spec compliance.
+
+Task brief: Depends on: Task 7, Task 9, Task 10, Task 11, Task 12
+
+Run `make sync-dev`, then `make verify-sync` (source section 17 item 2). Run `grep -rIn 'src/superclaude' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks` (source section 17 item 4; `-I` skips binary files such as `__pycache__` bytecode) and compare its hits with the fork's master: `git fetch origin`, then `git grep -n 'src/superclaude' origin/master -- src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks` (`git stash` is not used). Stage nothing under `.claude/`.
+
+Acceptance criteria:
+- `make verify-sync` exits 0; output saved to `./artifacts/t13-verify-sync.log`.
+- The path grep shows no hit in `src/superclaude/commands/issue.md`, `src/superclaude/skills/sc-issue-protocol/` or `src/superclaude/agents/issue-worker-t*.md`; both grep outputs are saved to `./artifacts/t13-path-grep.txt` with any pre-existing hit marked as pre-existing.
+- `git status --porcelain .claude` shows no staged `.claude/` path other than `.claude/settings.json`.
+
+AC ids: T13.AC1..T13.AC3 = the three acceptance bullets in order. Artifacts in .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/: t13-sync-dev.log (make sync-dev output and rc), t13-verify-sync.log, t13-path-grep.txt (both grep outputs, each worktree hit marked PRE-EXISTING), t13-claude-status.txt. `.claude/` is gitignored except .claude/settings.json; the generated .claude/ copies are not part of the reviewed diff and are not staged.
+Design source: .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/source.md section 17 items 2 and 4.
+
+Global constraints: ## Constraints
+
+- UV only: run Python and tests with `uv run ...` (`uv run pytest`, `uv run --no-project python ...`); never `python -m`, bare `python script.py` or `pip install`.
+- Edit only under `src/superclaude/`, `tests/`, `docs/` and the one plugin guide copy `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (source section 15 and section 17 item 1). Also allowed: this package's `./artifacts/` folder, the unstaged scratch folder `.dev/issues/smoke/` (Task 15), and one temporary Orca worktree for the master comparison (Task 14), which that task removes. `.claude/` is produced by `make sync-dev`; never edit it by hand and never `git add` any `.claude/` path except `.claude/settings.json` (never `git add -f` on `.claude/`).
+- Inside the new primitives (command, skill, refs, templates, agents) every reference to another primitive uses its installed path (`~/.claude/commands/sc/<name>.md`, `~/.claude/skills/<name>/...`, `~/.claude/agents/<name>.md`) plus, for existence checks, the project `.claude/` copy; no `src/superclaude/...` path appears in them (source section 15, "Path rule").
+- Never interact with the upstream parent `SuperClaude-Org/SuperClaude_Framework`: every `gh` command passes `--repo IronbellyOrg/IronClaude` (or, inside the shipped skill, `--repo <R>` resolved from `origin`), every `gh api` path spells `repos/<owner>/<repo>/...`, and the only fetch is `git fetch origin` (source section 13).
+- Secrets: the executor never asks for, prints, echoes or inlines `CLICKUP_API_TOKEN` (no `echo`, `env`, `printenv` or `set -x` on it). When a live ClickUp run is needed, the user exports the variables in their own shell before starting the session (source section 12, "Never printed, logged or written to disk").
+- Do not commit or push unless the user asks. `.dev/tasks/` is always staged (`git add .dev/tasks`), this package and its `artifacts/` included; staging is not committing.
+- Out of scope for this plan (source section 1 and section 17 item 5): running any next-step chain, creating GitHub labels, creating ClickUp tasks, editing rule 10 of `src/superclaude/core/CLAUDE.md`, changing the level table, adding `plugins/superclaude/` command, agent or skill mirrors, listing the workers in `docs/user-guide/agents.md`, any `src/superclaude/cli/` code, and opening the pull request (done afterwards with `/sc:pr-submit --monitor 3 --head ironbelly/feat-sc-issue-command --title "..." --body "..."`).
+- Live `/sc:issue --claim` or `--create` runs post directly to GitHub (source decision B1). Live checks in this plan are the two the source schedules (Task 15 worker spawns, Task 16 ClickUp smoke claim) and the section 20 acceptance record of Task 17. A run that stops before any GitHub or ClickUp write (section 20 item 4) may run without asking; any run that would assign, comment on or create a real GitHub issue needs the user's explicit approval at that moment.
+
+Start sha: 9ae76f6d13aa804c44c9d7975b29f67c6a97333c
+Diff against the start snapshot: diff --git a/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-sync-dev.log b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-sync-dev.log
+new file mode 100644
+index 00000000..54caf1f3
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-sync-dev.log
+@@ -0,0 +1,8 @@
++🔄 Syncing src/superclaude/ → .claude/ for local development...
++✅ Sync complete.
++   Skills:    39 directories
++   Agents:    48 files
++   Commands:  46 files
++   Hooks:     12 files
++   Templates: 52 files
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-verify-sync.log b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-verify-sync.log
+new file mode 100644
+index 00000000..cb6ce040
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-verify-sync.log
+@@ -0,0 +1,219 @@
++$ make verify-sync
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ operational-guide
++  ✅ prd
++  ✅ readme
++  ✅ roadmap
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-cli-portify-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-issue-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-review-translation-protocol
++  ✅ sc-roadmap-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-task-protocol
++  ✅ sc-tasklist-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-roadmap-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++  ✅ task-builder
++  ✅ task
++  ✅ tdd
++  ✅ tech-reference
++  ✅ tech-research
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ issue-worker-t1.md
++  ✅ issue-worker-t2.md
++  ✅ issue-worker-t3.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ build.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ cli-portify.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ improve.md
++  ✅ index-repo.md
++  ✅ index.md
++  ✅ init-lite.md
++  ✅ issue.md
++  ✅ load.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ review-translation.md
++  ✅ roadmap.md
++  ✅ save.md
++  ✅ spawn.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ task.md
++  ✅ tasklist.md
++  ✅ tdd.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-roadmap.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ reject-workspace-writes.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-path-grep.txt b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-path-grep.txt
+new file mode 100644
+index 00000000..4c9b0002
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-path-grep.txt
+@@ -0,0 +1,351 @@
++# Task 13 path grep
++
++Result: no hit in src/superclaude/commands/issue.md, src/superclaude/skills/sc-issue-protocol/ or src/superclaude/agents/issue-worker-t*.md. Every hit below is pre-existing: the worktree and origin/master have the same 168 hits with the same per-file counts (diff of the per-file counts is empty), so every worktree hit is marked PRE-EXISTING.
++
++$ grep -rIn 'src/superclaude' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks | grep -E 'commands/issue\.md|sc-issue-protocol/|agents/issue-worker-t'
++exit=1 (grep exit 1 = no hit in the new primitives)
++
++$ per-file hit counts, origin/master vs worktree (diff; empty = identical)
++diff exit=0
++
++## Worktree: grep -rIn 'src/superclaude' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks (each line PRE-EXISTING)
++
++PRE-EXISTING src/superclaude/commands/help.md:67:Find the routing guide. Try these in order and use the first that exists. Inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), try location 3 first, then the others in order, because the installed copy may be older:
++PRE-EXISTING src/superclaude/commands/help.md:71:3. `src/superclaude/core/HOW-WE-WORK.md` under the repository root (`git rev-parse --show-toplevel`; inside an IronClaude checkout)
++PRE-EXISTING src/superclaude/commands/help.md:93:- Options for one command: read its file. Installed `/sc:` commands are at `$HOME/.claude/commands/sc/<name>.md`; project-local commands are under `.claude/commands/`; plugin commands are at `${CLAUDE_PLUGIN_ROOT}/commands/<name>.md`; inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), read `src/superclaude/commands/<name>.md` under that repository root.
++PRE-EXISTING src/superclaude/commands/impact.md:15:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++PRE-EXISTING src/superclaude/commands/explain.md:51:- **Codegraph one-hop view** (code targets only, when codegraph is usable): `codegraph_search` (limit 10) to find the target symbol, then `codegraph_callers` and `codegraph_callees` (limit 10 each) for its direct callers and callees; Read every row before citing it, and use Read/Grep alone when codegraph is unusable. Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++PRE-EXISTING src/superclaude/commands/cli-portify.md:34:| `--output` | No | `src/superclaude/cli/<derived-name>/` | Output directory for the generated CLI module. |
++PRE-EXISTING src/superclaude/commands/cli-portify.md:97:/sc:cli-portify --workflow src/superclaude/skills/sc-cleanup-audit/
++PRE-EXISTING src/superclaude/commands/cli-portify.md:106:/sc:cli-portify --workflow src/superclaude/skills/sc-tasklist-protocol/ --name tasklist --output src/superclaude/cli/tasklist/
++PRE-EXISTING src/superclaude/commands/recommend.md:44:1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first). It matches the whole requested outcome (deliverable, explicitly named command or existing artifact, compatible mode/depth/output choices and how much it may change) to one routing row, not any single phrase. A matched row's applicable steps are returned in order, with exactly one selected alternative and their verified flags, and stop at the requested deliverable: a report-only or plan-only request gains no execution, commit or push step. If the objective stays ambiguous, it asks one question and stops. No hand-written keyword table.
++PRE-EXISTING src/superclaude/commands/README.md:3:The files in this folder are installed to `~/.claude/commands/sc/` by `superclaude install` and `superclaude update` (this README.md itself is not installed). For the list of installed commands, run `/sc:help`; for which one to use for a job, read the routing guide `src/superclaude/core/HOW-WE-WORK.md` (installed as `~/.claude/HOW-WE-WORK.md`).
++PRE-EXISTING src/superclaude/commands/README.md:10:4. If you added a command, add its row to the routing table at the end of `src/superclaude/core/HOW-WE-WORK.md` (or to its "Other commands" table).
++PRE-EXISTING src/superclaude/commands/README.md:11:5. The routing guide's canonical copy is `src/superclaude/core/HOW-WE-WORK.md`. When you change it, recopy its level-table block into `src/superclaude/core/CLAUDE.md` and copy the whole file byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (tests check both). The routing and recommendation tests are static text and cache checks: they pin the written contract, not which route a model actually picks. When routing behavior changes, check it with a separate recorded model-generation evaluation and report those results apart from the static tests.
++PRE-EXISTING src/superclaude/commands/README.md:12:6. Inside a command, never point at another primitive with a `src/superclaude/...` path. The installed copy is what runs in other projects, so name `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md` (and accept the project `.claude/` copy where a lookup needs it). See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
++PRE-EXISTING src/superclaude/commands/spec-panel.md:218:- **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read when generating scoped release spec output from TDD input (Step 6b / `--downstream roadmap` mode)
++PRE-EXISTING src/superclaude/commands/auggie-review.md:38:/sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)
++PRE-EXISTING src/superclaude/commands/auggie-review.md:119:/sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns
++PRE-EXISTING src/superclaude/commands/post-release.md:79:- Rename the protocol skill directory to bare `sc-post-release`. The protocol skill MUST live at `sc-post-release-protocol` (the Activation handoff above targets `sc:post-release-protocol`); the installer's `_has_corresponding_command` in `src/superclaude/cli/install_skills.py` strips only the `sc-` prefix, so a bare `sc-post-release` would be silently skipped as "served by the `post-release` command" and never installed standalone.
++PRE-EXISTING src/superclaude/commands/graph.md:16:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++PRE-EXISTING src/superclaude/skills/tdd/refs/operational-guidance.md:91:| Template schema | `src/superclaude/examples/tdd_template.md` |
++PRE-EXISTING src/superclaude/skills/tdd/refs/validation-checklists.md:15:1. Template section headers match the TDD template exactly (`src/superclaude/examples/tdd_template.md`)
++PRE-EXISTING src/superclaude/skills/tdd/refs/synthesis-mapping.md:11:The final TDD follows the template at `src/superclaude/examples/tdd_template.md`. The synthesis agents produce sections that are assembled into this format.
++PRE-EXISTING src/superclaude/skills/tdd/refs/agent-prompts.md:173:Template reference: src/superclaude/examples/tdd_template.md
++PRE-EXISTING src/superclaude/skills/tdd/refs/agent-prompts.md:325:1. Section headers match TDD template (src/superclaude/examples/tdd_template.md)
++PRE-EXISTING src/superclaude/skills/tdd/refs/agent-prompts.md:354:Template path: src/superclaude/examples/tdd_template.md
++PRE-EXISTING src/superclaude/skills/tdd/refs/agent-prompts.md:407:Template reference: src/superclaude/examples/tdd_template.md
++PRE-EXISTING src/superclaude/skills/tdd/refs/build-request-template.md:105:- Read the TDD template at src/superclaude/examples/tdd_template.md
++PRE-EXISTING src/superclaude/skills/tdd/refs/build-request-template.md:148:- Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final TDD. Hand it: the list of synth file paths in order (as component_files), the TDD output path `docs/[domain]/TDD_[COMPONENT-NAME].md`, the TDD template reference `src/superclaude/examples/tdd_template.md` (as output_format), the Assembly Process steps from refs/validation-checklists.md (as assembly_rules), and the Content Rules from refs/validation-checklists.md (as content_rules). The assembler reads each synth file and writes the TDD incrementally section by section — frontmatter first, then sections in template order, then Table of Contents, then cross-checks internal consistency (requirements in Section 5 trace to architecture in Section 6, risks in Section 20 have mitigations, Open Questions in Section 22 not answered elsewhere, Dependencies in Section 18 complete). The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt from refs/agent-prompts.md in the checklist item per B2.
++PRE-EXISTING src/superclaude/skills/tdd/SKILL.md:12:The output always follows the project template at `src/superclaude/examples/tdd_template.md`. The template is the schema — every TDD must conform to it. Can be fed from a PRD to translate product requirements into engineering specifications.
++PRE-EXISTING src/superclaude/skills/tdd/SKILL.md:112:| Template schema | `src/superclaude/examples/tdd_template.md` |
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:17:| `build_extract_prompt` | `src/superclaude/cli/roadmap/prompts.py:180` | Default extraction path (`config.input_type` is `spec`, or omitted). Produces the 8 standard body sections described below. |
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:18:| `build_extract_prompt_tdd` | `src/superclaude/cli/roadmap/prompts.py:328` | Selected when `--input-type tdd` is passed (the CLI uses an **explicit flag**, not the 4-signal inference heuristic in `scoring.md`). Produces the 8 standard body sections plus 6 TDD-specific aspects (see "TDD-Extended Aspects" below). |
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:20:Both functions return one prompt string and accept a `tool_write=` parameter (R1.4) that toggles the structured-JSON tool variant. The executor builds the prompt at `src/superclaude/cli/roadmap/executor.py:2482-2497`, then wires it into a single step at `executor.py:2499-2512`:
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:559:*CLI parity baseline (B-7, VERIFIED): single-pass extraction via `build_extract_prompt` (`src/superclaude/cli/roadmap/prompts.py:180`) or `build_extract_prompt_tdd` (`:328`), wired by `src/superclaude/cli/roadmap/executor.py:2482-2512`, gated by `EXTRACT_GATE` / `EXTRACT_TDD_GATE`. **R1.4 tool-write (VERIFIED):** both builders accept `tool_write=` (`config.tool_write_extract` / `config.tool_write_extract_tdd`); when enabled the step emits JSON validated against `templates/tool_schemas/extract.schema.json` (or `extract_tdd.schema.json`) and rendered via `templates/extract.md.j2` (or `extract_tdd.md.j2`) by `tool_writer.TOOL_WRITE_REGISTRY` (`tool_writer.py:196-216`); the markdown path is retained as side-by-side dual-write. Contract #3 `roadmap_ids ⊆ spec_ids` is enforced at generation time by `render_step_tool_write_with_id_check` for downstream consumers — extract itself DEFINES `spec_ids` (subset check vacuous for extract). Eight-aspect coverage (Aspects 1-8) is the body-section taxonomy the single prompt instructs the LLM to fill; TDD-extended aspects (9-15) are an inference-only finer-grained taxonomy that overlaps the CLI's six TDD body sections. Domain keyword dictionaries are LLM-advisory; the chunked-extraction protocol and 4-pass completeness verification are non-canonical inference-only and have no CLI implementation.*
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:9:> **CLI parity (B-5, VERIFIED).** The roadmap CLI does **not** perform multi-tier template discovery. It resolves a single bundled template file by name via `get_template_path()` in `src/superclaude/cli/roadmap/templates.py`. There is no Tier 1 (local), Tier 2 (user), Tier 3 (plugin marketplace), or Tier 4 (inline fallback) selection path in the CLI today.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:13:The CLI exposes three named template constants (`src/superclaude/cli/roadmap/templates.py:14-16`):
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:23:`get_template_path(name: str) -> Path` (`src/superclaude/cli/roadmap/templates.py:21-71`) resolves a template filename to an absolute path in two ordered steps:
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:26:2. **Src-relative fallback.** Otherwise compute `<repo>/src/superclaude/examples/<name>` from `__file__` and return it if it exists.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:34:- The bundled template file (`src/superclaude/examples/roadmap_template.compressed.md`) is the only canonical input that shapes roadmap.md output structure. Customizing roadmap output today means editing that bundled file inside the source tree.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:312:The R0.3/R1.1/R1.2 rewrite changed how the IDs, thresholds, and frontmatter fields described below are owned. These are **canonical CLI facts** (verified against `src/superclaude/contracts/__init__.py` and `src/superclaude/cli/roadmap/envelope.py`):
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:316:`src/superclaude/contracts/__init__.py` is the single source of truth for the pipeline's constants. Arch-lint (`make lint-architecture` Check 11) blocks CI if any of these is re-defined elsewhere (Contract #5 + #8):
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:461:*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3. CLI parity baseline: single-template resolver via `get_template_path()` over `ROADMAP_TEMPLATE = "roadmap_template.compressed.md"` (`src/superclaude/cli/roadmap/templates.py:14-71`). Multi-tier discovery is inference-only and out of canonical CLI scope (B-5). R0/R1 substrate baseline (VERIFIED): IDs/thresholds/field-names are owned by `superclaude.contracts.__init__` (`ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, `RETURN_CONTRACTS`; no `parsers` submodule); cross-step state is the typed `PipelineEnvelope` (`cli/roadmap/envelope.py:128`, `<release>/envelope.json` sidecar) with frontmatter derived once by `POST_EXTRACTORS` via `spec_parser` helpers (Contract #6 — no new parsers); markdown is render-only after the R1.6 dual-write cutover.*
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:11:> **CLI parity.** The roadmap CLI does **not** delegate to a separate `sc:adversarial-protocol` skill. The "adversarial debate" inside `superclaude roadmap run` is a single LLM step built by `build_debate_prompt`, embedded as one entry in the flat 14-step pipeline. There is no Skill-to-skill invocation, no return contract YAML on disk, no separate consolidation pass, and no separate `--compare` / `--generate roadmap` sub-skill. Source: `src/superclaude/cli/roadmap/prompts.py:878-902` (`build_debate_prompt`), `:18-37` (`_DEPTH_INSTRUCTIONS`), `src/superclaude/cli/roadmap/executor.py:2076-2084` (Step wiring), `src/superclaude/cli/roadmap/gates.py:1155-1166` (`DEBATE_GATE`).
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:17:| `build_debate_prompt` | `src/superclaude/cli/roadmap/prompts.py:878-902` | `build_debate_prompt(diff_path: Path, variant_a_path: Path, variant_b_path: Path, depth: Literal["quick", "standard", "deep"]) -> str` |
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:23:`_DEPTH_INSTRUCTIONS` is a module-level dict at `src/superclaude/cli/roadmap/prompts.py:18-37` keyed by the same `--depth` values exposed on the CLI:
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:506:*CLI parity baseline (B-8, VERIFIED): the canonical debate behavior is the inline `Step(id="debate", ...)` built by `build_debate_prompt` (`src/superclaude/cli/roadmap/prompts.py:878-902`) with depth control via `_DEPTH_INSTRUCTIONS` (`prompts.py:18-37`), wired at `src/superclaude/cli/roadmap/executor.py:2076-2084` and gated by `DEBATE_GATE` (`src/superclaude/cli/roadmap/gates.py:1155-1166`). The Skill-delegation material from "Mode Detection" through "--interactive Flag Propagation" describes the inference-only delegation mode (SKILL-DIRECT per D-0001 reversal) and is not implemented by the canonical CLI.*
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:9:The CLI detection function `detect_input_type()` at `src/superclaude/cli/roadmap/executor.py:73-210` evaluates input type in a **fixed order**:
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:43:This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 100–147.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:63:This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 149–210.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:9:> **CLI parity.** The roadmap CLI does **not** dispatch `quality-engineer` or `self-review` sub-agents and does **not** run a REVISE loop. Wave 4 in the CLI is a flat sequence of pipeline steps, each guarded by a deterministic `GateCriteria` instance built from required frontmatter fields, a `min_lines` floor, an enforcement tier, and pure-function semantic checks. Source: `src/superclaude/cli/roadmap/validate_gates.py:30-69` (`REFLECT_GATE`, `ADVERSARIAL_MERGE_GATE`) and `src/superclaude/cli/roadmap/gates.py` (per-step roadmap gates).
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:13:Every gate is a `GateCriteria` (`src/superclaude/cli/pipeline/models.py:132`) value with five fields:
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:84:R1.6 deleted the fail-open defaults that previously let a gate pass on missing/unparseable evidence: the fail-open branches in `fidelity_checker.py`, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass are all gone. **All roadmap gates are now fail-closed** — absence of evidence is a failure, not a pass. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/SKILL.md:109:> **Relationship to CLI**: `sc:roadmap-protocol` is the inference-layer skill; the deterministic counterpart is the `superclaude roadmap run` CLI (`src/superclaude/cli/roadmap/executor.py`). The Waves below organize behavioral instructions for orchestrators reading this skill; the CLI executes a flat 14-step pipeline. Both surfaces converge on the same artifacts (`roadmap.md`, `extraction.md`, `test-strategy.md`, plus CLI-only validation/certification outputs), but threshold semantics differ — see the inference-only note below.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/SKILL.md:152:- **Canonical contracts SoT (`superclaude.contracts`, R0.3 + R1.1).** `src/superclaude/contracts/__init__.py` is the single source of truth for `ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, and `RETURN_CONTRACTS` (per-skill return-type schemas). Arch-lint (Makefile `lint-architecture` Check 11) blocks CI if any of these constants is re-defined elsewhere. **There is no `superclaude.contracts.parsers` submodule** — the module is a constants/schema registry, not a parser host (the frontmatter parser is owned by the envelope module; see below).
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/SKILL.md:157:- **Fail-closed everywhere (R1.6 cleanup).** The fail-open `fidelity_checker` defaults, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass were all deleted. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (Acceptance Gate #7, CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/SKILL.md:374:**CLI canonical mechanism (B-8, VERIFIED).** In CLI-faithful terms the round count is encoded directly inside the debate-step prompt via the `_DEPTH_INSTRUCTIONS` dict at `src/superclaude/cli/roadmap/prompts.py:18-37`, which `build_debate_prompt` (`prompts.py:878-902`) interpolates into a single LLM call gated by `DEBATE_GATE` (`gates.py:1155-1166`). The CLI does not invoke `Skill sc:adversarial-protocol`; the `--depth` flag selects the `_DEPTH_INSTRUCTIONS` entry that produces a 1-, 2-, or 3-round debate inside the single `debate` step. The threshold-based PASS/PARTIAL/FAIL routing on `convergence_score` described elsewhere in this skill is inference-only — the canonical CLI `DEBATE_GATE` only validates that `convergence_score` is a float in `[0.0, 1.0]`.
++PRE-EXISTING src/superclaude/skills/sc-roadmap-protocol/SKILL.md:502:> **CLI parity (B-8, VERIFIED).** Direct `Skill sc:adversarial-protocol` delegation is **inference-only** — the canonical `superclaude roadmap run` CLI performs adversarial-merge work as an inline four-step chain (`diff → debate → score → merge`) inside its flat 14-step pipeline, with the debate round count encoded by `_DEPTH_INSTRUCTIONS` (`src/superclaude/cli/roadmap/prompts.py:18-37`) and the debate prompt built by `build_debate_prompt` (`prompts.py:878-902`). The D-0001 reversal established that **SKILL-DIRECT is available** (Skill-to-skill invocation does not require a Task agent wrapper); it did **not** make SKILL-DIRECT the canonical CLI debate mechanism. The CLI's canonical mechanism remains the inline debate step. See `refs/adversarial-integration.md` "CLI Canonical Debate Prompt Flow (B-8, VERIFIED)" for full source citations.
++PRE-EXISTING src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json:31:      "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
++PRE-EXISTING src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json:32:      "expected_output": "A REVIEW.md at /tmp/eval-snapshot/ that reviews the CLI subtree, with findings citing files inside src/superclaude/cli/. Cross-cutting observations should highlight architecture-level concerns rather than per-line nits.",
++PRE-EXISTING src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:139:7. Run the codegraph readiness check once (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): MCP `codegraph_status` when it is listed, never the CLI (this skill has no `Bash(codegraph …)` pattern). Record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for the Wave 2 brief and Wave 3; record any `graph:*` token in the audit log. A non-`fresh` state only means Wave 3 uses the Read / Grep floor.
++PRE-EXISTING src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:14:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++PRE-EXISTING src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:18:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++PRE-EXISTING src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:19:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++PRE-EXISTING src/superclaude/skills/sc-post-release-protocol/SKILL.md:354:- **Skill directory MUST be named `sc-post-release-protocol`** — not the bare `sc-post-release`. The installer's `_has_corresponding_command` helper in `src/superclaude/cli/install_skills.py` strips only the `sc-` prefix when deciding whether a skill is "served by a command"; a bare `sc-post-release` would be treated as served-by-command (`post-release`) and silently skipped during a standalone `superclaude install`. The `-protocol` suffix defeats that match and ensures the skill is installed on its own.
++PRE-EXISTING src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:4:> (`src/superclaude/cli/swarm/recipes/bare_review_v1.py`) and the
++PRE-EXISTING src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:5:> `bare-review` bundled lens (`src/superclaude/cli/swarm/lenses/bare_review.py`).
++PRE-EXISTING src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:130:- Canonical source: `src/superclaude/cli/swarm/recipes/bare_review_v1.py`
++PRE-EXISTING src/superclaude/skills/sc-bare-review/SKILL.md:80:*M8/M9 — thin caller over `superclaude swarm run --lens bare-review`. Source of truth `src/superclaude/`; run `make sync-dev` after edits — never edit the `.claude/` mirror directly.*
++PRE-EXISTING src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:83:- **codegraph MCP**: import and caller tracing during Step 1 (`codegraph_callers`, `codegraph_files`), only when the guide's readiness check gives `index_state: fresh` (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)); rows are leads and zero callers never proves a file is unused; dynamic loading still needs Grep. The floor below runs unchanged when codegraph is unusable or returns nothing.
++PRE-EXISTING src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:26:- codegraph first (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): run the guide's readiness check once; only when `index_state` is `fresh` and the tools are listed, call `codegraph_files {format: "grouped", maxDepth: 2, path: <relevant dir>, projectPath}` on the relevant directories and `codegraph_search {query: <entity>, limit: 10, projectPath}` for each entity name the topic names. Graph rows are leads (Read before quoting); record any `graph:*` token in the seed-brief Note section. When codegraph is unusable or returns nothing, the native steps below run unchanged.
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:23:- **Use the CLI** (`superclaude roadmap validate`) for **automated CI/CD gating**. The CLI runs a simpler **reflect + adversarial-merge** flow: it builds reflect/merge prompts (`src/superclaude/cli/roadmap/validate_prompts.py:7,68`), executes the pipeline, and parses report counts to emit a pass/fail verdict against a fixed set of validation dimensions. It is fast, deterministic, and non-interactive — appropriate for pre-merge or pre-tasklist hooks, not for human investigation.
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:29:The CLI's reflect prompt validates the roadmap against **7 baseline dimensions** when no original input documents (spec/TDD/PRD) are supplied, expanding to **9 input-aware dimensions** when source inputs resolve. The dimensions are emitted directly by `build_reflect_prompt` (`src/superclaude/cli/roadmap/validate_prompts.py:74-127`) and are reproduced below for crosswalk against this skill's phases.
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:193:| `src/pipeline/hooks.py` | spec.md:L88 | NOT FOUND | Basename match: `src/superclaude/cli/pipeline/trailing_gate.py` |
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:318:**Requires**: `Grep` and `Read` (native floor; always available). Uses codegraph above that floor when it is usable (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)).
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:535:| `src/superclaude/cli/sprint/executor.py` | REQ-042, Agent D3 | EXISTS | — |
++PRE-EXISTING src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:536:| `src/pipeline/hooks.py` | REQ-061 | POSSIBLY_MOVED | Candidate: `src/superclaude/cli/pipeline/trailing_gate.py` |
++PRE-EXISTING src/superclaude/skills/sc-impact-protocol/SKILL.md:17:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Read it once per run; the readiness check, the closed token list, the pin line, the E-1 line and the call-site procedure come from it.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:13:    evidence: "grep -r TurnLedger src/superclaude/cli/ shows it in sprint/models.py:466 and sprint/executor.py only"
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:40:    resolution: "Default --output to src/superclaude/cli/<derived_name>/ where derived_name strips sc- prefix and -protocol suffix, converted to kebab-case"
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:48:    evidence: "File exists at src/superclaude/skills/sc-cli-portify/refs/analysis-protocol.md lines 42-55"
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:72:    resolution: "Release spec template lives at src/superclaude/examples/release-spec-template.md. Examples directory is the canonical location for reusable reference files."
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:114:    resolution: "Run make sync-dev to propagate src/superclaude/ changes to .claude/ after all code changes are complete. Run make verify-sync to confirm both sides match."
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:517:Follow the sprint monitor pattern exactly — incremental NDJSON tail with signal extraction. See `src/superclaude/cli/sprint/monitor.py` for the implementation. Adapt signal patterns for the domain.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:521:Follow the sprint process pattern — subclass pipeline `ClaudeProcess`, specialize the constructor for domain config, and implement `build_prompt()` that constructs the step's prompt with proper `/sc:task` framing. See `src/superclaude/cli/sprint/process.py`.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:525:Follow the sprint TUI pattern — Rich Live display with header, step table, progress bar, and active step panel. Adapt the status styles and display fields for the domain. See `src/superclaude/cli/sprint/tui.py`.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:529:Follow the sprint logging pattern — dual JSONL + Markdown logging with screen output. See `src/superclaude/cli/sprint/logging_.py`.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:533:Follow the sprint diagnostics pattern — `DiagnosticCollector`, `FailureClassifier`, `ReportGenerator`. Adapt failure categories for the domain. See `src/superclaude/cli/sprint/diagnostics.py`.
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:11:Look in `src/superclaude/commands/` for the matching command file. Extract:
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:20:Look in `src/superclaude/skills/` for the matching skill directory. Read:
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:33:- Look in `src/superclaude/agents/` for `.md` files
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md:421:# In src/superclaude/cli/main.py
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:31:A CLI subcommand package under `src/superclaude/cli/<name>/`:
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:62:| `--output` | No | Output directory (default: `src/superclaude/cli/<name>/`) |
++PRE-EXISTING src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:170:1. Load the release spec template from `src/superclaude/examples/release-spec-template.md`
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md:55:- `src/superclaude/cli/eval/suites/README.md` "What lives in this directory" table.
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md:39:`src/superclaude/cli/eval/suites/<stem>.yaml` in the house style and self-validates. Constraints it
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md:56:- `src/superclaude/cli/eval/suites/README.md`: add a row to "What lives in this directory".
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:12:| `eval` subcommands + flag matrix | `src/superclaude/cli/eval/commands.py` (the `@click.group("eval")` group) |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:13:| Suite manifest schema | `src/superclaude/cli/eval/suites/suite.schema.json` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:14:| Naming rules / inventory | `src/superclaude/cli/eval/suites/README.md` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:15:| House-style templates | `src/superclaude/cli/eval/suites/{eval_smoke,installer_sync_drift}.yaml` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:16:| Artifact layout + run-id | `src/superclaude/cli/eval/artifact_layout.py` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:17:| summary.json schema + status enum | `src/superclaude/cli/eval/{run_report,models}.py` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:18:| Exit codes | `src/superclaude/cli/eval/exit_codes.py` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:19:| HOME preservation | `src/superclaude/cli/eval/{runner,isolation}.py` |
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:96:Delegate to the `eval-suite-author` agent (Task). It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:109:`src/superclaude/cli/eval/suites/README.md` via the `/sc:document` command (or the `technical-writer`
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:222:- Edit `.claude/` directly (source of truth is `src/superclaude/`; sync via `make sync-dev`).
++PRE-EXISTING src/superclaude/skills/sc-cli-eval-protocol/templates/suite-manifest.yaml:3:# TEMPLATE — copy into src/superclaude/cli/eval/suites/<stem>.yaml and fill in.
++PRE-EXISTING src/superclaude/skills/task-builder/SKILL.md:1510:- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
++PRE-EXISTING src/superclaude/skills/sc-init-lite-protocol/SKILL.md:33:The mechanical audit is implemented as the `superclaude init-lite --context-optimized` CLI command (`src/superclaude/cli/init_lite.py`). The protocol's preferred execution path is to invoke that CLI with the resolved flags and surface its output; the safety invariants below are the contract the CLI already enforces and that this skill must preserve if it ever performs the audit directly.
++PRE-EXISTING src/superclaude/skills/ccsession-tag/models.py:56:    "src/superclaude/skills/ccsession-tag/ccsession-models.json"
++PRE-EXISTING src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md:4:`docs/swarm/` + `src/superclaude/cli/swarm/` and **empirically verified** against the live CLI on
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:83:- **Location:** src/superclaude/pm_agent/confidence.py:142
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:86:- **Evidence:** "hashlib.md5(payload).hexdigest()" (src/superclaude/pm_agent/confidence.py:142, re-Read 2026-05-27)
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:161:- **Evidence anchor:** src/superclaude/pm_agent/confidence.py:142
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:169:- **Evidence anchor:** src/superclaude/pm_agent/reflexion.py:88
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:228:- **File:** src/superclaude/pm_agent/confidence.py
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md:45:Example shape — the brief contains an H2 `## Grounding hunks` heading followed by one H3 per hunk; each H3 is the `file:line-range` ref, and the H3 body is the language-tagged fenced code block of the source excerpt. For example, an H3 like `### src/superclaude/pm_agent/confidence.py:42-58` is followed by a ```` ```python ```` fenced block containing the verbatim source between lines 42 and 58. The same shape is used for test files, e.g., H3 `### tests/pm_agent/test_confidence.py:101-115` followed by the corresponding fenced Python block.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md:237:**Same route rule, no exception.** The headless path follows the depth-keyed route table: `superclaude reflect run --fix` (`src/superclaude/cli/reflect/runner.py`) passes `--depth <d> --remediate`. With depth `standard`/`quick` reflect authors a plan and emits `remediation_plan_path`; the wrapper's auto-fix loop runs `/sc:implement <remediation_plan_path>`. With `--depth deep` reflect authors the MDTM and emits `remediation_task_path`; the loop runs `/task <remediation_task_path>`. The loop reads whichever field is non-null (the MDTM pointer wins if both are set) and fails closed on a non-zero apply rc.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:16:If `git add` requires `-f` on **any** `.claude/` path (except `.claude/settings.json`), STOP. The `-f` is the violation siren — it means you are about to commit `.claude/{skills,commands,agents,hooks,templates}/*` content, which is **gitignored sync-dev output** of `src/superclaude/`.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:21:2. Move the change to `src/superclaude/` (the source-of-truth tree). For this skill that means `src/superclaude/skills/sc-reflect-protocol/`.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:22:3. Run `make sync-dev` to mirror `src/superclaude/` into `.claude/`.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:31:- Hand-edited paste-ready commit commands that staged `.claude/skills/...` alongside `src/superclaude/skills/...`. Doubles every diff, invites drift, and breaks `make verify-sync` for the next contributor.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:57:1. **Edit `src/superclaude/skills/sc-reflect-protocol/SKILL.md`** (and/or `src/superclaude/commands/reflect.md` if the command surface also changes). Source of truth is **always** `src/superclaude/`. Never edit `.claude/skills/sc-reflect-protocol/SKILL.md` directly — that copy is regenerated.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:58:2. **Run `make sync-dev`** to mirror the updated `src/superclaude/{skills,agents,commands}/` tree into `.claude/`. This is the canonical sync command (Makefile:109).
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:68:| `make reflect-eval-quick` | **NEW (Phase 6)** | 3 pilot cases, <30s. Runs on every PR that touches `src/superclaude/skills/sc-reflect-protocol/` or `src/superclaude/commands/reflect.md`. |
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:72:| `make sync-dev` | existing, Makefile:109 | Mirror `src/superclaude/{skills,agents,commands}/` → `.claude/`. Step 2 of the sync workflow. |
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:77:**CI policy summary.** Every PR that modifies `src/superclaude/skills/sc-reflect-protocol/**` or `src/superclaude/commands/reflect.md` MUST pass `make reflect-eval-quick` plus the standard baselines (`make lint`, `make test`, `make verify-sync`, `make lint-architecture`). Release-candidate branches add `make reflect-eval`. The cost-profile regenerator (`make sync-cost-profile`) is run by the contributor whenever spec §15 budgets change; the resulting `refs/cost-profile.yaml` diff is reviewed in the same PR.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:81:- `make verify-sync` non-zero exit → re-run `make sync-dev`. If still non-zero, inspect the diff (`git status` against `.claude/skills/sc-reflect-protocol/`) and reconcile with `src/superclaude/skills/sc-reflect-protocol/`. Never resolve by editing `.claude/` directly.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:22:supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:449:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Run its readiness check once per run in Wave 0 and record `index_state`, `checked_at`, `worktree_root` and `projectPath` in `audit.log`. A codegraph step below runs only when the index is usable (`fresh`; a `stale` index gives leads that never feed a count, a severity or a verdict) and its lookup tools are listed; otherwise, and whenever a lookup fails or returns nothing, the floor step beside it runs unchanged and the matching `graph:*` token goes into `degraded_components` (§6.5). A codegraph row locates code; it is not a citation until the cited range is re-Read (§6.2).
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1217:Modeled on `.dev/eval-workspaces/sc-brainstorm/`. Same layout: `SPEC.md`, `evals/evals.json`, `iterations/iteration-N/`, `grader.py`, `aggregate_iteration.py`, `skill-snapshot/reflect-v1.md` (frozen baseline = pre-rewrite `src/superclaude/commands/reflect.md`).
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1359:| Draft v1 SKILL.md + refs/ + agent map | Hand-authored under `src/superclaude/skills/sc-reflect-protocol/` | Initial protocol |
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1783:- Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1825:**The `-f` rule (CLAUDE.md ABSOLUTE).** If `git add` requires `-f` on any `.claude/` path (except `.claude/settings.json`), that `-f` is the violation siren. STOP. Move the change to `src/superclaude/`, run `make sync-dev`, stage only the `src/` side. See memory `feedback_claude_dir_gitignored.md`.
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1831:1. Edit `src/superclaude/skills/sc-reflect-protocol/SKILL.md` (and/or `src/superclaude/commands/reflect.md`).
++PRE-EXISTING src/superclaude/skills/sc-reflect-protocol/SKILL.md:1837:**CI cadence.** Run `make reflect-eval-quick` (3 pilot cases, <30s) on every PR touching `src/superclaude/skills/sc-reflect-protocol/` or `src/superclaude/commands/reflect.md`. Full `make reflect-eval` (~2 min) runs on release-candidate branches. See `refs/ops-integration.md` for the full Makefile target table (`make sync-dev`, `make verify-sync`, `make lint`, `make lint-architecture`, `make test`, `make reflect-eval`, `make reflect-eval-quick`, `make eval-skill SKILL=sc-reflect-protocol`).
++PRE-EXISTING src/superclaude/skills/sc-graph-protocol/SKILL.md:17:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++PRE-EXISTING src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:167:- `src/superclaude/cli/eval_run.py:142` — `scratch = Path(args.scratch_root) / ...` (no `Path` import in lines 1–20)
++PRE-EXISTING src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:169:- `git log -p src/superclaude/cli/eval_run.py` — the `Path(...)` call was introduced in commit 5a65c62, but the matching import was not added
++PRE-EXISTING src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:173:Add `from pathlib import Path` to the imports section of `src/superclaude/cli/eval_run.py`. Single-line addition.
++PRE-EXISTING src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:194:   - Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++PRE-EXISTING src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:17:| In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:41:Local mode only; skip this step when `--plugin` is set. Read the IronClaude routing guide before the cache lookup and before Phase 0. Try these locations in order and stop at the first one that exists. Inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), try location 4 first and then the others in order: inside a checkout, trust `src/` (the same rule as Phase 0 Step A), because the installed copy may be older.
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:46:4. `src/superclaude/core/HOW-WE-WORK.md` under the repository root (`git rev-parse --show-toplevel`; only inside an IronClaude checkout).
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:69:**Availability gate (run once, before step 1).** The hot path runs only inside an IronClaude checkout. Every install has the `superclaude recommend` CLI, but its cache fingerprint is computed over the checkout's `src/superclaude/` (plus the installed `~/.claude/` and project `.claude/` command, skill and agent folders) and the cache lives in that project's `.claude/cache/`, so outside a checkout there is nothing valid to fingerprint or cache, and the skill skips the hot path. Use the hot path only if both checks pass: `test -f src/superclaude/cli/recommend/prompts.py`, then `uv run superclaude recommend --help` exits 0. Run both checks from the repository root (`git rev-parse --show-toplevel`; if that fails, the gate fails). Run the gate once per invocation, before the first `uv run superclaude recommend` call of any kind (hot path, write-back, or the `--plugin --eval` decision gate), and reuse its result. Do not run `uv run` in any other project: in a user's own uv project it would create or sync that project's environment. If either check fails, or any `uv run superclaude recommend ...` call in this skill exits non-zero, skip the rest of the hot path, run Phase 0–2 yourself in this context, skip the Cold-Path Write-Back, `--eval`, and telemetry, and add `recommend CLI unavailable; cache skipped` to `degradation_notes`.
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:73:1. **Classify (ONE Haiku subagent).** Spawn exactly **one** `model: haiku` subagent via the Agent tool. Read `src/superclaude/cli/recommend/prompts.py` under the repository root (`git rev-parse --show-toplevel`) and use the text of the string assigned to `CLASSIFIER_PROMPT` (without the quote marks) as the subagent prompt. Pass the verbatim user request. It returns `{classification_key, native_likely, confidence_top2_delta}` — nothing else. Do not classify in the parent.
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:106:The old skill failed because its discovery layer was a hand-curated 10-row keyword table that went stale (it failed to surface `/sc:spec-panel` even though that command file was sitting in `src/superclaude/commands/`). The fix is to enumerate the actual surface every invocation and let auggie semantically rank it. There is no static mapping in this skill.
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:122:| 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
++PRE-EXISTING src/superclaude/skills/sc-recommend/SKILL.md:320:1. **Spawn the cold-path Haiku subagent.** Read `COLD_PATH_RUNBOOK` from `src/superclaude/cli/recommend/prompts.py` only inside the verified IronClaude checkout, then use that condensed text rather than the full skill body. Pass the verbatim current request, the classifier's existing key (or `unknown`), guide status/path and level/Other-command blocks, the guide's relevant lifecycle guidance, and resolved reference paths from the current skill directory. The worker performs live enumeration/ranking/verification and constructs a request-specific handoff. It may return `cache_update` with the existing fields (`key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`) only for an eligible target and an existing compatible classification key. Unknown/ambiguous objectives do not invent keys or force ordinary planning into task-file-generation; emit the verified result without insertion. If the runbook cannot be read, run Phase 0-2 inline and skip cache/eval helpers. Before any emission, the parent checks current objective, authority, verification evidence and parameter binding; the worker's text is not unconditionally surfaced verbatim.
++PRE-EXISTING src/superclaude/agents/eval-docs-loader.md:43:- `src/superclaude/cli/eval/suites/README.md` — naming rules + "what lives here" table.
++PRE-EXISTING src/superclaude/agents/eval-docs-loader.md:44:- `src/superclaude/cli/eval/suites/suite.schema.json` — every field, required vs optional, enums.
++PRE-EXISTING src/superclaude/agents/eval-docs-loader.md:45:- `src/superclaude/cli/eval/suites/*.yaml` — at least the two simplest manifests as templates.
++PRE-EXISTING src/superclaude/agents/eval-docs-loader.md:46:- `src/superclaude/cli/eval/{loader,runner,models,run_report,commands,artifact_layout,exit_codes}.py`.
++PRE-EXISTING src/superclaude/agents/eval-suite-author.md:57:- `src/superclaude/cli/eval/suites/<stem>.yaml` (+ optional fixtures / `<stem>_callbacks.py`).
++PRE-EXISTING src/superclaude/agents/eval-suite-author.md:63:- Edit `.claude/` (source of truth is `src/superclaude/`; sync happens later via `make sync-dev`).
++PRE-EXISTING src/superclaude/agents/repo-index.md:26:     - Code: src/superclaude (42 files), pm/ (TypeScript agents)
++PRE-EXISTING src/superclaude/agents/README.md:18:2. Copy changes to `src/superclaude/agents/`
++PRE-EXISTING src/superclaude/agents/README.md:25:Agents run in other projects after `superclaude install`, where `src/superclaude/` does not exist. Never point an agent at another primitive with a `src/superclaude/...` path; use `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md`. See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
++PRE-EXISTING src/superclaude/hooks/scripts/sc-recommend-phase0.sh:51:   src/superclaude/core/HOW-WE-WORK.md under the repository root
++PRE-EXISTING src/superclaude/hooks/scripts/sc-recommend-phase0.sh:53:   (src/superclaude/commands/ exists under `git rev-parse --show-toplevel`)
++PRE-EXISTING src/superclaude/hooks/scripts/sc-recommend-phase0.sh:76:   - src/superclaude/commands, skills, agents, templates and
++PRE-EXISTING src/superclaude/hooks/scripts/sc-recommend-phase0.sh:77:     src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
++PRE-EXISTING src/superclaude/hooks/scripts/sc-recommend-phase0.sh:78:     (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
++PRE-EXISTING src/superclaude/hooks/scripts/reject-workspace-writes.sh:40:# The source-of-truth fix lives in `src/superclaude/cli/prd/config.py`
++PRE-EXISTING src/superclaude/hooks/scripts/reject-workspace-writes.sh:59:Reason: \`superclaude prd run\` outputs belong under \`.dev/eval-workspaces/\`, not at the repository root. The canonical default is set in \`src/superclaude/cli/prd/config.py\` (FU-003 source-fix) and the convention is documented in \`CLAUDE.md\` "Plugin Override — Skill-Creator Workspace Destination". Pass \`--output .dev/eval-workspaces\` explicitly, or omit \`--output\` to use the new default.
++PRE-EXISTING src/superclaude/hooks/scripts/freshness-file-changed.sh:9:# entry has been removed from src/superclaude/hooks/hooks.json. This script
++PRE-EXISTING src/superclaude/hooks/README.md:16:2. Copy changes to `src/superclaude/hooks/`
++
++## origin/master: git grep -n 'src/superclaude' origin/master -- src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core src/superclaude/hooks
++
++origin/master:src/superclaude/agents/README.md:18:2. Copy changes to `src/superclaude/agents/`
++origin/master:src/superclaude/agents/README.md:25:Agents run in other projects after `superclaude install`, where `src/superclaude/` does not exist. Never point an agent at another primitive with a `src/superclaude/...` path; use `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md`. See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
++origin/master:src/superclaude/agents/eval-docs-loader.md:43:- `src/superclaude/cli/eval/suites/README.md` — naming rules + "what lives here" table.
++origin/master:src/superclaude/agents/eval-docs-loader.md:44:- `src/superclaude/cli/eval/suites/suite.schema.json` — every field, required vs optional, enums.
++origin/master:src/superclaude/agents/eval-docs-loader.md:45:- `src/superclaude/cli/eval/suites/*.yaml` — at least the two simplest manifests as templates.
++origin/master:src/superclaude/agents/eval-docs-loader.md:46:- `src/superclaude/cli/eval/{loader,runner,models,run_report,commands,artifact_layout,exit_codes}.py`.
++origin/master:src/superclaude/agents/eval-suite-author.md:57:- `src/superclaude/cli/eval/suites/<stem>.yaml` (+ optional fixtures / `<stem>_callbacks.py`).
++origin/master:src/superclaude/agents/eval-suite-author.md:63:- Edit `.claude/` (source of truth is `src/superclaude/`; sync happens later via `make sync-dev`).
++origin/master:src/superclaude/agents/repo-index.md:26:     - Code: src/superclaude (42 files), pm/ (TypeScript agents)
++origin/master:src/superclaude/commands/README.md:3:The files in this folder are installed to `~/.claude/commands/sc/` by `superclaude install` and `superclaude update` (this README.md itself is not installed). For the list of installed commands, run `/sc:help`; for which one to use for a job, read the routing guide `src/superclaude/core/HOW-WE-WORK.md` (installed as `~/.claude/HOW-WE-WORK.md`).
++origin/master:src/superclaude/commands/README.md:10:4. If you added a command, add its row to the routing table at the end of `src/superclaude/core/HOW-WE-WORK.md` (or to its "Other commands" table).
++origin/master:src/superclaude/commands/README.md:11:5. The routing guide's canonical copy is `src/superclaude/core/HOW-WE-WORK.md`. When you change it, recopy its level-table block into `src/superclaude/core/CLAUDE.md` and copy the whole file byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (tests check both). The routing and recommendation tests are static text and cache checks: they pin the written contract, not which route a model actually picks. When routing behavior changes, check it with a separate recorded model-generation evaluation and report those results apart from the static tests.
++origin/master:src/superclaude/commands/README.md:12:6. Inside a command, never point at another primitive with a `src/superclaude/...` path. The installed copy is what runs in other projects, so name `~/.claude/skills/<name>/SKILL.md`, `~/.claude/agents/<name>.md` or `~/.claude/commands/sc/<name>.md` (and accept the project `.claude/` copy where a lookup needs it). See the "Never Hardcode `src/superclaude/` Paths" rule in the repository `CLAUDE.md`.
++origin/master:src/superclaude/commands/auggie-review.md:38:/sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)
++origin/master:src/superclaude/commands/auggie-review.md:119:/sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns
++origin/master:src/superclaude/commands/cli-portify.md:34:| `--output` | No | `src/superclaude/cli/<derived-name>/` | Output directory for the generated CLI module. |
++origin/master:src/superclaude/commands/cli-portify.md:97:/sc:cli-portify --workflow src/superclaude/skills/sc-cleanup-audit/
++origin/master:src/superclaude/commands/cli-portify.md:106:/sc:cli-portify --workflow src/superclaude/skills/sc-tasklist-protocol/ --name tasklist --output src/superclaude/cli/tasklist/
++origin/master:src/superclaude/commands/explain.md:51:- **Codegraph one-hop view** (code targets only, when codegraph is usable): `codegraph_search` (limit 10) to find the target symbol, then `codegraph_callers` and `codegraph_callees` (limit 10 each) for its direct callers and callees; Read every row before citing it, and use Read/Grep alone when codegraph is unusable. Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++origin/master:src/superclaude/commands/graph.md:16:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++origin/master:src/superclaude/commands/help.md:67:Find the routing guide. Try these in order and use the first that exists. Inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), try location 3 first, then the others in order, because the installed copy may be older:
++origin/master:src/superclaude/commands/help.md:71:3. `src/superclaude/core/HOW-WE-WORK.md` under the repository root (`git rev-parse --show-toplevel`; inside an IronClaude checkout)
++origin/master:src/superclaude/commands/help.md:93:- Options for one command: read its file. Installed `/sc:` commands are at `$HOME/.claude/commands/sc/<name>.md`; project-local commands are under `.claude/commands/`; plugin commands are at `${CLAUDE_PLUGIN_ROOT}/commands/<name>.md`; inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), read `src/superclaude/commands/<name>.md` under that repository root.
++origin/master:src/superclaude/commands/impact.md:15:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++origin/master:src/superclaude/commands/post-release.md:79:- Rename the protocol skill directory to bare `sc-post-release`. The protocol skill MUST live at `sc-post-release-protocol` (the Activation handoff above targets `sc:post-release-protocol`); the installer's `_has_corresponding_command` in `src/superclaude/cli/install_skills.py` strips only the `sc-` prefix, so a bare `sc-post-release` would be silently skipped as "served by the `post-release` command" and never installed standalone.
++origin/master:src/superclaude/commands/recommend.md:44:1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first). It matches the whole requested outcome (deliverable, explicitly named command or existing artifact, compatible mode/depth/output choices and how much it may change) to one routing row, not any single phrase. A matched row's applicable steps are returned in order, with exactly one selected alternative and their verified flags, and stop at the requested deliverable: a report-only or plan-only request gains no execution, commit or push step. If the objective stays ambiguous, it asks one question and stops. No hand-written keyword table.
++origin/master:src/superclaude/commands/spec-panel.md:218:- **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read when generating scoped release spec output from TDD input (Step 6b / `--downstream roadmap` mode)
++origin/master:src/superclaude/hooks/README.md:16:2. Copy changes to `src/superclaude/hooks/`
++origin/master:src/superclaude/hooks/scripts/freshness-file-changed.sh:9:# entry has been removed from src/superclaude/hooks/hooks.json. This script
++origin/master:src/superclaude/hooks/scripts/reject-workspace-writes.sh:40:# The source-of-truth fix lives in `src/superclaude/cli/prd/config.py`
++origin/master:src/superclaude/hooks/scripts/reject-workspace-writes.sh:59:Reason: \`superclaude prd run\` outputs belong under \`.dev/eval-workspaces/\`, not at the repository root. The canonical default is set in \`src/superclaude/cli/prd/config.py\` (FU-003 source-fix) and the convention is documented in \`CLAUDE.md\` "Plugin Override — Skill-Creator Workspace Destination". Pass \`--output .dev/eval-workspaces\` explicitly, or omit \`--output\` to use the new default.
++origin/master:src/superclaude/hooks/scripts/sc-recommend-phase0.sh:51:   src/superclaude/core/HOW-WE-WORK.md under the repository root
++origin/master:src/superclaude/hooks/scripts/sc-recommend-phase0.sh:53:   (src/superclaude/commands/ exists under `git rev-parse --show-toplevel`)
++origin/master:src/superclaude/hooks/scripts/sc-recommend-phase0.sh:76:   - src/superclaude/commands, skills, agents, templates and
++origin/master:src/superclaude/hooks/scripts/sc-recommend-phase0.sh:77:     src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
++origin/master:src/superclaude/hooks/scripts/sc-recommend-phase0.sh:78:     (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
++origin/master:src/superclaude/skills/ccsession-tag/models.py:56:    "src/superclaude/skills/ccsession-tag/ccsession-models.json"
++origin/master:src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:139:7. Run the codegraph readiness check once (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): MCP `codegraph_status` when it is listed, never the CLI (this skill has no `Bash(codegraph …)` pattern). Record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for the Wave 2 brief and Wave 3; record any `graph:*` token in the audit log. A non-`fresh` state only means Wave 3 uses the Read / Grep floor.
++origin/master:src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json:31:      "prompt": "Run /sc:auggie-review --snapshot src/superclaude/cli/ --depth quick --focus anti-patterns,architecture,quality --output-dir /tmp/eval-snapshot/. Review the CLI module as a whole, no diff. Print the report path and a one-line summary at the end.",
++origin/master:src/superclaude/skills/sc-auggie-review-protocol/evals/evals.json:32:      "expected_output": "A REVIEW.md at /tmp/eval-snapshot/ that reviews the CLI subtree, with findings citing files inside src/superclaude/cli/. Cross-cutting observations should highlight architecture-level concerns rather than per-line nits.",
++origin/master:src/superclaude/skills/sc-bare-review/SKILL.md:80:*M8/M9 — thin caller over `superclaude swarm run --lens bare-review`. Source of truth `src/superclaude/`; run `make sync-dev` after edits — never edit the `.claude/` mirror directly.*
++origin/master:src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:4:> (`src/superclaude/cli/swarm/recipes/bare_review_v1.py`) and the
++origin/master:src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:5:> `bare-review` bundled lens (`src/superclaude/cli/swarm/lenses/bare_review.py`).
++origin/master:src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:130:- Canonical source: `src/superclaude/cli/swarm/recipes/bare_review_v1.py`
++origin/master:src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:26:- codegraph first (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): run the guide's readiness check once; only when `index_state` is `fresh` and the tools are listed, call `codegraph_files {format: "grouped", maxDepth: 2, path: <relevant dir>, projectPath}` on the relevant directories and `codegraph_search {query: <entity>, limit: 10, projectPath}` for each entity name the topic names. Graph rows are leads (Read before quoting); record any `graph:*` token in the seed-brief Note section. When codegraph is unusable or returns nothing, the native steps below run unchanged.
++origin/master:src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:83:- **codegraph MCP**: import and caller tracing during Step 1 (`codegraph_callers`, `codegraph_files`), only when the guide's readiness check gives `index_state: fresh` (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)); rows are leads and zero callers never proves a file is unused; dynamic loading still needs Grep. The floor below runs unchanged when codegraph is unusable or returns nothing.
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:96:Delegate to the `eval-suite-author` agent (Task). It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:109:`src/superclaude/cli/eval/suites/README.md` via the `/sc:document` command (or the `technical-writer`
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:222:- Edit `.claude/` directly (source of truth is `src/superclaude/`; sync via `make sync-dev`).
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md:39:`src/superclaude/cli/eval/suites/<stem>.yaml` in the house style and self-validates. Constraints it
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md:56:- `src/superclaude/cli/eval/suites/README.md`: add a row to "What lives in this directory".
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:12:| `eval` subcommands + flag matrix | `src/superclaude/cli/eval/commands.py` (the `@click.group("eval")` group) |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:13:| Suite manifest schema | `src/superclaude/cli/eval/suites/suite.schema.json` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:14:| Naming rules / inventory | `src/superclaude/cli/eval/suites/README.md` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:15:| House-style templates | `src/superclaude/cli/eval/suites/{eval_smoke,installer_sync_drift}.yaml` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:16:| Artifact layout + run-id | `src/superclaude/cli/eval/artifact_layout.py` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:17:| summary.json schema + status enum | `src/superclaude/cli/eval/{run_report,models}.py` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:18:| Exit codes | `src/superclaude/cli/eval/exit_codes.py` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md:19:| HOME preservation | `src/superclaude/cli/eval/{runner,isolation}.py` |
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md:55:- `src/superclaude/cli/eval/suites/README.md` "What lives in this directory" table.
++origin/master:src/superclaude/skills/sc-cli-eval-protocol/templates/suite-manifest.yaml:3:# TEMPLATE — copy into src/superclaude/cli/eval/suites/<stem>.yaml and fill in.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:31:A CLI subcommand package under `src/superclaude/cli/<name>/`:
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:62:| `--output` | No | Output directory (default: `src/superclaude/cli/<name>/`) |
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:170:1. Load the release spec template from `src/superclaude/examples/release-spec-template.md`
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:13:    evidence: "grep -r TurnLedger src/superclaude/cli/ shows it in sprint/models.py:466 and sprint/executor.py only"
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:40:    resolution: "Default --output to src/superclaude/cli/<derived_name>/ where derived_name strips sc- prefix and -protocol suffix, converted to kebab-case"
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:48:    evidence: "File exists at src/superclaude/skills/sc-cli-portify/refs/analysis-protocol.md lines 42-55"
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:72:    resolution: "Release spec template lives at src/superclaude/examples/release-spec-template.md. Examples directory is the canonical location for reusable reference files."
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:114:    resolution: "Run make sync-dev to propagate src/superclaude/ changes to .claude/ after all code changes are complete. Run make verify-sync to confirm both sides match."
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:11:Look in `src/superclaude/commands/` for the matching command file. Extract:
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:20:Look in `src/superclaude/skills/` for the matching skill directory. Read:
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/analysis-protocol.md:33:- Look in `src/superclaude/agents/` for `.md` files
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:517:Follow the sprint monitor pattern exactly — incremental NDJSON tail with signal extraction. See `src/superclaude/cli/sprint/monitor.py` for the implementation. Adapt signal patterns for the domain.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:521:Follow the sprint process pattern — subclass pipeline `ClaudeProcess`, specialize the constructor for domain config, and implement `build_prompt()` that constructs the step's prompt with proper `/sc:task` framing. See `src/superclaude/cli/sprint/process.py`.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:525:Follow the sprint TUI pattern — Rich Live display with header, step table, progress bar, and active step panel. Adapt the status styles and display fields for the domain. See `src/superclaude/cli/sprint/tui.py`.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:529:Follow the sprint logging pattern — dual JSONL + Markdown logging with screen output. See `src/superclaude/cli/sprint/logging_.py`.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:533:Follow the sprint diagnostics pattern — `DiagnosticCollector`, `FailureClassifier`, `ReportGenerator`. Adapt failure categories for the domain. See `src/superclaude/cli/sprint/diagnostics.py`.
++origin/master:src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md:421:# In src/superclaude/cli/main.py
++origin/master:src/superclaude/skills/sc-graph-protocol/SKILL.md:17:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++origin/master:src/superclaude/skills/sc-impact-protocol/SKILL.md:17:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Read it once per run; the readiness check, the closed token list, the pin line, the E-1 line and the call-site procedure come from it.
++origin/master:src/superclaude/skills/sc-init-lite-protocol/SKILL.md:33:The mechanical audit is implemented as the `superclaude init-lite --context-optimized` CLI command (`src/superclaude/cli/init_lite.py`). The protocol's preferred execution path is to invoke that CLI with the resolved flags and surface its output; the safety invariants below are the contract the CLI already enforces and that this skill must preserve if it ever performs the audit directly.
++origin/master:src/superclaude/skills/sc-post-release-protocol/SKILL.md:354:- **Skill directory MUST be named `sc-post-release-protocol`** — not the bare `sc-post-release`. The installer's `_has_corresponding_command` helper in `src/superclaude/cli/install_skills.py` strips only the `sc-` prefix when deciding whether a skill is "served by a command"; a bare `sc-post-release` would be treated as served-by-command (`post-release`) and silently skipped during a standalone `superclaude install`. The `-protocol` suffix defeats that match and ensures the skill is installed on its own.
++origin/master:src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:14:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++origin/master:src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:18:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++origin/master:src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:19:# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:41:Local mode only; skip this step when `--plugin` is set. Read the IronClaude routing guide before the cache lookup and before Phase 0. Try these locations in order and stop at the first one that exists. Inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`), try location 4 first and then the others in order: inside a checkout, trust `src/` (the same rule as Phase 0 Step A), because the installed copy may be older.
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:46:4. `src/superclaude/core/HOW-WE-WORK.md` under the repository root (`git rev-parse --show-toplevel`; only inside an IronClaude checkout).
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:69:**Availability gate (run once, before step 1).** The hot path runs only inside an IronClaude checkout. Every install has the `superclaude recommend` CLI, but its cache fingerprint is computed over the checkout's `src/superclaude/` (plus the installed `~/.claude/` and project `.claude/` command, skill and agent folders) and the cache lives in that project's `.claude/cache/`, so outside a checkout there is nothing valid to fingerprint or cache, and the skill skips the hot path. Use the hot path only if both checks pass: `test -f src/superclaude/cli/recommend/prompts.py`, then `uv run superclaude recommend --help` exits 0. Run both checks from the repository root (`git rev-parse --show-toplevel`; if that fails, the gate fails). Run the gate once per invocation, before the first `uv run superclaude recommend` call of any kind (hot path, write-back, or the `--plugin --eval` decision gate), and reuse its result. Do not run `uv run` in any other project: in a user's own uv project it would create or sync that project's environment. If either check fails, or any `uv run superclaude recommend ...` call in this skill exits non-zero, skip the rest of the hot path, run Phase 0–2 yourself in this context, skip the Cold-Path Write-Back, `--eval`, and telemetry, and add `recommend CLI unavailable; cache skipped` to `degradation_notes`.
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:73:1. **Classify (ONE Haiku subagent).** Spawn exactly **one** `model: haiku` subagent via the Agent tool. Read `src/superclaude/cli/recommend/prompts.py` under the repository root (`git rev-parse --show-toplevel`) and use the text of the string assigned to `CLASSIFIER_PROMPT` (without the quote marks) as the subagent prompt. Pass the verbatim user request. It returns `{classification_key, native_likely, confidence_top2_delta}` — nothing else. Do not classify in the parent.
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:106:The old skill failed because its discovery layer was a hand-curated 10-row keyword table that went stale (it failed to surface `/sc:spec-panel` even though that command file was sitting in `src/superclaude/commands/`). The fix is to enumerate the actual surface every invocation and let auggie semantically rank it. There is no static mapping in this skill.
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:122:| 7 | IronClaude source checkout | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` (repository root) | only inside an IronClaude checkout (`src/superclaude/commands/` exists under `git rev-parse --show-toplevel`) |
++origin/master:src/superclaude/skills/sc-recommend/SKILL.md:320:1. **Spawn the cold-path Haiku subagent.** Read `COLD_PATH_RUNBOOK` from `src/superclaude/cli/recommend/prompts.py` only inside the verified IronClaude checkout, then use that condensed text rather than the full skill body. Pass the verbatim current request, the classifier's existing key (or `unknown`), guide status/path and level/Other-command blocks, the guide's relevant lifecycle guidance, and resolved reference paths from the current skill directory. The worker performs live enumeration/ranking/verification and constructs a request-specific handoff. It may return `cache_update` with the existing fields (`key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`) only for an eligible target and an existing compatible classification key. Unknown/ambiguous objectives do not invent keys or force ordinary planning into task-file-generation; emit the verified result without insertion. If the runbook cannot be read, run Phase 0-2 inline and skip cache/eval helpers. Before any emission, the parent checks current objective, authority, verification evidence and parameter binding; the worker's text is not unconditionally surfaced verbatim.
++origin/master:src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:17:| In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:22:supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:449:Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Run its readiness check once per run in Wave 0 and record `index_state`, `checked_at`, `worktree_root` and `projectPath` in `audit.log`. A codegraph step below runs only when the index is usable (`fresh`; a `stale` index gives leads that never feed a count, a severity or a verdict) and its lookup tools are listed; otherwise, and whenever a lookup fails or returns nothing, the floor step beside it runs unchanged and the matching `graph:*` token goes into `degraded_components` (§6.5). A codegraph row locates code; it is not a citation until the cited range is re-Read (§6.2).
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1217:Modeled on `.dev/eval-workspaces/sc-brainstorm/`. Same layout: `SPEC.md`, `evals/evals.json`, `iterations/iteration-N/`, `grader.py`, `aggregate_iteration.py`, `skill-snapshot/reflect-v1.md` (frozen baseline = pre-rewrite `src/superclaude/commands/reflect.md`).
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1359:| Draft v1 SKILL.md + refs/ + agent map | Hand-authored under `src/superclaude/skills/sc-reflect-protocol/` | Initial protocol |
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1783:- Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1825:**The `-f` rule (CLAUDE.md ABSOLUTE).** If `git add` requires `-f` on any `.claude/` path (except `.claude/settings.json`), that `-f` is the violation siren. STOP. Move the change to `src/superclaude/`, run `make sync-dev`, stage only the `src/` side. See memory `feedback_claude_dir_gitignored.md`.
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1831:1. Edit `src/superclaude/skills/sc-reflect-protocol/SKILL.md` (and/or `src/superclaude/commands/reflect.md`).
++origin/master:src/superclaude/skills/sc-reflect-protocol/SKILL.md:1837:**CI cadence.** Run `make reflect-eval-quick` (3 pilot cases, <30s) on every PR touching `src/superclaude/skills/sc-reflect-protocol/` or `src/superclaude/commands/reflect.md`. Full `make reflect-eval` (~2 min) runs on release-candidate branches. See `refs/ops-integration.md` for the full Makefile target table (`make sync-dev`, `make verify-sync`, `make lint`, `make lint-architecture`, `make test`, `make reflect-eval`, `make reflect-eval-quick`, `make eval-skill SKILL=sc-reflect-protocol`).
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:16:If `git add` requires `-f` on **any** `.claude/` path (except `.claude/settings.json`), STOP. The `-f` is the violation siren — it means you are about to commit `.claude/{skills,commands,agents,hooks,templates}/*` content, which is **gitignored sync-dev output** of `src/superclaude/`.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:21:2. Move the change to `src/superclaude/` (the source-of-truth tree). For this skill that means `src/superclaude/skills/sc-reflect-protocol/`.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:22:3. Run `make sync-dev` to mirror `src/superclaude/` into `.claude/`.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:31:- Hand-edited paste-ready commit commands that staged `.claude/skills/...` alongside `src/superclaude/skills/...`. Doubles every diff, invites drift, and breaks `make verify-sync` for the next contributor.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:57:1. **Edit `src/superclaude/skills/sc-reflect-protocol/SKILL.md`** (and/or `src/superclaude/commands/reflect.md` if the command surface also changes). Source of truth is **always** `src/superclaude/`. Never edit `.claude/skills/sc-reflect-protocol/SKILL.md` directly — that copy is regenerated.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:58:2. **Run `make sync-dev`** to mirror the updated `src/superclaude/{skills,agents,commands}/` tree into `.claude/`. This is the canonical sync command (Makefile:109).
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:68:| `make reflect-eval-quick` | **NEW (Phase 6)** | 3 pilot cases, <30s. Runs on every PR that touches `src/superclaude/skills/sc-reflect-protocol/` or `src/superclaude/commands/reflect.md`. |
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:72:| `make sync-dev` | existing, Makefile:109 | Mirror `src/superclaude/{skills,agents,commands}/` → `.claude/`. Step 2 of the sync workflow. |
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:77:**CI policy summary.** Every PR that modifies `src/superclaude/skills/sc-reflect-protocol/**` or `src/superclaude/commands/reflect.md` MUST pass `make reflect-eval-quick` plus the standard baselines (`make lint`, `make test`, `make verify-sync`, `make lint-architecture`). Release-candidate branches add `make reflect-eval`. The cost-profile regenerator (`make sync-cost-profile`) is run by the contributor whenever spec §15 budgets change; the resulting `refs/cost-profile.yaml` diff is reviewed in the same PR.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md:81:- `make verify-sync` non-zero exit → re-run `make sync-dev`. If still non-zero, inspect the diff (`git status` against `.claude/skills/sc-reflect-protocol/`) and reconcile with `src/superclaude/skills/sc-reflect-protocol/`. Never resolve by editing `.claude/` directly.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md:237:**Same route rule, no exception.** The headless path follows the depth-keyed route table: `superclaude reflect run --fix` (`src/superclaude/cli/reflect/runner.py`) passes `--depth <d> --remediate`. With depth `standard`/`quick` reflect authors a plan and emits `remediation_plan_path`; the wrapper's auto-fix loop runs `/sc:implement <remediation_plan_path>`. With `--depth deep` reflect authors the MDTM and emits `remediation_task_path`; the loop runs `/task <remediation_task_path>`. The loop reads whichever field is non-null (the MDTM pointer wins if both are set) and fails closed on a non-zero apply rc.
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:83:- **Location:** src/superclaude/pm_agent/confidence.py:142
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:86:- **Evidence:** "hashlib.md5(payload).hexdigest()" (src/superclaude/pm_agent/confidence.py:142, re-Read 2026-05-27)
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:161:- **Evidence anchor:** src/superclaude/pm_agent/confidence.py:142
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:169:- **Evidence anchor:** src/superclaude/pm_agent/reflexion.py:88
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:228:- **File:** src/superclaude/pm_agent/confidence.py
++origin/master:src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md:45:Example shape — the brief contains an H2 `## Grounding hunks` heading followed by one H3 per hunk; each H3 is the `file:line-range` ref, and the H3 body is the language-tagged fenced code block of the source excerpt. For example, an H3 like `### src/superclaude/pm_agent/confidence.py:42-58` is followed by a ```` ```python ```` fenced block containing the verbatim source between lines 42 and 58. The same shape is used for test files, e.g., H3 `### tests/pm_agent/test_confidence.py:101-115` followed by the corresponding fenced Python block.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/SKILL.md:109:> **Relationship to CLI**: `sc:roadmap-protocol` is the inference-layer skill; the deterministic counterpart is the `superclaude roadmap run` CLI (`src/superclaude/cli/roadmap/executor.py`). The Waves below organize behavioral instructions for orchestrators reading this skill; the CLI executes a flat 14-step pipeline. Both surfaces converge on the same artifacts (`roadmap.md`, `extraction.md`, `test-strategy.md`, plus CLI-only validation/certification outputs), but threshold semantics differ — see the inference-only note below.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/SKILL.md:152:- **Canonical contracts SoT (`superclaude.contracts`, R0.3 + R1.1).** `src/superclaude/contracts/__init__.py` is the single source of truth for `ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, and `RETURN_CONTRACTS` (per-skill return-type schemas). Arch-lint (Makefile `lint-architecture` Check 11) blocks CI if any of these constants is re-defined elsewhere. **There is no `superclaude.contracts.parsers` submodule** — the module is a constants/schema registry, not a parser host (the frontmatter parser is owned by the envelope module; see below).
++origin/master:src/superclaude/skills/sc-roadmap-protocol/SKILL.md:157:- **Fail-closed everywhere (R1.6 cleanup).** The fail-open `fidelity_checker` defaults, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass were all deleted. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (Acceptance Gate #7, CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
++origin/master:src/superclaude/skills/sc-roadmap-protocol/SKILL.md:374:**CLI canonical mechanism (B-8, VERIFIED).** In CLI-faithful terms the round count is encoded directly inside the debate-step prompt via the `_DEPTH_INSTRUCTIONS` dict at `src/superclaude/cli/roadmap/prompts.py:18-37`, which `build_debate_prompt` (`prompts.py:878-902`) interpolates into a single LLM call gated by `DEBATE_GATE` (`gates.py:1155-1166`). The CLI does not invoke `Skill sc:adversarial-protocol`; the `--depth` flag selects the `_DEPTH_INSTRUCTIONS` entry that produces a 1-, 2-, or 3-round debate inside the single `debate` step. The threshold-based PASS/PARTIAL/FAIL routing on `convergence_score` described elsewhere in this skill is inference-only — the canonical CLI `DEBATE_GATE` only validates that `convergence_score` is a float in `[0.0, 1.0]`.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/SKILL.md:502:> **CLI parity (B-8, VERIFIED).** Direct `Skill sc:adversarial-protocol` delegation is **inference-only** — the canonical `superclaude roadmap run` CLI performs adversarial-merge work as an inline four-step chain (`diff → debate → score → merge`) inside its flat 14-step pipeline, with the debate round count encoded by `_DEPTH_INSTRUCTIONS` (`src/superclaude/cli/roadmap/prompts.py:18-37`) and the debate prompt built by `build_debate_prompt` (`prompts.py:878-902`). The D-0001 reversal established that **SKILL-DIRECT is available** (Skill-to-skill invocation does not require a Task agent wrapper); it did **not** make SKILL-DIRECT the canonical CLI debate mechanism. The CLI's canonical mechanism remains the inline debate step. See `refs/adversarial-integration.md` "CLI Canonical Debate Prompt Flow (B-8, VERIFIED)" for full source citations.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:11:> **CLI parity.** The roadmap CLI does **not** delegate to a separate `sc:adversarial-protocol` skill. The "adversarial debate" inside `superclaude roadmap run` is a single LLM step built by `build_debate_prompt`, embedded as one entry in the flat 14-step pipeline. There is no Skill-to-skill invocation, no return contract YAML on disk, no separate consolidation pass, and no separate `--compare` / `--generate roadmap` sub-skill. Source: `src/superclaude/cli/roadmap/prompts.py:878-902` (`build_debate_prompt`), `:18-37` (`_DEPTH_INSTRUCTIONS`), `src/superclaude/cli/roadmap/executor.py:2076-2084` (Step wiring), `src/superclaude/cli/roadmap/gates.py:1155-1166` (`DEBATE_GATE`).
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:17:| `build_debate_prompt` | `src/superclaude/cli/roadmap/prompts.py:878-902` | `build_debate_prompt(diff_path: Path, variant_a_path: Path, variant_b_path: Path, depth: Literal["quick", "standard", "deep"]) -> str` |
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:23:`_DEPTH_INSTRUCTIONS` is a module-level dict at `src/superclaude/cli/roadmap/prompts.py:18-37` keyed by the same `--depth` values exposed on the CLI:
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:506:*CLI parity baseline (B-8, VERIFIED): the canonical debate behavior is the inline `Step(id="debate", ...)` built by `build_debate_prompt` (`src/superclaude/cli/roadmap/prompts.py:878-902`) with depth control via `_DEPTH_INSTRUCTIONS` (`prompts.py:18-37`), wired at `src/superclaude/cli/roadmap/executor.py:2076-2084` and gated by `DEBATE_GATE` (`src/superclaude/cli/roadmap/gates.py:1155-1166`). The Skill-delegation material from "Mode Detection" through "--interactive Flag Propagation" describes the inference-only delegation mode (SKILL-DIRECT per D-0001 reversal) and is not implemented by the canonical CLI.*
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:17:| `build_extract_prompt` | `src/superclaude/cli/roadmap/prompts.py:180` | Default extraction path (`config.input_type` is `spec`, or omitted). Produces the 8 standard body sections described below. |
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:18:| `build_extract_prompt_tdd` | `src/superclaude/cli/roadmap/prompts.py:328` | Selected when `--input-type tdd` is passed (the CLI uses an **explicit flag**, not the 4-signal inference heuristic in `scoring.md`). Produces the 8 standard body sections plus 6 TDD-specific aspects (see "TDD-Extended Aspects" below). |
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:20:Both functions return one prompt string and accept a `tool_write=` parameter (R1.4) that toggles the structured-JSON tool variant. The executor builds the prompt at `src/superclaude/cli/roadmap/executor.py:2482-2497`, then wires it into a single step at `executor.py:2499-2512`:
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:559:*CLI parity baseline (B-7, VERIFIED): single-pass extraction via `build_extract_prompt` (`src/superclaude/cli/roadmap/prompts.py:180`) or `build_extract_prompt_tdd` (`:328`), wired by `src/superclaude/cli/roadmap/executor.py:2482-2512`, gated by `EXTRACT_GATE` / `EXTRACT_TDD_GATE`. **R1.4 tool-write (VERIFIED):** both builders accept `tool_write=` (`config.tool_write_extract` / `config.tool_write_extract_tdd`); when enabled the step emits JSON validated against `templates/tool_schemas/extract.schema.json` (or `extract_tdd.schema.json`) and rendered via `templates/extract.md.j2` (or `extract_tdd.md.j2`) by `tool_writer.TOOL_WRITE_REGISTRY` (`tool_writer.py:196-216`); the markdown path is retained as side-by-side dual-write. Contract #3 `roadmap_ids ⊆ spec_ids` is enforced at generation time by `render_step_tool_write_with_id_check` for downstream consumers — extract itself DEFINES `spec_ids` (subset check vacuous for extract). Eight-aspect coverage (Aspects 1-8) is the body-section taxonomy the single prompt instructs the LLM to fill; TDD-extended aspects (9-15) are an inference-only finer-grained taxonomy that overlaps the CLI's six TDD body sections. Domain keyword dictionaries are LLM-advisory; the chunked-extraction protocol and 4-pass completeness verification are non-canonical inference-only and have no CLI implementation.*
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:9:The CLI detection function `detect_input_type()` at `src/superclaude/cli/roadmap/executor.py:73-210` evaluates input type in a **fixed order**:
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:43:This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 100–147.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/scoring.md:63:This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 149–210.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:9:> **CLI parity (B-5, VERIFIED).** The roadmap CLI does **not** perform multi-tier template discovery. It resolves a single bundled template file by name via `get_template_path()` in `src/superclaude/cli/roadmap/templates.py`. There is no Tier 1 (local), Tier 2 (user), Tier 3 (plugin marketplace), or Tier 4 (inline fallback) selection path in the CLI today.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:13:The CLI exposes three named template constants (`src/superclaude/cli/roadmap/templates.py:14-16`):
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:23:`get_template_path(name: str) -> Path` (`src/superclaude/cli/roadmap/templates.py:21-71`) resolves a template filename to an absolute path in two ordered steps:
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:26:2. **Src-relative fallback.** Otherwise compute `<repo>/src/superclaude/examples/<name>` from `__file__` and return it if it exists.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:34:- The bundled template file (`src/superclaude/examples/roadmap_template.compressed.md`) is the only canonical input that shapes roadmap.md output structure. Customizing roadmap output today means editing that bundled file inside the source tree.
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:312:The R0.3/R1.1/R1.2 rewrite changed how the IDs, thresholds, and frontmatter fields described below are owned. These are **canonical CLI facts** (verified against `src/superclaude/contracts/__init__.py` and `src/superclaude/cli/roadmap/envelope.py`):
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:316:`src/superclaude/contracts/__init__.py` is the single source of truth for the pipeline's constants. Arch-lint (`make lint-architecture` Check 11) blocks CI if any of these is re-defined elsewhere (Contract #5 + #8):
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/templates.md:461:*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3. CLI parity baseline: single-template resolver via `get_template_path()` over `ROADMAP_TEMPLATE = "roadmap_template.compressed.md"` (`src/superclaude/cli/roadmap/templates.py:14-71`). Multi-tier discovery is inference-only and out of canonical CLI scope (B-5). R0/R1 substrate baseline (VERIFIED): IDs/thresholds/field-names are owned by `superclaude.contracts.__init__` (`ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, `RETURN_CONTRACTS`; no `parsers` submodule); cross-step state is the typed `PipelineEnvelope` (`cli/roadmap/envelope.py:128`, `<release>/envelope.json` sidecar) with frontmatter derived once by `POST_EXTRACTORS` via `spec_parser` helpers (Contract #6 — no new parsers); markdown is render-only after the R1.6 dual-write cutover.*
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:9:> **CLI parity.** The roadmap CLI does **not** dispatch `quality-engineer` or `self-review` sub-agents and does **not** run a REVISE loop. Wave 4 in the CLI is a flat sequence of pipeline steps, each guarded by a deterministic `GateCriteria` instance built from required frontmatter fields, a `min_lines` floor, an enforcement tier, and pure-function semantic checks. Source: `src/superclaude/cli/roadmap/validate_gates.py:30-69` (`REFLECT_GATE`, `ADVERSARIAL_MERGE_GATE`) and `src/superclaude/cli/roadmap/gates.py` (per-step roadmap gates).
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:13:Every gate is a `GateCriteria` (`src/superclaude/cli/pipeline/models.py:132`) value with five fields:
++origin/master:src/superclaude/skills/sc-roadmap-protocol/refs/validation.md:84:R1.6 deleted the fail-open defaults that previously let a gate pass on missing/unparseable evidence: the fail-open branches in `fidelity_checker.py`, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass are all gone. **All roadmap gates are now fail-closed** — absence of evidence is a failure, not a pass. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
++origin/master:src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md:4:`docs/swarm/` + `src/superclaude/cli/swarm/` and **empirically verified** against the live CLI on
++origin/master:src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:194:   - Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
++origin/master:src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:167:- `src/superclaude/cli/eval_run.py:142` — `scratch = Path(args.scratch_root) / ...` (no `Path` import in lines 1–20)
++origin/master:src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:169:- `git log -p src/superclaude/cli/eval_run.py` — the `Path(...)` call was introduced in commit 5a65c62, but the matching import was not added
++origin/master:src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md:173:Add `from pathlib import Path` to the imports section of `src/superclaude/cli/eval_run.py`. Single-line addition.
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:23:- **Use the CLI** (`superclaude roadmap validate`) for **automated CI/CD gating**. The CLI runs a simpler **reflect + adversarial-merge** flow: it builds reflect/merge prompts (`src/superclaude/cli/roadmap/validate_prompts.py:7,68`), executes the pipeline, and parses report counts to emit a pass/fail verdict against a fixed set of validation dimensions. It is fast, deterministic, and non-interactive — appropriate for pre-merge or pre-tasklist hooks, not for human investigation.
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:29:The CLI's reflect prompt validates the roadmap against **7 baseline dimensions** when no original input documents (spec/TDD/PRD) are supplied, expanding to **9 input-aware dimensions** when source inputs resolve. The dimensions are emitted directly by `build_reflect_prompt` (`src/superclaude/cli/roadmap/validate_prompts.py:74-127`) and are reproduced below for crosswalk against this skill's phases.
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:193:| `src/pipeline/hooks.py` | spec.md:L88 | NOT FOUND | Basename match: `src/superclaude/cli/pipeline/trailing_gate.py` |
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:318:**Requires**: `Grep` and `Read` (native floor; always available). Uses codegraph above that floor when it is usable (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)).
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:535:| `src/superclaude/cli/sprint/executor.py` | REQ-042, Agent D3 | EXISTS | — |
++origin/master:src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:536:| `src/pipeline/hooks.py` | REQ-061 | POSSIBLY_MOVED | Candidate: `src/superclaude/cli/pipeline/trailing_gate.py` |
++origin/master:src/superclaude/skills/task-builder/SKILL.md:1510:- Sync models: "src/superclaude/ is source of truth. make sync-dev copies
++origin/master:src/superclaude/skills/tdd/SKILL.md:12:The output always follows the project template at `src/superclaude/examples/tdd_template.md`. The template is the schema — every TDD must conform to it. Can be fed from a PRD to translate product requirements into engineering specifications.
++origin/master:src/superclaude/skills/tdd/SKILL.md:112:| Template schema | `src/superclaude/examples/tdd_template.md` |
++origin/master:src/superclaude/skills/tdd/refs/agent-prompts.md:173:Template reference: src/superclaude/examples/tdd_template.md
++origin/master:src/superclaude/skills/tdd/refs/agent-prompts.md:325:1. Section headers match TDD template (src/superclaude/examples/tdd_template.md)
++origin/master:src/superclaude/skills/tdd/refs/agent-prompts.md:354:Template path: src/superclaude/examples/tdd_template.md
++origin/master:src/superclaude/skills/tdd/refs/agent-prompts.md:407:Template reference: src/superclaude/examples/tdd_template.md
++origin/master:src/superclaude/skills/tdd/refs/build-request-template.md:105:- Read the TDD template at src/superclaude/examples/tdd_template.md
++origin/master:src/superclaude/skills/tdd/refs/build-request-template.md:148:- Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final TDD. Hand it: the list of synth file paths in order (as component_files), the TDD output path `docs/[domain]/TDD_[COMPONENT-NAME].md`, the TDD template reference `src/superclaude/examples/tdd_template.md` (as output_format), the Assembly Process steps from refs/validation-checklists.md (as assembly_rules), and the Content Rules from refs/validation-checklists.md (as content_rules). The assembler reads each synth file and writes the TDD incrementally section by section — frontmatter first, then sections in template order, then Table of Contents, then cross-checks internal consistency (requirements in Section 5 trace to architecture in Section 6, risks in Section 20 have mitigations, Open Questions in Section 22 not answered elsewhere, Dependencies in Section 18 complete). The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt from refs/agent-prompts.md in the checklist item per B2.
++origin/master:src/superclaude/skills/tdd/refs/operational-guidance.md:91:| Template schema | `src/superclaude/examples/tdd_template.md` |
++origin/master:src/superclaude/skills/tdd/refs/synthesis-mapping.md:11:The final TDD follows the template at `src/superclaude/examples/tdd_template.md`. The synthesis agents produce sections that are assembled into this format.
++origin/master:src/superclaude/skills/tdd/refs/validation-checklists.md:15:1. Template section headers match the TDD template exactly (`src/superclaude/examples/tdd_template.md`)
+diff --git a/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-claude-status.txt b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-claude-status.txt
+new file mode 100644
+index 00000000..a01b6566
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t13-claude-status.txt
+@@ -0,0 +1,3 @@
++$ git status --porcelain .claude
++$ git diff --cached --name-only -- .claude
++(nothing above = no staged .claude/ path)
+
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

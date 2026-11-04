@@ -1,0 +1,17 @@
+$ make install (dev extras: ruff was missing from this worktree .venv, so make lint could not spawn ruff)
+ + coverage==7.17.1
+ + librt==0.16.0
+ + mypy==2.4.1
+ + mypy-extensions==1.2.0
+ + numpy==2.4.6
+ + pathspec==1.1.1
+ + py-cpuinfo2==10.1.1
+ + pytest-benchmark==5.3.1
+ + pytest-cov==7.1.0
+ + ruff==0.15.20
+ + scipy==1.17.1
+ ~ superclaude==5.0.0 (from file:///home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command)
+
+✅ Installation complete!
+   Run 'make verify' to check installation
+rc=0

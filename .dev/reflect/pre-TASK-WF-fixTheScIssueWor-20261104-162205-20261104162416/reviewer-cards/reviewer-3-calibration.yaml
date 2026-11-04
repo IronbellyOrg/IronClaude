@@ -1,0 +1,6 @@
+card: reviewer-3-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions: {citation_grounding: 0.92, coverage_completeness: 0.80, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.65, recommendation_actionability: 0.85}
+C: 0.78
+notes: "F2 ('the reports under analysis/' repeats the harness trigger words) understated as minor; plan pins text only, runtime proof is the coordinator's live run."

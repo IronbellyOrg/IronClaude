@@ -1,0 +1,21 @@
+# sc:adversarial return contract (Mode A, --depth standard, --convergence 0.80, non-interactive)
+# status is "partial", not "success": every step completed and post-merge validation passed,
+# but 1 diff point (X-001) has a split winner label, and the contract treats 0 unresolved as full success.
+# The invariant gate blocked after Round 2.5 (INV-001 HIGH) and cleared after the Round 2.6
+# targeted resolution round. INV-001 became merged finding M-13, which is blocking.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/adversarial/merged-verdict.yaml"
+  convergence_score: 0.94
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/adversarial/"
+  status: "partial"
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants: []
+  # Supplementary fields (informational, not part of the protocol schema)
+  merged_verdict: "FAIL"
+  blocking_findings: ["M-13"]
+  merged_finding_count: 11
+  medium_invariant_warnings_resolved_as_findings: ["INV-002 -> M-14", "INV-003 -> M-15"]

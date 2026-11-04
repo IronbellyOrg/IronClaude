@@ -1,0 +1,19 @@
+$ SKILL.md checks (uv run python)
+lines by len(text.splitlines()): 153
+frontmatter: ['name: sc:issue-protocol', 'allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion']
+files on disk not named in SKILL.md: []
+paths named in SKILL.md that do not exist: []
+never-pass-model phrase present: True
+E-NO-ORIGIN True
+E-FOREIGN-REPO True
+E-GH-AUTH True
+E-NOT-AN-ISSUE True
+E-TIER-UNAVAILABLE True
+E-WORKER-NO-OUTPUT True
+E-ASSIGN-FAILED True
+E-POST-FAILED True
+E-CREATE-FAILED True
+D26 line present: True
+gh mentions missing --repo: [] brace placeholder: False
+$ grep -n 'src/superclaude' src/superclaude/skills/sc-issue-protocol/SKILL.md
+exit=1 (grep exit 1 = no match)

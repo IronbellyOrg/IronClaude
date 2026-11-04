@@ -1,0 +1,14 @@
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku, opus]
+calibrator_diversity: degraded
+self_reported_confidence: 0.90
+dimensions:
+  citation_grounding: 0.90
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.65
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.35
+C: 0.68
+calibration_delta: -0.22
+notes: "No recommendations section; F1/F2 labelled candidate classes; misses SKILL.md 500-line check and the sync-dev / never-staged .claude/ copies."

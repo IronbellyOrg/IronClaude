@@ -1,0 +1,41 @@
+# Invariant Probe Results
+
+## Round 2.5 — Fault-Finder Analysis
+
+Fault-finder: an independent general-purpose agent on the default model, not an advocate, run on resume (2026-11-04, 12:43-12:50 UTC) after the first attempt failed with ECONNREFUSED during the outage (`.work/pipeline.log`). Input: the six Round 1 and Round 2 statements, diff-analysis.md, evidence-sheet.md, the reviewer cards, the plan, the spec and the sc-implement-protocol executor files. Its full output, with evidence for every row, is `.work/r25-probe.md`. The orchestrator re-read these anchors itself before accepting the rows: src/superclaude/skills/sc-implement-protocol/SKILL.md:4 (no AskUserQuestion in allowed-tools), refs/qa.md:276-288 (closed list of interrupts), plan:56, plan:58, plan:78, plan:131, plan:243, plan:254, plan:259, source.md:66, :143, :144, :148, :154, :320, :339. The state of issue #302 and the behaviour of `gh issue edit` on a pull-request number were not checked (no gh in this probe; UNVERIFIED where used).
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|----|----------|------------|--------|----------|----------|
+| INV-001 | sufficiency_challenge | C-001's example item-4 URL `https://github.com/IronbellyOrg/issue302-no-such-repo/issues/999999999` makes every escaped write target an issue that cannot exist | UNADDRESSED | HIGH | The repo name embeds `302`, the real origin issue this feature implements (source.md:4). Wave 0 parses N and compares the repo in one step (source.md:143); a lenient number parser (source.md:66 accepts `302`, `#302` or a URL) plus a failed compare yields N = 302, which Wave 3 assigns (source.md:162) and Wave 6 comments on (source.md:178-179). plan:259 can then fail and C-001's "reversible on own fork #1" basis (round2-v1.md:41, round2-v3.md:53-54) no longer holds. Fix: a URL with no digits outside `/issues/<N>`, plus a Task 1 test that digits in owner or repo never become N. |
+| INV-002 | guard_conditions | Tests for "a same-repo URL, a foreign URL and owner/repo case" pin the E-FOREIGN-REPO guard | UNADDRESSED | MEDIUM | The item-4 URL has the same owner as origin; an owner-only or prefix comparison accepts `IronbellyOrg/IronClaudeX`; plan:32 prints `E-NO-ORIGIN` on any non-zero exit, so the codes may be indistinguishable (plan:258 requires `E-FOREIGN-REPO`). Fix: add same-owner, repo-prefix, `/pull/<N>` and fragment cases; the check prints `E-FOREIGN-REPO` with its own exit code. |
+| INV-003 | count_divergence | One real item-4 run lets Task 17 record section 20 item 4 as run | UNADDRESSED | MEDIUM | source.md:470 has two clauses; plan:254 maps only the first; `gh auth status` (source.md:144) and `gh api` (source.md:148, :178) take no `--repo` flag. Fix: split the item-4 row; clause 2 points at the Task 7 scan and the A-004 `repos/<R>/` assertion. |
+| INV-004 | sufficiency_challenge | C-003's fix alone removes the conflict between required content and the fork-safety scans | UNADDRESSED | MEDIUM | Task 3's test (plan:58) has the same rule as plan:131, and the workers' required prohibition (plan:56) is naturally written as backticked `gh issue edit` spans without `--repo`; source.md:320's write list is the same class as source.md:336, :340; copying source.md:319's "never `{owner}/{repo}`" fails plan:131's placeholder ban. Fix: one scan definition for both tests, prohibitions written with `--repo <R>`, and the placeholder rule written without the literal token. |
+| INV-005 | interaction_effects | The executor can carry out the C-002 single exit, the C-006 explicit ask, A-006's "user's reply is the approval" and plan:243's "Ask the user"; the post-Task-13 session condition can be met on a normal run | UNADDRESSED | MEDIUM | refs/qa.md:288 "No other path may stop automation or prompt the user"; the seven interrupts (refs/qa.md:278-286) include no task-body request; SKILL.md:4 has no AskUserQuestion. The session running Tasks 1-14 in source order (SKILL.md:97) started before Task 13, so Task 15's spawns and item 4 are always pending on the first pass (plan:233, plan:254). Not blocking (plan:15 allows pending). Fix: pending as the single exit, plus a post-restart runbook at the end of Task 17. |
+| INV-006 | state_variables | Wave 2's `E-NOT-AN-ISSUE` STOP is out of this plan's scope and a fault is needed to bypass it | UNADDRESSED | MEDIUM | Wave 2 reads only scout.md (source.md:154); the Task 4 scout claim section (plan:78) has no `url` or pull-request field although Wave 1 fetches `url` (source.md:148); an OPEN pull request reports `OPEN` like an issue, so a user typing an open PR number reaches the assign and comments with no fault. Fix: `url` and `is_pull_request` in the scout template (Task 4, with an AC) and claim.md's Wave 2 reads it (Task 5). |
+| INV-007 | sufficiency_challenge | Comparing the reported `task_id` after the first run resolves A-006 | UNADDRESSED | MEDIUM | The PUT happens inside the first run (source.md:309), so a wrong task is already assigned; `CLICKUP_LIST_IDS` (plan:43, source.md:298) narrows the search before the run. Fix: the user also exports `CLICKUP_LIST_IDS` for the test list; on a mismatch, record it and tell the user to remove the assignment. |
+| INV-008 | count_divergence | The 19-row Round 2 tables are the whole ledger | UNADDRESSED | MEDIUM | Unique contributions S-5, S-7, S-8, S-10 and A-6 (diff-analysis.md:47, :54-60) have no row in the Round 2 tables; S-5 is costly if dropped (evidence-validator.md:8 `permissionMode: plan`; plan:56; plan:58 and plan:61-63 do not forbid it; every worker would end `E-WORKER-NO-OUTPUT`, source.md:335). Fix: the merge carries S-5, S-7, S-8, S-10 (and A-6) as explicit minor rows. |
+| INV-009 | guard_conditions | With a non-existent issue number, plan:259 holds even if Wave 0 and Wave 2 fail | ADDRESSED | LOW | Holds once INV-001's URL correction is applied: the assign fails first and stops `E-ASSIGN-FAILED` before ClickUp and comments (source.md:162, :336); a comment on a missing number fails `E-POST-FAILED` (source.md:339). |
+| INV-010 | collection_boundaries | C-005's fix leaves no real environment reaching a test or check | ADDRESSED | LOW | The agreed fix clears all four variables (round2-v1.md:98, round2-v3.md:133); plan:50's run exits `skipped` before the list or page variables are read (source.md:302). |
+| INV-011 | sufficiency_challenge | A-003's static test plus Task 7's flag check covers section 20 item 8 | UNADDRESSED | LOW | source.md:474 restricts next-steps.md to section 19 flags; plan:129 checks only that flags exist in their command files; `/sc:recommend` output can differ (source.md:438). Item 8 stays pending until a live claim; the static half is "template and default rows". |
+| INV-012 | sufficiency_challenge | The downgrades of C-001, C-002 and C-003 to minor are supported | ADDRESSED | LOW | C-002 and C-003 supported (refs/ledger.md:161; plan:135). C-001 stays minor only with a URL that has no stray digits (INV-001). |
+
+## Summary
+
+- **Total findings**: 12
+- **ADDRESSED**: 3
+- **UNADDRESSED**: 9
+  - HIGH: 1 (INV-001)
+  - MEDIUM: 7 (INV-002, INV-003, INV-004, INV-005, INV-006, INV-007, INV-008)
+  - LOW: 1 (INV-011)
+- Missed blocking plan defects: none found (fault-finder self-audit over source sections 15, 16, 17 and 20, the smoke checks, the final suite step and the repo facts the plan states; `.work/r25-probe.md` "Missed blocking defects").
+
+## Gate result
+
+CONVERGENCE BLOCKED: 1 HIGH-severity UNADDRESSED invariant(s) detected
+Blocking items: INV-001
+These invariant violations must be resolved before convergence can be declared.
+Action taken: depth is standard, so no further debate round runs. INV-001 does not reverse the consensus (PASS with notes) and is not a defect of the plan as written (the plan still uses the octocat URL); it is a defect in the consensus fix for C-001. The orchestrator folds the corrected URL and the digit test into the merged F-01 recommendation and lists INV-001 in the return contract's `unaddressed_invariants`, because the debate itself did not address it.
+
+WARNING: 7 MEDIUM-severity UNADDRESSED invariant(s) detected
+Items: INV-002, INV-003, INV-004, INV-005, INV-006, INV-007, INV-008
+These items do not block convergence; each is folded into the merged finding it qualifies (or added as a minor finding) in refactor-plan.md.

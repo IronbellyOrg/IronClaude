@@ -1,0 +1,15 @@
+card: reviewer-1
+calibrated_dimensions: {citation_grounding: 0.85, coverage_completeness: 0.70, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.75}
+C: 0.75
+finding_severity_rulings:
+  - {id: A-1, card_severity: blocking, calibrated_severity: blocking, reason: "plan:254 runs a live /sc:issue --claim without asking; the only guard is untested skill prose (plan:26, source.md:143); a failed guard reaches the Wave 3 assign and Wave 6 comments (source.md:162, 178-179), breaking plan:259. Overstated target: every gh call uses --repo <R> from origin (plan:22, source.md:319), so an escaped write most likely lands on IronbellyOrg/IronClaude#1; the non-existent-repo URL does not fully remove the risk."}
+  - {id: A-2, card_severity: minor, calibrated_severity: minor, reason: "plan:233 vs plan:236 unclear but halts safely (sc-implement-protocol/SKILL.md:135)."}
+  - {id: A-3, card_severity: minor, calibrated_severity: minor, reason: "plan:243 method underspecified; curl -v leak only on a bad method choice."}
+  - {id: A-4, card_severity: minor, calibrated_severity: minor, reason: "plan:45 env isolation partial; local flakiness only."}
+  - {id: A-5, card_severity: minor, calibrated_severity: minor, reason: "plan:131 prose false positives fail loudly and self-correct; example source.md:462 already has --repo."}
+  - {id: A-6, card_severity: minor, calibrated_severity: minor, reason: "plan:43 underspecified; source.md:310 bounds it loosely."}
+missed_by_card:
+  - "No deterministic test covers the E-FOREIGN-REPO URL-vs-origin comparison; Task 1 (plan:32-38) tests only origin parsing. Fix for A-1: move the URL-to-<R> comparison into origin_repo.py and pin it with a test before any live run."
+  - "AC 7 'the skill never passes model on an Agent call (static test)' (source.md:473): Task 7 checks only the sentence's presence (plan:126)."
+  - "Task 16's live ClickUp PUT (plan:243) has no explicit approval rule; plan:26 covers GitHub writes only."
+calibrator_model_class: opus

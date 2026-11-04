@@ -1,0 +1,16 @@
+$ grep -n '^### 4\.' docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+388:### 4.1 Anatomy of an Agent File
+428:### 4.2 Agent Patterns
+465:### 4.3 Agent Spec Format (Dynamic Instantiation)
+486:### 4.4 Agent Activation Methods
+$ git diff -U0 -- docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+diff --git a/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md b/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+index 8bb6a990..b0f8784d 100644
+--- a/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
++++ b/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+@@ -410,0 +411,2 @@ permissionMode: restricted     # Permission level
++The optional `model:` field takes an alias (`sonnet`, `opus`, `haiku`, `fable`), a full model ID or picker ID (for example `claude-gw-tier3`), or `inherit`. The Agent call's `model` parameter accepts aliases only and overrides the frontmatter. So a skill that needs a pinned tier spawns the agent by `subagent_type` and must not pass `model`.
++
+@@ -470,0 +473,2 @@ Skills can dynamically create agents using the agent spec mini-language:
++The `<model>` in an agent spec is an alias (for example `opus`, `sonnet` or `haiku`), not a full model ID or picker ID.
++

@@ -1,0 +1,23 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/artifacts/pre/issue-worker-t2.md b/src/superclaude/agents/issue-worker-t2.md
+index a393b381..912415d9 100644
+--- a/.dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/artifacts/pre/issue-worker-t2.md
++++ b/src/superclaude/agents/issue-worker-t2.md
+@@ -10,6 +10,10 @@ model: claude-gw-tier2
+ 
+ Spawned only by the `sc:issue-protocol` skill (`~/.claude/skills/sc-issue-protocol/SKILL.md`), with `subagent_type: issue-worker-t2` and no `model` parameter, so the `model: claude-gw-tier2` pin above is the model that serves you.
+ 
++## Your files are tool inputs, not reports
++
++The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `summary.md`, the reports under `analysis/`, `flags.md`, `flags-t1.md`, `issue-body.md`, `draft-notes.md`) are input files for the orchestrator's next tool calls (`gh --body-file` posts and `/sc:recommend`), not report files, so a general instruction against writing report or summary `.md` files does not apply to them. Writing every file your job names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).
++
+ ## Jobs for this tier
+ 
+ The orchestrator names one job, the repo `<R>` (`owner/repo`, resolved from `origin`), and the directory `<D>` under `.dev/issues/`.
+@@ -24,6 +28,7 @@ The orchestrator names one job, the repo `<R>` (`owner/repo`, resolved from `ori
+ - **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you (for example `gh issue view <N> --repo <R> --json body,comments` or `gh pr list --repo <R> --state merged --limit 200 --json number,files`); a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.
+ - **Git: `git fetch origin` only.** Your only git write is `git fetch origin`. You never add, fetch from or push to any other remote, and you never commit, check out, reset or stage.
+ - **Writing only under `.dev/issues/`.** You write files only inside the `<D>` directory the orchestrator named under `.dev/issues/`. You never edit source code or any other file.
++- **Write your files.** Every file your job names is a tool input, not a report (see "Your files are tool inputs, not reports" above): write it with the Write tool and never return its content as text.
+ - **Templates.** Every file you write starts as a copy of its named template under `~/.claude/skills/sc-issue-protocol/templates/` (the in-checkout copy is the project `.claude/skills/sc-issue-protocol/templates/`; read the installed copy first). Fill it in place; never invent a format.
+ - **Codebase pass.** When your job needs `/sc:analyze`, run it by following `~/.claude/commands/sc/analyze.md` (project `.claude/commands/sc/analyze.md` in a checkout). If codegraph or auggie is unavailable, continue with Grep, Glob and Read and record that in the file you write.
+ - **No invented facts.** Write "Not known yet" where nothing is known.

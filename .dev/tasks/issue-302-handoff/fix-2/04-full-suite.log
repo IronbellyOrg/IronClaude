@@ -1,0 +1,43 @@
+$ uv run pytest
+2026-11-04T17:22:30Z
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_wrong_operand_state_mutation_detected
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_loaded_start_index' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_sentinel_ambiguity_detected
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_replayed_event_offset' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/sprint/diagnostic/test_diagnostics.py: 11 warnings
+tests/sprint/diagnostic/test_level_0.py: 2 warnings
+tests/sprint/diagnostic/test_negative.py: 3 warnings
+  <string>:15: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_crash
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/sprint/diagnostic/test_diagnostics.py:221: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.CRASH
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_error_halt
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/sprint/diagnostic/test_diagnostics.py:228: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.ERROR
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_unknown_when_no_evidence
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/sprint/diagnostic/test_diagnostics.py:241: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.UNKNOWN
+
+tests/sprint/diagnostic/test_negative.py::TestCorruptData::test_classifier_with_empty_bundle
+  /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/tests/sprint/diagnostic/test_negative.py:109: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    cat = classifier.classify(bundle)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==== 14847 passed, 136 skipped, 2 xpassed, 32 warnings in 449.79s (0:07:29) ====
+rc=0

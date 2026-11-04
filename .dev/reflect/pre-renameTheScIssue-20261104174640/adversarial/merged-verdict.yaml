@@ -1,0 +1,129 @@
+# Provenance: This document was produced by /sc:adversarial
+# Base: Variant 3 (opus:refactorer)
+# Merge date: 2026-11-04T18:56:00Z
+# Incorporated: Variant 1 (sonnet:analyzer), Variant 2 (haiku/glm-5.3:qa), invariant probe, shared assumption A-001
+merge_method: "adversarial"
+base_variant: "opus:refactorer (variant-3)"
+convergence_score: 0.95
+verdict: "PASS"
+verdict_note: "PASS (with notes): no finding is blocking after the debate; 13 minor findings remain as notes and follow-ups."
+coverage_check: "9/9 spec spans present (variant-2)"
+blocking_count: 0
+minor_count: 13
+findings:
+  # Source: Variant 3 R3-F1; Change 1 (severity downgraded blocking -> minor per debate Round 2, all three advocates and v3's own final severity)
+  - id: M-01
+    file_line: "plan Task 3 (lines 71, 72, 76)"
+    claim: "Old-path check is inline assertions only; the negative case and the red log repeat the old-path logic instead of calling a shared helper, so two copies can drift and the negative case can pass vacuously. The positive test (plan line 71) still meets the source requirement against the real files."
+    class: "drift"
+    severity: "minor"
+    recommendation: "Add _OLD_SUMMARY_REFS and old_summary_refs(text); both the positive and the negative tests call it; the red log imports it"
+    source_variants: ["variant-3"]
+
+  # Source: Variant 3 R3-F2; unchanged from base (no planned change)
+  - id: M-02
+    file_line: "plan Task 3 (line 70); tests/skills/test_issue_worker_agents.py:240-246"
+    claim: "Positive test passes when nothing is scanned (section_lines returns [] on a missing heading)"
+    class: "drift"
+    severity: "minor"
+    recommendation: "Assert the collected set includes scout.md, accuracy-check.md, issue-summary.md, analyze-<scope>.md and that the Outputs section is non-empty"
+    source_variants: ["variant-3"]
+
+  # Source: Variant 3 R3-F3; unchanged from base (no planned change)
+  - id: M-03
+    file_line: "plan Task 3 (line 68); refs/chains.md:30-37"
+    claim: "Names in fenced blocks or prose are not scanned (chains.md:33 is inside a text fence)"
+    class: "drift"
+    severity: "minor"
+    recommendation: "Also collect .md tokens from fenced-block lines"
+    source_variants: ["variant-3"]
+
+  # Source: Variant 3 R3-F4, narrowed per invariant probe INV-002; Change 3 (also corroborated by Variant 1 R1-F2 on the two meanings of <scope>)
+  - id: M-04
+    file_line: "refs/chains.md:7; plan Tasks 1-2; SKILL.md:66"
+    claim: "<scope> has two meanings: refs/chains.md:7 defines it as the main path and passes it to /sc:troubleshoot --scope <scope>, while Task 2 uses the last segment for the analysis file name. A full-path substitution could yield a blocked basename."
+    class: "drift"
+    severity: "minor"
+    recommendation: "Define the last-segment meaning only for the analysis/analyze-<scope>.md file name; leave refs/chains.md:7 (/sc:troubleshoot --scope <scope>) unchanged"
+    source_variants: ["variant-3", "variant-1"]
+
+  # Source: Variant 3 R3-F5 merged with Variant 2 R2-F2 (same finding); Change 4
+  - id: M-05
+    file_line: "plan Task 1 (line 36) vs Task 3 (line 70); refs/claim.md:58"
+    claim: "Task 3 asserts the literal <D>/analysis/analyze-<scope>.md (analysis/analyze-<scope>.md) in refs/claim.md, but Task 1 only says it adds the same naming rule and does not require the literal verbatim"
+    class: "drift"
+    severity: "minor"
+    recommendation: "Require the exact substring <D>/analysis/analyze-<scope>.md in SKILL.md and claim.md (refs/claim.md:58)"
+    source_variants: ["variant-2", "variant-3"]
+
+  # Source: Variant 3 R3-F6; relabeled informational (kept at minor) per debate Round 2 (the red is real but no gate sees it)
+  - id: M-06
+    file_line: "plan Task 2 vs Task 3; tests/skills/test_issue_worker_agents.py:206-215"
+    claim: "Informational: the test file goes red between Task 2 and Task 3 because _TOOL_INPUT_PARAGRAPH (tests:206) is updated only in Task 3; no acceptance gate observes the transient red"
+    class: "drift"
+    severity: "minor"
+    recommendation: "Move the constant updates into Task 2, or accept the transient red"
+    source_variants: ["variant-3", "variant-1"]
+
+  # Source: Variant 3 R3-F7 merged with Variant 2 R2-F4 (same finding); Change 5
+  - id: M-07
+    file_line: "src/superclaude/skills/sc-issue-protocol/refs/chains.md:14; plan Task 3 (lines 68-69)"
+    claim: "refs/chains.md:14 has `<REPORT.md path printed by step 1>`; the token <REPORT.md escapes the scan only because '<' is not stripped, and no probe case pins it"
+    class: "grounding_gap"
+    severity: "minor"
+    recommendation: "Add a probe case '<REPORT.md' -> no match and document that <...> placeholders are kept"
+    source_variants: ["variant-2", "variant-3"]
+
+  # Source: Variant 3 R3-F8 replaced by Variant 1 R1-F1 class and remedy (Variant 2 R2-F1 supports the CI fact); Change 2
+  - id: M-08
+    file_line: "Makefile:117-123; Makefile:178; plan Constraints (line 20); .github/workflows/test.yml:118-124"
+    claim: "Plan Constraints line 20 says .claude/ is regenerated by make sync-dev, which is false for deletions: sync-dev only copies (Makefile:117-123) and verify-sync runs diff -rq (Makefile:178), so the stale mirror .claude/skills/sc-issue-protocol/templates/summary.md survives the rename and make verify-sync fails locally. CI is safe (.github/workflows/test.yml:118-124 runs sync-dev then verify-sync on a fresh runner)."
+    class: "grounding_gap"
+    severity: "minor"
+    recommendation: "After make sync-dev, delete only the gitignored .claude/skills/sc-issue-protocol/templates/summary.md, run make verify-sync until it exits 0, and never git add .claude/"
+    source_variants: ["variant-1", "variant-2", "variant-3"]
+
+  # Source: Variant 3 R3-F9; unchanged from base (no planned change)
+  - id: M-09
+    file_line: "plan Task 3 (line 69)"
+    claim: "Probe results have no recorded source in the package"
+    class: "grounding_gap"
+    severity: "minor"
+    recommendation: "Cite the #365 refusal and the probe subagent in the test comment"
+    source_variants: ["variant-3"]
+
+  # Source: Variant 2 R2-F3; Change 6 (added)
+  - id: M-10
+    file_line: "docs/designs/sc-issue-command.md:168, :249; plan Task 4 acceptance (line 94)"
+    claim: "Task 4 acceptance grep for summary.md cannot observe the analyze-<scope> edits at design-doc lines 168 and 249"
+    class: "drift"
+    severity: "minor"
+    recommendation: "Add grep -n 'analyze-<scope>' docs/designs/sc-issue-command.md to the t4 log"
+    source_variants: ["variant-2"]
+
+  # Source: Variant 1 R1-F3; Change 7 (added as an authorized no-change note)
+  - id: M-11
+    file_line: "src/superclaude/skills/sc-issue-protocol/SKILL.md:66; tests/skills/test_issue_worker_agents.py:221-227"
+    claim: "The SKILL.md:66 spawn-rule line (pinned by _SPAWN_PROMPT_LINE, tests:221-227) still says 'not report files' without naming the real mechanism; leaving it unchanged is correct because the source names only the fix-2 paragraph"
+    class: "authorized"
+    severity: "minor"
+    recommendation: "No change: leave SKILL.md:66 as is"
+    source_variants: ["variant-1"]
+
+  # Source: Invariant probe INV-001; Change 8 (added; outside the source's claim-mode scope, follow-up)
+  - id: M-12
+    file_line: "issue-worker-t1.md:22,24; issue-worker-t2.md:24; issue-worker-t3.md:23; refs/create.md:51-53"
+    claim: "Create-mode /sc:analyze runs name no output file, so a worker could invent ANALYSIS.md or report.md; the static test cannot see an invented name. Outside the claim-mode scope of the source."
+    class: "grounding_gap"
+    severity: "minor"
+    recommendation: "Record as a follow-up: give create-mode /sc:analyze runs a named output file the same way claim mode does; not part of this plan"
+    source_variants: ["invariant-probe"]
+
+  # Source: Shared assumption A-001 plus invariant probe INV-007; Change 9 (added as a handoff note, outside the plan's write scope)
+  - id: M-13
+    file_line: "install_skills.py:102-104; install_agents.py:51; install_commands.py:55"
+    claim: "The installers skip an existing skill, agent or command without --force, so installed ~/.claude/ copies shadow or outlive the project mirror and a live /sc:issue run outside this checkout would read the stale copy. No installed copy exists on this machine today."
+    class: "grounding_gap"
+    severity: "minor"
+    recommendation: "Handoff note: run superclaude install --force (skills, agents and the command) before the next live /sc:issue run"
+    source_variants: ["variant-1", "variant-2", "variant-3", "invariant-probe"]
