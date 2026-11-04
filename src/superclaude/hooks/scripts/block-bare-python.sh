@@ -24,7 +24,10 @@
 # such as a redirect target, that keeps the command word after it), case
 # patterns, array assignments, [[ ]] tests (their words,
 # including `(` and `|` in =~ patterns, are not commands, but $( ) inside
-# them is scanned), redirections, heredocs and here-strings. In each simple
+# them is scanned), function definitions (in `name() { ...; }` the name is
+# not a command; the body is scanned), redirections (with numeric or
+# {name} descriptor prefixes such as 2> or {fd}>), heredocs and
+# here-strings. In each simple
 # command it skips NAME=value assignments, the keywords
 # if/then/elif/else/do/while/until/!/{ (like [[, case and function, a keyword
 # only when unquoted and unescaped, as in bash) and the wrappers sudo, nice, nohup,
@@ -123,6 +126,7 @@ function endword(o,   w, b, k, q) {
         if (w == "function") { parg[o] = 1; return }
         if (w == "[[") { tst[o] = 1; need[o] = 0; cmd[o] = w; return }
     }
+    if (substr(s, i) ~ /^[ \t]*\([ \t]*\)/) { cmd[o] = w; return }
     b = base(w)
     if (iswrap(b)) { wrap[o] = b; return }
     need[o] = 0; cmd[o] = b
@@ -203,7 +207,7 @@ function cmdchar(s, n, c,   o, nx, t, p) {
             if (skn[o]) skn[o] = 0; else addc(o, "<()")
             pushc("psub"); return
         }
-        if (inw[o] && wd[o] ~ /^[0-9]+$/) { inw[o] = 0; wd[o] = ""; wq[o] = 0 } else endword(o)
+        if (inw[o] && !wq[o] && wd[o] ~ /^([0-9]+|\{[A-Za-z_][A-Za-z0-9_]*\})$/) { inw[o] = 0; wd[o] = ""; wq[o] = 0 } else endword(o)
         if (c == "<" && nx == "<") {
             if (substr(s, i + 2, 1) == "<") { i += 2; skn[o] = 1; return }
             i++
@@ -216,7 +220,7 @@ function cmdchar(s, n, c,   o, nx, t, p) {
     if (c == "(") {
         if (inw[o] && wd[o] ~ /^[A-Za-z_][A-Za-z0-9_]*\+?=$/) { pushc("arr"); return }
         endword(o)
-        if (substr(s, i + 1, 1) == ")") { i++; need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; return }
+        if (match(substr(s, i + 1), /^[ \t]*\)/)) { i += RLENGTH; need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; return }
         if (cs[o] == 3) return
         if (need[o] && substr(s, i + 1, 1) == "(") { i++; pusha(); return }
         pushc("par"); return

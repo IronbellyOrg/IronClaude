@@ -136,6 +136,11 @@ BLOCKED = {
     # PR #359 review round 2: backticks inside arithmetic.
     "arith-expansion-backtick": "echo $(( `python3 -c 1` + 1 ))",
     "arith-command-backtick": "(( `python3 -c 1` ))",
+    # PR #359 review round 3: named file-descriptor prefixes.
+    "named-fd-redirect": "{fd}>/dev/null python3 -c 1",
+    "named-fd-input": "{in}</dev/null python3 x",
+    # PR #359 review round 3: a function body is still scanned.
+    "function-body-spaced-parens": "f ( ) { python3 x; }",
 }
 
 ALLOWED = {
@@ -193,6 +198,9 @@ ALLOWED = {
     "psub-argument": "diff <(echo a) <(echo b)",
     "psub-redirect-other-command": "< <(printf '') cat",
     "arith-plain": "echo $(( 1 + 2 ))",
+    # PR #359 review round 3: a function named python3 or pip is a definition.
+    "function-named-python3": 'python3() { uv run python "$@"; }; echo ready',
+    "function-named-pip-spaced": 'pip () { uv pip "$@"; }',
 }
 
 
