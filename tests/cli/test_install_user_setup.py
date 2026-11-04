@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -386,6 +387,7 @@ def test_plugins_move_ponytail_to_a_new_pin(tmp_path: Path, monkeypatch) -> None
 
     monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
     monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    monkeypatch.delenv("GIT_CONFIG_COUNT", raising=False)
     ok, message = setup.install_plugins(home=home)
     assert ok and message.startswith("✅ Plugins"), message
     path = home / setup._CATALOG_DIR / ".claude-plugin" / "marketplace.json"
@@ -394,8 +396,47 @@ def test_plugins_move_ponytail_to_a_new_pin(tmp_path: Path, monkeypatch) -> None
         ["plugin", "marketplace", "update", "ironclaude"],
         ["plugin", "update", "ponytail@ironclaude", "--scope", "user"],
     ]
-    assert calls[0][1] is None
+    # Only `plugin update` clones over HTTPS; every command uses the checked home.
+    assert "CLAUDE_CONFIG_DIR" not in calls[0][1]
+    assert calls[0][1]["HOME"] == str(home)
+    assert "GIT_CONFIG_COUNT" not in calls[0][1]
     assert calls[1][1]["GIT_CONFIG_VALUE_0"] == "git@github.com:"
+
+
+def test_plugins_run_claude_against_the_validated_home(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Every claude command acts on the profile install_plugins checked."""
+    foreign = tmp_path / "cfg" / "plugins"
+    foreign.mkdir(parents=True)
+    theirs = {"source": {"source": "github", "repo": "someone/ironclaude"}}
+    (foreign / "known_marketplaces.json").write_text(json.dumps({"ironclaude": theirs}))
+    seen = []
+
+    def fake_run(command, **kwargs):
+        # Pick the profile the way the claude CLI does.
+        env = kwargs.get("env") or os.environ
+        root = env.get("CLAUDE_CONFIG_DIR") or os.path.join(env["HOME"], ".claude")
+        seen.append((command[1:], root, env))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setenv("SENTINEL", "kept")
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    for index, profile in enumerate((str(tmp_path / "cfg"), "")):
+        monkeypatch.setenv("CLAUDE_CONFIG_DIR", profile)
+        home = _plugin_home(tmp_path / str(index), {"ponytail@ironclaude": True})
+        seen.clear()
+        ok, message = setup.install_plugins(home=home)
+        assert ok and message.startswith("✅ Plugins"), message
+        assert [c for c, _, _ in seen] == [
+            ["plugin", "marketplace", "add", str(home / setup._CATALOG_DIR)],
+            ["plugin", "install", "ponytail@ironclaude", "--scope", "user", "-y"],
+        ]
+        for _, root, env in seen:
+            assert root == str(home / ".claude"), profile
+            assert "CLAUDE_CONFIG_DIR" not in env
+            assert env["SENTINEL"] == "kept"
 
 
 def test_plugins_keep_ponytail_at_its_pin(tmp_path: Path, monkeypatch) -> None:
@@ -416,6 +457,41 @@ def _recording_run(calls: list, failing: tuple = ()):
         return subprocess.CompletedProcess(command, rc, "", "")
 
     return fake_run
+
+
+def test_plugins_judge_the_pin_by_the_user_scope_record(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A project-scope copy at the pin neither hides nor replaces the user copy."""
+    old = "16352ac229eb08a9598dcae48fe9f2b342567d86"  # upstream tag v5.3.2
+    project = {
+        "scope": "project",
+        "projectPath": "/work/app",
+        "gitCommitSha": PONYTAIL_SHA,
+    }
+    cases = {
+        "mixed": (
+            [{"scope": "user", "gitCommitSha": old}, project],
+            [
+                ["plugin", "marketplace", "update", "ironclaude"],
+                ["plugin", "update", "ponytail@ironclaude", "--scope", "user"],
+            ],
+        ),
+        "project-only": (
+            [project],
+            [["plugin", "install", "ponytail@ironclaude", "--scope", "user", "-y"]],
+        ),
+    }
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    for name, (records, expected) in cases.items():
+        home = _pinned_home(tmp_path / name, PONYTAIL_SHA, PONYTAIL_SHA)
+        path = home / ".claude" / "plugins" / "installed_plugins.json"
+        path.write_text(json.dumps({"plugins": {"ponytail@ironclaude": records}}))
+        calls = []
+        monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls))
+        ok, message = setup.install_plugins(home=home)
+        assert ok and message.startswith("✅ Plugins"), (name, message)
+        assert calls == expected, name
 
 
 def test_plugins_refuse_a_foreign_ironclaude_marketplace(
@@ -443,6 +519,38 @@ def test_plugins_refuse_a_foreign_ironclaude_marketplace(
         assert ok and message.startswith("⚠️  Plugins"), (entry, message)
         assert "ironclaude (registered from another source" in message, entry
         assert not any("ironclaude" in " ".join(c) for c in calls), (entry, calls)
+        assert registry.read_bytes() == before
+
+
+def test_plugins_refuse_an_unresolvable_ironclaude_registration(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A registered path that cannot be resolved is not ours; the run goes on."""
+    (tmp_path / "a").symlink_to(tmp_path / "b")
+    (tmp_path / "b").symlink_to(tmp_path / "a")
+    loop = tmp_path / "a" / "catalog"  # resolve() raises RuntimeError before 3.13
+    nul = str(tmp_path / "nul\x00dir")  # resolve() raises ValueError everywhere
+    enabled = {"ponytail@ironclaude": True, "playwright@claude-plugins-official": True}
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    for index, bad in enumerate((str(loop), nul)):
+        home = _pinned_home(tmp_path / str(index), PONYTAIL_SHA, PONYTAIL_SHA)
+        settings = home / ".claude" / "settings.json"
+        settings.write_text(json.dumps({"enabledPlugins": enabled}))
+        registry = home / ".claude" / "plugins" / "known_marketplaces.json"
+        entry = {"source": {"source": "directory", "path": bad}}
+        registry.write_text(
+            json.dumps({"ironclaude": entry, "claude-plugins-official": {}})
+        )
+        before = registry.read_bytes()
+        calls = []
+        monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls))
+        ok, message = setup.install_plugins(home=home)
+        assert ok and message.startswith("⚠️  Plugins"), (bad, message)
+        assert "ironclaude (registered from another source" in message, bad
+        assert calls == [
+            ["plugin", "install", "playwright@claude-plugins-official"]
+            + ["--scope", "user", "-y"]
+        ], bad
         assert registry.read_bytes() == before
 
 
@@ -542,7 +650,9 @@ def test_plugins_skip_already_installed(tmp_path: Path, monkeypatch) -> None:
         json.dumps({"claude-plugins-official": {}})
     )
     (plugins / "installed_plugins.json").write_text(
-        json.dumps({"plugins": {"playwright@claude-plugins-official": []}})
+        json.dumps(
+            {"plugins": {"playwright@claude-plugins-official": [{"scope": "user"}]}}
+        )
     )
     monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
     monkeypatch.setattr(

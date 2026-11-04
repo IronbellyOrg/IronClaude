@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261104T191156Z-pr360-followups/adversarial/merged-output.md"
+  convergence_score: 0.78
+  artifacts_dir: ".dev/brainstorms/20261104T191156Z-pr360-followups/adversarial/"
+  status: "success"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 2  # C-003, X-001 (record without scope); decided in base-selection.md
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # Round 2.5 skipped at depth quick

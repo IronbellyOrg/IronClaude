@@ -492,10 +492,13 @@ the other default plugins past the budget on a fresh workspace; they are
 reported by name and installed on a later run.
 
 > **`CLAUDE_CONFIG_DIR`.** The installer always writes its files under
-> `$HOME/.claude/`. If you set `CLAUDE_CONFIG_DIR`, it is used only to find
-> `.claude.json` when reading MCP registrations. An empty
-> `CLAUDE_CONFIG_DIR` makes that lookup fail, so the codegraph phase stops and
-> `superclaude install` exits 1.
+> `$HOME/.claude/`, and it runs its `claude plugin` commands against
+> `$HOME/.claude/` too, so a Claude Code profile kept in `CLAUDE_CONFIG_DIR`
+> does not get the default plugins. MCP registrations are the exception: if
+> you set `CLAUDE_CONFIG_DIR`, the installer reads `.claude.json` from it, and
+> the `claude mcp` commands that register codegraph act on that profile. An
+> empty `CLAUDE_CONFIG_DIR` makes that lookup fail, so the codegraph phase stops
+> and `superclaude install` exits 1.
 
 ---
 
