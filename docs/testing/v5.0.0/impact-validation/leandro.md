@@ -80,18 +80,20 @@ Run (a) and (b) in each project repo where reviews ran since the upgrade (not in
 find .dev -name 'qa-*report-[0-9]*.md' -newermt 2026-11-02 -printf '%h %f\n' \
   | sed -E 's/-report-([0-9]+)\.md$/ \1/' \
   | awk '{k=$1" "$2; if($3>m[k]) m[k]=$3} END{for(k in m){t++; if(m[k]>=4){h++; print "4+ reviews:", k}} print "qa_gates="t+0, "gates_with_4plus_reviews="h+0}'
-# (b) /sc:implement ledgers: highest attempt per task, and halts
+# (b) /sc:implement ledgers: highest attempt per task, and halts, only for ledgers changed after the tag date
 #     (plan packages under .dev/tasks/, and runs on a file or prompt under .dev/implement/)
-for f in .dev/tasks/to-do/*/progress.md .dev/tasks/done/*/progress.md .dev/implement/*/progress.md; do
-  [ -f "$f" ] || continue
+LEDGERS=$(find .dev/tasks/to-do .dev/tasks/done .dev/implement -mindepth 2 -maxdepth 2 -name progress.md -newermt 2026-11-02 2>/dev/null)
+for f in $LEDGERS; do
   awk -v f="$f" '/^T[0-9A-Za-z.-]+: retry n=/{t=$1; sub(":","",t); match($0,/n=[0-9]+/); n=substr($0,RSTART+2,RLENGTH-2)+0; if(n>m[t]) m[t]=n}
     /^T[0-9A-Za-z.-]+: (complete|blocked)/{t=$1; sub(":","",t); c[t]=1}
     END{for(t in c){tot++; if(m[t]>=4) hi++} printf "%s tasks=%d attempt4plus=%d\n", f, tot, hi+0}' "$f"
 done
-grep -H 'halt review=' .dev/tasks/*/*/progress.md .dev/implement/*/progress.md 2>/dev/null
+[ -n "$LEDGERS" ] && grep -H 'halt review=' $LEDGERS
 # (c) static guard, from the IronClaude clone
 uv run pytest tests/skills/test_review_severity_rule.py -q
 ```
+
+Command (b) differs from the one in the issue's runbook, which has no date filter. Without the filter, old ledgers from before the upgrade would count against the 2% limit, and old successful tasks would hide new failures. Like (a), it picks ledgers by file date, so run it where the files keep their real dates, not on a fresh clone.
 
 - **(d) Re-grade the minors.** Take 10 findings that were graded "minor" after 2026-11-02 (from `artifacts/retries/T*/notes.md` in plan packages, or QA reports that passed with notes). Re-grade each against the definition in `src/superclaude/output-styles/pragmatic.md` line 225.
 - **(e) The guide.** Run guide [D06](../user/D06-plan-implement-review-cap.md) Steps 1 and 2. Optionally run Step 9, a seeded defect that cannot be fixed. `/sc:implement` keeps its own ladder, so the expected result is a last ledger line `T1: halt review=<2-5>` with no `complete` line.

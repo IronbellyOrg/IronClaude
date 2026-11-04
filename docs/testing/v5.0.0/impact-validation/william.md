@@ -90,11 +90,15 @@ done
 The first time a repository is opened, codegraph indexes it. This measures how long that takes, how much memory it uses, and how big the index is. Do it on 2 or 3 real team repositories. Use a fresh clone in `/tmp`, never a working repo.
 
 ```bash
-git clone --depth 1 <repo URL> /tmp/cg-cost/repo
-time uv run --no-project python -c 'import resource,subprocess,sys; subprocess.run(["codegraph","init","--yes",sys.argv[1]],check=True); print("peak_rss_kb", resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss)' /tmp/cg-cost/repo
-du -sk /tmp/cg-cost/repo/.codegraph
-codegraph status /tmp/cg-cost/repo   # only after init has exited; gives the indexed file count
+# run once per repository; each run gets its own new folder under /tmp, so a second repository never reuses the first clone
+cg=$(mktemp -d /tmp/cg-cost.XXXXXX) && echo "measuring into $cg" \
+  && git clone --depth 1 <repo URL> "$cg/repo" \
+  && time uv run --no-project python -c 'import resource,subprocess,sys; subprocess.run(["codegraph","init","--yes",sys.argv[1]],check=True); print("peak_rss_kb", resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss)' "$cg/repo" \
+  && du -sk "$cg/repo/.codegraph" \
+  && codegraph status "$cg/repo"   # only after init has exited; gives the indexed file count
 ```
+
+Run the block once for each repository. Each run makes its own new folder under `/tmp`, and the `&&` chain stops at the first failed step, so a failed clone cannot be followed by measurements of an earlier repository. The `echo` line shows which folder belongs to which run; write down the folder next to each repository's result. The folders are left in place for you to remove when you are done.
 
 - **Baseline:** about 70 KB per indexed file and up to about 1 GB of memory during the first index (`CHANGELOG.md` line 93).
 - **Pass:** peak memory is 1,048,576 KB or less, and the `.codegraph` size divided by the indexed file count is 140 KB or less. Record the time for each repository.
