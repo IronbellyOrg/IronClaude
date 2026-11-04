@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.claude/commands/sc/adversarial.md:0
+/home/coder/.claude/commands/sc/adversarial.md:0

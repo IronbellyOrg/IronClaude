@@ -1,0 +1,20 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 5.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded parsed-sparse (inferred 24 > parsed 0) is a table-wide pre-filter that forbids every Tier 1 stop; independently, calibrated confidence 0.82 < 0.85 fires rule 6. S_dev_density 0.25 > 0.20 would also fire rule 5."
+inputs:
+  confidence_calibrated: 0.82
+  calibration_source: confidence-calibrator (model class fable), artifacts/t1-calibration.md
+  S_scope: 5
+  S_domains: 1
+  S_dev_density: 0.25
+  coverage_pct: null
+  coverage_pct_union: 0.75

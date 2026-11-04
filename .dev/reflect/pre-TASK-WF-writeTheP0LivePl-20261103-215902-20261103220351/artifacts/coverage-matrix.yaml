@@ -1,0 +1,179 @@
+# sc:reflect --mode pre, Wave 1B coverage matrix (UC-1)
+# spec:     .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/source.md (one physical line)
+# tasklist: .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md
+#
+# Pass 1: ID_REGEX \b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b over source.md (no fenced code) -> 0 hits.
+#   source.md labels its requirements AC-0.4 / AC-0.5 / AC-0.6 / AC-C6, which the regex does not capture;
+#   no range tokens, so no expansion.
+# Pass 2: requirement-shaped content (scope items, input rules, constraint bullets, execution constraint),
+#   each row a verbatim quote of source.md:1 (checked to be byte-present before matching).
+# Matching: containment rule only (no parsed rows). Case-fold, fixed stopword set (articles, conjunctions,
+#   prepositions, auxiliaries, pronouns), match when >= 0.6 of the quote's content words appear in ONE
+#   tasklist item; best ratio wins, first item in tasklist order breaks ties.
+#   Tasklist items in order: C1..C10 = the ten top-level bullets of "## Constraints" (plan lines 19, 20, 21,
+#   22, 23, 24, 25, 26, 27, 28-40; C10 = the live-check procedure with its sub-bullets), then T1..T5 =
+#   "## Task 1".."## Task 5" bodies (plan lines 44-52, 56-80, 84-106, 110-131, 135-145).
+#   Ratios were computed by a throwaway script applying the rule as written; the ratio is in match_basis.
+
+parsed_count: 0
+inferred_count: 24
+
+rows:
+  - id: INF-001
+    source: inferred
+    quote: '/sc:troubleshoot "<real symptom>" --output-dir <dir> with no --fix and no --depth deep'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.50 < 0.6 -> none. Covered in substance by the T2 brief (plan line 70: --output-dir, no --fix, no --depth).'
+  - id: INF-002
+    source: inferred
+    quote: '/sc:workflow "<small change>" --handoff none'
+    citation: source.md:1
+    matched_task: T3
+    match_basis: 'containment 0.60 -> T3'
+  - id: INF-003
+    source: inferred
+    quote: '/sc:adversarial --compare <two files> --depth quick --output <dir>'
+    citation: source.md:1
+    matched_task: T4
+    match_basis: 'containment 0.875 -> T4'
+  - id: INF-004
+    source: inferred
+    quote: 'each run directly by the worker with the AC-0.4 report-file and outcome rule in its brief'
+    citation: source.md:1
+    matched_task: C10
+    match_basis: 'containment 0.75 -> Constraints bullet 10 (live-check procedure)'
+  - id: INF-005
+    source: inferred
+    quote: 'AC-0.5 (timed worker-start under 45 s with the normal launch setup)'
+    citation: source.md:1
+    matched_task: C9
+    match_basis: 'containment 0.625 -> Constraints bullet 9 (first in order); also realized in T2 (plan line 73)'
+  - id: INF-006
+    source: inferred
+    quote: 'AC-0.6 (whether worker-read --source transcript names tool calls, with a quoted excerpt)'
+    citation: source.md:1
+    matched_task: C10
+    match_basis: 'containment 0.90 -> Constraints bullet 10; also realized in T2 (plan line 73)'
+  - id: INF-007
+    source: inferred
+    quote: 'all seven section 7.2 steps per live check'
+    citation: source.md:1
+    matched_task: C2
+    match_basis: 'containment 0.714 -> Constraints bullet 2 (scope)'
+  - id: INF-008
+    source: inferred
+    quote: 'fresh disposable worktree created by Orca at its default path from branch ironbelly/OrcaCLICommandRefactor-Specs at 8db29f11, never under .dev/worktrees/'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.583 < 0.6 -> none. Covered in substance by C9 + C10 (plan lines 27, 29).'
+  - id: INF-009
+    source: inferred
+    quote: 'make sync-dev inside it before dispatch unless --setup run is confirmed to do it'
+    citation: source.md:1
+    matched_task: C10
+    match_basis: 'containment 0.889 -> Constraints bullet 10'
+  - id: INF-010
+    source: inferred
+    quote: 'orca worktree rm after step 7'
+    citation: source.md:1
+    matched_task: C10
+    match_basis: 'containment 1.00 -> Constraints bullet 10 (Remove sub-bullet, plan line 39)'
+  - id: INF-011
+    source: inferred
+    quote: 'a P0 phase report in the package artifacts that combines the static report (.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/p0-static-report.md, cited not copied) with the live results and states the phase verdict'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.571 < 0.6 -> none. Covered in substance by T5 (plan line 139).'
+  - id: INF-012
+    source: inferred
+    quote: 'for troubleshoot use a real current symptom from the static run''s accepted pre-existing failures (.dev/tasks/done/TASK-WF-orcaWorkerContra-20261103-012232/artifacts/t1-accepted-failures.md)'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.583 < 0.6 -> none. Covered in substance by the T1 symptom check (plan line 46) and the T2 brief (plan line 70).'
+  - id: INF-013
+    source: inferred
+    quote: 'for workflow a small harmless change prompt'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.20 < 0.6 -> none. Covered in substance by the T3 Command: line (plan line 98).'
+  - id: INF-014
+    source: inferred
+    quote: 'for adversarial two existing committed files under .dev/orca-command-refactor/'
+    citation: source.md:1
+    matched_task: T4
+    match_basis: 'containment 0.667 -> T4'
+  - id: INF-015
+    source: inferred
+    quote: 'no edit to any source, command, skill, agent or test file'
+    citation: source.md:1
+    matched_task: C3
+    match_basis: 'containment 1.00 -> Constraints bullet 3'
+  - id: INF-016
+    source: inferred
+    quote: 'no git commit, push, PR, gh write or superclaude install'
+    citation: source.md:1
+    matched_task: C4
+    match_basis: 'containment 1.00 -> Constraints bullet 4'
+  - id: INF-017
+    source: inferred
+    quote: 'no interaction with the SuperClaude-Org upstream'
+    citation: source.md:1
+    matched_task: C4
+    match_basis: 'containment 1.00 -> Constraints bullet 4'
+  - id: INF-018
+    source: inferred
+    quote: 'UV only'
+    citation: source.md:1
+    matched_task: T1
+    match_basis: 'containment 1.00 -> T1 (mechanical: "uv" and "only" both occur in T1; C5 states the rule but scores 0.5)'
+  - id: INF-019
+    source: inferred
+    quote: 'never stage .claude/'
+    citation: source.md:1
+    matched_task: C6
+    match_basis: 'containment 1.00 -> Constraints bullet 6'
+  - id: INF-020
+    source: inferred
+    quote: 'leave the superseded package .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/ unstaged and untouched'
+    citation: source.md:1
+    matched_task: C6
+    match_basis: 'containment 0.667 -> Constraints bullet 6. Matched but at risk: t1-card F-001 (the executor re-stages .dev/tasks after the archive move).'
+  - id: INF-021
+    source: inferred
+    quote: 'stage .dev/tasks at the end'
+    citation: source.md:1
+    matched_task: T5
+    match_basis: 'containment 0.667 -> T5'
+  - id: INF-022
+    source: inferred
+    quote: 'the live plan is executed by /sc:implement in a top-level session the person opens (depth 0, the coordinator), never inside an Orca worker, since its own live checks start Orca workers'
+    citation: source.md:1
+    matched_task: C1
+    match_basis: 'containment 0.75 -> Constraints bullet 1'
+  - id: INF-023
+    source: inferred
+    quote: 'A failed live check is recorded in the phase report, not retried silently; per spec AC-0.4 a failure reopens section 1.'
+    citation: source.md:1
+    matched_task: C7
+    match_basis: 'containment 0.867 -> Constraints bullet 7. Matched but at risk: t1-card F-002 (the managed FINAL treats a cited log that shows a failure as issues).'
+  - id: INF-024
+    source: inferred
+    quote: 'The plan must fix concrete inputs in advance, not leave them to the executor'
+    citation: source.md:1
+    matched_task: null
+    match_basis: 'containment 0.286 < 0.6 -> none. Covered in substance: T2-T4 fix every Command: line word for word (plan lines 70, 98, 124).'
+
+coverage_pct: null              # parsed-only; parsed_count is 0
+coverage_pct_union: 0.7500      # 18 of 24 rows matched by the containment rule
+unmapped_requirements: []       # parsed-only
+unmapped_requirements_union: [INF-001, INF-008, INF-011, INF-012, INF-013, INF-024]
+coverage_undefined: false       # Pass 2 emitted valid quote-pinned rows
+coverage_degraded: parsed-sparse   # inferred_count (24) > parsed_count (0)
+S_scope: 5                      # Tasks 1-5
+S_domains: 1                    # every path the plan writes is under .dev/ (docs); tests are only run, and Orca state is not a file path
+S_dev_density: 0.2500           # 6 unmapped / 24 union; missing_implementations_count 0 (no abstract symbols in scope)
+note: >-
+  All six mechanically unmapped rows are covered in substance (match_basis names the plan line); they miss the
+  0.6 threshold because the source uses placeholder and path wording that the plan restates differently.
+  S_dev_density > 0.20 and coverage_degraded parsed-sparse both route to Tier 2 under the rubric.

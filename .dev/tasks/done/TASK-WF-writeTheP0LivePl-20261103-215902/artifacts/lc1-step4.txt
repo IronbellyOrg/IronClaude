@@ -1,0 +1,2 @@
+test -s /home/coder/workspaces/worktrees/IronClaude/p0-live-troubleshoot/.dev/p0-live/troubleshoot/REPORT.md exit=0
+Status line of the report file (line 7): **Status**: partial; AC-0.4 rule gives --outcome succeeded (not failed, not blocked); worker sent --outcome succeeded
