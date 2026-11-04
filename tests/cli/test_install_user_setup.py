@@ -104,19 +104,42 @@ def _defaults() -> dict:
     )
 
 
-def test_defaults_ship_ponytail() -> None:
+PONYTAIL_SHA = "7801d061243d7b753bad0e0b3c057cd250b11755"  # upstream tag v5.3.3
+
+
+def test_defaults_ship_ponytail_pinned() -> None:
     defaults = _defaults()
-    assert defaults["enabledPlugins"]["ponytail@ponytail"] is True
-    assert defaults["extraKnownMarketplaces"]["ponytail"]["source"] == {
+    catalog = defaults[setup._CATALOG_KEY]
+    assert catalog["name"] == "ironclaude"
+    assert catalog["owner"]["name"]
+    assert defaults["enabledPlugins"]["ponytail@ironclaude"] is True
+    entry = next(e for e in catalog["plugins"] if e["name"] == "ponytail")
+    assert entry["source"] == {
         "source": "github",
         "repo": "DietrichGebert/ponytail",
+        "ref": "v5.3.3",
+        "sha": PONYTAIL_SHA,
     }
+    # Every catalog entry is pinned to a full commit, never a branch or tag alone.
+    for item in catalog["plugins"]:
+        assert re.fullmatch(r"[0-9a-f]{40}", item["source"]["sha"]), item["name"]
     assert defaults["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
     assert "pluginConfigs" not in defaults
     # Every default plugin's marketplace must be installable by install_plugins.
     for plugin in defaults["enabledPlugins"]:
         market = plugin.split("@", 1)[1]
+        if market == catalog["name"]:
+            assert market not in defaults["extraKnownMarketplaces"]
+            continue
         assert defaults["extraKnownMarketplaces"][market]["source"]["repo"], plugin
+
+
+def test_defaults_hold_no_unpinned_ponytail() -> None:
+    defaults = _defaults()
+    assert "ponytail@ponytail" not in defaults["enabledPlugins"]
+    assert "ponytail" not in defaults["extraKnownMarketplaces"]
+    outside_catalog = {k: v for k, v in defaults.items() if k != setup._CATALOG_KEY}
+    assert "DietrichGebert" not in json.dumps(outside_catalog)
 
 
 def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> None:
@@ -124,11 +147,9 @@ def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> No
     claude.mkdir()
     defaults = _defaults()
     old_plugins = {
-        p: True for p in defaults["enabledPlugins"] if p != "ponytail@ponytail"
+        p: True for p in defaults["enabledPlugins"] if p != "ponytail@ironclaude"
     }
-    old_markets = {
-        m: v for m, v in defaults["extraKnownMarketplaces"].items() if m != "ponytail"
-    }
+    old_markets = dict(defaults["extraKnownMarketplaces"])
     (claude / "settings.json").write_text(
         json.dumps(
             {
@@ -140,10 +161,11 @@ def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> No
     )
     assert setup.apply_settings_defaults(home=tmp_path)[0]
     settings = _settings(tmp_path)
-    assert settings["enabledPlugins"]["ponytail@ponytail"] is True
-    assert settings["extraKnownMarketplaces"]["ponytail"]["source"]["repo"] == (
-        "DietrichGebert/ponytail"
-    )
+    assert settings["enabledPlugins"]["ponytail@ironclaude"] is True
+    # The catalog stays in the package; Claude Code declares the marketplace
+    # itself when install_plugins adds it.
+    assert setup._CATALOG_KEY not in settings
+    assert "ironclaude" not in settings["extraKnownMarketplaces"]
     assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
     for plugin, value in old_plugins.items():
         assert settings["enabledPlugins"][plugin] is value
@@ -162,14 +184,14 @@ def test_settings_defaults_keep_user_ponytail_choices(tmp_path: Path) -> None:
         json.dumps(
             {
                 "env": {"PONYTAIL_DEFAULT_MODE": "full"},
-                "enabledPlugins": {"ponytail@ponytail": False},
+                "enabledPlugins": {"ponytail@ironclaude": False},
             }
         )
     )
     assert setup.apply_settings_defaults(home=tmp_path)[0]
     settings = _settings(tmp_path)
     assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "full"
-    assert settings["enabledPlugins"]["ponytail@ponytail"] is False
+    assert settings["enabledPlugins"]["ponytail@ironclaude"] is False
 
 
 def test_settings_defaults_refuse_malformed_file(tmp_path: Path) -> None:
@@ -277,12 +299,86 @@ def test_plugins_install_missing_enabled_defaults(tmp_path: Path, monkeypatch) -
         "anthropics/claude-plugins-official",
     ] in calls
     assert ["plugin", "marketplace", "add", "Lum1104/Understand-Anything"] in calls
-    assert ["plugin", "marketplace", "add", "DietrichGebert/ponytail"] in calls
     installs = [c[2] for c in calls if c[:2] == ["plugin", "install"]]
     assert "notion@claude-plugins-official" not in installs
     assert "frontend-design@claude-plugins-official" in installs
     assert "understand-anything@understand-anything" in installs
-    assert "ponytail@ponytail" in installs
+    # Ponytail comes only from the pinned IronClaude catalog, added before install.
+    catalog_dir = home / ".claude" / "ironclaude-marketplace"
+    written = json.loads(
+        (catalog_dir / ".claude-plugin" / "marketplace.json").read_text()
+    )
+    assert written == defaults[setup._CATALOG_KEY]
+    add = ["plugin", "marketplace", "add", str(catalog_dir)]
+    install = ["plugin", "install", "ponytail@ironclaude", "--scope", "user", "-y"]
+    assert calls.index(add) < calls.index(install)
+    assert not any("DietrichGebert" in " ".join(c) for c in calls)
+
+
+def _pinned_home(tmp_path: Path, installed_sha: str, catalog_sha: str) -> Path:
+    """A workspace with Ponytail installed and the catalog on disk."""
+    home = _plugin_home(tmp_path, {"ponytail@ironclaude": True})
+    plugins = home / ".claude" / "plugins"
+    plugins.mkdir()
+    (plugins / "known_marketplaces.json").write_text(json.dumps({"ironclaude": {}}))
+    record = {"scope": "user", "version": "x", "gitCommitSha": installed_sha}
+    (plugins / "installed_plugins.json").write_text(
+        json.dumps({"plugins": {"ponytail@ironclaude": [record]}})
+    )
+    catalog = json.loads(json.dumps(_defaults()[setup._CATALOG_KEY]))
+    catalog["plugins"][0]["source"]["sha"] = catalog_sha
+    path = home / setup._CATALOG_DIR / ".claude-plugin" / "marketplace.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(catalog))
+    return home
+
+
+def test_plugins_move_ponytail_to_a_new_pin(tmp_path: Path, monkeypatch) -> None:
+    old = "16352ac229eb08a9598dcae48fe9f2b342567d86"  # upstream tag v5.3.2
+    home = _pinned_home(tmp_path, installed_sha=old, catalog_sha=old)
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append((command[1:], kwargs.get("env")))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    ok, message = setup.install_plugins(home=home)
+    assert ok and message.startswith("✅ Plugins"), message
+    path = home / setup._CATALOG_DIR / ".claude-plugin" / "marketplace.json"
+    assert json.loads(path.read_text()) == _defaults()[setup._CATALOG_KEY]
+    assert [c for c, _ in calls] == [
+        ["plugin", "marketplace", "update", "ironclaude"],
+        ["plugin", "update", "ponytail@ironclaude", "--scope", "user"],
+    ]
+    assert calls[0][1] is None
+    assert calls[1][1]["GIT_CONFIG_VALUE_0"] == "git@github.com:"
+
+
+def test_plugins_keep_ponytail_at_its_pin(tmp_path: Path, monkeypatch) -> None:
+    home = _pinned_home(tmp_path, PONYTAIL_SHA, PONYTAIL_SHA)
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError)
+    )
+    assert setup.install_plugins(home=home) == (True, "✅ Plugins: already installed")
+
+
+def test_plugins_catalog_write_failure_is_not_fatal(
+    tmp_path: Path, monkeypatch
+) -> None:
+    home = _plugin_home(tmp_path, {"ponytail@ironclaude": True})
+    (home / setup._CATALOG_DIR).write_text("not a directory")
+    calls = []
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda command, **k: calls.append(command)
+    )
+    ok, message = setup.install_plugins(home=home)
+    assert ok and message.startswith("⚠️  Plugins")
+    assert "ironclaude (catalog not written)" in message
+    assert not calls
 
 
 def test_plugins_skip_already_installed(tmp_path: Path, monkeypatch) -> None:

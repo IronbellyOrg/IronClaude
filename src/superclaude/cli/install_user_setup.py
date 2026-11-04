@@ -14,9 +14,14 @@ defaults, and Orca's bundled skills.
   requested from Orca when it is installed rather than shipped here.
 - Plugins listed in the defaults are installed with the `claude` CLI, since
   enabling a plugin in settings.json does not download it.
+- Third-party plugins IronClaude enables by default come from its own
+  marketplace: the defaults' ``ironclaudeMarketplace`` catalog is written to
+  ~/.claude/ironclaude-marketplace/ on every run, and each entry pins a commit,
+  so a plugin changes only when a release changes the pin.
 """
 
 import json
+import os
 import shutil
 import subprocess
 import time
@@ -34,6 +39,16 @@ _ORCA_CLIS = ("orca-ide", "orca")
 _ORCA_TIMEOUT = 25
 _NETWORK_BUDGET = 30
 _NESTED_KEYS = ("env", "enabledPlugins", "extraKnownMarketplaces", "modelSettings")
+# The pinned catalog is read by install_plugins and never copied into settings.
+_CATALOG_KEY = "ironclaudeMarketplace"
+_CATALOG_DIR = Path(".claude") / "ironclaude-marketplace"
+# `claude plugin update` clones GitHub sources over SSH, which fails without a
+# key; these git settings make that one command clone over HTTPS instead.
+_HTTPS_GITHUB = {
+    "GIT_CONFIG_COUNT": "1",
+    "GIT_CONFIG_KEY_0": "url.https://github.com/.insteadOf",
+    "GIT_CONFIG_VALUE_0": "git@github.com:",
+}
 
 
 def _package_dir(name: str) -> Path:
@@ -149,6 +164,8 @@ def apply_settings_defaults(home: Path | None = None) -> Tuple[bool, str]:
 
     added: List[str] = []
     for key, value in defaults.items():
+        if key == _CATALOG_KEY:
+            continue
         current = settings.get(key)
         if key in _NESTED_KEYS and isinstance(value, dict):
             if current is None:
@@ -248,10 +265,24 @@ def _read_json(path: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
+def _write_catalog(home: Path, catalog: dict) -> bool:
+    """Write the pinned marketplace file; True when its content changed."""
+    path = home / _CATALOG_DIR / ".claude-plugin" / "marketplace.json"
+    if _read_json(path) == catalog:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _atomic_write_json(path, catalog)
+    return True
+
+
 def install_plugins(
     home: Path | None = None, deadline: float | None = None
 ) -> Tuple[bool, str]:
-    """Download the default plugins the user has not disabled; never fatal."""
+    """Download the default plugins the user has not disabled; never fatal.
+
+    Plugins from the IronClaude catalog are installed at their pinned commit,
+    and one installed at another commit is updated to the pin.
+    """
     home = Path.home() if home is None else Path(home)
     claude = shutil.which("claude")
     if claude is None:
@@ -267,31 +298,61 @@ def install_plugins(
     plugins_dir = home / ".claude" / "plugins"
     known = _read_json(plugins_dir / "known_marketplaces.json")
     installed = _read_json(plugins_dir / "installed_plugins.json").get("plugins", {})
+    catalog = defaults.get(_CATALOG_KEY, {})
+    pinned = {
+        f"{entry['name']}@{catalog['name']}": entry["source"].get("sha")
+        for entry in catalog.get("plugins", [])
+    }
+    stale = [
+        p
+        for p in wanted
+        if p in pinned
+        and p in installed
+        and pinned[p]
+        not in {e.get("gitCommitSha") for e in installed[p] if isinstance(e, dict)}
+    ]
 
-    commands = []
+    commands: List[Tuple[str, List[str]]] = []  # (name in the report, arguments)
+    failed: List[str] = []
+    if any(p in pinned for p in wanted):
+        name = catalog["name"]
+        try:
+            changed = _write_catalog(home, catalog)
+        except OSError:
+            failed.append(f"{name} (catalog not written)")
+            wanted = [p for p in wanted if p not in pinned]
+            stale = []
+        else:
+            if name not in known:
+                add = ["plugin", "marketplace", "add", str(home / _CATALOG_DIR)]
+                commands.append((name, add))
+                known[name] = {}
+            elif changed or stale:
+                commands.append((name, ["plugin", "marketplace", "update", name]))
     for plugin in wanted:
         market = plugin.split("@", 1)[1]
         source = (
             defaults.get("extraKnownMarketplaces", {}).get(market, {}).get("source", {})
         )
         if market not in known and source.get("repo"):
-            commands.append(["plugin", "marketplace", "add", source["repo"]])
+            add = ["plugin", "marketplace", "add", source["repo"]]
+            commands.append((source["repo"], add))
             known[market] = source
     commands += [
-        ["plugin", "install", p, "--scope", "user", "-y"]
+        (p, ["plugin", "install", p, "--scope", "user", "-y"])
         for p in wanted
         if p not in installed
     ]
-    if not commands:
+    commands += [(p, ["plugin", "update", p, "--scope", "user"]) for p in stale]
+    if not commands and not failed:
         return True, "✅ Plugins: already installed"
 
-    failed = []
-    for args in commands:
-        name = args[3] if args[1] == "marketplace" else args[2]
+    for name, args in commands:
         remaining = deadline - time.monotonic()
         if remaining < 2:
             failed.append(f"{name} (time limit)")
             continue
+        env = {**os.environ, **_HTTPS_GITHUB} if args[1] == "update" else None
         try:
             result = subprocess.run(
                 [claude, *args],
@@ -299,6 +360,7 @@ def install_plugins(
                 text=True,
                 timeout=remaining,
                 stdin=subprocess.DEVNULL,
+                env=env,
             )
             if result.returncode != 0:
                 failed.append(name)
