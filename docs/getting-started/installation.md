@@ -395,7 +395,8 @@ ponytail@ponytail --scope user`. That copy is not pinned and follows upstream.
 from the `DietrichGebert/ponytail` marketplace, at whatever commit upstream had
 then. On such a workspace, or one where you installed `ponytail@ponytail`
 yourself, the next `superclaude install` or `superclaude update` adds the pinned
-`ponytail@ironclaude` beside it, so both are enabled. The installer leaves
+`ponytail@ironclaude` beside it, so both are enabled (unless you had opted out,
+see below). The installer leaves
 `ponytail@ponytail` alone: the entries it wrote look exactly like the ones
 `claude plugin marketplace add DietrichGebert/ponytail` writes, so it cannot
 tell whether it or you added them. To keep only the pinned copy, run:
@@ -462,6 +463,12 @@ as `true`. Do not only run `claude plugin uninstall` either: the next
 `false` for it. A project `.claude/settings.json` that enables it wins over your
 user value; to opt out of such a project, set `"ponytail@ironclaude": false` in
 that project's `.claude/settings.local.json`.
+
+If you opted out before the pin with `"ponytail@ponytail": false` (the earlier
+instructions), that choice carries over: when `ponytail@ironclaude` is missing
+from your user settings, the installer adds it as `false`, not `true`, and leaves
+`ponytail@ponytail` as it is. A value you already set for `ponytail@ironclaude`
+always wins.
 
 Ponytail keeps its files under `CLAUDE_CONFIG_DIR` when that variable is set,
 while the installer always writes to `$HOME/.claude` (see the note below). Its

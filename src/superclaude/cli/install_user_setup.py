@@ -39,6 +39,9 @@ _ORCA_CLIS = ("orca-ide", "orca")
 _ORCA_TIMEOUT = 25
 _NETWORK_BUDGET = 30
 _NESTED_KEYS = ("env", "enabledPlugins", "extraKnownMarketplaces", "modelSettings")
+# Default plugins whose id changed: a user's `false` under the old id carries
+# over to the new one, so an opt-out survives the rename.
+_RENAMED_PLUGINS = {"ponytail@ironclaude": "ponytail@ponytail"}
 # The pinned catalog is read by install_plugins and never copied into settings.
 _CATALOG_KEY = "ironclaudeMarketplace"
 _CATALOG_DIR = Path(".claude") / "ironclaude-marketplace"
@@ -174,7 +177,10 @@ def apply_settings_defaults(home: Path | None = None) -> Tuple[bool, str]:
                 continue  # A user value of another shape is theirs; keep it.
             for name, entry in value.items():
                 if name not in current:
-                    current[name] = entry
+                    old_id = (
+                        _RENAMED_PLUGINS.get(name) if key == "enabledPlugins" else None
+                    )
+                    current[name] = False if current.get(old_id) is False else entry
                     added.append(f"{key}.{name}")
         elif key not in settings:
             settings[key] = value

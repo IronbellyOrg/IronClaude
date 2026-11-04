@@ -194,6 +194,45 @@ def test_settings_defaults_keep_user_ponytail_choices(tmp_path: Path) -> None:
     assert settings["enabledPlugins"]["ponytail@ironclaude"] is False
 
 
+def test_settings_defaults_carry_old_ponytail_opt_out(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """An opt-out under the old id ponytail@ponytail survives the rename."""
+    cases = [
+        ({"ponytail@ponytail": False}, False),
+        ({"ponytail@ponytail": False, "ponytail@ironclaude": True}, True),
+        ({"ponytail@ponytail": True}, True),
+    ]
+    for index, (enabled, expected) in enumerate(cases):
+        home = tmp_path / str(index)
+        (home / ".claude").mkdir(parents=True)
+        (home / ".claude" / "settings.json").write_text(
+            json.dumps({"enabledPlugins": dict(enabled)})
+        )
+        assert setup.apply_settings_defaults(home=home)[0]
+        plugins = _settings(home)["enabledPlugins"]
+        assert plugins["ponytail@ironclaude"] is expected, enabled
+        assert plugins["ponytail@ponytail"] is enabled["ponytail@ponytail"]
+        assert setup.apply_settings_defaults(home=home)[1] == (
+            "✅ Settings defaults: already present"
+        )
+    # install_plugins then leaves the opted-out plugin alone.
+    calls = []
+    opted_out = tmp_path / "0"
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess,
+        "run",
+        lambda command, **_k: (
+            calls.append(command[1:]) or subprocess.CompletedProcess(command, 0, "", "")
+        ),
+    )
+    setup.install_plugins(home=opted_out)
+    assert calls  # the other default plugins are still installed
+    assert not any("ponytail@ironclaude" in c for c in calls)
+    assert not (opted_out / setup._CATALOG_DIR).exists()
+
+
 def test_settings_defaults_refuse_malformed_file(tmp_path: Path) -> None:
     claude = tmp_path / ".claude"
     claude.mkdir()
