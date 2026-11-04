@@ -23,6 +23,10 @@
 # that is not asked all start an untagged session: Orca expects Claude to
 # start in this tab, so it never ends up at a dead prompt.
 #
+# When Orca relaunches a tab after a workspace restart, the tab reopens the
+# session it ran (the one the ccsession hooks recorded for its pane) instead of
+# asking: see the reopen step below.
+#
 # An unanswered question starts untagged after CCSESSION_ASK_TIMEOUT seconds
 # (default 30; 0 waits for ever). Orca also starts supervised workers with
 # this command and fails one whose Claude is not ready within 60 seconds.
@@ -57,6 +61,38 @@ for _arg in "$@"; do
     --resume|--resume=*|-r|--continue|-c) ask=0 ;;
   esac
 done
+
+# After a workspace restart Orca relaunches each Claude tab with this command
+# again and nothing that says which session the tab ran (Coder #433). The
+# ccsession hooks remember it per tab; reopen it instead of asking, but only
+# where the question would be asked and only for a plain relaunch: Orca's own
+# options and nothing else (no prompt, name, prefill or session choice). A new
+# tab has no session yet, and anything else behaves as before.
+if [ "$ask" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
+  plain=1
+  for _arg in "$@"; do
+    case "$_arg" in
+      --prefill | --prefill=* | -p | --print | --name | --name=* | -n | \
+        --session-id | --session-id=* | --fork-session | --from-pr | --from-pr=*) plain=0 ;;
+      -*) : ;;
+      *) plain=0 ;;
+    esac
+  done
+  reopen=""
+  if [ "$plain" = 1 ]; then
+    reopen=$("$CCSESSION" --orca-tab-reopen 2>/dev/null) || reopen=""
+  fi
+  if [ -n "$reopen" ]; then
+    session=${reopen%%$'\t'*}
+    name=${reopen#*$'\t'}
+    if [ -n "$name" ]; then
+      echo "[ccsession] Reopening this tab's session '$name'"
+      exec "$CCSESSION" --name "$name" --shim --claude-args "$@"
+    fi
+    echo "[ccsession] Reopening this tab's session ${session:0:8}"
+    exec "$CCSESSION" --shim --claude-args "$@" --resume "$session"
+  fi
+fi
 
 name=""
 if [ "$ask" = 1 ]; then

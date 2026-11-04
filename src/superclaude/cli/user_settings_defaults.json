@@ -9,7 +9,8 @@
   "skipDangerousModePermissionPrompt": true,
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION": "5000"
+    "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION": "5000",
+    "PONYTAIL_DEFAULT_MODE": "lite"
   },
   "modelSettings": {
     "gpt-6-astra": {
@@ -31,7 +32,8 @@
     "notion@claude-plugins-official": true,
     "dropbox@claude-plugins-official": true,
     "google-cloud-storage@claude-plugins-official": true,
-    "understand-anything@understand-anything": true
+    "understand-anything@understand-anything": true,
+    "ponytail@ironclaude": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -46,5 +48,24 @@
         "repo": "Lum1104/Understand-Anything"
       }
     }
+  },
+  "ironclaudeMarketplace": {
+    "name": "ironclaude",
+    "owner": {
+      "name": "IronClaude"
+    },
+    "description": "Third-party plugins IronClaude installs by default, each pinned to a reviewed commit",
+    "plugins": [
+      {
+        "name": "ponytail",
+        "description": "Ponytail v5.3.3, pinned by IronClaude",
+        "source": {
+          "source": "github",
+          "repo": "DietrichGebert/ponytail",
+          "ref": "v5.3.3",
+          "sha": "7801d061243d7b753bad0e0b3c057cd250b11755"
+        }
+      }
+    ]
   }
 }

@@ -1,0 +1,99 @@
+--- a/docs/dev/sync-discipline.md
++++ b/docs/dev/sync-discipline.md
+@@ -12,9 +12,10 @@
+ `src/superclaude/` is the canonical source of every distributable component.
+ The `.claude/` tree in this repo is a generated mirror that exists only so
+ Claude Code can load skills, agents, and commands during local development.
+-The upstream installer (`superclaude install`) regenerates `.claude/` from
+-`src/`, and the same convention is enforced inside the repo by `make
+-verify-sync` and a pre-commit gate.
++`make sync-dev` regenerates this repo's `.claude/` from `src/`;
++`superclaude install` writes the user-level `~/.claude/`, not the repo
++copy. The convention is enforced inside the repo by `make verify-sync`
++and a pre-commit gate.
+ 
+ This is the project-wide rule documented in
+ [`CLAUDE.md`](../../CLAUDE.md#-component-sync) (§ "Component Sync") and in
+--- a/docs/dev/lens-contribution-policy.md
++++ b/docs/dev/lens-contribution-policy.md
+@@ -1,7 +1,8 @@
+ # Lens contribution policy
+ 
+ **Scope:** governance for new entries in `cli/swarm/lenses/__init__.py::LENSES`
+-(the 8-entry built-in registry described in §3 of the merged requirements).
++(8 bundled lenses plus the `custom` escape hatch, 9 registry entries; see
++§3 of the merged requirements).
+ Lens entries are not application code — they are vetted shortcuts that
+ expand into full job specs at preflight time and are dispatched against
+ real workers. A misconfigured entry can leak prompt-injection vectors,
+@@ -35,7 +36,10 @@
+ - [ ] **C1 -- Real caller.** A real caller wires this lens in
+       production (or a checked-in test fixture demonstrates the
+       caller). Speculative "we might want this someday" entries
+-      belong in `--custom-prompt-dir` until a caller exists. See §2.
++      belong in a `custom` lens job spec that sets the JobSpec
++      `custom_prompt_dir` field (set in the spec file; no
++      `swarm run` option sets it in 5.0.0) until a caller exists.
++      See §2.
+ - [ ] **C2 -- §11.5 injection-guard substring.** `system_prompt_fragment`
+       contains the canonical §11.5 sentence verbatim. The validator's
+       `lens.injection_substring_missing` assertion blocks PRs that
+@@ -184,7 +188,9 @@
+   alongside their first caller in the same PR).
+ 
+ Speculative entries -- "we might want a `code-review` lens" -- belong
+-in caller-side `--custom-prompt-dir` until a caller materialises.
++in a caller-side `custom` job spec that sets the JobSpec
++`custom_prompt_dir` field (set in the spec file; no `swarm run` option
++sets it in 5.0.0) until a caller materialises.
+ The `custom` escape hatch exists precisely to host these prototypes
+ without inflating the bundled registry.
+ 
+@@ -212,12 +218,11 @@
+ 
+ | Tier | Meaning | PR-review bar |
+ |---|---|---|
+-| `experimental` | Default for entries beyond `bare-review`. Caller exists but the lens is freshly landed. | Owner sign-off; `validate-lenses` green. |
++| `experimental` | Default for new entries. Caller exists but the lens is freshly landed. | Owner sign-off; `validate-lenses` green. |
+ | `stable` | Promoted entry. Real caller has used it in production. | Architect sign-off; ≥2 weeks production usage cited. |
+ 
+-`bare-review` is the only entry shipping `stable` at M3 exit (it is
+-the founding caller). All other 6 non-custom entries ship
+-`experimental` per §3.3.
++`bare-review` (the founding caller) and `reflect-review` ship `stable`.
++The other 6 non-custom entries ship `experimental` per §3.3.
+ 
+ ## §3 §11.5 prompt-injection substring (C2)
+ 
+@@ -231,8 +236,8 @@
+ validator's `lens.injection_substring_missing` assertion enforces this
+ at `swarm validate-lenses` time. The same substring rule is also
+ enforced on `prompt.system` by the JSON-Schema validator (FR-019,
+-T02.03) and on `<custom-prompt-dir>/system.txt` (FR-021 / INV-003,
+-T02.05). All three paths share `preflight.py::enforce_injection_guard`
++T02.03) and on `system.txt` in the directory named by the JobSpec
++`custom_prompt_dir` field (FR-021 / INV-003, T02.05). All three paths share `preflight.py::enforce_injection_guard`
+ (T02.07) -- the validator's lens-side assertion is the registry-time
+ mirror of the runtime guard.
+ 
+@@ -465,7 +470,7 @@
+   C5 (`suspect:true` justification).
+ - **`security`** -- owner for the §11.5 injection-guard binding
+   across all three prompt-input paths (lens / JSON-Schema /
+-  custom-prompt-dir). Reviews C2 (§11.5 substring) plus any change
++  JobSpec `custom_prompt_dir`). Reviews C2 (§11.5 substring) plus any change
+   that touches `cli/swarm/lenses/_validate.py` (since validator
+   changes affect security-critical assertions).
+ 
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -110,3 +110,9 @@
+ - **B-W14 correction 4, `:2089`.** The trailing `---` separator above the dropped source line was removed with it, so the file ends at the glossary.
+ - **Out-of-item remnant left in place.** Section 9.4 still recommends `--uc` (ultra-compressed mode); no installed command or core file defines `--uc` (grep of `src/superclaude/commands` and `src/superclaude/core` finds none). Not named by B-W14 or gap 61, so not edited.
+ - **Pre-existing markdownlint violations (fixed).** The file had 95 violations at d953b983 (MD041 from a stray `p` before the title, unlabeled fences, and nested example fences where an inner fence closed the outer `markdown` block early, causing MD022/MD024/MD031/MD032). Fixed mechanically so the AC lint check exits 0: the stray `p` removed, `text` added to 11 unlabeled fences, the 7 outer fences of nested examples changed to four backticks, and 8 blank lines added before lists/fences. Example content is unchanged.
++
++## Task 39 (item B-W15) — docs/dev/sync-discipline.md, docs/dev/lens-contribution-policy.md
++
++- **B-W15 correction 3 (wording changed to meet the AC).** Planned: "the JobSpec `custom_prompt_dir` field (a `--custom-prompt-dir` flag is planned, not shipped)". That text contains the literal string the AC requires to be absent (`grep -n -- "--custom-prompt-dir"` returns nothing). Written instead: "the JobSpec `custom_prompt_dir` field (set in the spec file; no `swarm run` option sets it in 5.0.0)". Evidence: `swarm/models.py:115` (`custom_prompt_dir: Optional[str] = None`); no swarm subcommand defines the option (`superclaude swarm run --help`, `swarm --help` command list); `swarm/commands.py:1164-1168` rejects `--lens custom` with "supply a spec file with custom_prompt_dir set instead"; the option is only foreseen in a comment (`swarm/commands.py:123-127`). The `:234` and `:468` mentions now say `system.txt` in the directory named by the JobSpec `custom_prompt_dir` field, and "JobSpec `custom_prompt_dir`".
++- **Stability tier sentence (extended, same file).** "`bare-review` is the only entry shipping `stable` ... All other 6 non-custom entries ship `experimental`" was wrong against code: `lenses/bare_review.py:71` and `lenses/reflect_review.py:71` both set `stability="stable"`; the other 6 set `"experimental"`. Rewritten to name both stable lenses; the tier table row "Default for entries beyond `bare-review`" became "Default for new entries".
++- **Out-of-item remnant left in place.** §6 and §8 say CI runs `superclaude swarm validate-lenses` through `make verify-sync` and that a local pre-commit hook runs it with `--warning-mode`. Neither is wired: `Makefile:166` `verify-sync` and `.pre-commit-config.yaml` contain no `validate-lenses` call. §6 "Wiring task" already says the wiring is a follow-up. Not named by B-W15 or gaps 62-63, so not edited.

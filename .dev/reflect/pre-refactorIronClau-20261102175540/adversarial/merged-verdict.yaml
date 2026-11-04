@@ -1,0 +1,18 @@
+# sc:reflect Wave 4 merged verdict (consumer of sc:adversarial; field remap artifacts_dir -> adversarial_artifacts_dir)
+merge_method: adversarial
+adversarial_status: partial
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/adversarial
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/merged-findings.md
+adversarial_convergence_score: 1.0
+convergence_status: BLOCKED_BY_INVARIANTS
+unaddressed_invariants: [INV-005]
+base_variant: reviewer-1 (sonnet, analyzer)
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-1-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-2-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-3-card.yaml
+calibrated_confidence_per_card: {reviewer-1: 0.80, reviewer-2: 0.76, reviewer-3: 0.83}
+merged_findings_count: 14
+merged_findings_by_severity: {high: 1, medium: 3, low: 10}
+merged_findings_by_class: {authorized: 1, necessary: 2, drift: 11, regression: 0}
+verdict: "Plan needs revision before execution: one HIGH gap (scripts/eval_runner.py not classified or handled, M-1) and three MEDIUM gaps (pre-PR checks still reach upstream R1-1; extra list-argument worktree hits and count accounting M-2; no `upstream` remote exists M-4)."

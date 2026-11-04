@@ -1,0 +1,58 @@
+input_tree_sha256: afaad2aa3a330eeb881ec24c5b95b1853acce58d308142aeb984e5a6c946aa5a
+file_count: 27
+hash_method: sha256 over the sorted 'sha256sum' lines of file_list (sha256sum <paths sorted>)
+file_list:
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/TASK-WF-detachTheCcsessi-20261102-034618.md
+    sha256: 15b1a9a41b1390e7fc76eb9c142cbd4c4bd4ac2d1875bf20dacb0541758ab3ce
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/live-pids-before.txt
+    sha256: fe9968394b2cedc76f0ed3d216a44796d1d98235c7fe0cbb9ceb6492c993cdd5
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T1/notes.md
+    sha256: d7fa41675cb2c63dd96e262b8b236ffc9cd0b487a843915c76a522f69eb27afc
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T1/prompt-1-1.md
+    sha256: c7bdb25fc75b61021d962a85957fdcd5400cb97012c4e5178b857eac24907c11
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T1/q0-head
+    sha256: e97292526298ce323488db3001c51c18518a81bd6ffe7f7a3893b09149c8401c
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T2/prompt-1-1.md
+    sha256: 8187b8d47eb7caa8dedd212cf2c810d4a380854a585c7fddf7b0049b9c9d279d
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T2/q0-head
+    sha256: e97292526298ce323488db3001c51c18518a81bd6ffe7f7a3893b09149c8401c
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T3/prompt-1-1.md
+    sha256: 1154d6e8dec8bd640370bcc1c199ae990839f1b261a4ca97418949dcee0d5641
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T3/q0-head
+    sha256: e97292526298ce323488db3001c51c18518a81bd6ffe7f7a3893b09149c8401c
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T4/prompt-1-1.md
+    sha256: 87ef0f3bb83349f0e448e594591758e5258ebb17a784df4b3ab324c50dba008d
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T4/q0-head
+    sha256: e97292526298ce323488db3001c51c18518a81bd6ffe7f7a3893b09149c8401c
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T5/prompt-1-1.md
+    sha256: 85110845bf2e5d360656e44b1cd60f6a269399e997f6db00db711ca57a1bf6f7
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/retries/T5/q0-head
+    sha256: e97292526298ce323488db3001c51c18518a81bd6ffe7f7a3893b09149c8401c
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/t1-before.log
+    sha256: 888bc09985e5fa0dd019a862ff3a7f4d3bdfe5c80b5064dbc04f1a9ba11fd4a8
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/t3-tests.log
+    sha256: 14c5f51fb43b851bf6d4b0b405281ceec7835ac8de420deb7035f60c583a2ea4
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/t4-tests.log
+    sha256: eaae82fd88b7b28a3045185d34a573ee59f3ce6050100611c2eb5efc6f1dba97
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/artifacts/t5-checks.log
+    sha256: 304e301cf0016288709103fd8603ad8925061f4671c2f8e2f8d70c376fa720b5
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/progress.md
+    sha256: 3d06428538077a809ec4598b6db2f401ea5eb448417b81a456984428f74d5ee2
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/return-contract.yaml
+    sha256: b9b45864c4b2c704ff3bca47110df4339bd91da7ab9dc41625c90dd9a69c2c80
+  - path: .dev/tasks/done/TASK-WF-detachTheCcsessi-20261102-034618/source.md
+    sha256: 1f17b986394a22af4e4c740c1cff24f6a663902017992df66ef5c293b6cf5ce7
+  - path: .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/after.txt
+    sha256: cfccc2ae98bec2e008ce010808eb4797234cdd5570370db10a5f7b716f59632b
+  - path: .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py
+    sha256: 5c745afd48e6ec8a6cbdcf2ade171fbeb62e156aa1206bbb7fc025fc7cfb7e2b
+  - path: .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md
+    sha256: 437a7af42a64817e33ad6806119b27d1359d1dd0696b1d4e849dbb8a8fd0f48f
+  - path: CHANGELOG.md
+    sha256: ef2eb1056559bbf7c5809c70fc1fc9c1a709afc2953113a164c11a31ccc8ca55
+  - path: src/superclaude/skills/ccsession-tag/ccsession
+    sha256: 82ee74998e4a9ee18de95e44146f511e796bc848ea6a5a994fd011b33888e4b1
+  - path: src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+    sha256: cd43251da77a140e591115f3f65001a6973deb72ec598bca5ece84004b866d53
+  - path: tests/unit/test_ccsession_tiers.py
+    sha256: 0746bb70ab72e5b1b6b304231750e3f53d062062594d08709d5ffe21369ebcf1

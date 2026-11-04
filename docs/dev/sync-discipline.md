@@ -12,9 +12,10 @@ directly.**
 `src/superclaude/` is the canonical source of every distributable component.
 The `.claude/` tree in this repo is a generated mirror that exists only so
 Claude Code can load skills, agents, and commands during local development.
-The upstream installer (`superclaude install`) regenerates `.claude/` from
-`src/`, and the same convention is enforced inside the repo by `make
-verify-sync` and a pre-commit gate.
+`make sync-dev` regenerates this repo's `.claude/` from `src/`;
+`superclaude install` writes the user-level `~/.claude/`, not the repo
+copy. The convention is enforced inside the repo by `make verify-sync`
+and a pre-commit gate.
 
 This is the project-wide rule documented in
 [`CLAUDE.md`](../../CLAUDE.md#-component-sync) (§ "Component Sync") and in

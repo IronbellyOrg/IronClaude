@@ -1,0 +1,17 @@
+# Task 16 relative-link check for docs/user-guide/eval-pipeline.md (test -e from docs/user-guide/)
+OK ../../src/superclaude/cli/eval/artifact_layout.py
+OK ../../src/superclaude/cli/eval/commands.py
+OK ../../src/superclaude/cli/eval/config.py
+OK ../../src/superclaude/cli/eval/coverage.py
+OK ../../src/superclaude/cli/eval/exit_codes.py
+OK ../../src/superclaude/cli/eval/models.py
+OK ../../src/superclaude/cli/eval/orchestrator.py
+OK ../../src/superclaude/cli/eval/reporter.py
+OK ../../src/superclaude/cli/eval/run_report.py
+OK ../../tests/cli/eval/test_exit_codes.py
+OK ../eval/
+OK ../eval/retention.md
+OK ../eval/retry.md
+OK ../eval/runtime.md
+OK ../eval/scratch-roots.md
+OK ../eval/validation-commands.md

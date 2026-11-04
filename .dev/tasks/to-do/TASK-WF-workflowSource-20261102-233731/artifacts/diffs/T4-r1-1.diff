@@ -1,0 +1,90 @@
+--- a/README.md
++++ b/README.md
+@@ -35,9 +35,9 @@
+ - **CLI-driven workflows** for roadmap, tasklist, sprint, audit, and validation
+ - **Claude Code asset distribution** through commands, agents, and skills
+ - **PM-agent patterns** for confidence, self-check, and reflexion
+-- **MCP-aware development** with integrations such as Auggie, Tavily, and Context7
++- **MCP-aware development** with codegraph (installed and registered by default) and optional integrations such as Auggie, Tavily, and Context7
+ - **Contributor workflow support** with source/dev-mirror sync between `src/superclaude/` and `.claude/`
+-- **Context freshness hooks** (v4.3) — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md).
++- **Context freshness hooks** — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md). 5.0.0 also installs a codegraph SessionStart hook that indexes each checkout on its first session (`SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns it off).
+ 
+ ## Repository purpose
+ 
+@@ -63,14 +63,16 @@
+ 
+ This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1) and a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
+ 
+-### Upgrade an existing installation
++### Upgrading to 5.0.0
++
++Back up any file you edited in `~/.claude/` first, then run:
+ 
+ ```bash
+ pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+ superclaude install --force
+ ```
+ 
+-Back up any file you edited in `~/.claude/` first, and restart Claude sessions afterwards. See [Upgrading](docs/getting-started/upgrading.md) for the full steps.
++Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. See [Upgrading](docs/getting-started/upgrading.md) for the full steps and the [5.0.0 release notes](docs/releases/v5.0.0.md) for what changed.
+ 
+ ### Install from source for development
+ 
+@@ -91,6 +93,12 @@
+ 
+ Not sure which command to use? Read [How We Work](docs/user-guide/how-we-work.md), or run `/sc:recommend "<your goal>"` in Claude Code.
+ 
++### In Claude Code
++
++- `/sc:impact` lists the definitions of a symbol (or of the symbols a diff touches) and their production and test dependents from the code graph. See [codegraph](docs/user-guide/codegraph.md).
++- `/sc:graph` shows whether the current checkout's code-graph index is ready; `/sc:graph init` builds it. See [codegraph](docs/user-guide/codegraph.md).
++- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:save` writes and `/sc:load` reads. See [Session management](docs/user-guide/session-management.md).
++
+ ### Core CLI commands
+ 
+ ```bash
+@@ -222,19 +230,21 @@
+ 
+ IronClaude is built to work with MCP-assisted workflows.
+ 
+-Common integrations referenced in this repository include:
++`superclaude install` installs and registers codegraph as a user-level MCP server by default. The other servers are optional; add them with `superclaude mcp --servers <name>`:
+ 
+-- Auggie
+-- Tavily
+-- Context7
+-- Playwright
+-- Mindbase
++- **codegraph** — code graph: symbols, callers, impact, file outlines (installed by `superclaude install`)
++- **Context7** — official library documentation (runs through `npx`; Node.js 18+)
++- **Playwright** — browser automation and end-to-end testing (runs through `npx`; Node.js 18+)
++- **Tavily** — web search (needs `TAVILY_API_KEY`)
++- **Auggie** — semantic codebase search (needs the global `auggie` npm package, Node.js 20+, and a one-time `auggie login`)
++- **Morphllm** (`morphllm-fast-apply`) — fast code edits (needs `MORPH_API_KEY`)
++- **LiteLLM** — opt-in only, for the operator's own network: an HTTP gateway at `http://ibcore:4000/mcp/` that needs `LITELLM_API_KEY`. Install it with `superclaude mcp --servers litellm`; choosing "all" in the menu leaves it out.
+ 
+-Inspect MCP-related configuration with:
++On a terminal, bare `superclaude mcp` opens an install menu (1. Install MCP servers, 2. Cancel); without a terminal it asks for `--servers`. To inspect without changing anything:
+ 
+ ```bash
+-superclaude mcp
+-superclaude mcp --list
++superclaude mcp --list      # list available servers (read-only)
++superclaude mcp --dry-run   # preview the choices without prompts or changes
+ ```
+ 
+ ## Contributing
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -12,3 +12,10 @@
+ - **C-W3 step 4 (refined).** Planned `git fetch origin && git checkout v5.0.0`. Written `git fetch origin --tags` then `git checkout v5.0.0`, so the tag is present in a clone that fetched before the tag existed; same effect otherwise.
+ - **C-W3 step 12 (partly out of this task's scope).** The item also asks for links from `quick-start.md` and `common-issues.md`. Task 3 names only `installation.md` (already linked by Task 1) and `README.md` (added here as a short "Upgrade an existing installation" subsection); the `quick-start.md` and `common-issues.md` links are in the ACs of Task 5 (A-W2) and Task 27 (B-W2), so they were not edited here.
+ - **Dropped claim.** `installation.md` (Task 1) says `pipx upgrade` skips the reinstall while the version number is unchanged; that is pipx behaviour not verified against code or the transcript, so `upgrading.md` does not repeat it.
++
++## Task 4 (item A-W1) — README.md
++
++- **A-W1 correction 3 (refined).** Planned text calls Morphllm opt-in alongside LiteLLM. Code: only `litellm` carries `opt_in_only: True` (`src/superclaude/cli/install_mcp.py:107-115`), which keeps it out of the menu's "0 for all" choice (`install_mcp.py:1405-1410`); Morphllm is an ordinary optional server (`required: False`, needs `MORPH_API_KEY`, `install_mcp.py:57-65`). Written: all servers except codegraph are optional; LiteLLM alone is "opt-in only" and left out of "all".
++- **A-W1 correction 4 (extended).** Planned text: "bare `superclaude mcp` opens an install menu". Code: the menu shows only on a terminal; without one it returns "Explicit server selection is required; use --servers." (`install_mcp.py:1385-1389`). Written both cases.
++- **A-W1 correction 5 (merged).** Task 3 had already added a short "Upgrade an existing installation" subsection; it was retitled "Upgrading to 5.0.0" and extended in place instead of adding a second upgrade section. Wording keeps the Task 1 finding that a plain install still runs the codegraph phase and cleanup (`main.py:239-263`): it says only that a plain install keeps existing framework files.
++- **A-W1 correction 6 (forward link).** `docs/user-guide/codegraph.md` is linked as the item asks but does not exist yet; Task 17 (A-W22) creates it in this run.

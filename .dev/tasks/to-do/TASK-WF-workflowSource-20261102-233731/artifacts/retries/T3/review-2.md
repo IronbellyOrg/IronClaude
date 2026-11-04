@@ -1,0 +1,8 @@
+93bbe43a75e461c1630ac612dd8e86fd66f5771b tree=88ac38a51f6eabae170253a8cac818676b1612c9
+F1.1 resolved
+T3.AC1 met docs/getting-started/upgrading.md:47-48 (matches docs/testing/v5.0.0/c-e2e-transcript.txt:450,465), docs/getting-started/upgrading.md:114-127 (matches c-e2e-transcript.txt:723-731), upgrading.md:194 (matches src/superclaude/cli/install_retired_mcp.py:106), upgrading.md:209 (matches install_retired_mcp.py:50-52)
+T3.AC2 met docs/getting-started/installation.md:66
+T3.AC3 met docs/getting-started/upgrading.md:1 (markdownlint exit=0)
+F2.1 sev=blocking trigger=B2 ac=scope at=docs/getting-started/upgrading.md:97 anchor=src/superclaude/cli/install_retired_mcp.py:424 chk=n,y,n,n family=retire-keep-output fix=Replace "Entries with their own env or headers, and anything that is not one of these shapes, are kept, and the reason (with a removal command) is printed" with code-true text: a kept codebase-memory-mcp or serena entry is reported as <name>: kept: <reason> (only the legacy-Serena "kept until codegraph is ready" line includes a claude mcp remove command), and other user-scope entries are left alone without any message; point readers to the removal commands at upgrading.md:219-225 first=A1 origin=late: The doc says each kept entry is printed with its reason and a removal command. In the code, a kept entry prints "   {name}: kept: {finding.reason}" with no command (install_retired_mcp.py:424). Only TIER_K_LINE carries claude mcp remove serena --scope user (:91-95, :421-422). User entries under other names that are not Serena launchers are never classified (:274-283), so nothing is printed for them.
+F1.1 resolved
+F2.1 resolved

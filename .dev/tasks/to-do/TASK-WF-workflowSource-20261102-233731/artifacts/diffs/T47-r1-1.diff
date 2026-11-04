@@ -1,0 +1,146 @@
+--- a/docs/developer-guide/documentation-index.md
++++ b/docs/developer-guide/documentation-index.md
+@@ -19,40 +19,31 @@
+ ### 📋 [Contributing Context Files Guide](contributing-code.md)
+ 
+ **Purpose**: Complete context file development and contribution guidelines  
+-**Target Audience**: Framework contributors and context file developers  
+-**Length**: ~1,000 lines focused on context file reality
++**Target Audience**: Framework contributors and context file developers
+ 
+ **Key Sections**:
+ 
+ - [Development Setup](contributing-code.md#development-setup) - Environment configuration and prerequisites
+ - [Context File Guidelines](contributing-code.md#context-file-guidelines) - Standards and structure
+ - [Development Workflow](contributing-code.md#development-workflow) - Git workflow and submission process
+-- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent, command, and mode development
++- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent and command development
+ - [File Validation](contributing-code.md#file-validation) - Context file verification methods
+ 
+-### 🌿 [Git Standards and Repository Protocols](git-standards-protocols.md)
++### 🚢 [Release Procedure](release-procedure.md)
+ 
+-**Purpose**: Git workflow, branching strategy, commit conventions, PR protocol, code review, release/hotfix, and CI automation standards  
+-**Target Audience**: All contributors and maintainers working with branches, commits, and pull requests  
+-**Length**: ~880 lines; consolidated git/repository governance reference
++**Purpose**: How a maintainer cuts an IronClaude release: version bump, release notes, the G1-G9 go/no-go gate, tag, GitHub release and post-release follow-through  
++**Target Audience**: Maintainers cutting a release; go here for every release or tagging question
+ 
+-**Key Sections**:
++### 🌿 [Git Standards and Repository Protocols](git-standards-protocols.md) (imported, not IronClaude's process)
++
++**Status**: This file was copied from another project and is not IronClaude's process. Its branches, environments and links belong to that project. It is kept until it is rewritten for IronClaude or deleted. Do not follow it.
+ 
+-- [Repository Structure](git-standards-protocols.md#section-1-repository-structure) - Layout and ownership
+-- [Branching Strategy](git-standards-protocols.md#section-2-branching-strategy) - Branch model and naming
+-- [Commit Standards](git-standards-protocols.md#section-3-commit-standards) - Conventional commit conventions
+-- [Pull Request Protocol](git-standards-protocols.md#section-4-pull-request-protocol) - PR lifecycle and targets
+-- [Code Review Standards](git-standards-protocols.md#section-5-code-review-standards) - Review expectations
+-- [Release and Tagging Protocol](git-standards-protocols.md#section-6-release-and-tagging-protocol) - Versioning and tags
+-- [Hotfix Procedures](git-standards-protocols.md#section-7-hotfix-procedures) - Emergency fix flow
+-- [GitHub Actions and Automation](git-standards-protocols.md#section-8-github-actions-and-automation) - CI/CD pipelines
+-- [Security and Access Controls](git-standards-protocols.md#section-9-security-and-access-controls) - Access governance
++For IronClaude, the branch model is `master` ← `integration` ← `feature/*`, `fix/*`, `docs/*` (repository `CLAUDE.md`, Git Workflow), every pull request goes to the fork `IronbellyOrg/IronClaude`, and releases follow the [Release Procedure](release-procedure.md).
+ 
+ ### 🏗️ [Context Architecture Guide](technical-architecture.md)
+ 
+ **Purpose**: Understanding how context files work and are structured  
+-**Target Audience**: Anyone wanting to understand or extend SuperClaude  
+-**Length**: ~800 lines focused on context file patterns and Claude Code integration
++**Target Audience**: Anyone wanting to understand or extend SuperClaude
+ 
+ **Key Sections**:
+ 
+@@ -79,13 +70,12 @@
+ - [Coverage gate (FR-G5)](../user-guide/eval-pipeline.md#coverage-gate-fr-g5) — hook-matcher coverage enforcement
+ - [Common workflows + troubleshooting](../user-guide/eval-pipeline.md#common-workflows) — CI invocation, debugging, NFR-PERF4 disk budget
+ 
+-**Deep technical references:** [`docs/eval/`](../eval/) — `scratch-roots.md`, `runtime.md`, `retention.md`, `retry.md`, `validation-commands.md`, `release-checklist.md`.
++**Deep technical references:** [`docs/eval/`](../eval/) — `scratch-roots.md`, `runtime.md`, `retention.md`, `retry.md`, `validation-commands.md`.
+ 
+ ### 🧪 [Verification & Troubleshooting Guide](testing-debugging.md)
+ 
+ **Purpose**: Verifying installation and troubleshooting context file issues  
+-**Target Audience**: Users and maintainers  
+-**Length**: ~500 lines focused on file verification and Claude Code integration
++**Target Audience**: Users and maintainers
+ 
+ **Key Sections**:
+ 
+@@ -95,6 +85,18 @@
+ - [Common Issues](testing-debugging.md#common-issues) - Troubleshooting activation problems
+ - [Troubleshooting Commands](testing-debugging.md#troubleshooting-commands) - Diagnostic procedures
+ 
++### 📐 Design Notes (5.0.0)
++
++**Purpose**: How the 5.0.0 subsystems work, with every claim tied to the code at tag v5.0.0  
++**Target Audience**: Maintainers who change the installer, hooks, commands, skills or agents
++
++- [codegraph Integration](codegraph-integration.md) - How install sets up and registers codegraph and retires the old Serena and codebase-memory-mcp registrations
++- [File-Based Session Memory](session-memory.md) - The markdown memory store under `<project>/.superclaude/memory/` and its one-release fallback to the old Serena folder
++- [Review Severity and the 2-Fix-Cycle Cap](review-severity-rule.md) - How review findings are graded and why review loops stop after 2 fix cycles
++- [Release Procedure](release-procedure.md) - The steps and the G1-G9 gate for cutting a release
++
++**Related user guides**: [Using codegraph](../user-guide/codegraph.md) and [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md).
++
+ ---
+ 
+ ## Topic-Based Index
+@@ -111,6 +113,7 @@
+ 
+ - [Development Setup](contributing-code.md#development-setup) - Prerequisites and configuration
+ - [Installation Verification](testing-debugging.md#installation-verification) - File installation check
++- [Upgrading to IronClaude 5.0.0](../getting-started/upgrading.md) - Moving an existing 4.x install to 5.0.0
+ 
+ ### 🏗️ Architecture & Design
+ 
+@@ -123,7 +126,7 @@
+ 
+ **Component Development**:
+ 
+-- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent, command, mode development
++- [Contributing to Components](contributing-code.md#contributing-to-components) - Agent and command development
+ - [Adding New Agents](contributing-code.md#adding-new-agents) - Domain specialist creation
+ - [Adding New Commands](contributing-code.md#adding-new-commands) - Workflow pattern development
+ - [Extending the Framework](technical-architecture.md#extending-the-framework) - Framework expansion
+@@ -152,7 +155,10 @@
+ 
+ - [Agent Development](contributing-code.md#adding-new-agents) - Domain specialist creation
+ - [Command Development](contributing-code.md#adding-new-commands) - Workflow pattern creation
+-- [Mode Development](contributing-code.md#adding-new-modes) - Behavioral modification patterns
++
++**Release**:
++
++- [Release Procedure](release-procedure.md) - Version bump, release notes, G1-G9 gate, tag and GitHub release
+ 
+ ### 🛠️ MCP Integration
+ 
+@@ -161,6 +167,11 @@
+ - [MCP Server Configuration](technical-architecture.md#mcp-server-configuration) - External tool setup
+ - [MCP Server Verification](testing-debugging.md#mcp-server-verification) - Configuration validation
+ 
++**codegraph**:
++
++- [Using codegraph](../user-guide/codegraph.md) - What codegraph does, per-checkout indexes, `/sc:graph` and `/sc:impact`
++- [codegraph Integration](codegraph-integration.md) - Install, registration and the MCP retire step
++
+ ### 🚨 Support & Troubleshooting
+ 
+ **Common Issues**:
+@@ -225,7 +236,6 @@
+ - Context-Oriented Configuration Framework
+ - Agent Domain Specialists  
+ - Command Workflow Patterns
+-- Mode Behavioral Modifications
+ - MCP Integration Patterns
+ 
+ ### 🔗 Cross-References
+@@ -252,7 +262,7 @@
+ ### ✅ Documentation Accuracy
+ 
+ - **Technical Precision**: All examples reflect SuperClaude reality (context files, not software)
+-- **Command Accuracy**: Correct Python module execution paths and Claude Code context triggers
++- **Command Accuracy**: Commands shown match the `superclaude` CLI `--help` output and the installed slash commands
+ - **No Fiction**: Removed all references to non-existent testing frameworks and performance systems
+ 
+ ### ✅ Content Focus

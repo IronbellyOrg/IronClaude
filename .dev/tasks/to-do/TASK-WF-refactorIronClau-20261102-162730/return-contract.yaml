@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-refactorIronClau-20261102-162730
+plan_path: ./TASK-WF-refactorIronClau-20261102-162730.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/REPORT.md
+unresolved:
+  - "Advisory reflect (partial): plan should be revised before /sc:implement. 1 high (scripts/eval_runner.py not classified or handled), 3 medium (pre-PR checks still reach upstream; extra list-argument worktree calls break Task 1's count; no `upstream` remote exists), 10 low. The plan was not edited, per the advisory rule."

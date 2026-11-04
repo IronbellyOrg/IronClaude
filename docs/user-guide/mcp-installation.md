@@ -57,7 +57,7 @@ Kept by policy: `~/.serena`, project `.serena/` folders, `~/.cache/codebase-memo
 
 ### Commands and skills that use codegraph
 
-IronClaude's commands, skills and agents use codegraph above a Grep/Read fallback, following the shared guide `~/.claude/CODEGRAPH.md` (installed with the core files). Two commands expose it directly: `/sc:graph` (or `/sc:graph status`) reports whether this worktree's index is ready, and `/sc:graph init` builds it by hand when the session-start hook did not; `/sc:impact <symbol>...` or `/sc:impact --diff <base>` lists production and test dependents, and `--tests` adds an advisory test list. Two switches, each with its own scope: `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` stops commands, skills and agents from using codegraph (they use Grep/Read only), and `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the session-start index hook. Neither touches the MCP registration.
+IronClaude's commands, skills and agents use codegraph above a Grep/Read fallback, following the shared guide `~/.claude/CODEGRAPH.md` (installed with the core files). Two commands expose it directly: `/sc:graph` (or `/sc:graph status`) reports whether this worktree's index is ready, and `/sc:graph init` builds it by hand when the session-start hook did not; `/sc:impact <symbol>...` or `/sc:impact --diff <base>` lists production and test dependents, and `--tests` adds an advisory test list. Two switches, each with its own scope: `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` stops commands, skills and agents from using codegraph (they use Grep/Read only), and `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the session-start index hook. Neither touches the MCP registration. How to use codegraph day to day: the [codegraph guide](codegraph.md).
 
 ## What `superclaude install` Does With MCP
 
@@ -68,7 +68,7 @@ At the end of the run it performs one short cleanup step for old user-level MCP 
 - `superclaude install --list` is read-only. It reports what the cleanup step would do, one line per name, without changing anything.
 - `superclaude doctor` warns (never fails) when the cleanup step still has something to remove.
 - `superclaude update` keeps its existing framework behavior and never touches MCP registrations; it only prints a notice telling you to run `superclaude install` when a removable legacy entry is present.
-- `superclaude install --force` reinstalls framework files only. `--target` changes only the slash-command destination, not user setup or MCP scope. There is no framework-wide dry-run option.
+- `--force` only changes the framework-file steps (overwrite instead of skip). The codegraph phase and the cleanup step run on every `superclaude install`, with or without `--force`. `--target` changes only the slash-command destination, not user setup or MCP scope. There is no framework-wide dry-run option.
 
 ## Quick Start
 
@@ -82,11 +82,11 @@ superclaude mcp
 # Install specific servers (repeat --servers for each name)
 superclaude mcp --servers tavily --servers context7
 
-# Install all individual servers (not the gateway)
+# Install all individual servers (not the gateway; leaves out the opt-in litellm on purpose)
 superclaude mcp --servers context7 --servers playwright --servers morphllm-fast-apply --servers tavily --servers auggie
 ```
 
-With no selection on a terminal, the action menu offers **1. Install MCP servers** (default) and **2. Cancel**. The install branch then offers the gateway first (default `g`); option `0` installs all individual registry servers, not the gateway.
+With no selection on a terminal, the action menu offers **1. Install MCP servers** (default) and **2. Cancel**. The install branch then offers the gateway first (default `g`); option `0` installs all individual registry servers except opt-in ones such as `litellm`, not the gateway.
 
 Without a terminal, installation requires explicit `--servers` selections.
 
@@ -103,6 +103,7 @@ Without a terminal, installation requires explicit `--servers` selections.
 | **morphllm-fast-apply** | Fast Apply for context-aware code modifications | Yes (`MORPH_API_KEY`) |
 | **tavily** | Web search and real-time information retrieval | Yes (`TAVILY_API_KEY`) |
 | **auggie** | Semantic codebase search via Augment Code | No (requires `auggie login`) |
+| **litellm** | LiteLLM MCP gateway (`http://ibcore:4000/mcp/`, header `x-litellm-api-key: Bearer ${LITELLM_API_KEY}`). Opt-in: install it by name with `--servers litellm`; option `0` skips it. Works only on the operator's network with an issued key | Yes (`LITELLM_API_KEY`, read by Claude Code when it connects) |
 
 ## Installation Scopes
 
@@ -137,7 +138,7 @@ Some MCP servers require API keys for full functionality. SuperClaude will promp
 
 During installation, you'll be prompted:
 
-```
+```text
 🔑 MCP server 'tavily' requires an API key
    Environment variable: TAVILY_API_KEY
    Description: Tavily API key for web search (get from https://app.tavily.com)
@@ -264,7 +265,7 @@ If a server isn't working:
 
 3. Check server status in Claude Code:
 
-   ```
+   ```text
    /mcp
    ```
 

@@ -1,0 +1,7 @@
+docs/swarm/README.md
+docs/swarm/command-reference.md
+docs/swarm/user-guide.md
+docs/swarm/wizard-guide.md
+docs/swarm/lens-catalog.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t18-validate-lenses.txt
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md

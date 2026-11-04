@@ -1,0 +1,321 @@
+# Provenance: produced by /sc:adversarial; Base: Variant 1 (analyzer/sonnet); Merge date: 2026-11-03T00:23:38Z
+# Sources: variant-1-original.md (V1 = reviewer 1, analyzer, sonnet; BASE), variant-2-original.md (V2 = reviewer 2, qa, glm-5.3),
+#          variant-3-original.md (V3 = reviewer 3, refactorer, opus), invariant-probe.md (INV-nnn).
+# Plan: refactor-plan.md (PC-01..PC-22, auto-approved 2026-11-03T00:18:24Z). Log: merge-log.md.
+# Each finding carries a "# provenance:" comment naming the base item and the PC-NN change(s) applied to it.
+
+merge_method: adversarial
+convergence_score: 1.0  # diff-point agreement: 13/13 debate points agreed
+convergence_status: BLOCKED_BY_INVARIANTS
+blocking_invariants: [INV-001, INV-002, INV-008]
+
+# provenance: PC-01 (A-001 95%, A-002 QUALIFY x3 90%)
+status: "partial (BLOCKED_BY_INVARIANTS: INV-001, INV-002, INV-008 resolved as remedy additions PC-04..PC-06)"
+routing: >-
+  The plan <id>.md is advisory-reviewed and is not edited from these findings (sc-workflow-protocol SKILL.md:60).
+  Remedies are delivered by a user re-run of /sc:workflow with the remedy text; only that re-run puts an AC under
+  the executor's gate (see required_remedy_additions INV-001). No remedy may add a verification-only task
+  (~/.claude/skills/sc-workflow-protocol/refs/quality-gates.md:22).
+
+verdict: FAIL
+# provenance: PC-06 (merged verdict note)
+verdict_note: >-
+  One blocking finding (R1-F1, debate point C-001). Its remedy is sufficient only together with the
+  required_remedy_additions INV-001, INV-002 and INV-008 (blocking) and INV-003, INV-004 and INV-006. The three
+  HIGH invariants close only if the user re-runs /sc:workflow with the remedy text.
+
+findings:
+  # provenance: base R1-F1; PC-02 (R2-F1 evidence + ranked remedy; "Add a final task" deleted; R3-F1 Task 67 concession);
+  #             PC-03 (Task 26 smoke AC, R3-F1 surviving half); PC-04..PC-09 attached via required_remedy_additions
+  - id: R1-F1
+    debate_point: C-001
+    source_variants: [V1 R1-F1, V2 R2-F1, V3 R3-F1]
+    claim: >-
+      Spec's closing verification (smoke -k "doc or primitive or how_we_work or severity" then full make test) is
+      absent; only Task 6's narrow -k; Task 26 edits an installed primitive with only make verify-sync. No 'make test'
+      in the tasklist (grep 0 hits); implement.md:11 says "Lint and tests are extras, never the pass/fail", so
+      /sc:implement's FINAL is a spec-compliance review, not a test run.
+    citation: "source.md:47-50; tasklist:17-28, :89, :257; src/superclaude/commands/implement.md:11"
+    class: drift
+    severity: blocking
+    recommendation: |-
+      (1) Task 66 AC: run the smoke selection `uv run pytest tests/ -q -k "doc or primitive or how_we_work or severity"`, then the full `make test` once (source.md:49-50).
+      (2) A Constraint line restating the same as reinforcement.
+      (3) Task 26 AC: run the smoke selection after the edit to `src/superclaude/rules/core/changelog_maintenance.md`; `make sync-dev`/`make verify-sync` do not count as verification of that file (finding R3-F9) (tasklist:255-258).
+      (4) Required additions, part of this remedy: required_remedy_additions INV-001 (delivery), INV-002 (baseline), INV-008 (sufficiency), INV-003 (evidence logs), INV-004 (Task 26 test file), INV-006 (MCP-doc smoke).
+    concessions: >-
+      R3-F1's proposed Task 67 is replaced by the Task 66 AC (item 1) and the Task 26 AC (item 3); V1's
+      "Add a final task" option is deleted. Both conceded in Round 2 (quality-gates.md:22).
+
+  # provenance: V3 R3-F9 imported by PC-21 (citation corrected from Makefile:109-157; V1 Round 2 confirmation)
+  - id: R3-F9
+    source_variants: [V3 R3-F9, V1 Round 2 confirmation]
+    claim: >-
+      make sync-dev / make verify-sync verify nothing about src/superclaude/core/HOW-WE-WORK.md (Task 6) or
+      src/superclaude/rules/core/changelog_maintenance.md (Task 26); a grep for core|rules in the Makefile returns
+      nothing.
+    citation: "Makefile:109; Makefile:166; tasklist:89; tasklist:257"
+    class: grounding-gap
+    severity: minor
+    recommendation: >-
+      Keep the steps (source.md:43 requires them) but do not count them as verification of the edited file; pair
+      with the Task 26 test run (R1-F1 item 3 and required_remedy_additions INV-004). Task 6's cmp mirror check
+      (tasklist:88) still holds.
+
+  # provenance: base R1-F2 (unchanged; no PC)
+  - id: R1-F2
+    source_variants: [V1 R1-F2]
+    claim: "Task 39 AC (grep --custom-prompt-dir returns nothing) contradicts item B-W15.3, which tells the writer to state the flag is planned, not shipped; Task 18 has milder risk."
+    citation: "tasklist:358-361; CONSOLIDATED-PLAN.md:498; src/superclaude/cli/swarm/commands.py:125"
+    class: drift
+    severity: minor
+    recommendation: "Reword AC to 'no line presents --custom-prompt-dir as a usable flag'; same for Task 18."
+
+  # provenance: base R1-F3; PC-17 (C-002: V3 R3-F2 per-linking-file AC; V2 R2-F2 deviations alternative)
+  - id: R1-F3
+    debate_point: C-002
+    source_variants: [V1 R1-F3, V2 R2-F2, V3 R3-F2]
+    claim: "Task 17 swaps A-W22.9 link targets (item: commands.md, mcp-servers.md, README.md; task: README.md, mcp-installation.md); commands.md link dropped."
+    citation: "tasklist:175,178; CONSOLIDATED-PLAN.md:392; tasklist:94"
+    class: drift
+    severity: minor
+    recommendation: >-
+      Link from README.md, commands.md and mcp-servers.md; the AC greps each linking file for the codegraph.md link.
+      Alternative (R2-F2): if a target is dropped, record it in ./artifacts/deviations.md.
+
+  # provenance: base R1-F4; PC-19 (citation: :273 is the Task 28 install --fresh grep; :281 kept as the Task 29 grep)
+  - id: R1-F4
+    source_variants: [V1 R1-F4]
+    claim: "Removal greps (Task 13 --all-mcp, Tasks 27/29 python3 -m SuperClaude, Task 28 install --fresh) conflict with docs that legitimately state 'X does not exist'."
+    citation: "tasklist:143,146,265,273,281; CONSOLIDATED-PLAN.md:316"
+    class: drift
+    severity: minor
+    recommendation: "Interpret removal checks as 'not presented as usable', or remove mentions instead of describing absence."
+
+  # provenance: V3 R3-F6 imported verbatim by PC-20 (unique U-010)
+  - id: R3-F6
+    source_variants: [V3 R3-F6]
+    claim: "Task 42 paraphrases B-W18 differently: item says replace git stash in CONTRIBUTING.md with a worktree (git worktree add .dev/worktrees/master-check master); task says 'safe form'; KNOWLEDGE.md item says ./update.sh or pipx install --force ./, task says 'editable/update.sh'."
+    citation: "CONSOLIDATED-PLAN.md:510-511; tasklist:382; tasklist:385"
+    class: drift
+    severity: minor
+    recommendation: "Apply the item's wording; AC requires git worktree add in CONTRIBUTING.md."
+
+  # provenance: base R1-F5 split by PC-18 (C-007, X-002), part (a) from V3 R3-F8
+  - id: R1-F5a
+    debate_point: C-007
+    source_variants: [V1 R1-F5, V3 R3-F8]
+    claim: "The markdownlint pin (-c, markdownlint-cli v0.38.0) differs from the spec wording but matches the repo pre-commit pin."
+    citation: "tasklist:27; .pre-commit-config.yaml:74-77; source.md:48"
+    class: necessary
+    severity: minor
+    recommendation: "None needed; record the version pin as a necessary deviation."
+
+  # provenance: base R1-F5 split by PC-18 (C-007, X-002), part (b) with V1 Round 2 qualification
+  - id: R1-F5b
+    debate_point: X-002
+    source_variants: [V1 R1-F5]
+    claim: >-
+      The "record pre-existing violations" relaxation clause is not in the spec. The executor commits nothing
+      (tasklist:28), but the pre-commit hook runs markdownlint --fix on whole staged files, so a recorded violation
+      resurfaces at the orchestrator's commit.
+    citation: "tasklist:27, :371; .pre-commit-config.yaml:74-78; .pre-commit-config.yaml:74-88; source.md:47-48; tasklist:28"
+    class: drift
+    severity: minor
+    recommendation: "Fix violations or keep the hook's --fix result."
+
+  # provenance: base R1-F6 (unchanged; no PC)
+  - id: R1-F6
+    source_variants: [V1 R1-F6]
+    claim: "Plan omits the Tier A/B/C grouping and template header fields (Capability, Audience, Source of truth, Est. time; Gate for sysop) required by the Test guide plan."
+    citation: "CONSOLIDATED-PLAN.md:587; templates/user-test-guide.md:7-12; tasklist:26"
+    class: drift
+    severity: minor
+    recommendation: "Require Tier A/B/C headings and filled header fields in Tasks 48-65."
+
+  # provenance: base R1-F7 (unchanged; no PC)
+  - id: R1-F7
+    source_variants: [V1 R1-F7]
+    claim: "Task 65 hardcodes python3 -m http.server (plan addition, conflicts with UV-only rule); _fetch uses urllib urlopen with no scheme check so file:// likely works."
+    citation: "tasklist:575; CONSOLIDATED-PLAN.md:632; src/superclaude/skills/ccsession-tag/models.py:255-268"
+    class: drift
+    severity: minor
+    recommendation: "Say 'serve over a local HTTP URL if file:// is not accepted'; use a UV-compliant command."
+
+  # provenance: base R1-F8; PC-16 (C-005: R3-F5 forward-link case merged, R3-F5 drift class discarded, tasklist:65 cite not used)
+  - id: R1-F8
+    debate_point: C-005
+    source_variants: [V1 R1-F8, V3 R3-F5]
+    claim: >-
+      Dependency declarations do not enforce ordering for Tasks 37, 47, 66 and Task 1's upgrading.md link; fine only
+      under sequential execution. Forward links: Tasks 4 and 13 link to docs/user-guide/codegraph.md, created only in
+      Task 17.
+    citation: "tasklist:342-346, :422-430, :581-589; CONSOLIDATED-PLAN.md:481; CONSOLIDATED-PLAN.md:249 (via the Task 4 item reference at tasklist:67); CONSOLIDATED-PLAN.md:308"
+    class: grounding-gap
+    severity: minor
+    recommendation: "Add Depends-on lines: 47 on 3,17,43-46; 66 on 48-65; 37 on 43-46. List full dependency sets on 47 and 66."
+
+  # provenance: split from base R1-F8 by PC-15 (C-004: V3 R3-F4 remedy; V2 R2-F4)
+  - id: R1-F8b
+    debate_point: C-004
+    source_variants: [V1 R1-F8, V3 R3-F4, V2 R2-F4]
+    claim: "Task 37 omits B-W12 #6 (link the four new technical notes) and runs before Tasks 43-46."
+    citation: "CONSOLIDATED-PLAN.md:481; tasklist:340-346"
+    class: drift
+    severity: minor
+    recommendation: "Fold the four-note links into Task 47, which already depends on Task 46 (tasklist:424), with a target-exists AC."
+
+  # provenance: V3 R3-F7 imported by PC-22 (unique U-011), placed after the PC-15 finding
+  - id: R3-F7
+    source_variants: [V3 R3-F7]
+    claim: "Task 47 adds index links to codegraph.md and upgrading.md not requested by B-W13."
+    citation: "CONSOLIDATED-PLAN.md:487; CONSOLIDATED-PLAN.md:199; tasklist:426"
+    class: drift
+    severity: minor
+    recommendation: "Keep the links and record them in ./artifacts/deviations.md, or drop them."
+
+  # provenance: base R1-F9; PC-14 (C-003: B-W22.6 removed from the sub-item list; remaining sub-items stay grounding-gap)
+  - id: R1-F9
+    debate_point: C-003
+    source_variants: [V1 R1-F9]
+    claim: "Several numbered sub-items of named items are not in task text/AC (A-W1.6, A-W4.2/.12, A-W5.7, A-W16.4, A-W19.4, A-W20.4, B-W19.3/.6/.8, C-W3.6/.7/.11); covered only by the 'Read the named item' constraint."
+    citation: "tasklist:19,54,67,94,103,202,226,234,392,416; CONSOLIDATED-PLAN.md:249,259-270,353,370,376,517,520,522,544,574,578"
+    class: grounding-gap
+    severity: minor
+    recommendation: "Constraint: every numbered sub-item applied or recorded in ./artifacts/deviations.md."
+
+  # provenance: split from base R1-F9 by PC-14 (C-003: V3 R3-F3 citations and remedy; V2 R2-F3; V2 imprecision noted)
+  - id: R1-F9b
+    debate_point: C-003
+    source_variants: [V1 R1-F9, V2 R2-F3, V3 R3-F3]
+    claim: >-
+      B-W22 #6 git-standards-protocols.md section-6 pointer has no task; the Goal claims gaps 1-70 fixed. V2's
+      "tasklist grep 0 hits" is imprecise: git-standards-protocols.md is named at tasklist:426 (Task 47) for a
+      different purpose; the pointer claim holds.
+    citation: "CONSOLIDATED-PLAN.md:209; CONSOLIDATED-PLAN.md:544; docs/developer-guide/git-standards-protocols.md:593-595; tasklist:416-420; tasklist:426"
+    class: drift
+    severity: minor
+    recommendation: "Add the one-line pointer to Task 46 with a grep AC (gap-71 rewrite stays deferred)."
+
+  # provenance: base R1-F10; PC-13 (C-006: reclassed grounding-gap -> drift; V2 R2-F6 evidence merged)
+  - id: R1-F10
+    debate_point: C-006
+    source_variants: [V1 R1-F10, V2 R2-F6]
+    claim: >-
+      Constraints omit 'no issue filing', 'no release/tag', 'no report/manifest'; D05/D07 guides contain [EXTERNAL]
+      steps that must be written, never run. The executor is sent to CONSOLIDATED-PLAN.md by tasklist:19, and its
+      section 6 (CONSOLIDATED-PLAN.md:636) instructs filing O1-O22 issues, against source.md:36.
+    citation: "source.md:34-38; source.md:36; tasklist:19,23,28; CONSOLIDATED-PLAN.md:636"
+    class: drift
+    severity: minor
+    recommendation: >-
+      Add one Constraint sentence covering all of them: no issue filing; no release/tag; do not write
+      post-release-report.md or post-release-manifest.json; [EXTERNAL] steps in the D05/D07 guides are written, never run.
+
+# No-class records (S-002, 75%): kept, but carry no deviation class and no severity.
+notes:
+  # provenance: base R1-F11 moved out of findings by PC-10 (claim reworded to remove the contradiction with R1-F9/R1-F9b)
+  - id: R1-F11
+    kind: consistency
+    source_variants: [V1 R1-F11]
+    claim: "Consistent: tasks 1-66 map to items and gaps 1-70 except B-W22.6 (see finding R1-F9b, C-003); ground facts (pyproject.toml:7, counts, transcript ranges, DECISIONS B1-B5, severity test path, RELEASE-READINESS 6.3, D10 fixture) verified."
+    citation: "pyproject.toml:7; CONSOLIDATED-PLAN.md:237,675; docs/testing/v5.0.0/c-e2e-transcript.txt:416,724-775; .dev/releases/current/v5.0.0/DECISIONS.md:12-19; .dev/releases/current/v5.0.0/RELEASE-READINESS.md:186-200"
+    class: none
+    recommendation: "No change."
+
+  # provenance: V3 R3-F10 imported as an unclassed note by PC-11
+  - id: R3-F10
+    kind: consistency
+    source_variants: [V3 R3-F10]
+    claim: "Tasks 3 and 4 both add a README upgrading.md link (overlap carried from C-W3 #12 and A-W1 #5)."
+    citation: "CONSOLIDATED-PLAN.md:248; CONSOLIDATED-PLAN.md:579; tasklist:54; tasklist:67"
+    class: none
+    recommendation: "Suggested split: Task 3 links from installation.md only; README link stays with Task 4."
+
+  # provenance: V2 R2-F5 moved out of the deviation register by PC-12 (reviewer artifact, not a plan deviation)
+  - id: R2-F5
+    kind: reviewer_artifact
+    source_variants: [V2 R2-F5]
+    claim: "The coverage matrix states 53/53 where it enumerates 66 deliverables. Not a plan deviation; artifacts/coverage-matrix.md is a reviewer artifact in the reflect output dir."
+    citation: "artifacts/coverage-matrix.md:244 vs :44-109"
+    class: none
+    recommendation: "Correct the reflect artifact's count to 66."
+
+# Invariant-probe items carried into the C-001 remedy (depth=standard, no Round 3). All apply to finding R1-F1.
+required_remedy_additions:
+  # provenance: PC-04 (invariant-probe INV-001, HIGH)
+  - id: INV-001
+    invariant_severity: HIGH
+    blocking: true
+    applies_to: R1-F1
+    addition: >-
+      Delivery: only a /sc:workflow re-run that writes the AC into Task 66 (and Task 26) puts the remedy under the
+      executor's gate. An orchestrator instruction alone does not: /sc:implement grades each task only against its
+      AC and the plan Constraints (~/.claude/skills/sc-implement-protocol/refs/qa.md:15) and will not treat tests as
+      pass/fail (implement.md:91). The two delivery paths are not equivalent.
+    citation: "~/.claude/skills/sc-implement-protocol/refs/qa.md:15; src/superclaude/commands/implement.md:11; implement.md:91"
+
+  # provenance: PC-05 (invariant-probe INV-002, HIGH)
+  - id: INV-002
+    invariant_severity: HIGH
+    blocking: true
+    applies_to: R1-F1
+    addition: >-
+      Before Task 1, record a make test baseline to ./artifacts/baseline-make-test.log (make test = uv run pytest
+      over all of tests, Makefile:13-15, pyproject.toml:108), from the same branch head. Word the Task 66 AC as
+      'no failures beyond the baseline', not 'exit 0', because the plan forbids code changes (tasklist:23) and a
+      pre-existing unrelated failure would halt Task 66 (E-HALT-QA, sc-implement-protocol SKILL.md:33).
+    citation: "Makefile:13-15; pyproject.toml:108; tasklist:23; sc-implement-protocol SKILL.md:33"
+
+  # provenance: PC-06 (invariant-probe INV-008, HIGH)
+  - id: INV-008
+    invariant_severity: HIGH
+    blocking: true
+    applies_to: R1-F1
+    addition: >-
+      Sufficiency: the Task 66 AC alone does not satisfy source.md:47-50. It also needs INV-001 (delivery), INV-002
+      (baseline) and INV-003 (evidence log). If any earlier task halts, Task 66 never runs; the post-release
+      orchestrator must then run the smoke selection and make test before it commits (source.md:51), compared
+      against the baseline. The markdownlint half of the verification stays per task (tasklist:27); make lint is
+      ruff only (Makefile:48-50).
+    citation: "source.md:47-50; source.md:51; sc-implement-protocol SKILL.md:33; tasklist:27; Makefile:48-50"
+
+  # provenance: PC-07 (invariant-probe INV-003, MEDIUM; replaces V1's single ./artifacts/final-make-test.log)
+  - id: INV-003
+    invariant_severity: MEDIUM
+    blocking: false
+    applies_to: R1-F1
+    addition: >-
+      State the AC evidence as files: ./artifacts/t26-smoke.log, ./artifacts/t66-smoke.log,
+      ./artifacts/t66-make-test.log, following the Task 6 precedent ./artifacts/t6-tests.log (tasklist:89). Each AC
+      cites the log's result line (path:line), because qa.md:9 and :31 reject "tests pass" without one.
+    citation: "tasklist:89; qa.md:9; qa.md:31"
+
+  # provenance: PC-08 (invariant-probe INV-004, MEDIUM; extends R1-F1 item 3)
+  - id: INV-004
+    invariant_severity: MEDIUM
+    blocking: false
+    applies_to: R1-F1
+    addition: >-
+      No test selected by -k "doc or primitive or how_we_work or severity" reads
+      src/superclaude/rules/core/changelog_maintenance.md; the only test that reads it is
+      tests/unit/test_cli_install.py:172. Task 26's AC runs that file explicitly
+      (uv run pytest tests/unit/test_cli_install.py -q) in addition to the smoke selection, and re-reads the edited
+      file against item B-W1.
+    citation: "tests/unit/test_cli_install.py:172"
+
+  # provenance: PC-09 (invariant-probe INV-006, MEDIUM)
+  - id: INV-006
+    invariant_severity: MEDIUM
+    blocking: false
+    applies_to: R1-F1
+    addition: >-
+      Add the smoke selection to the ACs of the MCP-doc tasks (Tasks 2, 13, 29 and the D02 guide task), because
+      tests/docs/test_tavily_doc_alignment.py:77-114 and tests/docs/test_retired_docs_absent.py:37-49 scan all docs;
+      a failure introduced at Task 2 should surface at Task 2, not at Task 66.
+    citation: "tests/docs/test_tavily_doc_alignment.py:77-114; tests/docs/test_retired_docs_absent.py:37-49"
+
+self_audit: >-
+  Merged by merge-executor from base V1 plus refactor-plan.md PC-01..PC-22 in plan order. 16 findings (1 blocking),
+  3 no-class notes, 6 required remedy additions (3 blocking). Citations carried verbatim from the source cards,
+  invariant-probe.md or the plan; PC-19's tasklist:273 (Task 28) and :281 (Task 29) checked against the tasklist.

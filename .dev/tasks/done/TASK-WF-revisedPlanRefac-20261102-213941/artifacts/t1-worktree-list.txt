@@ -1,0 +1,9 @@
+$ git worktree list
+/home/coder/workspaces/IronClaude                                           d953b983 [master]
+/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs    ce642492 [ironbelly/OrcaCLICommandRefactor-Specs]
+/home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor       72c469f6 [ironbelly/codegraph-release-monitor-plan]
+/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init  9a88976d [chore/codegraph-migration-followup]
+/home/coder/workspaces/worktrees/IronClaude/fix-gitignore-tests-case        a70150e2 [fix/gitignore-tests-case]
+/home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths     c118b5a5 [ironbelly/orca-default-worktree-paths]
+/home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0             d953b983 [ironbelly/post-release-v5.0.0]
+/home/coder/workspaces/worktrees/IronClaude/release-v5.0.0                  a32940ac [ironbelly/release-v5.0.0-include-347]

@@ -1,0 +1,15 @@
+$ bash -n src/superclaude/skills/ccsession-tag/ccsession
+rc=0
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/unit/test_ccsession_tiers.py -k "outlives_the_terminal or directly_started_shim or busy_shim_is_never_stopped" -q -p no:cacheprovider
+====================== 3 passed, 126 deselected in 14.51s ======================
+rc=0
+$ pgrep -af "[p]ytest-of-.*/shim-under-test.py"
+pgrep: none running
+
+$ python3 -I .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py <worktree> <mktemp -d scratch> > .../live-check/after.txt   # rc=0, output in after.txt
+scratch dir /tmp/ccsession-livecheck.KtqDsBug removed: yes
+throwaway shim pid 2517827 still running: no
+
+live shims (curl -s http://127.0.0.1:<port>/__ccsession_shim), before: 4013 pid 1788, 4114 pid 2258510 (./artifacts/live-pids-before.txt)
+after: 4013 pid 1788
+after: 4114 pid 2258510

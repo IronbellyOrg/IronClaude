@@ -1,6 +1,6 @@
 # IronClaude: How We Work
 
-This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; run `superclaude update` after upgrading IronClaude to refresh that copy. `superclaude update` overwrites every file it ships, including an edited `~/.claude/CLAUDE.md`, and keeps no backup. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run it. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
+This guide tells you which IronClaude skills and commands to use for each kind of work, and in what order. Keep it open while you work. `superclaude install` copies this guide to `~/.claude/HOW-WE-WORK.md`; after upgrading IronClaude run `superclaude install --force` to refresh that copy (it also installs codegraph and retires old MCP registrations; `superclaude update` refreshes files only). `superclaude install --force` and `superclaude update` both overwrite every file they ship, including an edited `~/.claude/CLAUDE.md`, and keep no backup. They also delete and re-copy each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. Copy any file you changed or added before you run either one. Plugin installs ship only some of these commands and skills; for the full set run `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the `superclaude` package on PyPI is the upstream project, not IronClaude).
 
 ---
 
@@ -226,7 +226,7 @@ Pass the one selected monitor value explicitly. A stronger project rule can requ
 
 There are two ways to resume. Use the first if you set it up; the second always works.
 
-**1. Reopen the conversation (ccsession).** Do this before you need it: start the session with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` to reopen that conversation. `ccsession --here` lists the names for this repo. `superclaude install` sets this up; `~/.local/bin` must be on your `PATH`.
+**1. Reopen the conversation (ccsession).** Do this before you need it: start the session with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` to reopen that conversation. `ccsession --here` lists the names for this worktree (and for removed ones); `ccsession --here --all` lists every worktree's. `superclaude install` sets this up; `~/.local/bin` must be on your `PATH`.
 
 **2. Restart from the work's own files.** This works in a brand-new conversation.
 

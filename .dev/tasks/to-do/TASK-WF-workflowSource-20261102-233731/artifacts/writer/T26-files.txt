@@ -1,0 +1,3 @@
+src/superclaude/rules/core/changelog_maintenance.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t26-verify-sync.log
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md

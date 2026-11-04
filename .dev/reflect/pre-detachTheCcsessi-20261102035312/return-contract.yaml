@@ -1,0 +1,92 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/REPORT.md
+audit_log_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.7045
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-006, INF-022, INF-026, INF-028, INF-029, INF-030, INF-035, INF-038, INF-039, INF-040, INF-041, INF-043, INF-044]
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 8b8c5f0b-see-input-snapshot
+  spec: see-input-snapshot
+input_tree_sha256: b99590042a5711b47cafc8683c4d26726228ab65223ac456fe34932bde47119f
+input_tree_file_count: 8
+input_tree_snapshot_path: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 72
+citations_revalidated: 70
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/reviewer-cards/reviewer-1-card.md
+  - /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/ccsession-proxy-stall/.dev/reflect/pre-detachTheCcsessi-20261102035312/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: multi
+t2_effective_diversity: vendor-only
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components: [auggie]
+  executor_class_source: log-heuristic
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  memory_hits: 0
+  memory_misses: 2
+  memory_retention_actions: 0
+  memory_status: "last-pass written (.superclaude, gitignored); tracked deviation-patterns file not written to keep the fix branch scoped"
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

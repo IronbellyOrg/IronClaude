@@ -1,0 +1,16 @@
+$ uv run pytest tests/unit/test_eval_runner_master_checkout.py -v -p no:cacheprovider   (after the change)
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.venv/bin/python
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collecting ... collected 4 items
+
+tests/unit/test_eval_runner_master_checkout.py::test_checkout_exists_inside_and_is_removed_after PASSED [ 25%]
+tests/unit/test_eval_runner_master_checkout.py::test_checkout_is_removed_when_body_raises PASSED [ 50%]
+tests/unit/test_eval_runner_master_checkout.py::test_missing_master_raises_with_git_stderr PASSED [ 75%]
+tests/unit/test_eval_runner_master_checkout.py::test_script_has_no_fixed_sibling_checkout PASSED [100%]
+
+============================== 4 passed in 0.16s ===============================
+rc=0

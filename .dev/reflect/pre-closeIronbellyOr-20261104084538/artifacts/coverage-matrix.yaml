@@ -1,0 +1,74 @@
+# coverage matrix (UC-1). parsed_total=0; inferred_total=11
+rows:
+  - requirement_id: INF-001
+    source: inferred
+    citation: source.md:1
+    match_method: none
+    matched_task_ids: []
+    best_ratio: 0.5
+  - requirement_id: INF-002
+    source: inferred
+    citation: source.md:1
+    match_method: none
+    matched_task_ids: []
+    best_ratio: 0.5882
+  - requirement_id: INF-003
+    source: inferred
+    citation: source.md:1
+    match_method: none
+    matched_task_ids: []
+    best_ratio: 0.4444
+  - requirement_id: INF-004
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 1]
+    best_ratio: 1.0
+  - requirement_id: INF-005
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 2]
+    best_ratio: 1.0
+  - requirement_id: INF-006
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 1]
+    best_ratio: 0.8571
+  - requirement_id: INF-007
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 3]
+    best_ratio: 1.0
+  - requirement_id: INF-008
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 4]
+    best_ratio: 1.0
+  - requirement_id: INF-009
+    source: inferred
+    citation: source.md:1
+    match_method: none
+    matched_task_ids: []
+    best_ratio: 0.5556
+  - requirement_id: INF-010
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 2]
+    best_ratio: 0.7241
+  - requirement_id: INF-011
+    source: inferred
+    citation: source.md:1
+    match_method: containment
+    matched_task_ids: [Task 5]
+    best_ratio: 0.8125
+coverage_pct: null  # parsed-only; parsed_total == 0
+coverage_pct_union: 0.6364
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-009]
+S_dev_density: 0.3636
+coverage_degraded: parsed-sparse  # inferred_count 11 > parsed_count 0

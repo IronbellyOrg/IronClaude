@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: .dev/reflect/pre-workflowSource-20261102234109/adversarial/merged-verdict.yaml
+  convergence_score: 1.0          # diff-point agreement 13/13; convergence gate BLOCKED_BY_INVARIANTS
+  artifacts_dir: .dev/reflect/pre-workflowSource-20261102234109/adversarial
+  status: partial                 # non-convergence: invariant gate blocked (INV-001, INV-002, INV-008)
+  base_variant: "variant-1 (reviewer 1, analyzer, sonnet)"
+  unresolved_conflicts: 0         # all 13 diff points agreed; blocking invariants carried as remedy additions
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: state_variables, assumption: "off-plan delivery puts the remedy under the executor gate", severity: HIGH}
+    - {id: INV-002, category: guard_conditions, assumption: "make test passes on this branch before the plan runs", severity: HIGH}
+    - {id: INV-008, category: sufficiency_challenge, assumption: "the remedy alone satisfies source.md:47-50", severity: HIGH}
+  notes:
+    - "PC-01 cross-reference corrected by merge-executor (PC-03..PC-05 -> PC-04..PC-06); verified against refactor-plan.md headings"
+    - "Inputs are YAML reviewer cards copied as variant-N-original.md (non-markdown warning logged)"

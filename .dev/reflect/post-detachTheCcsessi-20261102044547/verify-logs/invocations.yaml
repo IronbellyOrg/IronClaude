@@ -1,0 +1,18 @@
+# sc:reflect §6.1.1 per-invocation verification log (orchestrator-run; controls a-i applied)
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff check src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py tests/unit/test_ccsession_tiers.py"
+  step: 5
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-logs/ruff.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+- cmd: "timeout 600 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py -q -p no:cacheprovider"
+  step: 5.5
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-logs/pytest-ccsession.stdout.txt
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+# Not run: `bash -n` on the bash launcher (bash is not in the control-(b) verb allowlist); the implement ledger records it (task-log claim, package artifacts/t4-tests.log:1-2).

@@ -1,0 +1,16 @@
+# Wave 1D blind calibration of t1-card.md (confidence-calibrator, model class opus)
+calibrator_model_class: opus
+calibrator_diversity: degraded   # reviewer classes {sonnet, haiku, opus} leave no disjoint class; opus chosen per fallback
+dimensions:
+  citation_grounding: 0.85
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.72
+  recommendation_actionability: 0.35
+C: 0.63
+escalation: escalate
+missed_by_card:
+  - "tasklist L20 says the live fresh-session check is in Task 6; it is Task 7 (Task 6 is the CHANGELOG)"
+  - "Task 7 runs claude -p with --permission-mode bypassPermissions; not listed as a risk"
+  - "known false negatives not listed: bash -c (by design), xargs and find -exec wrappers"
+  - "card does not state coverage numbers (coverage_pct null, union 0.75, S_dev_density 0.25)"

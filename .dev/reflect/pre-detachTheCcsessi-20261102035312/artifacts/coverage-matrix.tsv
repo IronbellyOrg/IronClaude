@@ -1,0 +1,45 @@
+id	citation	match_method	matched_task	ratio
+INF-001	S:1	containment	Task 4	0.68
+INF-002	S:1	containment	Task 4	0.91
+INF-003	S:1	containment	Task 3	1.00
+INF-004	S:1	containment	Task 1	1.00
+INF-005	S:1	containment	Task 5	1.00
+INF-006	R:9	none		0.17
+INF-007	R:11	containment	Task 4	0.86
+INF-008	R:11	containment	Task 4	1.00
+INF-009	R:11	containment	Task 4	1.00
+INF-010	R:11	containment	Task 4	1.00
+INF-011	R:12	containment	Task 3	0.85
+INF-012	R:12	containment	Task 3	0.69
+INF-013	R:12	containment	Task 3	0.67
+INF-014	R:12	containment	Task 3	0.67
+INF-015	R:12	containment	Task 3	1.00
+INF-016	R:12	containment	Task 3	1.00
+INF-017	R:13	containment	Task 1	0.85
+INF-018	R:14	containment	Task 1	0.91
+INF-019	R:14	containment	Task 1	1.00
+INF-020	R:14	containment	Task 1	0.83
+INF-021	R:14	containment	Task 1	0.86
+INF-022	R:14	none		0.55
+INF-023	R:14	containment	Task 1	0.86
+INF-024	R:15	containment	Task 2	0.93
+INF-025	R:15	containment	Task 2	1.00
+INF-026	R:16	none		0.14
+INF-027	R:17	containment	Task 5	0.69
+INF-028	R:21	none		0.50
+INF-029	R:22	none		0.56
+INF-030	R:22	none		0.25
+INF-031	R:23	containment	Task 4	0.91
+INF-032	R:23	containment	Task 4	0.83
+INF-033	R:23	containment	Task 4	0.83
+INF-034	R:24	containment	Task 5	0.83
+INF-035	R:25	none		0.57
+INF-036	R:25	containment	Task 4	0.71
+INF-037	R:25	containment	Task 4	0.75
+INF-038	R:26	none		0.50
+INF-039	R:26	none		0.50
+INF-040	R:26	none		0.33
+INF-041	R:26	none		0.33
+INF-042	R:26	containment	Task 5	0.80
+INF-043	R:35	none		0.36
+INF-044	R:35	none		0.10

@@ -31,10 +31,8 @@ model_settings: ""
 related_links:
 - text: Master CHANGELOG.md
   link: CHANGELOG.md
-- text: Changelog System README
-  link: .claude/changelogs/README.md
 - text: Changelog Template
-  link: .claude/templates/workflow/changelog_template.md
+  link: ~/.claude/templates/workflow/changelog_template.md
 - text: File Conventions
   link: ~/.claude/rules/core/file_conventions.md
 related_task_id:
@@ -45,6 +43,7 @@ review_info:
   next_review_date: "2026-04-11"
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Changelog Maintenance Rules
 
 ## Purpose
@@ -87,6 +86,7 @@ Use this decision matrix:
 | **Large** | 30+ changes, breaking changes, major features | ✅ Yes |
 
 **ALWAYS create detailed file if:**
+
 - New major/minor version (X.0.0 or X.Y.0)
 - Breaking changes or deprecations
 - New features requiring documentation
@@ -96,24 +96,27 @@ Use this decision matrix:
 - 10+ files changed
 
 **DON'T create detailed file if:**
+
 - Patch fixes (X.Y.Z) with <10 changes, no breaking changes
 - Single-file documentation updates, typo fixes
 - Internal refactoring with no user impact, test-only changes
 
 #### Step 2: Create Detailed File (if needed)
 
-1. Copy template: `.claude/templates/workflow/changelog_template.md`
-2. Name: `YYYY-MM-DD_vX.Y.Z_SHORT_DESCRIPTION.md`
-3. Save to: `.claude/changelogs/`
+1. Copy template: `~/.claude/templates/workflow/changelog_template.md` (the installed copy; in an IronClaude dev checkout it is also at `.claude/templates/workflow/changelog_template.md` after `make sync-dev`)
+2. Name: `vX.Y.Z.md`
+3. Save to `docs/releases/vX.Y.Z.md` (tracked; `.claude/` is git-ignored, so release notes saved there are never committed)
 4. Fill ALL required sections (see template)
 
 #### Step 3: Update CHANGELOG.md
 
 1. Move "Unreleased" items to new `[X.Y.Z] - YYYY-MM-DD` section
 2. Add link to detailed file (if created):
+
    ```markdown
-   **Detailed Release Notes**: [.claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md]
+   **Detailed Release Notes**: [docs/releases/vX.Y.Z.md](docs/releases/vX.Y.Z.md)
    ```
+
 3. Update comparison links at bottom
 
 ---
@@ -130,17 +133,22 @@ git push origin vX.Y.Z
 #### Step 5: GitHub Release (if using GitHub)
 
 **Option A - CLI** (recommended):
+
 ```bash
 gh release create vX.Y.Z \
+  --repo <owner>/<repo> \
   --title "vX.Y.Z - Brief Description" \
-  --notes-file .claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md
+  --notes-file docs/releases/vX.Y.Z.md
 ```
 
-**Option B - Web UI**: See `.claude/changelogs/README.md` section 4
+Always pass `--repo`: in a fork, gh defaults to the parent repository. For IronClaude: `--repo IronbellyOrg/IronClaude`.
+
+**Option B - Web UI**: Create the release on the repository's Releases page and attach `docs/releases/vX.Y.Z.md` as the release body.
 
 #### Step 6: Start New Unreleased Section
 
 Add to top of `CHANGELOG.md`:
+
 ```markdown
 ## [Unreleased]
 
@@ -163,9 +171,8 @@ Add to top of `CHANGELOG.md`:
 ## Files and Locations
 
 - **Master Changelog**: `CHANGELOG.md` (repository root)
-- **Detailed Files**: `.claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md`
-- **Template**: `.claude/templates/workflow/changelog_template.md`
-- **Documentation**: `.claude/changelogs/README.md` (human reference)
+- **Detailed Files**: `docs/releases/vX.Y.Z.md`
+- **Template**: `~/.claude/templates/workflow/changelog_template.md` (in an IronClaude dev checkout also `.claude/templates/workflow/changelog_template.md` after `make sync-dev`)
 
 ---
 
@@ -178,7 +185,3 @@ Add to top of `CHANGELOG.md`:
 - ❌ **NEVER** skip changelog updates
 - ❌ **NEVER** use vague descriptions ("various fixes")
 - ❌ **NEVER** forget migration notes for breaking changes
-
----
-
-**Related Documentation**: See `.claude/changelogs/README.md` for detailed examples, best practices, and troubleshooting.

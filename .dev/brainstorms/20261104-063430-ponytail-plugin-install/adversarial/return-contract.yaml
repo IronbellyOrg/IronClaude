@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20261104-063430-ponytail-plugin-install/adversarial/merged-output.md"
+  convergence_score: 0.94
+  artifacts_dir: ".dev/brainstorms/20261104-063430-ponytail-plugin-install/adversarial/"
+  status: "success"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 4          # S-001, S-003, S-012 (cosmetic, never debated), X-014 (naming an uninstall command)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # INV-001, INV-029 addressed by spec changes; INV-027, INV-028 accepted as documented risks (refactor-plan.md, debate-transcript.md Convergence Assessment)
+  notes:
+    - "Step 1 diff agent dropped on an API connection error and was resumed with its context."
+    - "Open decision carried into the merged spec (section 3.1a): ledger default, pending the coordinator (msg_d37768933f42, correction msg_3493f6c1db7d)."

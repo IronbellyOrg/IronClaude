@@ -1,0 +1,37 @@
+# Step 1B.0 Pass 2 (inference). Pass 1 parsed 0 IDs (no R-/REQ-/SPEC-/T- tokens in source.md).
+# Every quote is verbatim from .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/source.md:1 (single-line prompt snapshot).
+spec_path: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/source.md
+rows:
+  - id: INF-001
+    citation: source.md:1
+    quote: "by implementing the design in .dev/brainstorms/20261104-063430-ponytail-plugin-install/merged-requirements.md"
+  - id: INF-002
+    citation: source.md:1
+    quote: "Decision for open item 3.1a: Outcome 2 (Ponytail's own ledger default, no pluginConfigs entry), with env.PONYTAIL_DEFAULT_MODE=off"
+  - id: INF-003
+    citation: source.md:1
+    quote: "if the coordinator picks off+ledger-off, one step adds pluginConfigs['ponytail@ponytail'].options.ledger=false plus a T1 assertion and the outcome-1 ledger sentence"
+  - id: INF-004
+    citation: source.md:1
+    quote: "src/superclaude/cli/user_settings_defaults.json (three entries)"
+  - id: INF-005
+    citation: source.md:1
+    quote: "src/superclaude/cli/install_user_setup.py (failure-label fix, at most 5 changed lines)"
+  - id: INF-006
+    citation: source.md:1
+    quote: "tests/cli/test_install_user_setup.py (T1, T2, T3/T4 legs, T5, T5c)"
+  - id: INF-007
+    citation: source.md:1
+    quote: "docs/getting-started/installation.md (count-free sentence + Ponytail paragraph with the ledger outcome-2 sentence)"
+  - id: INF-008
+    citation: source.md:1
+    quote: "CHANGELOG.md [Unreleased]"
+  - id: INF-009
+    citation: source.md:1
+    quote: "No change to main.py, update.sh, doctor.py, output styles, or .claude/."
+  - id: INF-010
+    citation: source.md:1
+    quote: "Checks: uv run pytest tests/cli/test_install_user_setup.py tests/cli/test_update_command.py tests/unit/test_cli_install.py -v, make lint, uv run ruff format --check src/ tests/, make verify-sync, grep -rn 'six plugins' docs/ empty."
+  - id: INF-011
+    citation: source.md:1
+    quote: "Manual AC-M1 (M1a/M1b/M1c) in a throwaway HOME under /tmp is non-blocking and must never touch this workspace's ~/.claude."

@@ -1,0 +1,44 @@
+INF-001	S:1	Detach the ccsession gateway shim from the terminal that starts it, as specified in .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/remediation-source.md (diagnosis: REPORT.md in the same directory; issue #341).
+INF-002	S:1	src/superclaude/skills/ccsession-tag/ccsession (setup_shim start statement lines 797-804)
+INF-003	S:1	src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py (__main__)
+INF-004	S:1	tests/unit/test_ccsession_tiers.py
+INF-005	S:1	CHANGELOG.md
+INF-006	R:9	## Required change (scope: exactly these, nothing else)
+INF-007	R:11	wrap the shim start statement (lines 801-804) in a `( ... )` subshell so the subshell exits at once and the shim is reparented away from the launching terminal.
+INF-008	R:11	Update the comment above it to say why.
+INF-009	R:11	Keep bash 3.2 syntax
+INF-010	R:11	keep the env assignments (GW_PROXY_UPSTREAM, GW_PROXY_PORT, CCSESSION_DIR) and the `>/dev/null 2>&1` redirect
+INF-011	R:12	in `__main__`, before binding, call `os.setsid()` so the shim leaves the launcher's session and process group
+INF-012	R:12	ignore `OSError` (raised when the process already leads a process group, e.g. run by hand in an interactive shell)
+INF-013	R:12	Add a short comment.
+INF-014	R:12	No new imports beyond `os` (already imported)
+INF-015	R:12	no fork
+INF-016	R:12	argv unchanged.
+INF-017	R:13	3. Regression tests in `tests/unit/test_ccsession_tiers.py` (reuse StandInGateway, `_free_port`, `_defaults`, TIER_BLOCK, `_ask_raw`, SKILL_DIR):
+INF-018	R:14	`test_shim_outlives_the_terminal_that_started_it`: run the real `ccsession` (fake `claude` that records ANTHROPIC_BASE_URL then `exec sleep 60`) in its own session (`start_new_session=True`, an Orca-terminal stand-in) with `CC_SHIM_SCRIPT` = a per-test copy of the shim
+INF-019	R:14	wait for the seen file; read the shim pid from `/__ccsession_shim`
+INF-020	R:14	assert the shim pid is not among the terminal root's descendants (walk `ps -axo pid=,ppid=`)
+INF-021	R:14	start a streamed tier2 request with `gateway.script["muse-spark-1.3"] = [("pause-stream", 4)]`; 1 s later SIGTERM every descendant of the root plus the root, then SIGKILL survivors
+INF-022	R:14	assert the reply status is 200 and ends with `message_stop`, and the health endpoint still reports the same pid.
+INF-023	R:14	Clean up: kill the shim by pid and `pkill -f <copy path>`; close the gateway; kill the root group if still alive.
+INF-024	R:15	`test_a_directly_started_shim_leaves_the_launchers_session`: start the shim with the existing `shim` fixture (Popen from the test process) and assert `os.getsid(<shim pid>) != os.getsid(0)` and `os.getpgid(<shim pid>) != os.getpgid(0)`
+INF-025	R:15	the fixture's `terminate()` must still stop it.
+INF-026	R:16	Both must fail on the current code and pass after the change.
+INF-027	R:17	4. `CHANGELOG.md` — one Unreleased entry (Fixed) describing the fix in plain words, referencing #341.
+INF-028	R:21	AC1: the new tests fail before the change (verified by running them against the unmodified source) and pass after.
+INF-029	R:22	AC2: `uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py -q` passes, plus any other test file that reads the edited files
+INF-030	R:22	Never run the full suite or tests/cli/eval/ as a directory.
+INF-031	R:23	AC3: live check: `python3 -I .dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py <worktree> <private scratch dir>` against the changed source prints `shim is a descendant of the terminal: False`, `stream finished: True`, and the port still answers
+INF-032	R:23	output saved as live-check/after.txt
+INF-033	R:23	the surviving throwaway shim is stopped by its exact pid.
+INF-034	R:24	AC4: `make lint` and `make verify-sync` pass.
+INF-035	R:25	AC5: nothing under `~/.claude`, `~/.ccsession` or the running config is edited
+INF-036	R:25	the live shims (ports 4013 and 4114) are never signalled
+INF-037	R:25	`superclaude install/update` is not run.
+INF-038	R:26	AC6: the doc restrictions hold: script path stays in the shim's argv (ccsession:722 `pgrep -f`)
+INF-039	R:26	env is inherited
+INF-040	R:26	no `setsid` binary is required
+INF-041	R:26	logging stays opt-in
+INF-042	R:26	no running shim is ever stopped by ccsession.
+INF-043	R:35	HC1 requires the replay to go through the real `ccsession` launch plus a terminal-descendant kill, with the negative witness already observed at HEAD (live-check/before.txt) and the positive witness produced by AC1/AC3.
+INF-044	R:35	HC5: off-path review required (PR reviewers and /sc:reflect --mode post).

@@ -1,0 +1,171 @@
+--- a/docs/mcp/mcp-integration-policy.md
++++ b/docs/mcp/mcp-integration-policy.md
+@@ -6,6 +6,42 @@
+ 
+ ### Core MCP Servers
+ 
++#### Codegraph MCP (installed by default)
++
++```yaml
++Name: codegraph
++Purpose: Code structure of the current git worktree (symbols, callers, callees, impact, file outlines)
++Category: Code Understanding
++Auto-Managed: true for installation and indexing; its tools are called explicitly
++Installed by: superclaude install (required phase). It installs the pinned codegraph 1.6.2 and
++              registers the MCP server at user scope as `codegraph serve --mcp`. A failure in this
++              phase makes superclaude install exit 1. Every other MCP server below is optional and
++              installed with `superclaude mcp --servers <name>`.
++
++Tools:
++  - codegraph_search: find a symbol by name
++  - codegraph_node: one symbol, or a file's outline
++  - codegraph_callers / codegraph_callees: who calls it, what it calls
++  - codegraph_impact: what a change reaches
++  - codegraph_files: indexed file tree
++  - codegraph_status: whether this checkout is indexed
++
++Index:
++  Location: <worktree>/.codegraph/ (one SQLite index per worktree, gitignored)
++  Built by: a SessionStart hook that starts `codegraph init --yes` in a new checkout
++            (SUPERCLAUDE_CODEGRAPH_AUTOINIT=0 switches the hook off)
++  Not indexed: markdown, files over 1 MB, ignored files, dependency folders
++
++Usage Pattern:
++  - First choice for code-structure questions; a graph answer locates code and is
++    confirmed with Read before it is cited
++  - Grep + Read is the floor whenever the index is missing, stale or switched off
++    (SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off switches it off for commands, skills and agents)
++  - Readiness report: /sc:graph
++
++Reference: ~/.claude/CODEGRAPH.md, docs/user-guide/codegraph.md
++```
++
+ #### Memory & Error Learning
+ 
+ **ReflexionPattern (Built into the Python package, explicit API)**
+@@ -172,9 +208,10 @@
+ 
+ ```yaml
+ Code Understanding:
+-  Primary: Grep + Read
+-  Secondary: Auggie MCP (optional, broader retrieval)
+-  Example: "Find all authentication-related symbols"
++  Primary: codegraph MCP (installed by default; symbols, callers, impact)
++  Secondary: Auggie MCP (optional, semantic search)
++  Floor: Grep + Read (always available; confirms every graph answer)
++  Example: "Find all callers of authenticate_user"
+ 
+ Complex Analysis:
+   Native reasoning (simple cases)
+@@ -213,7 +250,7 @@
+   Tools: MultiEdit, Glob, Grep
+ 
+ Complex (>10 files, architectural changes):
+-  MCPs: Auggie (optional)
++  MCPs: codegraph (impact of the change), Auggie (optional)
+   Coordination: PM Agent Commander mode
+   Tools: Task delegation, parallel execution
+ 
+@@ -232,7 +269,8 @@
+   Auto-Execute:
+     1. git status && git branch
+     2. Read CLAUDE.md
+-    3. Read docs/patterns/*.md (latest 5)
++    3. Read <project>/.superclaude/memory/*.md (pm_context, current_plan, last_session,
++       next_actions)
+     4. (Superseded: "Mindbase auto-load". No automatic memory load is implemented for
+        solutions_learned.jsonl or Mindbase. The PM agent definition restores context
+        by reading the .superclaude/memory/ markdown files instead.)
+@@ -245,8 +283,8 @@
+ 
+ Pre-Implementation:
+   Auto-Execute:
+-    1. Read relevant docs/patterns/
+-    2. Read relevant docs/mistakes/
++    1. Read <project>/.superclaude/memory/current_plan.md
++    2. Read the project's docs/*.md relevant to the task
+     3. Confidence check
+ 
+   MCPs Used:
+@@ -277,8 +315,10 @@
+     - Others: None (file-based documentation)
+ 
+   Output:
+-    - Success → docs/patterns/
+-    - Failure → docs/mistakes/
++    - Session state → <project>/.superclaude/memory/ (summary-<timestamp>.md, last_session.md,
++      next_actions.md)
++    - Success pattern → docs/patterns/ in the user's project (the agent creates it when needed)
++    - Failure with prevention → docs/mistakes/ in the user's project (created when needed)
+     - Global → CLAUDE.md
+ ```
+ 
+@@ -300,7 +340,7 @@
+     - New library in package.json
+     - Framework pattern needed
+ 
+-  Manual Override: --c7 flag
++  Manual Hint: --c7 (advisory hint Claude may honour, not a parsed flag)
+ 
+ Tavily MCP:
+   Auto-Trigger Keywords:
+@@ -314,7 +354,7 @@
+     - Unknown error message
+     - Latest version check
+ 
+-  Manual Override: --tavily flag
++  Manual Hint: --tavily (advisory hint Claude may honour, not a parsed flag)
+ ```
+ 
+ ## Anti-Patterns (禁止事項)
+@@ -352,7 +392,7 @@
+ ✅ Right Tool for Right Job:
+   Simple → Native tools (Read, Edit, Grep)
+   Medium → Context7 (new library)
+-  Complex → Grep + Read, Auggie (optional)
++  Complex → codegraph, Auggie (optional), Grep + Read floor
+ 
+ ✅ Lazy Evaluation:
+   Don't preload MCPs
+@@ -363,7 +403,7 @@
+   Memory: ReflexionPattern (explicit API) or optional Mindbase (manual install)
+   Knowledge: docs/ (file-based)
+   Progress: TodoWrite (session)
+-  Code: Grep + Read (understanding)
++  Code: codegraph (structure), Grep + Read (floor and citations)
+ 
+ ✅ Documentation First:
+   Pre-Implementation: Context7 + docs/patterns/
+@@ -403,7 +443,8 @@
+ From Old System:
+   - [ ] (superseded) Remove docs/memory/ references
+   - [ ] (superseded) Remove explicit memory read/write calls
+-  - [ ] Remove MODE_Task_Management.md memory sections
++  - [ ] (historical) Remove MODE_Task_Management.md memory sections; mode files are not
++        installed by superclaude install
+   - [ ] Update pm-agent.md with new MCP policy
+ 
+ To New System:
+@@ -416,8 +457,8 @@
+ 
+ ## References
+ 
+-- PM Agent: `~/.claude/superclaude/agents/pm-agent.md`
+-- Modes: `~/.claude/superclaude/modes/MODE_*.md`
+-- Rules: `~/.claude/superclaude/framework/rules.md`
++- PM Agent: `~/.claude/agents/pm-agent.md`
++- Rules: `~/.claude/RULES.md`
++- codegraph: `~/.claude/CODEGRAPH.md` and [docs/user-guide/codegraph.md](../user-guide/codegraph.md)
+ - Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md` (historical; this document no longer exists in the repository)
+ - Error-record contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md)
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -81,3 +81,8 @@
+ - **B-W3 correction 6, Advanced Diagnostics (extended).** Planned: `:147-148` → `superclaude doctor --verbose`. Besides `--diagnose`, the block also ran `cat ~/.claude/logs/superclaude.log`; no code writes that file (grep for `superclaude.log` in `src/superclaude` finds nothing), so the line was removed rather than kept beside `doctor --verbose`.
+ - **B-W3 correction 6, Reset Installation (extended).** Besides replacing `backup`/`uninstall`/`install --fresh` with `superclaude install --force` (as the item says, stating there is no backup or uninstall command), a note was added that `--force` overwrites edited core files, commands and agents without a backup (`install_core.py:68`, `install_commands.py:55`, `install_agents.py:51`; same finding as Task 8).
+ - **B-W3 correction 4 (extended).** Kept `superclaude mcp --list` next to `claude mcp list`: its listing shows "installed / not installed" per server (`install_mcp.py:1319-1345`), which is the MCP-state check correction 1 names.
++
++## Task 31 (item B-W6) — docs/mcp/mcp-integration-policy.md
++
++- **B-W6 correction 2, Post-Implementation output (`:280-281`, code-true instead).** Planned: no `docs/patterns`, `docs/mistakes`; memory under `<project>/.superclaude/memory/*.md`. Code: the PM agent's Act phase and Session End still write success patterns to `docs/patterns/` and failures to `docs/mistakes/` in the user's project (`src/superclaude/agents/pm-agent.md:89-90,119-121`) and session state to `.superclaude/memory/` (`:92,108,113`). Written: session state → `.superclaude/memory/` files; success → `docs/patterns/`, failure → `docs/mistakes/` "in the user's project (created when needed)". The other `docs/patterns/` mentions (Tavily example, superseded-prohibitions note, Best Practices) were left because they match the agent's own instructions. Session start (`:235`) and Pre-Implementation (`:248-249`) were rewritten as planned: `.superclaude/memory/*.md` (`pm-agent.md:31-35`), and pre-implementation reads `current_plan.md` plus the project's relevant `docs/*.md` (`pm-agent.md:54,415`).
++- **B-W6 correction 1 (extended).** Besides the new codegraph server entry and the Code Understanding row, the "Complex" complexity row and two Best Practices lines that named only Grep + Read / Auggie for code now name codegraph with the Grep + Read floor (`src/superclaude/core/CLAUDE.md` codegraph block; `src/superclaude/core/CODEGRAPH.md`).

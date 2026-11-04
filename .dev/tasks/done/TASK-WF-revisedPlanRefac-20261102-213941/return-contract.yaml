@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-revisedPlanRefac-20261102-213941
+plan_path: ./TASK-WF-revisedPlanRefac-20261102-213941.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/REPORT.md
+unresolved:
+  - "Advisory reflect (partial): all 14 earlier deviations are resolved at plan level, but the plan should be revised again before /sc:implement. 15 new deviations: 0 high, 8 medium (Task 2's eval_runner test crashes on import, failure path unspecified, main() untested, tests not isolated, forced removal deletes E2E outputs [regression]; Task 4's upstream ban blocks Task 3's Orca calls; CLAUDE.md:50/:70 unnamed; Task 8 rerun leaves no evidence), 7 low. The plan was not edited, per the advisory rule."
+  - "This package supersedes .dev/tasks/to-do/TASK-WF-refactorIronClau-20261102-162730/, which is still in to-do."

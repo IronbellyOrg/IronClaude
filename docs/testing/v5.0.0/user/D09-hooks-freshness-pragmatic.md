@@ -1,0 +1,507 @@
+# E2E Test Guide — `Freshness hooks, session-context envelope, Pragmatic subagent injection and the auggie-first flag` (`5.0.0`)
+
+- **Capability:** the hooks that `superclaude install` registers in `~/.claude/settings.json` block an `Edit` or `Write` of an existing file Claude has not Read in this session (or Read more than 30 minutes ago), allow a `Write` that creates a new file, log every decision, add a `<session-context>` block to every prompt, inject the Pragmatic output style into every subagent, and raise an auggie-first flag that `AUGGIE_FIRST_DISABLE=1` turns off.
+- **Audience:** end user
+- **Source of truth:** registrations `src/superclaude/hooks/hooks.json:13-21,44-53,75-108,110-140`; the gate `src/superclaude/hooks/scripts/freshness-pre-edit.sh:8-15,57-138`; the Read tracker `src/superclaude/hooks/scripts/freshness-post-read.sh:7-53`; the envelopes `src/superclaude/hooks/scripts/freshness-session-start.sh:70-152` and `src/superclaude/hooks/scripts/freshness-user-prompt.sh:29-264`; `src/superclaude/hooks/scripts/auggie-flag-clear.sh:8-31`; `src/superclaude/hooks/scripts/pragmatic-subagent.js:7-21`; installer `src/superclaude/cli/install_hooks.py:1-5,35-47`; `CHANGELOG.md:406-410,418,422,435`; `docs/user-guide/freshness-hooks.md:77-99`
+- **Est. time:** `Tier A: 2 minutes. Tier B: 5 minutes. Tier C: 15-20 minutes in interactive Claude Code sessions.`
+
+## Preconditions
+
+- IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`.
+- `jq` and `node` on your `PATH`. Every freshness hook parses its input with `jq`; without it the gate finds no `file_path` and allows every edit (`freshness-pre-edit.sh:18-31`). The Pragmatic subagent hook runs with `node` (`hooks.json:124`).
+- A bash shell. Tier B defines three small shell functions; run all of Tier B in one bash terminal.
+- `/tmp/d09` does not exist (`[ ! -e /tmp/d09 ] && echo OK` prints `OK`). Every file this guide creates is under `/tmp/d09`.
+- Tier B runs the installed hook scripts from `~/.claude/hooks/` directly with `HOME=/tmp/d09/home`, so every state and log file they write lands under `/tmp/d09/home/.claude/`. Tier B reads your real `~/.claude/hooks/` scripts and changes nothing under your real `~/.claude`.
+- Tier C needs the `claude` CLI and a Claude Code login (each Tier C step uses API tokens). Tier C sessions run against your real `~/.claude`. Besides Claude Code's own session history, the installed hooks write to `~/.claude/state/` and `~/.claude/logs/` at session start and on each prompt (`hooks.json:18,49`; `freshness-session-start.sh:8-9,17-22`; `freshness-user-prompt.sh:8-15`; `auggie-flag-clear.sh:10-12`), on each Read (`freshness-post-read.sh:7-9,50-53`) and on each Edit or Write (`freshness-pre-edit.sh:8-14,109-120`). No step installs, registers or edits anything under `~/.claude`; the Cleanup section lists what stays.
+
+## What you're verifying
+
+- The `PreToolUse` gate on `Edit|Write` blocks (exit 2 with a `FRESHNESS BLOCK` message) an edit of an existing file with no Read in this session (`no_prior_read`) or with a Read older than 30 minutes (`read_too_old`), allows a `Write` that creates a file (`create_allowed`) and allows an edit after a recent Read (`recent_read`). Every decision is a JSON line in `~/.claude/logs/freshness-hook.jsonl`.
+- A change made on disk after the Read is **not** detected in 5.0.0: the gate's `external_change` branch only fires from rows in `~/.claude/state/changes.jsonl`, and the hook that would write them (`freshness-file-changed.sh`) is shipped but not registered (`CHANGELOG.md:422`; `install_hooks.py:35-47`; `docs/user-guide/freshness-hooks.md:77-99`).
+- Every prompt gets a `<session-context>` block with `ts=` and `turn=` (plus `Δ=`, `mode=`, `git=` and `bg=` items only when they apply), and every session start gets one with `source=`.
+- Every subagent receives a context block that starts with `PRAGMATIC MODE ACTIVE`.
+- The auggie-first flag appears when auggie is registered and the threshold is crossed, a call to an auggie tool clears it, and `AUGGIE_FIRST_DISABLE=1` turns it off.
+
+---
+
+## Steps
+
+### Tier A — free smoke on your machine (read-only)
+
+#### Step 1 — Version and tools `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --version; command -v jq node
+```
+
+**Expected result:** `SuperClaude, version 5.0.0`, then two paths (one for `jq`, one for `node`). A missing path means the hooks cannot run as designed: install the tool before Tier B. (source: `pyproject.toml:7`; `jq` use `freshness-pre-edit.sh:18-24`; `node` use `src/superclaude/hooks/hooks.json:124`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — Hook registrations in your settings `[FREE]`
+
+**Do:**
+
+```bash
+jq -r '.hooks | to_entries[] | .key as $e | .value[] | (.matcher // "-") as $m | .hooks[] | "\($e) \($m) \(.command)"' ~/.claude/settings.json | grep -E 'freshness|pragmatic|auggie-flag'
+ls ~/.claude/hooks/freshness-file-changed.sh
+```
+
+**Expected result:** these eight lines, in any order (other hooks you added are filtered out):
+
+```text
+SessionStart * ~/.claude/hooks/freshness-session-start.sh
+UserPromptSubmit - ~/.claude/hooks/freshness-user-prompt.sh
+PreToolUse Edit|Write ~/.claude/hooks/freshness-pre-edit.sh
+PostToolUse Read ~/.claude/hooks/freshness-post-read.sh
+PostToolUse mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.* ~/.claude/hooks/auggie-flag-clear.sh
+SubagentStart - ~/.claude/hooks/freshness-subagent-start.sh
+SubagentStart - node "$HOME/.claude/hooks/pragmatic-subagent.js"
+SubagentStop - ~/.claude/hooks/freshness-subagent-stop.sh
+```
+
+No line names `freshness-file-changed.sh`, yet `ls` lists the file: it is copied but not registered. (source: `src/superclaude/hooks/hooks.json:13-21,44-53,75-86,87-108,110-140`; the installer merges these into `~/.claude/settings.json`, `src/superclaude/cli/install_hooks.py:1-5`; copied-but-unregistered note `install_hooks.py:35-47`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 3 — The Pragmatic subagent hook prints its marker `[FREE]`
+
+**Do:**
+
+```bash
+node ~/.claude/hooks/pragmatic-subagent.js | jq -r '.hookSpecificOutput.hookEventName, (.hookSpecificOutput.additionalContext | split("\n")[0])'
+```
+
+**Expected result:** two lines, `SubagentStart` then `PRAGMATIC MODE ACTIVE`. The hook only reads `~/.claude/output-styles/pragmatic.md` (installed by `superclaude install`) and writes nothing. (source: `src/superclaude/hooks/scripts/pragmatic-subagent.js:7-18`; style install `src/superclaude/cli/install_user_setup.py:122-133`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local writes under /tmp/d09 (throwaway HOME)
+
+#### Step 4 — Create the fixture and the helper functions `[LOCAL-WRITE]`
+
+**Do:** (bash; keep this terminal open for Steps 5-15)
+
+```bash
+[ ! -e /tmp/d09 ] || echo "STOP: remove /tmp/d09 first"
+mkdir -p /tmp/d09/home /tmp/d09/proj
+printf 'one\n' > /tmp/d09/proj/existing.txt
+printf 'old\n' > /tmp/d09/proj/old.txt
+printf 'other\n' > /tmp/d09/proj/other.txt
+cd /tmp/d09/proj
+H="$HOME/.claude/hooks"
+# gate <session> <tool> <path>: run the installed PreToolUse gate in the throwaway HOME
+gate() {
+  printf '{"session_id":"%s","tool_name":"%s","cwd":"/tmp/d09/proj","tool_input":{"file_path":"%s"}}' "$1" "$2" "$3" \
+    | HOME=/tmp/d09/home bash "$H/freshness-pre-edit.sh"; echo "exit=$?"
+}
+# readhook <session> <path>: record a successful Read, as the PostToolUse(Read) hook does
+readhook() {
+  printf '{"session_id":"%s","tool_name":"Read","tool_input":{"file_path":"%s"},"tool_response":{}}' "$1" "$2" \
+    | HOME=/tmp/d09/home bash "$H/freshness-post-read.sh"
+}
+# prompt <session> <permission_mode>: run the UserPromptSubmit hook and print its envelope
+prompt() {
+  printf '{"session_id":"%s","cwd":"/tmp/d09/proj","permission_mode":"%s"}' "$1" "$2" \
+    | HOME=/tmp/d09/home bash "$H/freshness-user-prompt.sh" | jq -r '.hookSpecificOutput.additionalContext'
+}
+```
+
+**Expected result:** no `STOP` line and no error. `/tmp/d09/proj` holds `existing.txt`, `old.txt` and `other.txt`; `/tmp/d09` is not a git repository. The input shape (`session_id`, `tool_name`, `cwd`, `tool_input.file_path`, `tool_response`, `permission_mode`) is what the hooks read. (source: `freshness-pre-edit.sh:18-24`; `freshness-post-read.sh:12-23`; `freshness-user-prompt.sh:21-24`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — Edit of an existing file with no Read is blocked `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+gate d09 Edit /tmp/d09/proj/existing.txt
+```
+
+**Expected result:** on stderr, the line ``FRESHNESS BLOCK: You have not Read `/tmp/d09/proj/existing.txt` in this session. Required action: Read the file (one tool call), then retry your Edit.`` followed by a line starting `DO NOT pivot to mdformat / prettier / sed -i`; then `exit=2`. The gate never exits 1. (source: `src/superclaude/hooks/scripts/freshness-pre-edit.sh:3,82-88,126-128,138`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 6 — Write that creates a new file is allowed `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+gate d09 Write /tmp/d09/proj/new.txt
+```
+
+**Expected result:** no message, `exit=0`: the path does not exist, so the decision is `allow` with reason `create_allowed`. (source: `freshness-pre-edit.sh:77-84,141`; `CHANGELOG.md:418`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — Read, then Edit, is allowed `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+readhook d09 /tmp/d09/proj/existing.txt
+jq -c '{session_id,path}' /tmp/d09/home/.claude/state/reads.jsonl
+gate d09 Edit /tmp/d09/proj/existing.txt
+```
+
+**Expected result:** one reads row `{"session_id":"d09","path":"/tmp/d09/proj/existing.txt"}`, then no message and `exit=0` (decision `allow`, reason `recent_read`). (source: Read tracker `freshness-post-read.sh:9,50-53`; lookup by path and session `freshness-pre-edit.sh:64-71`; allow branch `:73-75,89-96`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — A Read older than 30 minutes is blocked `[LOCAL-WRITE]`
+
+**Do:** (adds a Read row dated 2000 seconds ago instead of waiting 30 minutes)
+
+```bash
+printf '{"ts":"seeded","ts_unix":%s,"session_id":"d09","path":"/tmp/d09/proj/old.txt","tool_call_idx":99}\n' "$(( $(date +%s) - 2000 ))" >> /tmp/d09/home/.claude/state/reads.jsonl
+gate d09 Edit /tmp/d09/proj/old.txt
+```
+
+**Expected result:** on stderr ``FRESHNESS BLOCK: You last Read `/tmp/d09/proj/old.txt` 2000s ago, beyond the 30-minute freshness horizon. Required action: Re-Read the file (one tool call), then retry your Edit.`` (the number can be 2000 or 2001), the `DO NOT pivot` line, then `exit=2`. (source: `FRESH_HORIZON=1800` `freshness-pre-edit.sh:15`; branch `:91-95`; message `:129-131`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — A change on disk after the Read is not detected `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+printf 'two\n' >> /tmp/d09/proj/existing.txt
+gate d09 Edit /tmp/d09/proj/existing.txt
+ls /tmp/d09/home/.claude/state/
+```
+
+**Expected result:** no message and `exit=0` (decision `allow`, reason `recent_read`), even though the file changed after the Read of Step 7. `ls` lists `reads.jsonl` and `tool-call-counter` only: no `changes.jsonl`, because no registered hook writes it. This is the documented 5.0.0 limitation, not a failure. (source: the `external_change` branch reads only `changes.jsonl`, `freshness-pre-edit.sh:97-105`; its writer `freshness-file-changed.sh` is unregistered, `install_hooks.py:35-47` and Step 2; `CHANGELOG.md:422`; `docs/user-guide/freshness-hooks.md:77-99`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 10 — The `external_change` branch fires only from a change row `[LOCAL-WRITE]`
+
+**Do:** (writes by hand the row the unregistered hook would write)
+
+```bash
+printf '{"path":"/tmp/d09/proj/existing.txt","ts_unix":%s}\n' "$(( $(date +%s) + 5 ))" > /tmp/d09/home/.claude/state/changes.jsonl
+gate d09 Edit /tmp/d09/proj/existing.txt
+```
+
+**Expected result:** on stderr ``FRESHNESS BLOCK: `/tmp/d09/proj/existing.txt` was modified after your last Read (mtime change detected). Required action: Re-Read the file (one tool call), then retry your Edit.`` and a line starting `DO NOT pivot to mdformat / prettier / sed -i / a Python helper.`, then `exit=2`. In a real session this branch stays dormant until a registered hook writes `changes.jsonl`. (source: `freshness-pre-edit.sh:97-105,132-134,138`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 11 — Session-start and per-prompt envelopes `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+printf '{"session_id":"d09s","source":"startup","cwd":"/tmp/d09/proj"}' | HOME=/tmp/d09/home bash "$H/freshness-session-start.sh" | jq -r '.hookSpecificOutput.additionalContext'
+prompt d09 default
+prompt d09 default
+prompt d09 bypassPermissions
+wc -c < /tmp/d09/home/.claude/state/changes.jsonl
+```
+
+**Expected result:** (`ts=` values are the current time)
+
+```text
+<session-context source="startup">
+  ts=<now>
+  cwd=/tmp/d09/proj
+  project=proj
+  date=<today>
+</session-context>
+<session-context>
+  ts=<now> turn=1
+  changed_since_last_turn=/tmp/d09/proj/existing.txt
+</session-context>
+<session-context>
+  ts=<now> turn=2
+</session-context>
+<session-context>
+  ts=<now> turn=3 mode=bypassPermissions
+</session-context>
+0
+```
+
+The first prompt reports the change row from Step 10 and empties `changes.jsonl` (`0` bytes). No `git=` item appears because `/tmp/d09/proj` is not a git repository; no `Δ=` item because prompts were less than 5 minutes apart. (source: startup block `freshness-session-start.sh:70-97,116,145-152`; turn counter `freshness-user-prompt.sh:29-45`; change rows consumed and truncated `:82-100`; items `Δ=` (300 s or more), `mode=` (not `default`), `git=` (dirty git checkout), `bg=` `:102-125`; envelope `:202-224,259-264`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 12 — Auggie-first warning, flag and clear `[LOCAL-WRITE]`
+
+**Do:** (a fake `~/.claude.json` in the throwaway HOME registers auggie; `AUGGIE_FIRST_THRESHOLD=0` makes the second prompt of a session cross the threshold)
+
+```bash
+printf '{"mcpServers":{"auggie":{"command":"auggie"}}}' > /tmp/d09/home/.claude.json
+AUGGIE_FIRST_THRESHOLD=0 prompt d09a default
+AUGGIE_FIRST_THRESHOLD=0 prompt d09a default
+AUGGIE_FIRST_THRESHOLD=0 prompt d09a default
+echo /tmp/d09/proj >> /tmp/d09/home/.claude/auggie-projects.txt
+AUGGIE_FIRST_THRESHOLD=0 prompt d09b default
+AUGGIE_FIRST_THRESHOLD=0 prompt d09b default
+ls /tmp/d09/home/.claude/state/auggie-first-pending/
+printf '{"session_id":"d09b","tool_name":"mcp__auggie__codebase-retrieval"}' | HOME=/tmp/d09/home bash "$H/auggie-flag-clear.sh"; echo "exit=$?"
+ls /tmp/d09/home/.claude/state/auggie-first-pending/
+jq -c '{session_id,event,cause}' /tmp/d09/home/.claude/logs/auggie-first.jsonl
+```
+
+**Expected result:**
+
+- Session `d09a` (project not in `auggie-projects.txt`): `turn=1` has no auggie line; `turn=2` has the one-time line `auggie_project_not_indexed=1 (call mcp__auggie__codebase-retrieval to index /tmp/d09/proj, or add to /tmp/d09/home/.claude/auggie-projects.txt; rm /tmp/d09/home/.claude/state/auggie-no-warn/tmp-d09-proj to re-arm warning)`; `turn=3` has no auggie line (the dismiss file now exists).
+- Session `d09b` (project listed): `turn=1` has no auggie line; `turn=2` has `auggie_first_required=1`. The first `ls` prints `d09b.txt` (the sticky flag); the clear hook prints `exit=0`; the second `ls` prints nothing.
+- The log has three rows: `{"session_id":"d09a","event":"warn_emitted","cause":"threshold"}`, `{"session_id":"d09b","event":"nag_emitted","cause":"threshold"}`, `{"session_id":"d09b","event":"sticky_cleared","cause":null}`.
+
+(source: threshold override `freshness-user-prompt.sh:16-18`; crossing `:145-151`; registration check `:154-159`; flag and sticky `:173-178`; one-time warning and dismiss file `:179-189`; clear `auggie-flag-clear.sh:22-31`; matcher `hooks.json:99-108`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 13 — `AUGGIE_FIRST_DISABLE=1` turns the flag off `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+AUGGIE_FIRST_DISABLE=1 AUGGIE_FIRST_THRESHOLD=0 prompt d09c default
+AUGGIE_FIRST_DISABLE=1 AUGGIE_FIRST_THRESHOLD=0 prompt d09c default
+ls /tmp/d09/home/.claude/state/auggie-first-pending/
+wc -l < /tmp/d09/home/.claude/logs/auggie-first.jsonl
+```
+
+**Expected result:** two envelopes with `turn=1` and `turn=2` and no auggie line, although the project is listed and the threshold is crossed (Step 12 gave `auggie_first_required=1` under the same conditions). `ls` prints nothing and the log still has `3` lines. (source: `freshness-user-prompt.sh:134-135`; session-start side `freshness-session-start.sh:122`; clear hook `auggie-flag-clear.sh:8`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 14 — Pragmatic hook without its style file `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+HOME=/tmp/d09/home node "$H/pragmatic-subagent.js"; echo "exit=$?"
+```
+
+**Expected result:** on stderr `Failed to load Pragmatic instructions from /tmp/d09/home/.claude/output-styles/pragmatic.md: ENOENT: no such file or directory, open '/tmp/d09/home/.claude/output-styles/pragmatic.md'`, nothing on stdout, then `exit=1`. The marker of Step 3 therefore depends on the installed style file. How Claude Code treats exit code 1 from a `SubagentStart` hook is Claude Code behaviour: UNVERIFIED here. (source: `src/superclaude/hooks/scripts/pragmatic-subagent.js:7-10,19-21`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 15 — Telemetry log `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+jq -c '{tool,path,decision,reason}' /tmp/d09/home/.claude/logs/freshness-hook.jsonl
+```
+
+**Expected result:** six rows, in this order (one per `gate` call in Steps 5-10):
+
+```text
+{"tool":"Edit","path":"/tmp/d09/proj/existing.txt","decision":"block","reason":"no_prior_read"}
+{"tool":"Write","path":"/tmp/d09/proj/new.txt","decision":"allow","reason":"create_allowed"}
+{"tool":"Edit","path":"/tmp/d09/proj/existing.txt","decision":"allow","reason":"recent_read"}
+{"tool":"Edit","path":"/tmp/d09/proj/old.txt","decision":"block","reason":"read_too_old"}
+{"tool":"Edit","path":"/tmp/d09/proj/existing.txt","decision":"allow","reason":"recent_read"}
+{"tool":"Edit","path":"/tmp/d09/proj/existing.txt","decision":"block","reason":"external_change"}
+```
+
+Each full row also carries `ts`, `event:"PreToolUse"`, `session_id`, `tool_call_idx`, `recent_read_age_sec` and `external_change_seen`. (source: `freshness-pre-edit.sh:14,109-120`; `CHANGELOG.md:410`; field list `docs/user-guide/freshness-hooks.md:50-51`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — interactive Claude Code sessions (real `~/.claude`)
+
+Use two terminals. Terminal 1 runs `claude` in `/tmp/d09/live`; Terminal 2 runs the checks. Each prompt below is one Claude Code message; send it as written. Retries Claude makes on its own (for example a Read after a block) add extra telemetry rows; that is fine as long as the rows named below exist.
+
+#### Step 16 — Launch and read the envelopes `[CLAUDE-SESSION]`
+
+**Do:** Terminal 1:
+
+```bash
+mkdir -p /tmp/d09/live && cd /tmp/d09/live
+printf 'alpha\n' > unread.txt
+printf 'beta\n' > later.txt
+claude
+```
+
+Then send:
+
+```text
+Print every <session-context> block you have received in this conversation, verbatim, and nothing else.
+```
+
+**Expected result:** a block `<session-context source="startup">` with `cwd=/tmp/d09/live`, `project=live` and `date=<today>`, and a block `<session-context>` with `ts=<now> turn=1`. A `mode=<mode>` item appears only when the session runs in a permission mode other than `default` (for example `mode=bypassPermissions` under `ccsession`, which launches with `--dangerously-skip-permissions`). No `git=` item: `/tmp/d09/live` is not a git repository. The reply is the model's wording; Step 22 checks the turn counter on disk. (source: `freshness-session-start.sh:92-97`; `freshness-user-prompt.sh:29-45,66-80,117-119`; registrations `hooks.json:13-21,44-53`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 17 — Claude edits a file it has not Read `[CLAUDE-SESSION]`
+
+**Do:** send:
+
+```text
+Use the Edit tool (not Bash, and do not Read the file first) to change alpha to ALPHA in /tmp/d09/live/unread.txt. If the edit is refused, quote the refusal verbatim and stop.
+```
+
+**Expected result:** the edit is refused and `cat /tmp/d09/live/unread.txt` (Terminal 2) still prints `alpha`. The refusal is either the hook's ``FRESHNESS BLOCK: You have not Read `/tmp/d09/live/unread.txt` in this session. ...`` or Claude Code's own read-first check, which is not part of IronClaude. Which of the two runs first is Claude Code behaviour: UNVERIFIED here. Step 19 tests the hook's `no_prior_read` block on a path Claude Code itself lets through. (source: `freshness-pre-edit.sh:82-88,126-128`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 18 — Claude creates a new file `[CLAUDE-SESSION]`
+
+**Do:** send:
+
+```text
+Use the Write tool to create /tmp/d09/live/created.txt containing the single line gamma. Do not use Bash.
+```
+
+Then in Terminal 2, take this session's id from the log:
+
+```bash
+SID=$(jq -r 'select(.path=="/tmp/d09/live/created.txt") | .session_id' ~/.claude/logs/freshness-hook.jsonl | tail -1); echo "$SID"
+cat /tmp/d09/live/created.txt
+```
+
+**Expected result:** the write succeeds; `echo` prints a session id (not empty, not `unknown`) and `cat` prints `gamma`. The log row for `created.txt` has `"decision":"allow","reason":"create_allowed"`. (source: `freshness-pre-edit.sh:77-84,109-120`; `CHANGELOG.md:418`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 19 — Claude edits the file it just wrote, without a Read `[CLAUDE-SESSION]`
+
+**Do:** send:
+
+```text
+Use the Edit tool (not Bash, and do not Read the file first) to change gamma to GAMMA in /tmp/d09/live/created.txt. If the edit is refused, quote the refusal verbatim and stop.
+```
+
+**Expected result:** refused with ``FRESHNESS BLOCK: You have not Read `/tmp/d09/live/created.txt` in this session. Required action: Read the file (one tool call), then retry your Edit.``; `cat /tmp/d09/live/created.txt` still prints `gamma`. Only the Read tool feeds the gate's Read log, so a file Claude wrote itself still counts as unread. (source: `freshness-pre-edit.sh:57-71,82-88,126-128`; Read log written only by the `PostToolUse` `Read` hook, `hooks.json:87-98`; same block observed live in scan/DE2 §12)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 20 — Claude Reads, then Edits `[CLAUDE-SESSION]`
+
+**Do:** send:
+
+```text
+Read /tmp/d09/live/later.txt with the Read tool, then use the Edit tool to change beta to BETA. Do not use Bash.
+```
+
+**Expected result:** no block; `cat /tmp/d09/live/later.txt` prints `BETA`. (source: `freshness-post-read.sh:50-53`; `freshness-pre-edit.sh:73-75,89-96`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 21 — The file changes on disk after the Read `[CLAUDE-SESSION]`
+
+**Do:** Terminal 2:
+
+```bash
+printf 'delta\n' >> /tmp/d09/live/later.txt
+```
+
+Then send in Terminal 1:
+
+```text
+Without reading it again, use the Edit tool to change BETA to beta2 in /tmp/d09/live/later.txt. If the edit is refused, quote the refusal verbatim and stop.
+```
+
+**Expected result:** the IronClaude gate does not block this edit: no `FRESHNESS BLOCK ... (mtime change detected)` message and no `external_change` row (Step 22). If the gate ran, its row is `allow` / `recent_read`. Claude Code's own check may still refuse an edit of a file that changed since its Read; that check is Claude Code behaviour outside this repository: UNVERIFIED here. (source: `freshness-pre-edit.sh:97-105`; `CHANGELOG.md:422`; `docs/user-guide/freshness-hooks.md:77-99`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 22 — Telemetry and state on disk `[CLAUDE-SESSION]`
+
+**Do:** Terminal 2 (same shell as Step 18, so `$SID` is set):
+
+```bash
+jq -c --arg s "$SID" 'select(.session_id==$s and (.path|startswith("/tmp/d09/live/"))) | {tool,path,decision,reason}' ~/.claude/logs/freshness-hook.jsonl
+jq -r --arg s "$SID" 'select(.session_id==$s) | .path' ~/.claude/state/reads.jsonl | grep -c '^/tmp/d09/live/later.txt$'
+cat ~/.claude/state/turns/"$SID".txt
+```
+
+**Expected result:**
+
+- The telemetry rows include, in this order: `Write created.txt allow create_allowed` (Step 18), `Edit created.txt block no_prior_read` (Step 19), `Edit later.txt allow recent_read` (Step 20). A row `Edit unread.txt block no_prior_read` (Step 17) and a second `Edit later.txt allow recent_read` (Step 21) appear only when Claude Code passed those calls to the hook. No row has `"reason":"external_change"`.
+- The `grep -c` count is `1` or more (the Read of Step 20).
+- The turn counter equals the number of prompts sent in this session: `6` if you sent exactly the prompts of Steps 16-21.
+
+(source: `freshness-pre-edit.sh:109-120`; `freshness-post-read.sh:9,50-53`; `freshness-session-start.sh:19-22`; `freshness-user-prompt.sh:29-45`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 23 — `AUGGIE_FIRST_DISABLE=1` in a real session `[CLAUDE-SESSION]`
+
+**Do:** exit the session (`/exit`). In Terminal 2, check the preconditions:
+
+```bash
+jq -e '.mcpServers // {} | has("auggie")' ~/.claude.json
+grep -qx /tmp/d09/live ~/.claude/auggie-projects.txt 2>/dev/null && echo LISTED || echo not-listed
+ls ~/.claude/state/auggie-no-warn/tmp-d09-live 2>&1
+```
+
+If the first command does not print `true`, auggie is not registered at user scope, no auggie line can appear (`freshness-user-prompt.sh:154-160`): mark Steps 23 and 24 SKIP. Otherwise expect `not-listed` and `No such file or directory`. Then in Terminal 1:
+
+```bash
+cd /tmp/d09/live && AUGGIE_FIRST_DISABLE=1 AUGGIE_FIRST_THRESHOLD=0 claude
+```
+
+Send `Reply OK.`, then send:
+
+```text
+Print the most recent <session-context> block verbatim, and nothing else.
+```
+
+and in Terminal 2:
+
+```bash
+ls ~/.claude/state/auggie-no-warn/tmp-d09-live 2>&1
+grep -c '"cwd":"/tmp/d09/live"' ~/.claude/logs/auggie-first.jsonl
+```
+
+**Expected result:** the printed block has `turn=2` and no `auggie_` line; `ls` still prints `No such file or directory`; the count is `0` (or `grep` reports the log file is missing). (source: `freshness-user-prompt.sh:16-18,134-135`; `freshness-session-start.sh:122`; the kill switch is a user setting, scan/DE2 "Sysop-only candidates" S11)
+
+**Pass/Fail:** ☐ PASS ☐ SKIP ☐ FAIL — notes: `______`
+
+#### Step 24 — The same session without the switch shows the warning `[CLAUDE-SESSION]`
+
+**Do:** exit the session (`/exit`), then in Terminal 1:
+
+```bash
+cd /tmp/d09/live && AUGGIE_FIRST_THRESHOLD=0 claude
+```
+
+Send `Reply OK.`, then send the same "Print the most recent `<session-context>` block" prompt as Step 23. In Terminal 2:
+
+```bash
+ls ~/.claude/state/auggie-no-warn/tmp-d09-live
+grep '"cwd":"/tmp/d09/live"' ~/.claude/logs/auggie-first.jsonl | jq -c '{event,cause}'
+```
+
+**Expected result:** the `turn=2` block contains `auggie_project_not_indexed=1 (call mcp__auggie__codebase-retrieval to index /tmp/d09/live, or add to <your home>/.claude/auggie-projects.txt; rm <your home>/.claude/state/auggie-no-warn/tmp-d09-live to re-arm warning)`, or the short form `auggie_project_not_indexed=1 (see <dismiss file> for dismiss state)` when the long line exceeds 300 characters. `ls` now lists the dismiss file and the log has one row `{"event":"warn_emitted","cause":"threshold"}`. (source: `freshness-user-prompt.sh:11-12,137-141,179-189`)
+
+**Pass/Fail:** ☐ PASS ☐ SKIP ☐ FAIL — notes: `______`
+
+---
+
+## Edge cases (optional but recommended)
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[LOCAL-WRITE]` After Step 7, in the Tier B shell: `gate other Edit /tmp/d09/proj/existing.txt` | `FRESHNESS BLOCK: You have not Read ...` and `exit=2`: a Read counts only for the session that made it | `freshness-pre-edit.sh:64-71` | ☐ |
+| `[LOCAL-WRITE]` `gate d09 Write /tmp/d09/proj/other.txt` (existing file, never Read) | `no_prior_read` block, `exit=2`: `Write` over an existing unread file is gated like `Edit` | `freshness-pre-edit.sh:82-88`; `CHANGELOG.md:418` | ☐ |
+| `[LOCAL-WRITE]` Within 30 minutes of Step 7: `printf '{torn\n' >> /tmp/d09/home/.claude/state/reads.jsonl; gate d09 Edit /tmp/d09/proj/existing.txt` | `exit=0`: a torn line in the Read log is skipped, the valid rows still count | `freshness-pre-edit.sh:57-71` | ☐ |
+| `[LOCAL-WRITE]` `printf '{"session_id":"d09","tool_name":"Edit","tool_input":{}}' \| HOME=/tmp/d09/home bash "$H/freshness-pre-edit.sh"; echo "exit=$?"` | stderr `freshness-pre-edit: no file_path in tool_input for Edit; allowing.` and `exit=0` (fail open) | `freshness-pre-edit.sh:24-31` | ☐ |
+| `[LOCAL-WRITE]` Wait 5 minutes, then `prompt d09 default` | The envelope gains `Δ=05:xx` after `turn=` | `freshness-user-prompt.sh:47-59,104-116` | ☐ |
+| `[CLAUDE-SESSION]` In a Tier C session, Read a file, wait more than 30 minutes, then ask for an Edit without a new Read | `FRESHNESS BLOCK: You last Read ... beyond the 30-minute freshness horizon` | `freshness-pre-edit.sh:15,91-95,129-131` | ☐ |
+
+## Cleanup
+
+```bash
+cd /tmp && rm -rf /tmp/d09
+rm -f ~/.claude/state/auggie-no-warn/tmp-d09-live
+```
+
+The first command removes the fixture, the throwaway HOME of Tier B and the files Claude edited in Tier C. The second removes the dismiss file Step 24 created, so the auggie warning for `/tmp/d09/live` re-arms (`freshness-user-prompt.sh:182`). What stays under your real `~/.claude` is what the installed hooks write for any session: rows for `/tmp/d09/live` paths in `~/.claude/state/reads.jsonl`, `~/.claude/logs/freshness-hook.jsonl` and `~/.claude/logs/auggie-first.jsonl`, and the per-session counter files under `~/.claude/state/turns/`, `last-prompt-ts/`, `tool-call-counter/` and `bg-agents/`, plus Claude Code's own session history. Do not hand-edit those shared files while other sessions run; `reads.jsonl` is trimmed to 7 days at a session start once it passes 5000 lines (`freshness-session-start.sh:31-54`). No step changed `~/.claude/settings.json`; to opt out of the hooks, follow `docs/user-guide/freshness-hooks.md` "How to opt out" (`CHANGELOG.md:435`).
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

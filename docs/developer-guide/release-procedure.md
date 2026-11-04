@@ -1,0 +1,124 @@
+# Release Procedure
+
+This is how a maintainer cuts an IronClaude release: the version bump, the release notes, the go/no-go gate (checks G1-G9), the tag, the GitHub release and the post-release follow-through. A human runs every step. No workflow, script or Makefile target cuts a release: the CI workflows run on pushes and pull requests to `master` and `integration`, never on tags (`.github/workflows/test.yml:3-6`).
+
+The procedure generalizes the one used for v5.0.0: the gate is section 6.3 of `.dev/releases/current/v5.0.0/RELEASE-READINESS.md`, adopted as the release gate by decision 7.7 in `.dev/releases/current/v5.0.0/DECISIONS.md`. The changelog rules it relies on are in `src/superclaude/rules/core/changelog_maintenance.md` (installed as a rule file).
+
+In the commands below, replace `X.Y.Z` with the version you are releasing, for example `5.1.0`.
+
+## Contents
+
+1. [What a release is here](#what-a-release-is-here)
+2. [Step 1: Choose the version](#step-1-choose-the-version)
+3. [Step 2: Open the release PR](#step-2-open-the-release-pr)
+4. [Step 3: Run the go/no-go gate (G1-G9)](#step-3-run-the-gono-go-gate-g1-g9)
+5. [Step 4: Tag and publish](#step-4-tag-and-publish)
+6. [Step 5: Post-release follow-through](#step-5-post-release-follow-through)
+7. [Sources](#sources)
+
+## What a release is here
+
+- IronClaude is not published to PyPI. Users install from git with `pipx install git+https://github.com/IronbellyOrg/IronClaude`, then `superclaude install` (`scripts/README.md:3-9`). `uv build` builds the package locally without uploading it (`scripts/README.md:11`).
+- Every merge to `master` therefore reaches anyone who installs or upgrades. A release is a version number, a changelog section, a release-notes file, an annotated tag and a GitHub release on the fork, followed by `/sc:post-release`.
+- Every `gh` command carries `--repo IronbellyOrg/IronClaude`. This repository is a fork, and without `--repo` the GitHub CLI targets the upstream parent.
+
+## Step 1: Choose the version
+
+Apply the semantic-versioning rule in `changelog_maintenance.md`:
+
+| Part | When |
+|---|---|
+| MAJOR (`X.0.0`) | Breaking changes, incompatible API changes |
+| MINOR (`X.Y.0`) | New features, backward-compatible |
+| PATCH (`X.Y.Z`) | Bug fixes, documentation, backward-compatible |
+
+A removed command, flag, core file or MCP server is a breaking change. That is why the release after 4.3.5 became 5.0.0 (decision 7.1).
+
+## Step 2: Open the release PR
+
+One PR on the fork carries the version bump, the changelog cut and the release notes.
+
+1. **Version.** Set the same version in three places that must agree (gate check G3):
+   - `version = "X.Y.Z"` in `pyproject.toml`
+   - `__version__ = "X.Y.Z"` in `src/superclaude/__init__.py`
+   - `uv run superclaude --version` then prints `SuperClaude, version X.Y.Z`
+2. **Changelog cut.** In `CHANGELOG.md`, move every entry under `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section directly below it, and leave `## [Unreleased]` empty above it (gate check G4). Add a link to the release notes in the new section, as the 5.0.0 section does.
+3. **Release notes.** Write `docs/releases/vX.Y.Z.md`, starting from the template `~/.claude/templates/workflow/changelog_template.md` (in a dev checkout also `.claude/templates/workflow/changelog_template.md` after `make sync-dev`). The file is tracked and is the body of the GitHub release (decision 7.3). Do not save release notes under `.claude/`: that folder is git-ignored. A detailed notes file is required for every major or minor version, for breaking changes and for 10 or more changed files (`changelog_maintenance.md:88-96`).
+4. **Open the PR** with `/sc:pr-submit --monitor 3` in Claude Code. Fallback when that command cannot run:
+
+   ```bash
+   gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --title "chore(release): X.Y.Z" --body-file <body-file>
+   ```
+
+Anything that merges before the release PR is opened rides along in the release. Anything that merges later goes under the next `## [Unreleased]`.
+
+## Step 3: Run the go/no-go gate (G1-G9)
+
+Run every check on the merge commit of the release PR. Every check must pass. **Any failure is a no-go: stop and take the result back to the release owner.** Do not tag, and do not work around a failed check (decisions 7.7 and T1).
+
+| # | Check | Command | Pass condition |
+|---|---|---|---|
+| G1 | Fork target | `git remote -v` | `origin` is `IronbellyOrg/IronClaude`. Every `gh` command in this procedure passes `--repo IronbellyOrg/IronClaude`, so gh's default repository cannot send it to the upstream parent. |
+| G2 | CI on the exact commit | `gh run list --repo IronbellyOrg/IronClaude --branch master --limit 3 --json headSha,conclusion,workflowName` | The `Tests` workflow is `success` for the release PR's merge SHA. Its `test-summary` job fails if the `test`, `swarm-marker-matrix`, `lint` or `doctor-check` job failed (`.github/workflows/test.yml:177-186`). |
+| G3 | Version consistency | `grep -n '^version' pyproject.toml`; `grep -n '__version__ =' src/superclaude/__init__.py`; `uv run superclaude --version` | All three show `X.Y.Z`. |
+| G4 | Changelog cut | `grep -n '^## ' CHANGELOG.md` | `## [Unreleased]` is empty and is followed by `## [X.Y.Z] - YYYY-MM-DD`; breaking entries sit in the `X.Y.Z` section. |
+| G5 | Full local suite and gates | `make test`; `make lint`; `make verify-sync`; `make verify-deps`; `make lint-architecture` | All exit 0. |
+| G6 | Package builds | `uv build` | Wheel and sdist are built. Nothing is uploaded. |
+| G7 | Upgrade path on an existing workspace | In a checkout of the release commit: `./update.sh`; start a new Claude session; `superclaude doctor`; `superclaude install --list`; `/sc:graph status` | `doctor` passes; `install --list` shows the codegraph block; `/sc:graph status` reports an index state. |
+| G8 | Release-specific checks | Whatever checks the owner names for this release | Each one passes and its result is recorded where the owner asked. For v5.0.0 these were the post-merge codegraph check and the QA-loop findings (`RELEASE-READINESS.md` section 6.2). |
+| G9 | No open PR meant for this release | `gh pr list --repo IronbellyOrg/IronClaude --state open` | Only PRs that were deferred to a later release are open. |
+
+Notes on G7:
+
+- `./update.sh` installs the checked-out tree, not the release from GitHub: it runs `pipx install --force ./`, `superclaude install --force`, `make sync-dev` and `superclaude doctor` (`update.sh:7-10`). It needs `pipx` and `make` on the PATH.
+- A plain `superclaude install` keeps existing framework files, so it does not test the upgrade. Use `./update.sh` or `superclaude install --force`.
+- A running Claude session keeps the tools it started with. Start a new session before `/sc:graph status`.
+
+## Step 4: Tag and publish
+
+After G1-G9 all pass, tag the release PR's merge commit (never a later `master` commit) with an annotated tag, push the tag to `origin`, and create the GitHub release from the release notes:
+
+```bash
+git tag -a vX.Y.Z <merge-sha> -m "Release vX.Y.Z - <short description>"
+git push origin vX.Y.Z
+gh release create vX.Y.Z --repo IronbellyOrg/IronClaude --title "vX.Y.Z - <short description>" --notes-file docs/releases/vX.Y.Z.md
+```
+
+Check the result:
+
+```bash
+git cat-file -t vX.Y.Z
+gh release view vX.Y.Z --repo IronbellyOrg/IronClaude
+```
+
+`git cat-file -t` prints `tag` for an annotated tag. The release URL must start with `https://github.com/IronbellyOrg/IronClaude/`.
+
+Never push the tag to the `upstream` remote.
+
+## Step 5: Post-release follow-through
+
+Once the tag exists, run in Claude Code:
+
+```text
+/sc:post-release vX.Y.Z
+```
+
+The command takes an existing release tag (for example `v5.0.0`) and brings the release's external surface up to date: user docs, technical docs, install and deploy scripts checked by real end-to-end runs, and human-run test guides. By default it writes its report, manifest and guides to `docs/testing/vX.Y.Z/` (`src/superclaude/commands/post-release.md:15,35-36`). It runs only after the tag exists.
+
+Then start the next cycle: keep adding changes under `## [Unreleased]` in `CHANGELOG.md`.
+
+## Sources
+
+| Claim | Source |
+|---|---|
+| Gate G1-G9 and its commands | `.dev/releases/current/v5.0.0/RELEASE-READINESS.md`, section 6.3 |
+| Gate adopted as the release gate; any failure goes back to the owner; tag on green, then `/sc:post-release` | `.dev/releases/current/v5.0.0/DECISIONS.md`, decisions 7.7 and T1 |
+| Release notes at `docs/releases/vX.Y.Z.md`, used as `--notes-file` | `DECISIONS.md` decision 7.3; `src/superclaude/rules/core/changelog_maintenance.md:104-109` |
+| Semantic-versioning rule | `changelog_maintenance.md:161-167` |
+| Annotated tag; the GitHub release command always names the fork | `changelog_maintenance.md:126-144`; the `v5.0.0` tag is annotated (`git cat-file -t v5.0.0` prints `tag`) |
+| No PyPI publishing; local `uv build` | `scripts/README.md:3-11` |
+| CI triggers and `test-summary` job | `.github/workflows/test.yml:3-6,177-186` |
+| Makefile targets used by G5 | `Makefile`: `test`, `lint` (depends on `lint-architecture`), `verify-sync`, `verify-deps`, `lint-architecture` |
+| What `./update.sh` runs | `update.sh:7-10` |
+| `/sc:post-release` input and output | `src/superclaude/commands/post-release.md:15,18,35-36` |
+| `/sc:graph status` | `src/superclaude/commands/graph.md:8,21,31` |

@@ -1,0 +1,33 @@
+--- a/docs/reference/deviation-report-format.md
++++ b/docs/reference/deviation-report-format.md
+@@ -102,5 +102,6 @@
+ | Version | 1.0 |
+ | Status | Finalized |
+ | Review Date | 2026-03-09 |
+-| Dataclass | `FidelityDeviation` in `src/superclaude/cli/roadmap/fidelity.py` |
+-| Schema Match | 7-column table ↔ 7 dataclass fields (verified 1:1) |
++| Defined by | Prompt builders `build_spec_fidelity_prompt` in `src/superclaude/cli/roadmap/prompts.py` and `build_tasklist_fidelity_prompt` in `src/superclaude/cli/tasklist/prompts.py`; no dataclass models the table |
++| Checked by | `_high_severity_count_zero` and `_tasklist_ready_consistent` in `src/superclaude/cli/roadmap/gates.py` (reused by `src/superclaude/cli/tasklist/gates.py`) |
++| Column names | The roadmap-to-tasklist prompt uses `Upstream Quote` / `Downstream Quote`; the spec-to-roadmap prompt labels columns 4 and 5 `Source Quote` / `Roadmap Quote` |
+--- a/docs/reference/pm-agent-autonomous-reflection.md
++++ b/docs/reference/pm-agent-autonomous-reflection.md
+@@ -191,6 +191,8 @@
+ **Purpose**: 過去の失敗から学習、同じ間違いを繰り返さない
+ 
+ > **Status**: explicit API only (`src/superclaude/pm_agent/reflexion.py`). The PM agent does not call it, nothing loads it at session start, and no fix is applied automatically. The earlier "automatic tool selection", MindBase semantic search and automatic storage described here were never implemented. Full contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md).
++>
++> **Not session memory**: ReflexionPattern stores error records in `docs/memory/` (or `memory_dir`, or `REFLEXION_OUTPUT_DIR`). Session memory written by `/sc:save` and read by the PM agent at session start is a separate store: markdown files in `<project>/.superclaude/memory/`.
+ 
+ ```yaml
+ When: You (or code you write) call ReflexionPattern. The only automatic use is the
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -86,3 +86,8 @@
+ 
+ - **B-W6 correction 2, Post-Implementation output (`:280-281`, code-true instead).** Planned: no `docs/patterns`, `docs/mistakes`; memory under `<project>/.superclaude/memory/*.md`. Code: the PM agent's Act phase and Session End still write success patterns to `docs/patterns/` and failures to `docs/mistakes/` in the user's project (`src/superclaude/agents/pm-agent.md:89-90,119-121`) and session state to `.superclaude/memory/` (`:92,108,113`). Written: session state → `.superclaude/memory/` files; success → `docs/patterns/`, failure → `docs/mistakes/` "in the user's project (created when needed)". The other `docs/patterns/` mentions (Tavily example, superseded-prohibitions note, Best Practices) were left because they match the agent's own instructions. Session start (`:235`) and Pre-Implementation (`:248-249`) were rewritten as planned: `.superclaude/memory/*.md` (`pm-agent.md:31-35`), and pre-implementation reads `current_plan.md` plus the project's relevant `docs/*.md` (`pm-agent.md:54,415`).
+ - **B-W6 correction 1 (extended).** Besides the new codegraph server entry and the Code Understanding row, the "Complex" complexity row and two Best Practices lines that named only Grep + Read / Auggie for code now name codegraph with the Grep + Read floor (`src/superclaude/core/CLAUDE.md` codegraph block; `src/superclaude/core/CODEGRAPH.md`).
++
++## Task 33 (item B-W8) — docs/reference/deviation-report-format.md, docs/reference/pm-agent-autonomous-reflection.md
++
++- **B-W8 correction 1 (code-true instead).** Planned: point the `Dataclass` row to "the model actually defined in `src/superclaude/cli/roadmap/fidelity_checker.py`". Code: that file defines `FRMapping`, `FidelityResult` and `FidelityChecker` (`fidelity_checker.py:129-150`), which check spec FRs against code names; none models the 7-column deviation table, and no dataclass in `src/` does. The table and frontmatter are set by the prompt builders `build_spec_fidelity_prompt` (`roadmap/prompts.py:1813`, output block `:1917-1936`) and `build_tasklist_fidelity_prompt` (`tasklist/prompts.py:18`, output block `:90-110`), and checked by `_high_severity_count_zero` / `_tasklist_ready_consistent` (`roadmap/gates.py:118,195`, imported by `tasklist/gates.py:18-21`). Written: the `Dataclass` and "Schema Match (verified 1:1)" rows were replaced by "Defined by", "Checked by" and "Column names" rows; the last notes that the spec-to-roadmap prompt names columns 4-5 `Source Quote` / `Roadmap Quote`.
++- **B-W8 correction 2 (as planned).** Added a "Not session memory" note under the Layer 3 status block: ReflexionPattern uses `docs/memory/` (or `memory_dir` / `REFLEXION_OUTPUT_DIR`, `reflexion.py:63-77`); `/sc:save` session memory is `<project>/.superclaude/memory/` (`agents/pm-agent.md:19-35`, `commands/save.md:42`).

@@ -38,16 +38,24 @@ See also: memory `feedback_claude_dir_gitignored.md`.
 
 ## ABSOLUTE RULE: PR Target = Fork (`IronbellyOrg/IronClaude`), NEVER Upstream
 
-This repository is a **fork**. `origin` = `IronbellyOrg/IronClaude` (the user's private fork). `upstream` = `SuperClaude-Org/SuperClaude_Framework` (the public parent).
+**SuperClaude upstream (`SuperClaude-Org/SuperClaude_Framework`) is never pushed to or interacted with.** No push, fetch or pull from it; no PR, issue, comment, review or reaction there; no remote pointing at it; and no tool call (gh, git or Orca) and no gh or Orca link flag that resolves to it. The fetch and pull ban is the literal reading of "interacted with".
+
+This repository is a **fork**. This clone has only one remote, `origin` = `IronbellyOrg/IronClaude` (the user's private fork). The public parent is `SuperClaude-Org/SuperClaude_Framework`; no remote for it may be added.
 
 **NEVER**, under any circumstance:
 
 - Run a bare `gh pr create` without `--repo IronbellyOrg/IronClaude`. The GitHub CLI defaults `gh pr create` to the **parent repo of a fork**, which means PRs silently land on the public upstream — exposing private fork work and misrouting reviews.
-- Open PRs against `SuperClaude-Org/SuperClaude_Framework` without explicit user authorization in the same session. Treat that target as forbidden.
-- Push to `upstream` (the `upstream` remote name above). The `origin` remote is the correct push target.
+- Open PRs against `SuperClaude-Org/SuperClaude_Framework`. That target is forbidden.
+- Push to, fetch from or pull from `SuperClaude-Org/SuperClaude_Framework`, under any remote name or URL. `origin` is the only push target.
 - Assume the upstream is the right target because gh's interactive flow suggests it. The interactive flow is the trap.
 
-**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo <repo>`, where `<repo>` comes from the `origin` remote, then waits for the Augment and Codex reviews (a reviewer that shows no activity on the PR is skipped), fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
+**Allowed gh forms:** a command that accepts `--repo` passes `--repo IronbellyOrg/IronClaude`; a command that takes the repo as a positional argument (`gh repo view`) names `IronbellyOrg/IronClaude` explicitly; a `gh api` path spells `repos/IronbellyOrg/IronClaude/...`, never the `{owner}/{repo}` placeholder.
+
+**Orca:** Orca identified this project as `github:superclaude-org/superclaude_framework` in `orca worktree current --json` on 2026-11-02. The source of that id is unverified (possibly the upstream URLs in `pyproject.toml` or `package.json`). Until `orca worktree current --json` shows the fork's project id, `--issue`, `--pr` and other Orca link flags are never passed for this repo.
+
+**Scope:** static references to the upstream repository in documentation and test fixtures (for example the negative fixtures in `tests/pr_submit/test_pre_pr_checks.py`) are not interaction and are out of scope.
+
+**The mandatory way to open a PR:** always use `/sc:pr-submit --monitor 3`. It opens the PR with `gh pr create --repo IronbellyOrg/IronClaude` (it resolves the repo from the `origin` remote, which must be `IronbellyOrg/IronClaude`), then waits for the Augment and Codex reviews (a reviewer that shows no activity on the PR is skipped), fixes the confirmed findings of Medium severity or higher (lower ones are only reported) and failing CI checks, pushes the fixes without asking, and replies to and resolves the review comments it fixed. Run it in Claude Code (it is a slash command, not a shell command):
 
 ```text
 /sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."
@@ -61,13 +69,13 @@ gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --titl
 
 **Pre-PR checks (mandatory):**
 
-1. `git remote -v` — confirm `origin` = `IronbellyOrg/IronClaude.git`. Then `gh repo view --json nameWithOwner -q .nameWithOwner` must print `IronbellyOrg/IronClaude`; if it prints the upstream parent, run `gh repo set-default IronbellyOrg/IronClaude` first (gh prefers an `upstream` remote over `origin`).
+1. `git remote get-url origin` must print the `IronbellyOrg/IronClaude` URL, and `gh repo view IronbellyOrg/IronClaude --json nameWithOwner -q .nameWithOwner` must print `IronbellyOrg/IronClaude`. If gh's default repo is wrong, run `gh repo set-default IronbellyOrg/IronClaude`.
 2. `git fetch origin && git log master..origin/master` — if the fork's master is ahead of the local master, **rebase the branch onto `origin/master`** before pushing. The fork has additional commits (e.g., `.claude/` untrack, lint cleanup) that the local clone may not have. Without rebasing, the PR creation will fail with "No commits between master and <branch>".
-3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**, not `SuperClaude-Org`. If it shows the wrong owner, close it immediately and reopen with `--repo IronbellyOrg/IronClaude`.
+3. After PR creation, **verify the returned URL points at `https://github.com/IronbellyOrg/IronClaude/pull/N`**. If it points at `SuperClaude-Org`, stop, report the URL to the user, and take no action on that PR; the user closes it. This matches `/sc:pr-submit`, which already halts on a misrouted URL.
 
-**Exceptions:** Contributing back to upstream is explicit, separate, deliberate user authorization in the same session — never a default behavior. Without that explicit instruction, every PR goes on the fork.
+**There are no exceptions.**
 
-**Rationale:** This rule exists because gh's default-to-upstream behavior burned the user on 2026-05-25 (PR #558 on SuperClaude-Org instead of IronbellyOrg #86). The mechanical gates (gh's defaults, `git push` targeting) do NOT enforce the right outcome — only this CLAUDE.md rule + explicit `--repo` on every invocation does. See also: memory `feedback_pr_target_fork_only.md` and `reference_repo_remotes_IronClaude.md`.
+**Rationale:** This rule exists because gh's default-to-upstream behavior burned the user on 2026-05-25 (PR #558 on SuperClaude-Org instead of IronbellyOrg #86). The mechanical gates (gh's defaults, `git push` targeting) do NOT enforce the right outcome — only this CLAUDE.md rule + the repo named explicitly on every gh call does. See also: memory `feedback_pr_target_fork_only.md` and `reference_repo_remotes_IronClaude.md`.
 
 ## ABSOLUTE RULE: Never Hardcode `src/superclaude/` Paths in Installed Primitives
 
@@ -103,10 +111,10 @@ uv run python script.py          # Execute scripts
 
 ## 📂 Project Structure
 
-**Current v4.3.5 Architecture**: Python package with slash commands
+**Current v5.0.0 Architecture**: Python package with slash commands
 
 ```text
-# Claude Code Configuration (v4.3.5)
+# Claude Code Configuration (v5.0.0)
 .claude/
 ├── settings.json        # User settings
 ├── commands/sc/         # Dev copies of the slash commands, synced from src/ by `make sync-dev`
@@ -242,13 +250,13 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
 
-### Slash Commands (v4.3.5)
+### Slash Commands (v5.0.0)
 
 - Install via: `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the PyPI `superclaude` package is the upstream project, not this fork)
 - Commands installed to: `~/.claude/commands/sc/`
 - Available: run `/sc:help` to list every installed command and skill
 
-> **Note**: TypeScript plugin system planned for v5.0 ([#419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419))
+> **Note**: A TypeScript plugin system is planned for a later release; it is not part of 5.0.0.
 
 ## 🧪 Testing with PM Agent
 
@@ -294,20 +302,25 @@ def test_with_budget(token_budget):
 
 ### Parallel Development with Git Worktrees
 
-**CRITICAL**: When running multiple Claude Code sessions in parallel, use `git worktree` to avoid conflicts.
+**CRITICAL**: When running multiple Claude Code sessions in parallel, give each session its own worktree to avoid conflicts.
 
-**ABSOLUTE RULE — worktree location is `./.dev/worktrees/`, NEVER `.claude/worktrees/`.**
-Every worktree this project creates MUST live under `<repo>/.dev/worktrees/<name>/`. Do **not** use the
-`EnterWorktree` tool (it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory) — instead
-create worktrees explicitly with `git worktree add .dev/worktrees/<name> <branch>`. Add `.dev/worktrees/`
-to `.gitignore` if it is not already ignored, so nested worktree checkouts never get staged.
+**ABSOLUTE RULE — every project worktree is created through Orca and lives at Orca's default worktree location.**
+Create it with `orca worktree create --name <name>`, adding `--repo <selector>`, `--base-branch <ref>`, and
+`--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default worktree location,
+outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
+
+- Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
+- Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
+- Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
+- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
+- **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
 
 ```bash
-# Create a worktree for a feature branch (canonical location)
-git worktree add .dev/worktrees/pm-agent -b feature/pm-agent origin/master
+# Create a worktree named pm-agent, based on origin/master
+orca worktree create --name pm-agent --base-branch origin/master
 
-# Create a worktree for an existing branch
-git worktree add .dev/worktrees/integration integration
+# Show where Orca put it
+orca worktree list
 ```
 
 **Benefits**:
@@ -319,14 +332,14 @@ git worktree add .dev/worktrees/integration integration
 
 **Usage**:
 
-- Session A: Open `<repo>/` (current branch)
-- Session B: Open `<repo>/.dev/worktrees/integration/` (integration)
-- Session C: Open `<repo>/.dev/worktrees/pm-agent/` (feature branch)
+- Session A: Open the main checkout (current branch)
+- Session B: Open the Orca-created worktree `integration` (path from `orca worktree list`)
+- Session C: Open the Orca-created worktree `pm-agent` (feature branch)
 
 **Cleanup**:
 
 ```bash
-git worktree remove .dev/worktrees/integration
+orca worktree rm --worktree name:integration
 ```
 
 ## 📝 Key Documentation Files
@@ -388,7 +401,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v4.3.5)
+### Current Installation Method (v5.0.0)
 
 **Standard Installation**:
 
@@ -423,15 +436,15 @@ make test
 make verify
 ```
 
-### Plugin System (v5.0 - Not Yet Available)
+### Plugin System (Not Yet Available)
 
-The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for v5.0.
+The TypeScript plugin system (`.claude-plugin/`, marketplace) is planned for a later release; 5.0.0 does not include it.
 See `docs/plugin-reorg.md` for details.
 
 ## 📊 Package Information
 
 **Package name**: `superclaude`
-**Version**: 4.3.5 (see `version` in `pyproject.toml`)
+**Version**: 5.0.0 (see `version` in `pyproject.toml`)
 **Python**: >=3.10
 **Build system**: hatchling (PEP 517)
 

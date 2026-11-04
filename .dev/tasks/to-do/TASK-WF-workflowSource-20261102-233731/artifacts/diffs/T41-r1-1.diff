@@ -1,0 +1,89 @@
+--- a/docs/swarm/operator-runbook.md
++++ b/docs/swarm/operator-runbook.md
+@@ -115,7 +115,7 @@
+ [watch](#watch--poll-until-terminal) below.
+ 
+ **Exit codes:** `0` non-terminal phase, terminal+success, or terminal with
+-unreadable contract · `1` terminal+partial/failed (requires the M5 contract) ·
++unreadable contract · `1` terminal with a partial or failed contract ·
+ `2` usage error (dir/state missing, corrupt JSON, `--job` mismatch). The
+ state-file artifact is detailed in
+ [observability-procedure.md](./observability-procedure.md) (OPS-003).
+--- a/docs/swarm/monitoring-patterns.md
++++ b/docs/swarm/monitoring-patterns.md
+@@ -3,11 +3,12 @@
+ > 📚 Part of the [swarm documentation](./README.md). New here? Start with the
+ > [User Guide](./user-guide.md).
+ >
+-> ⚠️ **Implementation status.** Pattern 1 below depends on the `done.json` terminal
+-> sentinel, which is written by the Wave-3 reduce path (`reduce.py`, the pending **M5**
+-> milestone). The current dispatch-only `swarm run` does **not** emit `done.json` on the
+-> success path (it *is* written by `swarm kill --output`). Until M5 lands, prefer
+-> Pattern 3 (`status --watch`, which reads `.swarm-state.json` reaching `terminal`).
++> ⚠️ **Implementation status.** Wave 3 reduce now runs on a fresh `swarm run`
++> (it writes `return-contract.yaml` before the state flips to `terminal`), but
++> `done.json` is still written only by `swarm kill --output`. Pattern 1 below
++> therefore never sees the sentinel on a normal run. Watch `.swarm-state.json`
++> instead, with Pattern 3 (`swarm status --watch`, which exits once the phase
++> reaches `terminal`).
+ 
+ Three durable monitoring patterns are supported against any running
+ swarm job. All three read the **caller-agnostic** observability artifacts
+--- a/docs/swarm/rollback-procedure.md
++++ b/docs/swarm/rollback-procedure.md
+@@ -29,25 +29,30 @@
+   caller** over `superclaude swarm run --lens bare-review` (previously 231
+   lines of inline orchestration). Landed by commit `2355bfe1`
+   (`feat(sc-bare-review): WS-A thin-caller SKILL.md (231→80) + PG3 gate pass`).
+-- The legacy shell-dispatch implementation is **being retired** by the M8/M9
+-  migration. The deletions of the following files are part of this migration's
+-  WS-C work; once the migration commits land they are removed from the working
+-  tree:
++- The legacy shell-dispatch implementation was **retired** by the M8/M9
++  migration. Its WS-C work removed the following files, and they are absent at
++  v5.0.0:
+   - `src/superclaude/skills/sc-bare-review/scripts/t2_preflight.sh`
+   - `src/superclaude/skills/sc-bare-review/scripts/t2_dispatch.sh`
+   - `src/superclaude/skills/sc-bare-review/scripts/t2_normalize.py`
+   - `src/superclaude/skills/sc-bare-review/refs/prompts.md`
+   - `src/superclaude/skills/sc-bare-review/refs/output-template.md`
+ 
+-**Git reality (important for recovery):** these files were **NOT** deleted by an
+-earlier commit. They are present **in full** at commit `2355bfe1` — the current
+-`feat/sc-bare-review-m8m9-migration` HEAD, i.e. the state **before** this M8/M9
+-migration commits its `git rm` deletions. Their removal is carried by the
+-migration commit(s) themselves. To recover the legacy path you therefore restore
+-from `2355bfe1` (the commit just before the deletion lands), not from any
+-pre-existing commit. The exact migration/deletion SHA is found at recovery time
+-with `git log --oneline -- src/superclaude/skills/sc-bare-review/scripts/` (the
+-first commit showing the deletion) — see options A and B below.
++**Git reality (important for recovery):** the migration branch was squash-merged
++into `master` as commit `85ba37f9` (PR #178, 2026-06-17), and that one commit
++removed the files. The branch commits named in this document (`2355bfe1`,
++`93f613de`, `e89e40ce`) were written before the squash merge and are not in the
++v5.0.0 history. On `master` and v5.0.0, the files (and the 231-line
++`SKILL.md`) are present in full at `85ba37f9^`, the parent of the deletion
++commit. `git log --oneline -- src/superclaude/skills/sc-bare-review/scripts/`
++lists the deletion commit. On `master`, translate the branch SHAs in options A
++and B below as follows:
++
++- Restore source (option B): where a command names `2355bfe1`, use
++  `85ba37f9^`.
++- Revert target (option A): `git revert --no-edit 85ba37f9` reverts the whole
++  squash, which restores the legacy files **and** the 231-line `SKILL.md`, so
++  the extra `2355bfe1` steps in the option A caveat do not apply on `master`.
+ 
+ ## Rollback trigger conditions
+ 
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -116,3 +116,9 @@
+ - **B-W15 correction 3 (wording changed to meet the AC).** Planned: "the JobSpec `custom_prompt_dir` field (a `--custom-prompt-dir` flag is planned, not shipped)". That text contains the literal string the AC requires to be absent (`grep -n -- "--custom-prompt-dir"` returns nothing). Written instead: "the JobSpec `custom_prompt_dir` field (set in the spec file; no `swarm run` option sets it in 5.0.0)". Evidence: `swarm/models.py:115` (`custom_prompt_dir: Optional[str] = None`); no swarm subcommand defines the option (`superclaude swarm run --help`, `swarm --help` command list); `swarm/commands.py:1164-1168` rejects `--lens custom` with "supply a spec file with custom_prompt_dir set instead"; the option is only foreseen in a comment (`swarm/commands.py:123-127`). The `:234` and `:468` mentions now say `system.txt` in the directory named by the JobSpec `custom_prompt_dir` field, and "JobSpec `custom_prompt_dir`".
+ - **Stability tier sentence (extended, same file).** "`bare-review` is the only entry shipping `stable` ... All other 6 non-custom entries ship `experimental`" was wrong against code: `lenses/bare_review.py:71` and `lenses/reflect_review.py:71` both set `stability="stable"`; the other 6 set `"experimental"`. Rewritten to name both stable lenses; the tier table row "Default for entries beyond `bare-review`" became "Default for new entries".
+ - **Out-of-item remnant left in place.** §6 and §8 say CI runs `superclaude swarm validate-lenses` through `make verify-sync` and that a local pre-commit hook runs it with `--warning-mode`. Neither is wired: `Makefile:166` `verify-sync` and `.pre-commit-config.yaml` contain no `validate-lenses` call. §6 "Wiring task" already says the wiring is a follow-up. Not named by B-W15 or gaps 62-63, so not edited.
++
++## Task 41 (item B-W17) — docs/swarm/operator-runbook.md, docs/swarm/monitoring-patterns.md, docs/swarm/rollback-procedure.md
++
++- **B-W17 correction 3 (extended).** Planned: past tense for `rollback-procedure.md:31-45`. Applied, and the "Git reality" paragraph right after it (which called `2355bfe1` "the current `feat/sc-bare-review-m8m9-migration` HEAD") was rewritten too, because its SHAs are not in the v5.0.0 history: `git cat-file -t 2355bfe1`, `93f613de` and `e89e40ce` all fail. The deletion landed on `master` as the squash commit `85ba37f9` (PR #178, 2026-06-17; single parent; `git log --diff-filter=D -- src/superclaude/skills/sc-bare-review/scripts/`). `85ba37f9^` holds the five files and the 231-line `SKILL.md`; `85ba37f9` itself has the 80-line `SKILL.md`, so reverting it restores both. The paragraph now gives that translation for options A and B.
++- **Out-of-item remnant left in place.** The option A and B command blocks, their notes and the dated Tabletop Rehearsal Sign-Off still name the branch SHAs `2355bfe1` / `93f613de` / `e89e40ce`; the new "Git reality" paragraph tells readers how to translate them. Rewriting each command was not named by B-W17, so not edited.
++- **B-W17 correction 2 (same file, not edited).** `monitoring-patterns.md` still lists `done.json` under module `reduce.py` (artifact table) and describes Pattern 1 as working on a normal run; `reduce.emit_done_sentinel` has no caller (only `reduce.py:127,383`), and the only writer is `commands._emit_killed_done_sentinel` (`swarm/commands.py:3518,3687`). The rewritten status banner states this; the table and Pattern 1 body were not named by the item.

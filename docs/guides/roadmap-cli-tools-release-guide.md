@@ -101,7 +101,7 @@ The roadmap CLI builds on the shared `pipeline/` module:
 
 ### What it does
 
-Loads a specification file, builds an 11-step adversarial pipeline, validates outputs through gate criteria at each step, and produces a final merged roadmap with test strategy, spec-fidelity report, and structural audits.
+Loads 1-3 markdown input files (spec, TDD, PRD; content type auto-detected), builds an 11-step adversarial pipeline, validates outputs through gate criteria at each step, and produces a final merged roadmap with test strategy, spec-fidelity report, and structural audits.
 
 Pre-flight: creates the output directory if it doesn't exist.
 
@@ -115,21 +115,23 @@ Pre-flight: creates the output directory if it doesn't exist.
 ### Syntax
 
 ```bash
-superclaude roadmap run <SPEC_FILE> [options]
+superclaude roadmap run [OPTIONS] INPUT_FILES...
 ```
+
+Examples: `superclaude roadmap run spec.md`, `superclaude roadmap run spec.md tdd.md`, `superclaude roadmap run spec.md tdd.md prd.md`.
 
 ### Positional arguments
 
 | Argument | Required | Description |
 |----------|----------|-------------|
-| `SPEC_FILE` | Yes | Path to a specification markdown file. Must exist on disk. |
+| `INPUT_FILES...` | Yes | 1-3 markdown files (spec, TDD, PRD) in any order. Each must exist on disk. Content type is auto-detected; use `--input-type` to override it for a single file. |
 
 ### Key options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `--agents` | String | `opus:architect,sonnet:architect` | Comma-separated agent specs in `model[:persona]` format. Controls which models/personas generate the two roadmap variants. |
-| `--output` | Path | Parent dir of SPEC_FILE | Output directory for all pipeline artifacts. Created automatically if it doesn't exist. |
+| `--output` | Path | Parent dir of the first input file | Output directory for all pipeline artifacts. Created automatically if it doesn't exist. The default is the folder of the first file you list, whatever its type (`--help` calls it the spec file). |
 | `--depth` | Choice | `standard` | Debate round depth: `quick` (1 round), `standard` (2 rounds), `deep` (3 rounds). |
 | `--resume` | Flag | Off | Skip steps whose outputs already pass their gates. Re-run from the first failing step. Detects stale spec files via SHA-256 hash comparison. |
 | `--dry-run` | Flag | Off | Print step plan, gate criteria, and timeout budgets, then exit without launching any subprocesses. |
@@ -139,6 +141,15 @@ superclaude roadmap run <SPEC_FILE> [options]
 | `--no-validate` | Flag | Off | Skip post-pipeline validation step. Does **not** skip the spec-fidelity step. |
 | `--allow-regeneration` | Flag | Off | Allow patches that exceed the diff-size threshold (FR-9). Use with caution. |
 | `--retrospective` | Path | None | Path to a retrospective file from a prior release cycle. Content is framed as advisory "areas to watch" in extraction. Missing file is not an error. |
+| `--no-convergence` | Flag | Off | Disable the spec-fidelity convergence engine (on by default) and use the single-shot LLM fidelity check instead. |
+| `--input-type` | Choice | `auto` | `auto`, `tdd` or `spec`. `auto` detects PRD, TDD or spec from content; `tdd`/`spec` force the type. PRD files are auto-detected when passed as positional arguments. |
+| `--tdd-file` | Path | None | TDD file for supplementary technical context (data models, API endpoints, component inventory, test strategy) when the primary input is a spec. Ignored if the primary input is itself a TDD. |
+| `--prd-file` | Path | None | PRD file for supplementary business context (personas, success metrics, compliance, scope). Works with spec and TDD primary inputs. Auto-wired from `.roadmap-state.json` on `--resume` if not given. |
+| `--no-compress` | Flag | Off | Disable the lossless markdown compression of LLM inputs (spec, variants, merge). Deterministic steps always read the originals. |
+| `--allow-cosmetic-remediation` / `--no-allow-cosmetic-remediation` | Flag | On | Auto-fix pure-cosmetic gate failures (heading shape, dash variants, whitespace, smart quotes, table padding) before halting. Semantic failures always halt. |
+| `--strict-no-remediation` | Flag | Off | Disable cosmetic auto-remediation entirely; same as `--no-allow-cosmetic-remediation`, for runs where any drift should halt for human review. |
+
+The 11 opt-in `--tool-write-*` flags (`--tool-write-extract`, `--tool-write-extract-tdd`, `--tool-write-generate`, `--tool-write-diff`, `--tool-write-debate`, `--tool-write-score`, `--tool-write-merge`, `--tool-write-spec-fidelity`, `--tool-write-test-strategy`, `--tool-write-certify`, `--tool-write-remediate`) switch individual steps to structured-JSON output; see `superclaude roadmap run --help` for each one.
 
 ### Agent spec format
 
@@ -349,7 +360,7 @@ Step 10: Wiring Verification ──┘  ← trailing gate (shadow mode)
 
 ### Output artifacts
 
-All artifacts are written to the output directory (default: parent of SPEC_FILE).
+All artifacts are written to the output directory (default: parent directory of the first input file).
 
 | Artifact | Source Step | Description |
 |----------|------------|-------------|
@@ -656,7 +667,7 @@ If some (but not all) reflect steps fail in multi-agent mode, the executor write
 When you run:
 
 ```bash
-superclaude roadmap run <SPEC_FILE> [flags]
+superclaude roadmap run [OPTIONS] INPUT_FILES...
 ```
 
 the CLI flow is:
@@ -896,7 +907,7 @@ class RoadmapConfig(PipelineConfig):
     depth: "quick"|"standard"|"deep"   # Default: "standard"
     output_dir: Path                   # Resolved output directory
     retrospective_file: Path | None    # Optional retrospective from prior release
-    convergence_enabled: bool          # Default: False (v3.05 deterministic fidelity)
+    convergence_enabled: bool          # Default: True (disable with --no-convergence)
     allow_regeneration: bool           # Default: False (FR-9 diff-size override)
 
 # Inherited from PipelineConfig:
@@ -1417,4 +1428,4 @@ superclaude roadmap accept-spec-change ./output
 - The anti-instinct step (step 7) runs in <1 second and costs zero tokens — it's a free structural safety net.
 - Wiring verification runs in `shadow` mode by default (trailing gate) — it logs findings but does not block the pipeline. This allows gradual rollout before switching to `soft` or `full` enforcement.
 - The `--retrospective` flag improves extraction quality by framing prior release lessons as advisory context. Use it when iterating across releases.
-- The convergence engine (`convergence_enabled`) is an advanced feature for multi-run fidelity tracking. When enabled, the spec-fidelity gate is managed by the deviation registry instead of the standard gate.
+- The convergence engine (`convergence_enabled`) tracks fidelity across runs and is on by default; pass `--no-convergence` to use the single-shot fidelity check. When enabled, the spec-fidelity gate is managed by the deviation registry instead of the standard gate.

@@ -1,0 +1,159 @@
+# Coverage matrix: /sc:reflect --mode pre (UC-1), Wave 1B
+# Algorithm: ~/.claude/skills/sc-reflect-protocol/refs/coverage-mapping.md
+# Spec:      .dev/tasks/to-do/TASK-WF-implementIronbel-20261104-130647/source.md (1 line, inline prompt)
+# Tasklist:  .dev/tasks/to-do/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+#
+# Pass 1: ID_REGEX \b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b over source.md (no fenced code) -> 0 IDs
+#         ("#357" and "357" do not match the regex).
+# Pass 2: 12 quote-pinned INF rows, document order, every quote is an exact substring of source.md:1.
+#
+# Containment rule as applied (deterministic, string arithmetic only):
+#   - tokenize: casefold, then regex [a-z0-9_]+ (paths and hyphenated words split into parts;
+#     "install_hooks" stays one token); ratio uses UNIQUE content words of the quote.
+#   - stopwords stripped (fixed set): articles {a, an, the}; conjunctions {and, or, but, nor, so,
+#     yet, because, if, that, than, while, although, though, whether, when}; prepositions {in, on,
+#     at, to, for, with, of, from, by, as, into, onto, about, through, after, before, under, over,
+#     via, per, within, without, between, among}; auxiliaries {is, are, was, were, be, been, being,
+#     am, do, does, did, have, has, had, will, would, shall, should, can, could, may, might, must}.
+#   - task item text = the "## Task N:" heading line through the line before the next "## " heading
+#     (Task 1 L30-48, Task 2 L50-65, Task 3 L69-82, Task 4 L84-96, Task 5 L100-107,
+#     Task 6 L109-116, Task 7 L120-134). Constraints (L17-26) and Goal (L15) are not task items.
+#   - match when ratio >= 0.6; best ratio wins; first task in order breaks ties; else none.
+#   - containment_ratio below = ratio for the best task (reported even when below threshold).
+
+rows:
+  - requirement_id: INF-001
+    source: inferred
+    quote: 'Implement IronbellyOrg/IronClaude issue #357: block bare python, python3, pip and pip3 in Bash tool calls with a PreToolUse hook, because the UV-only rule is text-only and agents and helper subagents keep breaking it.'
+    citation: source.md:1
+    matched_task_ids: []
+    match_method: none
+    containment_ratio: 0.5769   # best = Task 1, 15/26; missing: agents, breaking, calls, helper, implement, ironbellyorg, ironclaude, pretooluse, rule, subagents, tool
+  - requirement_id: INF-002
+    source: inferred
+    quote: 'Read the issue in full first (gh issue view 357 --repo IronbellyOrg/IronClaude)'
+    citation: source.md:1
+    matched_task_ids: []
+    match_method: none
+    containment_ratio: 0.3      # best = Task 1, 3/10 (tie with Task 7, first-in-order)
+  - requirement_id: INF-003
+    source: inferred
+    quote: 'uv run python'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 1.0      # 3/3; every task scores 1.0, first-in-order tiebreak -> Task 1
+  - requirement_id: INF-004
+    source: inferred
+    quote: 'uv pip'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 1.0      # 2/2; tie with Tasks 2 and 6, first-in-order -> Task 1
+  - requirement_id: INF-005
+    source: inferred
+    quote: 'uvx'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 1.0      # 1/1; tie with Tasks 2 and 6, first-in-order -> Task 1
+  - requirement_id: INF-006
+    source: inferred
+    quote: 'commands that only mention python in paths, patterns or quoted text'
+    citation: source.md:1
+    matched_task_ids: []
+    match_method: none
+    containment_ratio: 0.5      # best = Task 1, 4/8; missing: mention, paths, patterns, quoted
+  - requirement_id: INF-007
+    source: inferred
+    quote: 'src/superclaude/hooks/hooks.json, plugins/superclaude/hooks/hooks.json'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 1.0      # 5/5; tie with Task 3, first-in-order -> Task 1
+  - requirement_id: INF-008
+    source: inferred
+    quote: 'src/superclaude/hooks/scripts/, plugins/superclaude/hooks/scripts/'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 1.0      # 5/5
+  - requirement_id: INF-009
+    source: inferred
+    quote: 'src/superclaude/cli/install_hooks.py'
+    citation: source.md:1
+    matched_task_ids: [Task 3]
+    match_method: containment
+    containment_ratio: 1.0      # 5/5
+  - requirement_id: INF-010
+    source: inferred
+    quote: 'the existing PreToolUse freshness-pre-edit hook as the model'
+    citation: source.md:1
+    matched_task_ids: [Task 3]
+    match_method: containment
+    containment_ratio: 0.7143   # 5/7; missing: model, pre (Task 1 scores 0.5714)
+  - requirement_id: INF-011
+    source: inferred
+    quote: 'the bare call to replace in src/superclaude/skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md:8'
+    citation: source.md:1
+    matched_task_ids: [Task 5]
+    match_method: containment
+    containment_ratio: 1.0      # 16/16
+  - requirement_id: INF-012
+    source: inferred
+    quote: 'the Done-when list, which is the acceptance criteria'
+    citation: source.md:1
+    matched_task_ids: [Task 1]
+    match_method: containment
+    containment_ratio: 0.8      # 4/5 (acceptance, criteria, done, which); missing: list
+
+# semantic_notes: NOT part of the matrix and NOT used by any summary field below.
+# Reviewer-facing judgement of whether a task substantively delivers each INF row.
+semantic_notes:
+  - requirement_id: INF-001
+    substantively_covered: true
+    note: 'Containment failed (0.5769) on wording only. Task 1 builds the Bash PreToolUse block script (tasklist L32, L39) and Task 3 registers it with matcher Bash (L73); the Goal (L15) restates the requirement.'
+  - requirement_id: INF-002
+    substantively_covered: partial
+    note: 'A process step (read the issue), not a deliverable. No task item does it, but Constraints (L19) names the gh issue view command and quotes the issue Done-when list verbatim, which shows the plan was built from the issue.'
+  - requirement_id: INF-003
+    substantively_covered: true
+    note: 'Task 2 allowed cases include uv run python -c 1 and uv run --no-project python x.py (L58); Task 1 detection rule allows uv (L39) and the block message names uv run python (L43). The Task 1 containment hit is a trivial tie, every task scores 1.0.'
+  - requirement_id: INF-004
+    substantively_covered: true
+    note: 'Task 2 allowed case uv pip install requests (L58); Task 1 L39 allows the uv command word.'
+  - requirement_id: INF-005
+    substantively_covered: true
+    note: 'Task 2 allowed case uvx ruff check . (L58); Task 1 L39 lists uvx as allowed.'
+  - requirement_id: INF-006
+    substantively_covered: true
+    note: 'Containment failed (0.5). Task 1 L37 says quoted text is never a command word and L39 allows grep, rg, ls, cat and others whatever their arguments; Task 2 L58 tests grep -rn python3 src/, rg pip install docs/, ls src/python3/lib, cat requirements-python.txt and quoted echo/git commit cases.'
+  - requirement_id: INF-007
+    substantively_covered: true
+    note: 'Containment picked Task 1 by path-word overlap, but the hooks.json edits are in Task 3 (L73) and are tested in Task 4 (L90).'
+  - requirement_id: INF-008
+    substantively_covered: true
+    note: 'Task 1 L32 creates the script in src/superclaude/hooks/scripts/ and its byte-identical plugins/superclaude/hooks/scripts/ mirror; Task 4 L91 tests the mirror.'
+  - requirement_id: INF-009
+    substantively_covered: true
+    note: 'Task 3 L75 adds block-bare-python.sh to _FRESHNESS_SCRIPTS in install_hooks.py; Task 4 L92 tests install and registration.'
+  - requirement_id: INF-010
+    substantively_covered: true
+    note: 'Containment picked Task 3 from its placement wording (L73, after the existing Edit|Write freshness entry). The real coverage is Task 1 L32, which models the script on freshness-pre-edit.sh, plus Constraints L21.'
+  - requirement_id: INF-011
+    substantively_covered: true
+    note: 'Task 5 L102 replaces read-parse.md line 8 with uv run --no-project python; L105 checks no python3 remains; Task 2 L58 tests the replaced line as an allowed case.'
+  - requirement_id: INF-012
+    substantively_covered: true
+    note: 'The Done-when list is quoted verbatim in Constraints L19, not in a task item; the Task 1 containment hit is word overlap only. Each item maps to a task: block + message Task 1 L47 and Task 2 L56; allowed cases Task 2 L58; chained &&, ; and | tests Task 2 L64; install and register Task 3 L80-81 and Task 4 L92; fires for subagent Bash calls Task 7 L127 and L133; read-parse.md:8 Task 5 L105; fresh-session block Task 7 L126 and L132.'
+
+# Summary fields (contract 1.5.0)
+parsed_count: 0
+inferred_count: 12
+coverage_pct: null                 # parsed-only; parsed_count == 0
+coverage_pct_union: 0.75           # 9 matched / 12 total
+unmapped_requirements: []          # parsed rows with match_method none
+unmapped_requirements_union: [INF-001, INF-002, INF-006]
+S_dev_density: 0.25                # (3 unmapped + 0 missing_implementations) / 12; missing_implementations_count assumed 0 here (Wave 1B step 3b not run by this agent); > 0.20 escalates per section 5.3 row 5
+coverage_degraded: parsed-sparse   # inferred_count 12 > parsed_count 0
+coverage_undefined: false          # Pass 2 produced valid rows, so the zero-ID fallback does not fire

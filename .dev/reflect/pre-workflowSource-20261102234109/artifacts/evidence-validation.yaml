@@ -1,0 +1,15 @@
+validator: evidence-validator
+citations_total: 36
+citations_revalidated: 36
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+policy_planned: sampled
+policy_effective: full_reread
+dropped:
+  - citation: "R-001 '(done: /tmp/t13-baseline2-make-test.log copied to the package artifacts/)'"
+    reason: "no artifacts/ folder or baseline file in the package; R-001 rewritten to cite .dev/releases/current/v5.0.0/post-release/baseline-make-test.txt"
+caveats:
+  - "qa.md:15 supports AC-as-comparison-base; 'only a plan regeneration' softened (in-place edit would also gate)"
+  - "D-004: tasklist:19 names three CONSOLIDATED-PLAN sections; section 6 reached only via source.md:5 'read it in full'; severity arguable"
+  - "D-005: Task 65 python3 -m http.server is a conditional fallback"
+self_audit: "100% re-Read; only the R-001 on-disk state claim was unfounded"

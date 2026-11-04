@@ -1,0 +1,16 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-2-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.95, reason: "Every quoted snippet matches verbatim (plan:44/64/67-71/74-76/170/176, source.md:1, eval_runner.py:138/313, test_git_replay_integration.py:56-57, test_implement_retry_revert.py:357). R2-F3's premise refuted by the orchestrator probe."}
+  coverage_completeness: {score: 0.65, reason: "Misses the Task 2 import-registration gap (shell section 5) and the failed-add cleanup leak (shell section 6)."}
+  deviation_classification_clarity: {score: 0.65, reason: "All three labelled drift without justification; R2-F3 is a speculative extra check, not a departure from source.md."}
+  risk_surface_coverage: {score: 0.60, reason: "R2-F2 finds the local-only exit code; misses import crash and add-failure leak; R2-F3 refuted; R2-F1 medium overstated given shell section 2."}
+  recommendation_actionability: {score: 0.90, reason: "Concrete artifact paths, test and verification; R2-F2 asks to 'state whether' instead of recommending a direction."}
+C: 0.75
+per_finding:
+  - {id: R2-F1, verdict: grounded, reason: "plan:176 rerun names no artifact or checkout source; plan:170 probes only the first run. Medium overstated: shell section 2 shows shallow=false, uid=1000."}
+  - {id: R2-F2, verdict: grounded, reason: "plan:64 global-setup path not exercised by plan:68-71 tests or plan:74-76 criteria; eval_runner.py:313 checks only 'local' runs."}
+  - {id: R2-F3, verdict: weak, reason: "Citations accurate, but 22:23Z probe found no IronClaude-eval-master worktree or directory; not a source.md obligation."}
+escalation_recommendation: ESCALATE (C below 0.85)

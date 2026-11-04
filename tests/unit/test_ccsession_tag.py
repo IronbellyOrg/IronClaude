@@ -56,6 +56,10 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         "CLAUDECODE",  # set when the tests run inside Claude Code
         "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
         "CCSESSION_LAUNCH_ID",
+        "CCSESSION_LAUNCH_CWD",
+        "CLAUDE_ENV_FILE",
+        # Orca tab records go under each test's own HOME.
+        "XDG_STATE_HOME",
         "CLAUDE_TOPIC",
         "CCSESSION_TOPIC_CWD",
     ):
@@ -1699,6 +1703,252 @@ def test_orca_keys_already_typed_skip_the_question(tmp_path: Path) -> None:
     assert record["topic"] is None
 
 
+# Reopening an Orca tab's own session when Orca relaunches the tab after a
+# workspace restart (Coder #433). Orca then runs ccsession-orca again with only
+# its default options, the same ORCA_PANE_KEY and a new ORCA_TERMINAL_HANDLE.
+PANE = "tab-1:leaf-1"
+OTHER_SESSION = "def67890-0000-0000-0000-000000000000"
+ORCA_DEFAULT = "--dangerously-skip-permissions"
+
+
+def _tab_env(
+    tmp_path: Path, pane: str = PANE, handle: str = "term_after", **extra: str
+) -> dict[str, str]:
+    """ccsession-orca's environment in an Orca tab (a relaunch by default)."""
+    return _orca_env(tmp_path, ORCA_PANE_KEY=pane, ORCA_TERMINAL_HANDLE=handle, **extra)
+
+
+def _tab_runs(
+    tmp_path: Path,
+    session: str,
+    pane: str = PANE,
+    event: str = "SessionStart",
+    handle: str = "term_before",
+    launched: bool = True,
+    nested: bool = False,
+    **extra: str,
+) -> None:
+    """The hooks of the Claude Code ccsession launched in an Orca tab, reporting
+    a session; the transcript is saved as Claude Code saves it."""
+    env = _orca_env(tmp_path, ORCA_PANE_KEY=pane, ORCA_TERMINAL_HANDLE=handle, **extra)
+    if launched:
+        env["CCSESSION_LAUNCH_ID"] = f"{os.getpid()}.1"
+    work = (tmp_path / "work").resolve()
+    saved = tmp_path / "home" / ".claude" / "projects" / str(work).replace("/", "-")
+    saved.mkdir(parents=True, exist_ok=True)
+    (saved / f"{session}.jsonl").write_text("{}\n")
+    _hook(env, work, session, event, nested=nested)
+
+
+def _tab_records(tmp_path: Path) -> dict[str, list[str]]:
+    tabs = tmp_path / "home" / ".local" / "state" / "ccsession" / "orca-tabs"
+    if not tabs.is_dir():
+        return {}
+    # The lock and half-written files start with ".".
+    return {
+        f.name: f.read_text().splitlines()
+        for f in tabs.iterdir()
+        if f.is_file() and not f.name.startswith(".")
+    }
+
+
+def test_orca_relaunch_reopens_the_tabs_named_session(tmp_path: Path) -> None:
+    _seed_label(tmp_path, "demo")
+    _tab_runs(tmp_path, SESSION_ID)
+    work = str((tmp_path / "work").resolve())
+    assert _tab_records(tmp_path) == {"tab-1+leaf-1": [SESSION_ID, work, "term_before"]}
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path)
+    )
+    assert "Session name" not in output
+    assert "Reopening this tab's session 'demo'" in output
+    assert record["topic"] == "demo"
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        "demo",
+        "--resume",
+        SESSION_ID,
+        ORCA_DEFAULT,
+    ]
+    _assert_through_shim(record)
+    # The launch tells the hooks its folder, for the next record.
+    assert "CCSESSION_LAUNCH_CWD" in record["env_names"]
+
+
+def test_orca_relaunch_reopens_an_untagged_session_by_id(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path)
+    )
+    assert "Session name" not in output
+    assert f"Reopening this tab's session {SESSION_ID[:8]}" in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT, "--resume", SESSION_ID]
+
+
+@pytest.mark.parametrize(
+    ("pane", "handle"),
+    [("tab-2:leaf-1", "term_after"), (PANE, "term_before")],
+    ids=["new tab", "same terminal, run again by hand"],
+)
+def test_orca_a_new_tab_or_a_rerun_is_still_asked(
+    tmp_path: Path, pane: str, handle: str
+) -> None:
+    _seed_label(tmp_path, "demo")
+    _tab_runs(tmp_path, SESSION_ID)
+    env = _tab_env(tmp_path, pane=pane, handle=handle)
+    output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys="\r", env=env)
+    assert "Reopening" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("fix it",),
+        ("--prefill", "draft"),
+        ("--name", "other"),
+        (ORCA_DEFAULT, "-p"),
+        ("--session-id", OTHER_SESSION),
+    ],
+    ids=["prompt", "prefill", "name", "print", "session-id"],
+)
+def test_orca_a_launch_with_more_than_options_is_asked_as_before(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(tmp_path, *args, keys="\r", env=_tab_env(tmp_path))
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [("--resume", OTHER_SESSION), ("--continue",)],
+    ids=["resume", "continue"],
+)
+def test_orca_a_session_choice_wins_over_the_tabs_record(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    output, record = _orca_tty(tmp_path, *args, keys=None, env=_tab_env(tmp_path))
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+def test_orca_relaunch_without_a_terminal_or_autostart_changes_nothing(
+    tmp_path: Path,
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    extra = {"ORCA_PANE_KEY": PANE, "ORCA_TERMINAL_HANDLE": "term_after"}
+    output, record = _orca_no_tty(tmp_path, ORCA_DEFAULT, **extra)
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    env = _tab_env(tmp_path, CCSESSION_AUTOSTART="0")
+    output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+def test_orca_relaunch_whose_conversation_is_gone_is_asked(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    for transcript in (tmp_path / "home" / ".claude" / "projects").glob("*/*.jsonl"):
+        transcript.unlink()
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
+    )
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+
+
+def test_orca_two_tabs_never_reopen_the_same_session(tmp_path: Path) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    _tab_runs(tmp_path, OTHER_SESSION, pane="tab-3:leaf-1")
+    # The first tab's session is opened in a second tab: it is that tab's now.
+    _tab_runs(tmp_path, SESSION_ID, pane="tab-2:leaf-1", handle="term_two")
+    records = _tab_records(tmp_path)
+    assert sorted(records) == ["tab-2+leaf-1", "tab-3+leaf-1"]
+    assert records["tab-2+leaf-1"][0] == SESSION_ID
+    output, record = _orca_tty(
+        tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
+    )
+    assert "Reopening" not in output
+    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    env = _tab_env(tmp_path, pane="tab-2:leaf-1")
+    _, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
+    assert record["argv"][-2:] == ["--resume", SESSION_ID]
+    # A tab whose conversation is gone is forgotten at the next record.
+    for transcript in (tmp_path / "home" / ".claude" / "projects").glob(
+        f"*/{OTHER_SESSION}.jsonl"
+    ):
+        transcript.unlink()
+    _tab_runs(tmp_path, SESSION_ID, pane="tab-2:leaf-1", handle="term_three")
+    assert sorted(_tab_records(tmp_path)) == ["tab-2+leaf-1"]
+
+
+def test_orca_clear_in_the_tab_moves_its_record_to_the_new_session(
+    tmp_path: Path,
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID)
+    # /clear starts another session in the same Claude Code; its first prompt
+    # reports it (SessionStart is registered for startup and resume only).
+    _tab_runs(tmp_path, OTHER_SESSION, event="UserPromptSubmit")
+    assert _tab_records(tmp_path)["tab-1+leaf-1"][0] == OTHER_SESSION
+    _, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=_tab_env(tmp_path))
+    assert record["argv"][-2:] == ["--resume", OTHER_SESSION]
+
+
+@pytest.mark.parametrize(
+    ("launched", "nested"),
+    [(False, False), (True, True)],
+    ids=["claude not launched by ccsession", "claude inside the session"],
+)
+def test_orca_only_the_launched_claude_records_the_tab(
+    tmp_path: Path, launched: bool, nested: bool
+) -> None:
+    _tab_runs(tmp_path, SESSION_ID, launched=launched, nested=nested)
+    assert _tab_records(tmp_path) == {}
+
+
+def test_orca_tab_record_follows_the_launch_folder_and_worktree(
+    tmp_path: Path,
+) -> None:
+    # A tab reopens only a session it ran in its own worktree (the session list
+    # is per worktree), and in the folder ccsession launched it in even when
+    # Claude Code has moved since.
+    main, worktree, projects, env = _named_repo(tmp_path)
+    env.update({"ORCA_PANE_KEY": PANE, "ORCA_TERMINAL_HANDLE": "term_before"})
+    _transcript(projects, main, SESSION_ID)
+    hook_env = {
+        **env,
+        "CCSESSION_LAUNCH_ID": f"{os.getpid()}.1",
+        "CCSESSION_LAUNCH_CWD": str(main.resolve()),
+    }
+    (main / "sub").mkdir()
+    _hook(hook_env, main / "sub", SESSION_ID, "UserPromptSubmit", session_title="notes")
+    relaunch = {**env, "ORCA_TERMINAL_HANDLE": "term_after"}
+    assert _ccs(main, relaunch, "--orca-tab-reopen").stdout == f"{SESSION_ID}\tnotes\n"
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--orca-tab-reopen"],
+        cwd=worktree,
+        env=relaunch,
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode, result.stdout) == (1, "")
+    # Inside Claude Code (its Bash tool) the tab is never its own.
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--orca-tab-reopen"],
+        cwd=main,
+        env={**relaunch, "CLAUDECODE": "1"},
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode, result.stdout) == (1, "")
+
+
 def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
     env = _orca_env(tmp_path)
     _seed_label(tmp_path, "demo")
@@ -2277,11 +2527,16 @@ def _named_repo(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
     return main, worktree, home / ".claude" / "projects", env
 
 
-def _transcript(projects: Path, folder: Path, session: str, *titles: str) -> Path:
+def _transcript(
+    projects: Path, folder: Path, session: str, *titles: str, branch: str = ""
+) -> Path:
     """A saved conversation, written the way Claude Code writes it (compact JSON)."""
     saved = projects / str(folder).replace("/", "-")
     saved.mkdir(parents=True, exist_ok=True)
-    rows = [{"type": "user", "cwd": str(folder), "sessionId": session}]
+    first: dict[str, str] = {"type": "user", "cwd": str(folder), "sessionId": session}
+    if branch:
+        first["gitBranch"] = branch
+    rows = [first]
     rows += [
         {"type": "custom-title", "customTitle": t, "sessionId": session} for t in titles
     ]
@@ -2350,12 +2605,13 @@ def _hook(
 
 
 def _listed(cwd: Path, env: dict[str, str], *args: str) -> dict[str, str]:
-    """The names `ccsession --here` lists, each with its session's short id."""
+    """The names `ccsession --here --all` (or the given listing) shows, each
+    with its session's short id."""
     rows = {}
-    for line in _ccs(cwd, env, *(args or ("--here",))).stdout.splitlines():
+    for line in _ccs(cwd, env, *(args or ("--here", "--all"))).stdout.splitlines():
         match = re.match(
-            r"^  (.+?) {2,}(?:started |\(transcript missing\)|\(times unavailable\)).*"
-            r" (\S+)$",
+            r"^  (.+?) {2,}(?:started |\(transcript missing\)|\(times unavailable\)).*?"
+            r" (\S+)(?:  \(was [^)]*\))?$",
             line,
         )
         if match:
@@ -2892,3 +3148,229 @@ def test_framework_hooks_register_the_rename_hook() -> None:
         commands = [h["command"] for reg in hooks[event] for h in reg["hooks"]]
         assert "~/.claude/skills/ccsession-tag/hooks/session-name.sh" in commands
     assert os.access(SKILL_DIR / "hooks" / "session-name.sh", os.X_OK)
+
+
+# The default list follows the worktree (#347): Claude Code continues a resumed
+# conversation in the folder it starts in, so a session of another worktree
+# that still exists is counted, not listed; one whose worktree was removed has
+# nowhere else to go and is listed in a section of its own.
+
+
+def _three_worktrees(tmp_path: Path) -> tuple[Path, Path, Path, dict[str, str]]:
+    """main, worktree b and a removed worktree, each with one session (and one
+    more in a folder of main), all named in the repo's one list."""
+    main, b, projects, env = _named_repo(tmp_path)
+    removed = tmp_path / "wt-removed"
+    _git(main, "worktree", "add", "-q", "-b", "removed", str(removed))
+    (main / "sub").mkdir()
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    for n, (folder, name) in enumerate(
+        [
+            (main, "main work"),
+            (main / "sub", "main sub"),
+            (b, "b work"),
+            (removed, "removed work"),
+        ],
+        start=1,
+    ):
+        session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+        _transcript(projects, folder, session)
+        (topics / f"{name}.txt").write_text(f"{session}\n")
+    _git(main, "worktree", "remove", str(removed))
+    return main, b, removed, env
+
+
+def test_here_lists_this_worktree_then_removed_ones_and_counts_the_rest(
+    tmp_path: Path,
+) -> None:
+    main, b, removed, env = _three_worktrees(tmp_path)
+    out = _ccs(main, env, "--here").stdout
+    assert _listed(main, env, "--here") == {
+        "main work": "11110000",
+        "main sub": "22220000",
+        "removed work": "44440000",
+    }
+    rows = out.splitlines()
+    section = rows.index("Sessions whose worktree was removed (they continue here):")
+    assert [r for r in rows[section:] if "removed work" in r] == [
+        next(r for r in rows if "removed work" in r)
+    ]
+    assert f"(was {removed})" in out
+    assert (
+        "1 more session in other worktrees of this repo: ccsession --here --all" in out
+    )
+    assert _listed(b, env, "--here") == {
+        "b work": "33330000",
+        "removed work": "44440000",
+    }
+    assert "2 more sessions in other worktrees" in _ccs(b, env, "--here").stdout
+    # --here --all lists every worktree's sessions, as before.
+    assert set(_listed(b, env, "--here", "--all")) == {
+        "main work",
+        "main sub",
+        "b work",
+        "removed work",
+    }
+
+
+def test_resuming_a_session_of_another_live_worktree_warns(tmp_path: Path) -> None:
+    main, b, _, env = _three_worktrees(tmp_path)
+    other = _ccs(b, env, "main work")
+    assert json.loads(other.stdout.strip().splitlines()[-1])[-2:] == [
+        "--resume",
+        "11110000-0000-0000-0000-000000000000",
+    ]
+    assert f"WARNING: 'main work' was started in {main}" in other.stderr
+    assert f"It continues here, in {b}" in other.stderr
+    # Its own worktree, or a removed one: no warning.
+    assert "WARNING" not in _ccs(b, env, "b work").stderr
+    assert "WARNING" not in _ccs(b, env, "removed work").stderr
+    assert "WARNING" not in _ccs(main, env, "main sub").stderr
+
+
+def test_name_question_lists_this_worktree_and_star_lists_every_one(
+    tmp_path: Path,
+) -> None:
+    _, b, _, env = _three_worktrees(tmp_path)
+    question = "Session name (q): "
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", "q"], env, b, stdout=subprocess.PIPE
+    )
+    try:
+        first = _read_pty(master, until=question)
+        assert "b work" in first and "removed work" in first
+        assert "main work" not in first
+        assert (
+            "2 more sessions in other worktrees of this repo: type * to list them"
+            in first
+        )
+        os.write(master, b"*\r")
+        every = _read_pty(master, until=question)
+        assert "Saved sessions in every worktree of this repo" in every
+        assert "main work" in every and "main sub" in every
+        os.write(master, b"\r")
+        assert proc.wait(timeout=60) == 0
+        assert proc.stdout.read() == b"\n"  # Enter: untagged
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+
+
+def test_a_session_belongs_to_the_worktree_it_was_started_in(tmp_path: Path) -> None:
+    # Transcript lines record the session shell's folder, which follows a cd;
+    # Claude Code stores the transcript under the folder the session was
+    # started in (each character other than a letter or digit becomes "-").
+    main, b, projects, env = _named_repo(tmp_path)
+    session = "abcd1234-0000-0000-0000-000000000000"
+    store = projects / re.sub(r"[^A-Za-z0-9]", "-", str(main))
+    store.mkdir(parents=True)
+    rows = [  # copied from another machine first, then cd'ed into worktree b
+        {"type": "user", "cwd": "/Users/someone/orca/Repo", "sessionId": session},
+        {"type": "user", "cwd": str(main), "sessionId": session},
+        {"type": "assistant", "cwd": str(b), "sessionId": session},
+    ]
+    (store / f"{session}.jsonl").write_text(
+        "".join(json.dumps(r, separators=(",", ":")) + "\n" for r in rows)
+    )
+    topics = projects / "github.com-Org-Repo" / "topics"
+    topics.mkdir(parents=True)
+    (topics / "started in main.txt").write_text(f"{session}\n")
+    assert _listed(main, env, "--here") == {"started in main": "abcd1234"}
+    assert _listed(b, env, "--here") == {}
+    assert "WARNING" in _ccs(b, env, "started in main").stderr
+    assert "WARNING" not in _ccs(main, env, "started in main").stderr
+
+
+def test_worktree_list_ignores_git_variables_from_the_caller(tmp_path: Path) -> None:
+    # A hook or script run for another checkout can leave GIT_DIR and
+    # GIT_WORK_TREE set; the list must still follow the current folder.
+    main, b, _, env = _three_worktrees(tmp_path)
+    env.update({"GIT_DIR": str(main / ".git"), "GIT_WORK_TREE": str(main)})
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "WARNING" in _ccs(b, env, "main work").stderr
+
+
+def test_a_deleted_folder_of_a_live_worktree_stays_with_that_worktree(
+    tmp_path: Path,
+) -> None:
+    # Deleting the folder a session started in does not remove its worktree:
+    # the session is still main's, not an orphan shown everywhere.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / "sub").rmdir()
+    assert set(_listed(b, env, "--here")) == {"b work", "removed work"}
+    assert "main sub" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "main sub").stderr
+
+
+def test_a_removed_worktree_inside_an_ignored_folder_is_still_removed(
+    tmp_path: Path,
+) -> None:
+    # A worktree under the main checkout (e.g. .dev/worktrees/<name>, which is
+    # gitignored) leaves only its ignored parent behind when removed.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text(".dev/worktrees/\n")
+    nested = main / ".dev" / "worktrees" / "gone"
+    _git(main, "worktree", "add", "-q", "-b", "nested", str(nested))
+    projects = tmp_path / "home" / ".claude" / "projects"
+    session = "55550000-0000-0000-0000-000000000000"
+    _transcript(projects, nested, session, branch="nested")
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / "nested work.txt").write_text(f"{session}\n")
+    _git(main, "worktree", "remove", str(nested))
+    assert "nested work" in _listed(b, env, "--here")
+    assert "WARNING" not in _ccs(b, env, "nested work").stderr
+
+
+def _branch(repo: Path) -> str:
+    return subprocess.run(
+        ["git", "symbolic-ref", "--short", "HEAD"],
+        cwd=repo,
+        env=_git_env(repo),
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+
+
+def _add_session(
+    env: dict[str, str], folder: Path, n: int, name: str, branch: str
+) -> None:
+    projects = Path(env["HOME"]) / ".claude" / "projects"
+    session = f"{n}{n}{n}{n}0000-0000-0000-0000-000000000000"
+    _transcript(projects, folder, session, branch=branch)
+    topics = projects / "github.com-Org-Repo" / "topics"
+    (topics / f"{name}.txt").write_text(f"{session}\n")
+
+
+def test_a_deleted_ignored_folder_of_a_live_worktree_stays_with_it(
+    tmp_path: Path,
+) -> None:
+    # An ignored folder (build output) is not a worktree: a session started
+    # there on the worktree's own branch still belongs to that worktree.
+    main, b, _, env = _three_worktrees(tmp_path)
+    (main / ".gitignore").write_text("build\n")
+    (main / "build").mkdir()
+    _add_session(env, main / "build", 6, "build work", _branch(main))
+    shutil.rmtree(main / "build")
+    assert "build work" not in _listed(b, env, "--here")
+    assert "build work" in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "build work").stderr
+
+
+def test_a_deleted_folder_of_another_copy_of_the_repo_stays_with_that_copy(
+    tmp_path: Path,
+) -> None:
+    # Another clone of the same repo is not one of this clone's worktrees,
+    # but it still exists: its session is not an orphan.
+    main, b, _, env = _three_worktrees(tmp_path)
+    clone = tmp_path / "clone"
+    _git(tmp_path, "clone", "-q", str(main), str(clone))
+    _git(clone, "remote", "set-url", "origin", "https://github.com/Org/Repo")
+    (clone / "sub").mkdir()
+    _add_session(env, clone / "sub", 7, "clone sub", _branch(clone))
+    (clone / "sub").rmdir()
+    assert "clone sub" not in _listed(b, env, "--here")
+    assert "clone sub" not in _listed(main, env, "--here")
+    assert "WARNING" in _ccs(b, env, "clone sub").stderr

@@ -1,4 +1,4 @@
-p# SuperClaude Developer Guide: Commands, Skills, and Agents
+# SuperClaude Developer Guide: Commands, Skills, and Agents
 
 > **Version**: 1.0.0 | **Last Updated**: 2026-02-21
 > **Audience**: Developers creating, extending, or maintaining SuperClaude framework components
@@ -39,7 +39,7 @@ The framework provides:
 
 SuperClaude components are organized into three tiers that work together:
 
-```
+```text
 Commands (Workflow Triggers — thin dispatch layer)
     invoke via Activation section
 Skills (Domain Knowledge Packages — behavioral protocol + refs/)
@@ -75,7 +75,7 @@ This pattern enforces separation of concerns: the command owns the interface, th
 
 ### Installation Locations
 
-```
+```text
 Source of truth (development):     src/superclaude/
   commands/                        Command .md files
   skills/                          Skill directories (SKILL.md + refs/)
@@ -129,7 +129,7 @@ When Claude Code starts a session, it loads context in this priority order:
 
 Create a file at `src/superclaude/commands/hello.md`:
 
-```markdown
+````markdown
 ---
 name: hello
 description: "A minimal example command"
@@ -170,7 +170,7 @@ personas: []
 **Will Not:**
 - Execute any code or modify files
 - Access external services
-```
+````
 
 ### 2.2 Create a Minimal Agent
 
@@ -282,7 +282,7 @@ personas: [<personas>]         # Descriptive labels only (nothing auto-activates
 **Optional frontmatter fields** (seen in advanced commands):
 
 ```yaml
-version: "2.0.0"              # Explicit spec version (used in task-unified)
+version: "2.0.0"              # Explicit spec version (used in /sc:task)
 ```
 
 **Markdown Body** (standard sections):
@@ -327,7 +327,8 @@ Commands that decompose work and delegate to sub-agents without directly executi
 - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
 
 Example from `/sc:spawn`:
-```
+
+```text
 ## CRITICAL BOUNDARIES
 - STOP AFTER TASK DECOMPOSITION
 - Output is task hierarchy only
@@ -338,7 +339,7 @@ Example from `/sc:spawn`:
 
 Commands that handle the full lifecycle from classification through execution to verification.
 
-- **Examples**: `/sc:task-unified`, `/sc:implement`, `/sc:build`
+- **Examples**: `/sc:task`, `/sc:implement`, `/sc:build`
 - **Characteristics**: Multiple MCP servers, many personas, tiered compliance, sub-agent delegation
 - **Typical frontmatter**:
 
@@ -354,7 +355,7 @@ personas: [architect, analyzer, frontend, backend, security, qa, devops,
 
 When a user invokes a command, it passes through five stages:
 
-```
+```text
 1. Input Parsing    →  Parse $ARGUMENTS with @<path>, !<command>, --<flags>
 2. Context Resolution  →  Read the command file and its skill; select MCP servers
 3. Phase Planning      →  Follow the skill's own waves or phases, if it defines any
@@ -463,7 +464,7 @@ An agent that operates across sessions and manages knowledge, learning, and docu
 
 Skills can dynamically create agents using the agent spec mini-language:
 
-```
+```text
 <model>[:persona[:"instruction"]]
 ```
 
@@ -496,7 +497,7 @@ Agents activate through three mechanisms:
 
 A skill is a **directory** containing a `SKILL.md` manifest and optional subdirectories:
 
-```
+```text
 src/superclaude/skills/<skill-name>/
   SKILL.md              # Manifest (required) -- behavioral intent
   refs/                 # Reference files (optional) -- algorithms, formulas, templates
@@ -588,7 +589,7 @@ A single `SKILL.md` file with no subdirectories. Suitable for lightweight checks
 
 **Example**: `confidence-check`
 
-```
+```text
 src/superclaude/skills/confidence-check/
   SKILL.md              # ~100 lines, no refs/ or rules/
 ```
@@ -606,44 +607,47 @@ The skill defines a scoring rubric (5 checks), a threshold (>= 90% to proceed), 
 
 A `SKILL.md` with tool allowlisting and structured execution flows. May include tiered compliance or delegation.
 
-**Example**: `sc-task-unified`
+**Example**: `sc-task-protocol` (backs `/sc:task`)
 
-```
-src/superclaude/skills/sc-task-unified/
-  SKILL.md              # ~400 lines with compliance tiers and delegation
+```text
+src/superclaude/skills/sc-task-protocol/
+  SKILL.md              # ~400 lines: execution flow for STANDARD and STRICT tiers
 ```
 
 ```yaml
 ---
-name: sc-task-unified
+name: sc:task-protocol
 description: Unified task execution with intelligent workflow management,
   MCP compliance enforcement, and multi-agent delegation.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill,
+  mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 ```
 
-Key features: Four compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT), auto-detection algorithm, compound phrase handling, machine-readable output headers, sub-agent delegation matrix.
+Key features: Four compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT). The `/sc:task` command file classifies the tier (keyword and compound-phrase rules) and emits the machine-readable header; the skill then runs the execution flow for STANDARD and STRICT tasks.
 
 #### Tier 3: Complex (SKILL.md + refs/ + agents + multi-phase)
 
 A full skill directory with reference files, agent delegation, and multi-phase protocols.
 
-**Example**: `sc-adversarial`
+**Example**: `sc-adversarial-protocol` (backs `/sc:adversarial`)
 
-```
-src/superclaude/skills/sc-adversarial/
-  SKILL.md              # ~400-500 lines, behavioral protocol
+```text
+src/superclaude/skills/sc-adversarial-protocol/
+  SKILL.md                # ~3,000 lines, behavioral protocol
   refs/
     scoring-protocol.md   # Hybrid scoring algorithm details
     agent-specs.md        # Agent specification format and templates
+    debate-protocol.md    # The 5-step debate protocol
+    artifact-templates.md # Output artifact templates
 ```
 
 ```yaml
 ---
-name: sc:adversarial
+name: sc:adversarial-protocol
 description: Structured adversarial debate, comparison, and merge pipeline
   for 2-10 artifacts
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 ---
 ```
 
@@ -678,11 +682,11 @@ Do NOT pre-load refs from later waves.
 
 Skills prefixed with `sc-` have a special relationship with commands:
 
-- `sc-adversarial` skill maps to `/sc:adversarial` command
-- `sc-task-unified` skill maps to `/sc:task-unified` command
-- `sc-cleanup-audit` skill maps to `/sc:cleanup-audit` command
+- `sc-adversarial-protocol` skill backs the `/sc:adversarial` command
+- `sc-task-protocol` skill backs the `/sc:task` command
+- `sc-cleanup-audit-protocol` skill backs the `/sc:cleanup-audit` command
 
-These skills are NOT installed as separate standalone skills. They are the knowledge backing for their corresponding slash commands.
+These protocol skills are installed to `~/.claude/skills/` like any other skill; the command activates its skill by name (`Skill sc:<command>-protocol`). The installer skips only a bare `sc-<name>` skill whose `commands/<name>.md` exists; it does not strip the `-protocol` suffix, so protocol skills are never skipped (`src/superclaude/cli/install_skills.py`).
 
 Skills without the `sc-` prefix (like `confidence-check`) are standalone utilities invocable by any command or agent.
 
@@ -769,7 +773,7 @@ The wave system enables multi-stage command execution for complex operations. Wa
 
 **5-Wave Standard Pattern**:
 
-```
+```text
 Wave 0: Prerequisites
   - Validate inputs, check dependencies, create artifact directory
   - Load: SKILL.md only
@@ -797,7 +801,7 @@ Wave 4: Validation
 
 ### 6.2 Compliance Tiers
 
-The `/sc:task-unified` command implements tiered compliance enforcement:
+The `/sc:task` command implements tiered compliance enforcement:
 
 | Tier | When | Steps | Verification | Token Cost |
 |------|------|-------|-------------|------------|
@@ -810,7 +814,7 @@ The `/sc:task-unified` command implements tiered compliance enforcement:
 
 **Auto-detection algorithm**:
 
-```
+```text
 1. Check for user override (--compliance flag)
 2. Detect compound phrases (highest priority)
    - "fix security" -> STRICT (security always wins)
@@ -825,40 +829,6 @@ The `/sc:task-unified` command implements tiered compliance enforcement:
 6. If confidence < 0.7 -> prompt user for confirmation
 ```
 
-### 6.3 Delegation Intelligence
-
-The framework auto-delegates to sub-agents based on task characteristics:
-
-| Condition | Auto-Delegation | Confidence |
-|-----------|----------------|------------|
-| directory_count > 7 | `--delegate --parallel-dirs` | 95% |
-| file_count > 50 AND complexity > 0.6 | `--delegate --sub-agents` | 90% |
-| domains > 3 | `--delegate --parallel-focus` | 85% |
-| complexity > 0.8 AND scope = comprehensive | `--delegate --focus-agents` | 90% |
-| estimated_tokens > 20000 | `--delegate --aggregate-results` | 80% |
-
-**Sub-agent specialization matrix**:
-
-| Specialist | Persona | Focus | Tools |
-|-----------|---------|-------|-------|
-| Quality | qa | Complexity, maintainability | Read, Grep |
-| Security | security | Vulnerabilities, compliance | Grep, Context7 |
-| Performance | performance | Bottlenecks, optimization | Read, Playwright |
-| Architecture | architect | Patterns, structure | Read, Context7 |
-| API | backend | Endpoints, contracts | Grep, Context7 |
-
-### 6.4 Resource Management Zones
-
-The orchestrator monitors resource usage and adjusts behavior:
-
-| Zone | Usage | Behavior |
-|------|-------|----------|
-| Green | 0-60% | Full operations, predictive monitoring |
-| Yellow | 60-75% | Resource optimization, caching, suggest `--uc` mode |
-| Orange | 75-85% | Warning alerts, defer non-critical operations |
-| Red | 85-95% | Force efficiency modes, block resource-intensive operations |
-| Critical | 95%+ | Emergency protocols, essential operations only |
-
 ---
 
 ## 7. Integration Patterns
@@ -867,7 +837,7 @@ The orchestrator monitors resource usage and adjusts behavior:
 
 The canonical composition pattern (using `/sc:adversarial` as example):
 
-```
+```text
 User invokes:  /sc:adversarial --compare file1.md,file2.md --depth deep
 
 Command file:  src/superclaude/commands/adversarial.md
@@ -875,7 +845,7 @@ Command file:  src/superclaude/commands/adversarial.md
   - Activates personas: architect, analyzer, scribe
   - Selects MCP servers: context7
 
-Skill:         src/superclaude/skills/sc-adversarial/SKILL.md
+Skill:         src/superclaude/skills/sc-adversarial-protocol/SKILL.md
   - Loads behavioral protocol
   - Loads refs/scoring-protocol.md for Wave 2
   - Loads refs/agent-specs.md for Wave 3
@@ -891,25 +861,25 @@ Output:        artifacts/ directory with 6 files + return contract
 
 ### 7.2 MCP Server Integration
 
-Commands and skills declare MCP server needs in their frontmatter. The framework uses a circuit breaker pattern for reliability:
+Commands and skills name the MCP servers they use in their own frontmatter, for example `mcp-servers: [auggie, codegraph, context7, tavily]` in `/sc:troubleshoot` and `/sc:reflect`. A skill that needs an MCP tool also lists its exact tool names in `allowed-tools` (for example `mcp__codegraph__codegraph_callers`). There is no framework-wide MCP router, failure counter or fallback table: each primitive says in its own text what it does when a server is missing.
 
-| Server | Purpose | Fallback | Circuit Threshold |
-|--------|---------|----------|------------------|
-| Context7 | Library documentation, patterns | WebSearch for docs | 5 failures / 60s |
-| Playwright | Browser automation, E2E testing | Unit tests only | 2 failures / 120s |
-| Tavily | Web search, real-time information | WebSearch fallback | 3 failures / 45s |
+The pattern the 5.0.0 primitives follow:
 
-**MCP flag patterns**:
+- **Native floor.** `Grep`, `Glob` and `Read` are always available and stay in place as the floor for definition, caller and file lookups.
+- **Tiers above the floor.** codegraph and Auggie are lookup steps placed before the floor step, never instead of it; when either is missing the primitive continues on the floor. Context7 (library docs) and Tavily (web search) are optional steps a primitive uses when its text calls for outside knowledge.
+- **Per-command switches only.** MCP flags exist only where a command defines them. `/sc:troubleshoot` and `/sc:reflect` accept `--no-mcp` (native tools only). The `--c7`, `--play` and `--tavily` hints in `~/.claude/CLAUDE.md` are advisory; they are not options every command accepts.
 
-| Flag | Server | Activation |
-|------|--------|-----------|
-| `--c7`, `--context7` | Context7 | Manual |
-| `--play`, `--playwright` | Playwright | Manual |
-| `--tavily` | Tavily | Manual |
-| `--all-mcp` | All servers | Maximum complexity |
-| `--no-mcp` | None | Native tools only |
+### 7.3 Codegraph in Commands, Skills and Agents
 
-### 7.3 Persona Integration
+5.0.0 adds codegraph (a local code graph of symbols, callers and files) to commands, skills and agents. Every primitive that uses it follows `~/.claude/CODEGRAPH.md`; read that file before adding a codegraph step. Its rules, in short:
+
+- **Readiness check once per run.** Before the first lookup, check the switch, the session's tool list, the CLI version against the pin and the index state (CODEGRAPH.md section 2). Guard every CLI `codegraph status` with `pgrep -f 'codegraph\.js (init|index)'`; MCP `codegraph_status` needs no guard.
+- **Closed `graph:*` tokens.** When codegraph cannot be used, add exactly one token from the closed list (`graph:absent`, `graph:unlisted`, `graph:disabled`, `graph:not_initialized`, `graph:foreign_index`, `graph:stale`, `graph:version_mismatch`, `graph:provenance_unproven`, `graph:empty`, `graph:ambiguous`, `graph:truncated`, `graph:parse_failed`, `graph:unresolved`, `graph:telemetry_on`) to the primitive's existing `degraded` list and continue on the floor. Invent no new tokens; no token stops a run.
+- **Read before cite or edit.** Re-Read a `file:line` range before quoting it or editing it. An empty graph result is not proof of absence ("no callers", "no tests").
+- **Exact tool names.** Allowlists name each tool exactly (`mcp__codegraph__codegraph_<tool>`, `Bash(codegraph callers *)`), never a wildcard, and no skill or agent runs a mutating verb. Among primitives, only the user-typed `/sc:graph init` runs `codegraph init`; the session-start hook indexes new checkouts on its own.
+- **Switch-off.** `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` turns off codegraph use in primitives (token `graph:disabled`); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the session-start index hook.
+
+### 7.4 Persona Integration
 
 Personas are labels, not switches. They appear in command frontmatter (`personas:`) and in debate agent specs such as `/sc:adversarial --agents opus:architect,sonnet:security`. Nothing activates them automatically and there are no `--persona-*` flags.
 
@@ -934,17 +904,17 @@ Personas are labels, not switches. They appear in command frontmatter (`personas
 - `frontend + qa`: User-focused development with accessibility testing
 - `analyzer + refactorer`: Root cause analysis with systematic code improvement
 
-### 7.4 Thinking Depth Flags
+### 7.5 Thinking Depth Flags (advisory)
 
-Commands interact with thinking depth flags for analysis scaling:
+These flags are advisory hints only. No installed core file defines them in 5.0.0 (the file that did was removed), so no command parses them or enforces a token budget or MCP choice; `/sc:business-panel` only notes that it works alongside them. The table records the conventional meaning, not installed behavior:
 
-| Flag | Token Budget | When to Use | MCP |
+| Flag | Token Budget (hint) | When to Use | MCP (hint) |
 |------|-------------|-------------|-----|
 | `--think` | ~4K | Module-level analysis | native |
 | `--think-hard` | ~10K | System-wide analysis, architectural | Context7 |
 | `--ultrathink` | ~32K | Critical system redesign, legacy modernization | All MCP servers |
 
-### 7.5 Dynamic Context Injection
+### 7.6 Dynamic Context Injection
 
 Skills can use shell preprocessing to inject runtime context:
 
@@ -965,7 +935,7 @@ The `!command` syntax executes shell commands and injects their output into the 
 
 All component source files live in `src/superclaude/`:
 
-```
+```text
 src/superclaude/
   commands/           # Command .md files (source of truth)
   skills/             # Skill directories with SKILL.md (source of truth)
@@ -1079,6 +1049,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.1 Command Design
 
 **Do**:
+
 - Start with clear "Required Input" or "Triggers" section
 - Define explicit "Will / Will Not" boundaries
 - Include 3-5 copy-paste examples covering common use cases
@@ -1086,6 +1057,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Use the existing command archetypes as starting points
 
 **Do not**:
+
 - Create commands that do everything (single responsibility principle)
 - Skip the Boundaries section (leads to scope creep)
 - Hardcode file paths (use arguments and `@<path>` references)
@@ -1094,12 +1066,14 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.2 Agent Design
 
 **Do**:
+
 - Write a concise Behavioral Mindset (1-3 sentences)
 - List tools with explanations of WHY each tool is needed
 - Include explicit "Does NOT" constraints
 - Define concrete output artifact names and formats
 
 **Do not**:
+
 - Create agents that can do anything (constrain the scope)
 - Skip the Triggers / when-to-use guidance (delegators and Claude, which choose agents by `description`, then pick the wrong agent)
 - Allow agents to both orchestrate AND execute (pick one role)
@@ -1108,6 +1082,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.3 Skill Design
 
 **Do**:
+
 - **Create a thin command layer** (`commands/<name>.md`, ~80-150 lines) for every skill — flags, usage, examples, boundaries, and an `## Activation` section that invokes the skill. No exceptions, including when refactoring existing skills.
 - Keep SKILL.md under 500 lines (behavioral intent only)
 - Move algorithms and templates to `refs/` for lazy loading
@@ -1117,6 +1092,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Declare per-wave ref loading instructions
 
 **Do not**:
+
 - Ship a skill without a command in front of it (the command is the user-facing interface; the skill is the behavioral engine)
 - Put flags, usage examples, or CLI interface concerns in SKILL.md (belongs in the command)
 - Pre-load all refs at skill invocation (violates lazy loading)
@@ -1128,11 +1104,12 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.4 Token Management
 
 - Simple skill (confidence-check): ~50 tokens at session start, ~100 tokens on invocation
-- Medium skill (sc-task-unified): ~50 tokens at start, ~2000 on invocation
-- Complex skill (sc-adversarial): ~50 tokens at start, ~2000 for SKILL.md + ~500-1500 per ref loaded per wave
+- Medium skill (sc-task-protocol): ~50 tokens at start, ~2000 on invocation
+- Complex skill (sc-adversarial-protocol): ~50 tokens at start, ~2000 for SKILL.md + ~500-1500 per ref loaded per wave
 - Commands: ~80-150 lines loaded on invocation
 
 **Optimization strategies**:
+
 - Use `--uc` (ultra-compressed) mode when context pressure is high
 - Skills with refs/ should never load more than 2-3 refs at a time
 - Use the progressive disclosure pattern: name/description first, full content on demand
@@ -1150,7 +1127,7 @@ Skills should define an error handling matrix:
 | Missing required input | STOP with clear error message | None |
 | File not found | WARN, continue with available files | Skip missing |
 | Agent delegation fails | Retry once, then proceed with N-1 agents | Log and continue |
-| MCP server unavailable | Use circuit breaker fallback | Native tools |
+| MCP server unavailable | Continue on the native floor, record it as degraded | Grep / Glob / Read |
 | Convergence not reached | REVISE loop (max 2 iterations) | PASS_WITH_WARNINGS |
 ```
 
@@ -1196,7 +1173,7 @@ A command that generates a project summary report.
 
 **File**: `src/superclaude/commands/summary.md`
 
-```markdown
+````markdown
 ---
 name: summary
 description: "Generate a concise project summary with file counts and key metrics"
@@ -1253,7 +1230,7 @@ personas: [analyzer]
 - Modify any files
 - Access external services or APIs
 - Execute project code or tests
-```
+````
 
 **File**: `src/superclaude/agents/summary-reporter.md`
 
@@ -1309,7 +1286,7 @@ A command that reviews pull request changes with compliance-tiered analysis.
 
 **File**: `src/superclaude/commands/pr-review.md`
 
-```markdown
+````markdown
 ---
 name: pr-review
 description: "Review pull request changes with compliance-tiered analysis depth"
@@ -1375,11 +1352,11 @@ personas: [analyzer, qa, security]
 - Modify any code or auto-fix issues
 - Approve or reject the PR (advisory only)
 - Access external PR systems or APIs
-```
+````
 
 **File**: `src/superclaude/skills/sc-pr-review/SKILL.md`
 
-```markdown
+````markdown
 ---
 name: sc-pr-review
 description: "Pull request review with compliance-tiered analysis and multi-persona evaluation"
@@ -1479,7 +1456,7 @@ security_paths: <boolean>
 - Modify any code or apply fixes
 - Access external PR platforms
 - Make approval/rejection decisions
-```
+````
 
 ---
 
@@ -1489,7 +1466,7 @@ This example shows the full `/sc:adversarial` implementation as it exists in the
 
 **File**: `src/superclaude/commands/adversarial.md`
 
-```markdown
+````markdown
 ---
 name: adversarial
 description: "Structured adversarial debate, comparison, and merge pipeline for 2-10 artifacts"
@@ -1548,9 +1525,9 @@ Executes a 5-step protocol producing 6 artifacts:
 - Participate in debates (delegates to advocate agents)
 - Override scoring without documented justification
 - Skip protocol steps
-```
+````
 
-**File**: `src/superclaude/skills/sc-adversarial/SKILL.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/SKILL.md`
 
 ```markdown
 ---
@@ -1659,7 +1636,7 @@ If artifact directory exists, append `-N` suffix. Never overwrite.
 - Participate in debates (strict process management only)
 ```
 
-**File**: `src/superclaude/skills/sc-adversarial/refs/scoring-protocol.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/refs/scoring-protocol.md`
 
 ```markdown
 # Scoring Protocol Reference
@@ -1700,9 +1677,9 @@ If top variants score within 5% of each other:
 3. If still tied, prefer alphabetical order (deterministic)
 ```
 
-**File**: `src/superclaude/skills/sc-adversarial/refs/agent-specs.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md`
 
-```markdown
+````markdown
 # Agent Specification Reference
 
 ## Agent Spec Format
@@ -1758,7 +1735,7 @@ Each advocate produces a structured argument:
 ### Response to Opposing Arguments
 - Re: [opposing point]: [steelman response]
 ```
-```
+````
 
 **File**: `src/superclaude/agents/debate-orchestrator.md`
 
@@ -1952,7 +1929,7 @@ Output: `artifacts/<filename>`
 
 ## Appendix B: Command Template
 
-```markdown
+````markdown
 ---
 name: <command-name>
 description: "<one-line description>"
@@ -2002,7 +1979,7 @@ personas: [<personas>]
 
 **Will Not:**
 - <constraint>
-```
+````
 
 ## Appendix C: Agent Template
 
@@ -2058,7 +2035,7 @@ All paths are relative to the SuperClaude Framework repository root:
 | Commands | `src/superclaude/commands/*.md` | `~/.claude/commands/sc/*.md` |
 | Agents | `src/superclaude/agents/*.md` | `~/.claude/agents/*.md` |
 | Skills | `src/superclaude/skills/*/SKILL.md` | `~/.claude/skills/*/SKILL.md` |
-| Core files | `src/superclaude/*.md` | `~/.claude/*.md` |
+| Core files | `src/superclaude/core/*.md` | `~/.claude/*.md` |
 | Dev copies | `.claude/commands/sc/`, `.claude/agents/`, `.claude/skills/` | N/A (dev only) |
 
 ## Appendix E: Glossary
@@ -2067,7 +2044,6 @@ All paths are relative to the SuperClaude Framework repository root:
 |------|-----------|
 | **Agent spec** | Mini-language format `model[:persona[:"instruction"]]` for dynamic agent creation |
 | **CEV protocol** | Claim-Evidence-Verdict format for qualitative scoring |
-| **Circuit breaker** | Pattern that disables failing MCP servers and uses fallbacks |
 | **Compliance tier** | STRICT/STANDARD/LIGHT/EXEMPT classification for task execution depth |
 | **Context-Oriented Configuration** | SuperClaude's architecture: .md files that shape Claude Code behavior |
 | **Frontmatter** | YAML metadata block at the top of .md files, delimited by `---` |
@@ -2083,7 +2059,3 @@ All paths are relative to the SuperClaude Framework repository root:
 | **Steelman** | Debate strategy: present the strongest version of each argument |
 | **STOP pattern** | Explicit halt condition when required inputs are missing |
 | **Wave** | One stage in multi-phase command execution |
-
----
-
-*Generated from 34 research and extraction files. Source material in `docs/generated/dev-guide-research/`.*

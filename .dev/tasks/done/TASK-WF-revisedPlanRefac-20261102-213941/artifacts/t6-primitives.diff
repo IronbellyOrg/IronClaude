@@ -1,0 +1,59 @@
+diff --git a/src/superclaude/commands/recommend.md b/src/superclaude/commands/recommend.md
+index 31db9f04..034dee78 100644
+--- a/src/superclaude/commands/recommend.md
++++ b/src/superclaude/commands/recommend.md
+@@ -134,5 +134,5 @@ Where it is registered (this repository's project `.claude/settings.json`), a Pr
+ ## Output Constraints
+ 
+ - Single-line bash for any install / invocation commands embedded in the output (project memory: terminals cannot paste heredocs or `\` continuations). The prompt block itself may be multi-line because it is an argument string passed to the next tool, not a shell command.
+-- Paths are absolute or repo-relative and worktree-aware. When cwd is `.dev/worktrees/<name>/`, paths resolve against the worktree, not the main checkout.
++- Paths are absolute or repo-relative and worktree-aware. When cwd is inside a linked git worktree (for example one Orca created at its default location outside the main checkout), paths resolve against that worktree, not the main checkout.
+ - No emojis in any output (project convention).
+diff --git a/src/superclaude/skills/sc-post-release-protocol/SKILL.md b/src/superclaude/skills/sc-post-release-protocol/SKILL.md
+index cf6b0d3e..452f8710 100644
+--- a/src/superclaude/skills/sc-post-release-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-post-release-protocol/SKILL.md
+@@ -88,7 +88,7 @@ Three design choices make this reliable rather than theatrical:
+ 
+ **Entry criteria:** the raw `<version>` argument has been validated in Wave 0.
+ 
+-**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Confirm the tag actually belongs to the release lineage (`git merge-base --is-ancestor <tag> <default-branch>`); if it is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding. **Auto-detect the default branch** (e.g. `git symbolic-ref refs/remotes/origin/HEAD`) — do not assume `main`/`master`.
++**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Such a checkout is made in a temporary directory and removed with `git worktree remove` after the scan. Confirm the tag actually belongs to the release lineage (`git merge-base --is-ancestor <tag> <default-branch>`); if it is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding. **Auto-detect the default branch** (e.g. `git symbolic-ref refs/remotes/origin/HEAD`) — do not assume `main`/`master`.
+ 
+ ### Two run modes (auto-detect — do not ask)
+ 
+diff --git a/src/superclaude/skills/sc-recommend/SKILL.md b/src/superclaude/skills/sc-recommend/SKILL.md
+index a31948f7..4c862beb 100644
+--- a/src/superclaude/skills/sc-recommend/SKILL.md
++++ b/src/superclaude/skills/sc-recommend/SKILL.md
+@@ -125,7 +125,7 @@ Separate **canonical research authority** from the **actual callable copy**. Ins
+ 
+ Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
+ 
+-The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
++The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is inside a linked worktree (for example an Orca-created worktree outside the main checkout), that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
+ 
+ See `refs/surface-enumeration.md` for the full algorithm, the verification record schema, and worked examples.
+ 
+@@ -195,7 +195,7 @@ Build the prompt as a **hand-off envelope**, not a specification. The prompt car
+ - the target invocation (`/sc:<command>`, a skill's own slash name such as `/task-builder` or `/task` (`/<skill>`), `Skill <skill-name>`, `Agent <agent-name>`, or a native tool sequence)
+ - the user's verified parameters / file paths / flags
+ - the expected deliverable shape (what the user wants back)
+-- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside `.dev/worktrees/<name>/`)
++- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside a linked worktree)
+ 
+ The prompt MUST NOT restate the target's protocol logic — phase breakdown, scoring rules, agent roster, debate format, return contract internals. That belongs to the target skill. Trust the hand-off.
+ 
+diff --git a/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md b/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+index 74b3b34e..3c5fa555 100644
+--- a/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
++++ b/src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+@@ -16,7 +16,7 @@ List installed locations with `find` or absolute-path Glob calls, not unmatched
+ | Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
+ | In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
+ 
+-The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
++The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is inside a linked worktree (such as an Orca-created one). Never redirect lookups to another checkout by assumption.
+ 
+ ### Research authority versus actual callable copy
+ 

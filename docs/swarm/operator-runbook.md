@@ -115,7 +115,7 @@ status: phase=terminal job_id=lens-bare-review-ab12cd34 updated=2026-06-09T00:18
 [watch](#watch--poll-until-terminal) below.
 
 **Exit codes:** `0` non-terminal phase, terminal+success, or terminal with
-unreadable contract · `1` terminal+partial/failed (requires the M5 contract) ·
+unreadable contract · `1` terminal with a partial or failed contract ·
 `2` usage error (dir/state missing, corrupt JSON, `--job` mismatch). The
 state-file artifact is detailed in
 [observability-procedure.md](./observability-procedure.md) (OPS-003).

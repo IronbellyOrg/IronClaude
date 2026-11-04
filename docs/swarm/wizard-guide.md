@@ -70,8 +70,12 @@ what's available:
 If your goal could match two of these (e.g. "review *and* tidy up"), the wizard asks which matters more
 rather than guessing.
 
-> **Stability note:** `bare-review` is the mature, stable lens. The others are *experimental* — useful, but
-> their output shape may still change. The wizard will mention this gently when it applies.
+> **Stability note:** two lenses are stable: `bare-review` and `reflect-review`. The wizard does not offer
+> `reflect-review` — it is the reviewer lens that `superclaude reflect` uses internally. (That makes 8 bundled
+> lenses; `superclaude swarm validate-lenses` reports `9 entries inspected, 8 validated` because the `custom`
+> escape hatch is counted but not validated.) The other lenses in
+> the menu are *experimental* — useful, but their output shape may still change. The wizard will mention
+> this gently when it applies.
 
 ### Question 2 — "What should I look at?"
 

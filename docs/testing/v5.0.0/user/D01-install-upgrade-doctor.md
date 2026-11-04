@@ -1,0 +1,374 @@
+# E2E Test Guide — `install, upgrade and doctor` (`5.0.0`)
+
+- **Capability:** `Install IronClaude 5.0.0 for a new user, upgrade a 4.3.5 user to 5.0.0 (including the required codegraph phase and the retirement of old Serena / codebase-memory MCP registrations), install one skill, and check the result with doctor.`
+- **Audience:** end user / operator
+- **Source of truth:** `src/superclaude/cli/main.py:18-516` (`--version`, `install`, `update`, `install-skill`, `doctor`, `version`); `src/superclaude/cli/install_mcp.py:925-1099` (codegraph phase and `--list` block); `src/superclaude/cli/install_codegraph.py`; `src/superclaude/cli/install_retired_mcp.py`; `src/superclaude/cli/doctor.py`; `update.sh`; recorded run `docs/testing/v5.0.0/c-e2e-run.sh` with its output `docs/testing/v5.0.0/c-e2e-transcript.txt`
+- **Est. time:** `Tier A: 2 minutes. Tier B: 20-30 minutes (network downloads).`
+
+## Preconditions
+
+- For Tier A: IronClaude 5.0.0 already installed for your user (`superclaude --version` prints `SuperClaude, version 5.0.0`). Tier A only reads.
+- For Tier B: Linux or macOS on x64 or arm64 (the only platforms with a pinned codegraph checksum, `src/superclaude/cli/install_codegraph.py:28-33,46-52`); `bash`; these tools on your `PATH`: `claude` (Claude Code CLI; no login needed for these steps), `uv`, `git`, `python3`, `node`, `pipx`, and `make` in `/usr/bin` or `/bin` (only for Step 21).
+- Network access to `github.com` (pipx clones the package, `superclaude install` downloads the codegraph v1.6.2 tarball and installs the default Claude plugins, and the 4.3.5 install downloads codebase-memory-mcp). If you need a proxy, add `https_proxy=...` to the `run` function in Step 6.
+- `CLAUDE_CONFIG_DIR` must not leak into the test. The `run` function uses `env -i`, which drops it (and every `CLAUDE_*`, `PIPX_*`, `UV_*`, `XDG_*` and `CCSESSION_*` variable), so the installer reads the throwaway `~/.claude.json` (`src/superclaude/cli/install_mcp.py:721-726`).
+- Every Tier B step runs inside one throwaway directory `$E` under `/tmp`, in the same terminal. No Tier B step may touch your real `~/.claude`, `~/.claude.json`, `~/.codegraph` or pipx. Step 6 records your real state and Step 22 checks it is unchanged.
+- In this guide, "transcript N-M" means lines N-M of `docs/testing/v5.0.0/c-e2e-transcript.txt`, the recorded output of the same recipe. Paths there start with `/tmp/ic-e2e.m9rOBYlN/new-user/home` (new user) or `/tmp/ic-e2e.m9rOBYlN/upgrade/home` (upgrade); yours start with `$E/new-user` and `$E/upgrade`.
+
+## What you're verifying
+
+- `superclaude --version`, `superclaude install --list` and `superclaude doctor --verbose` report a healthy 5.0.0 install without changing anything.
+- A brand-new user gets the full surface with `pipx install git+https://github.com/IronbellyOrg/IronClaude` then `superclaude install`: 11 core files, 45 commands, 45 agents, 38 skills, 13 hooks, 53 templates, and codegraph 1.6.2 downloaded, SHA-256 verified and registered at user scope. A second `install` changes nothing that exists.
+- A 4.3.5 user upgrades with `pipx install --force ...` then `superclaude install --force`: codegraph is installed and registered, and the old IronClaude Serena and codebase-memory-mcp registrations are removed. `superclaude update` is not enough: it refreshes files but never installs codegraph or retires registrations, and plain `doctor` still passes after it.
+- `./update.sh` from a clone runs the same `install --force` plus `make sync-dev` and `doctor`.
+- `superclaude install-skill` installs one skill to a target folder, refuses a second copy without `--force`, and fails for an unknown name such as the `pm-agent` example in its own help.
+
+---
+
+## Steps
+
+### Tier A — free smoke on your existing install (read-only)
+
+#### Step 1 — Version `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --version
+superclaude version
+```
+
+**Expected result:** First line `SuperClaude, version 5.0.0`, second line `SuperClaude version 5.0.0`; both exit 0. (source: `src/superclaude/cli/main.py:19`, `main.py:513-516`; transcript 19-21)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — Command list `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --help
+superclaude install --help
+```
+
+**Expected result:** `superclaude --help` lists 17 commands: `cleanup-audit`, `cli-portify`, `doctor`, `eval`, `init-lite`, `install`, `install-skill`, `mcp`, `prd`, `recommend`, `reflect`, `roadmap`, `sprint`, `swarm`, `tasklist`, `update`, `version` (transcript 22-51). `install --help` shows only the options `--target TEXT`, `--force`, `--list`, `--help`, and says the codegraph phase is required, exits 1 on failure, and does not receive `--force` (source: `src/superclaude/cli/main.py:29-59`).
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 3 — List installed components `[FREE]`
+
+**Do:**
+
+```bash
+superclaude install --list; echo "exit=$?"
+```
+
+**Expected result:** Sections `📋 Core Framework Files:`, `📋 Slash Commands:`, `📋 Agents:`, `📋 Skills:`, `📋 Templates:`, each followed by a count line: `Core: 11 available, 11 installed`, `Commands: 45 available, 45 installed`, `Agents: 45 available, 45 installed`, `Skills: 38 available, N installed` (N can be above 38 when you have other skills, for example Orca's), `Templates: 53 available, 53 installed`. Then the block `codegraph MCP (pinned v1.6.2; user scope):` with `Executable: <path> (1.6.2)`, `Owner: ...`, `User registration: matches`, `Ready for Serena retirement: yes`, then `Retired MCP registrations (user scope):` with `codebase-memory-mcp    absent` and `serena                 absent`. `exit=0`. Nothing is downloaded and no `claude mcp` command runs. (source: `src/superclaude/cli/main.py:86-172`; `src/superclaude/cli/install_mcp.py:1059-1099`; `src/superclaude/cli/install_retired_mcp.py:293-313`; transcript 330-341)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 4 — Doctor `[FREE]`
+
+**Do:**
+
+```bash
+superclaude doctor --verbose; echo "exit=$?"
+```
+
+**Expected result:** Seven ✅ checks in this order: `pytest plugin loaded`, `Agents installed`, `Skills installed`, `Configuration` (`SuperClaude 5.0.0 installed correctly`), `ccsession installed`, `codegraph MCP registration` (detail `Ready for Serena retirement: yes`), `Retired MCP registrations` (detail `No legacy registration to retire`), then `✅ SuperClaude is healthy` and `exit=0`. Agent and skill counts can be higher than 45 and 38 if you added your own. (source: `src/superclaude/cli/doctor.py:17-54,146-239`; `src/superclaude/cli/main.py:471-510`; transcript 342-361)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — install-skill help example `[FREE]`
+
+**Do:**
+
+```bash
+superclaude install-skill --help
+```
+
+**Expected result:** Usage `superclaude install-skill [OPTIONS] SKILL_NAME` with options `--target TEXT` (default `~/.claude/skills`) and `--force`. The examples name `pm-agent`; that skill does not exist (Step 20 and the Edge cases show it fails). (source: `src/superclaude/cli/main.py:432-453`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local writes in a throwaway HOME (network, no Claude API)
+
+#### Step 6 — Create the throwaway environment and record your real state `[LOCAL-WRITE]`
+
+**Do:** (bash; keep this terminal open for every later Tier B step)
+
+```bash
+umask 077
+E=$(mktemp -d /tmp/ic-d01.XXXXXXXX); mkdir -p "$E/shims"
+for t in claude uv git python3 node pipx; do
+  p=$(command -v "$t") && ln -s "$p" "$E/shims/$t" || echo "MISSING $t"
+done
+# shadow codegraph and Orca with failing stubs so the real download path runs
+for s in codegraph orca orca-ide; do printf '#!/bin/sh\nexit 127\n' > "$E/shims/$s"; chmod +x "$E/shims/$s"; done
+run() {  # runs one command with HOME=$H and a clean environment
+  env -i HOME="$H" PATH="$H/.local/bin:$E/shims:/usr/bin:/bin" LANG=C.UTF-8 TERM=dumb "$@"
+}
+real_state() {
+  stat -c '%n mtime=%Y' "$HOME/.claude/settings.json"
+  echo "codegraph versions: $(ls "$HOME/.codegraph/versions" 2>/dev/null | tr '\n' ' ')"
+  echo "pipx: $(pipx list --short | tr '\n' ' ')"
+  python3 -c 'import json,os;print("mcpServers:",sorted(json.load(open(os.path.expanduser("~/.claude.json"))).get("mcpServers",{})))'
+}
+real_state > "$E/before.txt"; cat "$E/before.txt"; echo "E=$E"
+```
+
+**Expected result:** No `MISSING` line. `$E/before.txt` holds your real `settings.json` mtime, codegraph versions, pipx packages and user MCP server names. The stubs must come before `/usr/bin` and `/bin` on the `PATH` because `orca-ide` can live there; the codegraph stub makes the installer ignore any codegraph you already have and download its own (source: scan of the isolation recipe, `src/superclaude/cli/install_codegraph.py:97-122`; `docs/testing/v5.0.0/c-e2e-run.sh:13-29`). On macOS use `stat -f '%N mtime=%m'` instead of `stat -c`.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — New user: pipx install of 5.0.0 `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+H=$E/new-user; mkdir -p "$H"
+run pipx install git+https://github.com/IronbellyOrg/IronClaude@v5.0.0; echo "exit=$?"
+run superclaude --version
+```
+
+**Expected result:** `installed package superclaude 5.0.0`, apps `ic` and `superclaude` available, `exit=0`; then `SuperClaude, version 5.0.0`. A real new user runs the same command without `@v5.0.0`; the tag pins the build under test. (source: transcript 8-21; `pyproject.toml:7,70-72`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — New user: `superclaude install` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install; echo "exit=$?"
+```
+
+**Expected result:** In order: `✅ Installed 11 core framework files:` (`BASH_INSPECTION_POLICY.md` ... `RULES.md`, including `CODEGRAPH.md`, `HOW-WE-WORK.md`, `ISSUE-BACKLOG.md`, `ISSUE-HANDOFF.md`); `✅ Installed 45 commands:`; `✅ Installed 45 agents:`; `✅ Installed 38 skills:`; `ccsession wired at $E/new-user/.local/bin/ccsession`; `✅ Copied 13 hook script(s)` and `📋 settings.json merge: events=7 added=13`; `📦 Seeded 1 data file(s):` `auggie-projects.txt`; `✅ Installed 53 templates:`; `✅ Rules: 20 installed, 0 kept`; `✅ Output styles: 1 installed, 0 kept`; `✅ Settings defaults: added 22 (...)`; `⏭️  Orca skills: Orca CLI not found; skipped`; a `Plugins:` line; then `📦 Installing codegraph (required user-level phase)...`, `installed codegraph 1.6.2 (SHA-256 verified) at $E/new-user/.codegraph/versions/v1.6.2`, `Registration: exact user stdio entry verified (...). Restart Claude sessions to load it; no indexing or live MCP handshake was performed.`; then `📦 Retiring stale MCP registrations...` and `No retired MCP registrations present.`; `exit=0`. The `Plugins:` line depends on network and may report a failure without changing the exit code. (source: transcript 52-316; `src/superclaude/cli/main.py:174-280`; `src/superclaude/cli/install_codegraph.py:361`; `src/superclaude/cli/install_mcp.py:962-966`; `src/superclaude/cli/install_retired_mcp.py:397-399`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — New user: codegraph was acquired and registered `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run codegraph --version
+ls -l "$H/.local/bin/codegraph" "$H/.codegraph/current" "$H/.codegraph/.superclaude-receipt.json"
+run python3 -c 'import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));print(json.dumps(d["mcpServers"]["codegraph"],indent=1))'
+```
+
+**Expected result:** `1.6.2`. `$H/.local/bin/codegraph` is a link to `$H/.codegraph/versions/v1.6.2/bin/codegraph`, `$H/.codegraph/current` is a link to `$H/.codegraph/versions/v1.6.2`, and the receipt file exists. The registration in the throwaway `~/.claude.json` is `"type": "stdio"`, `"command": "$E/new-user/.codegraph/versions/v1.6.2/bin/codegraph"`, `"args": ["serve", "--mcp"]`, `env` with `CODEGRAPH_TELEMETRY` `0`, `CODEGRAPH_NO_UPDATE_CHECK` `1`, `CODEGRAPH_MCP_TOOLS` `node,search,callers,callees,impact,files,status`, and `"alwaysLoad": true`. (source: transcript 334, 362-381; `src/superclaude/cli/install_codegraph.py:26-35,59-72`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 10 — New user: list, doctor and installed counts `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install --list | tail -25
+run superclaude doctor --verbose; echo "exit=$?"
+for d in commands/sc agents skills hooks; do echo "$d: $(ls "$H/.claude/$d" | wc -l)"; done
+```
+
+**Expected result:** The list ends with `Templates: 53 available, 53 installed`, the codegraph block (`Executable: $E/new-user/.codegraph/versions/v1.6.2/bin/codegraph (1.6.2)`, `Owner: owned (receipt) ...`, `User registration: matches`, `Ready for Serena retirement: yes`) and both retired names `absent` (transcript 317-341). Doctor shows `45 agent(s) installed`, `38 skill(s) installed: ...`, `SuperClaude 5.0.0 installed correctly`, `ccsession skill, launcher, env and hook present`, `Ready for Serena retirement: yes`, `No legacy registration to retire`, `✅ SuperClaude is healthy`, `exit=0` (transcript 342-361). Counts: `commands/sc: 45`, `agents: 45`, `skills: 38`, `hooks: 13` (transcript 382-386).
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 11 — New user: second `install` is idempotent `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install > "$E/second.txt"; echo "exit=$?"
+grep -A2 'Skipped' "$E/second.txt" | head -3; tail -8 "$E/second.txt"
+```
+
+**Expected result:** `exit=0`. Existing files are skipped, for example `⚠️  Skipped 11 existing files (use --force to overwrite):` for the core files (source: `src/superclaude/cli/install_core.py:68-70,85-90`). The tail shows `using codegraph 1.6.2 at $E/new-user/.codegraph/versions/v1.6.2/bin/codegraph` (no download), the same `Registration: exact user stdio entry verified` line, and `No retired MCP registrations present.` (source: transcript 390-398; `src/superclaude/cli/install_codegraph.py:273-278`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 12 — New user: `install --force` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install --force > "$E/force.txt"; echo "exit=$?"
+grep -E 'Installed 11 core|Installed 45 commands|Installed 45 agents|Installed 38 skills|using codegraph|No retired' "$E/force.txt"
+```
+
+**Expected result:** `exit=0`; every shipped file is copied again (`✅ Installed 11 core framework files:`, `✅ Installed 45 commands:`, `✅ Installed 45 agents:`, `✅ Installed 38 skills:`), with no `Skipped` lines for core files. The codegraph phase still prints `using codegraph 1.6.2 at ...` because `--force` is not forwarded to it and it only repairs what differs. `No retired MCP registrations present.` (source: `src/superclaude/cli/main.py:178-246`; `src/superclaude/cli/install_core.py:68-83`; `src/superclaude/cli/install_codegraph.py:278`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 13 — Retire only what is stale; `serena-local` is kept `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+J='{"type":"stdio","command":"uvx","args":["--from","serena-agent==1.7.0","serena","start-mcp-server","--context","claude-code","--project-from-cwd"]}'
+run claude mcp add-json serena "$J" --scope user
+run claude mcp add-json serena-local "$J" --scope user
+run superclaude install --list | tail -3
+run superclaude install | tail -12; echo "exit=${PIPESTATUS[0]}"
+run python3 -c 'import json,os;print(sorted(json.load(open(os.path.expanduser("~/.claude.json")))["mcpServers"]))'
+```
+
+**Expected result:** The list shows `serena                 will be removed (codegraph is ready)` and `codebase-memory-mcp    absent`. The install prints `Retired MCP registrations (user scope only):`, `Removed the serena user registration (codegraph is ready: uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd)`, the restart line, `Removed Serena registration: ...`, the line telling you to register Serena as `serena-local` if you want to keep it, and the `uv tool uninstall serena-agent` and `rm -rf ~/.serena` hints; `exit=0`. No line reports `serena-local` as removed or kept; the name `serena-local` appears only in the re-register hint. The final list is `['codegraph', 'serena-local']`. When codegraph is ready, any Serena launcher registered under a name other than `serena-local` is removed; `serena-local` is never touched. (source: `src/superclaude/cli/install_retired_mcp.py:30,178-195,259-313,385-494`; `src/superclaude/cli/main.py:255-267`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 14 — Upgrade: install the 4.3.5 baseline `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+H=$E/upgrade; mkdir -p "$H"
+run pipx install git+https://github.com/IronbellyOrg/IronClaude@539e2414; echo "exit=$?"
+run superclaude --version
+run superclaude install | tail -12
+```
+
+**Expected result:** `installed package superclaude 4.3.5`, then `SuperClaude, version 4.3.5`. Commit `539e2414` is the last 4.3.5 state with no codegraph phase. Its install ends by installing and registering codebase-memory-mcp: `Installed: codebase-memory-mcp 0.12.1` and `Registration: exact user stdio entry verified (codebase-memory-mcp 0.12.1)`. (source: transcript 416-443)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 15 — Upgrade: seed an old IronClaude Serena registration `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run claude mcp add-json serena '{"type":"stdio","command":"serena","args":["start-mcp-server","--context","ide-assistant","--project","$(pwd)"]}' --scope user
+ls "$H/.claude/"*.md | xargs -n1 basename | tr '\n' ' '; echo
+```
+
+**Expected result:** `Added stdio MCP server serena to user config`. This is the exact launcher an older IronClaude wrote (Tier R row c; keep the single quotes so `$(pwd)` stays literal). The 4.3.5 core files are 8: `BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md HOW-WE-WORK.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md`. (source: transcript 444-448; `src/superclaude/cli/install_retired_mcp.py:85-88`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 16 — Upgrade: replace the package `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v5.0.0; echo "exit=$?"
+run superclaude --version
+```
+
+**Expected result:** `Installing to existing venv 'superclaude'`, `installed package superclaude 5.0.0`, `exit=0`; then `SuperClaude, version 5.0.0`. (source: transcript 449-464)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 17 — Upgrade: `superclaude update` is not enough `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude update > "$E/update.txt"; echo "exit=$?"
+head -1 "$E/update.txt"; grep -c -E 'Installing codegraph|Retiring stale' "$E/update.txt"; tail -1 "$E/update.txt"
+run superclaude install --list | tail -8
+run superclaude doctor --verbose; echo "exit=$?"
+```
+
+**Expected result:** `exit=0`; first line `🔄 Updating SuperClaude to version 5.0.0...`; the count of codegraph or retire lines is `0`; the last line is ``legacy registration present: run `superclaude install` `` (the seeded Serena entry is removable even before codegraph exists). The list shows `Executable: version mismatch at $E/shims/codegraph (unknown)` (the failing stub; nothing was downloaded), `User registration: absent`, `Ready for Serena retirement: no (codegraph is not registered)`, `codebase-memory-mcp    kept: upstream-installed binary still present` and `serena                 will be removed (IronClaude shape)`. Doctor still ends `✅ SuperClaude is healthy` with `exit=0`, while its details say ``no codegraph registration; run `superclaude install` ``, `Ready for Serena retirement: no (codegraph is not registered)`, and the check `✅ Retired MCP registrations (warning: legacy registration present)` with ``legacy registration present for serena; run `superclaude install` to retire it``. This is the documented Known Issue: `update` does not complete the 5.0.0 upgrade. Not recorded in the transcript; derived from code. (source: `src/superclaude/cli/main.py:334-429`; `src/superclaude/cli/install_retired_mcp.py:151-195,293-340`; `src/superclaude/cli/install_mcp.py:1023-1099`; `src/superclaude/cli/install_codegraph.py:97-122`; `src/superclaude/cli/doctor.py:160-164,208-239`; `docs/releases/v5.0.0.md:232`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 18 — Upgrade: `superclaude install --force` completes it `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install --force > "$E/upgrade-force.txt"; echo "exit=$?"
+sed -n '/Installing codegraph/,$p' "$E/upgrade-force.txt"
+```
+
+**Expected result:** `exit=0`. Before the printed part: 11 core files, 45 commands, 45 agents, 38 skills, 13 hooks, `⏭️  Preserved 1 existing data file(s):` `auggie-projects.txt (user-edited; not overwritten)`, 53 templates. Printed part: `installed codegraph 1.6.2 (SHA-256 verified) at $E/upgrade/.codegraph/versions/v1.6.2`, the `Registration: exact user stdio entry verified` line, then `Retired MCP registrations (user scope only):`, `Removed the codebase-memory-mcp user registration (codegraph is ready: kind-B registration (binary and companions stay))`, `Removed the serena user registration (Tier R row (c): serena start-mcp-server --context ide-assistant --project '$(pwd)')`, the restart line, the codebase-memory companion line, the `serena-local` re-registration hint, and the uninstall hints for `codebase-memory-mcp`, its cache, `serena-agent` and `~/.serena`. The `settings.json merge:` line counts can differ from transcript 650 (`events=7 added=1 replaced=12`) because Step 17 already refreshed the hooks. (source: transcript 465-739; `src/superclaude/cli/install_retired_mcp.py:97-120,385-494`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 19 — Upgrade: result and leftovers `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install --list | tail -8
+run superclaude doctor --verbose; echo "exit=$?"
+run python3 -c 'import json,os;print(sorted(json.load(open(os.path.expanduser("~/.claude.json")))["mcpServers"]))'
+ls "$H/.claude/agents" | wc -l; ls -d "$H/.claude/skills/codebase-memory"
+```
+
+**Expected result:** The list shows `User registration: matches`, `Ready for Serena retirement: yes`, `codebase-memory-mcp    absent`, `serena                 absent` (transcript 755-764). Doctor ends `✅ SuperClaude is healthy`, `exit=0`, and reports `48 agent(s) installed` and `39 skill(s) installed` including `codebase-memory` (transcript 765-784). The MCP list is `['codegraph']` (transcript 785-787). The extra skill `codebase-memory` and 3 extra agents are leftovers the upgrade does not remove. The 4.3.5 and 5.0.0 agent folders ship the same agent names (`git ls-tree` of `539e2414` and `v5.0.0` under `src/superclaude/agents/`), so the leftovers most likely come from the codebase-memory-mcp installer; their exact names are UNVERIFIED (doctor prints only the count). Record the 3 extra agent names in the notes.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 20 — `install-skill` into a temp folder `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run superclaude install-skill confidence-check --target "$E/x"; echo "exit=$?"
+run superclaude install-skill confidence-check --target "$E/x"; echo "exit=$?"
+run superclaude install-skill confidence-check --target "$E/x" --force; echo "exit=$?"
+run superclaude install-skill pm-agent --target "$E/x"; echo "exit=$?"
+ls "$E/x"
+```
+
+**Expected result:** 1st: `✅ Skill 'confidence-check' installed successfully to $E/x/confidence-check`, `exit=0`. 2nd: `❌ Skill 'confidence-check' already installed (use --force to reinstall)`, `exit=1`. 3rd: success again, `exit=0` (the folder is deleted and copied again). 4th: `❌ Skill 'pm-agent' not found`, `exit=1`; the example in the command's own help does not work (known code finding O3). `ls` shows only `confidence-check`. (source: `src/superclaude/cli/main.py:432-468`; `src/superclaude/cli/install_skill.py:26-55,58-96`; verified by running the same four commands against the v5.0.0 checkout with a `/tmp` target)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 21 — Clone-based upgrade with `./update.sh` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+run git -c advice.detachedHead=false clone --depth 1 --branch v5.0.0 https://github.com/IronbellyOrg/IronClaude "$E/clone"
+(cd "$E/clone" && run bash ./update.sh > "$E/update-sh.txt" 2>&1; echo "exit=$?")
+grep -E 'installed package|using codegraph|Retiring stale|healthy' "$E/update-sh.txt"
+```
+
+**Expected result:** `exit=0`. The script runs, in order, `pipx install --force ./` (`installed package superclaude 5.0.0`), `superclaude install --force` (full install; the codegraph phase prints `using codegraph 1.6.2 at ...` because Step 18 already installed it), `make sync-dev` (copies into the clone's own `.claude/`, which matters only to developers) and plain `superclaude doctor` (`✅ SuperClaude is healthy`). Note that it installs the checked-out working tree, not the git URL: check out the version you want first. The exact output was not recorded; expected lines are derived from code. (source: `update.sh:2-10`; `src/superclaude/cli/install_codegraph.py:278`; `Makefile:109-121`; `docs/releases/v5.0.0.md:151`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 22 — Your real setup is unchanged `[FREE]`
+
+**Do:**
+
+```bash
+real_state > "$E/after.txt"; diff "$E/before.txt" "$E/after.txt" && echo REAL_HOME_UNCHANGED
+```
+
+**Expected result:** `REAL_HOME_UNCHANGED`: same `settings.json` mtime, same codegraph versions, same pipx packages, same user MCP server names. This guide compares the MCP server names, not the mtime of `~/.claude.json`, because running Claude Code sessions also write that file: the recorded run saw its mtime change while `settings.json`, codegraph and pipx stayed the same, and the cause was not established (transcript 789-798).
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — Claude API, proxy, PR or long runs
+
+No step. Nothing in this guide calls the Claude API. Checking that the codegraph tools load in a Claude session belongs to guide D03.
+
+---
+
+## Edge cases (optional but recommended)
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[LOCAL-WRITE]` No usable `claude` CLI: `mkdir -p "$E/nc-shims" "$E/noclaude"; cp -P "$E/shims/"* "$E/nc-shims/"; rm "$E/nc-shims/claude"; printf '#!/bin/sh\nexit 127\n' > "$E/nc-shims/claude"; chmod +x "$E/nc-shims/claude"; env -i HOME="$E/noclaude" PATH="$E/noclaude/.local/bin:$E/nc-shims:/usr/bin:/bin" LANG=C.UTF-8 TERM=dumb "$E/new-user/.local/bin/superclaude" install; echo "exit=$?"` | Framework files are installed (`ls "$E/noclaude/.claude/agents"` shows 45), then `Prerequisites: Claude CLI is unavailable; codegraph discovery and download were not started. Install Claude Code, then rerun superclaude install.`; the retire step still runs (`No retired MCP registrations present.`); `exit=1` | `src/superclaude/cli/install_mcp.py:937-947`; `src/superclaude/cli/main.py:239-280` | ☐ |
+| `[FREE]` `./update.sh` without pipx: first confirm `env -i PATH=/usr/bin:/bin sh -c 'command -v pipx'` prints nothing, then `(cd "$E/clone" && env -i HOME="$E/nopipx" PATH=/usr/bin:/bin bash ./update.sh; echo "exit=$?")` | Stops at `pipx install --force ./` with `pipx: command not found`; `exit=127`; nothing installed | `update.sh:2,7`; `docs/releases/v5.0.0.md:228` | ☐ |
+| `[FREE]` `install-skill` for an unknown name, for example `superclaude install-skill pm-agent --target /tmp/none` | `❌ Skill 'pm-agent' not found`, exit 1, `/tmp/none` not created (the lookup fails before any folder is made) | `src/superclaude/cli/install_skill.py:26-30` | ☐ |
+| `[LOCAL-WRITE]` Plain `install` after editing a core file, for example `echo x >> "$E/new-user/.claude/RULES.md"` then `H=$E/new-user; run superclaude install` | `RULES.md` is listed under `⚠️  Skipped 11 existing files` and keeps your edit; only `install --force` overwrites it (with no backup of the file) | `src/superclaude/cli/install_core.py:68-90` | ☐ |
+
+## Cleanup
+
+```bash
+rm -rf "$E"
+```
+
+This removes both throwaway homes, their pipx venvs, codegraph copies, the 4.3.5 codebase-memory-mcp binary, the default plugin clones, the clone and the temp skill folder. Nothing was written outside `$E`; Step 22 confirms it. If the terminal closed before cleanup, delete the leftover `/tmp/ic-d01.*` folder by hand.
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

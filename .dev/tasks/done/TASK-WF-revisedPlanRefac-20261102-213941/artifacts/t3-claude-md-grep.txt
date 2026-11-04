@@ -1,0 +1,7 @@
+$ git grep -n -E '\.dev/worktrees|git worktree add' -- CLAUDE.md
+CLAUDE.md:304:- Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
+CLAUDE.md:307:- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
+CLAUDE.md:308:- **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
+rc=0
+$ grep -n '/home/coder' CLAUDE.md
+rc=1
