@@ -377,6 +377,17 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. A claim stops after writing `.dev/issues/<N>/next-steps.md`; you run those commands yourself, in your own session.
 
+**ClickUp settings (claim only, environment variables):**
+
+| Variable | Required | What it does |
+|----------|----------|--------------|
+| `CLICKUP_API_TOKEN` | yes | Your own ClickUp personal token (`pk_...`); never printed or written to disk |
+| `CLICKUP_WORKSPACE_ID` | yes | The ClickUp workspace (team) to search |
+| `CLICKUP_LIST_IDS` | no | Comma-separated list IDs that narrow the search |
+| `CLICKUP_MAX_PAGES` | no | Pages of 100 tasks to search, default `20` |
+
+The task is found by the issue URL in its description or a custom field, or else by `#<N>` in its title, and is assigned only when exactly one task matches. The ClickUp result appears in the claim comment and never stops the claim: `not found`, `ambiguous (<count> candidates)`, `already assigned` and `error (<reason>)` all leave the GitHub assignment in place. `error (page_cap)` means the search reached `CLICKUP_MAX_PAGES` before it saw every task, so nothing was assigned; raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS` and claim again.
+
 **MCP servers:** auggie, codegraph
 
 ---
