@@ -188,8 +188,8 @@ RULE_PHRASES = {
     "child-setup": (
         "`--setup skip`",
         [
-            "where `git remote get-url origin` run in the coordinator's feature worktree prints exactly `https://github.com/IronbellyOrg/IronClaude` or `git@github.com:IronbellyOrg/IronClaude`",
             "only when the user's instruction, in the coordinator's own conversation, names that step",
+            "This holds in every repository, IronClaude included",
         ],
     ),
     "git-github-ownership": (
@@ -297,17 +297,33 @@ def _check_guard_before_command(text: str) -> None:
     )
 
 
-# `--run-hooks` is Orca's legacy alias for `--setup run`; `--setup inherit` follows the
-# repository's own setup policy.
-_REPO_SETUP_MARKERS = ("make sync-dev", "--setup run", "--run-hooks", "--setup inherit")
+# A line names a step that runs repository-defined code when it carries an Orca setup flag
+# that runs the repository's setup hooks (`--run-hooks` is the legacy alias of
+# `--setup run`; `--setup inherit` follows the repository's own setup policy) or a code
+# span that runs a program or script: a launcher or interpreter followed by arguments
+# (`make <target>`, `bash ...`, `sh ...`, `uv ...`, `python ...`, `npm ...`, `node ...`
+# and similar), `./...`, or a script file (`scripts/setup.sh`, `setup.py`).
+_REPO_SETUP_FLAGS = ("--setup run", "--run-hooks", "--setup inherit")
+_REPO_CODE_SPAN_RE = re.compile(
+    r"`(?:make|bash|sh|zsh|uv|uvx|python3?|pip3?|pipx|npm|npx|pnpm|yarn|node|deno|bun"
+    r"|cargo|ruby|perl|php|poetry|tox|nox)\s[^`]+`"
+    r"|`\./[^`]+`"
+    r"|`[^`\s]*\.(?:sh|py|js|ts|rb|pl)(?:\s[^`]*)?`"
+)
 _SETUP_SKIP_RE = re.compile(r"--setup <?skip\b")
 
 
+def _runs_repo_code(line: str) -> bool:
+    return any(f in line for f in _REPO_SETUP_FLAGS) or bool(
+        _REPO_CODE_SPAN_RE.search(line)
+    )
+
+
 def _check_repo_setup_gated(text: str) -> None:
-    """Every line naming a repository setup step carries the IronClaude gate, and every
-    new-child creation line asks for skipped setup (the Codex finding on PR #368)."""
+    """Every line naming a step that runs repository-defined code carries the user-instruction
+    gate, and every new-child creation line asks for skipped setup (PR #368 review)."""
     _, phrases = RULE_PHRASES["child-setup"]
-    hits = [ln for ln in text.splitlines() if any(m in ln for m in _REPO_SETUP_MARKERS)]
+    hits = [ln for ln in text.splitlines() if _runs_repo_code(ln)]
     assert hits, "no contract line states the child setup rule"
     for ln in hits:
         for phrase in phrases:
@@ -384,6 +400,16 @@ def test_rule_check_fails_when_rule_removed(rule, tmp_path, monkeypatch):
         "- a child created with `worker-start --worktree new-child`; skip nothing.",
         "- A child is created with `--run-hooks` before dispatch.",
         "- A child is created with `--setup inherit` before dispatch.",
+        "- The coordinator runs `make install` in the child before dispatch.",
+        "- The coordinator runs `./setup.sh` in the child before dispatch.",
+        "- The coordinator runs `bash scripts/bootstrap.sh` in the child before dispatch.",
+        "- In an IronClaude checkout the coordinator runs `make sync-dev` in the child.",
+        "- The coordinator runs `uv run python scripts/setup.py` in the child before dispatch.",
+        "- The coordinator runs `python scripts/x.py` in the child before dispatch.",
+        "- The coordinator runs `npm run setup` in the child before dispatch.",
+        "- The coordinator runs `node scripts/setup.js` in the child before dispatch.",
+        "- The coordinator runs `scripts/setup.sh` in the child before dispatch.",
+        "- The coordinator runs `uv sync` in the child before dispatch.",
     ],
 )
 def test_repo_setup_gate_check_fails_on_ungated_line(ungated, tmp_path, monkeypatch):
