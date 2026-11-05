@@ -149,6 +149,12 @@ Quality checks:
 /index-repo mode=quick
 ```
 
+**Worker mode (no person at the keyboard)**:
+
+```
+/index-repo --unattended --report-dir <dir>
+```
+
 ---
 
 ## Token Efficiency
@@ -171,6 +177,19 @@ Creates two files:
 
 1. `PROJECT_INDEX.md` (3KB, human-readable)
 2. `PROJECT_INDEX.json` (10KB, machine-readable)
+
+`PROJECT_INDEX.md` and `PROJECT_INDEX.json` are written at the root of the repository being indexed.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/index-repo` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only: the command has no directory flag, and its two files stay at the root of the repository. Without `--report-dir` the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is `PROJECT_INDEX.md` and `artifacts` lists `PROJECT_INDEX.json`. The run is succeeded when both files were written, and failed otherwise.
+- **Resume.** `mode=update` refreshes an existing index; a retry uses a fresh report directory.
+- **Gates.** None, and no person-mode flag. Nested invocations: none.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ---
 

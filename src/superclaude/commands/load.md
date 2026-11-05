@@ -19,7 +19,7 @@ personas: []
 ## Usage
 
 ```
-/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
+/sc:load [target] [--type project|config|deps|checkpoint] [--checkpoint <name>] [--refresh] [--analyze]
 ```
 
 ## Behavioral Flow

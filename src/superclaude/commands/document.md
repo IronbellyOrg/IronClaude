@@ -20,7 +20,10 @@ personas: []
 
 ```
 /sc:document [target] [--type inline|external|api|guide] [--style brief|detailed]
+/sc:document [target] [--output <path>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <path>` writes the generated documentation to that path. `--type inline` edits files in place and needs no `--output`.
 
 ## Behavioral Flow
 
@@ -84,6 +87,17 @@ Key behaviors:
 # Generates external documentation files for component library
 # Includes props, usage examples, and integration patterns
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:document` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is the documentation path, not the contract directory). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Output path.** For the `external`, `api` and `guide` types `--output <path>` is required under `--unattended`; without it the contract is failed with a `reason` saying so, before any documentation is written. For `--type inline` the command edits files in place and needs no `--output`.
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` path (null for `--type inline`); for `--type inline`, `artifacts` lists every file edited. The run is succeeded when the documentation is written, and failed otherwise.
+- **Gates.** None else, and no person-mode flag. Nested invocations: none.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

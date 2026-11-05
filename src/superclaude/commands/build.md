@@ -20,7 +20,10 @@ personas: [devops-engineer]
 
 ```
 /sc:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
+/sc:build [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <file>` writes the build report to that file. A standalone run writes a file only when you pass it.
 
 ## Behavioral Flow
 
@@ -91,6 +94,17 @@ Key behaviors:
 # Development build with Playwright validation
 # UI testing and build verification integration
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:build` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/build-report.md` when `--output` is absent; `artifacts` lists the build output the build tool reports. A build that completes is succeeded; one that fails is failed, with its error analysis in the report.
+- **Gates.** There is no gate, and no person-mode flag. Installs and deployments stay out of scope as today.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

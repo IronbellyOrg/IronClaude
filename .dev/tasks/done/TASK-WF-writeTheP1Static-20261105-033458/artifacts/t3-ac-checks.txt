@@ -1,0 +1,21 @@
+# T3 acceptance checks
+## AC1: grep counts (each must print 1)
+section: 1
+research enrichment is off: 1
+exactly as passed: 1
+## AC2: pytest
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [100%]
+
+============================= 349 passed in 1.24s ==============================
+tests/skills/test_brainstorm_protocol.py::test_brainstorm_unattended_nested_directories_are_named PASSED [ 50%]
+tests/skills/test_brainstorm_protocol.py::test_brainstorm_no_tavily_param_duplication PASSED [100%]
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat brainstorm: 16	0	src/superclaude/commands/brainstorm.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+2 files already formatted

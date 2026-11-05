@@ -29,6 +29,24 @@ def _wave2a_section() -> str:
     return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
 
 
+def _wave_section(n: str) -> str:
+    text = _BRAINSTORM.read_text(encoding="utf-8")
+    parts = re.split(rf"###\s*Wave {n}\b", text, maxsplit=1)
+    assert len(parts) == 2, f"brainstorm SKILL missing the 'Wave {n}' section"
+    return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
+
+
+def test_brainstorm_unattended_nested_directories_are_named():
+    """Under --unattended the nested calls get their own directories (P1 worker contract)."""
+    wave3 = _wave_section("3")
+    assert "--unattended" in wave3 and "nested/adversarial-" in wave3
+    wave2a = _wave2a_section()
+    assert "nested/analyze-" in wave2a and "skipped" in wave2a
+    assert "exactly as passed" in _wave_section("0")
+    refs = _BRAINSTORM.parent / "refs" / "handoff-routing.md"
+    assert "nested/adversarial-" in refs.read_text(encoding="utf-8")
+
+
 def test_brainstorm_no_tavily_param_duplication():
     """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
     section = _wave2a_section()

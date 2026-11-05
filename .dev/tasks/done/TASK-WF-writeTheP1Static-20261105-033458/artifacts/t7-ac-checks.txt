@@ -1,0 +1,33 @@
+# T7 acceptance checks
+## AC1: section count and the output-location sentence
+section: 1
+181:`PROJECT_INDEX.md` and `PROJECT_INDEX.json` are written at the root of the repository being indexed.
+188:- **Report directory.** `--report-dir <dir>` only: the command has no directory flag, and its two files stay at the root of the repository. Without `--repor
+10:## Problem Statement
+15:## Index Creation Flow
+79:## 📁 Project Structure
+83:## 🚀 Entry Points
+89:## 📦 Core Modules
+96:## 🔧 Configuration
+100:## 📚 Documentation
+104:## 🧪 Test Coverage
+110:## 🔗 Key Dependencies
+114:## 📝 Quick Start
+132:## Usage
+160:## Token Efficiency
+174:## Output Format
+183:## Unattended mode
+## AC2: pytest
+.......................................................                  [100%]
+
+============================= 392 passed in 1.15s ==============================
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat index-repo: 19	0	src/superclaude/commands/index-repo.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+1 file already formatted

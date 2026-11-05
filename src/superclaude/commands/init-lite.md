@@ -21,6 +21,7 @@ When the user wants a safe, read-only context audit of a project's SuperClaude s
 
 ```text
 /sc:init-lite --context-optimized [--project-root <dir>] [--output <path>] [--dry-run] [--scaffold] [--force]
+/sc:init-lite --context-optimized --unattended --report-dir <dir>   # worker mode, see Unattended mode
 ```
 
 ## Arguments
@@ -33,6 +34,8 @@ When the user wants a safe, read-only context audit of a project's SuperClaude s
 | `--dry-run` | No | false | Render the report to stdout and write nothing; does not create `.dev/superclaude/`. |
 | `--scaffold` | No | false | Also create advisory `project-guidance/SKILL.md` and `project-guidance/refs/README.md` under `.dev/superclaude/`. |
 | `--force` | No | false | Overwrite init-lite-owned generated artifacts under `.dev/superclaude/` only; never context inputs. |
+| `--unattended` | No | false | Worker mode: no step waits for a person; see Unattended mode. |
+| `--report-dir` | With `--unattended` | -- | The directory that holds the worker contract (`--output` names the report file, not a directory). |
 
 ## Behavioral Summary
 
@@ -56,6 +59,8 @@ Pass the following context (user-provided flags, pass-through):
 - Dry run: boolean `--dry-run`
 - Scaffold: boolean `--scaffold`
 - Force: boolean `--force`
+- Unattended: boolean `--unattended`
+- Report directory: resolved `--report-dir` (only with `--unattended`)
 
 Do NOT attempt to execute the init-lite audit using only this command file. The full audit/report/scaffold protocol and all safety invariants are in the protocol skill.
 
@@ -78,6 +83,17 @@ Do NOT attempt to execute the init-lite audit using only this command file. The 
 /sc:init-lite --context-optimized --force
 ```
 
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:init-lite` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only: its `--output <file>` names the report file, not a directory. Without `--report-dir` the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is the exception to Safety Invariants 2 and 3 of the protocol: it is the one write besides the report and the scaffold, and it is written also on `--dry-run`. `report_path` is the audit report (the `--output` path or `.dev/superclaude/context-audit.md`), null on `--dry-run`; `artifacts` lists the scaffold files when `--scaffold` is set. The run is succeeded when the audit finished, and failed otherwise.
+- **Context inputs.** The command never modifies a context input.
+- **Gates.** None, and no person-mode flag. Nested invocations: none.
+- **Outward actions.** It pushes, commits and stages nothing.
+
 ## Boundaries
 
 **Will:**
@@ -92,5 +108,6 @@ Do NOT attempt to execute the init-lite audit using only this command file. The 
 
 - Modify `CLAUDE.md`, `.mcp.json`, `.claude/settings.json`, `.claude/commands/**`, `.claude/skills/**`, or `.claude/agents/**`
 - Write anything when `--dry-run` is set
+  - Except `<report-dir>/return-contract.yaml` under `--unattended`
 - Overwrite marker-less files unless `--force` is set and the target is under `.dev/superclaude/`
 - Execute the audit protocol from this command file alone (that is the skill's job)

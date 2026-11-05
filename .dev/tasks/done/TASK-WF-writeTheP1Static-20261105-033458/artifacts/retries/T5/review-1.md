@@ -1,0 +1,7 @@
+a07be8dcd1c742234d8e0c070804fdb5de05329d tree=aeb375437bfc6014143f4bc2bcadf25a14d898d5
+Reviewer AC marks and citations (verbatim):
+- T5.AC1 met: `grep -c '^## Unattended mode$' src/superclaude/commands/impact.md` prints `1`. The section is at `src/superclaude/commands/impact.md:74`, between `## Outputs` and `## Boundaries`. The three-file pytest run gave 416 passed.
+- T5.AC2 unmet. The cap and the worker-field sentence are shown: `src/superclaude/skills/sc-impact-protocol/SKILL.md:51` and `:104` contain "6 KB". The `--report-dir` grep shows the flag-table row (`:32`) and step 10 (`:51`). It does not show the write-scope sentence. That sentence is the Will Not bullet at `SKILL.md:190`, and it writes the path as `<report-dir>/return-contract.yaml`, which has no `--` prefix. Finding: F1.1.
+- T5.AC3 met. Check ADDITIVE prints nothing: numstat `13 0`. Check SCAN prints nothing.
+F1.1 sev=blocking trigger=B1 ac=T5.AC2 at=src/superclaude/skills/sc-impact-protocol/SKILL.md:190 anchor="shows the flag-table row, step 10 and the write-scope sentence" chk=y,n,n,n family=ac-grep-visibility fix=Reword the write-scope bullet to name the flag literally, e.g. "and, under `--unattended` with `--report-dir`, `<report-dir>/return-contract.yaml`" covers="shows the flag-table row, step 10 and the write-scope sentence" first=A1 origin=new: The grep output has three --report-dir lines in the body (:32, :51, :101) plus the :21 header; none is the write-scope sentence.
+F1.1 resolved

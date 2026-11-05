@@ -1,9 +1,11 @@
-"""Static checks for the Orca worker contract (~/.claude/WORKER-CONTRACT.md), Phase P0.
+"""Static checks for the Orca worker contract (~/.claude/WORKER-CONTRACT.md), Phases P0 and P1.
 
 The contract file is read through the module-level CONTRACT_PATH and the command
 files through COMMANDS_DIR, so the negative tests can point both at a tmp_path copy.
 Each rule is pinned by phrases that carry its meaning, not only its label. The
 phrases are copied here as data; the tests never read the plan's artifacts.
+After P1 the commands that have an `## Unattended mode` section are exactly the
+keys of UNATTENDED_EXPECT, and each section is checked against its entry there.
 CI-safe, no network.
 """
 
@@ -250,9 +252,128 @@ NEVER_AS_WORKER = (
     "/sc:pr-submit",
 )
 
-# Commands with an `## Unattended mode` section after P0 (./source.md section 6
-# table: none). Later phases extend this set.
-UNATTENDED_COMMANDS: frozenset = frozenset()
+# The sixteen commands that get an `## Unattended mode` section in P1, in the order
+# of the spec's phase table.
+P1_COMMANDS = (
+    "adversarial",
+    "brainstorm",
+    "cleanup-audit",
+    "graph",
+    "impact",
+    "index-repo",
+    "init-lite",
+    "workflow",
+    "analyze",
+    "build",
+    "business-panel",
+    "design",
+    "document",
+    "explain",
+    "index",
+    "test",
+)
+
+# command -> {"flags": tokens its section must contain (whole tokens),
+#             "phrases": further text it must contain,
+#             "nested": optional list of nested commands that receive --unattended}.
+# Each command task adds its own entry in the task that converts the command.
+UNATTENDED_EXPECT: dict = {
+    "adversarial": {
+        "flags": ["--output", "-o", "--interactive", "-i"],
+        "phrases": ["<output>/adversarial/return-contract.yaml", "artifacts"],
+        "nested": [],
+    },
+    "brainstorm": {
+        "flags": ["--output", "-o", "--interactive", "-i"],
+        "phrases": [
+            "research enrichment is off",
+            "exactly as passed",
+            "never reused",
+            "nested/analyze-",
+            "nested/adversarial-",
+            "dry-run",
+        ],
+        "nested": ["analyze", "adversarial"],
+    },
+    "graph": {
+        "flags": ["--output-dir"],
+        "phrases": ["refuses init", "report_path"],
+        "nested": [],
+    },
+    "impact": {
+        "flags": ["--output-dir"],
+        "phrases": ["explicit"],
+        "nested": [],
+    },
+    "cleanup-audit": {
+        "flags": ["--pass"],
+        "phrases": [
+            ".claude-audit/final-report.md",
+            "progress.json",
+            "only one audit at a time",
+        ],
+        "nested": [],
+    },
+    "index-repo": {
+        "flags": [],
+        "phrases": ["PROJECT_INDEX.md", "PROJECT_INDEX.json", "mode=update"],
+        "nested": [],
+    },
+    "init-lite": {
+        "flags": ["--output", "--dry-run"],
+        "phrases": ["the one write besides the report", "Safety Invariants 2 and 3"],
+        "nested": [],
+    },
+    "workflow": {
+        "flags": ["--handoff"],
+        "phrases": ["pre-creation", "--handoff implement", "does not stage"],
+        "nested": [],
+    },
+    "analyze": {
+        "flags": ["--output"],
+        "phrases": ["analyze-report.md", "no gate", "consent is never given"],
+        "nested": [],
+    },
+    "build": {
+        "flags": ["--output"],
+        "phrases": ["build-report.md", "no gate"],
+        "nested": [],
+    },
+    "design": {
+        "flags": ["--output"],
+        "phrases": ["design-report.md", "no gate", "consent is never given"],
+        "nested": [],
+    },
+    "test": {
+        "flags": ["--watch", "--output"],
+        "phrases": ["test-report.md", "verdict", "destructive"],
+        "nested": [],
+    },
+    "explain": {
+        "flags": ["--format interactive", "--output"],
+        "phrases": ["explain-report.md", "Write"],
+        "nested": [],
+    },
+    "business-panel": {
+        "flags": ["--mode socratic", "--output"],
+        "phrases": ["adaptive", "business-panel-report.md"],
+        "nested": [],
+    },
+    "document": {
+        "flags": ["--output", "--type"],
+        "phrases": ["every file edited", "inline"],
+        "nested": [],
+    },
+    "index": {
+        "flags": ["--output", "--type"],
+        "phrases": ["knowledge-base mode", "index-report.md", "consent is never given"],
+        "nested": [],
+    },
+}
+
+# Commands with an `## Unattended mode` section after P1 (./source.md section 6
+# table). Later phases extend this set.
+UNATTENDED_COMMANDS: frozenset = frozenset(UNATTENDED_EXPECT)
 
 _TEMPLATE_HEADING = "## 5. Coordinator brief template"
 
@@ -348,6 +469,68 @@ def _check_no_unattended_sections() -> None:
     )
 
 
+# Python form of Check SCAN (the grep form's POSIX class means something else in re).
+_ORCA_NAME_RE = re.compile(
+    r"\borca(-ide)?\s+(orchestration|worktree|terminal|agent)\b", re.I
+)
+
+
+def _token_re(tok: str) -> re.Pattern:
+    """A whole-token pattern: `-i` is not found inside `--interactive`."""
+    return re.compile(rf"(?<![\w-]){re.escape(tok)}(?![\w-])")
+
+
+def _unattended_section(name: str) -> str:
+    """The text of `## Unattended mode` up to the next `## ` heading."""
+    lines = (
+        (Path(_THIS.COMMANDS_DIR) / f"{name}.md").read_text(encoding="utf-8")
+    ).splitlines()
+    start = next(
+        (i for i, ln in enumerate(lines) if ln.rstrip() == "## Unattended mode"), None
+    )
+    assert start is not None, f"{name}: no `## Unattended mode` section"
+    end = next(
+        (i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")),
+        len(lines),
+    )
+    return "\n".join(lines[start:end])
+
+
+def _check_unattended_section(text: str, expect: dict) -> None:
+    for need in (
+        "return-contract.yaml",
+        "~/.claude/WORKER-CONTRACT.md",
+        "--report-dir",
+    ):
+        assert need in text, f"section lacks {need!r}"
+    for tok in expect.get("flags", []):
+        assert _token_re(tok).search(text), f"section lacks flag {tok!r}"
+    for phrase in expect.get("phrases", []):
+        assert phrase in text, f"section lacks {phrase!r}"
+    nested = expect.get("nested", [])
+    for name in nested:
+        assert f"nested/{name}-" in text, f"section lacks nested/{name}-"
+    if not nested:
+        assert "nested/" not in text, "section names a nested directory"
+    assert "src/superclaude/" not in text, "section names a src/superclaude/ path"
+    assert not _ORCA_NAME_RE.search(text), "section names an Orca command"
+
+
+def _removals() -> list:
+    """Every (command, kind, token) of UNATTENDED_EXPECT, for the removed-token tests."""
+    out = []
+    for cmd in sorted(UNATTENDED_EXPECT):
+        entry = UNATTENDED_EXPECT[cmd]
+        out += [(cmd, "flag", t) for t in entry.get("flags", [])]
+        out += [(cmd, "phrase", t) for t in entry.get("phrases", [])]
+        out += [(cmd, "nested", f"nested/{n}-") for n in entry.get("nested", [])]
+    return out
+
+
+def _remove(text: str, kind: str, tok: str) -> str:
+    return _token_re(tok).sub("", text) if kind == "flag" else text.replace(tok, "")
+
+
 # --- positive checks -------------------------------------------------------
 
 
@@ -364,8 +547,25 @@ def test_brief_template_puts_guard_line_before_first_command_line():
     _check_guard_before_command(_contract())
 
 
-def test_no_command_has_unattended_mode_section_after_p0():
+def test_unattended_sections_match_the_listed_commands():
     _check_no_unattended_sections()
+
+
+@pytest.mark.parametrize("cmd", sorted(UNATTENDED_EXPECT))
+def test_unattended_section_content(cmd):
+    _check_unattended_section(_unattended_section(cmd), UNATTENDED_EXPECT[cmd])
+
+
+@pytest.mark.parametrize(
+    ("cmd", "kind", "tok"),
+    _removals(),
+    ids=[f"{c}:{k}:{t}" for c, k, t in _removals()],
+)
+def test_unattended_section_check_fails_when_token_removed(cmd, kind, tok):
+    text = _unattended_section(cmd)
+    _check_unattended_section(text, UNATTENDED_EXPECT[cmd])
+    with pytest.raises(AssertionError):
+        _check_unattended_section(_remove(text, kind, tok), UNATTENDED_EXPECT[cmd])
 
 
 def test_every_repo_setup_line_is_gated():
@@ -462,6 +662,334 @@ def test_unattended_section_check_fails_on_unlisted_command(tmp_path, monkeypatc
     monkeypatch.setattr(_THIS, "COMMANDS_DIR", cmds)
     with pytest.raises(AssertionError):
         _check_no_unattended_sections()
+
+
+_SYNTHETIC_SECTION = (
+    "## Unattended mode\n\n"
+    "Read ~/.claude/WORKER-CONTRACT.md first. Report directory: --report-dir <dir>;\n"
+    "the contract is <report-dir>/return-contract.yaml. Refuses --interactive.\n"
+    "Nested: nested/analyze-<n>/ gets the flag. It has the gate phrase alpha-gate.\n"
+)
+_SYNTHETIC_EXPECT = {
+    "flags": ["-i", "--interactive"],
+    "phrases": ["alpha-gate"],
+    "nested": ["analyze"],
+}
+
+
+def _synthetic_section(tmp_path, monkeypatch, body: str) -> str:
+    cmds = tmp_path / "commands"
+    cmds.mkdir(exist_ok=True)
+    (cmds / "synthetic.md").write_text(
+        "# synthetic\n\n"
+        + body
+        + "\n## Boundaries\n\nsrc/superclaude/ here is outside.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(_THIS, "COMMANDS_DIR", cmds)
+    return _unattended_section("synthetic")
+
+
+def test_unattended_section_helper_reads_only_its_own_section(tmp_path, monkeypatch):
+    # `-i` is not listed in the synthetic section, and `--interactive` does not satisfy it.
+    text = _synthetic_section(tmp_path, monkeypatch, _SYNTHETIC_SECTION)
+    assert "src/superclaude/" not in text
+    with pytest.raises(AssertionError):
+        _check_unattended_section(text, _SYNTHETIC_EXPECT)
+    ok = dict(_SYNTHETIC_EXPECT, flags=["--interactive"])
+    _check_unattended_section(text, ok)
+    _check_unattended_section(text + " -i\n", _SYNTHETIC_EXPECT)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda s: s.replace("return-contract.yaml", "the-file"),
+        lambda s: s.replace("~/.claude/WORKER-CONTRACT.md", "the-contract"),
+        lambda s: s.replace("--report-dir", "--dir"),
+        lambda s: s.replace("alpha-gate", "beta"),
+        lambda s: s.replace("nested/analyze-", "nested/other-"),
+        lambda s: s + "See src/superclaude/skills/x.\n",
+        lambda s: s + "Then run orca worktree create.\n",
+    ],
+    ids=[
+        "no-contract-file",
+        "no-contract-path",
+        "no-report-dir",
+        "no-phrase",
+        "no-nested-name",
+        "src-path",
+        "orca-name",
+    ],
+)
+def test_unattended_section_check_fails_on_synthetic_defects(
+    tmp_path, monkeypatch, mutate
+):
+    ok = dict(_SYNTHETIC_EXPECT, flags=["--interactive"])
+    good = _synthetic_section(tmp_path, monkeypatch, _SYNTHETIC_SECTION)
+    _check_unattended_section(good, ok)
+    with pytest.raises(AssertionError):
+        _check_unattended_section(mutate(good), ok)
+
+
+def test_cleanup_audit_names_final_report_and_contract_write_exception():
+    paths = (
+        Path(_THIS.COMMANDS_DIR) / "cleanup-audit.md",
+        _REPO / "src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md",
+    )
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        assert ".claude-audit/final-report.md" in text, path.name
+        assert re.search(
+            r"Except under `--unattended`[^\n]*return-contract\.yaml", text
+        ), path.name
+
+
+def test_index_repo_output_format_states_where_the_files_land():
+    text = (Path(_THIS.COMMANDS_DIR) / "index-repo.md").read_text(encoding="utf-8")
+    section = text.split("## Output Format", 1)[1].split("\n## ", 1)[0]
+    assert "root of the repository" in section
+
+
+def test_init_lite_contract_exception_and_pass_through_are_documented():
+    skill = (_REPO / "src/superclaude/skills/sc-init-lite-protocol/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    invariants = skill.split("## 4. Safety Invariants", 1)[1].split("\n## ", 1)[0]
+    assert "return-contract.yaml" in invariants
+    assert "invariants 2 and 3" in invariants
+    assert "never forwards" in skill
+    command = (Path(_THIS.COMMANDS_DIR) / "init-lite.md").read_text(encoding="utf-8")
+    activation = command.split("## Activation", 1)[1].split("\n## ", 1)[0]
+    assert "--unattended" in activation and "--report-dir" in activation
+
+
+def test_explain_declares_write_under_tool_coordination():
+    text = (Path(_THIS.COMMANDS_DIR) / "explain.md").read_text(encoding="utf-8")
+    tools = text.split("## Tool Coordination", 1)[1].split("\n## ", 1)[0]
+    # `TodoWrite` also contains "Write", so match the bullet itself.
+    assert any(ln.startswith("- **Write**") for ln in tools.splitlines())
+
+
+def test_business_panel_frontmatter_is_not_inside_a_code_fence():
+    text = (Path(_THIS.COMMANDS_DIR) / "business-panel.md").read_text(encoding="utf-8")
+    assert text.startswith("---\n")
+    head = text.split("\n## ", 1)[0]
+    assert not re.search(r"^```yaml", head, re.M)
+
+
+def test_load_usage_line_declares_checkpoint_and_load_is_not_converted():
+    text = (Path(_THIS.COMMANDS_DIR) / "load.md").read_text(encoding="utf-8")
+    usage = text.split("## Usage", 1)[1].split("\n## ", 1)[0]
+    assert "--checkpoint <name>" in usage
+    assert "load" not in UNATTENDED_COMMANDS
+
+
+def test_unattended_section_check_forbids_nested_text_without_a_nested_list():
+    text = _SYNTHETIC_SECTION
+    with pytest.raises(AssertionError):
+        _check_unattended_section(text, {"flags": [], "phrases": []})
+
+
+# --- full P1 set, AC-1.4 and nested propagation ----------------------------
+
+# Commands that never get the section in P1 (later phases extend the converted set;
+# the set-equality test above already fails for any other command with a section).
+NOT_CONVERTED_IN_P1 = (
+    "load",
+    "pr-submit",
+    "agent",
+    "git",
+    "help",
+    "pm",
+    "spawn",
+    "swarm-wizard",
+    "issue",
+)
+
+_ADVERSARIAL_SKILL = _REPO / "src/superclaude/skills/sc-adversarial-protocol/SKILL.md"
+_WORKFLOW_RETURN_REF = (
+    _REPO / "src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md"
+)
+_ADVERSARIAL_OWN_CONTRACT = "<output>/adversarial/return-contract.yaml"
+_WORKER_CONTRACT_HEADING = "## Worker contract (`--unattended`)"
+
+
+def _check_p1_set(commands, expect) -> None:
+    assert len(commands) == 16, f"P1 lists {len(commands)} commands, not 16"
+    assert len(set(commands)) == 16, "P1_COMMANDS has a duplicate"
+    assert set(expect) == set(commands), (
+        f"UNATTENDED_EXPECT and P1_COMMANDS differ: {sorted(set(expect) ^ set(commands))}"
+    )
+
+
+def _check_no_section_in(names) -> None:
+    for name in names:
+        path = Path(_THIS.COMMANDS_DIR) / f"{name}.md"
+        if path.exists():
+            text = path.read_text(encoding="utf-8")
+            assert not re.search(r"^## Unattended mode\s*$", text, re.M), (
+                f"{name} has an `## Unattended mode` section"
+            )
+
+
+def _check_adversarial_skill(text: str) -> None:
+    assert _ADVERSARIAL_OWN_CONTRACT in text, f"skill lacks {_ADVERSARIAL_OWN_CONTRACT}"
+
+
+def _check_adversarial_section(section: str) -> None:
+    assert "<output>/return-contract.yaml" in section, "section lacks the worker path"
+    assert re.search(
+        r"lists[^.\n]*`"
+        + re.escape(_ADVERSARIAL_OWN_CONTRACT)
+        + r"`[^.\n]*`artifacts`",
+        section,
+    ), "section does not say the worker contract lists the own contract in `artifacts`"
+
+
+def _check_workflow_ref(text: str) -> None:
+    assert _WORKER_CONTRACT_HEADING in text, "ref lacks the worker contract section"
+    section = text.split(_WORKER_CONTRACT_HEADING, 1)[1].split("\n## ", 1)[0]
+    assert "<report-dir>/return-contract.yaml" in section, "ref lacks the report path"
+    assert "--report-dir" in section, "ref does not tie the file to --report-dir"
+    assert re.search(r"pre-creation STOP\s*→\s*`failed`", section), (
+        "ref does not cover pre-creation STOPs"
+    )
+
+
+def _check_brainstorm_research_off(section: str) -> None:
+    assert "research enrichment is off" in section, "section lacks the research line"
+
+
+def _check_nested_text(section: str, expect: dict) -> None:
+    nested = expect.get("nested", [])
+    for name in nested:
+        assert f"nested/{name}-" in section, f"section lacks nested/{name}-"
+    if not nested:
+        assert "nested/" not in section, "section names a nested directory"
+
+
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+# (id, text getter, check, phrases whose removal must make the check fail)
+_AC14_CASES = (
+    (
+        "adversarial-skill",
+        lambda: _read(_ADVERSARIAL_SKILL),
+        _check_adversarial_skill,
+        [_ADVERSARIAL_OWN_CONTRACT],
+    ),
+    (
+        "adversarial-section",
+        lambda: _unattended_section("adversarial"),
+        _check_adversarial_section,
+        ["<output>/return-contract.yaml", "lists", "`artifacts`"],
+    ),
+    (
+        "workflow-ref",
+        lambda: _read(_WORKFLOW_RETURN_REF),
+        _check_workflow_ref,
+        [
+            _WORKER_CONTRACT_HEADING,
+            "<report-dir>/return-contract.yaml",
+            "--report-dir",
+            "pre-creation STOP",
+        ],
+    ),
+    (
+        "brainstorm-section",
+        lambda: _unattended_section("brainstorm"),
+        _check_brainstorm_research_off,
+        ["research enrichment is off"],
+    ),
+)
+_AC14_REMOVALS = [
+    (case, getter, check, phrase)
+    for case, getter, check, phrases in _AC14_CASES
+    for phrase in phrases
+]
+
+
+def test_p1_command_set_is_complete():
+    _check_p1_set(P1_COMMANDS, UNATTENDED_EXPECT)
+    for name in P1_COMMANDS:
+        assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), name
+
+
+def test_p1_set_check_fails_on_a_missing_extra_or_repeated_command():
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS[:-1], UNATTENDED_EXPECT)
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS + ("extra",), UNATTENDED_EXPECT)
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS[:-1] + (P1_COMMANDS[0],), UNATTENDED_EXPECT)
+    without_test = {k: v for k, v in UNATTENDED_EXPECT.items() if k != "test"}
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS, without_test)
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS, dict(UNATTENDED_EXPECT, extra={}))
+
+
+@pytest.mark.parametrize("name", NOT_CONVERTED_IN_P1)
+def test_unconverted_command_has_no_unattended_section(name):
+    _check_no_section_in([name])
+
+
+def test_no_section_check_fails_when_an_unconverted_command_has_one(
+    tmp_path, monkeypatch
+):
+    cmds = tmp_path / "commands"
+    cmds.mkdir()
+    (cmds / "load.md").write_text(
+        "# load\n\n## Unattended mode\n\nx\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(_THIS, "COMMANDS_DIR", cmds)
+    with pytest.raises(AssertionError):
+        _check_no_section_in(["load"])
+    # A command whose file does not exist is skipped.
+    _check_no_section_in(["issue"])
+
+
+@pytest.mark.parametrize(
+    ("case", "getter", "check"),
+    [(c[0], c[1], c[2]) for c in _AC14_CASES],
+    ids=[c[0] for c in _AC14_CASES],
+)
+def test_ac_1_4_assertion_holds(case, getter, check):
+    check(getter())
+
+
+@pytest.mark.parametrize(
+    ("case", "getter", "check", "phrase"),
+    _AC14_REMOVALS,
+    ids=[f"{c}:{p}" for c, _, _, p in _AC14_REMOVALS],
+)
+def test_ac_1_4_check_fails_when_phrase_removed(case, getter, check, phrase):
+    text = getter()
+    check(text)
+    with pytest.raises(AssertionError):
+        check(text.replace(phrase, ""))
+
+
+@pytest.mark.parametrize("cmd", sorted(UNATTENDED_EXPECT))
+def test_nested_propagation_text_matches_the_nested_list(cmd):
+    _check_nested_text(_unattended_section(cmd), UNATTENDED_EXPECT[cmd])
+
+
+def test_only_brainstorm_lists_nested_commands():
+    listed = {c: e["nested"] for c, e in UNATTENDED_EXPECT.items() if e.get("nested")}
+    assert listed == {"brainstorm": ["analyze", "adversarial"]}
+
+
+def test_nested_check_fails_on_nested_text_without_a_nested_list():
+    # workflow's reflect step runs without the flag, so workflow lists no nested name.
+    section = _unattended_section("workflow")
+    expect = UNATTENDED_EXPECT["workflow"]
+    _check_nested_text(section, expect)
+    with pytest.raises(AssertionError):
+        _check_nested_text(section + "\nnested/reflect-<n>/\n", expect)
 
 
 # --- AC-0.9: git and GitHub write-verb audit -------------------------------
@@ -1418,7 +1946,7 @@ WRITE_VERB_CLASSIFICATION = {
         '`.dev/tasks/` is always staged (`git add .dev/tasks`): the package and its `artifacts/` included. Never gitignore it, never leave it untracked, and never write "never stage" about it in a generated plan (Constraints included). Staging is not committing.',
     ): (
         "deferred:P1",
-        "/sc:workflow is converted in P1; under --unattended its .dev/tasks staging defers to the coordinator (WC-9)",
+        "/sc:workflow is converted in P1; under --unattended the deferral of its .dev/tasks staging to the coordinator is in force (WC-9)",
     ),
     (
         "src/superclaude/skills/task/SKILL.md",

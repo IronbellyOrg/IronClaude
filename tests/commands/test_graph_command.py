@@ -145,6 +145,19 @@ def test_graph_init_only_in_command():
     assert hits and all(h == "codegraph init" for h in hits)
 
 
+def test_graph_unattended_section_follows_init_section():
+    text = _text(_COMMAND)
+    init = text.index("## Init (user-typed only)")
+    assert init < text.index("## Unattended mode") < text.index("## Boundaries")
+
+
+def test_graph_skill_documents_worker_flags_and_contract():
+    skill = _text(_SKILL)
+    assert "worker_status" in _section(skill, "## `return-contract.yaml`")
+    flags = _section(skill, "## Inputs and flags")
+    assert "`--unattended`" in flags and "`--report-dir`" in flags
+
+
 def test_graph_init_user_typed_guard():
     init = _section(_text(_COMMAND), "## Init (user-typed only)")
     assert "/sc:graph init" in init

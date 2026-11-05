@@ -29,6 +29,7 @@ personas: [analyzer, architect, devops, qa, refactorer]
 
 ```
 /sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
+/sc:cleanup-audit --pass surface --unattended --report-dir DIR   # worker mode, see Unattended mode
 ```
 
 ### Arguments
@@ -37,6 +38,8 @@ personas: [analyzer, architect, devops, qa, refactorer]
 - **--pass**: Audit pass to run (`surface` = Pass 1, `structural` = Pass 2, `cross-cutting` = Pass 3, `all` = sequential 3-pass)
 - **--batch-size**: Files per agent batch (default: 50 for surface, 25 for structural, 30 for cross-cutting)
 - **--focus**: Domain filter for targeted auditing (`infrastructure`, `frontend`, `backend`, `all`)
+- **--unattended**: Worker mode: no step waits for a person; see Unattended mode
+- **--report-dir**: With `--unattended`, the directory that holds the worker contract (required; the command has no other directory flag)
 
 ## Behavioral Summary
 
@@ -84,6 +87,18 @@ Runs all 3 passes sequentially with quality gates between each pass. Pass 1 inve
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill.
 
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:cleanup-audit` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only: the command has no directory flag, and its audit output stays in the fixed `.claude-audit/`. Without `--report-dir` the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is `.claude-audit/pass<N>-summary.md` for one pass (`surface` is 1, `structural` 2, `cross-cutting` 3) or `.claude-audit/final-report.md` for `--pass all`; `artifacts` lists `.claude-audit/progress.json` and the batch reports. A run that finishes every requested pass is succeeded; one that stops after a checkpoint is partial, and a rerun resumes from `.claude-audit/progress.json`.
+- **Concurrency.** `.claude-audit/` is fixed, so only one audit at a time runs per worktree (WC-11 in `~/.claude/WORKER-CONTRACT.md`).
+- **Write scope.** `.claude-audit/` plus `<report-dir>/return-contract.yaml`; the read-only rule for repository files is unchanged.
+- **Gates.** None, and no person-mode flag. Nested invocations: none; its Agent-tool subagents are unchanged.
+- **Outward actions.** It pushes, commits and stages nothing.
+
 ## Boundaries
 
 **Will:**
@@ -115,5 +130,7 @@ The full behavioral specification is in the protocol skill.
 - Per-pass summary reports (consolidated findings)
 - Final report (executive summary + prioritized actions)
 - progress.json (checkpoint state for resume capability)
+
+Except under `--unattended`: `<report-dir>/return-contract.yaml` is also written (see Unattended mode).
 
 **Next Step**: Use `/sc:cleanup` to execute safe recommendations, then `/sc:test` to verify no regressions, then `/sc:git` to commit changes.

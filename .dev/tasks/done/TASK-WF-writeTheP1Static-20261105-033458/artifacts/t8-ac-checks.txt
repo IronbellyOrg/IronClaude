@@ -1,0 +1,30 @@
+# T8 acceptance checks
+## AC1: section count; return-contract.yaml in the skill
+section: 1
+61:6. **Worker contract** (only with `--unattended`; follow the `## Unattended mode` section of the `init-lite` command file, installed copy `~/.claud
+74:Under `--unattended`, invariants 2 and 3 admit the contract `<report-dir>/return-contract.yaml` as their single exception (it is written also on `-
+80:- `<report-dir>/return-contract.yaml` — only with `--unattended`, on every outcome.
+88:**Will Not:** modify any target-project context input, write under `.claude/`, write anything on `--dry-run` (except `<report-dir>/return-contract.
+## AC2: --unattended in the command; never forwards count
+24:/sc:init-lite --context-optimized --unattended --report-dir <dir>   # worker mode, see Unattended mode
+37:| `--unattended` | No | false | Worker mode: no step waits for a person; see Unattended mode. |
+38:| `--report-dir` | With `--unattended` | -- | The directory that holds the worker contract (`--output` names the repo
+62:- Unattended: boolean `--unattended`
+63:- Report directory: resolved `--report-dir` (only with `--unattended`)
+90:- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwi
+111:  - Except `<report-dir>/return-contract.yaml` under `--unattended`
+never forwards: 1
+## AC3: pytest
+tests/cli/test_init_lite.py ............................................ [100%]
+
+============================= 346 passed in 0.91s ==============================
+## AC4
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat init-lite: 17	0	src/superclaude/commands/init-lite.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+1 file already formatted

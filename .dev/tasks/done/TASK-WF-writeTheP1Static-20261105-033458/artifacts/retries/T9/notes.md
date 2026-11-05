@@ -1,0 +1,2 @@
+2adf057a1023f5c073648e94ca13b1978400fede
+A1 r1-1 F1.1 note src/superclaude/commands/workflow.md:74 ac=scope n,n,n,n In the new section the Nested invocations bullet comes before the Gates bullet; the plan skeleton lists gate resolutions before nested invocations (the reviewer's anchor was elided with ... so it failed the read-back; the order deviation is real and minor, queued for a consistency sweep and the plugin copy must be re-copied with it).

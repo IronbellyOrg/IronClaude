@@ -67,6 +67,8 @@ personas: [architect, analyzer, scribe]
 | `--convergence` | | No | `0.80` | Alignment threshold (0.50-0.99) |
 | `--interactive` | `-i` | No | `false` | Pause for user input at decision points |
 | `--output` | `-o` | No | Auto | Output directory for artifacts |
+| `--unattended` | | No | `false` | Worker mode: no step waits for a person; see Unattended mode |
+| `--report-dir` | | No | - | With `--unattended`, the directory that holds the worker contract (instead of `--output`, never both) |
 | `--focus` | `-f` | No | All | Debate focus areas (comma-separated) |
 | `--blind` | | No | `false` | Strip model names from artifacts before comparison |
 | `--auto-stop-plateau` | | No | `false` | Halt on convergence plateau (<5% delta, 2 consecutive compare phases) |
@@ -147,6 +149,18 @@ personas: [architect, analyzer, scribe]
 
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:adversarial` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output <dir>` (short form `-o`) or `--report-dir <dir>`; both, or neither, is refused before any work. With `--report-dir` the artifacts stay in the auto-derived output directory. `--report-dir` follows the path rules of `--output`: a directory the skill's output-path policy guard refuses (the `.claude/` skill, agent and command folders), one inside `.git/` or `.codegraph/`, or one that cannot be created or written, counts as no report directory known, so nothing is written and the refusal is printed in chat only.
+- **Contract.** The worker contract is `<output>/return-contract.yaml` (`<report-dir>/return-contract.yaml` with `--report-dir`), written on every outcome. It lists the command's own contract `<output>/adversarial/return-contract.yaml` in `artifacts` and leaves that file unchanged. `report_path` is the merged output file, or null when the merge was not reached. The own `status` values success, partial and failed map to succeeded, partial and failed.
+- **Person-mode flags.** `--interactive` and its short form `-i` are refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** None else: the default non-interactive mode already resolves every decision point with a recorded rationale.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

@@ -1,0 +1,31 @@
+# T4 acceptance checks
+## AC1: section count, pytest
+section: 1
+18:## Usage
+29:## Options
+41:## Activation
+48:## Init (user-typed only)
+59:## Unattended mode
+70:## Boundaries
+..................                                                       [100%]
+
+============================= 384 passed in 0.68s ==============================
+## AC2: worker_status and --report-dir in the skill
+29:| `--unattended` | bool | `false` | standalone argument token outside any quoted argument; needs exactly one of `--ou
+112:| `worker_status` | enum | `succeeded` \| `partial` \| `failed` (only with `--unattended`); from `status`: `success`
+115:| `reason` | string | the STOP or refusal text, when `worker_status` is `failed` (only with `--unattended`) |
+29:| `--unattended` | bool | `false` | standalone argument token outside any quoted argument; needs exactly one of `--ou
+30:| `--report-dir` | path | unset | only with `--unattended`; same rules as `--output-dir` | inside `.git`/`.codegraph`
+66:5. **G-O Outputs.** Print the screen report. If `--output-dir` is set, write `<output-dir>/return-contract.yaml`; und
+87:## `return-contract.yaml` (only with `--output-dir`, or with `--report-dir` under `--unattended`)
+96:| `output_dir` | string | absolute (the report directory when `--report-dir` was given) |
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat graph: 15	0	src/superclaude/commands/graph.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+2 files already formatted

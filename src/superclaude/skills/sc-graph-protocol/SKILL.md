@@ -26,6 +26,8 @@ Indexing model (Phase 2): the session-start hook starts an init in every new che
 | `--worktree-local` | bool | `false` | only with `init` | given with `status` → "`--worktree-local` applies only to `init`" |
 | `--output-dir` | path | unset (screen only) | absolute after resolution; not inside `<worktree_root>/.git/` or `<worktree_root>/.codegraph/`; created if missing | inside `.git`/`.codegraph` → blocked; not creatable or writable → `status: failed`, reason printed only |
 | `--post-init <exit-code>` | int 0-255 | unset | set only by `commands/graph.md` after its init call; requires `status` | misuse can only fill the `init` block of the contract; it runs nothing |
+| `--unattended` | bool | `false` | standalone argument token outside any quoted argument; needs exactly one of `--output-dir` / `--report-dir` | a positional `init` with `--unattended` → `status: blocked`, reason "init runs only when the user types it", written to the report directory with `worker_status: failed` (`subcommand: init`, `init.requested: true`, `init.form: null`); no `init.form` is returned, so the Init steps of the command never run. Neither flag, or both → no work, refusal printed in chat only |
+| `--report-dir` | path | unset | only with `--unattended`; same rules as `--output-dir` | inside `.git`/`.codegraph` → blocked, printed in chat only; not creatable or writable → printed in chat only |
 
 There is no `--caller` flag.
 
@@ -61,7 +63,7 @@ There is no `--caller` flag.
    | `error` | `check_codegraph_error` | first error line, verbatim |
    | otherwise | `none` | "index ready" |
 
-5. **G-O Outputs.** Print the screen report. If `--output-dir` is set, write `<output-dir>/return-contract.yaml`.
+5. **G-O Outputs.** Print the screen report. If `--output-dir` is set, write `<output-dir>/return-contract.yaml`; under `--unattended` with `--report-dir`, write `<report-dir>/return-contract.yaml` instead (the same fields plus the worker fields).
 
 ## `init` (preflight only; the command body runs the build)
 
@@ -82,7 +84,7 @@ There is no `--caller` flag.
    `form: worktree_local` also needs the session's working directory to equal `worktree_root`; otherwise blocked, `refused_reason: cwd_mismatch`, and the report names the directory to run `/sc:graph init --worktree-local` from. The skill returns `init.form` to the command body and runs no build command.
 2. **G-V Re-check.** When the command body calls back with `status --post-init <exit-code>`, re-run G-R once and fill the `init` block (`ran: true`, `exit_code`).
 
-## `return-contract.yaml` (only with `--output-dir`)
+## `return-contract.yaml` (only with `--output-dir`, or with `--report-dir` under `--unattended`)
 
 | Field | Type | Allowed values / rule |
 |---|---|---|
@@ -91,7 +93,7 @@ There is no `--caller` flag.
 | `subcommand` | enum | `status` \| `init` (`init` whenever `--post-init` is set or the preflight ran) |
 | `status` | enum | `success` \| `partial` \| `blocked` \| `failed` |
 | `contract_path` | string | absolute path of this file |
-| `output_dir` | string | absolute |
+| `output_dir` | string | absolute (the report directory when `--report-dir` was given) |
 | `checked_at`, `access`, `index_state`, `worktree_root`, `worktree_relation`, `cli_version`, `pin`, `pin_match` | see Readiness check | |
 | `mcp_tools_listed` | bool | `true` when `mcp__codegraph__codegraph_callers` is in the tool list |
 | `counts` | map or null | `{files: int, nodes: int, edges: int}` |
@@ -106,6 +108,11 @@ There is no `--caller` flag.
 | `init.ran` | bool | `true` only when `--post-init` was given |
 | `init.exit_code` | int or null | |
 | `init.refused_reason` | enum or null | `disabled` \| `absent` \| `init_running` \| `already_initialized` \| `nested_worktree` \| `worktree_local_not_nested` \| `status_error` \| `cwd_mismatch` \| `null` |
+| `worker_contract_version` | string | `"1"` (only with `--unattended`) |
+| `worker_status` | enum | `succeeded` \| `partial` \| `failed` (only with `--unattended`); from `status`: `success` → `succeeded`, `partial` → `partial`, `failed` → `failed`, a flag STOP `blocked` → `failed` |
+| `report_path` | null | always `null`: the report is the screen report (only with `--unattended`) |
+| `artifacts` | list[string] | `[]`: the contract is the only file written (only with `--unattended`) |
+| `reason` | string | the STOP or refusal text, when `worker_status` is `failed` (only with `--unattended`) |
 
 Status rules: `status` → `success` only when `index_state: fresh`, `pin_match: true` and `mcp_tools_listed: true`; `partial` for any other state (the report is complete, the index is not ready); `blocked` for a flag STOP. `init` → `blocked` on a preflight refusal; `failed` when `init.exit_code` is not 0; `success` when exit 0 and the re-check reads `fresh`; `partial` when exit 0 but the re-check is not `fresh`.
 
@@ -155,4 +162,4 @@ Eight lines, fixed order:
 - Build, rebuild, sync or remove an index, or change telemetry or MCP registration
 - Run CLI `codegraph status` while `pgrep -f 'codegraph\.js (init|index)'` prints a line
 - Be called by another skill or agent
-- Write or Edit any file other than `<output-dir>/return-contract.yaml`
+- Write or Edit any file other than `<output-dir>/return-contract.yaml` (or `<report-dir>/return-contract.yaml` under `--unattended`)

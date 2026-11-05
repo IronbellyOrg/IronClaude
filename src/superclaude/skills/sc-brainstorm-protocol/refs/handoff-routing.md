@@ -100,6 +100,8 @@ Optional pass-throughs:
 - `--blind` (if brainstorm `--blind` was set)
 - `--interactive` (if brainstorm `--interactive` was set)
 
+**Under `--unattended`** the argument string is the same except: `--unattended` is added; `--output` is `<report-dir>/nested/adversarial-<n>/` in place of `<output>/adversarial/` (`<n>` starts at 1, and the F1 retry uses the next number, so a nested directory is never reused); and `--interactive` is never forwarded, because brainstorm refuses it. The nested worker contract `<report-dir>/nested/adversarial-<n>/return-contract.yaml` and the returned `artifacts_dir` are listed in the `artifacts` of the brainstorm contract.
+
 ### Return contract consumption (inline from Skill response)
 
 Expected response fields (from sc-adversarial-protocol):

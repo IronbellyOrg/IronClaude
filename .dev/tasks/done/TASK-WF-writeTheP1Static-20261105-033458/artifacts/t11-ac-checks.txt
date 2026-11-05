@@ -1,0 +1,35 @@
+# T11 acceptance checks
+## AC1: section counts and first line of business-panel.md
+src/superclaude/commands/test.md:1
+src/superclaude/commands/explain.md:1
+src/superclaude/commands/business-panel.md:1
+head -1 business-panel.md: ---
+## AC2: pytest
+........................................................................ [100%]
+
+============================= 683 passed in 2.61s ==============================
+tests/skills/test_worker_contract.py::test_unattended_section_content[business-panel] PASSED [ 14%]
+tests/skills/test_worker_contract.py::test_unattended_section_content[explain] PASSED [ 15%]
+tests/skills/test_worker_contract.py::test_unattended_section_content[test] PASSED [ 16%]
+tests/skills/test_worker_contract.py::test_explain_declares_write_under_tool_coordination PASSED [ 58%]
+tests/skills/test_worker_contract.py::test_business_panel_frontmatter_is_not_inside_a_code_fence PASSED [ 58%]
+## AC3a: Check ADDITIVE for test.md and explain.md; SCAN; WRITEVERB
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat test: 15	0	src/superclaude/commands/test.md
+numstat explain: 15	0	src/superclaude/commands/explain.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## AC3b: business-panel.md deleted lines (at most 4)
+numstat: 14	4	src/superclaude/commands/business-panel.md
+-# /sc:business-panel - Business Panel Analysis System$
+-$
+-```yaml$
+-```$
+## AC3c: frontmatter keys and values byte for byte (old lines 4-10 vs new lines 1-7); no output from cmp means identical
+frontmatter identical
+category: "Analysis & Strategic Planning"  $
+## extras
+All checks passed!
+2 files already formatted

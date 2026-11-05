@@ -11,6 +11,10 @@ Validate every input and flag **before any write**. These STOPs create no packag
 
 `--output` is **retired**: any `--output` / `--output=…` token → STOP `E-LEGACY` ("`--output` removed; every plan is written to `.dev/tasks/to-do/<id>/`"). It is never parsed as a destination.
 
+## Worker flags
+
+`--unattended` and `--report-dir <dir>` are removed from the arguments before the source is resolved and are never part of it. They are validated in the same pass as the other flags, before any write. Under `--unattended` without exactly one report directory (`--report-dir`; the retired `--output` is never a report directory) the command writes nothing and prints the refusal of `~/.claude/WORKER-CONTRACT.md` (rule WC-4). Under `--unattended` with a valid `--report-dir`, each pre-creation STOP of this ref also writes the worker contract `<report-dir>/return-contract.yaml` (fields in `refs/return-contract.md`); the STOP codes, and the rule that these STOPs create no package, are unchanged.
+
 ## Package identity
 
 Every generation creates one **new** package under the current checkout: `.dev/tasks/to-do/<id>/`. Regeneration never reuses, merges into, or overwrites an existing package.

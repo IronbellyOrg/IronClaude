@@ -23,6 +23,7 @@ Activation conditions:
 
 - User runs `/sc:init-lite --context-optimized` in Claude Code.
 - Any of `--project-root`, `--output`, `--dry-run`, `--scaffold`, `--force` are passed through from the command.
+- `--unattended` and `--report-dir` also come from the command and are consumed by this skill (Section 2).
 
 Do NOT invoke this skill directly. Use the `sc:init-lite` command.
 
@@ -41,8 +42,12 @@ The mechanical audit is implemented as the `superclaude init-lite --context-opti
 | dry_run | `--dry-run` | false |
 | scaffold | `--scaffold` | false |
 | force | `--force` | false |
+| unattended | `--unattended` | false |
+| report_dir | `--report-dir` | none (required with `--unattended`) |
 
 `project_root` must be an existing directory (validated at the CLI boundary). A relative `--output` value resolves against `--project-root`, not the current working directory.
+
+Under `--unattended` the skill consumes `--unattended` and `--report-dir` itself and never forwards them to `superclaude init-lite`; that tool's option list is not changed. The skill writes the worker contract after the tool returns (Section 3, step 6).
 
 ## 3. Workflow
 
@@ -53,6 +58,7 @@ The mechanical audit is implemented as the `superclaude init-lite --context-opti
    - `--dry-run`: render the report to stdout and write nothing — do NOT create `.dev/superclaude/`.
 4. **Scaffold** (only when `--scaffold`): create advisory `project-guidance/SKILL.md` and `project-guidance/refs/README.md` under `.dev/superclaude/`; idempotent (existing files are left intact unless `--force`).
 5. **Surface** the resulting paths and the token summary to the user.
+6. **Worker contract** (only with `--unattended`; follow the `## Unattended mode` section of the `init-lite` command file, installed copy `~/.claude/commands/sc/init-lite.md` or project copy `.claude/commands/sc/init-lite.md`): after the tool returns, on every outcome including `--dry-run` and a failed tool run, write `<report-dir>/return-contract.yaml` with `worker_contract_version: "1"`, `worker_status` (`succeeded` when the audit finished, else `failed`), `command` (the exact command line), `report_path` (the report path; null on `--dry-run`), `artifacts` (the scaffold files when `--scaffold` is set) and `reason` when failed.
 
 Preferred implementation: shell out to `superclaude init-lite` with the resolved flags via Bash and relay its output.
 
@@ -65,10 +71,13 @@ Preferred implementation: shell out to `superclaude init-lite` with the resolved
 5. **`--force` is scope-limited** — marker-less overwrites are allowed only for init-lite-owned targets under `.dev/superclaude/`; never for files elsewhere, and never for a context input.
 6. **No marker, no `--force`** — if `output` exists without the generated marker, fail with a clear error rather than overwrite. Marked reports may be overwritten on re-run at the default path or at an explicit `--output` path.
 
+Under `--unattended`, invariants 2 and 3 admit the contract `<report-dir>/return-contract.yaml` as their single exception (it is written also on `--dry-run`); invariants 1, 4, 5 and 6 are unchanged.
+
 ## 5. Outputs
 
 - `.dev/superclaude/context-audit.md` (or `--output`) — the context-audit report (default / non-dry-run).
 - `.dev/superclaude/project-guidance/SKILL.md` and `refs/README.md` — only with `--scaffold`.
+- `<report-dir>/return-contract.yaml` — only with `--unattended`, on every outcome.
 
 No `refs/` are required for this skill; the report schema is small and lives in the CLI implementation. Add a lazy `refs/` file only if a future, substantially larger report/scaffold template is introduced.
 
@@ -76,4 +85,4 @@ No `refs/` are required for this skill; the report schema is small and lives in 
 
 **Will:** discover surfaces read-only, estimate weight deterministically, write a non-destructive report (or stdout on dry-run), optionally scaffold advisory guidance, preserve all safety invariants.
 
-**Will Not:** modify any target-project context input, write under `.claude/`, write anything on `--dry-run`, overwrite marker-less files unless `--force` is set and the target is under `.dev/superclaude/`, or perform automatic context migration.
+**Will Not:** modify any target-project context input, write under `.claude/`, write anything on `--dry-run` (except `<report-dir>/return-contract.yaml` under `--unattended`), overwrite marker-less files unless `--force` is set and the target is under `.dev/superclaude/`, or perform automatic context migration.

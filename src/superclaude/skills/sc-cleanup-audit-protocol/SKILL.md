@@ -67,7 +67,7 @@ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--b
 2. **Configure**: Parse `$ARGUMENTS` for pass selection and focus area. Load pass-specific rules from `rules/` supporting files. Create TodoWrite tasks for each batch. Initialize output directory at `.claude-audit/`.
 3. **Orchestrate**: Spawn parallel subagents via Task tool in waves of 7-8 concurrent agents. Pass 1 uses `audit-scanner` (Haiku), Pass 2 uses `audit-analyzer` (Sonnet), Pass 3 uses `audit-comparator` (Sonnet). Each agent writes batch reports incrementally to disk. Track progress via TodoWrite.
 4. **Validate**: Spawn `audit-validator` for 10% spot-check sampling (5 findings per 50 files). Verify grep claims match actual results. Enforce quality gates: all batch reports must have required sections and mandatory per-file profiles. Failed reports trigger regeneration.
-5. **Report**: Spawn `audit-consolidator` to merge batch reports into pass summaries. For `--pass all`, produce final report with executive summary, prioritized action items, cross-cutting findings, and discovered issues registry. Apply ultrathink synthesis for cross-pass pattern extraction.
+5. **Report**: Spawn `audit-consolidator` to merge batch reports into pass summaries. For `--pass all`, produce final report with executive summary, prioritized action items, cross-cutting findings, and discovered issues registry. Apply ultrathink synthesis for cross-pass pattern extraction. The final report of `--pass all` is `.claude-audit/final-report.md`.
 
 Key behaviors:
 
@@ -90,7 +90,7 @@ Key behaviors:
 
 - **Read/Grep/Glob**: Core audit tools available to all subagents — file content reading, reference tracing via regex, file inventory via pattern matching
 - **Bash(git/wc/find/du)**: Controlled shell access for orchestrator only — `git ls-files` for inventory, `wc` for counting, `find` for scope calculation, `du` for size metrics
-- **Write**: Report generation restricted to `.claude-audit/` output directory — batch reports, pass summaries, final report, progress tracking files
+- **Write**: Report generation restricted to `.claude-audit/` output directory — batch reports, pass summaries, final report, progress tracking files. Except under `--unattended`: `<report-dir>/return-contract.yaml` is also written (see the Unattended mode section of the command file).
 - **TodoWrite**: Progress tracking with per-batch tasks — create tasks during Configure, update during Orchestrate, verify completion during Validate
 - **Task**: Subagent delegation with 5 specialized agent types — audit-scanner (Haiku, Pass 1), audit-analyzer (Sonnet, Pass 2), audit-comparator (Sonnet, Pass 3), audit-consolidator (Sonnet, reports), audit-validator (Sonnet, spot-check)
 
@@ -168,5 +168,7 @@ Runs all 3 passes sequentially with quality gates between each pass. Pass 1 inve
 - Per-pass summary reports (consolidated findings)
 - Final report (executive summary + prioritized actions)
 - progress.json (checkpoint state for resume capability)
+
+The final report of `--pass all` is `.claude-audit/final-report.md`. Except under `--unattended`: `<report-dir>/return-contract.yaml` is also written (see the Unattended mode section of the command file).
 
 **Next Step**: Use `/sc:cleanup` to execute safe recommendations, then `/sc:test` to verify no regressions, then `/sc:git` to commit changes.

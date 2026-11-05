@@ -20,7 +20,10 @@ personas: [architect, scribe, quality]
 
 ```
 /sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
+/sc:index [target] [--output <path>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <path>` writes the generated documentation to that path. Without it a standalone run behaves as before.
 
 ## Behavioral Flow
 
@@ -82,6 +85,18 @@ Key behaviors:
 # Interactive knowledge base generation with project-specific patterns
 # Architect persona provides structural organization and cross-referencing
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:index` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is the documentation path, not the contract directory). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `--output <path>` is where the generated documentation goes, defaulting under `--unattended` to `<report-dir>/index-report.md`; `report_path` is that path. The run is succeeded when the documentation is written, and failed otherwise.
+- **Knowledge base.** The knowledge-base mode (`--type docs`) does not wait for a person under `--unattended`.
+- **Gates.** There is no other gate, and no person-mode flag. Under `--unattended` consent is never given: the rule "without explicit update permission" is not answered by assuming consent, so no existing manual documentation is overwritten and the command writes only the `--output` path or the default report file.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

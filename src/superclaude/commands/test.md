@@ -20,7 +20,10 @@ personas: [qa-specialist]
 
 ```
 /sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
+/sc:test [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <file>` writes the test and coverage summary to that file. A standalone run writes a file only when you pass it.
 
 ## Behavioral Flow
 
@@ -90,6 +93,18 @@ Key behaviors:
 # Continuous testing with automatic simple failure fixes
 # Real-time feedback during development
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:test` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/test-report.md`, holding the coverage and test summary. A failing suite is a verdict in that report and the run still ends succeeded; it ends failed only when no test runner could run.
+- **Person-mode flags.** `--watch` is refused before any work, because it never ends (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** There is no other gate. `--fix` is the caller's consent for non-destructive fixes only; a destructive change to a test file (the rule "without explicit permission") is never made under `--unattended`.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

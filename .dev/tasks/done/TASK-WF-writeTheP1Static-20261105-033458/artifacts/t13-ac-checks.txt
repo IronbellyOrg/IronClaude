@@ -1,0 +1,17 @@
+# T13 acceptance checks
+## AC1: usage line, section count, numstat
+22:/sc:load [target] [--type project|config|deps|checkpoint] [--checkpoint <name>] [--refresh] [--analyze]
+section count: 0
+numstat: 1	1	src/superclaude/commands/load.md
+## AC2: pytest
+tests/skills/test_task_workspace_smoke.py ....                           [100%]
+
+============================= 355 passed in 1.13s ==============================
+## AC3: Check SCAN
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+1 file already formatted

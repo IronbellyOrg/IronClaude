@@ -1,0 +1,27 @@
+## AC1 pytest
+.......................................................................  [100%]
+
+============================= 394 passed in 0.66s ==============================
+## AC1 collect count
+16
+## AC2 grep adversarial SKILL
+385:    └── return-contract.yaml        # This skill's own return contract (every invocation)
+430:The contract is written to `<output>/adversarial/return-contract.yaml`, with the fields below under a `return_contract:` block, on every invocation including failures.
+2091:  file: "<output>/adversarial/return-contract.yaml (every invocation, failures included; the fields sit under a return_contract: block)"
+## AC2 grep workflow ref
+3:Write `.dev/tasks/to-do/<id>/return-contract.yaml`. Paths inside the package are package-relative (`./…`) so the file stays valid after the package moves to `done/`:
+45:Written to `<report-dir>/return-contract.yaml` (the one directory passed with `--report-dir`, never the package) on every outcome. The package contract above is unchanged.
+52:artifacts: [<package return-contract.yaml>, <package source.md>]   # [] before a package exists
+## AC3 ruff check
+All checks passed!
+exit=0
+## AC3 ruff format
+1 file already formatted
+exit=0
+## Check SCAN + WRITEVERB
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## files touched since T14 start
+plugins/superclaude/commands/workflow.md plugins/superclaude/skills/sc-workflow-protocol/SKILL.md plugins/superclaude/skills/sc-workflow-protocol/refs/input-parse.md plugins/superclaude/skills/sc-workflow-protocol/refs/return-contract.md src/superclaude/commands/adversarial.md src/superclaude/commands/analyze.md src/superclaude/commands/brainstorm.md src/superclaude/commands/build.md src/superclaude/commands/business-panel.md src/superclaude/commands/cleanup-audit.md src/superclaude/commands/design.md src/superclaude/commands/document.md src/superclaude/commands/explain.md src/superclaude/commands/graph.md src/superclaude/commands/impact.md src/superclaude/commands/index-repo.md src/superclaude/commands/index.md src/superclaude/commands/init-lite.md src/superclaude/commands/load.md src/superclaude/commands/test.md src/superclaude/commands/workflow.md src/superclaude/skills/sc-adversarial-protocol/SKILL.md src/superclaude/skills/sc-brainstorm-protocol/SKILL.md src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md src/superclaude/skills/sc-graph-protocol/SKILL.md src/superclaude/skills/sc-impact-protocol/SKILL.md src/superclaude/skills/sc-init-lite-protocol/SKILL.md src/superclaude/skills/sc-workflow-protocol/SKILL.md src/superclaude/skills/sc-workflow-protocol/refs/input-parse.md src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md tests/commands/test_graph_command.py tests/commands/test_impact_command.py tests/commands/test_workflow_command.py tests/recommend/test_routing_refresh.py tests/skills/test_brainstorm_protocol.py tests/skills/test_worker_contract.py 

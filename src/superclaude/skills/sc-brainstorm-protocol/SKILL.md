@@ -90,6 +90,8 @@ Orchestrate parallel brainstorming via:
 
 **Purpose**: Validate inputs, environment, downstream skills.
 
+**Under `--unattended`** apply the `## Unattended mode` section of the `brainstorm` command file (installed copy `~/.claude/commands/sc/brainstorm.md`, or the project copy `.claude/commands/sc/brainstorm.md`) and `~/.claude/WORKER-CONTRACT.md`. Before step 1, resolve the one report directory (`--output` / `-o` or `--report-dir`) and refuse `--interactive` / `-i`. With no directory or both, or one that cannot be used, print the refusal in chat and stop without writing. Once a usable directory is known, every STOP of this wave also writes the worker contract with `worker_status: failed` and the STOP text in `reason`.
+
 **Behavioral Instructions**:
 
 1. Parse `$ARGUMENTS` into topic + flags. Reject empty topic. STOP if empty: `"Brainstorm requires a topic. Usage: /sc:brainstorm \"<topic>\""`
@@ -105,7 +107,9 @@ Orchestrate parallel brainstorming via:
 7. **Handoff prereq validation** (no silent downgrade):
    - If `--handoff task` AND `task-builder` skill missing → STOP: `"task-builder skill missing. Re-run with --handoff tasklist (if sc-tasklist-protocol installed) or --handoff design (text-only)."`
    - If `--handoff tasklist` AND `sc-tasklist-protocol` missing → STOP similarly
+   - Under `--unattended` this step is skipped: the `tasklist` and `task` handoffs are skipped in Wave 4, so their skills are not needed.
 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
+   - Under `--unattended`, a directory the caller passes (`--output` or `--report-dir`) is used exactly as passed: no `-N` suffix, and one that already holds a `return-contract.yaml` was refused before step 1.
 9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
 10. If `--strategy enterprise` and `--depth` not explicitly set → set `--depth deep` + INFO log.
 
@@ -187,6 +191,8 @@ Orchestrate parallel brainstorming via:
    | Otherwise | Skip enrichment | — |
 
    Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
+
+   **Under `--unattended`**: the two research rows are skipped, also for an explicit `--research light` or `--research deep` (recorded in `enrichment_used` with `quality_tier: skipped`). The codebase row invokes `/sc:analyze` with `--unattended --report-dir <report-dir>/nested/analyze-<n>/` (`<n>` starts at 1); the `mcp__auggie__codebase-retrieval` alternative is unchanged and writes no nested contract. The nested contract is listed in `artifacts`.
 
 2. **Quality-tier tracking** (mandatory per enrichment source):
    - `primary` — first-choice source ran cleanly
@@ -277,6 +283,21 @@ Orchestrate parallel brainstorming via:
 
    (NOTE: `--generate spec` not `--generate requirements` per spec §10 decision; brainstorm reframes spec output as requirements.)
 
+   **Under `--unattended`** the argument block is instead (`--interactive` was refused in Wave 0, so it is never forwarded):
+
+   ```
+   --unattended
+   --source <output>/seed-brief.md
+   --generate spec
+   --agents <composed-spec-from-Wave-2B>
+   --depth <passthrough>
+   --convergence <passthrough, default 0.75>
+   --output <report-dir>/nested/adversarial-<n>/
+   [--blind if flagged]
+   ```
+
+   `<n>` starts at 1; the F1 retry in step 5 uses the next number, so a nested directory is never reused. The adversarial artifacts are under that nested directory, and `adversarial_artifacts_dir` points there.
+
 2. **Invoke**: `Skill sc-adversarial-protocol` with above arguments. Direct skill invocation, not command — per sc:roadmap pattern.
 
 3. **Consume return contract** (inline from Skill response):
@@ -328,6 +349,8 @@ Based on `--handoff` value:
   3. Invoke `Skill task-builder` with `--source <output>/merged-requirements.md --template <detected>`
   4. Capture task file path(s). Append to return contract.
 
+- **Under `--unattended`**: `tasklist` and `task` are skipped (their skills do not accept the flag at this phase). Invoke nothing, set `handoff_action: none` and `handoff_output_path: null`, set `status: partial`, and add one line to `unresolved_conflicts` naming the skipped handoff. `design` and `none` behave as above.
+
 **Exit Criteria**: Handoff complete (or skipped). Return contract finalized. Emit: `"Wave 4 complete: handoff=<value>. Output: <path>."`
 
 ## 4. Return Contract
@@ -352,6 +375,21 @@ handoff_action: none | design | tasklist | task
 handoff_output_path: <path> | null
 unresolved_conflicts: [<list of strings>]
 ```
+
+### Worker fields (only with `--unattended`)
+
+Added beside the fields above in `<output>/return-contract.yaml` (with `--report-dir`: written to `<report-dir>/return-contract.yaml`, which lists the own contract in `artifacts`), on every outcome:
+
+```yaml
+worker_contract_version: "1"
+worker_status: succeeded | partial | failed
+command: <the exact command line>
+report_path: <output>/merged-requirements.md | null   # null when the merge was not reached, and on dry-run
+artifacts: [<every other file written, adversarial_artifacts_dir, the nested contracts>]
+reason: <the STOP or refused flag>                     # only when failed
+```
+
+Status mapping: `success` → `succeeded`, `partial` → `partial`, `failed` → `failed`, `dry-run` → `succeeded`.
 
 ### Telemetry Block (non-stable)
 

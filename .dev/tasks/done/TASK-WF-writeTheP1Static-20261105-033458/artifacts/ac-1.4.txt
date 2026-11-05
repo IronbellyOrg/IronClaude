@@ -1,0 +1,8 @@
+## grep adversarial SKILL
+385:    └── return-contract.yaml        # This skill's own return contract (every invocation)
+430:The contract is written to `<output>/adversarial/return-contract.yaml`, with the fields below under a `return_contract:` block, on every invocation including failures.
+2091:  file: "<output>/adversarial/return-contract.yaml (every invocation, failures included; the fields sit under a return_contract: block)"
+## grep workflow ref
+3:Write `.dev/tasks/to-do/<id>/return-contract.yaml`. Paths inside the package are package-relative (`./…`) so the file stays valid after the package moves to `done/`:
+45:Written to `<report-dir>/return-contract.yaml` (the one directory passed with `--report-dir`, never the package) on every outcome. The package contract above is unchanged.
+52:artifacts: [<package return-contract.yaml>, <package source.md>]   # [] before a package exists
