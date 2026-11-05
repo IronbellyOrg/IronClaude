@@ -41,10 +41,10 @@ All notable changes to IronClaude are documented in this file.
 #### Added (pr-submit conflicts)
 
 - At `--monitor 1` and above, the end of Wave 0 checks for a git operation in progress (halts `foreign_op_in_progress`), reads GitHub's `mergeable`, and only on a conflict runs a read-only local probe (`git merge-tree --write-tree`) that classifies every conflicted path into a tier and prints the plan before any edit.
-- Tier 1: a conflicted root `uv.lock` is regenerated with `uv lock` at Wave 8 entry and published as one merge commit of the recorded base tip, pushed fast-forward (never forced). It spends no review round, re-triggers no reviewer, is counted in the new `sync_push_count`, and the CI wait then expects checks on the new head (`expect_checks`), so an empty check list right after the push is no longer read as clean.
+- Tier 1 (opt-in with `--conflict-max-tier 1`, because `uv lock` can run the PR's build code): a conflicted root `uv.lock` is regenerated with `uv lock` at Wave 8 entry and published as one merge commit of the recorded base tip, pushed fast-forward (never forced). It spends no review round, re-triggers no reviewer, is counted in the new `sync_push_count`, and the CI wait then expects checks on the new head (`expect_checks`), so an empty check list right after the push is no longer read as clean.
 - Tier 2 (off by default): text and tree conflicts resolved by stated intent before the first review, with a per-file resolution record, an `evidence-validator` grounding check, full tests, a reviewer re-trigger and one round. Enable with `--conflict-max-tier 2`.
 - Tier 3 (submodule, symlink, mode change, protected or migration path, binary, lock or generated file without a rule, more than 8 text files, anything unclassifiable) halts at the end of Wave 0 at L3 with nothing touched, and is reported at L1 and L2.
-- New flag `--conflict-max-tier {0,1,2}` (default 1); 0 detects and reports only.
+- New flag `--conflict-max-tier {0,1,2}` (default 0); 0 detects and reports only, so no conflict is resolved unless you pass 1 or 2.
 - New core module `superclaude.pr_submit.conflicts`, refs `conflict-mechanical.md` and `conflict-intent.md`, scripts `probe-merge.sh`, `finish-merge.sh` and `collect-conflict-evidence.sh`, and `poll-ci-checks.sh --evidence-sha`.
 
 #### Changed (pr-submit conflicts)

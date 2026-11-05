@@ -1,0 +1,39 @@
+---
+status: success
+tier_reached: 2
+confidence: 0.83
+escalation_reason: low_confidence
+caller: sc-pr-submit-protocol
+---
+# Troubleshoot report: Tier 1 runs `uv lock` on a PR-controlled pyproject.toml (PR #378 finding C3)
+
+## Summary
+The default Tier 1 conflict path runs `uv lock` on the merged work tree without reading the merged `pyproject.toml`. uv imports the build backend that file names, so a PR can run its own Python with the maintainer's credentials. A probe reproduced it: with `backend-path = ["."]` and a dynamic version, the in-tree backend ran even though `uv lock` failed.
+
+## Documentation Context
+The design has no trust model; Tier 1 is the default and the risk table has no row for PR-controlled build backends (doc-context.md). The owner chose option B: keep the default tier 1, halt at Tier 3 before `uv lock` on build-system.backend-path, a non-empty project.dynamic, or a path/editable [tool.uv.sources] entry, and document the trust limit (audit.log header).
+
+## Diagnosability Context
+Verdict partial: a successful `uv lock` leaves no trace of what it executed; the probe observes the execution directly (diagnosability-context.md).
+
+## Diagnosis
+Missing trust gate: step 5 hands the PR-controlled `pyproject.toml` to a command that can execute code named in it.
+
+## Evidence
+- .dev/troubleshoot/bug-tier1-lock-trust-20261104221453/tier1-observation.md:2 — source read at HEAD e2f77381: step 5 runs `uv lock` and `uv lock --check` with nothing reading the merged pyproject.toml first
+- .dev/troubleshoot/bug-tier1-lock-trust-20261104221453/probe-lock-trust.out:6 — `in-tree backend executed: yes`
+- src/superclaude/pr_submit/conflicts.py:208-216 — the only mechanical rule is uv.lock, derived from pyproject.toml
+- pyproject.toml:16 — `requires-python = ">=3.10"` (no tomllib on 3.10)
+- .dev/troubleshoot/bug-tier1-lock-trust-20261104221453/red-run.out:1 — the trigger tests fail before the guard exists
+
+## Proposed Fix
+A pure `lock_trust_findings(pyproject_text)` in conflicts.py (guarded `tomllib` import; fails closed with `pyproject.toml unreadable` on Python 3.10, a non-string input, a parse error or an unexpected shape) returns, in order, `build-system.backend-path`, `project.dynamic`, and `tool.uv.sources.<name> (path)` / `(editable)` (a source is a table or a list of tables). Step 5 reads the work-tree `pyproject.toml` after the precheck and evaluates the function in the runtime that evaluates `conflict_plan` (never `uv run` in the merged tree); any finding aborts the merge and halts `sync_tier3` with the findings named, and `uv lock` never runs. The trust limit is documented in conflict-mechanical.md section 6, SKILL.md and commands/pr-submit.md. Tests: one per trigger, clean inputs (including the repo's own pyproject.toml), malformed and bad-shape inputs, no parser, the 3.10 path, the guarded import, and the step 5 order pin.
+
+## Risk + Rollback
+On Python 3.10 every Tier 1 halts (fail closed) and CI (3.10) skips the trigger tests; a legitimate base `project.dynamic` halts every Tier 1. Out of the owner's scope and not covered by the gate: a root uv.toml, `file://` direct references, workspace members, git/URL/sdist builds, `.python-version`, `core.hooksPath`, and VAL and the commit hooks, which run PR code. Rollback: revert the fix commit.
+
+## Pipeline Hardening Closure
+See hardening.md: applicable (gate/status enum, CLI/subprocess); verdict advisory (HC1, HC3, HC4 N/A with rationale).
+
+## Next Steps
+sc:pr-submit publishes the gate in the cycle's single fix commit after VAL, replies on thread C3 with the fix SHA and resolves it.

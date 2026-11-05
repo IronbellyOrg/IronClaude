@@ -1,6 +1,6 @@
 # Conflict Intent (C-initial, Tier 2 only) — resolving text conflicts by stated intent
 
-> **Tier 2 only. Off by default.** This ref applies only when the run was started with `--conflict-max-tier 2`, at `--monitor 3` (L3), inside the Tier 2 merge cycle at `C-initial`. With the default cap (`--conflict-max-tier 1`) or below L3 it is never loaded and no text conflict is ever resolved: Tier 2 is reported, not acted on.
+> **Tier 2 only. Off by default.** This ref applies only when the run was started with `--conflict-max-tier 2`, at `--monitor 3` (L3), inside the Tier 2 merge cycle at `C-initial`. With a cap below 2 (the default is `--conflict-max-tier 0`) or below L3 it is never loaded and no text conflict is ever resolved: Tier 2 is reported, not acted on.
 
 `refs/conflict-mechanical.md` owns the merge cycle (steps 0 to 13). This ref is its Tier 2 part: step 5 (resolve the `text:*` paths) and step 6 (the resolution record and its grounding check), plus the Tier 2 commit message and what follows the merge push. The core decides (`superclaude.pr_submit.conflicts`); this ref guides the judgment.
 

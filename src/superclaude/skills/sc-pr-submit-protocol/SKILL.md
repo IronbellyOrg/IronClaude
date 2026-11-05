@@ -216,7 +216,7 @@ Existing grounding rejects a null current line; it cannot authorize an automatic
 | `--timeout` | No (default 600s) | Wall-clock since entering wait. The observed CI matrix has run longer than 600s: for a CI wait, pass a `--timeout` that covers the full check run. No indefinite wait. |
 | `--silence-timeout` | No (default 300s) | No-Augment-activity window. Reject `< 30`. Clamped to `--timeout`. L3 may re-request once. |
 | `--resume <abs-run-log-path>` | No | Reconstruct state from JSONL (§12). |
-| `--conflict-max-tier {0,1,2}` | No (default 1) | Highest merge-conflict tier the skill may act on: 0 detect and report only, 1 also regenerate a conflicted root `uv.lock` (Tier 1), 2 also resolve text conflicts by stated intent (Tier 2, off by default). Tier 3 never resolves. |
+| `--conflict-max-tier {0,1,2}` | No (default 0) | Highest merge-conflict tier the skill may act on: 0 (default) detect and report only, 1 also regenerate a conflicted root `uv.lock` (Tier 1, opt-in because `uv lock` can run the PR's build code), 2 also resolve text conflicts by stated intent (Tier 2, off by default). Tier 3 never resolves. |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
 `owner/repo`, parsed from `git remote get-url origin`): a wrong origin, or a returned URL whose `owner/repo` ≠ the resolved target → HALT,

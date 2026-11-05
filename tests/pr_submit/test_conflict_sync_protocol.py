@@ -208,9 +208,10 @@ def test_conflict_intent_record_fields_in_order():
 
 SKILL_EDITS = {
     "E1": (
-        "| `--conflict-max-tier {0,1,2}` | No (default 1) | Highest merge-conflict tier "
-        "the skill may act on: 0 detect and report only, 1 also regenerate a conflicted "
-        "root `uv.lock` (Tier 1), 2 also resolve text conflicts by stated intent (Tier 2, "
+        "| `--conflict-max-tier {0,1,2}` | No (default 0) | Highest merge-conflict tier "
+        "the skill may act on: 0 (default) detect and report only, 1 also regenerate a "
+        "conflicted root `uv.lock` (Tier 1, opt-in because `uv lock` can run the PR's "
+        "build code), 2 also resolve text conflicts by stated intent (Tier 2, "
         "off by default). Tier 3 never resolves. |",
     ),
     "E2": (

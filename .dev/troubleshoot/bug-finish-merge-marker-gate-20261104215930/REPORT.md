@@ -1,0 +1,40 @@
+---
+status: success
+tier_reached: 1
+confidence: 1.00
+escalation_reason: none
+caller: sc-pr-submit-protocol
+---
+# Troubleshoot report: finish-merge.sh finish gate (PR #378 findings A1, C2)
+
+## Summary
+The finish gate in `finish-merge.sh` checks a narrower view of each index entry than the commit records. Step 4 counts only exactly-7-wide conflict markers, while git writes markers at the `conflict-marker-size` attribute width; step 5 compares blob ids only, which exclude the file mode. A probe on the unfixed script reproduced both: 9-wide markers were committed, and an unrelated mode change was committed.
+
+## Documentation Context
+Design source section 7.2 pins both narrow predicates literally (source.md:817-818); its stated purpose is that the commit changes nothing beyond the auto-merge result plus the resolved paths. Fixes must keep the `markers`/`staged_unexpected` tokens, the one-line stdout contract, `--no-renames`, and the static-text rules. See doc-context.md.
+
+## Diagnosability Context
+Verdict partial, complexity trivial: both defects are silent false passes; the hermetic regression tests P-1/P-2 make them observable. No hard-stop.
+
+## Diagnosis
+Root cause: the gate predicates are weaker than the property they prove (marker width fixed at 7; blob-id-only comparison).
+
+## Evidence
+- src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:208 — `grep -a -c -E '^(<{7}|[|]{7}|={7}|>{7})( |$)'`
+- src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:246 — `index_blob="$(git rev-parse -q --verify ":0:$path" 2>/dev/null)"`
+- src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:249 — `|| fail staged_unexpected "the index differs from the merge-tree result at $path"`
+- src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:76 — merge command with no marker-size override
+- .dev/troubleshoot/bug-finish-merge-marker-gate-20261104215930/probe-finish.out:2 — `marker line written by git: <<<<<<<<< HE`
+- .dev/troubleshoot/bug-finish-merge-marker-gate-20261104215930/probe-finish.out:4 — `exit=0` (the unfixed gate accepted the 9-wide markers: a false pass)
+- .dev/troubleshoot/bug-finish-merge-marker-gate-20261104215930/probe-finish.out:9 — `committed run.sh mode: 100644`
+
+## Proposed Fix
+(A1) Step 4: read the width per manifest path with read-only `git check-attr -z conflict-marker-size -- "$path"`, parsed as git parses it (C atoi: leading blanks, optional sign, leading digits; 7 when not positive; revised after the off-path review, .dev/pr-monitor/pr-378-20261104214804/review-round1-1.md finding B1, from "default 7 when not a positive integer", which mis-read `010`, `08`, `+9`); count markers of exactly that width in both the staged and the stage-1 blob; token `markers` unchanged.
+(C2) Step 5: compare the index with the merge tree directly using `git diff --cached --name-only --no-renames -z "$MT_OID"` (content, mode and type); any listed path outside the manifest fails `staged_unexpected` naming the path.
+Regression tests in tests/pr_submit/test_conflict_scripts.py: wider marker size left in place, unrelated mode change staged, file-to-symlink swap.
+
+## Risk + Rollback
+check-attr reads attributes at finish time; non-numeric values fall back to 7. Rollback: revert the fix commit.
+
+## Next Steps
+sc:pr-submit applies the edits in S3_FIXING, runs VAL, and publishes them in the cycle's single fix commit.

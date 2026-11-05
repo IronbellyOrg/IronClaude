@@ -34,7 +34,9 @@ HARD_CAP_MAX_ROUNDS = 5
 MIN_POLL_INTERVAL = 30
 DEFAULT_TIMEOUT = 600
 DEFAULT_SILENCE_TIMEOUT = 300
-DEFAULT_CONFLICT_MAX_TIER = 1
+# Tier 1 (`uv lock`) can run the PR's build code, so it is opt-in: the default
+# is detect-and-report only (PR #378 finding C5).
+DEFAULT_CONFLICT_MAX_TIER = 0
 
 POLL_INTERVAL_ERROR = "minimum is 30 seconds"
 MAX_ROUNDS_ERROR = "--max-rounds hard cap is 5"
