@@ -46,6 +46,7 @@ def test_old_when_they_differ_wording_is_gone(root):
         "is not a confirmed blocker",
         "is an unfinished re-review",
         "after the `FINAL:` line that flagged the prompt",
+        "so the blocker never reaches the retry ladder",
     ],
 )
 def test_qa_has_rule_wording(root, phrase):
