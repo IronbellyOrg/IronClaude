@@ -410,7 +410,8 @@ def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
     assert _compact(seen, "claude-gw-tier1a") == 850000
     assert seen["custom"] == ""  # tiers are already in the picker
     assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
-    assert "tier2" in out and "muse-spark-1.3" in out
+    assert "tier2" in err and "muse-spark-1.3" in err
+    assert out == ""
 
 
 def test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier(
@@ -1467,6 +1468,8 @@ def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
     """Launch the real script (fake claude) so it starts or reuses real shims.
 
     port None leaves CC_SHIM_PORT unset, so the script picks the port itself.
+    Returns the launcher's standard error (its status lines) and the base URL
+    the fake claude saw.
     """
     fake = tmp_path / "bin" / "claude"
     fake.parent.mkdir(exist_ok=True)
@@ -1495,7 +1498,8 @@ def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
         timeout=60,
     )
     assert proc.returncode == 0, proc.stderr
-    return proc.stdout, (tmp_path / "seen").read_text().strip()
+    assert proc.stdout == ""  # the fake claude prints nothing; status is on stderr
+    return proc.stderr, (tmp_path / "seen").read_text().strip()
 
 
 def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
@@ -2058,7 +2062,7 @@ def test_model_outside_tier_mode_stays_where_it_was_typed(tmp_path: Path) -> Non
     assert seen["argv"][-3:] == ["--model", "sonnet", "review this code"]
     rc, out, err, seen = _launch(tmp_path, "work", "--model=sonnet", defaults=None)
     assert rc == 0, err
-    assert "--model=sonnet" in seen["argv"] and "labeled 'work'" in out
+    assert "--model=sonnet" in seen["argv"] and "labeled 'work'" in err
 
 
 def test_launch_never_attaches_to_a_shim_that_won_the_port_race(
@@ -3016,7 +3020,7 @@ def test_anthropic_model_is_the_default_when_in_an_allowed_tier(
     assert _model_arg(seen) == "gpt-6.1-sol"
     assert seen["context"] == "850000" and _compact(seen, "gpt-6.1-sol") == 850000
     assert seen["custom"] == "gpt-6.1-sol"
-    assert "model gpt-6.1-sol" in out
+    assert "model gpt-6.1-sol" in err
     # A [1m] suffix on the variable is accepted as the same model.
     rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol[1m]")
     assert rc == 0, err

@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+collecting ... collected 1 item
+
+tests/unit/test_ccsession_tag.py::test_version_through_orca_keeps_stdout_clean FAILED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_version_through_orca_keeps_stdout_clean _________________
+tests/unit/test_ccsession_tag.py:1518: in test_version_through_orca_keeps_stdout_clean
+    assert result.stdout == "2.1.318 (Claude Code)\n"
+E   AssertionError: assert '[ccsession] tier2 (Tier 2: stand-in-t2model01, stand-in-t2model02, stand-in-t2model03, stand-in-t2model04, stand-in-t2model05, stand-in-t2model06): model claude-gw-tier2[1m], context 500000, auto-compact window 500000\n[ccsession] Shim already running on 127.0.0.1:4555 (reusing)\n[ccsession] Starting untagged session\n2.1.318 (Claude Code)\n' == '2.1.318 (Claude Code)\n'
+E     
+E     + [ccsession] tier2 (Tier 2: stand-in-t2model01, stand-in-t2model02, stand-in-t2model03, stand-in-t2model04, stand-in-t2model05, stand-in-t2model06): model claude-gw-tier2[1m], context 500000, auto-compact window 500000
+E     + [ccsession] Shim already running on 127.0.0.1:4555 (reusing)
+E     + [ccsession] Starting untagged session
+E       2.1.318 (Claude Code)
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_version_through_orca_keeps_stdout_clean - AssertionError: assert '[ccsession] tier2 (Tier 2: stand-in-t2model01, stand-in-t2model02, stand-in-t2model03, stand-in-t2model04, stand-in-t2model05, stand-in-t2model06): model claude-gw-tier2[1m], context 500000, auto-compact window 500000\n[ccsession] Shim already running on 127.0.0.1:4555 (reusing)\n[ccsession] Starting untagged session\n2.1.318 (Claude Code)\n' == '2.1.318 (Claude Code)\n'
+  
+  + [ccsession] tier2 (Tier 2: stand-in-t2model01, stand-in-t2model02, stand-in-t2model03, stand-in-t2model04, stand-in-t2model05, stand-in-t2model06): model claude-gw-tier2[1m], context 500000, auto-compact window 500000
+  + [ccsession] Shim already running on 127.0.0.1:4555 (reusing)
+  + [ccsession] Starting untagged session
+    2.1.318 (Claude Code)
+============================== 1 failed in 1.11s ===============================

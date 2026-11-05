@@ -29,6 +29,8 @@ SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
 sys.path.insert(0, str(SKILL_DIR))
 import models  # noqa: E402
 
+from superclaude.cli.eval.commands import _parse_version  # noqa: E402
+
 # A fake shim reports the code fingerprint of the real one, so launches reuse it.
 SHIM_CODE = models.code_digest(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
 
@@ -428,7 +430,8 @@ def test_shim_is_detected_without_lsof(tmp_path: Path) -> None:
             stdin=subprocess.DEVNULL,
         )
         assert first.returncode == 0, first.stderr
-        assert "Starting model-alias shim" in first.stdout
+        assert "Starting model-alias shim" in first.stderr
+        assert first.stdout == "launched\n"
         second = subprocess.run(
             command,
             env=env,
@@ -438,7 +441,8 @@ def test_shim_is_detected_without_lsof(tmp_path: Path) -> None:
             stdin=subprocess.DEVNULL,
         )
         assert second.returncode == 0, second.stderr
-        assert "already running" in second.stdout
+        assert "already running" in second.stderr
+        assert second.stdout == "launched\n"
     finally:
         subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
 
@@ -1155,9 +1159,10 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
     assert "Valid profiles: " + ", ".join(_bundled()["profiles"]) in result.stderr
 
 
-def _label_launch(
+def _label_run(
     tmp_path: Path, transcript: bool, args: tuple[str, ...] = ("demo",)
-) -> tuple[str, bool]:
+) -> tuple[subprocess.CompletedProcess[str], bool]:
+    """Run ccsession on a saved label; return the finished process and whether the label stayed."""
     home = tmp_path / "home"
     work = tmp_path / "work"
     work.mkdir(parents=True)
@@ -1190,7 +1195,15 @@ def _label_launch(
         capture_output=True,
         check=True,
     )
-    return result.stdout, (topics / "demo.txt").exists()
+    return result, (topics / "demo.txt").exists()
+
+
+def _label_launch(
+    tmp_path: Path, transcript: bool, args: tuple[str, ...] = ("demo",)
+) -> tuple[str, bool]:
+    """Like _label_run, but only the standard output (Claude's last line is its JSON)."""
+    result, label_kept = _label_run(tmp_path, transcript, args)
+    return result.stdout, label_kept
 
 
 def test_rm_removes_an_existing_label_that_starts_with_a_dash(tmp_path: Path) -> None:
@@ -1216,9 +1229,10 @@ def test_rm_removes_an_existing_label_that_starts_with_a_dash(tmp_path: Path) ->
 
 
 def test_label_with_missing_transcript_starts_new_session(tmp_path: Path) -> None:
-    stdout, label_kept = _label_launch(tmp_path, transcript=False)
-    assert "has no saved conversation; starting a new one" in stdout
-    assert "--resume" not in json.loads(stdout.strip().splitlines()[-1])
+    result, label_kept = _label_run(tmp_path, transcript=False)
+    assert "has no saved conversation; starting a new one" in result.stderr
+    assert "[ccsession]" not in result.stdout
+    assert "--resume" not in json.loads(result.stdout.strip().splitlines()[-1])
     assert not label_kept
 
 
@@ -1229,17 +1243,17 @@ def test_label_with_saved_transcript_resumes(tmp_path: Path) -> None:
     assert label_kept
 
 
-@pytest.mark.parametrize(
-    ("args", "transcript"),
-    [
-        (("-p", "x"), False),
-        (("--profile", "claude", "-p", "x"), False),
-        (("demo",), False),
-        (("demo",), True),
-        (("--profile", "claude", "demo"), False),
-        (("--profile", "claude", "demo"), True),
-    ],
-)
+_LAUNCH_CASES = [
+    (("-p", "x"), False),
+    (("--profile", "claude", "-p", "x"), False),
+    (("demo",), False),
+    (("demo",), True),
+    (("--profile", "claude", "demo"), False),
+    (("--profile", "claude", "demo"), True),
+]
+
+
+@pytest.mark.parametrize(("args", "transcript"), _LAUNCH_CASES)
 def test_every_launch_restores_grep_and_glob(
     tmp_path: Path, args: tuple[str, ...], transcript: bool, monkeypatch
 ) -> None:
@@ -1256,6 +1270,20 @@ def test_every_launch_restores_grep_and_glob(
     assert ("--resume" in launched) == transcript
 
 
+@pytest.mark.parametrize(("args", "transcript"), _LAUNCH_CASES)
+def test_launch_status_lines_are_on_stderr_only(
+    tmp_path: Path, args: tuple[str, ...], transcript: bool, monkeypatch
+) -> None:
+    # Issue 389: a scripted `claude` call must see only Claude's own output on
+    # standard output. Here that is the stand-in's one JSON line; every
+    # [ccsession] notice belongs on standard error.
+    monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+    result, _ = _label_run(tmp_path, transcript=transcript, args=args)
+    assert len(result.stdout.strip().splitlines()) == 1, result.stdout
+    assert "[ccsession]" not in result.stdout
+    assert "[ccsession]" in result.stderr
+
+
 def test_private_addon_profiles_never_download_model_data(
     tmp_path: Path, monkeypatch
 ) -> None:
@@ -1269,6 +1297,50 @@ def test_private_addon_profiles_never_download_model_data(
         assert server.statuses == [200]
     finally:
         server.close()
+
+
+def test_model_list_update_note_goes_to_stderr_at_launch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    newer = _bundled()
+    newer["version"] = "9999-01-01.1"
+    server = _DataServer(newer)
+    monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "1")
+    monkeypatch.setenv("CCSESSION_MODELS_URL", server.url)
+    try:
+        result = _addon_launch(tmp_path, "--profile", "claude")
+    finally:
+        server.close()
+    assert result.returncode == 0, result.stderr
+    assert "model list updated to 9999-01-01.1" in result.stderr
+    assert "model list updated" not in result.stdout
+
+
+def test_refresh_models_report_stays_on_stdout(tmp_path: Path) -> None:
+    # `ccsession --refresh-models` is a report the user asked for, so unlike a
+    # launch notice it stays on standard output.
+    server = _DataServer(_bundled())
+    env = {
+        **os.environ,
+        "HOME": str(tmp_path),
+        "XDG_CACHE_HOME": str(tmp_path),
+        "CCSESSION_MODELS_URL": server.url,
+    }
+    try:
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--refresh-models"],
+            env=env,
+            cwd=tmp_path,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=60,
+        )
+    finally:
+        server.close()
+    assert result.returncode == 0, result.stderr
+    assert "[ccsession] model data check:" in result.stdout
+    assert "model data check" not in result.stderr
 
 
 def test_claude_args_passes_the_rest_to_claude_unchanged(tmp_path: Path) -> None:
@@ -1296,6 +1368,30 @@ def test_plain_double_dash_still_reaches_claude(tmp_path: Path) -> None:
     )
     launched = json.loads(stdout.strip().splitlines()[-1])
     assert launched[-2:] == ["--", "-weird prompt"]
+
+
+def test_status_lines_in_launcher_scripts_go_to_stderr() -> None:
+    # Issue 389. A launch test cannot reach the Reopening notices (terminal and
+    # ORCA_PANE_KEY only) or the model cache print (needs a gateway), so read
+    # the scripts themselves.
+    for name in ("ccsession", "ccsession-orca"):
+        for number, line in enumerate((SKILL_DIR / name).read_text().splitlines(), 1):
+            if 'echo "[ccsession]' in line:
+                assert ">&2" in line, (
+                    f"{name}:{number} prints to stdout: {line.strip()}"
+                )
+    lines = (SKILL_DIR / "ccsession").read_text().splitlines()
+    assert any(line.strip() == "python3 - >&2 <<'PY'" for line in lines), (
+        "ccsession: the cache warm-up heredoc must start with python3 - >&2 <<'PY'"
+    )
+    refresh = [
+        (number, line)
+        for number, line in enumerate(lines, 1)
+        if 'refresh --wait "${CCSESSION_MODELS_WAIT' in line
+    ]
+    assert len(refresh) == 1, refresh
+    number, line = refresh[0]
+    assert ">&2 || true" in line, f"ccsession:{number} refresh note goes to stdout"
 
 
 # ccsession-orca: Orca's Claude command. Each launch runs the real wrapper and
@@ -1481,6 +1577,43 @@ def _orca_no_tty(tmp_path: Path, *args: str, **extra: str) -> tuple[str, dict]:
     return result.stdout + result.stderr, json.loads(
         (tmp_path / "record.json").read_text()
     )
+
+
+def test_version_through_orca_keeps_stdout_clean(tmp_path: Path) -> None:
+    """Issue 389: a scripted `claude --version` gets only Claude's own output.
+
+    The status lines of ccsession go to standard error. Reading the streams
+    apart (not through _orca_no_tty, which joins them) is the point of this test.
+    """
+    # A Coder workspace runs in tier mode, so its first status line names the
+    # tier; give the scratch launch the same mode (a workspace env block with
+    # one stand-in model per slot the bundled model data asks for).
+    defaults = tmp_path / "defaults.sh"
+    lines = ["export CCSESSION_DEFAULT_TIER=tier2"]
+    for name, tier in models.load()[0]["tiers"].items():
+        lines.append(f"export T{models.tier_number(name)}_WINDOW=500000")
+        for slot in tier["models_env"]:
+            lines.append(f"export {slot}=stand-in-{slot.lower()}")
+            lines.append(f"export {slot}_WINDOW=500000")
+    defaults.write_text("\n".join(lines) + "\n")
+    env = _orca_env(tmp_path, AIDEV_AI_DEFAULTS_PATH=str(defaults))
+    stand_in = tmp_path / "tools" / "claude-record"
+    stand_in.write_text("#!/bin/sh\necho '2.1.318 (Claude Code)'\n")
+    stand_in.chmod(0o700)
+    result = subprocess.run(
+        [str(ORCA), "--version"],
+        env=env,
+        cwd=tmp_path / "work",
+        stdin=subprocess.DEVNULL,
+        text=True,
+        capture_output=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "2.1.318 (Claude Code)\n"
+    assert "[ccsession] Starting untagged session" in result.stderr
+    # superclaude eval reads the Claude version from this text.
+    assert _parse_version(result.stdout + result.stderr) == (2, 1, 318)
 
 
 def _assert_through_shim(record: dict) -> None:

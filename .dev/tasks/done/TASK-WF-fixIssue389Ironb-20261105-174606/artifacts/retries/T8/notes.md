@@ -1,0 +1,2 @@
+99d4b284f1ea757b3cf4cde3b007e52edb7bb8f2
+extras: the first run of tests/cli/eval (artifacts/t8-eval-tests-noruff.log) had 5 failures in test_ban_import_rule.py and test_claude_process_adapter.py because ruff is not installed in this checkout's venv (Failed to spawn: ruff); unrelated to this task. The saved t8-eval-tests.log is the run with ruff made available: uv run --with ruff==0.15.20 pytest tests/cli/eval, 1498 passed

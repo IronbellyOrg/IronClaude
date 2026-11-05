@@ -182,10 +182,10 @@ if [ "$ask_ok" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ] && [ "$name_from_env" = 0 ];
     # dropped above and does not stop a reopen).
     unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT
     if [ -n "$name" ]; then
-      echo "[ccsession] Reopening this tab's session '$name'"
+      echo "[ccsession] Reopening this tab's session '$name'" >&2
       exec "$CCSESSION" --name "$name" --shim --claude-args "$@"
     fi
-    echo "[ccsession] Reopening this tab's session ${session:0:8}"
+    echo "[ccsession] Reopening this tab's session ${session:0:8}" >&2
     exec "$CCSESSION" --shim --claude-args "$@" --resume "$session"
   fi
 fi

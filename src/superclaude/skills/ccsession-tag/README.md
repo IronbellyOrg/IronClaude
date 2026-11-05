@@ -362,6 +362,10 @@ ran. So the tab reopens its own session instead of asking:
 - A session belongs to one tab: when another tab opens it, the first tab
   forgets it, so two tabs never reopen the same session.
 
+ccsession prints its own status lines (`[ccsession] ...`) on standard error, so
+standard output carries only Claude's output and the results of commands such as
+`--ask`, `--auto-name` and `--list`; on a terminal both streams look the same.
+
 The question itself is `ccsession --ask [<hint>]`: it prints the list and the
 question on the terminal and only the answer on standard output. A `@LIMIT@`
 in the hint becomes the time limit in seconds. When there is no limit, the hint

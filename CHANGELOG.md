@@ -4,6 +4,20 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: status lines go to standard error (#389)
+
+#### Fixed (ccsession output streams)
+
+- Every informational `[ccsession]` line (shim, profile and tier, session start and resume, the model cache and model list notes, and the Orca reopen notices) now goes to standard error. A scripted `claude --version`, `claude mcp list` or `claude -p ... --output-format stream-json` that runs through `ccsession-orca` gets only Claude's own output on standard output. This unblocks IronbellyOrg/Coder PR 458.
+- `superclaude eval` therefore reads the real Claude version. Before, the launcher's lines came first and the version check took `127.0.0` from the shim address `127.0.0.1:<port>`, because its probe reads standard output first.
+- The lines still show in a terminal. Redirecting `ccsession` standard output to a file no longer collects them.
+- The values printed by `--ask`, `--auto-name`, `--list`, `--rm`, `--refresh-models` and `--models-status`, and the `models.py` output the launcher captures, stay on standard output.
+- The fix reaches a workspace only after `superclaude install` is run again.
+
+#### Added (ccsession output streams)
+
+- Tests that pin the streams: a replay of `ccsession-orca --version` with a stand-in Claude (`test_version_through_orca_keeps_stdout_clean`), `test_launch_status_lines_are_on_stderr_only` (six launch variants), `test_model_list_update_note_goes_to_stderr_at_launch`, `test_refresh_models_report_stays_on_stdout`, a source guard for the lines a launch test cannot reach (`test_status_lines_in_launcher_scripts_go_to_stderr`), and three version-parsing tests in `tests/cli/eval/test_doctor_version.py`.
+
 ### onboarding deck: a 15-slide page for new team members, built from the routing guide
 
 #### Added (onboarding deck)
