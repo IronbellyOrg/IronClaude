@@ -1,0 +1,26 @@
+$ grep -n "Known limit" CHANGELOG.md   (literal AC command)
+70:- Known limits, commands it does not catch: string arguments to another interpreter (`bash -c "python3 x"`,
+note: the only hit is the "Known limits, commands it does not catch" bullet of the unrelated UV-only Bash hook entry (#357); the follow-up entry has no such line
+$ grep -n "Known limit:" CHANGELOG.md   (the removed bullet)
+known-limit-colon-exit=1
+$ sed -n "/ccsession: tier mode sets the model aliases/,/^### Install/p" CHANGELOG.md | grep -c "per-tier\|each one only when\|may use"
+1
+$ make lint
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+lint-exit=0
+$ uv run ruff format --check src/ tests/
+1199 files already formatted
+format-exit=0
+$ make sync-dev (writes only gitignored .claude/ copies)
+   Templates: 52 files
+$ make verify-sync
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-exit=0
+$ git status --short | grep .claude
+claude-grep-exit=1

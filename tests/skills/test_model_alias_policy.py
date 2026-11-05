@@ -3,10 +3,10 @@
 These tests check, at the points each test names, that the agent, command and
 skill files and the Python package under ``src/superclaude`` use the plain aliases
 ``opus``, ``sonnet`` and ``haiku`` (or ``inherit`` in frontmatter), apart from the
-allow-lists below. Once the launcher sets ``ANTHROPIC_DEFAULT_*_MODEL`` in tier
-mode (a follow-up change after the #315 pull request), the aliases map to tier
-models inside a ccsession tier workspace; today the workspace defaults file
-exports real model ids for them. See ``docs/reference/model-aliases.md``.
+allow-lists below. In tier mode the launcher sets each ``ANTHROPIC_DEFAULT_*_MODEL``
+for a tier the owner may use, so those aliases map to tier models inside a
+ccsession tier workspace; otherwise the workspace defaults file's real model ids
+apply. See ``docs/reference/model-aliases.md``.
 
 Enforcement type: STATIC (file text and ast). The allow-lists below are the
 documented exceptions; every entry carries its reason.

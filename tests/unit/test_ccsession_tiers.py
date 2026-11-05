@@ -338,6 +338,9 @@ json.dump({
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
     "api_key": os.environ.get("ANTHROPIC_API_KEY", ""),
     "auth_token": os.environ.get("ANTHROPIC_AUTH_TOKEN", ""),
+    "opus_model": os.environ.get("ANTHROPIC_DEFAULT_OPUS_MODEL", ""),
+    "sonnet_model": os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", ""),
+    "haiku_model": os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
 """
     )
@@ -2885,3 +2888,116 @@ def test_each_owner_gets_its_own_shim(tmp_path: Path) -> None:
         for owner in ("alice", "bob")
     }
     assert len(ports) == 2
+
+
+ALIAS_VARIABLES = (
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+)
+
+
+def test_tier_launch_exports_the_alias_variables(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The harness copies os.environ and the workspace exports these three
+    # variables, so remove them first: only the launcher may set them here.
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    rc, out, err, seen = _launch(tmp_path, "work")
+    assert rc == 0, err
+    assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
+        "claude-gw-tier1a",
+        "claude-gw-tier1b",
+        "claude-gw-tier2",
+    )
+
+
+def test_non_tier_launch_leaves_the_alias_variables_unset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    rc, out, err, seen = _launch(tmp_path, "work", defaults=None)
+    assert rc == 0, err
+    assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
+        "",
+        "",
+        "",
+    )
+
+
+def _seen_aliases(seen) -> tuple:
+    return (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"])
+
+
+def test_limited_owner_gets_only_the_haiku_alias_variable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # bob may use tier2 and tier3 only (ACCESS_BLOCK), so tier1a and tier1b are
+    # not his: the opus and sonnet variables are not exported.
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    rc, out, err, seen = _launch(
+        tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob"
+    )
+    assert rc == 0, err
+    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
+
+
+def test_limited_owner_keeps_inherited_alias_values(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A variable for a tier the owner may not use stays exactly as inherited;
+    # the one for a tier the owner may use is set.
+    monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "inherited-opus")
+    monkeypatch.setenv("ANTHROPIC_DEFAULT_SONNET_MODEL", "inherited-sonnet")
+    monkeypatch.setenv("ANTHROPIC_DEFAULT_HAIKU_MODEL", "inherited-haiku")
+    rc, out, err, seen = _launch(
+        tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob"
+    )
+    assert rc == 0, err
+    assert _seen_aliases(seen) == (
+        "inherited-opus",
+        "inherited-sonnet",
+        "claude-gw-tier2",
+    )
+
+
+def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # A newer cached model list without tier1a and tier1b (models.load() takes
+    # the newest copy): the workspace has no such tiers, so for any owner only
+    # the haiku variable is exported.
+    data = json.loads((SKILL_DIR / "ccsession-models.json").read_text())
+    for tier in ("tier1a", "tier1b"):
+        del data["tiers"][tier]
+    data["version"] = "2099-01-01.1"
+    cache = Path(os.environ["XDG_CACHE_HOME"]) / "ccsession"
+    cache.mkdir(parents=True, exist_ok=True)
+    (cache / "models.json").write_text(json.dumps(data))
+    loaded, source = models.load()
+    assert source == "downloaded" and "tier1a" not in loaded["tiers"]
+
+    # Inherited values unset ...
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    unset_dir = tmp_path / "unset"
+    unset_dir.mkdir()
+    rc, out, err, seen = _launch(unset_dir, "work")
+    assert rc == 0, err
+    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
+
+    # ... and inherited values already set.
+    monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "inherited-opus")
+    monkeypatch.setenv("ANTHROPIC_DEFAULT_SONNET_MODEL", "inherited-sonnet")
+    set_dir = tmp_path / "set"
+    set_dir.mkdir()
+    rc, out, err, seen = _launch(set_dir, "work")
+    assert rc == 0, err
+    assert _seen_aliases(seen) == (
+        "inherited-opus",
+        "inherited-sonnet",
+        "claude-gw-tier2",
+    )

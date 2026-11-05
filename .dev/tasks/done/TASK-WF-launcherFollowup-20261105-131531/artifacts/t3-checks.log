@@ -1,0 +1,8 @@
+$ grep -n "is to apply\|once the launcher\|did not set\|did not cover\|Until then" docs/reference/model-aliases.md
+grep-exit=1
+$ link target
+-rw------- 1 coder coder 2068 Nov  5 13:12 ../../.dev/issues/384/analysis/probe-alias-remap.md
+-rw-r--r-- 1 coder coder 2757 Nov  5 13:15 ../../.dev/issues/384/analysis/probe-sonnet-alias.md
+$ pytest
+
+============================== 13 passed in 1.33s ==============================

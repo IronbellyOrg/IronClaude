@@ -30,7 +30,7 @@ All notable changes to IronClaude are documented in this file.
 
 #### Added (model aliases)
 
-- New reference page `docs/reference/model-aliases.md`: what `tests/skills/test_model_alias_policy.py` checks and its allow-list (the three issue-worker agents pin picker ids on purpose), the owner decision of 2026-11-05 for a ccsession tier workspace (`opus` to `claude-gw-tier1a`, `sonnet` to `claude-gw-tier1b`, `haiku` to `claude-gw-tier2`, through `ANTHROPIC_DEFAULT_*_MODEL`), why aliases and not picker ids, and the known consequences. The launcher does not set these variables yet: that is a separate follow-up pull request after #315 merges, specified in `.dev/issues/384/launcher-followup.md` with its failing-first test. Until then the workspace defaults file exports real model ids for the three variables.
+- New reference page `docs/reference/model-aliases.md`: what `tests/skills/test_model_alias_policy.py` checks and its allow-list (the three issue-worker agents pin picker ids on purpose), the owner decision of 2026-11-05 for a ccsession tier workspace (`opus` to `claude-gw-tier1a`, `sonnet` to `claude-gw-tier1b`, `haiku` to `claude-gw-tier2`, through `ANTHROPIC_DEFAULT_*_MODEL`), why aliases and not picker ids, and the known consequences. The launcher sets these variables in tier mode through the follow-up change in the next entry (specified in `.dev/issues/384/launcher-followup.md` with its failing-first test). The workspace defaults file exports real model ids for the same three variables, and the launcher export replaces the ones for tiers the owner may use inside a tier workspace.
 - New test file `tests/skills/test_model_alias_policy.py` (frontmatter `model:` values, `claude-gw-tier` text, full model ids in Python constants and in `--model` flags, and the fixes below) and four tests that record how the sprint alternate-model suggestion and the reflect alias count behave while the variables hold tier ids.
 
 #### Changed (model aliases)
@@ -39,6 +39,18 @@ All notable changes to IronClaude are documented in this file.
 - The `/sc:issue` next-step chains no longer pass `--models opus,sonnet` to `/sc:brainstorm`; the brainstorm defaults (`opus,sonnet,haiku`) apply. `refs/tiers.md` no longer states that `haiku` is `glm-5.3`.
 - The cleanup-audit skill, command and report template say that the Pass 1 scanner runs on Sonnet, as `audit-scanner` already did, and drop the 50-70% cost claim that was specific to Haiku.
 - The implement retry ladder (`refs/retry.md`, `refs/ledger.md`) names the slot variables the workspace exports (`T3Model01`, `T2Model01`, `T2Model02`, `T1Model01`, `T1Model02`) instead of spellings with an underscore that no workspace exports. In a workspace that sets the four rung variables the primary ladder now replaces the alias fallback ladder, which changes which models the retry advisers use.
+
+### ccsession: tier mode sets the model aliases (#384 launcher follow-up)
+
+#### Changed (ccsession tier mode)
+
+- In a ccsession tier workspace the launcher now exports `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a`, `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` and `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` (`src/superclaude/skills/ccsession-tag/ccsession`), each one only when the workspace owner may use its tier, so the plain aliases `opus`, `sonnet` and `haiku` in agent frontmatter and `--model` resolve to the tiers (the probes did not exercise the Agent-call `model` parameter). "May use" is read with the `tiers` command of `models.py`, the rule the shim applies, without running the shim. A variable whose tier the owner may not use, or every variable when the list cannot be read, keeps its inherited value: an owner limited to tier2 and tier3 gets only the haiku variable and keeps the inherited opus and sonnet values. Outside tier mode the launcher sets none of them. Inside a tier workspace the exported values replace the real model ids that the workspace defaults file exports for the same variables.
+- The pages that said the launcher would set the variables later now say that it does: `docs/reference/model-aliases.md`, `docs/user-guide/brainstorm.md`, `docs/user-guide/commands.md`, `refs/tiers.md` and `refs/chains.md` of the `/sc:issue` protocol, a comment in `src/superclaude/cli/reflect/commands.py` and the docstring of `tests/skills/test_model_alias_policy.py`.
+
+#### Added (tier alias tests and probe)
+
+- Five tests in `tests/unit/test_ccsession_tiers.py`: `test_tier_launch_exports_the_alias_variables` (an unrestricted owner gets all three; it failed before the launcher edit), `test_non_tier_launch_leaves_the_alias_variables_unset`, `test_limited_owner_gets_only_the_haiku_alias_variable`, `test_limited_owner_keeps_inherited_alias_values` and `test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers`, with three keys added to the fake Claude of `_launch_env`.
+- Probe record `.dev/issues/384/analysis/probe-sonnet-alias.md`: `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` makes `--model sonnet` and `model: sonnet` run on that tier. In that probe a subagent whose alias is in the main session's own model family stayed on the main session's model.
 
 ### Install: harden the pinned-plugin install (#360 follow-ups)
 

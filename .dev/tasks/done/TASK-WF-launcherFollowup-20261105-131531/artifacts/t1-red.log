@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-384-launcher-tier-aliases/.venv/bin/python
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-384-launcher-tier-aliases
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collecting ... collected 133 items / 131 deselected / 2 selected
+
+tests/unit/test_ccsession_tiers.py::test_tier_launch_exports_the_alias_variables FAILED [ 50%]
+tests/unit/test_ccsession_tiers.py::test_non_tier_launch_leaves_the_alias_variables_unset PASSED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_tier_launch_exports_the_alias_variables _________________
+tests/unit/test_ccsession_tiers.py:2909: in test_tier_launch_exports_the_alias_variables
+    assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
+E   AssertionError: assert ('', '', '') == ('claude-gw-tier1a', 'claude-gw-tier1b', 'claude-gw-tier2')
+E     
+E     At index 0 diff: '' != 'claude-gw-tier1a'
+E     
+E     Full diff: (-: missing in left side, +: extra in left side)
+E       (
+E     -     'claude-gw-tier1a',
+E     -     'claude-gw-tier1b',
+E     -     'claude-gw-tier2',
+E     +     '',
+E     +     '',
+E     +     '',
+E       )
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_tier_launch_exports_the_alias_variables - AssertionError: assert ('', '', '') == ('claude-gw-tier1a', 'claude-gw-tier1b', 'claude-gw-tier2')
+  
+  At index 0 diff: '' != 'claude-gw-tier1a'
+  
+  Full diff: (-: missing in left side, +: extra in left side)
+    (
+  -     'claude-gw-tier1a',
+  -     'claude-gw-tier1b',
+  -     'claude-gw-tier2',
+  +     '',
+  +     '',
+  +     '',
+    )
+================= 1 failed, 1 passed, 131 deselected in 1.25s ==================
