@@ -962,11 +962,11 @@ setup_shim() {
     health_status=$(shim_health_status)
     case "$health_status" in
       match)
-        echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
+        echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)" >&2
         break
         ;;
       stale)
-        echo "[ccsession] A shim with other settings or older code is on 127.0.0.1:$CC_SHIM_PORT; leaving it running for its sessions"
+        echo "[ccsession] A shim with other settings or older code is on 127.0.0.1:$CC_SHIM_PORT; leaving it running for its sessions" >&2
         ;;
       *)
         if [ "$_attempt" = 0 ]; then
@@ -981,7 +981,7 @@ setup_shim() {
     exit 1
   fi
   if [ "$start_shim" = 1 ]; then
-    echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
+    echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT" >&2
     # The shim inherits this session's env (tier settings fallback, show-all,
     # cooldown length); it reads the workspace env file itself on each request.
     # Start it from a subshell that exits at once, so the shim is not a
@@ -1021,11 +1021,12 @@ setup_shim() {
   # finishes when --model is supplied. Warm the cache synchronously so every
   # profile starts with the complete curated shim list.
   cache_file="$HOME/.claude/cache/gateway-models.json"
+  # Status goes to stderr: stdout carries only Claude's output (issue 389).
   if ! CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
     CC_CACHE_FILE="$cache_file" \
     CC_CACHE_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-}" \
     CC_CACHE_API_KEY="${ANTHROPIC_API_KEY:-}" \
-    python3 - <<'PY'
+    python3 - >&2 <<'PY'
 import json
 import os
 import pathlib
@@ -1199,11 +1200,11 @@ export_selection() {
   fi
 
   if [ -z "$PROFILE_MODEL" ]; then
-    echo "[ccsession] $what: default model and context"
+    echo "[ccsession] $what: default model and context" >&2
   elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
-    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
+    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW" >&2
   else
-    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
+    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact" >&2
   fi
 }
 
@@ -1737,7 +1738,7 @@ fi
 # and never fatal, so offline launches use the cached or bundled copy.
 # Private add-on profiles (profiles.d) never use this data, so they skip it.
 if [ "${CCSESSION_MODELS_REFRESH:-1}" != 0 ] && [ "$CCSESSION_EXT_PROFILE" != 1 ]; then
-  python3 "$CCSESSION_MODELS" refresh --wait "${CCSESSION_MODELS_WAIT:-2}" || true
+  python3 "$CCSESSION_MODELS" refresh --wait "${CCSESSION_MODELS_WAIT:-2}" >&2 || true
 fi
 
 if [ "$TIER_MODE" = 1 ]; then
@@ -1800,7 +1801,7 @@ if [ "$NAME_GIVEN" != 1 ] && { [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; }; then
   set -- "$@" ${CLAUDE_PASSTHROUGH[@]+"${CLAUDE_PASSTHROUGH[@]}"}
   # A label inherited from a ccsession session around this one is not ours.
   unset CLAUDE_TOPIC CCSESSION_TOPIC_CWD
-  echo "[ccsession] Starting untagged session"
+  echo "[ccsession] Starting untagged session" >&2
   orca_terminal_title
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
@@ -1844,7 +1845,7 @@ orca_terminal_title "$TOPIC"
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(head -n 1 "$TOPIC_FILE")
   if ! session_saved "$SESSION_ID"; then
-    echo "[ccsession] Session ${SESSION_ID:0:8} for '$TOPIC' has no saved conversation; starting a new one"
+    echo "[ccsession] Session ${SESSION_ID:0:8} for '$TOPIC' has no saved conversation; starting a new one" >&2
     rm -f "$TOPIC_FILE"
   fi
 fi
@@ -1853,7 +1854,7 @@ fi
 # so the two never differ. The hooks keep the label in step with /rename, so a
 # resume passes the session's current name.
 if [ -f "$TOPIC_FILE" ]; then
-  echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
+  echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})" >&2
   # Claude Code continues a resumed conversation in this folder. One that
   # belongs to another worktree that still exists would now edit and commit here.
   _jsonl=$(session_transcript "$SESSION_ID")
@@ -1868,7 +1869,7 @@ if [ -f "$TOPIC_FILE" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --name "$TOPIC" --resume "$SESSION_ID" "$@"
   fi
 else
-  echo "[ccsession] Starting new session labeled '$TOPIC'"
+  echo "[ccsession] Starting new session labeled '$TOPIC'" >&2
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" "$@"
   else

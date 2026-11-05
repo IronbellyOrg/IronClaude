@@ -19,6 +19,7 @@ These tests cover the four acceptance criteria from the phase tasklist:
 
 from __future__ import annotations
 
+import os
 import shutil
 from pathlib import Path
 
@@ -29,6 +30,7 @@ from superclaude.cli.eval import commands as doctor_module
 from superclaude.cli.eval.commands import (
     HARD_FAIL_EXIT_CODE,
     _check_claude_version,
+    _parse_version,
     build_doctor_report,
     eval_group,
 )
@@ -183,3 +185,41 @@ def test_cli_doctor_exits_two_when_stub_reports_0_4_0(
     assert result.exit_code == HARD_FAIL_EXIT_CODE
     assert "claude.min_version" in result.stderr
     assert "< required 0.5.0" in result.stderr
+
+
+# ---------------------------------------------------------------------------
+# Wrapped launcher: ccsession prints its notices on stderr (issue 389), so the
+# probe text is Claude's own version first, then any launcher notice. The
+# parser reads the first X.Y.Z, which must be Claude's.
+# ---------------------------------------------------------------------------
+
+
+def test_parse_version_takes_claude_before_launcher_stderr() -> None:
+    text = "2.1.318 (Claude Code)\n[ccsession] Shim already running on 127.0.0.1:4078 (reusing)"
+    assert _parse_version(text) == (2, 1, 318)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [("claude 0.5.0", (0, 5, 0)), ("claude 0.7.3 (build 12)", (0, 7, 3))],
+)
+def test_parse_version_keeps_older_formats(
+    text: str, expected: tuple[int, ...]
+) -> None:
+    assert _parse_version(text) == expected
+
+
+def test_real_probe_reads_claude_version_not_the_launcher_notice(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    stand_in = tmp_path / "claude"
+    stand_in.write_text(
+        "#!/bin/sh\n"
+        "echo '2.1.318 (Claude Code)'\n"
+        "echo '[ccsession] Shim already running on 127.0.0.1:4078 (reusing)' >&2\n"
+    )
+    stand_in.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
+    status = _check_claude_version()
+    assert status.passed is True
+    assert status.detail == "claude 2.1.318"

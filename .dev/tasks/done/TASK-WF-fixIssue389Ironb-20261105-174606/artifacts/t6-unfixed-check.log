@@ -1,0 +1,20 @@
+E    +  where 3 = len(['[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000', "[ccsession] R...dTools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]'])
+E    +    where ['[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000', "[ccsession] R...dTools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]'] = <built-in method splitlines of str object at 0x75ec60a52140>()
+E    +      where <built-in method splitlines of str object at 0x75ec60a52140> = '[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000\n[ccsession] Resu...edTools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]'.splitlines
+E    +        where '[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000\n[ccsession] Resu...edTools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]' = <built-in method strip of str object at 0x75ec60a51cf0>()
+E    +          where <built-in method strip of str object at 0x75ec60a51cf0> = '[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000\n[ccsession] Resu...Tools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]\n'.strip
+E    +            where '[ccsession] profile claude: model claude-opus-5-5[1m], context 1000000, auto-compact window 1000000\n[ccsession] Resu...Tools=Grep", "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]\n' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-389/src/superclaude/skills/ccsession-tag/... "--model", "claude-opus-5-5[1m]", "--name", "demo", "--resume", "abc12345-0000-0000-0000-000000000000"]\n', stderr='').stdout
+_____________ test_model_list_update_note_goes_to_stderr_at_launch _____________
+tests/unit/test_ccsession_tag.py:1315: in test_model_list_update_note_goes_to_stderr_at_launch
+    assert "model list updated to 9999-01-01.1" in result.stderr
+E   assert 'model list updated to 9999-01-01.1' in ''
+E    +  where '' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-389/src/superclaude/skills/ccsession-tag/...ions", "--allowedTools=Grep", "--model", "claude-opus-5-5[1m]"], "work": "loaded", "context": "1000000"}\n', stderr='').stderr
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args0-False]
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args1-False]
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args2-False]
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args3-True]
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args4-False]
+FAILED tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args5-True]
+FAILED tests/unit/test_ccsession_tag.py::test_model_list_update_note_goes_to_stderr_at_launch
+================= 7 failed, 1 passed, 259 deselected in 3.01s ==================

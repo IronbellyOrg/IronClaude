@@ -1,0 +1,48 @@
+============================= test session starts ==============================
+collected 395 items
+
+tests/unit/test_ccsession_tag.py ........F...................F.......... [  9%]
+........................................................................ [ 28%]
+........................................................................ [ 46%]
+........................................................................ [ 64%]
+....                                                                     [ 65%]
+tests/unit/test_ccsession_tiers.py ...........F......................... [ 74%]
+................................F.........F.........F................... [ 93%]
+...........................                                              [100%]
+
+=================================== FAILURES ===================================
+______________________ test_shim_is_detected_without_lsof ______________________
+tests/unit/test_ccsession_tag.py:433: in test_shim_is_detected_without_lsof
+    assert "Starting model-alias shim" in first.stdout
+E   AssertionError: assert 'Starting model-alias shim' in 'launched\n'
+E    +  where 'launched\n' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-389/src/superclaude/skills/ccsession-tag/...d not pre-load gateway models; Claude Code will retry discovery after launch\n[ccsession] Starting untagged session\n').stdout
+____________ test_label_with_missing_transcript_starts_new_session _____________
+tests/unit/test_ccsession_tag.py:1222: in test_label_with_missing_transcript_starts_new_session
+    assert "has no saved conversation; starting a new one" in stdout
+E   assert 'has no saved conversation; starting a new one' in '["--dangerously-skip-permissions", "--allowedTools=Grep", "--name", "demo"]\n'
+_________________ test_default_tier_sets_model_and_tier_window _________________
+tests/unit/test_ccsession_tiers.py:412: in test_default_tier_sets_model_and_tier_window
+    assert "tier2" in out and "muse-spark-1.3" in out
+E   AssertionError: assert ('tier2' in '')
+______________ test_a_busy_shim_is_never_stopped_by_a_new_launch _______________
+tests/unit/test_ccsession_tiers.py:1523: in test_a_busy_shim_is_never_stopped_by_a_new_launch
+    assert "leaving it running" in out
+E   AssertionError: assert 'leaving it running' in ''
+____________ test_upgraded_code_starts_a_new_shim_and_keeps_the_old ____________
+tests/unit/test_ccsession_tiers.py:1918: in test_upgraded_code_starts_a_new_shim_and_keeps_the_old
+    assert url2 == f"http://127.0.0.1:{port + 101}" and "older code" in out
+E   AssertionError: assert ('http://127.0.0.1:53884' == 'http://127.0.0.1:53884'
+E     
+E       http://127.0.0.1:53884 and 'older code' in '')
+____________ test_model_outside_tier_mode_stays_where_it_was_typed _____________
+tests/unit/test_ccsession_tiers.py:2060: in test_model_outside_tier_mode_stays_where_it_was_typed
+    assert "--model=sonnet" in seen["argv"] and "labeled 'work'" in out
+E   assert ('--model=sonnet' in ['--dangerously-skip-permissions', '--allowedTools=Grep', '--name', 'work', '--model=sonnet'] and "labeled 'work'" in '')
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_shim_is_detected_without_lsof
+FAILED tests/unit/test_ccsession_tag.py::test_label_with_missing_transcript_starts_new_session
+FAILED tests/unit/test_ccsession_tiers.py::test_default_tier_sets_model_and_tier_window
+FAILED tests/unit/test_ccsession_tiers.py::test_a_busy_shim_is_never_stopped_by_a_new_launch
+FAILED tests/unit/test_ccsession_tiers.py::test_upgraded_code_starts_a_new_shim_and_keeps_the_old
+FAILED tests/unit/test_ccsession_tiers.py::test_model_outside_tier_mode_stays_where_it_was_typed
+================== 6 failed, 389 passed in 250.78s (0:04:10) ===================
