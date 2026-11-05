@@ -44,6 +44,8 @@ def test_old_when_they_differ_wording_is_gone(root):
         "moved unchanged",
         "In a legacy run",
         "is not a confirmed blocker",
+        "is an unfinished re-review",
+        "after the `FINAL:` line that flagged the prompt",
     ],
 )
 def test_qa_has_rule_wording(root, phrase):
