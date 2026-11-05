@@ -1450,9 +1450,7 @@ def test_permissions_in_the_env_file_never_reaches_a_nested_launch(
         for k, v in os.environ.items()
         if k not in ("CC_CLAUDE_FLAGS", "CCSESSION_PERMISSIONS")
     }
-    env.update(
-        HOME=str(home), CLAUDE_BIN=str(fake), CCSESSION_ENV_FILE=str(env_file)
-    )
+    env.update(HOME=str(home), CLAUDE_BIN=str(fake), CCSESSION_ENV_FILE=str(env_file))
     if shell_value is not None:
         env["CCSESSION_PERMISSIONS"] = shell_value
     result = subprocess.run(
@@ -3134,9 +3132,7 @@ def test_orca_print_mode_permissions_default_keeps_shim_routing(
     # ccsession --shim. The opt-in drops only the bypass flag; the shim and its
     # credentials stay, and the variable stays exported to Claude (nested launches).
     _, control = _orca_no_tty(tmp_path, "-p", "hello")
-    _, opted_in = _orca_no_tty(
-        tmp_path, "-p", "hello", CCSESSION_PERMISSIONS="default"
-    )
+    _, opted_in = _orca_no_tty(tmp_path, "-p", "hello", CCSESSION_PERMISSIONS="default")
     assert control["argv"] == [*ORCA_FLAGS, "-p", "hello"]
     assert opted_in["argv"] == ["--allowedTools=Grep", "-p", "hello"]
     _assert_through_shim(control)
