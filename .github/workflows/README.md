@@ -9,10 +9,10 @@ This directory contains CI/CD workflows for SuperClaude Framework.
 **Triggers**: Push/PR to `master` or `integration`, manual dispatch
 **Jobs**:
 
-- **test**: Run the full test suite on Python 3.10
+- **test**: Run the test suite on Python 3.10, except `tests/cli/test_verify_sync_hooks.py`
   - Set up uv and Python 3.10, install dependencies
   - Sync `src/superclaude/` → `.claude/` mirrors
-  - Run the full test suite once, in parallel (`-n auto`), stopping after 3 failures
+  - Run the suite once, in parallel (`-n auto`), stopping after 3 failures; `tests/cli/test_verify_sync_hooks.py` is excluded because it rewrites hook files in place, and runs serially in the lint job
 - **swarm-marker-matrix**: Run the swarm `imm` and `inv` acceptance lanes
 - **lint**: Lint, plugin, sync and dependency checks in one job
   - `ruff check` and `ruff format --check`
@@ -20,6 +20,7 @@ This directory contains CI/CD workflows for SuperClaude Framework.
   - `make verify-deps` (dependency allow-list)
   - `make sync-dev`, then `make verify-sync`
   - `make lint-architecture`
+  - `pytest tests/cli/test_verify_sync_hooks.py`, serially, as the last step (runs even if an earlier lint step failed)
 - **doctor-check**: Run `superclaude install` and `superclaude doctor` health check
 - **test-summary**: Aggregate check that fails if any job above failed or was cancelled
 
@@ -74,11 +75,12 @@ uv run superclaude doctor --verbose
     ┌──────▼─────────────────────┐
     │  test.yml (Python 3.10)    │
     │                            │
-    │ • test (full suite,        │
-    │   parallel)                │
+    │ • test (suite minus hook   │
+    │   tests, parallel)         │
     │ • swarm imm / inv lanes    │
     │ • lint (ruff, plugin,      │
-    │   deps, sync, arch)        │
+    │   deps, sync, arch,        │
+    │   hook tests)              │
     │ • doctor-check             │
     │ • test-summary             │
     └────────────────────────────┘
