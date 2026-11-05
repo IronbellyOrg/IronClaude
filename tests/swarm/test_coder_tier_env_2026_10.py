@@ -125,6 +125,18 @@ def test_alias_count_survives_removal_of_the_anthropic_default_vars() -> None:
 
 
 @pytest.mark.unit
+def test_alias_count_with_tier_ids_in_the_anthropic_slots_is_three() -> None:
+    """Records current behaviour (issue #384); see "Known consequences" of
+    docs/reference/model-aliases.md."""
+    tier_ids = {
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-gw-tier2",
+    }
+    assert count_model_aliases(tier_ids) == 3
+
+
+@pytest.mark.unit
 def test_reflect_fallback_ladder_binds_opus_then_gpt() -> None:
     """The reflect T1 fallback ladder (SPEC 12.7) resolves to the new T1 models."""
     from superclaude.cli.reflect.ensemble import resolve_t1_fallback_factory

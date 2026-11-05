@@ -594,7 +594,7 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
     ) in r
     # model ladder: both ladder sentences and the four fallback rows, exactly
     assert "The two ladders are never mixed." in r
-    assert "never used as an adviser" in r and "`T2_Model01` is on par" in r
+    assert "never used as an adviser" in r and "`T2Model01` is on par" in r
     for row in (
         "| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |",
         "| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |",

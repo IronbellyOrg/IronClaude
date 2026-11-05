@@ -11,7 +11,14 @@ from __future__ import annotations
 
 import pytest
 
-from superclaude.cli.sprint.aienv import suggest_alternate_model
+from superclaude.cli.sprint.aienv import _load_aliases, suggest_alternate_model
+
+# The values docs/reference/model-aliases.md describes for a ccsession tier workspace.
+TIER_ENV = {
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-gw-tier1a",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-gw-tier1b",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-gw-tier2",
+}
 
 
 @pytest.mark.unit
@@ -150,3 +157,28 @@ def test_unset_failed_builtin_skips_a_slot_pinned_to_its_family():
     env = {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-5-5"}
     assert suggest_alternate_model("opus", env=env) == "haiku"
     assert suggest_alternate_model("claude-opus-5-5", env=env) == "haiku"
+
+
+@pytest.mark.unit
+def test_tier_ids_in_the_anthropic_slots_are_returned_unchanged():
+    """Records current behaviour (issue #384); see "Known consequences" of
+    docs/reference/model-aliases.md."""
+    assert _load_aliases(TIER_ENV) == {
+        "opus": "claude-gw-tier1a",
+        "sonnet": "claude-gw-tier1b",
+        "haiku": "claude-gw-tier2",
+    }
+
+
+@pytest.mark.unit
+def test_alias_failure_with_tier_ids_in_the_slots_suggests_sonnet():
+    """Records current behaviour (issue #384); see "Known consequences" of
+    docs/reference/model-aliases.md."""
+    assert suggest_alternate_model("opus", env=TIER_ENV) == "sonnet"
+
+
+@pytest.mark.unit
+def test_real_model_id_with_tier_ids_in_the_slots_returns_none():
+    """Records current behaviour (issue #384); see "Known consequences" of
+    docs/reference/model-aliases.md."""
+    assert suggest_alternate_model("claude-opus-5-5", env=TIER_ENV) is None

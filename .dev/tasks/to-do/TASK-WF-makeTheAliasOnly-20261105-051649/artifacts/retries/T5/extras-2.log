@@ -1,0 +1,4 @@
+tests/skills/test_model_alias_policy.py .                                [100%]
+
+============================= 254 passed in 0.95s ==============================
+All checks passed!

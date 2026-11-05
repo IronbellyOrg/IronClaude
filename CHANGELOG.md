@@ -4,6 +4,20 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Models: primitives use the plain aliases `opus`, `sonnet` and `haiku`, with a documented ccsession tier mapping (#384)
+
+#### Added (model aliases)
+
+- New reference page `docs/reference/model-aliases.md`: what `tests/skills/test_model_alias_policy.py` checks and its allow-list (the three issue-worker agents pin picker ids on purpose), the owner decision of 2026-11-05 for a ccsession tier workspace (`opus` to `claude-gw-tier1a`, `sonnet` to `claude-gw-tier1b`, `haiku` to `claude-gw-tier2`, through `ANTHROPIC_DEFAULT_*_MODEL`), why aliases and not picker ids, and the known consequences. The launcher does not set these variables yet: that is a separate follow-up pull request after #315 merges, specified in `.dev/issues/384/launcher-followup.md` with its failing-first test. Until then the workspace defaults file exports real model ids for the three variables.
+- New test file `tests/skills/test_model_alias_policy.py` (frontmatter `model:` values, `claude-gw-tier` text, full model ids in Python constants and in `--model` flags, and the fixes below) and four tests that record how the sprint alternate-model suggestion and the reflect alias count behave while the variables hold tier ids.
+
+#### Changed (model aliases)
+
+- `superclaude reflect run` now falls back to the alias `opus` when `ANTHROPIC_MODEL` is not set, instead of the dated id `claude-opus-4-8`. The D12 manual test expects `--model opus`.
+- The `/sc:issue` next-step chains no longer pass `--models opus,sonnet` to `/sc:brainstorm`; the brainstorm defaults (`opus,sonnet,haiku`) apply. `refs/tiers.md` no longer states that `haiku` is `glm-5.3`.
+- The cleanup-audit skill, command and report template say that the Pass 1 scanner runs on Sonnet, as `audit-scanner` already did, and drop the 50-70% cost claim that was specific to Haiku.
+- The implement retry ladder (`refs/retry.md`, `refs/ledger.md`) names the slot variables the workspace exports (`T3Model01`, `T2Model01`, `T2Model02`, `T1Model01`, `T1Model02`) instead of spellings with an underscore that no workspace exports. In a workspace that sets the four rung variables the primary ladder now replaces the alias fallback ladder, which changes which models the retry advisers use.
+
 ### Install: harden the pinned-plugin install (#360 follow-ups)
 
 #### Fixed (plugin install)

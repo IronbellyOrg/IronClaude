@@ -2,7 +2,7 @@
 
 - **Capability:** `superclaude reflect contract-status` reports whether the `/sc:pr-submit` detection contract is ready, without launching an audit; `superclaude reflect run` audits a finished MDTM task file with a Tier-2 reviewer ensemble, turns the result into a fail-closed verdict (pass 0, halted 10, degraded 11, blocked 2), writes a `reflect_post:` block into the task file's frontmatter and a `wrapper-result.yaml` sidecar; `/sc:reflect` is the interactive Claude Code command behind the same audit.
 - **Audience:** end user / operator
-- **Source of truth:** `src/superclaude/cli/reflect/commands.py:26-478`; `src/superclaude/cli/reflect/config.py:81-109,227-234,242-394`; `src/superclaude/cli/reflect/runner.py:136-268,313-398,453-509,538-610,643-834`; `src/superclaude/cli/reflect/ensemble.py:74-83,127-182,296-511,537-598,601-630,722-835`; `src/superclaude/cli/reflect/contract.py:138-420`; `src/superclaude/cli/reflect/models.py:26-49`; `src/superclaude/pr_submit/contract_setup/diagnosis.py:63-97`; `src/superclaude/pr_submit/detection.py:28-40`; `src/superclaude/cli/swarm/transports/openai_compat.py:149-165,237-264`; `src/superclaude/cli/swarm/commands.py:589-609`; `src/superclaude/cli/pipeline/process.py:134-166,218,231`; `src/superclaude/commands/reflect.md:10,73-80`; `src/superclaude/skills/sc-reflect-protocol/SKILL.md:87,114-120,668-676`; `superclaude reflect --help`; `superclaude reflect run --help`; `superclaude reflect contract-status --help`
+- **Source of truth:** `src/superclaude/cli/reflect/commands.py:26-483`; `src/superclaude/cli/reflect/config.py:81-109,227-234,242-394`; `src/superclaude/cli/reflect/runner.py:136-268,313-398,453-509,538-610,643-834`; `src/superclaude/cli/reflect/ensemble.py:74-83,127-182,296-511,537-598,601-630,722-835`; `src/superclaude/cli/reflect/contract.py:138-420`; `src/superclaude/cli/reflect/models.py:26-49`; `src/superclaude/pr_submit/contract_setup/diagnosis.py:63-97`; `src/superclaude/pr_submit/detection.py:28-40`; `src/superclaude/cli/swarm/transports/openai_compat.py:149-165,237-264`; `src/superclaude/cli/swarm/commands.py:589-609`; `src/superclaude/cli/pipeline/process.py:134-166,218,231`; `src/superclaude/commands/reflect.md:10,73-80`; `src/superclaude/skills/sc-reflect-protocol/SKILL.md:87,114-120,668-676`; `superclaude reflect --help`; `superclaude reflect run --help`; `superclaude reflect contract-status --help`
 - **Est. time:** `Tier A: 2 minutes. Tier B: 10 minutes (no Claude call, no proxy). Tier C: 20-60 minutes (one or two headless Claude sessions, optional proxy reviewers, one interactive session).`
 
 ## Preconditions
@@ -19,9 +19,9 @@
 ## What you're verifying
 
 - `reflect contract-status` prints the readiness fields (`state:`, `checked_paths:`, `blocker_count:`, `next_command:`, `validation_requested:`), writes nothing without evidence, and exits 0.
-- `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` makes every `reflect` subcommand print `reflect-wrapper recursion breaker: nested gate suppressed` and exit 0 before anything else runs. Only the exact value `1` does this (`commands.py:38-44,62-73`).
+- `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` makes every `reflect` subcommand print `reflect-wrapper recursion breaker: nested gate suppressed` and exit 0 before anything else runs. Only the exact value `1` does this (`commands.py:43-49,67-78`).
 - `reflect run --print-command` and `--dry-run` print the composed `claude` command line and `/sc:reflect` prompt and write nothing. `--promote` is the default (the prompt carries `--no-promote` only when you pass it); `--fix` adds `--remediate`; `--depth` accepts only `standard` and `deep`.
-- The exit code is the verdict: `pass` 0, `halted` 10, `degraded` 11, `blocked` 2 (`models.py:38-49`; `commands.py:464-478`). Only a clean Tier-2 result with an adversarial convergence score of 0.80 or more passes; a missing or low score, a partial adversarial run or a single reviewer is `degraded`; a missing `claude`, an incomplete phase, a task file without frontmatter or a bad `--output` is `blocked`.
+- The exit code is the verdict: `pass` 0, `halted` 10, `degraded` 11, `blocked` 2 (`models.py:38-49`; `commands.py:469-483`). Only a clean Tier-2 result with an adversarial convergence score of 0.80 or more passes; a missing or low score, a partial adversarial run or a single reviewer is `degraded`; a missing `claude`, an incomplete phase, a task file without frontmatter or a bad `--output` is `blocked`.
 - Every run that gets past the configuration check, except `--print-command` and `--dry-run` (they print and return before any file is written, `runner.py:653-668`), writes `wrapper-result.yaml` in the output folder; every run that reaches the verdict writes a `reflect_post:` block into the task file, `degraded` included; `--resume` skips the audit when the task file already records a pass on the current `HEAD`.
 - **Observed-as-coded in 5.0.0** (record, do not mark FAIL):
   - Every `reflect run` takes the Tier-2 ensemble path: three reviewers (stub or proxy) plus one headless `/sc:adversarial` scorer session. The `/sc:reflect` prompt that `--print-command` prints is the Tier-1 prompt, which the shipped code launches only when the process class is replaced by a test double (`runner.py:538-572`).
@@ -30,7 +30,7 @@
   - With the default `--transport openai_compat` and no proxy credentials, the run ends in a Python traceback and exit 1, not exit 2; the sidecar still records `blocked` / `runner-error` (Step 16).
 - `/sc:reflect` has no `--onboard` flag; the skill's contract keeps `onboarding_ran: false` as a constant (`SKILL.md:676`).
 
-Settings this guide does not exercise: `--tmux` (a detached tmux window that reads its exit code back from `.reflect-exitcode`, `commands.py:424-426,555-579`), `--timeout`, `--base` beyond one edge row, `--isolate-reviewers`, `--allow-single-vendor` beyond Step 18, `--max-fix-iterations` and `--tier2-fallback`. All are listed by `superclaude reflect run --help`.
+Settings this guide does not exercise: `--tmux` (a detached tmux window that reads its exit code back from `.reflect-exitcode`, `commands.py:429-431,560-584`), `--timeout`, `--base` beyond one edge row, `--isolate-reviewers`, `--allow-single-vendor` beyond Step 18, `--max-fix-iterations` and `--tier2-fallback`. All are listed by `superclaude reflect run --help`.
 
 ---
 
@@ -66,7 +66,7 @@ Commands:
   fail-closed verdict code (pass 0 / halted 10 / degraded 11 / blocked 2).
 ```
 
-The full help states `(default: --promote)`, `Click default --no-fix` and `default 2` for `--max-fix-iterations`. It shows no default for `--transport`; the code default is `openai_compat`, the live proxy (Step 16). (source: `pyproject.toml:7`; commands `commands.py:76,216`; options `commands.py:229-300`; docstring `commands.py:350-355`)
+The full help states `(default: --promote)`, `Click default --no-fix` and `default 2` for `--max-fix-iterations`. It shows no default for `--transport`; the code default is `openai_compat`, the live proxy (Step 16). (source: `pyproject.toml:7`; commands `commands.py:81,221`; options `commands.py:234-305`; docstring `commands.py:355-360`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -97,7 +97,7 @@ validation_requested: false
 exit=0
 ```
 
-`<install dir>` is the `site-packages` folder of your install (for a pipx install, `~/.local/share/pipx/venvs/superclaude/lib/python3.<N>/site-packages`). The first checked path is always `<current folder>/.dev/pr-monitor/detection-contract.locked.md`. (source: fields `commands.py:145-186`; no override → `missing` `diagnosis.py:75-97`; paths `detection.py:28-40,55-63`; next command `commands.py:189-213`)
+`<install dir>` is the `site-packages` folder of your install (for a pipx install, `~/.local/share/pipx/venvs/superclaude/lib/python3.<N>/site-packages`). The first checked path is always `<current folder>/.dev/pr-monitor/detection-contract.locked.md`. (source: fields `commands.py:150-191`; no override → `missing` `diagnosis.py:75-97`; paths `detection.py:28-40,55-63`; next command `commands.py:194-218`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -121,7 +121,7 @@ exit=0
 no /tmp/.dev
 ```
 
-The values you pass replace the placeholders in `next_command`. With no contract there is no evidence path, so `--validate` writes no report. (source: `commands.py:113-115,175-184,193-213`)
+The values you pass replace the placeholders in `next_command`. With no contract there is no evidence path, so `--validate` writes no report. (source: `commands.py:118-120,180-189,198-218`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -150,7 +150,7 @@ Error: Invalid value for 'TASKLIST': File '/tmp/no-such-task.md' does not exist.
 exit=2
 ```
 
-The breaker line goes to stderr. With the value `1` even a missing task file exits 0, because the group callback runs before Click checks the argument; any other value runs normally. The wrapper sets the variable in the Claude sessions it starts so that a nested gate stops itself; exported in your own shell, it makes a gate look like a pass (follow-up O8). (source: `commands.py:38-44,62-73`; marker passed to children `runner.py:51-56,560,606`)
+The breaker line goes to stderr. With the value `1` even a missing task file exits 0, because the group callback runs before Click checks the argument; any other value runs normally. The wrapper sets the variable in the Claude sessions it starts so that a nested gate stops itself; exported in your own shell, it makes a gate look like a pass (follow-up O8). (source: `commands.py:43-49,67-78`; marker passed to children `runner.py:51-56,560,606`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -232,7 +232,7 @@ ls -A
 **Expected result:**
 
 ```text
-claude --print --verbose --no-session-persistence --max-turns 250 --output-format stream-json --model claude-opus-4-8
+claude --print --verbose --no-session-persistence --max-turns 250 --output-format stream-json --model opus
 /sc:reflect --mode post --diff <HEAD> --tasklist /tmp/d12/repo/TASK.md --depth standard --output /tmp/d12/repo/reflect/post/<HEAD12>
 exit=0
 .git
@@ -240,7 +240,7 @@ TASK.md
 app.txt
 ```
 
-No `reflect/` folder: print and dry-run return before any launch and skip the `.reflect-exitcode` file. The command line has no `--dangerously-skip-permissions` and no `--tools default` (reviewer profile). The prompt has no `--no-promote`, because `--promote` is the default. The default output folder is `<task folder>/reflect/post/<HEAD12>`. This prompt is the Tier-1 prompt; the shipped run path does not send it (see "What you're verifying"). (source: model `commands.py:31,359`; turns `config.py:39`; argv `runner.py:485-509`; prompt `runner.py:453-483`; print path `runner.py:655-668`; sentinel skipped `commands.py:466-469`; output default `config.py:355-361`)
+No `reflect/` folder: print and dry-run return before any launch and skip the `.reflect-exitcode` file. The command line has no `--dangerously-skip-permissions` and no `--tools default` (reviewer profile). The prompt has no `--no-promote`, because `--promote` is the default. The default output folder is `<task folder>/reflect/post/<HEAD12>`. This prompt is the Tier-1 prompt; the shipped run path does not send it (see "What you're verifying"). (source: model `commands.py:36,364`; turns `config.py:39`; argv `runner.py:485-509`; prompt `runner.py:453-483`; print path `runner.py:655-668`; sentinel skipped `commands.py:471-474`; output default `config.py:355-361`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -264,7 +264,7 @@ TASK.md
 app.txt
 ```
 
-`ANTHROPIC_MODEL` replaces the model; `--fix` adds `--remediate`; `--no-promote` and `--no-reachability` are passed through; `TASK.md` is not edited. Under `--fix`, `/sc:reflect` writes the corrective artifact on the plan route by default and on the MDTM route with `--depth deep` (`src/superclaude/commands/reflect.md:60-68`). (source: `commands.py:359`; `runner.py:456-483`)
+`ANTHROPIC_MODEL` replaces the model; `--fix` adds `--remediate`; `--no-promote` and `--no-reachability` are passed through; `TASK.md` is not edited. Under `--fix`, `/sc:reflect` writes the corrective artifact on the plan route by default and on the MDTM route with `--depth deep` (`src/superclaude/commands/reflect.md:60-68`). (source: `commands.py:364`; `runner.py:456-483`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -328,7 +328,7 @@ reflect_post:
 /sc:adversarial --compare /tmp
 ```
 
-The three stub reviewers use different vendor names, so diversity is `full` and `multi`; each review body is one line (`stub:<model>:<hash>`), so a stub run proves the plumbing, not a review. Three reviewers succeeded, so one `/sc:adversarial` session was started (the only line in `prompts.log`). It wrote no contract, so the score is `null` and the verdict is `degraded`. The three stderr lines appear only for a non-zero exit. The `reflect_post:` block also records `head: <HEAD>` and `reviewed_at`. (source: stub pool `ensemble.py:127-133,169-174`; folders `ensemble.py:81-83,320-323`; scorer only with 2 or more reviewers `ensemble.py:424-440`; contract `ensemble.py:772-835`; null score `contract.py:298-300`; stderr `commands.py:471-476`; write-back `runner.py:103-133,811-818`; sidecar `runner.py:207-268`)
+The three stub reviewers use different vendor names, so diversity is `full` and `multi`; each review body is one line (`stub:<model>:<hash>`), so a stub run proves the plumbing, not a review. Three reviewers succeeded, so one `/sc:adversarial` session was started (the only line in `prompts.log`). It wrote no contract, so the score is `null` and the verdict is `degraded`. The three stderr lines appear only for a non-zero exit. The `reflect_post:` block also records `head: <HEAD>` and `reviewed_at`. (source: stub pool `ensemble.py:127-133,169-174`; folders `ensemble.py:81-83,320-323`; scorer only with 2 or more reviewers `ensemble.py:424-440`; contract `ensemble.py:772-835`; null score `contract.py:298-300`; stderr `commands.py:476-481`; write-back `runner.py:103-133,811-818`; sidecar `runner.py:207-268`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -504,7 +504,7 @@ exit=2
 TASK.md
 ```
 
-A configuration stop happens before the runner. When `--output` was given, the wrapper still writes a `blocked` / `config-error` sidecar there, even for the refused `.claude/skills` path; without `--output` it writes none. Outside a git repository there is no base. (source: `.claude` check `config.py:227-234,362-366`; base `config.py:81-109`; config stop and sidecar `commands.py:383-422`)
+A configuration stop happens before the runner. When `--output` was given, the wrapper still writes a `blocked` / `config-error` sidecar there, even for the refused `.claude/skills` path; without `--output` it writes none. Outside a git repository there is no base. (source: `.claude` check `config.py:227-234,362-366`; base `config.py:81-109`; config stop and sidecar `commands.py:388-427`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -567,7 +567,7 @@ verdict: blocked
 reason: runner-error
 ```
 
-The missing-credential error is raised inside the run, after the configuration check, so the crash handler writes a `blocked` / `runner-error` sidecar (with `error_detail`) and re-raises: the exit code is Python's 1, not the verdict code 2. Scripts must treat any non-zero exit as a failure. Record as observed-as-coded. (source: crash handler `commands.py:429-463`; eager env read `ensemble.py:154-182,333-338`; message `openai_compat.py:149-165`)
+The missing-credential error is raised inside the run, after the configuration check, so the crash handler writes a `blocked` / `runner-error` sidecar (with `error_detail`) and re-raises: the exit code is Python's 1, not the verdict code 2. Scripts must treat any non-zero exit as a failure. Record as observed-as-coded. (source: crash handler `commands.py:434-468`; eager env read `ensemble.py:154-182,333-338`; message `openai_compat.py:149-165`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -602,7 +602,7 @@ grep -E '^(reviewer_count|t2_model_class_diversity|t2_vendor_diversity|adversari
 grep -E '^(verdict|reason):' /tmp/d12/out/s18/wrapper-result.yaml
 ```
 
-**Expected result:** five `set` lines (stop if any is `MISSING`; with fewer than three model slots the run stops with `T2 model pool has <n> model(s) but the job requests 3 worker(s)` and a traceback). `t2-swarm` holds `reflect-review-00-<model>.final.md`, `-01-` and `-02-` files named after your `T2Model01`..`03` values, with real review text, plus `merged.md`, `return-contract.yaml` and `done.json`. With three successful reviewers: `reviewer_count: 3` and `t2_model_class_diversity: full`. When all three models come from one vendor, `t2_vendor_diversity: single` gives `degraded` / `single-vendor` (exit 11) unless you add `--allow-single-vendor`. When a reviewer fails, up to two fallback reviewers from `T1Model01`/`T1Model02` are tried and the contract gains a `t2_fallback:` block. The final verdict depends on the scorer as in Step 17 (UNVERIFIED); the sidecar `verdict` must match the exit code. (source: env pool `ensemble.py:154-182`, `openai_compat.py:237-264`; pool size `swarm/commands.py:589-609`; diversity and vendor rules `contract.py:281-288`, `ensemble.py:803-804`; fallback `ensemble.py:359-390,833-834`; `--allow-single-vendor` `commands.py:274-278`)
+**Expected result:** five `set` lines (stop if any is `MISSING`; with fewer than three model slots the run stops with `T2 model pool has <n> model(s) but the job requests 3 worker(s)` and a traceback). `t2-swarm` holds `reflect-review-00-<model>.final.md`, `-01-` and `-02-` files named after your `T2Model01`..`03` values, with real review text, plus `merged.md`, `return-contract.yaml` and `done.json`. With three successful reviewers: `reviewer_count: 3` and `t2_model_class_diversity: full`. When all three models come from one vendor, `t2_vendor_diversity: single` gives `degraded` / `single-vendor` (exit 11) unless you add `--allow-single-vendor`. When a reviewer fails, up to two fallback reviewers from `T1Model01`/`T1Model02` are tried and the contract gains a `t2_fallback:` block. The final verdict depends on the scorer as in Step 17 (UNVERIFIED); the sidecar `verdict` must match the exit code. (source: env pool `ensemble.py:154-182`, `openai_compat.py:237-264`; pool size `swarm/commands.py:589-609`; diversity and vendor rules `contract.py:281-288`, `ensemble.py:803-804`; fallback `ensemble.py:359-390,833-834`; `--allow-single-vendor` `commands.py:279-283`)
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -639,8 +639,8 @@ Run these from `/tmp/d12/repo` after Step 16.
 
 | Try this | Expected behavior | Source | Pass/Fail |
 |---|---|---|---|
-| `[FREE]` `superclaude reflect run TASK.md --depth quick --print-command; echo "exit=$?"` | `Error: Invalid value for '--depth': 'quick' is not one of 'standard', 'deep'.` and `exit=2` | `commands.py:247-252` | ☐ |
-| `[FREE]` `superclaude reflect run TASK.md --transport http; echo "exit=$?"` | `Error: Invalid value for '--transport': 'http' is not one of 'openai_compat', 'stub'.` and `exit=2` | `commands.py:253-262` | ☐ |
+| `[FREE]` `superclaude reflect run TASK.md --depth quick --print-command; echo "exit=$?"` | `Error: Invalid value for '--depth': 'quick' is not one of 'standard', 'deep'.` and `exit=2` | `commands.py:252-257` | ☐ |
+| `[FREE]` `superclaude reflect run TASK.md --transport http; echo "exit=$?"` | `Error: Invalid value for '--transport': 'http' is not one of 'openai_compat', 'stub'.` and `exit=2` | `commands.py:258-267` | ☐ |
 | `[LOCAL-WRITE]` `D12_SCORE=0.9 PATH="/tmp/d12/stub:$PATH" superclaude reflect run TASK.md --transport stub --reviewers 9 --output /tmp/d12/out/e1; echo "exit=$?"; grep '^reviewer_count' /tmp/d12/out/e1/return-contract.yaml` | `exit=0`, `reviewer_count: 4` (clamped to 4) | `config.py:332-333` | ☐ |
 | `[LOCAL-WRITE]` `D12_SCORE=0.9 D12_STUB_EXIT=1 PATH="/tmp/d12/stub:$PATH" superclaude reflect run TASK.md --transport stub --output /tmp/d12/out/e2; echo "exit=$?"` | `reflect: degraded (null-convergence)` and `exit=11`: a scorer session that exits non-zero is ignored even if it wrote a contract | `ensemble.py:553-555` | ☐ |
 | `[FREE]` `PATH="/tmp/d12/stub:$PATH" superclaude reflect run /tmp/d12/nogit/TASK.md --base HEAD --print-command; echo "exit=$?"` | `Error: head-unresolved` and `exit=2`: `--base` replaces the merge-base, but `HEAD` must still resolve | `config.py:98-99,311-314` | ☐ |

@@ -1,0 +1,37 @@
+# implement ledger — source: ./TASK-WF-makeTheAliasOnly-20261105-051649.md — created: 2026-11-05T05:22:36Z
+PLAN: sha256=cfd8f983d22ab8af1638ffb2a464215e56048f753f7902e3066435d8de176ca4 source_sha256=9c7df653062887a447c0baaa5803206cfefcc1e1647857c08f460b4d7088ef82
+T1: start sha=fdb08e60c8c3f45bcd1681cd1c79c40da4247b65
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3 evidence=T1.AC1@tests/skills/test_model_alias_policy.py:135,T1.AC2@./artifacts/t1-red.log:78,T1.AC3@./artifacts/t1-ruff.log:1 extras=lint:pass,typecheck:skip,test:fail files=tests/skills/test_model_alias_policy.py
+T2: start sha=4a15b2ad690a07c22363a96f4fb560d8d18e6e99
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2 evidence=T2.AC1@src/superclaude/cli/reflect/commands.py:36,T2.AC1@docs/testing/v5.0.0/user/D12-reflect.md:235,T2.AC2@./artifacts/t2-test.log:17,notes@./artifacts/retries/T2/notes.md:1-2 extras=lint:pass,typecheck:skip,test:unrelated-red files=src/superclaude/cli/reflect/commands.py,docs/testing/v5.0.0/user/D12-reflect.md
+T3: start sha=ab7b973338f1df53c0636383b806b07c1ff32c46
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2 evidence=T3.AC1@src/superclaude/skills/sc-issue-protocol/refs/chains.md:21,T3.AC1@tests/skills/test_issue_protocol.py:280,T3.AC2@./artifacts/t3-test.log:12 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-issue-protocol/refs/chains.md,tests/skills/test_issue_protocol.py,docs/designs/sc-issue-command.md
+T4: start sha=052b20560cdb648bd70e335a6ea1bfd2dc97cfc1
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2 evidence=T4.AC1@src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:68,T4.AC1@src/superclaude/commands/cleanup-audit.md:43,T4.AC2@./artifacts/t4-test.log:12 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md,src/superclaude/skills/sc-cleanup-audit-protocol/templates/final-report.md,src/superclaude/commands/cleanup-audit.md
+T5: start sha=a24bee3484cfe56ddbb5f08758649b66709e5d2a
+T5: blocked verdict=missing ac=T5.AC1,T5.AC2,T5.AC3 evidence=T5.AC1@src/superclaude/skills/sc-implement-protocol/refs/retry.md:162,T5.AC2@./artifacts/t5-notes.md:45,T5.AC3@./artifacts/t5-test.log:1 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-implement-protocol/refs/retry.md,src/superclaude/skills/sc-implement-protocol/refs/ledger.md,plugins/superclaude/skills/sc-implement-protocol/refs/retry.md,plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md,tests/skills/test_workflow_archive.py,tests/skills/test_task_workspace_lifecycle.py,./artifacts/t5-notes.md,./artifacts/t5-test.log
+T5: retry n=3 step=open checkpoint=03fd13d74ff300d319553f914a81c1ef228ab738 tier=unknown
+T5: retry n=3 step=revert brief=./artifacts/retries/T5_brief-3.md supersedes=none
+T5: retry n=3 step=review
+T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3 evidence=T5.AC1@src/superclaude/skills/sc-implement-protocol/refs/retry.md:162,T5.AC2@./artifacts/t5-notes.md:17,T5.AC3@./artifacts/t5-test.log:20,notes@./artifacts/retries/T5/notes.md:1-3 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-implement-protocol/refs/retry.md,src/superclaude/skills/sc-implement-protocol/refs/ledger.md,plugins/superclaude/skills/sc-implement-protocol/refs/retry.md,plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md,tests/skills/test_workflow_archive.py,tests/skills/test_task_workspace_lifecycle.py,./artifacts/t5-notes.md,./artifacts/t5-test.log
+T6: start sha=40950c4008013a396f395a09d8206bc392d6458a
+T6: blocked verdict=missing ac=T6.AC1,T6.AC2 evidence=T6.AC1@docs/reference/README.md:22,T6.AC2@./artifacts/t6-test.log:1 extras=lint:pass,typecheck:skip,test:pass files=docs/reference/model-aliases.md,docs/reference/README.md,./artifacts/t6-test.log
+T6: retry n=3 step=open checkpoint=8b1a4cffe67f395866a355b9e29ae0808e9473af tier=unknown
+T6: retry n=3 step=revert brief=./artifacts/retries/T6_brief-3.md supersedes=none
+T6: retry n=3 step=review
+T6: blocked verdict=missing ac=T6.AC1,T6.AC2 evidence=T6.AC1@docs/reference/README.md:22,T6.AC2@./artifacts/t6-test.log:1 extras=lint:pass,typecheck:skip,test:pass files=docs/reference/model-aliases.md,docs/reference/README.md,./artifacts/t6-test.log,./artifacts/t6-claims.md,./artifacts/t6-scope-search.log
+T6: retry n=4 step=open checkpoint=ec26680892eb9105fda56363ed61d3b0394525be tier=unknown
+T6: retry n=4 step=revert brief=./artifacts/retries/T6_brief-4.md supersedes=T6_brief-3.md
+T6: retry n=4 step=review
+T6: blocked verdict=missing ac=T6.AC1,T6.AC2 evidence=T6.AC1@docs/reference/README.md:22,T6.AC2@./artifacts/t6-test.log:18 extras=lint:pass,typecheck:skip,test:pass files=docs/reference/model-aliases.md,docs/reference/README.md,./artifacts/t6-test.log,./artifacts/t6-claims.md
+T6: retry n=5 step=open checkpoint=9bc05b00dde48f888eeb5581ea323e95b4bd4fab tier=unknown
+T6: retry n=5 step=revert brief=./artifacts/retries/T6_brief-5.md supersedes=T6_brief-4.md
+T6: retry n=5 step=review
+T6: complete verdict=compliant ac=T6.AC1,T6.AC2 evidence=T6.AC1@docs/reference/README.md:22,T6.AC1@docs/reference/model-aliases.md:33,T6.AC2@./artifacts/t6-test.log:18,notes@./artifacts/retries/T6/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=docs/reference/model-aliases.md,docs/reference/README.md,./artifacts/t6-test.log,./artifacts/t6-claims.md
+T7: start sha=53e8754295e29b763fadb39a076e50e10422d9dd
+T7: complete verdict=compliant ac=T7.AC1,T7.AC2 evidence=T7.AC1@src/superclaude/skills/sc-issue-protocol/refs/tiers.md:26,T7.AC2@docs/user-guide/brainstorm.md:52,T7.AC2@./artifacts/t7-test.log:1,notes@./artifacts/retries/T7/notes.md:1-5 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/skills/sc-issue-protocol/refs/tiers.md,docs/user-guide/brainstorm.md,docs/user-guide/commands.md,docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md,./artifacts/t7-test.log
+T8: start sha=26cf50ccfe4e660a455747e7046138f3f8ef13b8
+T8: complete verdict=compliant ac=T8.AC1,T8.AC2 evidence=T8.AC1@tests/sprint/test_aienv.py:166,T8.AC1@tests/swarm/test_coder_tier_env_2026_10.py:136,T8.AC2@./artifacts/final-policy.log:1 extras=lint:pass,typecheck:skip,test:pass files=tests/sprint/test_aienv.py,tests/swarm/test_coder_tier_env_2026_10.py,./artifacts/t8-test.log,./artifacts/final-policy.log
+T9: start sha=17c3ee3b55ef34412d091a45089ed113147f5430
+T9: complete verdict=compliant ac=T9.AC1,T9.AC2,T9.AC3 evidence=T9.AC1@.dev/issues/384/launcher-followup.md:4,T9.AC2@./artifacts/t9-red.log:11,T9.AC3@src/superclaude/skills/ccsession-tag:0,notes@./artifacts/retries/T9/notes.md:1-2 extras=lint:skip,typecheck:skip,test:pass files=.dev/issues/384/launcher-followup.md,./artifacts/t9-red.log,./artifacts/t9-scratch/test_alias_exports_scratch.py
+FINAL: issues evidence=F1.1@tests/skills/test_model_alias_policy.py:5,F2.1@./artifacts/retries/T2/prompt-1-1.md:82 state=7d3b68c50d682f9814cf0280dfcb685b12ee64779d7a010f3cff6c541545cc3b
