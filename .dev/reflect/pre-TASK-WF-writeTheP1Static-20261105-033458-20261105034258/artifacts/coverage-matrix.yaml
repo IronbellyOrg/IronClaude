@@ -1,0 +1,107 @@
+source: inferred
+rows:
+  - id: INF-001
+    source: inferred
+    citation: source.md:1
+    quote: "Static plan only: the edits and the checks that need no live Orca run. The live plan is written later."
+    match_method: none
+    best_ratio: 0.50
+    matched_task_ids: []
+  - id: INF-002
+    source: inferred
+    citation: source.md:3
+    quote: "including the 2026-11-05 heartbeat decision (looser reading of section 7.2 step 5 condition 4 accepted; WC-10 unchanged; P0 verdict PASS)"
+    match_method: none
+    best_ratio: 0.31
+    matched_task_ids: []
+  - id: INF-003
+    source: inferred
+    citation: source.md:5
+    quote: "the WC-4 contract, the report-directory rule, the flag parse rule and the person-mode refusal (section 2.1) for the P1 commands only"
+    match_method: none
+    best_ratio: 0.58
+    matched_task_ids: []
+  - id: INF-004
+    source: inferred
+    citation: source.md:5
+    quote: "--unattended is added to a command only in the phase that converts its gates"
+    match_method: containment
+    best_ratio: 0.67
+    matched_task_ids: ['Task 3']
+  - id: INF-005
+    source: inferred
+    citation: source.md:5
+    quote: "output flags for commands that lack one"
+    match_method: containment
+    best_ratio: 0.80
+    matched_task_ids: ['Task 1']
+  - id: INF-006
+    source: inferred
+    citation: source.md:5
+    quote: "the small fixes to the ready commands"
+    match_method: none
+    best_ratio: 0.25
+    matched_task_ids: []
+  - id: INF-007
+    source: inferred
+    citation: source.md:5
+    quote: "adversarial, brainstorm, cleanup-audit, graph, impact, index-repo, init-lite, workflow (ready, no gate change) and analyze, build, business-panel, design, document, explain, index, test (no gate)"
+    match_method: containment
+    best_ratio: 0.84
+    matched_task_ids: ['Task 1']
+  - id: INF-008
+    source: inferred
+    citation: source.md:5
+    quote: "/sc:load gets its usage-line fix only and never gains the flag."
+    match_method: containment
+    best_ratio: 0.62
+    matched_task_ids: ['Task 13']
+  - id: INF-009
+    source: inferred
+    citation: source.md:7
+    quote: "the LIVE plan holds the section 7.2 live checks (AC-1.2, AC-1.3, AC-1.5, AC-1.6, AC-1.7, AC-1.8) and the phase report, and is written after the static checks pass"
+    match_method: none
+    best_ratio: 0.39
+    matched_task_ids: []
+  - id: INF-010
+    source: inferred
+    citation: source.md:9
+    quote: "the exact files to edit (installed-path rules apply: never hardcode src/superclaude/ paths inside installed primitives; edit the src/superclaude/ sources and run make sync-dev)"
+    match_method: none
+    best_ratio: 0.41
+    matched_task_ids: []
+  - id: INF-011
+    source: inferred
+    citation: source.md:9
+    quote: "acceptance criteria that are observable (a command, a grep, a test)"
+    match_method: containment
+    best_ratio: 0.83
+    matched_task_ids: ['Task 1']
+  - id: INF-012
+    source: inferred
+    citation: source.md:9
+    quote: "the tests to add or extend (tests/skills/test_worker_contract.py and the per-command tests)"
+    match_method: containment
+    best_ratio: 0.80
+    matched_task_ids: ['Task 4']
+  - id: INF-013
+    source: inferred
+    citation: source.md:9
+    quote: "Include the static checks of section 7.1 and 7.3 that apply to P1 (AC-1.1, AC-1.4, AC-C1 to AC-C6), make lint, the ruff format check, make verify-sync, and the pre-existing tests that read the edited files."
+    match_method: containment
+    best_ratio: 0.74
+    matched_task_ids: ['Task 15']
+  - id: INF-014
+    source: inferred
+    citation: source.md:11
+    quote: "Do not execute the plan: no /sc:implement, no commit, no push, no superclaude install, no live Orca run. Stage nothing under .claude/."
+    match_method: none
+    best_ratio: 0.44
+    matched_task_ids: []
+parsed_count: 0
+inferred_count: 14
+matched_count: 7
+coverage_pct: null
+coverage_pct_union: 0.5000
+coverage_degraded: parsed-sparse
+unmapped_requirements_union: ["INF-001", "INF-002", "INF-003", "INF-006", "INF-009", "INF-010", "INF-014"]

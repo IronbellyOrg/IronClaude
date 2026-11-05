@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-writeTheP1Static-20261105-033458
+plan_path: ./TASK-WF-writeTheP1Static-20261105-033458.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-writeTheP1Static-20261105-033458-20261105034258/REPORT.md
+unresolved:
+  - "reflect verdict PARTIAL on the original plan: 8 blocking findings (all fixed afterwards in two fix cycles, last independent recheck PASS; see post-fix-rechecks.md in the reflect folder) and 12 minor notes"
+  - "owner question D-P1-1: graph and impact keep their short-name command key (spec WC-4 says the exact command line)"
+  - "owner question D-P1-4: brainstorm passes the flag to nested analyze and adversarial in P1 (spec brainstorm row says from P2)"

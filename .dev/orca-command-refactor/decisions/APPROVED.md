@@ -45,3 +45,12 @@ Source: `.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261102-231950-2026110223232
 | S2 | Erratum in AC-1.1: the brief guard has four refusal conditions but three exact reason texts, plus the `guard refused:` prefix for case 3 (section 2.1). |
 | S3 | Erratum in section 2.1: `KNOWN_CORE_FILES` spans `install_core.py:13-27`, not 13-24. The same sentence's other `install_core.py` cites move to `:36,56,65-70` and `:12,155` (review note N5). |
 | S4 | Section 6: each phase's plan comes in two parts, because `/sc:implement` may not prompt the user outside its halt paths (`sk/sc-implement-protocol/refs/qa.md:288`), and the 7.2 commit and install need the owner's approval. The static plan holds the edits and the checks that need no live run. The coordinator then asks the owner, commits and installs outside any plan. The live plan holds the 7.2 live checks and the phase report, and is written after the static checks pass. Owner answer 2026-11-03: yes. |
+
+## Heartbeat reading (owner decision 2026-11-05, after the P0 phase report)
+Source: `.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/p0-phase-report.md`, section "Notes for the coordinator and owner", note 2 (heartbeat gaps) and the "Heartbeat length" section. The owner accepted the looser reading. Nothing here is reopened for debate.
+
+| ID | Decision |
+|---|---|
+| H1 | The looser reading of section 7.2 step 5 condition 4 is accepted. A gap between heartbeats that lies inside a command's own subagent fan-out is accepted, not failed. Spec WC-10 stands as written. Condition 4 limits (a) (at most the cadence once subagent time and `ask` / `check --wait` time are removed) and (b) (at most 20 minutes with nothing removed) are the whole test. The stricter reading (a raw gap longer than the cadence while a subagent runs fails condition 4) is rejected. |
+| H2 | The P0 verdict stays PASS. The condition 4 result of the three P0 live checks stays PASS. No P0 check is re-run for this decision. |
+| H3 | No spec text changes. WC-10 (section 2.2) and condition 4 (a) and (b) in section 7.2 step 5 already state the looser reading, and no other spec line contradicts it. |

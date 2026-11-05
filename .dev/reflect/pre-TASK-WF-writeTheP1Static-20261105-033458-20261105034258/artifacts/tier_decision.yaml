@@ -1,0 +1,23 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "S_domains >= 3 (commands/skills markdown, tests, plugin copies); also S_dev_density 0.50 > 0.20 (rule 5) and coverage_degraded parsed-sparse pre-filter forbids a Tier 1 stop"
+signals:
+  S_scope: 15
+  S_domains: 3
+  S_dev_density: 0.50
+  coverage_pct: null
+  coverage_pct_union: 0.50
+t1_calibration: pending (run in parallel with Wave 3; rule 4 is independent of C)
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+executor_class_resolved: false
+calibrator_diversity: degraded

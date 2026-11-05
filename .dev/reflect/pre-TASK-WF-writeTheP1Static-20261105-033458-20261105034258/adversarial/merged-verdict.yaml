@@ -1,0 +1,36 @@
+merge_method: adversarial
+invocation_method: task-agent
+mode: A
+status: success
+verdict: PARTIAL
+base_variant: "sonnet/haiku/opus reviewer cards; base = reviewer 3 (opus:refactorer)"
+variants: 3
+depth: standard
+rounds_completed: 2
+round_2_5_invariant_probe: ran
+convergence_score_round_1: 0.85
+convergence_score_final: 1.00
+convergence_note: "all 20 debated diff points agreed after Round 2; the 2 shared assumptions resolved to QUALIFY"
+scoring:
+  combined: {V1: 0.764, V2: 0.661, V3: 0.784}
+  tiebreak_applied: true
+  tiebreak_level: 1
+  basis_file: adversarial/base-selection.md
+findings:
+  total: 20
+  blocking: 8
+  minor: 12
+reviewer_verdicts: {reviewer_1: FAIL, reviewer_2: PARTIAL, reviewer_3: PARTIAL}
+reviewer_cards_count: 3
+unresolved_conflicts: 0
+owner_questions:
+  - "D-P1-1: command-key collision for graph and impact (WC-4 exact command line vs existing short name)"
+  - "D-P1-4: brainstorm nested scope in P1 (spec spec:142 says from P2)"
+unaddressed_invariants:
+  - "INV-1 (HIGH): brainstorm output dir -N suffix and early STOPs write no worker contract"
+  - "INV-2 (HIGH): --report-dir has no path rules; rejected or unwritable report dir has no defined contract location"
+artifacts_dir: adversarial/
+merged_output_path: adversarial/merged-review-card.md
+merge_log_path: adversarial/merge-log.md
+fallback_mode: false
+failure_stage: null
