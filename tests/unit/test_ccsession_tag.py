@@ -1427,6 +1427,48 @@ def test_permissions_default_in_the_env_file_does_not_enable_it(tmp_path: Path) 
     assert launched[:2] == [_BYPASS, "--allowedTools=Grep"]
 
 
+@pytest.mark.parametrize("shell_value", [None, "default"])
+def test_permissions_in_the_env_file_never_reaches_a_nested_launch(
+    tmp_path: Path, shell_value: str | None
+) -> None:
+    # Claude, and so a nested ccsession, must see what the shell set (or nothing),
+    # never a value the env file exported after the flags were chosen.
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    home.mkdir()
+    work.mkdir()
+    fake = tmp_path / "fake-claude"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport os\n"
+        "print('PERM=' + repr(os.environ.get('CCSESSION_PERMISSIONS')))\n"
+    )
+    fake.chmod(0o700)
+    env_file = tmp_path / "ccsession.env"
+    env_file.write_text("export CCSESSION_PERMISSIONS=bogus\n")
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("CC_CLAUDE_FLAGS", "CCSESSION_PERMISSIONS")
+    }
+    env.update(
+        HOME=str(home), CLAUDE_BIN=str(fake), CCSESSION_ENV_FILE=str(env_file)
+    )
+    if shell_value is not None:
+        env["CCSESSION_PERMISSIONS"] = shell_value
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "-p", "x"],
+        env=env,
+        cwd=work,
+        stdin=subprocess.DEVNULL,
+        text=True,
+        capture_output=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert f"PERM={shell_value!r}" in result.stdout
+
+
 def test_permissions_default_claude_flags_in_the_env_file_still_win(
     tmp_path: Path,
 ) -> None:
